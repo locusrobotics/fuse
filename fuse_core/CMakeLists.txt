@@ -84,6 +84,17 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_constraint
     ${PROJECT_NAME}
+  )
+
+  # UUID tests
+  catkin_add_gtest(test_uuid
+    test/test_uuid.cpp
+  )
+  add_dependencies(test_uuid
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_uuid
+    ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
 
@@ -96,6 +107,5 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_variable
     ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
   )
 endif()
