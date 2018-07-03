@@ -67,9 +67,35 @@ install(
 #############
 
 if(CATKIN_ENABLE_TESTING)
-  # Lint tests
   find_package(roslint REQUIRED)
+  find_package(rostest REQUIRED)
+
+  # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
   roslint_add_test()
+
+  # Constraint tests
+  catkin_add_gtest(test_constraint
+    test/test_constraint.cpp
+  )
+  add_dependencies(test_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # Variable tests
+  catkin_add_gtest(test_variable
+    test/test_variable.cpp
+  )
+  add_dependencies(test_variable
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_variable
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
 endif()
