@@ -36,6 +36,7 @@ include_directories(
 ## fuse_core library
 add_library(${PROJECT_NAME}
   src/constraint.cpp
+  src/transaction.cpp
   src/variable.cpp
 )
 add_dependencies(${PROJECT_NAME}
@@ -86,6 +87,17 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_link_libraries(test_constraint
+    ${PROJECT_NAME}
+  )
+
+  # Transaction tests
+  catkin_add_gtest(test_transaction
+    test/test_transaction.cpp
+  )
+  add_dependencies(test_transaction
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_transaction
     ${PROJECT_NAME}
   )
 
