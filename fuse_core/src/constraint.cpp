@@ -38,7 +38,7 @@ namespace fuse_core
 {
 
 Constraint::Constraint(std::initializer_list<UUID> variable_uuid_list) :
-  uuid_(fuse_core::uuid::generate()),
+  uuid_(uuid::generate()),
   variables_(variable_uuid_list)
 {
 }

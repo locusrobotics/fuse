@@ -109,7 +109,7 @@ public:
    *
    * Each constraint will generate a unique, random UUID during construction.
    */
-  UUID uuid() const { return uuid_; }
+  const UUID& uuid() const { return uuid_; }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -174,7 +174,7 @@ public:
   const std::vector<UUID>& variables() const { return variables_; }
 
 protected:
-  fuse_core::UUID uuid_;  //!< The unique ID associated with this constraint
+  UUID uuid_;  //!< The unique ID associated with this constraint
   std::vector<UUID> variables_;  //!< The ordered set of variables involved with this constraint
 };
 
@@ -186,7 +186,7 @@ std::ostream& operator <<(std::ostream& stream, const Constraint& constraint);
 
 template<typename VariableUuidIterator>
 Constraint::Constraint(VariableUuidIterator first, VariableUuidIterator last) :
-  uuid_(fuse_core::uuid::generate())
+  uuid_(uuid::generate())
 {
   while (first != last)
   {
