@@ -31,19 +31,38 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example_variable.h"
+#ifndef FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H
+#define FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H
 
-#include <gtest/gtest.h>
+#include <fuse_core/constraint.h>
+#include <fuse_core/macros.h>
+#include <fuse_core/uuid.h>
+
+#include <initializer_list>
 
 
-TEST(Variable, Type)
+/**
+ * @brief Dummy constraint implementation for testing
+ */
+class ExampleConstraint : public fuse_core::Constraint
 {
-  ExampleVariable variable;
-  ASSERT_EQ("ExampleVariable", variable.type());
-}
+public:
+  SMART_PTR_DEFINITIONS(ExampleConstraint);
 
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+  ExampleConstraint(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
+    fuse_core::Constraint(variable_uuid_list)
+  {
+  }
+
+  template<typename VariableUuidIterator>
+  ExampleConstraint(VariableUuidIterator first, VariableUuidIterator last) :
+    fuse_core::Constraint(first, last)
+  {
+  }
+
+  void print(std::ostream& stream = std::cout) const override {}
+  ceres::CostFunction* costFunction() const override { return nullptr; }
+  fuse_core::Constraint::UniquePtr clone() const override { return ExampleConstraint::make_unique(*this); }
+};
+
+#endif  // FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H

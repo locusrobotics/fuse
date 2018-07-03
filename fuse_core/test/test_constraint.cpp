@@ -31,39 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.h>
-#include <fuse_core/macros.h>
+#include "example_constraint.h"
 #include <fuse_core/uuid.h>
 
 #include <gtest/gtest.h>
 
-#include <initializer_list>
 #include <vector>
-
-
-/**
- * @brief Dummy constraint implementation for testing
- */
-class TestConstraint : public fuse_core::Constraint
-{
-public:
-  SMART_PTR_DEFINITIONS(TestConstraint);
-
-  TestConstraint(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-    fuse_core::Constraint(variable_uuid_list)
-  {
-  }
-
-  template<typename VariableUuidIterator>
-  TestConstraint(VariableUuidIterator first, VariableUuidIterator last) :
-    fuse_core::Constraint(first, last)
-  {
-  }
-
-  void print(std::ostream& stream = std::cout) const override {}
-  ceres::CostFunction* costFunction() const override { return nullptr; }
-  fuse_core::Constraint::UniquePtr clone() const override { return TestConstraint::make_unique(*this); }
-};
 
 
 TEST(Constraint, Constructor)
@@ -71,7 +44,7 @@ TEST(Constraint, Constructor)
   // Create a constraint with a single UUID
   {
     fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
-    TestConstraint constraint{variable_uuid1};
+    ExampleConstraint constraint{variable_uuid1};
     ASSERT_EQ(1, constraint.variables().size());
     ASSERT_EQ(variable_uuid1, constraint.variables().at(0));
   }
@@ -80,7 +53,7 @@ TEST(Constraint, Constructor)
     fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid2 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid3 = fuse_core::uuid::generate();
-    TestConstraint constraint{variable_uuid1, variable_uuid2, variable_uuid3};
+    ExampleConstraint constraint{variable_uuid1, variable_uuid2, variable_uuid3};
     ASSERT_EQ(3, constraint.variables().size());
     ASSERT_EQ(variable_uuid1, constraint.variables().at(0));
     ASSERT_EQ(variable_uuid2, constraint.variables().at(1));
@@ -93,11 +66,26 @@ TEST(Constraint, Constructor)
     variable_uuids.push_back(fuse_core::uuid::generate());
     variable_uuids.push_back(fuse_core::uuid::generate());
     variable_uuids.push_back(fuse_core::uuid::generate());
-    TestConstraint constraint(variable_uuids.begin(), variable_uuids.end());
+    ExampleConstraint constraint(variable_uuids.begin(), variable_uuids.end());
     ASSERT_EQ(variable_uuids.size(), constraint.variables().size());
     for (size_t i = 0; i < variable_uuids.size(); ++i)
     {
       ASSERT_EQ(variable_uuids.at(i), constraint.variables().at(i));
+    }
+  }
+  // Copy constructor
+  {
+    fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
+    fuse_core::UUID variable_uuid2 = fuse_core::uuid::generate();
+    fuse_core::UUID variable_uuid3 = fuse_core::uuid::generate();
+    ExampleConstraint constraint1{variable_uuid1, variable_uuid2, variable_uuid3};
+    ExampleConstraint constraint2(constraint1);
+
+    ASSERT_EQ(constraint1.uuid(), constraint2.uuid());
+    ASSERT_EQ(constraint1.variables().size(), constraint2.variables().size());
+    for (size_t i = 0; i < constraint1.variables().size(); ++i)
+    {
+      ASSERT_EQ(constraint1.variables().at(i), constraint2.variables().at(i));
     }
   }
 }
@@ -105,8 +93,8 @@ TEST(Constraint, Constructor)
 TEST(Constraint, Type)
 {
   fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
-  TestConstraint constraint{variable_uuid1};
-  ASSERT_EQ("TestConstraint", constraint.type());
+  ExampleConstraint constraint{variable_uuid1};
+  ASSERT_EQ("ExampleConstraint", constraint.type());
 }
 
 int main(int argc, char **argv)

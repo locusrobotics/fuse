@@ -31,19 +31,38 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example_variable.h"
+#ifndef FUSE_CORE_TEST_EXAMPLE_VARIABLE_H
+#define FUSE_CORE_TEST_EXAMPLE_VARIABLE_H
 
-#include <gtest/gtest.h>
+#include <fuse_core/macros.h>
+#include <fuse_core/uuid.h>
+#include <fuse_core/variable.h>
 
 
-TEST(Variable, Type)
+/**
+ * @brief Dummy variable implementation for testing
+ */
+class ExampleVariable : public fuse_core::Variable
 {
-  ExampleVariable variable;
-  ASSERT_EQ("ExampleVariable", variable.type());
-}
+public:
+  SMART_PTR_DEFINITIONS(ExampleVariable);
 
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+  ExampleVariable() :
+    data_(0.0),
+    uuid_(fuse_core::uuid::generate())
+  {
+  }
+
+  fuse_core::UUID uuid() const override { return uuid_; }
+  size_t size() const override { return 1; }
+  const double* data() const override { return &data_; };
+  double* data() override { return &data_; };
+  void print(std::ostream& stream = std::cout) const override {}
+  fuse_core::Variable::UniquePtr clone() const override { return ExampleVariable::make_unique(*this); }
+
+private:
+  double data_;
+  fuse_core::UUID uuid_;
+};
+
+#endif  // FUSE_CORE_TEST_EXAMPLE_VARIABLE_H
