@@ -35,6 +35,7 @@ include_directories(
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
+  src/constraint.cpp
   src/variable.cpp
 )
 add_dependencies(${PROJECT_NAME}
