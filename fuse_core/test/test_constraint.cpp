@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example_constraint.h"
 #include <fuse_core/uuid.h>
+#include <test/example_constraint.h>
 
 #include <gtest/gtest.h>
 

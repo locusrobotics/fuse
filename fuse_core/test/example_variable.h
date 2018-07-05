@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TEST_EXAMPLE_VARIABLE_H
-#define FUSE_CORE_TEST_EXAMPLE_VARIABLE_H
+#ifndef FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#define FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
@@ -65,4 +65,4 @@ private:
   fuse_core::UUID uuid_;
 };
 
-#endif  // FUSE_CORE_TEST_EXAMPLE_VARIABLE_H
+#endif  // FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
