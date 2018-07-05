@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>fuse_variables</name>
+  <version>0.3.1</version>
+  <description>
+    The fuse_variables package provides a set of commonly used variable types, such as 2D and 3D positions,
+    orientations, velocities, and accelerations.
+  </description>
+
+  <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
+  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>fuse_core</depend>
+  <depend>roscpp</depend>
+  <test_depend>ceres-solver</test_depend>
+  <test_depend>roslint</test_depend>
+  <test_depend>rostest</test_depend>
+</package>
