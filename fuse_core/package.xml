@@ -15,4 +15,5 @@
   <depend>ceres-solver</depend>
   <depend>roscpp</depend>
   <test_depend>roslint</test_depend>
+  <test_depend>rostest</test_depend>
 </package>
