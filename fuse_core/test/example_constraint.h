@@ -50,19 +50,23 @@ public:
   SMART_PTR_DEFINITIONS(ExampleConstraint);
 
   ExampleConstraint(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-    fuse_core::Constraint(variable_uuid_list)
+    fuse_core::Constraint(variable_uuid_list),
+    data(0.0)
   {
   }
 
   template<typename VariableUuidIterator>
   ExampleConstraint(VariableUuidIterator first, VariableUuidIterator last) :
-    fuse_core::Constraint(first, last)
+    fuse_core::Constraint(first, last),
+    data(0)
   {
   }
 
   void print(std::ostream& stream = std::cout) const override {}
   ceres::CostFunction* costFunction() const override { return nullptr; }
   fuse_core::Constraint::UniquePtr clone() const override { return ExampleConstraint::make_unique(*this); }
+
+  double data;  // Public member variable just for testing
 };
 
 #endif  // FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}

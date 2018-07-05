@@ -23,3 +23,23 @@ all types must adhere. A set of common variable types are provided in the [`fuse
 package. And new variable types can be created outside the fuse stack completely. However, similar to how using common
 ROS messages across nodes allow for code reuse, using common variable types will allow sensor models and motion models
 to be shared across the community.
+
+## Constraint
+A Constraint defines a cost function that is connected to one or more variables. This base class defines the
+required interface of all Constraint objects, and holds the ordered list of involved variable UUIDs. All other
+functionality is left to the derived classes to implement.
+
+Most importantly, the implementation of the cost function is left to the derived classes, allowing arbitrarily
+complex sensor models to be implemented outside of the core fuse packages. The cost function must be a valid
+ceres::CostFunction object. Ceres provides many nice features to make implementing the cost function easier,
+including an automatic differentiation system. Please see the Ceres documentation for details on creating valid
+ceres::CostFunction objects (http://ceres-solver.org/nnls_modeling.html). In addition to the cost function itself,
+an optional loss function may be provided. Loss functions provide a mechanism for reducing the impact of outlier
+measurements on the final optimization results. Again, see the Ceres documentation for details
+(http://ceres-solver.org/nnls_modeling.html#lossfunction).
+
+## Transaction
+A transaction is a group of variable and constraint additions and subtractions that should all be processed at the
+same time. This arises most often with graph edits, when you want to remove an existing constraint and replace it
+with one or more new constraints. You don't want the removal to happen independently of the additions. All graph
+operations are contained within a Transaction object so that all operations are treated equally.
