@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H
-#define FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H
+#ifndef FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#define FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/macros.h>
@@ -65,4 +65,4 @@ public:
   fuse_core::Constraint::UniquePtr clone() const override { return ExampleConstraint::make_unique(*this); }
 };
 
-#endif  // FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H
+#endif  // FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
