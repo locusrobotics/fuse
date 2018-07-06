@@ -5,12 +5,15 @@ find_package(catkin REQUIRED COMPONENTS
   fuse_core
   roscpp
 )
+find_package(Ceres REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
     include
+    ${CERES_INCLUDE_DIRS}
   LIBRARIES
     ${PROJECT_NAME}
+    ${CERES_LIBRARIES}
   CATKIN_DEPENDS
     fuse_core
     roscpp
@@ -25,6 +28,7 @@ set_directory_properties(PROPERTIES COMPILE_OPTIONS "-std=c++14;-Wall;-Werror")
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${CERES_INCLUDE_DIRS}
 )
 
 ## fuse_variables library
@@ -42,6 +46,7 @@ add_dependencies(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ${CERES_LIBRARIES}
 )
 
 #############
@@ -64,10 +69,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #############
 
 if(CATKIN_ENABLE_TESTING)
-  find_package(Ceres REQUIRED)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
-  include_directories(${CERES_INCLUDE_DIRS})
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
