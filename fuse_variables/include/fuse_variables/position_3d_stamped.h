@@ -59,13 +59,6 @@ public:
   SMART_PTR_DEFINITIONS(Position3DStamped);
 
   /**
-   * @brief Default constructor
-   *
-   * This is needed for the ROS plugin system and the deserializeMessage() method. It should not be used directly.
-   */
-  Position3DStamped();
-
-  /**
    * @brief Construct a 3D position at a specific point in time.
    *
    * @param[IN]  stamp  The timestamp attached to this popositionse.

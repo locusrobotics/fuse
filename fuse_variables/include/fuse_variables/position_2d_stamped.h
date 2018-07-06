@@ -58,13 +58,6 @@ public:
   SMART_PTR_DEFINITIONS(Position2DStamped);
 
   /**
-   * @brief Default constructor
-   *
-   * This is needed for the ROS plugin system and the deserializeMessage() method. It should not be used directly.
-   */
-  Position2DStamped();
-
-  /**
    * @brief Construct a 2D position at a specific point in time.
    *
    * @param[in] stamp       The timestamp attached to this position.

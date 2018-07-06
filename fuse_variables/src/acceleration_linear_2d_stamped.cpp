@@ -38,13 +38,6 @@
 namespace fuse_variables
 {
 
-AccelerationLinear2DStamped::AccelerationLinear2DStamped() :
-  hardware_id_(fuse_core::uuid::NIL),
-  stamp_(0, 0),
-  uuid_(fuse_core::uuid::NIL)
-{
-}
-
 AccelerationLinear2DStamped::AccelerationLinear2DStamped(const ros::Time& stamp, const fuse_core::UUID& hardware_id) :
   hardware_id_(hardware_id),
   stamp_(stamp),
