@@ -38,13 +38,6 @@
 namespace fuse_variables
 {
 
-Position2DStamped::Position2DStamped() :
-  hardware_id_(fuse_core::uuid::NIL),
-  stamp_(0, 0),
-  uuid_(fuse_core::uuid::NIL)
-{
-}
-
 Position2DStamped::Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& hardware_id) :
   hardware_id_(hardware_id),
   stamp_(stamp),
