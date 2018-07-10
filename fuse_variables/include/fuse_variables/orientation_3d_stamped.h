@@ -62,7 +62,7 @@ public:
   SMART_PTR_DEFINITIONS(Orientation3DStamped);
 
   /**
-   * @brief Can be used to directly index variables in the quaternion, or to reference individual Euler angles
+   * @brief Can be used to directly index variables in the quaternion
    */
   enum : size_t
   {
@@ -70,6 +70,13 @@ public:
     X = 1,
     Y = 2,
     Z = 3,
+  };
+
+  /**
+   * @brief Can be used to reference Euler angles, but NOT as indices in the \p data_ member
+   */
+  enum class Euler : size_t
+  {
     ROLL = 4,
     PITCH = 5,
     YAW = 6
@@ -81,6 +88,16 @@ public:
    * @param[IN]  stamp  The timestamp attached to this orientation.
    */
   explicit Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID &hardware_id = fuse_core::uuid::NIL);
+
+  /**
+   * @brief Read-only access to quaternion's Euler pitch angle component
+   */
+  double pitch();
+
+  /**
+   * @brief Read-only access to quaternion's Euler roll angle component
+   */
+  double roll();
 
   /**
    * @brief Read-write access to the quaternion w component
@@ -111,6 +128,11 @@ public:
    * @brief Read-only access to the quaternion y component
    */
   const double& y() const { return data_[Y]; }
+
+  /**
+   * @brief Read-only access to quaternion's Euler yaw angle component
+   */
+  double yaw();
 
   /**
    * @brief Read-write access to the quaternion z component

@@ -36,6 +36,8 @@
 
 #include <ceres/local_parameterization.h>
 
+#include <cmath>
+
 namespace fuse_variables
 {
 
@@ -44,6 +46,37 @@ Orientation3DStamped::Orientation3DStamped(const ros::Time& stamp, const fuse_co
   stamp_(stamp),
   uuid_(fuse_core::uuid::generate(type(), stamp_, hardware_id_))
 {
+}
+
+double Orientation3DStamped::pitch()
+{
+  // Adapted from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  const double sin_pitch = 2.0 * (w() * y() - z() * x());
+
+  if (std::abs(sin_pitch) >= 1.0)
+  {
+    return std::copysign(M_PI / 2.0, sin_pitch);
+  }
+  else
+  {
+    return ::asin(sin_pitch);
+  }
+}
+
+double Orientation3DStamped::roll()
+{
+  // Adapted from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  const double sin_roll = 2.0 * (w() * x() + y() * z());
+  const double cos_roll = 1.0 - (2.0 * (x() * x() + y() * y()));
+  return ::atan2(sin_roll, cos_roll);
+}
+
+double Orientation3DStamped::yaw()
+{
+  // Adapted from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  const double sin_yaw = 2.0 * (w() * z() + x() * y());
+  const double cos_yaw = 1.0 - (2.0 * (y() * y() + z() * z()));
+  return ::atan2(sin_yaw, cos_yaw);
 }
 
 void Orientation3DStamped::print(std::ostream& stream) const

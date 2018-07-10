@@ -105,23 +105,25 @@ struct QuaternionCostFunction
 {
   explicit QuaternionCostFunction(double *observation)
   {
-    observation_[Orientation3DStamped::W] = observation[Orientation3DStamped::W];
-    observation_[Orientation3DStamped::X] = observation[Orientation3DStamped::X];
-    observation_[Orientation3DStamped::Y] = observation[Orientation3DStamped::Y];
-    observation_[Orientation3DStamped::Z] = observation[Orientation3DStamped::Z];
+    observation_[0] = observation[0];
+    observation_[1] = observation[1];
+    observation_[2] = observation[2];
+    observation_[3] = observation[3];
   }
 
   template <typename T>
   bool operator()(const T* quaternion, T* residual) const
   {
-    T inverse_quaternion[4] = {
+    T inverse_quaternion[4] =
+    {
       quaternion[0],
       -quaternion[1],
       -quaternion[2],
       -quaternion[3]
     };
 
-    T observation[4] = {
+    T observation[4] =
+    {
       T(observation_[0]),
       T(observation_[1]),
       T(observation_[2]),
@@ -180,6 +182,36 @@ TEST(Orientation3DStamped, Optimization)
   EXPECT_NEAR(target_quat[1], orientation.x(), 1.0e-3);
   EXPECT_NEAR(target_quat[2], orientation.y(), 1.0e-3);
   EXPECT_NEAR(target_quat[3], orientation.z(), 1.0e-3);
+}
+
+TEST(Orientation3DStamped, Euler)
+{
+  const double RAD_TO_DEG = 180.0 / M_PI;
+
+  // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
+  Orientation3DStamped orientation_r(ros::Time(12345678, 910111213));
+  orientation_r.w() = 0.9961947;
+  orientation_r.x() = 0.0871557;
+  orientation_r.y() = 0.0;
+  orientation_r.z() = 0.0;
+
+  EXPECT_NEAR(10.0, RAD_TO_DEG * orientation_r.roll(), 1e-5);
+
+  Orientation3DStamped orientation_p(ros::Time(12345678, 910111213));
+  orientation_p.w() = 0.9848078;
+  orientation_p.x() = 0.0;
+  orientation_p.y() = -0.1736482;
+  orientation_p.z() = 0.0;
+
+  EXPECT_NEAR(-20.0, RAD_TO_DEG * orientation_p.pitch(), 1e-5);
+
+  Orientation3DStamped orientation_y(ros::Time(12345678, 910111213));
+  orientation_y.w() = 0.9659258;
+  orientation_y.x() = 0.0;
+  orientation_y.y() = 0.0;
+  orientation_y.z() = 0.258819;
+
+  EXPECT_NEAR(30.0, RAD_TO_DEG * orientation_y.yaw(), 1e-5);
 }
 
 int main(int argc, char **argv)
