@@ -61,6 +61,14 @@ public:
   SMART_PTR_DEFINITIONS(Orientation2DStamped);
 
   /**
+   * @brief Can be used to directly index variables in the data array
+   */
+  enum : size_t
+  {
+    YAW = 0
+  };
+
+  /**
    * @brief Construct a 2D orientation at a specific point in time.
    *
    * @param[in] stamp       The timestamp attached to this orientation.
@@ -72,12 +80,12 @@ public:
   /**
    * @brief Read-write access to the heading angle.
    */
-  double& theta() { return data_[0]; }
+  double& yaw() { return data_[YAW]; }
 
   /**
    * @brief Read-only access to the heading angle.
    */
-  const double& theta() const { return data_[0]; }
+  const double& yaw() const { return data_[YAW]; }
 
   /**
    * @brief Read-only access to the associated timestamp.

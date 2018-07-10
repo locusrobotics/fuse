@@ -58,6 +58,15 @@ public:
   SMART_PTR_DEFINITIONS(AccelerationLinear2DStamped);
 
   /**
+   * @brief Can be used to directly index variables in the data array
+   */
+  enum : size_t
+  {
+    X = 0,
+    Y = 1
+  };
+
+  /**
    * @brief Construct a 2D acceleration at a specific point in time.
    *
    * @param[in] stamp       The timestamp attached to this velocity.
@@ -70,22 +79,22 @@ public:
   /**
    * @brief Read-write access to the X-axis linear acceleration.
    */
-  double& ax() { return data_[0]; }
+  double& x() { return data_[X]; }
 
   /**
    * @brief Read-only access to the X-axis linear acceleration.
    */
-  const double& ax() const { return data_[0]; }
+  const double& x() const { return data_[X]; }
 
   /**
    * @brief Read-write access to the Y-axis linear acceleration.
    */
-  double& ay() { return data_[1]; }
+  double& y() { return data_[Y]; }
 
   /**
    * @brief Read-only access to the Y-axis linear acceleration.
    */
-  const double& ay() const { return data_[1]; }
+  const double& y() const { return data_[Y]; }
 
   /**
    * @brief Read-only access to the associated timestamp.

@@ -53,8 +53,8 @@ void VelocityLinear2DStamped::print(std::ostream& stream) const
          << "  hardware_id: " << hardwareId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
-         << "  - vx: " << vx() << "\n"
-         << "  - vy: " << vy() << "\n";
+         << "  - x: " << x() << "\n"
+         << "  - y: " << y() << "\n";
 }
 
 fuse_core::Variable::UniquePtr VelocityLinear2DStamped::clone() const

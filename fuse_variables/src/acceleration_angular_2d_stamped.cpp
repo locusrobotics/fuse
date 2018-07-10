@@ -53,7 +53,7 @@ void AccelerationAngular2DStamped::print(std::ostream& stream) const
          << "  hardware_id: " << hardwareId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
-         << "  - atheta: " << atheta() << "\n";
+         << "  - yaw: " << yaw() << "\n";
 }
 
 fuse_core::Variable::UniquePtr AccelerationAngular2DStamped::clone() const

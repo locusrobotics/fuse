@@ -96,7 +96,7 @@ TEST(Orientation2DStamped, Optimization)
 {
   // Create a Orientation2DStamped
   Orientation2DStamped orientation(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
-  orientation.theta() = 1.5;
+  orientation.yaw() = 1.5;
 
   // Create a simple a constraint
   ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor());
@@ -120,7 +120,7 @@ TEST(Orientation2DStamped, Optimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(3.0, orientation.theta(), 1.0e-5);
+  EXPECT_NEAR(3.0, orientation.yaw(), 1.0e-5);
 }
 
 int main(int argc, char **argv)
