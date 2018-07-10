@@ -58,6 +58,15 @@ public:
   SMART_PTR_DEFINITIONS(Position2DStamped);
 
   /**
+   * @brief Can be used to directly index variables in the data array
+   */
+  enum : size_t
+  {
+    X = 0,
+    Y = 1
+  };
+
+  /**
    * @brief Construct a 2D position at a specific point in time.
    *
    * @param[in] stamp       The timestamp attached to this position.
@@ -69,22 +78,22 @@ public:
   /**
    * @brief Read-write access to the X-axis position.
    */
-  double& x() { return data_[0]; }
+  double& x() { return data_[X]; }
 
   /**
    * @brief Read-only access to the X-axis position.
    */
-  const double& x() const { return data_[0]; }
+  const double& x() const { return data_[X]; }
 
   /**
    * @brief Read-write access to the Y-axis position.
    */
-  double& y() { return data_[1]; }
+  double& y() { return data_[Y]; }
 
   /**
    * @brief Read-only access to the Y-axis position.
    */
-  const double& y() const { return data_[1]; }
+  const double& y() const { return data_[Y]; }
 
   /**
    * @brief Read-only access to the associated timestamp.

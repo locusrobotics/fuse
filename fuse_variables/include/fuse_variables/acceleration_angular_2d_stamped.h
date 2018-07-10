@@ -57,6 +57,14 @@ public:
   SMART_PTR_DEFINITIONS(AccelerationAngular2DStamped);
 
   /**
+   * @brief Can be used to directly index variables in the data array
+   */
+  enum : size_t
+  {
+    YAW = 0
+  };
+
+  /**
    * @brief Construct a 2D acceleration at a specific point in time.
    *
    * @param[in] stamp       The timestamp attached to this velocity.
@@ -69,12 +77,12 @@ public:
   /**
    * @brief Read-write access to the angular acceleration.
    */
-  double& atheta() { return data_[0]; }
+  double& yaw() { return data_[YAW]; }
 
   /**
    * @brief Read-only access to the angular acceleration.
    */
-  const double& atheta() const { return data_[0]; }
+  const double& yaw() const { return data_[YAW]; }
 
   /**
    * @brief Read-only access to the associated timestamp.

@@ -53,8 +53,8 @@ void AccelerationLinear2DStamped::print(std::ostream& stream) const
          << "  hardware_id: " << hardwareId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
-         << "  - ax: " << ax() << "\n"
-         << "  - ay: " << ay() << "\n";
+         << "  - x: " << x() << "\n"
+         << "  - y: " << y() << "\n";
 }
 
 fuse_core::Variable::UniquePtr AccelerationLinear2DStamped::clone() const

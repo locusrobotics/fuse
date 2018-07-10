@@ -97,8 +97,8 @@ TEST(AccelerationLinear2DStamped, Optimization)
 {
   // Create a AccelerationLinear2DStamped
   AccelerationLinear2DStamped acceleration(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
-  acceleration.ax() = 1.5;
-  acceleration.ay() = -3.0;
+  acceleration.x() = 1.5;
+  acceleration.y() = -3.0;
 
   // Create a simple a constraint
   ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 2>(new CostFunctor());
@@ -122,8 +122,8 @@ TEST(AccelerationLinear2DStamped, Optimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(3.0, acceleration.ax(), 1.0e-5);
-  EXPECT_NEAR(-8.0, acceleration.ay(), 1.0e-5);
+  EXPECT_NEAR(3.0, acceleration.x(), 1.0e-5);
+  EXPECT_NEAR(-8.0, acceleration.y(), 1.0e-5);
 }
 
 int main(int argc, char **argv)

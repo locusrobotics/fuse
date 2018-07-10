@@ -97,8 +97,8 @@ TEST(VelocityLinear2DStamped, Optimization)
 {
   // Create a VelocityLinear2DStamped
   VelocityLinear2DStamped velocity(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
-  velocity.vx() = 1.5;
-  velocity.vy() = -3.0;
+  velocity.x() = 1.5;
+  velocity.y() = -3.0;
 
   // Create a simple a constraint
   ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 2>(new CostFunctor());
@@ -122,8 +122,8 @@ TEST(VelocityLinear2DStamped, Optimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(3.0, velocity.vx(), 1.0e-5);
-  EXPECT_NEAR(-8.0, velocity.vy(), 1.0e-5);
+  EXPECT_NEAR(3.0, velocity.x(), 1.0e-5);
+  EXPECT_NEAR(-8.0, velocity.y(), 1.0e-5);
 }
 
 int main(int argc, char **argv)

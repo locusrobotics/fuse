@@ -55,7 +55,7 @@ void Orientation2DStamped::print(std::ostream& stream) const
          << "  hardware_id: " << hardwareId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
-         << "  - theta: " << theta() << "\n";
+         << "  - yaw: " << yaw() << "\n";
 }
 
 fuse_core::Variable::UniquePtr Orientation2DStamped::clone() const

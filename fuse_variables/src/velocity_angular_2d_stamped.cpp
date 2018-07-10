@@ -53,7 +53,7 @@ void VelocityAngular2DStamped::print(std::ostream& stream) const
          << "  hardware_id: " << hardwareId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
-         << "  - vtheta: " << vtheta() << "\n";
+         << "  - yaw: " << yaw() << "\n";
 }
 
 fuse_core::Variable::UniquePtr VelocityAngular2DStamped::clone() const
