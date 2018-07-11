@@ -68,7 +68,7 @@ class NormalPriorPose2DCostFunctor
 {
 public:
   /**
-   * @brief Constructor
+   * @brief Construct a cost function instance
    *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, yaw)
@@ -82,8 +82,8 @@ public:
   bool operator()(const T* const position, const T* const orientation, T* residual) const;
 
 private:
-  Eigen::Matrix3d A_;
-  Eigen::Vector3d b_;
+  Eigen::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  Eigen::Vector3d b_;  //!< The measured 2D pose value
 };
 
 NormalPriorPose2DCostFunctor::NormalPriorPose2DCostFunctor(const Eigen::Matrix3d& A, const Eigen::Vector3d& b) :

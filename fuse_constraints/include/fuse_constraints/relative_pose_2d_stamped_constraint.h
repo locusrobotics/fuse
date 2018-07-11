@@ -95,7 +95,7 @@ public:
   const Eigen::Matrix3d& sqrtInformation() const { return sqrt_information_; }
 
   /**
-   * Compute the measurement covariance matrix.
+   * @brief Compute the measurement covariance matrix.
    */
   Eigen::Matrix3d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
 

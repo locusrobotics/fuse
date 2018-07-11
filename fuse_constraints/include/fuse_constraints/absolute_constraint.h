@@ -60,7 +60,7 @@ namespace fuse_constraints
  *
  * This type of constraint arises in many situations. In mapping it is common to define the very first pose as the
  * origin. Some sensors, such as an IMU, provide direct measurements of certain state variables (e.g. linear
- * acceleration). And localization systems often match sensor measurements to a prior map (scan-to-map measurements).
+ * acceleration). And localization systems often match laserscans to a prior map (scan-to-map measurements).
  * This constraint holds the measured variable value and the measurement uncertainty/covariance.
  */
 template<class Variable>
@@ -70,9 +70,7 @@ public:
   SMART_PTR_DEFINITIONS(AbsoluteConstraint<Variable>);
 
   /**
-   * @brief Constructor
-   *
-   * Create a constraint using a measurement/prior of all dimensions of the target variable
+   * @brief Create a constraint using a measurement/prior of all dimensions of the target variable
    *
    * @param[in] variable   An object derived from fuse_core::Variable.
    * @param[in] mean       The measured/prior value of all variable dimensions
@@ -84,9 +82,7 @@ public:
     const Eigen::MatrixXd& covariance);
 
   /**
-   * @brief Constructor
-   *
-   * Create a constraint using a measurement/prior of only a partial set of the dimensions of the target variable
+   * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the target variable
    *
    * @param[in] variable           An object derived from fuse_core::Variable.
    * @param[in] partial_mean       The measured value of the subset of dimensions in the order defined by \p indices
@@ -107,7 +103,8 @@ public:
   /**
    * @brief Read-only access to the measured/prior vector of mean values.
    *
-   * All dimensions are present, even if only a partial set of dimensions were measured; all unmeasured dimensions
+   * All dimensions are present, even if only a partial set of dimensions were measured. Dimensions are in the order
+   * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
    * are set to zero.
    */
   const Eigen::VectorXd& mean() const { return mean_; }
@@ -115,16 +112,17 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * The square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial
-   * set of dimensions are measured, then this matrix will not be square.
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
+   * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
+   * of dimensions are measured, then this matrix will not be square.
    */
   const Eigen::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * The covariance matrix will always be square, with size variable_dimensions X variable_dimensions. The covariance
-   * element order will follow the order defined in the variable, not in the order defined in \p indices. If only a
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
+   * covariance matrix will always be square, with size variable_dimensions X variable_dimensions. If only a
    * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
    * covariance matrix. You have been warned.
    */

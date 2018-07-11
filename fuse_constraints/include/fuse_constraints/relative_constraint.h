@@ -59,11 +59,12 @@ namespace fuse_constraints
  * @brief A constraint that represents a measurement on the difference between two variables.
  *
  * This type of constraint arises in many situations. Some sensors, such as wheel encoders or inertial strap-down
- * systems measure a change in the variable state instead of measuring the state directly. This constraint holds the
+ * systems, measure a change in the variable state instead of measuring the state directly. This constraint holds the
  * measured change between two variables and the measurement uncertainty/covariance.
  *
  * The difference between the two variables is constructed element-wise. If element-wise subtraction is not the
- * correct operation for a specific variable type (e.g. 3D rotations), a custom constraint will be needed.
+ * correct operation for a specific variable type (e.g. 3D rotations), a custom constraint or template specialization
+ * will be needed.
  */
 template<class Variable>
 class RelativeConstraint : public fuse_core::Constraint
@@ -72,9 +73,7 @@ public:
   SMART_PTR_DEFINITIONS(RelativeConstraint<Variable>);
 
   /**
-   * @brief Constructor
-   *
-   * Create a constraint on the change of all dimensions between the two target variables
+   * @brief Create a constraint on the change of all dimensions between the two target variables
    *
    * @param[in] variable1  The first variable
    * @param[in] variable2  The second variable
@@ -113,25 +112,26 @@ public:
   /**
    * @brief Read-only access to the measured change between variables.
    *
-   * All dimensions are present, even if only a partial set of dimensions were measured; all unmeasured dimensions
+   * All dimensions are present, even if only a partial set of dimensions were measured. Dimensions are in the order
+   * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
    * are set to zero.
-
    */
   const Eigen::VectorXd& delta() const { return delta_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * The square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial
-   * set of dimensions are measured, then this matrix will not be square.
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
+   * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
+   * of dimensions are measured, then this matrix will not be square.
    */
   const Eigen::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * The covariance matrix will always be square, with size variable_dimensions X variable_dimensions. The covariance
-   * element order will follow the order defined in the variable, not in the order defined in \p indices. If only a
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
+   * covariance matrix will always be square, with size variable_dimensions X variable_dimensions. If only a
    * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
    * covariance matrix. You have been warned.
    */
@@ -167,37 +167,6 @@ public:
 protected:
   Eigen::VectorXd delta_;  //!< The measured change between the two variables
   Eigen::MatrixXd sqrt_information_;  //!< The square root information matrix
-
-  /**
-   * @brief A cost function that compares the change of two variables to a measured delta.
-   */
-  struct CostFunctor
-  {
-    /**
-     * @brief Constructor
-     */
-    CostFunctor(const Eigen::VectorXd& delta, const Eigen::MatrixXd& sqrt_information) :
-      delta(delta),
-      sqrt_information(sqrt_information)
-    {
-    }
-
-    /**
-     * @brief Evaluate the cost function. Used by the Ceres optimization engine.
-     */
-    template <typename T>
-    bool operator()(const T* const variable1, const T* const variable2, T* residual) const
-    {
-      Eigen::Map<const Eigen::Matrix<T, Variable::SIZE, 1> > vector1(variable1);
-      Eigen::Map<const Eigen::Matrix<T, Variable::SIZE, 1> > vector2(variable2);
-      Eigen::Map<Eigen::Matrix<T, Variable::SIZE, 1> > residuals_map(residual);
-      residuals_map = sqrt_information.template cast<T>() * ((vector2 - vector1) - delta.template cast<T>()).eval();
-      return true;
-    }
-
-    Eigen::VectorXd delta;  //!< The measured change between the two variables
-    Eigen::MatrixXd sqrt_information;  //!< The square root information matrix
-  };
 };
 
 // Define unique names for the different variations of the absolute constraint

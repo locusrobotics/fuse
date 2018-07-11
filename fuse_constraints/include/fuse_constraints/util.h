@@ -46,7 +46,7 @@ namespace fuse_constraints
 /**
  * @brief Wrap a 2D angle to the standard (-Pi, +Pi] range.
  *
- * @param[IN/OUT]  angle  Input angle to be wrapped to the (-Pi, +Pi] range. Angle is updated by this function.
+ * @param[in/out] angle Input angle to be wrapped to the (-Pi, +Pi] range. Angle is updated by this function.
  */
 template<typename T>
 void wrapAngle2D(T& angle)
@@ -62,8 +62,8 @@ void wrapAngle2D(T& angle)
 /**
  * @brief Create an 2x2 rotation matrix from an angle
  *
- * @param[IN]  angle  The rotation angle, in radians
- * @return            The equivalent 2x2 rotation matrix
+ * @param[in] angle The rotation angle, in radians
+ * @return          The equivalent 2x2 rotation matrix
  */
 template <typename T>
 Eigen::Matrix<T, 2, 2> RotationMatrix2D(const T angle)

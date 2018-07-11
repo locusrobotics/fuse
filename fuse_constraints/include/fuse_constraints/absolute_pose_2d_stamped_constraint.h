@@ -50,12 +50,12 @@ namespace fuse_constraints
 {
 
 /**
- * @brief A constraint that represents either prior information about a pose, or a direct measurement of the pose.
+ * @brief A constraint that represents either prior information about a 2D pose, or a direct measurement of the 2D pose.
  *
- * A 2D pose is the combination a a 2D position and a 2D orientation variable. As a convenience, this class applies
+ * A 2D pose is the combination of a 2D position and a 2D orientation variable. As a convenience, this class applies
  * an absolute constraint on both variables at once. This type of constraint arises in many situations. In mapping
  * it is common to define the very first pose as the origin. Some sensors, such as GPS, provide direct measurements
- * of the robot's pose in the global frame. And localization systems often match sensor measurements to a prior map
+ * of the robot's pose in the global frame. And localization systems often match laserscans to a prior map
  * (scan-to-map measurements). This constraint holds the measured 2D pose and the measurement uncertainty/covariance.
  */
 class AbsolutePose2DStampedConstraint : public fuse_core::Constraint
@@ -64,12 +64,12 @@ public:
   SMART_PTR_DEFINITIONS(AbsolutePose2DStampedConstraint);
 
   /**
-   * @brief Constructor
+   * @brief Create a constraint using a measurement/prior of the 2D pose
    *
    * @param[in] position    The variable representing the position components of the pose
    * @param[in] orientation The variable representing the orientation components of the pose
-   * @param[in] mean        The measured/prior pose as a vector (3x1 vector: x, y, theta)
-   * @param[in] covariance  The measurement/prior covariance (3x3 matrix: x, y, theta)
+   * @param[in] mean        The measured/prior pose as a vector (3x1 vector: x, y, yaw)
+   * @param[in] covariance  The measurement/prior covariance (3x3 matrix: x, y, yaw)
    */
   AbsolutePose2DStampedConstraint(
     const fuse_variables::Position2DStamped& position,

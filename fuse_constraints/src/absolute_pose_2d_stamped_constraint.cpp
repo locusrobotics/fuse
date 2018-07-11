@@ -68,7 +68,6 @@ fuse_core::Constraint::UniquePtr AbsolutePose2DStampedConstraint::clone() const
 
 ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const
 {
-  // Create a Ceres cost function using our custom cost functor and Ceres automatic differentiation system
   return new ceres::AutoDiffCostFunction<NormalPriorPose2DCostFunctor, 3, 2, 1>(
     new NormalPriorPose2DCostFunctor(sqrt_information_, mean_));
 }

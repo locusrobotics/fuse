@@ -60,10 +60,7 @@ bool NormalDelta::Evaluate(
   ceres::ConstVectorRef x0(parameters[0], parameter_block_sizes()[0]);
   ceres::ConstVectorRef x1(parameters[1], parameter_block_sizes()[1]);
   ceres::VectorRef r(residuals, num_residuals());
-  // The following line should read
-  // r = A_ * ((x1 - x0) - b_);
-  // The extra eval is to get around a bug in the eigen library.
-  r = A_ * (x1 - x0 - b_).eval();
+  r = A_ * (x1 - x0 - b_);
   if (jacobians != NULL)
   {
     if (jacobians[0] != NULL)

@@ -73,6 +73,12 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
   // Compute the sqrt information of the provided cov matrix
   Eigen::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order
+  // What are we doing here?
+  // The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
+  // If we are measuring a subset of dimensions, we only want to produce costs for the measured dimensions.
+  // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
+  // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
+  // defined by the variable.
   mean_ = Eigen::VectorXd::Zero(variable.size());
   sqrt_information_ = Eigen::MatrixXd::Zero(indices.size(), variable.size());
   for (size_t i = 0; i < indices.size(); ++i)
@@ -121,6 +127,7 @@ ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
 }
 
 // Specialization for Orientation2D
+// We need to handle the 2*pi rollover for 2D orientations, so simple subtraction does not produce the correct cost
 template<>
 inline ceres::CostFunction* AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
 {

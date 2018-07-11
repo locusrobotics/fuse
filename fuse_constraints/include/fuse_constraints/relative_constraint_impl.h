@@ -77,6 +77,12 @@ RelativeConstraint<Variable>::RelativeConstraint(
   // Compute the sqrt information of the provided cov matrix
   Eigen::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order
+  // What are we doing here?
+  // The constraint equation is defined as: cost(x) = ||A * (x1 - x0 - b)||^2
+  // If we are measuring a subset of dimensions, we only want to produce costs for the measured dimensions.
+  // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
+  // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
+  // defined by the variable.
   delta_ = Eigen::VectorXd::Zero(variable1.size());
   sqrt_information_ = Eigen::MatrixXd::Zero(indices.size(), variable1.size());
   for (size_t i = 0; i < indices.size(); ++i)
@@ -121,7 +127,7 @@ fuse_core::Constraint::UniquePtr RelativeConstraint<Variable>::clone() const
 template<class Variable>
 ceres::CostFunction* RelativeConstraint<Variable>::costFunction() const
 {
-  // Create the relative constraint
+  // Create a Gaussian/Normal Delta constraint
   return new fuse_constraints::NormalDelta(sqrt_information_, delta_);
 }
 
@@ -129,7 +135,7 @@ ceres::CostFunction* RelativeConstraint<Variable>::costFunction() const
 template<>
 inline ceres::CostFunction* RelativeConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
 {
-  // Ceres ships with a "prior" cost function. Just use that here.
+  // Create a Gaussian/Normal Delta constraint
   return new NormalDeltaOrientation2D(sqrt_information_(0, 0), delta_(0));
 }
 

@@ -72,16 +72,23 @@ public:
    */
   NormalDeltaOrientation2D(const double A, const double b);
 
+  /**
+   * @brief Destructor
+   */
   virtual ~NormalDeltaOrientation2D() = default;
 
+  /**
+   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
+   *        values
+   */
   virtual bool Evaluate(
     double const* const* parameters,
     double* residuals,
     double** jacobians) const;
 
 private:
-  double A_;
-  double b_;
+  double A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  double b_;  //!< The measured difference between variable x0 and variable x1
 };
 
 }  // namespace fuse_constraints

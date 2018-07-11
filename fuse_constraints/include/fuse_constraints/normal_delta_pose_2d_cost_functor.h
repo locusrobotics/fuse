@@ -81,7 +81,7 @@ public:
   NormalDeltaPose2DCostFunctor(const Eigen::Matrix3d& A, const Eigen::Vector3d& b);
 
   /**
-   * @brief Evaluate the cost function. Used by the Ceres optimization engine.
+   * @brief Compute the cost values/residuals using the provided variable/parameter values
    */
   template <typename T>
   bool operator()(
@@ -92,8 +92,8 @@ public:
     T* residual) const;
 
 private:
-  Eigen::Matrix3d A_;
-  Eigen::Vector3d b_;
+  Eigen::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  Eigen::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
 };
 
 NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const Eigen::Matrix3d& A, const Eigen::Vector3d& b) :

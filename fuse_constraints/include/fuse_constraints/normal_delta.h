@@ -63,7 +63,7 @@ class NormalDelta : public ceres::CostFunction
 {
 public:
   /**
-   * @brief Constructor
+   * @brief Construct a cost function instance
    *
    * The number of rows in vector b must be the same as the number of columns of matrix A.
    *
@@ -74,16 +74,23 @@ public:
    */
   NormalDelta(const ceres::Matrix& A, const ceres::Vector& b);
 
+  /**
+   * @brief Destructor
+   */
   virtual ~NormalDelta() = default;
 
+  /**
+   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
+   *        values
+   */
   virtual bool Evaluate(
     double const* const* parameters,
     double* residuals,
     double** jacobians) const;
 
 private:
-  ceres::Matrix A_;
-  ceres::Vector b_;
+  ceres::Matrix A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  ceres::Vector b_;  //!< The measured difference between variable x0 and variable x1
 };
 
 }  // namespace fuse_constraints
