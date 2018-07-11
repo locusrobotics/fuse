@@ -56,9 +56,9 @@ RelativeConstraint<Variable>::RelativeConstraint(
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
   assert(variable1.size() == variable2.size());
-  assert(delta.rows() == variable1.size());
-  assert(covariance.rows() == variable1.size());
-  assert(covariance.cols() == variable1.size());
+  assert(delta.rows() == static_cast<int>(variable1.size()));
+  assert(covariance.rows() == static_cast<int>(variable1.size()));
+  assert(covariance.cols() == static_cast<int>(variable1.size()));
 }
 
 template<class Variable>
@@ -71,9 +71,9 @@ RelativeConstraint<Variable>::RelativeConstraint(
     fuse_core::Constraint{variable1.uuid(), variable2.uuid()}
 {
   assert(variable1.size() == variable2.size());
-  assert(partial_delta.rows() == indices.size());
-  assert(partial_covariance.rows() == indices.size());
-  assert(partial_covariance.cols() == indices.size());
+  assert(partial_delta.rows() == static_cast<int>(indices.size()));
+  assert(partial_covariance.rows() == static_cast<int>(indices.size()));
+  assert(partial_covariance.cols() == static_cast<int>(indices.size()));
   // Compute the sqrt information of the provided cov matrix
   Eigen::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order

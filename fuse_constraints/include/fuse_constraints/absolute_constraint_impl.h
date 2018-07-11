@@ -54,9 +54,9 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
-  assert(mean.rows() == variable.size());
-  assert(covariance.rows() == variable.size());
-  assert(covariance.cols() == variable.size());
+  assert(mean.rows() == static_cast<int>(variable.size()));
+  assert(covariance.rows() == static_cast<int>(variable.size()));
+  assert(covariance.cols() == static_cast<int>(variable.size()));
 }
 
 template<class Variable>
@@ -67,9 +67,9 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
   const std::vector<size_t>& indices) :
     fuse_core::Constraint{variable.uuid()}
 {
-  assert(partial_mean.rows() == indices.size());
-  assert(partial_covariance.rows() == indices.size());
-  assert(partial_covariance.cols() == indices.size());
+  assert(partial_mean.rows() == static_cast<int>(indices.size()));
+  assert(partial_covariance.rows() == static_cast<int>(indices.size()));
+  assert(partial_covariance.cols() == static_cast<int>(indices.size()));
   // Compute the sqrt information of the provided cov matrix
   Eigen::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order

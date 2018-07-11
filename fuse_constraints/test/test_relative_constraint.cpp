@@ -380,7 +380,7 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   // Create an relative constraint
   Eigen::Matrix<double, 1, 1> delta;
   delta << 0.1;
-  Eigen::Matrix<double, 1, 2> cov2;
+  Eigen::Matrix<double, 1, 1> cov2;
   cov2 << 1.0;
   auto relative = fuse_constraints::RelativeOrientation2DStampedConstraint::make_shared(*x1, *x2, delta, cov2);
   // Build the problem
