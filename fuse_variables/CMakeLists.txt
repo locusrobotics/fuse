@@ -195,7 +195,7 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
 
-  # Velocity Angular 3D Stamped Tests
+  # Velocity Linear 3D Stamped Tests
   catkin_add_gtest(test_velocity_linear_3d_stamped
     test/test_velocity_linear_3d_stamped.cpp
   )

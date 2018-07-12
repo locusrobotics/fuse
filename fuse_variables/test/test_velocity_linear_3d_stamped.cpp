@@ -75,8 +75,8 @@ TEST(VelocityLinear3DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    VelocityLinear3DStamped variable1(ros::Time(12345678, 910111213), fuse_core::uuid::generate("wall-e"));
-    VelocityLinear3DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
+    VelocityLinear3DStamped variable1(ros::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
+    VelocityLinear3DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
