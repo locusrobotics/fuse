@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>fuse_constraints</name>
+  <version>0.3.1</version>
+  <description>
+    The fuse_constraints package provides a set of commonly used constraint types, such as direct measurements on
+    state variables (absolute constraints) or measurements of the state changes (relative constraints).
+  </description>
+
+  <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
+  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>ceres-solver</depend>
+  <depend>eigen</depend>
+  <depend>fuse_core</depend>
+  <depend>fuse_variables</depend>
+  <depend>roscpp</depend>
+  <test_depend>roslint</test_depend>
+  <test_depend>rostest</test_depend>
+</package>
