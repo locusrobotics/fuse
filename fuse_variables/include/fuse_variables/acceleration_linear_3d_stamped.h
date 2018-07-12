@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H
-#define FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H
+#ifndef FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H
+#define FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H
 
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
@@ -46,16 +46,15 @@ namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 2D linear acceleration (ax, ay) at a specific time, with a specific piece of hardware.
+ * @brief Variable representing a 3D linear acceleration (ax, ay, az) at a specific time, with a specific piece of hardware.
  *
  * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
- * As such, the timestamp and hardware id cannot be modified (with the exception of the deserializeMessage() function).
  * The value of the acceleration can be modified.
  */
-class AccelerationLinear2DStamped final : public FixedSizeVariable<2>
+class AccelerationLinear3DStamped final : public FixedSizeVariable<3>
 {
 public:
-  SMART_PTR_DEFINITIONS(AccelerationLinear2DStamped);
+  SMART_PTR_DEFINITIONS(AccelerationLinear3DStamped);
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -63,16 +62,17 @@ public:
   enum : size_t
   {
     X = 0,
-    Y = 1
+    Y = 1,
+    Z = 2
   };
 
   /**
-   * @brief Construct a 2D acceleration at a specific point in time.
+   * @brief Construct a 3D acceleration at a specific point in time.
    *
    * @param[in] stamp       The timestamp attached to this acceleration.
    * @param[in] hardware_id An optional hardware id, for use when variables originate from multiple robots or devices
    */
-  explicit AccelerationLinear2DStamped(
+  explicit AccelerationLinear3DStamped(
     const ros::Time& stamp,
     const fuse_core::UUID& hardware_id = fuse_core::uuid::NIL);
 
@@ -95,6 +95,16 @@ public:
    * @brief Read-only access to the Y-axis linear acceleration.
    */
   const double& y() const { return data_[Y]; }
+
+  /**
+   * @brief Read-write access to the Z-axis linear acceleration.
+   */
+  double& z() { return data_[Z]; }
+
+  /**
+   * @brief Read-only access to the Z-axis linear acceleration.
+   */
+  const double& z() const { return data_[Z]; }
 
   /**
    * @brief Read-only access to the associated timestamp.
@@ -135,4 +145,4 @@ protected:
 
 }  // namespace fuse_variables
 
-#endif  // FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H
+#endif  // FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H
