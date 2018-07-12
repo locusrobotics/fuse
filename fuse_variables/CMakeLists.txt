@@ -41,6 +41,7 @@ add_library(${PROJECT_NAME}
   src/position_3d_stamped.cpp
   src/velocity_angular_2d_stamped.cpp
   src/velocity_linear_2d_stamped.cpp
+  src/velocity_linear_3d_stamped.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -129,7 +130,7 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
 
-  # Orientation 32D Stamped Tests
+  # Orientation 3D Stamped Tests
   catkin_add_gtest(test_orientation_3d_stamped
     test/test_orientation_3d_stamped.cpp
   )
@@ -189,6 +190,19 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_link_libraries(test_velocity_linear_2d_stamped
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+
+  # Velocity Linear 3D Stamped Tests
+  catkin_add_gtest(test_velocity_linear_3d_stamped
+    test/test_velocity_linear_3d_stamped.cpp
+  )
+  add_dependencies(test_velocity_linear_3d_stamped
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_velocity_linear_3d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
