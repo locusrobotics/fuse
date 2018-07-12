@@ -88,7 +88,7 @@ public:
 
 private:
   double A_;  //!< The residual weighting matrix, most likely the square root information matrix
-  double b_;  //!< The measured value of the 2D pose
+  double b_;  //!< The measured value of the 2D orientation
 };
 
 }  // namespace fuse_constraints
