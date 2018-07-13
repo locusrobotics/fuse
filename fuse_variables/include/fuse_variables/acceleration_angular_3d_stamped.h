@@ -37,6 +37,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ostream>
@@ -52,7 +53,7 @@ namespace fuse_variables
  * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
  * The value of the acceleration can be modified.
  */
-class AccelerationAngular3DStamped : public FixedSizeVariable<3>
+class AccelerationAngular3DStamped : public FixedSizeVariable<3>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(AccelerationAngular3DStamped);
@@ -70,12 +71,12 @@ public:
   /**
    * @brief Construct a 3D angular acceleration at a specific point in time.
    *
-   * @param[in] stamp       The timestamp attached to this angular acceleration.
-   * @param[in] hardware_id An optional hardware id, for use when variables originate from multiple robots or devices
+   * @param[in] stamp     The timestamp attached to this angular acceleration.
+   * @param[in] device_id An optional hardware id, for use when variables originate from multiple robots or devices
    */
   explicit AccelerationAngular3DStamped(
     const ros::Time& stamp,
-    const fuse_core::UUID& hardware_id = fuse_core::uuid::NIL);
+    const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the roll (X-axis) angular acceleration.
@@ -108,16 +109,6 @@ public:
   const double& yaw() const { return data_[YAW]; }
 
   /**
-   * @brief Read-only access to the associated timestamp.
-   */
-  const ros::Time& stamp() const { return stamp_; }
-
-  /**
-   * @brief Read-only access to the associated hardware ID.
-   */
-  const fuse_core::UUID& hardwareId() const { return hardware_id_; }
-
-  /**
    * @brief Read-only access to the unique ID of this variable instance.
    *
    * All variables of this type with identical timestamps will return the same UUID.
@@ -139,8 +130,6 @@ public:
   fuse_core::Variable::UniquePtr clone() const override;
 
 protected:
-  fuse_core::UUID hardware_id_;  //!< The hardware UUID associated with this variable instance
-  ros::Time stamp_;  //!< The timestamp associated with this variable instance
   fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
 };
 

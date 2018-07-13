@@ -38,10 +38,9 @@
 namespace fuse_variables
 {
 
-AccelerationAngular2DStamped::AccelerationAngular2DStamped(const ros::Time& stamp, const fuse_core::UUID& hardware_id) :
-  hardware_id_(hardware_id),
-  stamp_(stamp),
-  uuid_(fuse_core::uuid::generate(type(), stamp, hardware_id))
+AccelerationAngular2DStamped::AccelerationAngular2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Stamped(stamp, device_id),
+  uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
 {
 }
 
@@ -50,7 +49,7 @@ void AccelerationAngular2DStamped::print(std::ostream& stream) const
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
          << "  stamp: " << stamp() << "\n"
-         << "  hardware_id: " << hardwareId() << "\n"
+         << "  device_id: " << deviceId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
          << "  - yaw: " << yaw() << "\n";

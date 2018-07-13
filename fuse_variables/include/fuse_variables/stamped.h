@@ -31,35 +31,55 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef FUSE_VARIABLES_STAMPED_H
+#define FUSE_VARIABLES_STAMPED_H
+
+#include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
-#include <fuse_variables/velocity_linear_3d_stamped.h>
+#include <ros/time.h>
 
 
 namespace fuse_variables
 {
 
-VelocityLinear3DStamped::VelocityLinear3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  Stamped(stamp, device_id),
-  uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
+/**
+ * @brief A class that provides a timestamp and device id
+ *
+ * something something something...
+ */
+class Stamped
 {
-}
+public:
+  SMART_PTR_ALIASES_ONLY(Stamped);
 
-void VelocityLinear3DStamped::print(std::ostream& stream) const
-{
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  stamp: " << stamp() << "\n"
-         << "  device_id: " << deviceId() << "\n"
-         << "  size: " << size() << "\n"
-         << "  data:\n"
-         << "  - x: " << x() << "\n"
-         << "  - y: " << y() << "\n"
-         << "  - z: " << z() << "\n";
-}
+  /**
+   * @brief Constructor
+   */
+  Stamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
+    device_id_(device_id),
+    stamp_(stamp)
+  {}
 
-fuse_core::Variable::UniquePtr VelocityLinear3DStamped::clone() const
-{
-  return VelocityLinear3DStamped::make_unique(*this);
-}
+  /**
+   * @brief Destructor
+   */
+  virtual ~Stamped() = default;
+
+  /**
+   * @brief Read-only access to the associated timestamp.
+   */
+  const ros::Time& stamp() const { return stamp_; }
+
+  /**
+   * @brief Read-only access to the associated device ID.
+   */
+  const fuse_core::UUID& deviceId() const { return device_id_; }
+
+protected:
+  fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
+  ros::Time stamp_;  //!< The timestamp associated with this variable instance
+};
 
 }  // namespace fuse_variables
+
+#endif  // FUSE_VARIABLES_STAMPED_H

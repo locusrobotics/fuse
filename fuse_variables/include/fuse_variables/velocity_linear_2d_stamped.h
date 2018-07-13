@@ -37,6 +37,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ostream>
@@ -49,10 +50,9 @@ namespace fuse_variables
  * @brief Variable representing a 2D linear velocity (vx, vy) at a specific time, with a specific piece of hardware.
  *
  * This is commonly used to represent a robot's velocity. The UUID of this class is static after construction.
- * As such, the timestamp and hardware id cannot be modified (with the exception of the deserializeMessage() function).
- * The value of the velocity can be modified.
+ * As such, the timestamp and device id cannot be modified. The value of the velocity can be modified.
  */
-class VelocityLinear2DStamped : public FixedSizeVariable<2>
+class VelocityLinear2DStamped : public FixedSizeVariable<2>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(VelocityLinear2DStamped);
@@ -69,11 +69,11 @@ public:
   /**
    * @brief Construct a 2D velocity at a specific point in time.
    *
-   * @param[in] stamp       The timestamp attached to this velocity.
-   * @param[in] hardware_id An optional hardware id, for use when variables originate from multiple robots or devices
+   * @param[in] stamp     The timestamp attached to this velocity.
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    *
    */
-  explicit VelocityLinear2DStamped(const ros::Time& stamp, const fuse_core::UUID& hardware_id = fuse_core::uuid::NIL);
+  explicit VelocityLinear2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the X-axis linear velocity.
@@ -94,16 +94,6 @@ public:
    * @brief Read-only access to the Y-axis linear velocity.
    */
   const double& y() const { return data_[Y]; }
-
-  /**
-   * @brief Read-only access to the associated timestamp.
-   */
-  const ros::Time& stamp() const { return stamp_; }
-
-  /**
-   * @brief Read-only access to the associated hardware ID.
-   */
-  const fuse_core::UUID& hardwareId() const { return hardware_id_; }
 
   /**
    * @brief Read-only access to the unique ID of this variable instance.
@@ -127,8 +117,6 @@ public:
   fuse_core::Variable::UniquePtr clone() const override;
 
 protected:
-  fuse_core::UUID hardware_id_;  //!< The hardware UUID associated with this variable instance
-  ros::Time stamp_;  //!< The timestamp associated with this variable instance
   fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
 };
 
