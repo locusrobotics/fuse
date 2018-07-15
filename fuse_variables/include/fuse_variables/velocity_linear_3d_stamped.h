@@ -53,7 +53,7 @@ namespace fuse_variables
  * This is commonly used to represent a robot's velocity. The UUID of this class is static after construction.
  * As such, the timestamp and device id cannot be modified. The value of the velocity can be modified.
  */
-class VelocityLinear3DStamped : public FixedSizeVariable<3>, public Stamped
+class VelocityLinear3DStamped final : public FixedSizeVariable<3>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(VelocityLinear3DStamped);

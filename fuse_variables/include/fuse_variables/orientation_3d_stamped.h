@@ -51,13 +51,13 @@ namespace fuse_variables
  * hardware (e.g., robot)
  *
  * This is commonly used to represent a robot orientation in single or multi-robot systems. The UUID of this class is
- * static after construction. As such, the timestamp and hardware ID cannot be modified. The value of the orientation
+ * static after construction. As such, the timestamp and device ID cannot be modified. The value of the orientation
  * can be modified.
  * 
  * The internal representation for this is different from the typical ROS representation, as w is the first component.
  * This is necessary to use the Ceres local parameterization for quaternions.
  */
-class Orientation3DStamped : public FixedSizeVariable<4>, public Stamped
+class Orientation3DStamped final : public FixedSizeVariable<4>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(Orientation3DStamped);

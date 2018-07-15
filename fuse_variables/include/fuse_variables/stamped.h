@@ -45,7 +45,10 @@ namespace fuse_variables
 /**
  * @brief A class that provides a timestamp and device id
  *
- * something something something...
+ * This is intended to be used as secondary base class (multiple inheritance) for variables that are time-varying.
+ * Some common examples include robot poses or velocities. This is in contrast to variables that represent unknown
+ * but fixed quantities, such as the world position of landmarks, or possibly calibration values that are assumed
+ * constant.
  */
 class Stamped
 {

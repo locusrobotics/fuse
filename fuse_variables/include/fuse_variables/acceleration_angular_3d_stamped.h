@@ -51,9 +51,9 @@ namespace fuse_variables
  * piece of hardware.
  *
  * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
- * The value of the acceleration can be modified.
+ * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
  */
-class AccelerationAngular3DStamped : public FixedSizeVariable<3>, public Stamped
+class AccelerationAngular3DStamped final : public FixedSizeVariable<3>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(AccelerationAngular3DStamped);
@@ -72,7 +72,7 @@ public:
    * @brief Construct a 3D angular acceleration at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this angular acceleration.
-   * @param[in] device_id An optional hardware id, for use when variables originate from multiple robots or devices
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
   explicit AccelerationAngular3DStamped(
     const ros::Time& stamp,

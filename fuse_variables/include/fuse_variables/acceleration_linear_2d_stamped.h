@@ -50,8 +50,7 @@ namespace fuse_variables
  * @brief Variable representing a 2D linear acceleration (ax, ay) at a specific time, with a specific piece of hardware.
  *
  * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
- * As such, the timestamp and hardware id cannot be modified (with the exception of the deserializeMessage() function).
- * The value of the acceleration can be modified.
+ * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
  */
 class AccelerationLinear2DStamped final : public FixedSizeVariable<2>, public Stamped
 {
@@ -71,7 +70,7 @@ public:
    * @brief Construct a 2D acceleration at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this acceleration.
-   * @param[in] device_id An optional hardware id, for use when variables originate from multiple robots or devices
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
   explicit AccelerationLinear2DStamped(
     const ros::Time& stamp,

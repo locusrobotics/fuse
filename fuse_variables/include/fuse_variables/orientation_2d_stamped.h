@@ -53,8 +53,7 @@ namespace fuse_variables
  * @brief Variable representing a 2D orientation (theta) at a specific time, with a specific piece of hardware.
  *
  * This is commonly used to represent a robot's orientation within a map. The UUID of this class is static after
- * construction. As such, the timestamp and hardware id cannot be modified (with the exception of the
- * deserializeMessage() function). The value of the orientation can be modified.
+ * construction. As such, the timestamp and device id cannot be modified. The value of the orientation can be modified.
  */
 class Orientation2DStamped final : public FixedSizeVariable<1>, public Stamped
 {
@@ -73,7 +72,7 @@ public:
    * @brief Construct a 2D orientation at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this orientation.
-   * @param[in] device_id An optional hardware id, for use when variables originate from multiple robots or devices
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    *
    */
   explicit Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);

@@ -54,7 +54,7 @@ namespace fuse_variables
  * static after construction. As such, the timestamp and device ID cannot be modified. The value of the position
  * can be modified.
  */
-class Position3DStamped : public FixedSizeVariable<3>, public Stamped
+class Position3DStamped final : public FixedSizeVariable<3>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(Position3DStamped);
