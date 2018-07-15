@@ -55,7 +55,7 @@ public:
   /**
    * @brief Constructor
    */
-  Stamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
+  explicit Stamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
     device_id_(device_id),
     stamp_(stamp)
   {}
