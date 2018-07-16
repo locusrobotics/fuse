@@ -38,10 +38,9 @@
 namespace fuse_variables
 {
 
-Position3DStamped::Position3DStamped(const ros::Time& stamp, const fuse_core::UUID &hardware_id) :
-  hardware_id_(hardware_id),
-  stamp_(stamp),
-  uuid_(fuse_core::uuid::generate(type(), stamp_, hardware_id_))
+Position3DStamped::Position3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Stamped(stamp, device_id),
+  uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
 {
 }
 
@@ -49,7 +48,7 @@ void Position3DStamped::print(std::ostream& stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
-         << "  hardware id: " << hardware_id() << "\n"
+         << "  device_id: " << deviceId() << "\n"
          << "  stamp: " << stamp() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"

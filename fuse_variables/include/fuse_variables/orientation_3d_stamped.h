@@ -37,6 +37,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ostream>
@@ -50,13 +51,13 @@ namespace fuse_variables
  * hardware (e.g., robot)
  *
  * This is commonly used to represent a robot orientation in single or multi-robot systems. The UUID of this class is
- * static after construction. As such, the timestamp and hardware ID cannot be modified. The value of the orientation
+ * static after construction. As such, the timestamp and device ID cannot be modified. The value of the orientation
  * can be modified.
  * 
  * The internal representation for this is different from the typical ROS representation, as w is the first component.
  * This is necessary to use the Ceres local parameterization for quaternions.
  */
-class Orientation3DStamped : public FixedSizeVariable<4>
+class Orientation3DStamped final : public FixedSizeVariable<4>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(Orientation3DStamped);
@@ -85,9 +86,10 @@ public:
   /**
    * @brief Construct a 3D orientation at a specific point in time.
    *
-   * @param[IN]  stamp  The timestamp attached to this orientation.
+   * @param[in] stamp     The timestamp attached to this velocity.
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
-  explicit Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID &hardware_id = fuse_core::uuid::NIL);
+  explicit Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-only access to quaternion's Euler pitch angle component
@@ -145,16 +147,6 @@ public:
   const double& z() const { return data_[Z]; }
 
   /**
-   * @brief Read-only access to the associated timestamp.
-   */
-  const ros::Time& stamp() const { return stamp_; }
-
-  /**
-   * @brief Read-only access to the unique ID of the hardware device (e.g., robot) for which this variable is measured
-   */
-  const fuse_core::UUID hardware_id() const { return hardware_id_; }
-
-  /**
    * @brief Read-only access to the unique ID of this variable instance.
    *
    * All variables of this type with identical timestamps will return the same UUID.
@@ -183,8 +175,6 @@ public:
   ceres::LocalParameterization* localParameterization() const override;
 
 protected:
-  fuse_core::UUID hardware_id_;  //!< The UUID corresponding to the hardware device for which this variable is measured
-  ros::Time stamp_;  //!< The timestamp associated with this variable instance
   fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
 };
 

@@ -34,6 +34,7 @@ include_directories(
 ## fuse_variables library
 add_library(${PROJECT_NAME}
   src/acceleration_angular_2d_stamped.cpp
+  src/acceleration_angular_3d_stamped.cpp
   src/acceleration_linear_2d_stamped.cpp
   src/acceleration_linear_3d_stamped.cpp
   src/orientation_2d_stamped.cpp
@@ -89,6 +90,19 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_link_libraries(test_acceleration_angular_2d_stamped
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+
+  # Acceleration Angular 3D Stamped Tests
+  catkin_add_gtest(test_acceleration_angular_3d_stamped
+    test/test_acceleration_angular_3d_stamped.cpp
+  )
+  add_dependencies(test_acceleration_angular_3d_stamped
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_acceleration_angular_3d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}

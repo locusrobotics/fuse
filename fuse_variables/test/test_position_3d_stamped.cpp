@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_variables/position_3d_stamped.h>
+#include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ceres/autodiff_cost_function.h>
@@ -97,6 +98,21 @@ TEST(Position3DStamped, UUID)
     Position3DStamped variable4(ros::Time(12345679, 910111213), uuid_2);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
+}
+
+TEST(Position3DStamped, Stamped)
+{
+  fuse_core::Variable::SharedPtr base = Position3DStamped::make_shared(ros::Time(12345678, 910111213),
+                                                                       fuse_core::uuid::generate("mo"));
+  auto derived = std::dynamic_pointer_cast<Position3DStamped>(base);
+  ASSERT_TRUE(static_cast<bool>(derived));
+  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
+
+  auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
+  ASSERT_TRUE(static_cast<bool>(stamped));
+  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
 struct CostFunctor

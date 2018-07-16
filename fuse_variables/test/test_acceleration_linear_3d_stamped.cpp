@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_variables/acceleration_linear_3d_stamped.h>
+#include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ceres/autodiff_cost_function.h>
@@ -79,6 +80,21 @@ TEST(AccelerationLinear3DStamped, UUID)
     AccelerationLinear3DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
+}
+
+TEST(AccelerationLinear3DStamped, Stamped)
+{
+  fuse_core::Variable::SharedPtr base = AccelerationLinear3DStamped::make_shared(ros::Time(12345678, 910111213),
+                                                                                 fuse_core::uuid::generate("mo"));
+  auto derived = std::dynamic_pointer_cast<AccelerationLinear3DStamped>(base);
+  ASSERT_TRUE(static_cast<bool>(derived));
+  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
+
+  auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
+  ASSERT_TRUE(static_cast<bool>(stamped));
+  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
 struct CostFunctor
