@@ -2,8 +2,8 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2018-07-16)
+------------------
 * Added a base class for all stamped variables (`#14 <https://github.com/locusrobotics/fuse/issues/14>`_)
 * Added 3D variable types
 * Removed fuse_variables default constructors (`#5 <https://github.com/locusrobotics/fuse/issues/5>`_)

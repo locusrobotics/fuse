@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2018-07-16)
+------------------
 * Added the Transaction class and unit tests (`#2 <https://github.com/locusrobotics/fuse/issues/2>`_)
 * Added missing test depend (`#3 <https://github.com/locusrobotics/fuse/issues/3>`_)
 * Contributors: Stephen Williams
