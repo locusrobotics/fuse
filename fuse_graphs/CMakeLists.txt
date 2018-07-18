@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(fuse_core)
+project(fuse_graphs)
 
 find_package(catkin REQUIRED COMPONENTS
+  fuse_core
   roscpp
 )
 find_package(Boost REQUIRED)
@@ -15,6 +16,7 @@ catkin_package(
     ${PROJECT_NAME}
     ${CERES_LIBRARIES}
   CATKIN_DEPENDS
+    fuse_core
     roscpp
   DEPENDS
     Boost
@@ -33,12 +35,9 @@ include_directories(
   ${CERES_INCLUDE_DIRS}
 )
 
-## fuse_core library
+## fuse_graphs library
 add_library(${PROJECT_NAME}
-  src/constraint.cpp
-  src/graph.cpp
-  src/transaction.cpp
-  src/variable.cpp
+  src/hash_graph.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -80,48 +79,15 @@ if(CATKIN_ENABLE_TESTING)
   roslint_cpp()
   roslint_add_test()
 
-  # Constraint tests
-  catkin_add_gtest(test_constraint
-    test/test_constraint.cpp
+  # HashGraph tests
+  catkin_add_gtest(test_hash_graph
+    test/test_hash_graph.cpp
   )
-  add_dependencies(test_constraint
+  add_dependencies(test_hash_graph
     ${catkin_EXPORTED_TARGETS}
   )
-  target_link_libraries(test_constraint
-    ${PROJECT_NAME}
-  )
-
-  # Transaction tests
-  catkin_add_gtest(test_transaction
-    test/test_transaction.cpp
-  )
-  add_dependencies(test_transaction
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_link_libraries(test_transaction
-    ${PROJECT_NAME}
-  )
-
-  # UUID tests
-  catkin_add_gtest(test_uuid
-    test/test_uuid.cpp
-  )
-  add_dependencies(test_uuid
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_link_libraries(test_uuid
+  target_link_libraries(test_hash_graph
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
-  )
-
-  # Variable tests
-  catkin_add_gtest(test_variable
-    test/test_variable.cpp
-  )
-  add_dependencies(test_variable
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_link_libraries(test_variable
-    ${PROJECT_NAME}
   )
 endif()
