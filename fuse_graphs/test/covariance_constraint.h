@@ -40,6 +40,8 @@
 
 #include <ceres/cost_function.h>
 
+#include <algorithm>
+
 
 /**
  * @brief Create a cost fuction that implements one of the Ceres unit tests
