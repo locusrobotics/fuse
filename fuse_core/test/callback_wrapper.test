@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <test test-name="CallbackWrapper" pkg="fuse_core" type="test_callback_wrapper" />
+</launch>
