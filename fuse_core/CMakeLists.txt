@@ -35,8 +35,10 @@ include_directories(
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
+  src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
+  src/sensor_model.cpp
   src/transaction.cpp
   src/variable.cpp
 )
