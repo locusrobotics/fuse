@@ -35,6 +35,7 @@
 
 #include <vector>
 
+
 namespace fuse_core
 {
 
