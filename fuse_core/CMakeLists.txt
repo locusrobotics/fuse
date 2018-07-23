@@ -35,6 +35,7 @@ include_directories(
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
+  src/async_motion_model.cpp
   src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
@@ -81,6 +82,19 @@ if(CATKIN_ENABLE_TESTING)
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
   roslint_add_test()
+
+  # AsyncMotionModel tests
+  add_rostest_gtest(test_async_motion_model
+    test/async_motion_model.test
+    test/test_async_motion_model.cpp
+  )
+  add_dependencies(test_async_motion_model
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_async_motion_model
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
 
   # AsyncSensorModel tests
   add_rostest_gtest(test_async_sensor_model

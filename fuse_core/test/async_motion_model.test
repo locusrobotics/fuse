@@ -1,0 +1,4 @@
+<?xml version="1.0"?>	
+<launch>	
+  <test test-name="AsyncMotionModel" pkg="fuse_core" type="test_async_motion_model" />	
+</launch>
