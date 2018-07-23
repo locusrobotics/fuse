@@ -195,7 +195,7 @@ protected:
    * handles will be properly initialized before onInit() is called. Spinning of the callback queue will
    * not begin until after the call to onInit() completes.
    */
-  virtual void onInit() {};
+  virtual void onInit() {}
 };
 
 }  // namespace fuse_core

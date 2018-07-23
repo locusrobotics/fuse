@@ -36,6 +36,8 @@
 
 #include <gtest/gtest.h>
 
+#include <set>
+
 
 /**
  * @brief Derived AsyncMotionModel used to verify the functions get called when expected

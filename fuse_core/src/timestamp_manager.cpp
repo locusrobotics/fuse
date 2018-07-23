@@ -225,4 +225,4 @@ void TimestampManager::purgeHistory()
   }
 }
 
-}  // namespace fuse_motion_models
+}  // namespace fuse_core
