@@ -97,9 +97,17 @@ public:
   virtual ~AsyncSensorModel() = default;
 
   /**
-   * @brief Get the unique name of this sensor
+   * @brief Function to be executed whenever the optimizer has completed a Graph update
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, after each Graph update is complete. This
+   * implementation repackages the provided \p graph, and inserts a call to onGraphUpdate() into this sensor's
+   * callback queue. This is meant to simplify thread synchronization. If this sensor uses a single-threaded spinner,
+   * then all callbacks will fire sequentially and no semaphores are needed. If this sensor uses a multi-threaded
+   * spinner, then normal multithreading rules apply and data accessed in more than one place should be guarded.
+   *
+   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
-  const std::string& name() const final { return name_; }
+  void graphCallback(Graph::ConstSharedPtr graph) final;
 
   /**
    * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
@@ -121,19 +129,6 @@ public:
     ros::CallbackQueue* transaction_callback_queue) final;
 
   /**
-   * @brief Function to be executed whenever the optimizer has completed a Graph update
-   *
-   * This method will be called by the optimizer, in the optimizer's thread, after each Graph update is complete. This
-   * implementation repackages the provided \p graph, and inserts a call to onGraphUpdate() into this sensor's
-   * callback queue. This is meant to simplify thread synchronization. If this sensor uses a single-threaded spinner,
-   * then all callbacks will fire sequentially and no semaphores are needed. If this sensor uses a multi-threaded
-   * spinner, then normal multithreading rules apply and data accessed in more than one place should be guarded.
-   *
-   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
-   */
-  void graphCallback(Graph::ConstSharedPtr graph) final;
-
-  /**
    * @brief Inject the Transaction into the callback queue registered during initialize()
    *
    * It is expected that sensor model plugins will generate new constraints (packaged inside a Transaction) as a result
@@ -151,6 +146,11 @@ public:
   void injectCallback(
     const std::set<ros::Time>& stamps,
     const Transaction::SharedPtr& transaction);
+
+  /**
+   * @brief Get the unique name of this sensor
+   */
+  const std::string& name() const final { return name_; }
 
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
@@ -173,18 +173,6 @@ protected:
   explicit AsyncSensorModel(size_t thread_count = 1);
 
   /**
-   * @brief Perform any required initialization for the sensor model
-   *
-   * This could include things like reading from the parameter server or subscribing to topics. The class's node
-   * handles will be properly initialized before onInit() is called. Spinning of the callback queue will not begin
-   * until after the call to onInit() completes.
-   * 
-   * Derived sensor models classes must implement this function, because otherwise I'm not sure how the derived
-   * sensor model would actually do anything.
-   */
-  virtual void onInit() = 0;
-
-  /**
    * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received from the optimizer
    * 
    * Receiving a new Graph object generally means that new variables have been inserted into the Graph, and new
@@ -199,6 +187,18 @@ protected:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
   virtual void onGraphUpdate(Graph::ConstSharedPtr graph) {}
+
+  /**
+   * @brief Perform any required initialization for the sensor model
+   *
+   * This could include things like reading from the parameter server or subscribing to topics. The class's node
+   * handles will be properly initialized before onInit() is called. Spinning of the callback queue will not begin
+   * until after the call to onInit() completes.
+   * 
+   * Derived sensor models classes must implement this function, because otherwise I'm not sure how the derived
+   * sensor model would actually do anything.
+   */
+  virtual void onInit() = 0;
 };
 
 }  // namespace fuse_core

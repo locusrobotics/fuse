@@ -32,9 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_sensor_model.h>
+#include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
-#include <fuse_core/callback_wrapper.h>
 #include <ros/callback_queue.h>
 #include <ros/time.h>
 
@@ -55,6 +55,12 @@ AsyncSensorModel::AsyncSensorModel(size_t thread_count) :
 {
 }
 
+void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
+{
+  callback_queue_.addCallback(boost::make_shared<CallbackWrapper<void>>(
+    std::bind(&AsyncSensorModel::onGraphUpdate, this, std::move(graph))));
+}
+
 void AsyncSensorModel::initialize(
   const std::string& name,
   TransactionCallback transaction_callback,
@@ -73,12 +79,6 @@ void AsyncSensorModel::initialize(
 
   // Start the async spinner to service the local callback queue
   spinner_.start();
-}
-
-void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
-{
-  callback_queue_.addCallback(boost::make_shared<CallbackWrapper<void>>(
-    std::bind(&AsyncSensorModel::onGraphUpdate, this, std::move(graph))));
 }
 
 void AsyncSensorModel::injectCallback(

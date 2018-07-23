@@ -36,6 +36,8 @@
 
 #include <gtest/gtest.h>
 
+#include <set>
+
 
 /**
  * @brief Flag used to track the execution of the transaction callback
@@ -130,7 +132,7 @@ TEST(AsyncSensorModel, InjectCallback)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "callback_wrapper_test");
+  ros::init(argc, argv, "test_async_sensor_model");
 
   ros::AsyncSpinner spinner(1);
   spinner.start();

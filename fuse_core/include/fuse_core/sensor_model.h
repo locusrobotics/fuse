@@ -78,11 +78,20 @@ public:
   virtual ~SensorModel() = default;
 
   /**
-   * @brief Get the unique name of this sensor
+   * @brief Function to be executed whenever the optimizer has completed a Graph update
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, after each Graph update is complete. This
+   * generally means that new variables have been inserted into the Graph, and new optimized values are available.
+   * To simplify synchronization between the sensor models and other consumers of Graph data, the provided Graph
+   * object will never be updated by anyone. Thus, only read access to the Graph is provided. Information may be
+   * accessed or computed, but it cannot be changed. The optimizer provides the sensors with Graph updates by
+   * sending a new Graph object, not by modifying this Graph object.
+   *
+   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
-  virtual const std::string& name() const = 0;
+  virtual void graphCallback(Graph::ConstSharedPtr graph) {}
 
-  /**
+   /**
    * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
    * parameter server.
    *
@@ -101,21 +110,7 @@ public:
     TransactionCallback transaction_callback,
     ros::CallbackQueue* transaction_callback_queue) = 0;
 
-  /**
-   * @brief Function to be executed whenever the optimizer has completed a Graph update
-   *
-   * This method will be called by the optimizer, in the optimizer's thread, after each Graph update is complete. This
-   * generally means that new variables have been inserted into the Graph, and new optimized values are available.
-   * To simplify synchronization between the sensor models and other consumers of Graph data, the provided Graph
-   * object will never be updated be updated by anyone. Thus, only read access to the Graph is provided. Information
-   * may be accessed or computed, but it cannot be changed. The optimizer provides the sensors with Graph updates
-   * by sending a new Graph object, not by modifying the Graph object.
-   *
-   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
-   */
-  virtual void graphCallback(Graph::ConstSharedPtr graph) {}
-
-  /**
+ /**
    * @brief Inject a transaction callback function into a callback queue
    *
    * It is expected that sensor model plugins will generate new constraints (packaged inside a Transaction) as a result
@@ -137,6 +132,11 @@ public:
     const Transaction::SharedPtr& transaction,
     const TransactionCallback& transaction_callback,
     ros::CallbackQueue* transaction_callback_queue);
+
+  /**
+   * @brief Get the unique name of this sensor
+   */
+  virtual const std::string& name() const = 0;
 
 protected:
   /**
