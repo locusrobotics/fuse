@@ -37,6 +37,7 @@
 #include <fuse_publishers/path_2d_publisher.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
+#include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
@@ -131,8 +132,14 @@ public:
 
   void pathCallback(const nav_msgs::Path::ConstPtr& msg)
   {
-    received_path_msg_ = true;
     path_msg_ = *msg;
+    received_path_msg_ = true;
+  }
+
+  void poseArrayCallback(const geometry_msgs::PoseArray::ConstPtr& msg)
+  {
+    pose_array_msg_ = *msg;
+    received_pose_array_msg_ = true;
   }
 
 protected:
@@ -142,6 +149,8 @@ protected:
   fuse_core::Transaction::SharedPtr transaction_;
   bool received_path_msg_;
   nav_msgs::Path path_msg_;
+  bool received_pose_array_msg_;
+  geometry_msgs::PoseArray pose_array_msg_;
 };
 
 TEST_F(Path2DPublisherTestFixture, PublishPath)
@@ -154,10 +163,17 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   publisher.initialize("test_publisher");
 
   // Subscribe to the "path" topic
-  ros::Subscriber subscriber = private_node_handle_.subscribe(
+  ros::Subscriber subscriber1 = private_node_handle_.subscribe(
     "test_publisher/path",
     1,
     &Path2DPublisherTestFixture::pathCallback,
+    reinterpret_cast<Path2DPublisherTestFixture*>(this));
+
+  // Subscribe to the "pose_array" topic
+  ros::Subscriber subscriber2 = private_node_handle_.subscribe(
+    "test_publisher/pose_array",
+    1,
+    &Path2DPublisherTestFixture::poseArrayCallback,
     reinterpret_cast<Path2DPublisherTestFixture*>(this));
 
   // Send the graph to the Publisher to trigger message publishing
@@ -195,6 +211,27 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   EXPECT_NEAR(2.02, path_msg_.poses[2].pose.position.y, 1.0e-9);
   EXPECT_NEAR(0.00, path_msg_.poses[2].pose.position.z, 1.0e-9);
   EXPECT_NEAR(3.02, tf2::getYaw(path_msg_.poses[2].pose.orientation), 1.0e-9);
+
+
+  ASSERT_TRUE(received_pose_array_msg_);
+  EXPECT_EQ(ros::Time(1235, 10), pose_array_msg_.header.stamp);
+  EXPECT_EQ("test_map", pose_array_msg_.header.frame_id);
+  ASSERT_EQ(3, pose_array_msg_.poses.size());
+
+  EXPECT_NEAR(1.01, pose_array_msg_.poses[0].position.x, 1.0e-9);
+  EXPECT_NEAR(2.01, pose_array_msg_.poses[0].position.y, 1.0e-9);
+  EXPECT_NEAR(0.00, pose_array_msg_.poses[0].position.z, 1.0e-9);
+  EXPECT_NEAR(3.01, tf2::getYaw(pose_array_msg_.poses[0].orientation), 1.0e-9);
+
+  EXPECT_NEAR(1.03, pose_array_msg_.poses[1].position.x, 1.0e-9);
+  EXPECT_NEAR(2.03, pose_array_msg_.poses[1].position.y, 1.0e-9);
+  EXPECT_NEAR(0.00, pose_array_msg_.poses[1].position.z, 1.0e-9);
+  EXPECT_NEAR(3.03, tf2::getYaw(pose_array_msg_.poses[1].orientation), 1.0e-9);
+
+  EXPECT_NEAR(1.02, pose_array_msg_.poses[2].position.x, 1.0e-9);
+  EXPECT_NEAR(2.02, pose_array_msg_.poses[2].position.y, 1.0e-9);
+  EXPECT_NEAR(0.00, pose_array_msg_.poses[2].position.z, 1.0e-9);
+  EXPECT_NEAR(3.02, tf2::getYaw(pose_array_msg_.poses[2].orientation), 1.0e-9);
 }
 
 int main(int argc, char** argv)

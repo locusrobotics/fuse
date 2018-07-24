@@ -83,7 +83,8 @@ public:
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   std::string frame_id_;  //!< The name of the frame for this path
-  ros::Publisher path_publisher_;  //!< The publisher in charge of sending the entire robot's path
+  ros::Publisher path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
+  ros::Publisher pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
 };
 
 }  // namespace fuse_publishers

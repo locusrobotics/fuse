@@ -38,6 +38,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
+#include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
 #include <pluginlib/class_list_macros.h>
@@ -80,6 +81,7 @@ void Path2DPublisher::onInit()
 
   // Advertise the topic
   path_publisher_ = private_node_handle_.advertise<nav_msgs::Path>("path", 1);
+  pose_array_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseArray>("pose_array", 1);
 }
 
 void Path2DPublisher::notifyCallback(
@@ -87,7 +89,7 @@ void Path2DPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   // Exit early if no one is listening
-  if (path_publisher_.getNumSubscribers() == 0)
+  if ((path_publisher_.getNumSubscribers() == 0) && (pose_array_publisher_.getNumSubscribers() == 0))
   {
     return;
   }
@@ -116,7 +118,7 @@ void Path2DPublisher::notifyCallback(
       catch (const std::exception& e)
       {
         ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << orientation_type <<
-                                      "' even though the variable has the expected type() string.");
+                                       "' even though the variable has the expected type() string.");
         return;
       }
     }
@@ -138,32 +140,50 @@ void Path2DPublisher::notifyCallback(
       catch (const std::exception& e)
       {
         ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << position_type <<
-                                      "' even though the variable has the expected type() string.");
+                                       "' even though the variable has the expected type() string.");
         return;
       }
     }
   }
-  // Convert the sorted poses into a Path msg
-  nav_msgs::Path path_msg;
-  std::transform(poses.begin(),
-                 poses.end(),
-                 std::back_inserter(path_msg.poses),
-                 [](const std::pair<ros::Time, geometry_msgs::PoseStamped>& stamp__pose)
-                 {
-                   return stamp__pose.second;
-                 });
-  if (path_msg.poses.empty())
+  // Define the header for the aggregate message
+  std_msgs::Header header;
+  if (poses.empty())
   {
-    path_msg.header.stamp = ros::Time::now();
+    header.stamp = ros::Time::now();
   }
   else
   {
-    path_msg.header.stamp = path_msg.poses.back().header.stamp;
+    header.stamp = poses.rbegin()->second.header.stamp;
   }
-  path_msg.header.frame_id = frame_id_;
-
-  // Publish the message
-  path_publisher_.publish(path_msg);
+  header.frame_id = frame_id_;
+  // Convert the sorted poses into a Path msg
+  if (path_publisher_.getNumSubscribers() > 0)
+  {
+    nav_msgs::Path path_msg;
+    std::transform(poses.begin(),
+                   poses.end(),
+                   std::back_inserter(path_msg.poses),
+                   [](const std::pair<ros::Time, geometry_msgs::PoseStamped>& stamp__pose)
+                   {
+                     return stamp__pose.second;
+                   });
+    path_msg.header = header;
+    path_publisher_.publish(path_msg);
+  }
+  // Convert the sorted poses into a PoseArray msg
+  if (pose_array_publisher_.getNumSubscribers() > 0)
+  {
+    geometry_msgs::PoseArray pose_array_msg;
+    std::transform(poses.begin(),
+                   poses.end(),
+                   std::back_inserter(pose_array_msg.poses),
+                   [](const std::pair<ros::Time, geometry_msgs::PoseStamped>& stamp__pose)
+                   {
+                     return stamp__pose.second.pose;
+                   });
+    pose_array_msg.header = header;
+    pose_array_publisher_.publish(pose_array_msg);
+  }
 }
 
 }  // namespace fuse_publishers
