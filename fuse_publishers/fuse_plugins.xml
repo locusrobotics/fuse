@@ -1,0 +1,14 @@
+<library path="lib/libfuse_publishers">
+  <class type="fuse_publishers::Path2DPublisher" base_class_type="fuse_core::Publisher">
+    <description>
+      Publisher plugin that publishes all of the Position2DStamped/Orientation2DStamped poses as a
+      nav_msgs::Path message.
+    </description>
+  </class>
+  <class type="fuse_publishers::Pose2DPublisher" base_class_type="fuse_core::Publisher">
+    <description>
+      Publisher that publishes the most recent Position2DStamped/Orientation2DStamped to one or more topics,
+      including tf.
+    </description>
+  </class>
+</library>
