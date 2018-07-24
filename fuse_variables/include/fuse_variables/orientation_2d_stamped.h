@@ -61,6 +61,11 @@ public:
   SMART_PTR_DEFINITIONS(Orientation2DStamped);
 
   /**
+   * @brief The unique name for this variable type.
+   */
+  static const std::string TYPE;
+
+  /**
    * @brief Can be used to directly index variables in the data array
    */
   enum : size_t

@@ -34,11 +34,14 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 
+#include <boost/core/demangle.hpp>
 #include <ceres/autodiff_local_parameterization.h>
 
 
 namespace fuse_variables
 {
+
+const std::string Orientation2DStamped::TYPE = boost::core::demangle(typeid(Orientation2DStamped).name());
 
 Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   Stamped(stamp, device_id),

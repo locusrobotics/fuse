@@ -136,14 +136,11 @@ public:
 protected:
   std::string base_frame_;  //!< The name of the robot's base_link frame
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
+  ros::Time latest_stamp_;  //!< The timestamp of the most recent position
   std::string map_frame_;  //!< The name of the robot's map frame
   std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is not used)
-  ros::Time orientation_stamp_;  //!< The timestamp of the most recent orientation
-  fuse_core::UUID orientation_uuid_;  //!< The UUID with the most recent orientation
   ros::Publisher pose_publisher_;  //!< Publish the pose as a geometry_msgs::PoseStamped
   ros::Publisher pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::PoseWithCovarianceStamped
-  ros::Time position_stamp_;  //!< The timestamp of the most recent position
-  fuse_core::UUID position_uuid_;  //!< The UUID with the most recent position
   bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the pose topics
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by time and frame id
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the tf topics and

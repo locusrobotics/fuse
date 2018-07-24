@@ -55,6 +55,75 @@
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_publishers::Path2DPublisher, fuse_core::Publisher);
 
+
+// Some file-scope functions in an anonymous namespace
+namespace
+{
+
+bool checkVariable(
+  const fuse_core::Variable& variable,
+  const std::string& requested_type,
+  const fuse_core::UUID& requested_device,
+  ros::Time& output_stamp)
+{
+  if (variable.type() != requested_type)
+  {
+    return false;
+  }
+  try
+  {
+    auto stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(variable);
+    if (stamped_variable.deviceId() != requested_device)
+    {
+      return false;
+    }
+    output_stamp = stamped_variable.stamp();
+  }
+  catch (const std::exception& e)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error" << e.what());
+    return false;
+  }
+  catch (...)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error: unknown");
+    return false;
+  }
+  return true;
+}
+
+bool findPose(
+  const fuse_core::Graph& graph,
+  const ros::Time& stamp,
+  const fuse_core::UUID& device_id,
+  geometry_msgs::Pose& pose)
+{
+  try
+  {
+    auto orientation_variable = dynamic_cast<const fuse_variables::Orientation2DStamped&>(
+      graph.getVariable(fuse_variables::Orientation2DStamped(stamp, device_id).uuid()));
+    auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(
+      graph.getVariable(fuse_variables::Position2DStamped(stamp, device_id).uuid()));
+    pose.position.x = position_variable.x();
+    pose.position.y = position_variable.y();
+    pose.position.z = 0.0;
+    pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
+  }
+  catch (const std::exception& e)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error" << e.what());
+    return false;
+  }
+  catch (...)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error: unknown");
+    return false;
+  }
+  return true;
+}
+
+}  // namespace
+
 namespace fuse_publishers
 {
 
@@ -93,95 +162,58 @@ void Path2DPublisher::notifyCallback(
   {
     return;
   }
-
-  // Get the type strings for the variables of interest
-  auto orientation_type = fuse_variables::Orientation2DStamped(ros::Time()).type();
-  auto position_type = fuse_variables::Position2DStamped(ros::Time()).type();
-
-  // Extract and sort all of the 2D pose variables to the path
-  std::map<ros::Time, geometry_msgs::PoseStamped> poses;
+  // Extract all of the 2D pose variables to the path
+  std::vector<geometry_msgs::PoseStamped> poses;
   for (const auto& variable : graph->getVariables())
   {
-    if (variable.type() == orientation_type)
+    // Use the orientation variable as the "reference" variable
+    ros::Time stamp;
+    if (checkVariable(variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp))
     {
-      try
+      geometry_msgs::PoseStamped pose;
+      if (findPose(*graph, stamp, device_id_, pose.pose))
       {
-        auto orientation_variable = dynamic_cast<const fuse_variables::Orientation2DStamped&>(variable);
-        if (orientation_variable.deviceId() == device_id_)
-        {
-          auto& pose = poses[orientation_variable.stamp()];
-          pose.header.stamp = orientation_variable.stamp();
-          pose.header.frame_id = frame_id_;    
-          pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
-        }
-      }
-      catch (const std::exception& e)
-      {
-        ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << orientation_type <<
-                                       "' even though the variable has the expected type() string.");
-        return;
-      }
-    }
-    else if (variable.type() == position_type)
-    {
-      try
-      {
-        auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(variable);
-        if (position_variable.deviceId() == device_id_)
-        {
-          auto& pose = poses[position_variable.stamp()];
-          pose.header.stamp = position_variable.stamp();
-          pose.header.frame_id = frame_id_;    
-          pose.pose.position.x = position_variable.x();
-          pose.pose.position.y = position_variable.y();
-          pose.pose.position.z = 0.0;
-        }
-      }
-      catch (const std::exception& e)
-      {
-        ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << position_type <<
-                                       "' even though the variable has the expected type() string.");
-        return;
+        pose.header.stamp = stamp;
+        pose.header.frame_id = frame_id_;
+        poses.push_back(pose);
       }
     }
   }
-  // Define the header for the aggregate message
-  std_msgs::Header header;
+  // Exit if there are no poses
   if (poses.empty())
   {
-    header.stamp = ros::Time::now();
+    return;
   }
-  else
+  // Sort the poses by timestamp
+  auto compare_stamps = [](const geometry_msgs::PoseStamped& pose1, const geometry_msgs::PoseStamped& pose2)
   {
-    header.stamp = poses.rbegin()->second.header.stamp;
-  }
+    return pose1.header.stamp < pose2.header.stamp;
+  };
+  std::sort(poses.begin(), poses.end(), compare_stamps);
+  // Define the header for the aggregate message
+  std_msgs::Header header;
+  header.stamp = poses.back().header.stamp;
   header.frame_id = frame_id_;
   // Convert the sorted poses into a Path msg
   if (path_publisher_.getNumSubscribers() > 0)
   {
     nav_msgs::Path path_msg;
-    std::transform(poses.begin(),
-                   poses.end(),
-                   std::back_inserter(path_msg.poses),
-                   [](const std::pair<ros::Time, geometry_msgs::PoseStamped>& stamp__pose)
-                   {
-                     return stamp__pose.second;
-                   });
     path_msg.header = header;
+    path_msg.poses = poses;
     path_publisher_.publish(path_msg);
   }
   // Convert the sorted poses into a PoseArray msg
   if (pose_array_publisher_.getNumSubscribers() > 0)
   {
     geometry_msgs::PoseArray pose_array_msg;
+    pose_array_msg.header = header;
     std::transform(poses.begin(),
                    poses.end(),
                    std::back_inserter(pose_array_msg.poses),
-                   [](const std::pair<ros::Time, geometry_msgs::PoseStamped>& stamp__pose)
+                   [](const geometry_msgs::PoseStamped& pose)
                    {
-                     return stamp__pose.second.pose;
-                   });
-    pose_array_msg.header = header;
+                     return pose.pose;
+                   });  // NOLINT(whitespace/braces)
     pose_array_publisher_.publish(pose_array_msg);
   }
 }

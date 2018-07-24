@@ -63,16 +63,85 @@ PLUGINLIB_EXPORT_CLASS(fuse_publishers::Pose2DPublisher, fuse_core::Publisher);
 
 static const ros::Time TIME_ZERO = ros::Time(0, 0);
 
+// Some file-scope functions in an anonymous namespace
+namespace
+{
+
+bool checkVariable(
+  const fuse_core::Variable& variable,
+  const std::string& requested_type,
+  const fuse_core::UUID& requested_device,
+  ros::Time& output_stamp)
+{
+  if (variable.type() != requested_type)
+  {
+    return false;
+  }
+  try
+  {
+    auto stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(variable);
+    if (stamped_variable.deviceId() != requested_device)
+    {
+      return false;
+    }
+    output_stamp = stamped_variable.stamp();
+  }
+  catch (const std::exception& e)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error" << e.what());
+    return false;
+  }
+  catch (...)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error: unknown");
+    return false;
+  }
+  return true;
+}
+
+bool findPose(
+  const fuse_core::Graph& graph,
+  const ros::Time& stamp,
+  const fuse_core::UUID& device_id,
+  fuse_core::UUID& orientation_uuid,
+  fuse_core::UUID& position_uuid,
+  geometry_msgs::Pose& pose)
+{
+  try
+  {
+    orientation_uuid = fuse_variables::Orientation2DStamped(stamp, device_id).uuid();
+    auto orientation_variable = dynamic_cast<const fuse_variables::Orientation2DStamped&>(
+      graph.getVariable(orientation_uuid));
+    position_uuid = fuse_variables::Position2DStamped(stamp, device_id).uuid();
+    auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(
+      graph.getVariable(position_uuid));
+    pose.position.x = position_variable.x();
+    pose.position.y = position_variable.y();
+    pose.position.z = 0.0;
+    pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
+  }
+  catch (const std::exception& e)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error" << e.what());
+    return false;
+  }
+  catch (...)
+  {
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error: unknown");
+    return false;
+  }
+  return true;
+}
+
+}  // namespace
+
 namespace fuse_publishers
 {
 
 Pose2DPublisher::Pose2DPublisher() :
   fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
-  orientation_stamp_(0, 0),
-  orientation_uuid_(fuse_core::uuid::NIL),
-  position_stamp_(0, 0),
-  position_uuid_(fuse_core::uuid::NIL),
+  latest_stamp_(0, 0),
   publish_to_tf_(false),
   use_tf_lookup_(false)
 {
@@ -149,91 +218,37 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr transaction,
   fuse_core::Graph::ConstSharedPtr graph)
 {
-  // Clear the latest variable if it points to a removed variable
-  if (orientation_stamp_ != TIME_ZERO && position_stamp_ != TIME_ZERO)
+  // Clear the previous pose stamp if the variable was deleted
+  if (latest_stamp_ != TIME_ZERO)
   {
-    for (const auto& removed_variable_uuid : transaction->removedVariables())
+    auto previous_orientation_uuid = fuse_variables::Orientation2DStamped(latest_stamp_, device_id_).uuid();
+    auto previous_position_uuid = fuse_variables::Position2DStamped(latest_stamp_, device_id_).uuid();
+    if (!graph->variableExists(previous_orientation_uuid) || !graph->variableExists(previous_position_uuid))
     {
-      if ((orientation_uuid_ == removed_variable_uuid) || (position_uuid_ == removed_variable_uuid))
-      {
-        orientation_stamp_ = TIME_ZERO;
-        orientation_uuid_ = fuse_core::uuid::NIL;
-        position_stamp_ = TIME_ZERO;
-        position_uuid_ = fuse_core::uuid::NIL;
-        break;
-      }
+      latest_stamp_ = TIME_ZERO;
     }
   }
-  // Look through the added variables, looking for the most recent timestamp
-  auto orientation_type = fuse_variables::Orientation2DStamped(TIME_ZERO).type();
-  auto position_type = fuse_variables::Position2DStamped(TIME_ZERO).type();
+  // Find the latest pose stamp
   for (const auto& added_variable : transaction->addedVariables())
   {
-    if (added_variable->type() == orientation_type)
+    ros::Time stamp;
+    if (checkVariable(*added_variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp) &&
+       stamp >= latest_stamp_)
     {
-      auto orientation_variable = std::dynamic_pointer_cast<const fuse_variables::Orientation2DStamped>(added_variable);
-      if (!static_cast<bool>(orientation_variable))
-      {
-        ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << orientation_type <<
-                                       "' even though the variable has the expected type() string.");
-        continue;
-      }
-      if (orientation_variable->deviceId() == device_id_ && orientation_variable->stamp() >= orientation_stamp_)
-      {
-        orientation_uuid_ = orientation_variable->uuid();
-        orientation_stamp_ = orientation_variable->stamp();
-      }
-    }
-    else if (added_variable->type() == position_type)
-    {
-      auto position_variable = std::dynamic_pointer_cast<const fuse_variables::Position2DStamped>(added_variable);
-      if (!static_cast<bool>(position_variable))
-      {
-        ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << position_type <<
-                                       "' even though the variable has the expected type() string.");
-        continue;
-      }
-      if (position_variable->deviceId() == device_id_ && position_variable->stamp() >= position_stamp_)
-      {
-        position_uuid_ = position_variable->uuid();
-        position_stamp_ = position_variable->stamp();
-      }
+      latest_stamp_ = stamp;
     }
   }
-  if (orientation_stamp_ == TIME_ZERO ||
-      position_stamp_ == TIME_ZERO ||
-      orientation_stamp_ != position_stamp_)
+  if (latest_stamp_ == TIME_ZERO)
   {
     ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a matching set of position and orientation variables.");
     return;
   }
-  // Convert the pose variable into ROS types
-  geometry_msgs::Point translation;
-  geometry_msgs::Quaternion rotation;
-  try
+  // Get the pose values associated with the selected timestamp
+  fuse_core::UUID orientation_uuid;
+  fuse_core::UUID position_uuid;
+  geometry_msgs::Pose pose;
+  if (!findPose(*graph, latest_stamp_, device_id_, orientation_uuid, position_uuid, pose))
   {
-    auto orientation_variable = dynamic_cast<const fuse_variables::Orientation2DStamped&>(
-      graph->getVariable(orientation_uuid_));
-    rotation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
-  }
-  catch (const std::exception& e)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << orientation_type <<
-                                   "' even though the variable has the expected type() string.");
-    return;
-  }
-  try
-  {
-    auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(
-      graph->getVariable(position_uuid_));
-    translation.x = position_variable.x();
-    translation.y = position_variable.y();
-    translation.z = 0.0;
-  }
-  catch (const std::exception& e)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to cast variable to type '" << position_type <<
-                                   "' even though the variable has the expected type() string.");
     return;
   }
   // Publish the various message types
@@ -241,13 +256,13 @@ void Pose2DPublisher::notifyCallback(
   {
     // Create a 3D ROS Transform message from the current 2D pose
     geometry_msgs::TransformStamped map_to_base;
-    map_to_base.header.stamp = orientation_stamp_;
+    map_to_base.header.stamp = latest_stamp_;
     map_to_base.header.frame_id = map_frame_;
     map_to_base.child_frame_id = base_frame_;
-    map_to_base.transform.translation.x = translation.x;  // Transforms use Vector3 instead of Point (shakes fist)
-    map_to_base.transform.translation.y = translation.y;
-    map_to_base.transform.translation.z = translation.z;
-    map_to_base.transform.rotation = rotation;
+    map_to_base.transform.translation.x = pose.position.x;  // Transforms use Vector3 instead of Point (shakes fist)
+    map_to_base.transform.translation.y = pose.position.y;
+    map_to_base.transform.translation.z = pose.position.z;
+    map_to_base.transform.rotation = pose.orientation;
     // If we are suppose to publish the map->odom frame instead, do that transformation now
     if (use_tf_lookup_)
     {
@@ -255,7 +270,7 @@ void Pose2DPublisher::notifyCallback(
       // map->base transform
       try
       {
-        auto base_to_odom = tf_buffer_->lookupTransform(base_frame_, odom_frame_, orientation_stamp_, tf_timeout_);
+        auto base_to_odom = tf_buffer_->lookupTransform(base_frame_, odom_frame_, latest_stamp_, tf_timeout_);
         geometry_msgs::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, map_to_base);
         map_to_odom.child_frame_id = odom_frame_;  // The child frame is not populated for some reason
@@ -276,26 +291,24 @@ void Pose2DPublisher::notifyCallback(
   if (pose_publisher_.getNumSubscribers() > 0)
   {
     geometry_msgs::PoseStamped msg;
-    msg.header.stamp = orientation_stamp_;
+    msg.header.stamp = latest_stamp_;
     msg.header.frame_id = map_frame_;
-    msg.pose.position = translation;
-    msg.pose.orientation = rotation;
+    msg.pose = pose;
     pose_publisher_.publish(msg);
   }
   if (pose_with_covariance_publisher_.getNumSubscribers() > 0)
   {
     // Get the covariance from the graph
     std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> requests;
-    requests.emplace_back(position_uuid_, position_uuid_);
-    requests.emplace_back(position_uuid_, orientation_uuid_);
-    requests.emplace_back(orientation_uuid_, orientation_uuid_);
+    requests.emplace_back(position_uuid, position_uuid);
+    requests.emplace_back(position_uuid, orientation_uuid);
+    requests.emplace_back(orientation_uuid, orientation_uuid);
     std::vector<std::vector<double>> covariance_blocks;
     graph->getCovariance(requests, covariance_blocks);
     geometry_msgs::PoseWithCovarianceStamped msg;
-    msg.header.stamp = orientation_stamp_;
+    msg.header.stamp = latest_stamp_;
     msg.header.frame_id = map_frame_;
-    msg.pose.pose.position = translation;
-    msg.pose.pose.orientation = rotation;
+    msg.pose.pose = pose;
     msg.pose.covariance[0] = covariance_blocks[0][0];
     msg.pose.covariance[1] = covariance_blocks[0][1];
     msg.pose.covariance[6] = covariance_blocks[0][2];
