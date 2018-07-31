@@ -38,6 +38,9 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
+#include <fuse_variables/util.h>
+
+#include <ceres/jet.h>
 #include <ros/time.h>
 
 #include <ostream>
@@ -94,12 +97,12 @@ public:
   /**
    * @brief Read-only access to quaternion's Euler pitch angle component
    */
-  double pitch();
+  double pitch() { return getPitch(w(), x(), y(), z()); }
 
   /**
    * @brief Read-only access to quaternion's Euler roll angle component
    */
-  double roll();
+  double roll() { return getRoll(w(), x(), y(), z()); }
 
   /**
    * @brief Read-write access to the quaternion w component
@@ -134,7 +137,7 @@ public:
   /**
    * @brief Read-only access to quaternion's Euler yaw angle component
    */
-  double yaw();
+  double yaw() { return getYaw(w(), x(), y(), z()); }
 
   /**
    * @brief Read-write access to the quaternion z component

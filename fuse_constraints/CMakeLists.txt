@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_constraints)
 
 find_package(catkin REQUIRED COMPONENTS
+  geometry_msgs
   fuse_core
   fuse_variables
   roscpp
@@ -19,6 +20,7 @@ catkin_package(
     ${PROJECT_NAME}
     ${CERES_LIBRARIES}
   CATKIN_DEPENDS
+    geometry_msgs
     fuse_core
     fuse_variables
     roscpp
@@ -39,6 +41,8 @@ include_directories(
 
 # fuse_constraints library
 add_library(${PROJECT_NAME}
+  src/absolute_orientation_3d_stamped_constraint.cpp
+  src/absolute_orientation_3d_stamped_euler_constraint.cpp
   src/absolute_pose_2d_stamped_constraint.cpp
   src/normal_delta.cpp
   src/normal_delta_orientation_2d.cpp
@@ -92,6 +96,30 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+
+  # Absolute Orientation 3D Stamped Constraint Tests
+  catkin_add_gtest(test_absolute_orientation_3d_stamped_constraint
+    test/test_absolute_orientation_3d_stamped_constraint.cpp
+  )
+  add_dependencies(test_absolute_orientation_3d_stamped_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_absolute_orientation_3d_stamped_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # Absolute Orientation 3D Stamped Euler Constraint Tests
+    catkin_add_gtest(test_absolute_orientation_3d_stamped_euler_constraint
+    test/test_absolute_orientation_3d_stamped_euler_constraint.cpp
+  )
+  add_dependencies(test_absolute_orientation_3d_stamped_euler_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_absolute_orientation_3d_stamped_euler_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
   )
 
   # Absolute Pose 2D Stamped Constraint Tests

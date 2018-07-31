@@ -31,16 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_UTIL_H
-#define FUSE_CONSTRAINTS_UTIL_H
+#ifndef FUSE_VARIABLES_UTIL_H
+#define FUSE_VARIABLES_UTIL_H
 
 #include <ceres/jet.h>
-#include <Eigen/Geometry>
 
 #include <cmath>
 
 
-namespace fuse_constraints
+namespace fuse_variables
 {
 
 /**
@@ -48,8 +47,8 @@ namespace fuse_constraints
  *
  * @param[in] w The quaternion real-valued component
  * @param[in] x The quaternion x-axis component
- * @param[in] y The quaternion x-axis component
- * @param[in] z The quaternion x-axis component
+ * @param[in] y The quaternion y-axis component
+ * @param[in] z The quaternion z-axis component
  * @return      The quaternion's Euler pitch angle component
  */
 template <typename T>
@@ -73,8 +72,8 @@ static inline T getPitch(const T w, const T x, const T y, const T z)
  *
  * @param[in] w The quaternion real-valued component
  * @param[in] x The quaternion x-axis component
- * @param[in] y The quaternion x-axis component
- * @param[in] z The quaternion x-axis component
+ * @param[in] y The quaternion y-axis component
+ * @param[in] z The quaternion z-axis component
  * @return      The quaternion's Euler pitch angle component
  */
 template <typename T>
@@ -91,8 +90,8 @@ static inline T getRoll(const T w, const T x, const T y, const T z)
  *
  * @param[in] w The quaternion real-valued component
  * @param[in] x The quaternion x-axis component
- * @param[in] y The quaternion x-axis component
- * @param[in] z The quaternion x-axis component
+ * @param[in] y The quaternion y-axis component
+ * @param[in] z The quaternion z-axis component
  * @return      The quaternion's Euler pitch angle component
  */
 template <typename T>
@@ -104,46 +103,6 @@ static inline T getYaw(const T w, const T x, const T y, const T z)
   return ceres::atan2(sin_yaw, cos_yaw);
 }
 
-/**
- * @brief Wrap a 2D angle to the standard (-Pi, +Pi] range.
- *
- * @param[in/out] angle Input angle to be wrapped to the (-Pi, +Pi] range. Angle is updated by this function.
- */
-template<typename T>
-void wrapAngle2D(T& angle)
-{
-  // Define some necessary variations of PI with the correct type (double or Jet)
-  static const T PI = T(M_PI);
-  static const T TAU = T(2 * M_PI);
-  // Handle the 1*Tau roll-over (https://tauday.com/tau-manifesto)
-  // Use ceres::floor because it is specialized for double and Jet types.
-  angle -= TAU * ceres::floor((angle + PI) / TAU);
-}
+}  // namespace fuse_variables
 
-template<typename T>
-T wrapAngle2D(const T& angle)
-{
-  T wrapped = angle;
-  wrapAngle2D(wrapped);
-  return wrapped;
-}
-
-/**
- * @brief Create an 2x2 rotation matrix from an angle
- *
- * @param[in] angle The rotation angle, in radians
- * @return          The equivalent 2x2 rotation matrix
- */
-template <typename T>
-Eigen::Matrix<T, 2, 2> RotationMatrix2D(const T angle)
-{
-  const T cos_angle = ceres::cos(angle);
-  const T sin_angle = ceres::sin(angle);
-  Eigen::Matrix<T, 2, 2> rotation;
-  rotation << cos_angle, -sin_angle, sin_angle, cos_angle;
-  return rotation;
-}
-
-}  // namespace fuse_constraints
-
-#endif  // FUSE_CONSTRAINTS_UTIL_H
+#endif  // FUSE_VARIABLES_UTIL_H
