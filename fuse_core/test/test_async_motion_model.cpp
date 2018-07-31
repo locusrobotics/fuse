@@ -53,7 +53,7 @@ public:
 
   virtual ~MyMotionModel() = default;
 
-  bool applyCallback(const std::set<ros::Time>& stamps, fuse_core::Transaction::SharedPtr& transaction)
+  bool applyCallback(const std::set<ros::Time>& stamps, fuse_core::Transaction& transaction)
   {
     ros::Duration(1.0).sleep();
     transaction_received = true;
@@ -112,7 +112,7 @@ TEST(AsyncMotionModel, ApplyCallback)
   // will then inject a call to applyCallback() into the motion model's callback queue. There is a time delay there, so
   // this call should block for *at least* 1.0 second. Once it returns, the "received_transaction" flag should be set.
   std::set<ros::Time> stamps;
-  fuse_core::Transaction::SharedPtr transaction;  // nullptr, okay because we don't actually use it for anything
+  fuse_core::Transaction transaction;
   ros::Time before_apply = ros::Time::now();
   motion_model.apply(stamps, transaction);
   ros::Time after_apply = ros::Time::now();
