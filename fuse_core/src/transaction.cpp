@@ -188,6 +188,28 @@ void Transaction::print(std::ostream& stream) const
   }
 }
 
+Transaction::UniquePtr Transaction::clone() const
+{
+  auto other = Transaction::make_unique();
+  for (const auto variable : addedVariables())
+  {
+    other->addVariable(variable->clone());
+  }
+  for (const auto constraint : addedConstraints())
+  {
+    other->addConstraint(constraint->clone());
+  }
+  for (const auto constraint_uuid : removedConstraints())
+  {
+    other->removeConstraint(constraint_uuid);
+  }
+  for (const auto variable_uuid : removedVariables())
+  {
+    other->removeVariable(variable_uuid);
+  }
+  return other;
+}
+
 std::ostream& operator <<(std::ostream& stream, const Transaction& transaction)
 {
   transaction.print(stream);
