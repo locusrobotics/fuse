@@ -192,7 +192,7 @@ TEST(RelativePose2DStampedConstraint, Optimization)
     covariance.GetCovarianceBlock(position1->data(), position1->data(), covariance_vector1.data());
     std::vector<double> covariance_vector2(position1->size() * orientation1->size());
     covariance.GetCovarianceBlock(position1->data(), orientation1->data(), covariance_vector2.data());
-    std::vector<double> covariance_vector3(position1->size() * orientation1->size());
+    std::vector<double> covariance_vector3(orientation1->size() * orientation1->size());
     covariance.GetCovarianceBlock(orientation1->data(), orientation1->data(), covariance_vector3.data());
     // Assemble the full covariance from the covariance blocks
     Eigen::Matrix3d actual_covariance;
@@ -221,7 +221,7 @@ TEST(RelativePose2DStampedConstraint, Optimization)
     covariance.GetCovarianceBlock(position2->data(), position2->data(), covariance_vector1.data());
     std::vector<double> covariance_vector2(position2->size() * orientation2->size());
     covariance.GetCovarianceBlock(position2->data(), orientation2->data(), covariance_vector2.data());
-    std::vector<double> covariance_vector3(position2->size() * orientation2->size());
+    std::vector<double> covariance_vector3(orientation2->size() * orientation2->size());
     covariance.GetCovarianceBlock(orientation2->data(), orientation2->data(), covariance_vector3.data());
     // Assemble the full covariance from the covariance blocks
     Eigen::Matrix3d actual_covariance;
