@@ -57,7 +57,7 @@ namespace fuse_optimizers
 /**
  * @brief A simple optimizer implementation that uses batch optimization
  * 
- * The batch optimization takes place in a separate thread. Received sensor transactions are queued during while the
+ * The batch optimization takes place in a separate thread. Received sensor transactions are queued while the
  * optimization is processing, then applied to the graph at the start of the next optimization cycle. Optimization
  * cycles are started at a fixed frequency. If the previous optimization is not yet complete when the optimization
  * period elapses, then a new optimization will not be started. The previous optimization will run to completion, and
