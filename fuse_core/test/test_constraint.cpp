@@ -45,7 +45,7 @@ TEST(Constraint, Constructor)
   {
     fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
     ExampleConstraint constraint{variable_uuid1};
-    ASSERT_EQ(1, constraint.variables().size());
+    ASSERT_EQ(1u, constraint.variables().size());
     ASSERT_EQ(variable_uuid1, constraint.variables().at(0));
   }
   // Create a constraint with multiple UUIDs
@@ -54,7 +54,7 @@ TEST(Constraint, Constructor)
     fuse_core::UUID variable_uuid2 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid3 = fuse_core::uuid::generate();
     ExampleConstraint constraint{variable_uuid1, variable_uuid2, variable_uuid3};
-    ASSERT_EQ(3, constraint.variables().size());
+    ASSERT_EQ(3u, constraint.variables().size());
     ASSERT_EQ(variable_uuid1, constraint.variables().at(0));
     ASSERT_EQ(variable_uuid2, constraint.variables().at(1));
     ASSERT_EQ(variable_uuid3, constraint.variables().at(2));
