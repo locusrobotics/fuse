@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
@@ -78,8 +79,8 @@ public:
    */
   AbsoluteOrientation3DStampedEulerConstraint(
     const fuse_variables::Orientation3DStamped& orientation,
-    const Eigen::VectorXd& mean,
-    const Eigen::MatrixXd& covariance,
+    const fuse_core::VectorXd& mean,
+    const fuse_core::MatrixXd& covariance,
     const std::vector<Euler> &axes);
 
   /**
@@ -99,7 +100,7 @@ public:
    * Order is defined by the provided \p axes parameter. This mean() function deviates from all other
    * currently implemented constraints in that the order does _not_ match the order defined in the variable.
    */
-  const Eigen::VectorXd& mean() const { return mean_; }
+  const fuse_core::VectorXd& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -107,7 +108,7 @@ public:
    * Order is defined by the provided \p axes parameter. This sqrtInformation() function deviates from all other
    * currently implemented constraints in that the order does _not_ match the order defined in the variable.
    */
-  const Eigen::MatrixXd& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -115,7 +116,7 @@ public:
    * Order is defined by the provided \p axes parameter. This covariance() function deviates from all other
    * currently implemented constraints in that the order does _not_ match the order defined in the variable.
    */
-  Eigen::MatrixXd covariance() const;
+  fuse_core::MatrixXd covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -145,8 +146,8 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  Eigen::VectorXd mean_;  //!< The measured/prior mean vector for this variable
-  Eigen::MatrixXd sqrt_information_;  //!< The square root information matrix
+  fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
   std::vector<Euler> axes_;  //!< Which Euler angle axes we want to measure
 };
 

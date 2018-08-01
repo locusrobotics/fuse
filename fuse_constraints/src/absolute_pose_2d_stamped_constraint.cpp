@@ -43,8 +43,8 @@ namespace fuse_constraints
 AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
   const fuse_variables::Position2DStamped& position,
   const fuse_variables::Orientation2DStamped& orientation,
-  const Eigen::Vector3d& mean,
-  const Eigen::Matrix3d& covariance) :
+  const fuse_core::Vector3d& mean,
+  const fuse_core::Matrix3d& covariance) :
     fuse_core::Constraint{position.uuid(), orientation.uuid()},
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())

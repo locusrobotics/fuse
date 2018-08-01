@@ -35,10 +35,10 @@
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_2D_COST_FUNCTOR_H
 
 #include <fuse_constraints/util.h>
+#include <fuse_core/eigen.h>
 
 #include <ceres/internal/disable_warnings.h>
 #include <ceres/internal/eigen.h>
-#include <Eigen/Core>
 
 
 namespace fuse_constraints
@@ -78,7 +78,7 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
    * @param[in] b The exposed pose difference in order (x, y, yaw)
    */
-  NormalDeltaPose2DCostFunctor(const Eigen::Matrix3d& A, const Eigen::Vector3d& b);
+  NormalDeltaPose2DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector3d& b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -92,11 +92,11 @@ public:
     T* residual) const;
 
 private:
-  Eigen::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
-  Eigen::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
+  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
 };
 
-NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const Eigen::Matrix3d& A, const Eigen::Vector3d& b) :
+NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector3d& b) :
   A_(A),
   b_(b)
 {
@@ -110,9 +110,9 @@ bool NormalDeltaPose2DCostFunctor::operator()(
   const T* const orientation2,
   T* residual) const
 {
-  Eigen::Map<const Eigen::Matrix<T, 2, 1> > position1_vector(position1);
-  Eigen::Map<const Eigen::Matrix<T, 2, 1> > position2_vector(position2);
-  Eigen::Map<Eigen::Matrix<T, 3, 1> > residuals_matrix(residual);
+  Eigen::Map<const Eigen::Matrix<T, 2, 1>> position1_vector(position1);
+  Eigen::Map<const Eigen::Matrix<T, 2, 1>> position2_vector(position2);
+  Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_matrix(residual);
   residuals_matrix.template head<2>() =
     RotationMatrix2D(orientation1[0]).transpose() * (position2_vector - position1_vector) -
     b_.head<2>().template cast<T>();
@@ -120,7 +120,7 @@ bool NormalDeltaPose2DCostFunctor::operator()(
   wrapAngle2D(residuals_matrix(2));
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  residuals_matrix = A_.template cast<T>() * residuals_matrix;
+  residuals_matrix.applyOnTheLeft(A_.template cast<T>());
   return true;
 }
 

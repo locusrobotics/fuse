@@ -48,8 +48,8 @@ namespace fuse_constraints
 template<class Variable>
 AbsoluteConstraint<Variable>::AbsoluteConstraint(
   const Variable& variable,
-  const Eigen::VectorXd& mean,
-  const Eigen::MatrixXd& covariance) :
+  const fuse_core::VectorXd& mean,
+  const fuse_core::MatrixXd& covariance) :
     fuse_core::Constraint{variable.uuid()},
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())
@@ -62,8 +62,8 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
 template<class Variable>
 AbsoluteConstraint<Variable>::AbsoluteConstraint(
   const Variable& variable,
-  const Eigen::VectorXd& partial_mean,
-  const Eigen::MatrixXd& partial_covariance,
+  const fuse_core::VectorXd& partial_mean,
+  const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& indices) :
     fuse_core::Constraint{variable.uuid()}
 {
@@ -71,7 +71,7 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
   assert(partial_covariance.rows() == static_cast<int>(indices.size()));
   assert(partial_covariance.cols() == static_cast<int>(indices.size()));
   // Compute the sqrt information of the provided cov matrix
-  Eigen::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
+  fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order
   // What are we doing here?
   // The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
@@ -79,8 +79,8 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
   // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
   // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
   // defined by the variable.
-  mean_ = Eigen::VectorXd::Zero(variable.size());
-  sqrt_information_ = Eigen::MatrixXd::Zero(indices.size(), variable.size());
+  mean_ = fuse_core::VectorXd::Zero(variable.size());
+  sqrt_information_ = fuse_core::MatrixXd::Zero(indices.size(), variable.size());
   for (size_t i = 0; i < indices.size(); ++i)
   {
     mean_(indices[i]) = partial_mean(i);
@@ -89,7 +89,7 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
 }
 
 template<class Variable>
-Eigen::MatrixXd AbsoluteConstraint<Variable>::covariance() const
+fuse_core::MatrixXd AbsoluteConstraint<Variable>::covariance() const
 {
   // We want to compute:
   // cov = (sqrt_info' * sqrt_info)^-1
@@ -98,8 +98,8 @@ Eigen::MatrixXd AbsoluteConstraint<Variable>::covariance() const
   // But sqrt_info _may_ not be square. So we need to compute the pseudoinverse instead.
   // Eigen doesn't have a pseudoinverse function (for probably very legitimate reasons).
   // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
-  auto I = Eigen::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
-  Eigen::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
+  auto I = fuse_core::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
+  fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
   return pinv * pinv.transpose();
 }
 

@@ -34,8 +34,9 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_DELTA_H
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_H
 
+#include <fuse_core/eigen.h>
+
 #include <ceres/cost_function.h>
-#include <ceres/internal/eigen.h>
 #include <ceres/internal/disable_warnings.h>
 
 
@@ -72,7 +73,7 @@ public:
    *              type of variable. At a minimum, they must have the same dimensions and the per-element subtraction
    *              operator must be valid.
    */
-  NormalDelta(const ceres::Matrix& A, const ceres::Vector& b);
+  NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b);
 
   /**
    * @brief Destructor
@@ -89,8 +90,8 @@ public:
     double** jacobians) const;
 
 private:
-  ceres::Matrix A_;  //!< The residual weighting matrix, most likely the square root information matrix
-  ceres::Vector b_;  //!< The measured difference between variable x0 and variable x1
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::VectorXd b_;  //!< The measured difference between variable x0 and variable x1
 };
 
 }  // namespace fuse_constraints

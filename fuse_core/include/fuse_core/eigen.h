@@ -31,49 +31,38 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_delta.h>
+#ifndef FUSE_CORE_EIGEN_H
+#define FUSE_CORE_EIGEN_H
 
-#include <ceres/internal/eigen.h>
 #include <Eigen/Core>
-#include <glog/logging.h>
 
 
-namespace fuse_constraints
+namespace fuse_core
 {
 
-NormalDelta::NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b) :
-  A_(A),
-  b_(b)
-{
-  CHECK_GT(b_.rows(), 0);
-  CHECK_GT(A_.rows(), 0);
-  CHECK_EQ(b_.rows(), A.cols());
-  set_num_residuals(A_.rows());
-  mutable_parameter_block_sizes()->push_back(b_.rows());
-  mutable_parameter_block_sizes()->push_back(b_.rows());
-}
+// Define some Eigen Typedefs that use Row-Major order
+using VectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1>;
+using Vector1d = Eigen::Matrix<double, 1, 1>;
+using Vector2d = Eigen::Matrix<double, 2, 1>;
+using Vector3d = Eigen::Matrix<double, 3, 1>;
+using Vector4d = Eigen::Matrix<double, 4, 1>;
+using Vector5d = Eigen::Matrix<double, 5, 1>;
+using Vector6d = Eigen::Matrix<double, 6, 1>;
+using Vector7d = Eigen::Matrix<double, 7, 1>;
+using Vector8d = Eigen::Matrix<double, 8, 1>;
+using Vector9d = Eigen::Matrix<double, 9, 1>;
 
-bool NormalDelta::Evaluate(
-  double const* const* parameters,
-  double* residuals,
-  double** jacobians) const
-{
-  Eigen::Map<const fuse_core::VectorXd> x0(parameters[0], parameter_block_sizes()[0]);
-  Eigen::Map<const fuse_core::VectorXd> x1(parameters[1], parameter_block_sizes()[1]);
-  Eigen::Map<fuse_core::VectorXd> r(residuals, num_residuals());
-  r = A_ * (x1 - x0 - b_);
-  if (jacobians != NULL)
-  {
-    if (jacobians[0] != NULL)
-    {
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), parameter_block_sizes()[0]) = -A_;
-    }
-    if (jacobians[1] != NULL)
-    {
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), parameter_block_sizes()[1]) = A_;
-    }
-  }
-  return true;
-}
+using MatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using Matrix1d = Eigen::Matrix<double, 1, 1, Eigen::RowMajor>;
+using Matrix2d = Eigen::Matrix<double, 2, 2, Eigen::RowMajor>;
+using Matrix3d = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>;
+using Matrix4d = Eigen::Matrix<double, 4, 4, Eigen::RowMajor>;
+using Matrix5d = Eigen::Matrix<double, 5, 5, Eigen::RowMajor>;
+using Matrix6d = Eigen::Matrix<double, 6, 6, Eigen::RowMajor>;
+using Matrix7d = Eigen::Matrix<double, 7, 7, Eigen::RowMajor>;
+using Matrix8d = Eigen::Matrix<double, 8, 8, Eigen::RowMajor>;
+using Matrix9d = Eigen::Matrix<double, 9, 9, Eigen::RowMajor>;
 
-}  // namespace fuse_constraints
+}  // namespace fuse_core
+
+#endif  // FUSE_CORE_EIGEN_H

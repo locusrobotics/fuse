@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -55,9 +56,9 @@ TEST(AbsolutePose2DStampedConstraint, Constructor)
   // Construct a constraint just to make sure it compiles.
   Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
-  Eigen::Matrix<double, 3, 1> mean;
+  fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
-  Eigen::Matrix<double, 3, 3> cov;
+  fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   EXPECT_NO_THROW(AbsolutePose2DStampedConstraint constraint(position_variable, orientation_variable, mean, cov));
 }
@@ -67,17 +68,17 @@ TEST(AbsolutePose2DStampedConstraint, Covariance)
   // Verify the covariance <--> sqrt information conversions are correct
   Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
-  Eigen::Vector3d mean;
+  fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
-  Eigen::Matrix3d cov;
+  fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   AbsolutePose2DStampedConstraint constraint(position_variable, orientation_variable, mean, cov);
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
-  Eigen::Matrix3d expected_sqrt_info;
+  fuse_core::Matrix3d expected_sqrt_info;
   expected_sqrt_info <<  1.008395589795798, -0.040950074712520, -0.063131365181801,
                          0.000000000000000,  0.712470499879096, -0.071247049987910,
                          0.000000000000000,  0.000000000000000,  0.577350269189626;
-  Eigen::Matrix3d expected_cov = cov;
+  fuse_core::Matrix3d expected_cov = cov;
   // Compare
   EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
   EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
@@ -93,9 +94,9 @@ TEST(AbsolutePose2DStampedConstraint, Optimization)
   position_variable->x() = 1.5;
   position_variable->y() = -3.0;
   // Create an absolute pose constraint
-  Eigen::Vector3d mean;
+  fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
-  Eigen::Matrix3d cov;
+  fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   auto constraint = AbsolutePose2DStampedConstraint::make_shared(*position_variable,
                                                                  *orientation_variable,
@@ -141,7 +142,7 @@ TEST(AbsolutePose2DStampedConstraint, Optimization)
   std::vector<double> covariance_vector3(orientation_variable->size() * orientation_variable->size());
   covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), covariance_vector3.data());
   // Assemble the full covariance from the covariance blocks
-  Eigen::Matrix3d actual_covariance;
+  fuse_core::Matrix3d actual_covariance;
   actual_covariance(0, 0) = covariance_vector1[0];
   actual_covariance(0, 1) = covariance_vector1[1];
   actual_covariance(1, 0) = covariance_vector1[2];
@@ -151,7 +152,7 @@ TEST(AbsolutePose2DStampedConstraint, Optimization)
   actual_covariance(2, 0) = covariance_vector2[0];
   actual_covariance(2, 1) = covariance_vector2[1];
   actual_covariance(2, 2) = covariance_vector3[0];
-  Eigen::Matrix3d expected_covariance = cov;
+  fuse_core::Matrix3d expected_covariance = cov;
   EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
 }
 

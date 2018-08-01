@@ -49,8 +49,8 @@ template<class Variable>
 RelativeConstraint<Variable>::RelativeConstraint(
   const Variable& variable1,
   const Variable& variable2,
-  const Eigen::VectorXd& delta,
-  const Eigen::MatrixXd& covariance) :
+  const fuse_core::VectorXd& delta,
+  const fuse_core::MatrixXd& covariance) :
     fuse_core::Constraint{variable1.uuid(), variable2.uuid()},
     delta_(delta),
     sqrt_information_(covariance.inverse().llt().matrixU())
@@ -65,8 +65,8 @@ template<class Variable>
 RelativeConstraint<Variable>::RelativeConstraint(
   const Variable& variable1,
   const Variable& variable2,
-  const Eigen::VectorXd& partial_delta,
-  const Eigen::MatrixXd& partial_covariance,
+  const fuse_core::VectorXd& partial_delta,
+  const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& indices) :
     fuse_core::Constraint{variable1.uuid(), variable2.uuid()}
 {
@@ -75,7 +75,7 @@ RelativeConstraint<Variable>::RelativeConstraint(
   assert(partial_covariance.rows() == static_cast<int>(indices.size()));
   assert(partial_covariance.cols() == static_cast<int>(indices.size()));
   // Compute the sqrt information of the provided cov matrix
-  Eigen::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
+  fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order
   // What are we doing here?
   // The constraint equation is defined as: cost(x) = ||A * (x1 - x0 - b)||^2
@@ -83,8 +83,8 @@ RelativeConstraint<Variable>::RelativeConstraint(
   // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
   // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
   // defined by the variable.
-  delta_ = Eigen::VectorXd::Zero(variable1.size());
-  sqrt_information_ = Eigen::MatrixXd::Zero(indices.size(), variable1.size());
+  delta_ = fuse_core::VectorXd::Zero(variable1.size());
+  sqrt_information_ = fuse_core::MatrixXd::Zero(indices.size(), variable1.size());
   for (size_t i = 0; i < indices.size(); ++i)
   {
     delta_(indices[i]) = partial_delta(i);
@@ -93,7 +93,7 @@ RelativeConstraint<Variable>::RelativeConstraint(
 }
 
 template<class Variable>
-Eigen::MatrixXd RelativeConstraint<Variable>::covariance() const
+fuse_core::MatrixXd RelativeConstraint<Variable>::covariance() const
 {
   // We want to compute:
   // cov = (sqrt_info' * sqrt_info)^-1
@@ -102,8 +102,8 @@ Eigen::MatrixXd RelativeConstraint<Variable>::covariance() const
   // But sqrt_info _may_ not be square. So we need to compute the pseudoinverse instead.
   // Eigen doesn't have a pseudoinverse function (for probably very legitimate reasons).
   // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
-  auto I = Eigen::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
-  Eigen::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
+  auto I = fuse_core::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
+  fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
   return pinv * pinv.transpose();
 }
 

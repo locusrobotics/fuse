@@ -42,8 +42,8 @@ namespace fuse_constraints
 
 AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
   const fuse_variables::Orientation3DStamped& orientation,
-  const Eigen::Vector4d& mean,
-  const Eigen::Matrix3d& covariance) :
+  const fuse_core::Vector4d& mean,
+  const fuse_core::Matrix3d& covariance) :
     fuse_core::Constraint{orientation.uuid()},
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())
@@ -53,7 +53,7 @@ AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
 AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
   const fuse_variables::Orientation3DStamped& orientation,
   const Eigen::Quaterniond& mean,
-  const Eigen::Matrix3d& covariance) :
+  const fuse_core::Matrix3d& covariance) :
     AbsoluteOrientation3DStampedConstraint(orientation, toEigen(mean), covariance)
 {
 }
@@ -66,7 +66,7 @@ AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
 {
 }
 
-Eigen::Matrix3d AbsoluteOrientation3DStampedConstraint::covariance() const
+fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::covariance() const
 {
   return (sqrt_information_.transpose() * sqrt_information_).inverse();
 }
@@ -91,23 +91,23 @@ ceres::CostFunction* AbsoluteOrientation3DStampedConstraint::costFunction() cons
     new NormalPriorOrientation3DCostFunctor(sqrt_information_, mean_));
 }
 
-Eigen::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const Eigen::Quaterniond& quaternion)
+fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const Eigen::Quaterniond& quaternion)
 {
-  Eigen::Vector4d eigen_quaternion_vector;
+  fuse_core::Vector4d eigen_quaternion_vector;
   eigen_quaternion_vector << quaternion.w(), quaternion.x(), quaternion.y(), quaternion.z();
   return eigen_quaternion_vector;
 }
 
-Eigen::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const geometry_msgs::Quaternion& quaternion)
+fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const geometry_msgs::Quaternion& quaternion)
 {
-  Eigen::Vector4d eigen_quaternion_vector;
+  fuse_core::Vector4d eigen_quaternion_vector;
   eigen_quaternion_vector << quaternion.w, quaternion.x, quaternion.y, quaternion.z;
   return eigen_quaternion_vector;
 }
 
-Eigen::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::array<double, 9>& covariance)
+fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::array<double, 9>& covariance)
 {
-  return Eigen::Matrix3d(covariance.data());
+  return fuse_core::Matrix3d(covariance.data());
 }
 
 }  // namespace fuse_constraints

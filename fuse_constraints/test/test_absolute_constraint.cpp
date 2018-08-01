@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -56,57 +57,57 @@ TEST(AbsoluteConstraint, Constructor)
   // Construct a constraint for every type, just to make sure they compile.
   {
     fuse_variables::AccelerationAngular2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("robby"));
-    Eigen::Matrix<double, 1, 1> mean;
+    fuse_core::Vector1d mean;
     mean << 3.0;
-    Eigen::Matrix<double, 1, 1> cov;
+    fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint constraint(variable, mean, cov));
   }
   {
     fuse_variables::AccelerationLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("bender"));
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint(variable, mean, cov));
   }
   {
     fuse_variables::Orientation2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
-    Eigen::Matrix<double, 1, 1> mean;
+    fuse_core::Vector1d mean;
     mean << 3.0;
-    Eigen::Matrix<double, 1, 1> cov;
+    fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(fuse_constraints::AbsoluteOrientation2DStampedConstraint constraint(variable, mean, cov));
   }
   {
     fuse_variables::Position2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(fuse_constraints::AbsolutePosition2DStampedConstraint constraint(variable, mean, cov));
   }
   {
     fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("clank"));
-    Eigen::Matrix<double, 3, 1> mean;
+    fuse_core::Vector3d mean;
     mean << 1.0, 2.0, 3.0;
-    Eigen::Matrix<double, 3, 3> cov;
+    fuse_core::Matrix3d cov;
     cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
     EXPECT_NO_THROW(fuse_constraints::AbsolutePosition3DStampedConstraint constraint(variable, mean, cov));
   }
   {
     fuse_variables::VelocityAngular2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("gort"));
-    Eigen::Matrix<double, 1, 1> mean;
+    fuse_core::Vector1d mean;
     mean << 3.0;
-    Eigen::Matrix<double, 1, 1> cov;
+    fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint constraint(variable, mean, cov));
   }
   {
     fuse_variables::VelocityLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint constraint(variable, mean, cov));
   }
@@ -115,9 +116,9 @@ TEST(AbsoluteConstraint, Constructor)
 TEST(AbsoluteConstraint, PartialMeasurement)
 {
   fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("vici"));
-  Eigen::Matrix<double, 2, 1> mean;
+  fuse_core::Vector2d mean;
   mean << 3.0, 1.0;
-  Eigen::Matrix<double, 2, 2> cov;
+  fuse_core::Matrix2d cov;
   cov << 3.0, 0.2, 0.2, 1.0;
   auto indices = std::vector<size_t>{2, 0};
   EXPECT_NO_THROW(fuse_constraints::AbsolutePosition3DStampedConstraint constraint(variable, mean, cov, indices));
@@ -129,16 +130,16 @@ TEST(AbsoluteConstraint, Covariance)
   {
     // Verify the covariance <--> sqrt information conversions are correct
     fuse_variables::AccelerationLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("chappie"));
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint(variable, mean, cov);
     // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
-    Eigen::Matrix<double, 2, 2> expected_sqrt_info;
+    fuse_core::Matrix2d expected_sqrt_info;
     expected_sqrt_info <<  1.002509414234171, -0.050125470711709,
                            0.000000000000000,  0.707106781186547;
-    Eigen::Matrix<double, 2, 2> expected_cov = cov;
+    fuse_core::Matrix2d expected_cov = cov;
     // Compare
     EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
     EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
@@ -146,18 +147,18 @@ TEST(AbsoluteConstraint, Covariance)
   // Test the covariance of a partial measurement
   {
     fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("astroboy"));
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 3.0, 1.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 3.0, 0.2, 0.2, 1.0;
     auto indices = std::vector<size_t>{2, 0};
     fuse_constraints::AbsolutePosition3DStampedConstraint constraint(variable, mean, cov, indices);
     // Define the expected matrices
-    Eigen::Matrix<double, 3, 1> expected_mean;
+    fuse_core::Vector3d expected_mean;
     expected_mean << 1.0, 0.0, 3.0;
-    Eigen::Matrix<double, 3, 3> expected_cov;
+    fuse_core::Matrix3d expected_cov;
     expected_cov << 1.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 3.0;
-    Eigen::Matrix<double, 2, 3> expected_sqrt_info;
+    Eigen::Matrix<double, 2, 3, Eigen::RowMajor> expected_sqrt_info;
     expected_sqrt_info << -0.116247638743819,  0.000000000000000,  0.581238193719096,
                            1.000000000000000,  0.000000000000000,  0.000000000000000;
     // Compare
@@ -178,9 +179,9 @@ TEST(AbsoluteConstraint, Optimization)
     variable->x() = 10.7;
     variable->y() = -3.2;
     // Create an absolute constraint
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     auto constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(*variable,
                                                                                                    mean,
@@ -212,7 +213,7 @@ TEST(AbsoluteConstraint, Optimization)
     covariance.Compute(covariance_blocks, &problem);
     std::vector<double> covariance_vector(variable->size() * variable->size());
     covariance.GetCovarianceBlock(variable->data(), variable->data(), covariance_vector.data());
-    Eigen::Matrix<double, 2, 2> covariance_matrix(covariance_vector.data());
+    fuse_core::Matrix2d covariance_matrix(covariance_vector.data());
     EXPECT_TRUE(cov.isApprox(covariance_matrix, 1.0e-9));
   }
   // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-deficient by
@@ -227,16 +228,16 @@ TEST(AbsoluteConstraint, Optimization)
     var->y() = -3.2;
     var->z() = 0.9;
     // Create a full measurement constraint
-    Eigen::Matrix<double, 3, 1> mean1;
+    fuse_core::Vector3d mean1;
     mean1 << 1.0, 2.0, 3.0;
-    Eigen::Matrix<double, 3, 3> cov1;
+    fuse_core::Matrix3d cov1;
     cov1 << 1.0, 0.0, 0.0,
             0.0, 1.0, 0.0,
             0.0, 0.0, 1.0;
     auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean1, cov1);
-    Eigen::Matrix<double, 2, 1> mean2;
+    fuse_core::Vector2d mean2;
     mean2 << 4.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov2;
+    fuse_core::Matrix2d cov2;
     cov2 << 1.0, 0.0,
             0.0, 1.0;
     auto indices2 = std::vector<size_t>{2, 0};
@@ -273,8 +274,8 @@ TEST(AbsoluteConstraint, Optimization)
     covariance.Compute(covariance_blocks, &problem);
     std::vector<double> covariance_vector(var->size() * var->size());
     covariance.GetCovarianceBlock(var->data(), var->data(), covariance_vector.data());
-    Eigen::Matrix<double, 3, 3> actual_cov(covariance_vector.data());
-    Eigen::Matrix<double, 3, 3> expected_cov;
+    fuse_core::Matrix3d actual_cov(covariance_vector.data());
+    fuse_core::Matrix3d expected_cov;
     expected_cov << 0.5, 0.0, 0.0,
                     0.0, 1.0, 0.0,
                     0.0, 0.0, 0.5;
@@ -290,9 +291,9 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
                                                                     fuse_core::uuid::generate("tiktok"));
   variable->yaw() = 0.7;
   // Create an absolute constraint
-  Eigen::Matrix<double, 1, 1> mean;
+  fuse_core::Vector1d mean;
   mean << 7.0;
-  Eigen::Matrix<double, 1, 1> cov;
+  fuse_core::Matrix1d cov;
   cov << 0.10;
   auto constraint = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(*variable, mean, cov);
   // Build the problem
@@ -321,7 +322,7 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
   covariance.Compute(covariance_blocks, &problem);
   std::vector<double> covariance_vector(variable->size() * variable->size());
   covariance.GetCovarianceBlock(variable->data(), variable->data(), covariance_vector.data());
-  Eigen::Matrix<double, 1, 1> covariance_matrix(covariance_vector.data());
+  fuse_core::Matrix1d covariance_matrix(covariance_vector.data());
   EXPECT_TRUE(cov.isApprox(covariance_matrix, 1.0e-9));
 }
 

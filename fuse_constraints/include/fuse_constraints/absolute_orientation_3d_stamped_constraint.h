@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
@@ -71,8 +72,8 @@ public:
    */
   AbsoluteOrientation3DStampedConstraint(
     const fuse_variables::Orientation3DStamped& orientation,
-    const Eigen::Vector4d& mean,
-    const Eigen::Matrix3d& covariance);
+    const fuse_core::Vector4d& mean,
+    const fuse_core::Matrix3d& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -84,7 +85,7 @@ public:
   AbsoluteOrientation3DStampedConstraint(
     const fuse_variables::Orientation3DStamped& orientation,
     const Eigen::Quaterniond& mean,
-    const Eigen::Matrix3d& covariance);
+    const fuse_core::Matrix3d& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -108,21 +109,21 @@ public:
    *
    * Order is (w, x, y, z)
    */
-  const Eigen::Vector4d& mean() const { return mean_; }
+  const fuse_core::Vector4d& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
    * Order is (qx, qy, qz)
    */
-  const Eigen::Matrix3d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::Matrix3d& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
    * Order is (qx, qy, qz)
    */
-  Eigen::Matrix3d covariance() const;
+  fuse_core::Matrix3d covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -157,24 +158,24 @@ protected:
    * @param[in] quaternion - The input Eigen quaternion
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static Eigen::Vector4d toEigen(const Eigen::Quaterniond& quaternion);
+  static fuse_core::Vector4d toEigen(const Eigen::Quaterniond& quaternion);
 
   /**
    * @brief Utility method to convert an ROS quaternion message to an Eigen Vector4d
    * @param[in] quaternion - The input ROS quaternion message
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static Eigen::Vector4d toEigen(const geometry_msgs::Quaternion& quaternion);
+  static fuse_core::Vector4d toEigen(const geometry_msgs::Quaternion& quaternion);
 
   /**
    * @brief Utility method to convert a flat 1D array to a 3x3 Eigen matrix
    * @param[in] covariance - The input covariance array
    * @return The \p covariance, converted to an Eigen Matrix3d
    */
-  static Eigen::Matrix3d toEigen(const std::array<double, 9>& covariance);
+  static fuse_core::Matrix3d toEigen(const std::array<double, 9>& covariance);
 
-  Eigen::Vector4d mean_;  //!< The measured/prior mean vector for this variable
-  Eigen::Matrix3d sqrt_information_;  //!< The square root information matrix
+  fuse_core::Vector4d mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix
 };
 
 }  // namespace fuse_constraints
