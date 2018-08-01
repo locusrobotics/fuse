@@ -138,7 +138,7 @@ TEST(AbsolutePose2DStampedConstraint, Optimization)
   covariance.GetCovarianceBlock(position_variable->data(), position_variable->data(), covariance_vector1.data());
   std::vector<double> covariance_vector2(position_variable->size() * orientation_variable->size());
   covariance.GetCovarianceBlock(position_variable->data(), orientation_variable->data(), covariance_vector2.data());
-  std::vector<double> covariance_vector3(position_variable->size() * orientation_variable->size());
+  std::vector<double> covariance_vector3(orientation_variable->size() * orientation_variable->size());
   covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), covariance_vector3.data());
   // Assemble the full covariance from the covariance blocks
   Eigen::Matrix3d actual_covariance;
