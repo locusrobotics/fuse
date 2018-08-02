@@ -93,25 +93,25 @@ public:
     using fuse_variables::Orientation3DStamped;
 
     // 1. Compute the delta quaternion
-    T inverse_quaternion[4] =
+    T variable[4] =
     {
       orientation[0],
-      -orientation[1],
-      -orientation[2],
-      -orientation[3]
+      orientation[1],
+      orientation[2],
+      orientation[3]
     };
 
-    T observation[4] =
+    T inverse_observation[4] =
     {
       T(b_(0)),
-      T(b_(1)),
-      T(b_(2)),
-      T(b_(3))
+      T(-b_(1)),
+      T(-b_(2)),
+      T(-b_(3))
     };
 
     T output[4];
 
-    ceres::QuaternionProduct(observation, inverse_quaternion, output);
+    ceres::QuaternionProduct(inverse_observation, variable, output);
 
     // 2. Can use just the imaginary coefficients as the residual
     residuals[0] = output[1];
