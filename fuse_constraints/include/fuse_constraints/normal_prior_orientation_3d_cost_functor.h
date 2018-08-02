@@ -51,9 +51,9 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||    [  (b * q^-1)(1)  ] ||^2
- *   cost(x) = ||A * [  (b * q^-1)(2)  ] ||
- *             ||    [  (b * q^-1)(3)  ] ||
+ *             ||    [  (b^-1 * q)(1)  ] ||^2
+ *   cost(x) = ||A * [  (b^-1 * q)(2)  ] ||
+ *             ||    [  (b^-1 * q)(3)  ] ||
  *
  * where the matrix A and the vector b are fixed and (w, x, y, z) are the components of the 3D orientation
  * (quaternion) variable, whose indices are (0, 1, 2, 3). Note that the cost function does not include the
@@ -93,25 +93,25 @@ public:
     using fuse_variables::Orientation3DStamped;
 
     // 1. Compute the delta quaternion
-    T inverse_quaternion[4] =
+    T variable[4] =
     {
       orientation[0],
-      -orientation[1],
-      -orientation[2],
-      -orientation[3]
+      orientation[1],
+      orientation[2],
+      orientation[3]
     };
 
-    T observation[4] =
+    T inverse_observation[4] =
     {
       T(b_(0)),
-      T(b_(1)),
-      T(b_(2)),
-      T(b_(3))
+      T(-b_(1)),
+      T(-b_(2)),
+      T(-b_(3))
     };
 
     T output[4];
 
-    ceres::QuaternionProduct(observation, inverse_quaternion, output);
+    ceres::QuaternionProduct(inverse_observation, variable, output);
 
     // 2. Can use just the imaginary coefficients as the residual
     residuals[0] = output[1];
