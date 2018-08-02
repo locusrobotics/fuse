@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
@@ -53,9 +54,9 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
-  Eigen::Vector3d mean;
+  fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
-  Eigen::Matrix<double, 3, 3> cov;
+  fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
@@ -66,20 +67,20 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
-  Eigen::Vector3d mean;
+  fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
-  Eigen::Matrix<double, 3, 3> cov;
+  fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
   AbsoluteOrientation3DStampedEulerConstraint constraint(orientation_variable, mean, cov, axes);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
-  Eigen::Matrix3d expected_sqrt_info;
+  fuse_core::Matrix3d expected_sqrt_info;
   expected_sqrt_info <<  1.008395589795798, -0.040950074712520, -0.063131365181801,
                          0.000000000000000,  0.712470499879096, -0.071247049987910,
                          0.000000000000000,  0.000000000000000,  0.577350269189626;
-  Eigen::Matrix3d expected_cov = cov;
+  fuse_core::Matrix3d expected_cov = cov;
 
   // Compare
   EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
@@ -97,9 +98,9 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
   orientation_variable->z() = 0.239;
 
   // Create an absolute orientation constraint
-  Eigen::Vector3d mean;
+  fuse_core::Vector3d mean;
   mean << 0.5, 1.0, 1.5;
-  Eigen::Matrix<double, 3, 3> cov;
+  fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
@@ -151,9 +152,9 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   orientation_variable->z() = 0.239;
 
   // Create an absolute orientation constraint
-  Eigen::Matrix<double, 2, 1> mean1;
+  fuse_core::Vector2d mean1;
   mean1 << 0.5, 1.5;
-  Eigen::Matrix<double, 2, 2> cov1;
+  fuse_core::Matrix2d cov1;
   cov1 << 1.0, 0.2, 0.2, 3.0;
   std::vector<Orientation3DStamped::Euler> axes1 =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::PITCH};
@@ -163,9 +164,9 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
     cov1,
     axes1);
 
-  Eigen::Matrix<double, 1, 1> mean2;
+  fuse_core::Vector1d mean2;
   mean2 << 1.0;
-  Eigen::Matrix<double, 1, 1> cov2;
+  fuse_core::Matrix1d cov2;
   cov2 << 2.0;
   std::vector<Orientation3DStamped::Euler> axes2 =
     {Orientation3DStamped::Euler::ROLL};

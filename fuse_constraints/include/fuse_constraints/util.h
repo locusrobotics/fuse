@@ -135,11 +135,11 @@ T wrapAngle2D(const T& angle)
  * @return          The equivalent 2x2 rotation matrix
  */
 template <typename T>
-Eigen::Matrix<T, 2, 2> RotationMatrix2D(const T angle)
+Eigen::Matrix<T, 2, 2, Eigen::RowMajor> RotationMatrix2D(const T angle)
 {
   const T cos_angle = ceres::cos(angle);
   const T sin_angle = ceres::sin(angle);
-  Eigen::Matrix<T, 2, 2> rotation;
+  Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotation;
   rotation << cos_angle, -sin_angle, sin_angle, cos_angle;
   return rotation;
 }

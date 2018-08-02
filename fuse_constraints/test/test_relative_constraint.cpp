@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_constraints/relative_constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -58,63 +59,63 @@ TEST(RelativeConstraint, Constructor)
   {
     fuse_variables::AccelerationAngular2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("robby"));
     fuse_variables::AccelerationAngular2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("robby"));
-    Eigen::Matrix<double, 1, 1> delta;
+    fuse_core::Vector1d delta;
     delta << 3.0;
-    Eigen::Matrix<double, 1, 1> cov;
+    fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint constraint(x1, x2, delta, cov));
   }
   {
     fuse_variables::AccelerationLinear2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("bender"));
     fuse_variables::AccelerationLinear2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("bender"));
-    Eigen::Matrix<double, 2, 1> delta;
+    fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint(x1, x2, delta, cov));
   }
   {
     fuse_variables::Orientation2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
     fuse_variables::Orientation2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("johnny5"));
-    Eigen::Matrix<double, 1, 1> delta;
+    fuse_core::Vector1d delta;
     delta << 3.0;
-    Eigen::Matrix<double, 1, 1> cov;
+    fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(fuse_constraints::RelativeOrientation2DStampedConstraint constraint(x1, x2, delta, cov));
   }
   {
     fuse_variables::Position2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
     fuse_variables::Position2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("rosie"));
-    Eigen::Matrix<double, 2, 1> delta;
+    fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(fuse_constraints::RelativePosition2DStampedConstraint constraint(x1, x2, delta, cov));
   }
   {
     fuse_variables::Position3DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("clank"));
     fuse_variables::Position3DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("clank"));
-    Eigen::Matrix<double, 3, 1> delta;
+    fuse_core::Vector3d delta;
     delta << 1.0, 2.0, 3.0;
-    Eigen::Matrix<double, 3, 3> cov;
+    fuse_core::Matrix3d cov;
     cov << 1.0, 0.1, 0.2, 0.3, 2.0, 0.3, 0.2, 0.3, 3.0;
     EXPECT_NO_THROW(fuse_constraints::RelativePosition3DStampedConstraint constraint(x1, x2, delta, cov));
   }
   {
     fuse_variables::VelocityAngular2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("gort"));
     fuse_variables::VelocityAngular2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("gort"));
-    Eigen::Matrix<double, 1, 1> delta;
+    fuse_core::Vector1d delta;
     delta << 3.0;
-    Eigen::Matrix<double, 1, 1> cov;
+    fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(fuse_constraints::RelativeVelocityAngular2DStampedConstraint constraint(x1, x2, delta, cov));
   }
   {
     fuse_variables::VelocityLinear2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
     fuse_variables::VelocityLinear2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("bishop"));
-    Eigen::Matrix<double, 2, 1> delta;
+    fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint(x1, x2, delta, cov));
   }
@@ -124,9 +125,9 @@ TEST(RelativeConstraint, PartialMeasurement)
 {
   fuse_variables::Position3DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("vici"));
   fuse_variables::Position3DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("vici"));
-  Eigen::Matrix<double, 2, 1> delta;
+  fuse_core::Vector2d delta;
   delta << 3.0, 1.0;
-  Eigen::Matrix<double, 2, 2> cov;
+  fuse_core::Matrix2d cov;
   cov << 3.0, 0.2, 0.2, 1.0;
   auto indices = std::vector<size_t>{2, 0};
   EXPECT_NO_THROW(fuse_constraints::RelativePosition3DStampedConstraint constraint(x1, x2, delta, cov, indices));
@@ -139,16 +140,16 @@ TEST(RelativeConstraint, Covariance)
     // Verify the covariance <--> sqrt information conversions are correct
     fuse_variables::AccelerationLinear2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("chappie"));
     fuse_variables::AccelerationLinear2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("chappie"));
-    Eigen::Matrix<double, 2, 1> delta;
+    fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint(x1, x2, delta, cov);
     // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
-    Eigen::Matrix<double, 2, 2> expected_sqrt_info;
+    fuse_core::Matrix2d expected_sqrt_info;
     expected_sqrt_info <<  1.002509414234171, -0.050125470711709,
                            0.000000000000000,  0.707106781186547;
-    Eigen::Matrix<double, 2, 2> expected_cov = cov;
+    fuse_core::Matrix2d expected_cov = cov;
     // Compare
     EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
     EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
@@ -157,18 +158,18 @@ TEST(RelativeConstraint, Covariance)
   {
     fuse_variables::Position3DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("astroboy"));
     fuse_variables::Position3DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("astroboy"));
-    Eigen::Matrix<double, 2, 1> delta;
+    fuse_core::Vector2d delta;
     delta << 3.0, 1.0;
-    Eigen::Matrix<double, 2, 2> cov;
+    fuse_core::Matrix2d cov;
     cov << 3.0, 0.2, 0.2, 1.0;
     auto indices = std::vector<size_t>{2, 0};
     fuse_constraints::RelativePosition3DStampedConstraint constraint(x1, x2, delta, cov, indices);
     // Define the expected matrices
-    Eigen::Matrix<double, 3, 1> expected_delta;
+    fuse_core::Vector3d expected_delta;
     expected_delta << 1.0, 0.0, 3.0;
-    Eigen::Matrix<double, 3, 3> expected_cov;
+    fuse_core::Matrix3d expected_cov;
     expected_cov << 1.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 3.0;
-    Eigen::Matrix<double, 2, 3> expected_sqrt_info;
+    Eigen::Matrix<double, 2, 3, Eigen::RowMajor> expected_sqrt_info;
     expected_sqrt_info << -0.116247638743819,  0.000000000000000,  0.581238193719096,
                            1.000000000000000,  0.000000000000000,  0.000000000000000;
     // Compare
@@ -194,15 +195,15 @@ TEST(RelativeConstraint, Optimization)
     x2->x() = -4.2;
     x2->y() = 1.9;
     // Create an absolute constraint
-    Eigen::Matrix<double, 2, 1> mean;
+    fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
-    Eigen::Matrix<double, 2, 2> cov1;
+    fuse_core::Matrix2d cov1;
     cov1 << 1.0, 0.1, 0.1, 2.0;
     auto prior = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(*x1, mean, cov1);
     // Create an relative constraint
-    Eigen::Matrix<double, 2, 1> delta;
+    fuse_core::Vector2d delta;
     delta << 0.1, 0.2;
-    Eigen::Matrix<double, 2, 2> cov2;
+    fuse_core::Matrix2d cov2;
     cov2 << 1.0, 0.0, 0.0, 2.0;
     auto relative = fuse_constraints::RelativeAccelerationLinear2DStampedConstraint::make_shared(*x1, *x2, delta, cov2);
     // Build the problem
@@ -247,15 +248,15 @@ TEST(RelativeConstraint, Optimization)
     // Check the x1 marginal covariance
     std::vector<double> x1_covariance_vector(x1->size() * x1->size());
     covariance.GetCovarianceBlock(x1->data(), x1->data(), x1_covariance_vector.data());
-    Eigen::Matrix<double, 2, 2> x1_actual_covariance(x1_covariance_vector.data());
-    Eigen::Matrix<double, 2, 2> x1_expected_covariance;
+    fuse_core::Matrix2d x1_actual_covariance(x1_covariance_vector.data());
+    fuse_core::Matrix2d x1_expected_covariance;
     x1_expected_covariance << 1.0, 0.1, 0.1, 2.0;
     EXPECT_TRUE(x1_expected_covariance.isApprox(x1_actual_covariance, 1.0e-9));
     // Check the x2 marginal covariance
     std::vector<double> x2_covariance_vector(x2->size() * x2->size());
     covariance.GetCovarianceBlock(x2->data(), x2->data(), x2_covariance_vector.data());
-    Eigen::Matrix<double, 2, 2> x2_actual_covariance(x2_covariance_vector.data());
-    Eigen::Matrix<double, 2, 2> x2_expected_covariance;
+    fuse_core::Matrix2d x2_actual_covariance(x2_covariance_vector.data());
+    fuse_core::Matrix2d x2_expected_covariance;
     x2_expected_covariance << 2.0, 0.1, 0.1, 4.0;
     EXPECT_TRUE(x2_expected_covariance.isApprox(x2_actual_covariance, 1.0e-9));
   }
@@ -277,21 +278,21 @@ TEST(RelativeConstraint, Optimization)
     x2->y() = 1.9;
     x2->z() = 19.2;
     // Create an absolute constraint
-    Eigen::Matrix<double, 3, 1> mean1;
+    fuse_core::Vector3d mean1;
     mean1 << 1.0, 2.0, 3.0;
-    Eigen::Matrix<double, 3, 3> cov1;
+    fuse_core::Matrix3d cov1;
     cov1 << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
     auto c1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*x1, mean1, cov1);
     // Create an relative constraint
-    Eigen::Matrix<double, 3, 1> delta2;
+    fuse_core::Vector3d delta2;
     delta2 << 0.1, 0.2, 0.3;
-    Eigen::Matrix<double, 3, 3> cov2;
+    fuse_core::Matrix3d cov2;
     cov2 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
     auto c2 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(*x1, *x2, delta2, cov2);
     // Create an partial relative constraint
-    Eigen::Matrix<double, 2, 1> delta3;
+    fuse_core::Vector2d delta3;
     delta3 << 0.1, 0.2;
-    Eigen::Matrix<double, 2, 2> cov3;
+    fuse_core::Matrix2d cov3;
     cov3 << 1.0, 0.0, 0.0, 3.0;
     auto indices3 = std::vector<size_t>{2, 0};
     auto c3 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(*x1, *x2, delta3, cov3, indices3);
@@ -346,15 +347,15 @@ TEST(RelativeConstraint, Optimization)
     // Check the x1 marginal covariance
     std::vector<double> x1_covariance_vector(x1->size() * x1->size());
     covariance.GetCovarianceBlock(x1->data(), x1->data(), x1_covariance_vector.data());
-    Eigen::Matrix<double, 3, 3> x1_actual_covariance(x1_covariance_vector.data());
-    Eigen::Matrix<double, 3, 3> x1_expected_covariance;
+    fuse_core::Matrix3d x1_actual_covariance(x1_covariance_vector.data());
+    fuse_core::Matrix3d x1_expected_covariance;
     x1_expected_covariance << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
     EXPECT_TRUE(x1_expected_covariance.isApprox(x1_actual_covariance, 1.0e-9));
     // Check the x2 marginal covariance
     std::vector<double> x2_covariance_vector(x2->size() * x2->size());
     covariance.GetCovarianceBlock(x2->data(), x2->data(), x2_covariance_vector.data());
-    Eigen::Matrix<double, 3, 3> x2_actual_covariance(x2_covariance_vector.data());
-    Eigen::Matrix<double, 3, 3> x2_expected_covariance;
+    fuse_core::Matrix3d x2_actual_covariance(x2_covariance_vector.data());
+    fuse_core::Matrix3d x2_expected_covariance;
     x2_expected_covariance << 1.75, 0.1, 0.2, 0.1, 4.0, 0.3, 0.2, 0.3, 3.75;
     EXPECT_TRUE(x2_expected_covariance.isApprox(x2_actual_covariance, 1.0e-9));
   }
@@ -372,15 +373,15 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
                                                               fuse_core::uuid::generate("t800"));
   x2->yaw() = -2.2;
   // Create an absolute constraint
-  Eigen::Matrix<double, 1, 1> mean;
+  fuse_core::Vector1d mean;
   mean << 1.0;
-  Eigen::Matrix<double, 1, 1> cov1;
+  fuse_core::Matrix1d cov1;
   cov1 << 2.0;
   auto prior = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(*x1, mean, cov1);
   // Create an relative constraint
-  Eigen::Matrix<double, 1, 1> delta;
+  fuse_core::Vector1d delta;
   delta << 0.1;
-  Eigen::Matrix<double, 1, 1> cov2;
+  fuse_core::Matrix1d cov2;
   cov2 << 1.0;
   auto relative = fuse_constraints::RelativeOrientation2DStampedConstraint::make_shared(*x1, *x2, delta, cov2);
   // Build the problem
@@ -423,15 +424,15 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   // Check the x1 marginal covariance
   std::vector<double> x1_covariance_vector(x1->size() * x1->size());
   covariance.GetCovarianceBlock(x1->data(), x1->data(), x1_covariance_vector.data());
-  Eigen::Matrix<double, 1, 1> x1_actual_covariance(x1_covariance_vector.data());
-  Eigen::Matrix<double, 1, 1> x1_expected_covariance;
+  fuse_core::Matrix1d x1_actual_covariance(x1_covariance_vector.data());
+  fuse_core::Matrix1d x1_expected_covariance;
   x1_expected_covariance << 2.0;
   EXPECT_TRUE(x1_expected_covariance.isApprox(x1_actual_covariance, 1.0e-9));
   // Check the x2 marginal covariance
   std::vector<double> x2_covariance_vector(x2->size() * x2->size());
   covariance.GetCovarianceBlock(x2->data(), x2->data(), x2_covariance_vector.data());
-  Eigen::Matrix<double, 1, 1> x2_actual_covariance(x2_covariance_vector.data());
-  Eigen::Matrix<double, 1, 1> x2_expected_covariance;
+  fuse_core::Matrix1d x2_actual_covariance(x2_covariance_vector.data());
+  fuse_core::Matrix1d x2_expected_covariance;
   x2_expected_covariance << 3.0;
   EXPECT_TRUE(x2_expected_covariance.isApprox(x2_actual_covariance, 1.0e-9));
 }

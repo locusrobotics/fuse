@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_RELATIVE_POSE_2D_STAMPED_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -76,8 +77,8 @@ public:
     const fuse_variables::Orientation2DStamped& orientation1,
     const fuse_variables::Position2DStamped& position2,
     const fuse_variables::Orientation2DStamped& orientation2,
-    const Eigen::Vector3d& delta,
-    const Eigen::Matrix3d& covariance);
+    const fuse_core::Vector3d& delta,
+    const fuse_core::Matrix3d& covariance);
 
   /**
    * @brief Destructor
@@ -87,17 +88,17 @@ public:
   /**
    * @brief Read-only access to the measured pose change.
    */
-  const Eigen::Vector3d& delta() const { return delta_; }
+  const fuse_core::Vector3d& delta() const { return delta_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    */
-  const Eigen::Matrix3d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::Matrix3d& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    */
-  Eigen::Matrix3d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
+  fuse_core::Matrix3d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -127,8 +128,8 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  Eigen::Vector3d delta_;  //!< The measured pose change (dx, dy, dyaw)
-  Eigen::Matrix3d sqrt_information_;  //!< The square root information matrix (derived from the covariance matrix)
+  fuse_core::Vector3d delta_;  //!< The measured pose change (dx, dy, dyaw)
+  fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix (derived from the covariance matrix)
 };
 
 }  // namespace fuse_constraints

@@ -35,10 +35,10 @@
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_COST_FUNCTOR_H
 
 #include <fuse_constraints/util.h>
+#include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <ceres/internal/disable_warnings.h>
-#include <ceres/internal/eigen.h>
 #include <ceres/rotation.h>
 #include <Eigen/Core>
 
@@ -77,8 +77,8 @@ public:
    * @param[in] b The orientation measurement or prior in order (w, x, y, z)
    */
   NormalPriorOrientation3DCostFunctor(
-    const Eigen::Matrix3d& A,
-    const Eigen::Vector4d& b) :
+    const fuse_core::Matrix3d& A,
+    const fuse_core::Vector4d& b) :
       A_(A),
       b_(b)
   {
@@ -119,15 +119,15 @@ public:
     residuals[2] = output[3];
 
     // 3. Scale the residuals by the square root information matrix to account for the measurement uncertainty.
-    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> > residuals_map(residuals, A_.rows(), 1);
-    residuals_map = A_.template cast<T>() * residuals_map;
+    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
+    residuals_map.applyOnTheLeft(A_.template cast<T>());
 
     return true;
   }
 
 private:
-  Eigen::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
-  Eigen::Vector4d b_;  //!< The measured 3D orientation (quaternion) value
+  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::Vector4d b_;  //!< The measured 3D orientation (quaternion) value
 };
 
 }  // namespace fuse_constraints

@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
@@ -46,7 +47,6 @@
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 
 #include <ceres/cost_function.h>
-#include <Eigen/Core>
 
 #include <ostream>
 #include <vector>
@@ -78,8 +78,8 @@ public:
    */
   AbsoluteConstraint(
     const Variable& variable,
-    const Eigen::VectorXd& mean,
-    const Eigen::MatrixXd& covariance);
+    const fuse_core::VectorXd& mean,
+    const fuse_core::MatrixXd& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the target variable
@@ -91,8 +91,8 @@ public:
    */
   AbsoluteConstraint(
     const Variable& variable,
-    const Eigen::VectorXd& partial_mean,
-    const Eigen::MatrixXd& partial_covariance,
+    const fuse_core::VectorXd& partial_mean,
+    const fuse_core::MatrixXd& partial_covariance,
     const std::vector<size_t>& indices);
 
   /**
@@ -107,7 +107,7 @@ public:
    * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
    * are set to zero.
    */
-  const Eigen::VectorXd& mean() const { return mean_; }
+  const fuse_core::VectorXd& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -116,7 +116,7 @@ public:
    * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
    * of dimensions are measured, then this matrix will not be square.
    */
-  const Eigen::MatrixXd& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -126,7 +126,7 @@ public:
    * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
    * covariance matrix. You have been warned.
    */
-  Eigen::MatrixXd covariance() const;
+  fuse_core::MatrixXd covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -156,8 +156,8 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  Eigen::VectorXd mean_;  //!< The measured/prior mean vector for this variable
-  Eigen::MatrixXd sqrt_information_;  //!< The square root information matrix
+  fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 };
 
 // Define unique names for the different variations of the absolute constraint

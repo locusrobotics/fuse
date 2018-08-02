@@ -44,8 +44,8 @@ namespace fuse_constraints
 
 AbsoluteOrientation3DStampedEulerConstraint::AbsoluteOrientation3DStampedEulerConstraint(
   const fuse_variables::Orientation3DStamped& orientation,
-  const Eigen::VectorXd& mean,
-  const Eigen::MatrixXd& covariance,
+  const fuse_core::VectorXd& mean,
+  const fuse_core::MatrixXd& covariance,
   const std::vector<Euler> &axes) :
     fuse_core::Constraint{orientation.uuid()},
     mean_(mean),
@@ -57,7 +57,7 @@ AbsoluteOrientation3DStampedEulerConstraint::AbsoluteOrientation3DStampedEulerCo
   assert(mean.rows() == static_cast<int>(axes.size()));
 }
 
-Eigen::MatrixXd AbsoluteOrientation3DStampedEulerConstraint::covariance() const
+fuse_core::MatrixXd AbsoluteOrientation3DStampedEulerConstraint::covariance() const
 {
   return (sqrt_information_.transpose() * sqrt_information_).inverse();
 }

@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_EULER_COST_FUNCTOR_H
 
 #include <fuse_constraints/util.h>
+#include <fuse_core/eigen.h>
 #include <fuse_variables/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
@@ -88,8 +89,8 @@ public:
    * @param[in] axes The Euler angle axes for which we want to compute errors. Defaults to all axes. 
    */
   NormalPriorOrientation3DEulerCostFunctor(
-    const Eigen::MatrixXd& A,
-    const Eigen::VectorXd& b,
+    const fuse_core::MatrixXd& A,
+    const fuse_core::VectorXd& b,
     const std::vector<Euler> &axes = {Euler::ROLL, Euler::PITCH, Euler::YAW}) :  //NOLINT
       A_(A),
       b_(b),
@@ -134,15 +135,15 @@ public:
       residuals[i] = angle - T(b_[i]);
     }
 
-    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> > residuals_map(residuals, A_.rows(), 1);
-    residuals_map = A_.template cast<T>() * residuals_map;
+    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
+    residuals_map.applyOnTheLeft(A_.template cast<T>());
 
     return true;
   }
 
 private:
-  Eigen::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
-  Eigen::VectorXd b_;  //!< The measured 3D orientation (quaternion) value
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::VectorXd b_;  //!< The measured 3D orientation (quaternion) value
   std::vector<Euler> axes_;  //!< The Euler angle axes that we're measuring
 };
 

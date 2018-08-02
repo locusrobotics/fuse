@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_RELATIVE_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
@@ -83,8 +84,8 @@ public:
   RelativeConstraint(
     const Variable& variable1,
     const Variable& variable2,
-    const Eigen::VectorXd& delta,
-    const Eigen::MatrixXd& covariance);
+    const fuse_core::VectorXd& delta,
+    const fuse_core::MatrixXd& covariance);
 
   /**
    * @brief Constructor
@@ -100,8 +101,8 @@ public:
   RelativeConstraint(
     const Variable& variable1,
     const Variable& variable2,
-    const Eigen::VectorXd& delta,
-    const Eigen::MatrixXd& covariance,
+    const fuse_core::VectorXd& delta,
+    const fuse_core::MatrixXd& covariance,
     const std::vector<size_t>& indices);
 
   /**
@@ -116,7 +117,7 @@ public:
    * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
    * are set to zero.
    */
-  const Eigen::VectorXd& delta() const { return delta_; }
+  const fuse_core::VectorXd& delta() const { return delta_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -125,7 +126,7 @@ public:
    * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
    * of dimensions are measured, then this matrix will not be square.
    */
-  const Eigen::MatrixXd& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -135,7 +136,7 @@ public:
    * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
    * covariance matrix. You have been warned.
    */
-  Eigen::MatrixXd covariance() const;
+  fuse_core::MatrixXd covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -165,8 +166,8 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  Eigen::VectorXd delta_;  //!< The measured change between the two variables
-  Eigen::MatrixXd sqrt_information_;  //!< The square root information matrix
+  fuse_core::VectorXd delta_;  //!< The measured change between the two variables
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 };
 
 // Define unique names for the different variations of the absolute constraint

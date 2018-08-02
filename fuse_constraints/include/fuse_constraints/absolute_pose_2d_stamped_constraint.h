@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_ABSOLUTE_POSE_2D_STAMPED_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -74,8 +75,8 @@ public:
   AbsolutePose2DStampedConstraint(
     const fuse_variables::Position2DStamped& position,
     const fuse_variables::Orientation2DStamped& orientation,
-    const Eigen::Vector3d& mean,
-    const Eigen::Matrix3d& covariance);
+    const fuse_core::Vector3d& mean,
+    const fuse_core::Matrix3d& covariance);
 
   /**
    * @brief Destructor
@@ -87,21 +88,21 @@ public:
    *
    * Order is (x, y, yaw)
    */
-  const Eigen::Vector3d& mean() const { return mean_; }
+  const fuse_core::Vector3d& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
    * Order is (x, y, yaw)
    */
-  const Eigen::Matrix3d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::Matrix3d& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
    * Order is (x, y, yaw)
    */
-  Eigen::Matrix3d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
+  fuse_core::Matrix3d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -131,8 +132,8 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  Eigen::Vector3d mean_;  //!< The measured/prior mean vector for this variable
-  Eigen::Matrix3d sqrt_information_;  //!< The square root information matrix
+  fuse_core::Vector3d mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix
 };
 
 }  // namespace fuse_constraints
