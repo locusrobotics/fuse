@@ -51,9 +51,9 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||    [  (b * q^-1)(1)  ] ||^2
- *   cost(x) = ||A * [  (b * q^-1)(2)  ] ||
- *             ||    [  (b * q^-1)(3)  ] ||
+ *             ||    [  (b^-1 * q)(1)  ] ||^2
+ *   cost(x) = ||A * [  (b^-1 * q)(2)  ] ||
+ *             ||    [  (b^-1 * q)(3)  ] ||
  *
  * where the matrix A and the vector b are fixed and (w, x, y, z) are the components of the 3D orientation
  * (quaternion) variable, whose indices are (0, 1, 2, 3). Note that the cost function does not include the
