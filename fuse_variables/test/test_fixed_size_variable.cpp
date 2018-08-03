@@ -59,8 +59,8 @@ TEST(FixedSizeVariable, Size)
 {
   // Verify the expected size is returned
   TestVariable variable;
-  EXPECT_EQ(2, variable.size());  // base class interface
-  EXPECT_EQ(2, TestVariable::SIZE);  // static member variable
+  EXPECT_EQ(2u, variable.size());  // base class interface
+  EXPECT_EQ(2u, TestVariable::SIZE);  // static member variable
 }
 
 TEST(FixedSizeVariable, Data)
