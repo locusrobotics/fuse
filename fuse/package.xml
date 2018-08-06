@@ -14,7 +14,7 @@
   <exec_depend>fuse_constraints</exec_depend>
   <exec_depend>fuse_core</exec_depend>
   <exec_depend>fuse_graphs</exec_depend>
-  <exec_depend>fuse_optimziers</exec_depend>
+  <exec_depend>fuse_optimizers</exec_depend>
   <exec_depend>fuse_publishers</exec_depend>
   <exec_depend>fuse_variables</exec_depend>
 
