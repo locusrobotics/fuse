@@ -195,6 +195,8 @@ void BatchOptimizer::optimizationLoop()
     fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
     // Optimization is complete. Notify all the things about the graph changes.
     notify(const_transaction, const_graph);
+    // Clear the request flag now that this optimization cycle is complete
+    optimization_request_ = false;
   }
 }
 
