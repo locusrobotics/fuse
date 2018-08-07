@@ -54,24 +54,24 @@ namespace fuse_optimizers
 
 /**
  * @brief A base class that can be used to build fuse optimizer nodes
- * 
+ *
  * An optimizer implements the basic fuse information flow contract:
  *  - Sensors push information into the optimizer using the transaction callback
  *  - The optimizer requests motion models be created between each sensor timestamp
  *  - The optimizer computes the optimal variable values
  *  - The optimizer provides access to the optimal variable values to the publishers
- * 
+ *
  * Optimizer implementations are not required to use this base class; it is simply provided as a convenience
  * class that implements the mechanics of the information flow contract. Derived classes can then concentrate
- * on the details of when and what to optimize. 
- * 
+ * on the details of when and what to optimize.
+ *
  * This base class provides functions for:
  *  - Loading the set of motion model plugins as configured on the parameter server
  *  - Loading the set of publisher plugins as configured on the parameter server
  *  - Loading the set of sensor plugins as configured on the parameter server
  *  - Generating the correct motion model constraints for each received sensor transaction
  *  - Sending updated variable information to the sensors, motion models, and publishers
- * 
+ *
  * Parameter Server format:
  * @code{.yaml}
  * motion_models:
@@ -103,7 +103,7 @@ public:
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   Optimizer(
-    fuse_core::Graph::SharedPtr graph,
+    fuse_core::Graph::UniquePtr graph,
     const ros::NodeHandle& node_handle = ros::NodeHandle(),
     const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
@@ -127,7 +127,7 @@ protected:
   using AssociatedMotionModels = std::unordered_map<std::string, MotionModelGroup>;  //!< sensor -> motion models group
 
   AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used for each sensor
-  fuse_core::Graph::SharedPtr graph_;  //!< The graph object that holds all variables and constraints
+  fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
   pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader for MotionModels
   MotionModels motion_models_;  //!< The set of motion models, addressable by name
   ros::NodeHandle node_handle_;  //!< Node handle in the public namespace for subscribing and advertising

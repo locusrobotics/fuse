@@ -56,7 +56,7 @@ namespace fuse_optimizers
 
 /**
  * @brief A simple optimizer implementation that uses batch optimization
- * 
+ *
  * The batch optimization takes place in a separate thread. Received sensor transactions are queued while the
  * optimization is processing, then applied to the graph at the start of the next optimization cycle. Optimization
  * cycles are started at a fixed frequency. If the previous optimization is not yet complete when the optimization
@@ -64,7 +64,7 @@ namespace fuse_optimizers
  * the next optimization will not begin until the next scheduled optimization period. For batch optimization problems
  * that continuously grow in size, this means that the optimization period is not overly important. The time spent
  * waiting versus the time spent optimizing will approach zero as the problem size increases.
- * 
+ *
  * Parameters:
  *  - ignition_sensors (string list, default: "") The optimization will wait until a transaction is received from one
  *                                                of these sensors. This is useful, for example, for providing an
@@ -112,7 +112,7 @@ public:
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   BatchOptimizer(
-    fuse_core::Graph::SharedPtr graph,
+    fuse_core::Graph::UniquePtr graph,
     const ros::NodeHandle& node_handle = ros::NodeHandle(),
     const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
@@ -173,7 +173,7 @@ protected:
 
   /**
    * @brief Generate motion model constraints for pending transactions
-   * 
+   *
    * Transactions are processed sequentially based on timestamp. If motion models are successfully generated for a
    * pending transactions, that transaction is merged into the combined_transaction_ variable and removed from the
    * pending queue. If motion models fail to generate after the configured transaction_timeout_, the transaction

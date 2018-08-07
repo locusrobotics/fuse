@@ -48,7 +48,7 @@ namespace fuse_optimizers
 {
 
 BatchOptimizer::BatchOptimizer(
-  fuse_core::Graph::SharedPtr graph,
+  fuse_core::Graph::UniquePtr graph,
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),

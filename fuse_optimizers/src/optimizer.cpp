@@ -49,7 +49,7 @@ namespace fuse_optimizers
 {
 
 Optimizer::Optimizer(
-  fuse_core::Graph::SharedPtr graph,
+  fuse_core::Graph::UniquePtr graph,
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     graph_(std::move(graph)),

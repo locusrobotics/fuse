@@ -39,8 +39,7 @@
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "batch_optimizer_node");
-  auto graph = fuse_graphs::HashGraph::make_shared();
-  fuse_optimizers::BatchOptimizer optimizer(graph);
+  fuse_optimizers::BatchOptimizer optimizer(fuse_graphs::HashGraph::make_unique());
   ros::spin();
 
   return 0;
