@@ -35,8 +35,10 @@ include_directories(
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
+  src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
+  src/sensor_model.cpp
   src/transaction.cpp
   src/variable.cpp
 )
@@ -79,6 +81,28 @@ if(CATKIN_ENABLE_TESTING)
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
   roslint_add_test()
+
+  # AsyncSensorModel tests
+  add_rostest_gtest(test_async_sensor_model
+    test/async_sensor_model.test
+    test/test_async_sensor_model.cpp
+  )
+  add_dependencies(test_async_sensor_model
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_async_sensor_model
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # CallbackWrapper tests
+  add_rostest_gtest(test_callback_wrapper
+    test/callback_wrapper.test
+    test/test_callback_wrapper.cpp
+  )
+  target_link_libraries(test_callback_wrapper
+    ${catkin_LIBRARIES}
+  )
 
   # Constraint tests
   catkin_add_gtest(test_constraint

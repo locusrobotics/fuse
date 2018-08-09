@@ -1,0 +1,4 @@
+<?xml version="1.0"?>	
+<launch>	
+  <test test-name="AsyncSensorModel" pkg="fuse_core" type="test_async_sensor_model" />	
+</launch>
