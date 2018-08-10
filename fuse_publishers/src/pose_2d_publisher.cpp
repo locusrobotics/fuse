@@ -42,9 +42,6 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 
-#include <locus_cpp/ros_util.h>
-#include <locus_cpp/tf_util.h>
-
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <tf2/utils.h>
