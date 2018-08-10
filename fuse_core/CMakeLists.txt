@@ -35,10 +35,12 @@ include_directories(
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
+  src/async_motion_model.cpp
   src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
   src/sensor_model.cpp
+  src/timestamp_manager.cpp
   src/transaction.cpp
   src/variable.cpp
 )
@@ -82,6 +84,19 @@ if(CATKIN_ENABLE_TESTING)
   roslint_cpp()
   roslint_add_test()
 
+  # AsyncMotionModel tests
+  add_rostest_gtest(test_async_motion_model
+    test/async_motion_model.test
+    test/test_async_motion_model.cpp
+  )
+  add_dependencies(test_async_motion_model
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_async_motion_model
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
   # AsyncSensorModel tests
   add_rostest_gtest(test_async_sensor_model
     test/async_sensor_model.test
@@ -115,6 +130,29 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
   )
 
+  # Message Buffer Tests
+  catkin_add_gtest(test_message_buffer
+    test/test_message_buffer.cpp
+  )
+  add_dependencies(test_message_buffer
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_message_buffer
+    ${catkin_LIBRARIES}
+  )
+
+  # Timestamp Manager Tests
+  catkin_add_gtest(test_timestamp_manager
+    test/test_timestamp_manager.cpp
+  )
+  add_dependencies(test_timestamp_manager
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_timestamp_manager
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
   # Transaction tests
   catkin_add_gtest(test_transaction
     test/test_transaction.cpp
@@ -124,6 +162,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_transaction
     ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
   )
 
   # UUID tests
