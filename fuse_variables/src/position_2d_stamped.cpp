@@ -36,6 +36,9 @@
 
 #include <boost/core/demangle.hpp>
 
+#include <string>
+
+
 namespace fuse_variables
 {
 

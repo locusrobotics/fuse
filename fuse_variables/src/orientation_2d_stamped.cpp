@@ -37,6 +37,8 @@
 #include <boost/core/demangle.hpp>
 #include <ceres/autodiff_local_parameterization.h>
 
+#include <string>
+
 
 namespace fuse_variables
 {
