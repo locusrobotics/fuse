@@ -36,6 +36,7 @@ include_directories(
 ## fuse_core library
 add_library(${PROJECT_NAME}
   src/async_motion_model.cpp
+  src/async_publisher.cpp
   src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
@@ -93,6 +94,19 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_link_libraries(test_async_motion_model
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # AsyncPublisher tests
+  add_rostest_gtest(test_async_publisher
+    test/async_publisher.test
+    test/test_async_publisher.cpp
+  )
+  add_dependencies(test_async_publisher
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_async_publisher
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
