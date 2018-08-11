@@ -188,6 +188,16 @@ public:
    */
   void print(std::ostream& stream = std::cout) const;
 
+
+  /**
+   * @brief Perform a deep copy of the Transaction and return a unique pointer to the copy
+   *
+   * Unique pointers can be implicitly upgraded to shared pointers if needed.
+   *
+   * @return A unique pointer to a new instance of the most-derived Variable
+   */
+  Transaction::UniquePtr clone() const;
+
 protected:
   ros::Time stamp_;  //!< The transaction message timestamp
   std::vector<Constraint::SharedPtr> added_constraints_;  //!< The constraints to be added

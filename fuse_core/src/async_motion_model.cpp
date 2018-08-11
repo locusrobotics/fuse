@@ -54,7 +54,7 @@ AsyncMotionModel::AsyncMotionModel(size_t thread_count) :
 {
 }
 
-bool AsyncMotionModel::apply(const std::set<ros::Time>& stamps, Transaction::SharedPtr& transaction)
+bool AsyncMotionModel::apply(const std::set<ros::Time>& stamps, Transaction& transaction)
 {
   // Insert a call to the motion model's queryCallback() function into the motion model's callback queue. While this
   // makes this particular function more difficult to write, it does simplify the threading model on all derived
@@ -63,7 +63,7 @@ bool AsyncMotionModel::apply(const std::set<ros::Time>& stamps, Transaction::Sha
   // This function blocks until the queryCallback() call completes, thus enforcing that motion models are generated
   // in order.
   auto callback = boost::make_shared<CallbackWrapper<bool> >(
-    std::bind(&AsyncMotionModel::applyCallback, this, stamps, transaction));
+    std::bind(&AsyncMotionModel::applyCallback, this, std::ref(stamps), std::ref(transaction)));
   auto result = callback->getFuture();
   callback_queue_.addCallback(callback);
   result.wait();

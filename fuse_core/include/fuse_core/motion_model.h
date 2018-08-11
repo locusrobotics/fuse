@@ -102,7 +102,7 @@ public:
    * @param[out] transaction The transaction object that should be augmented with motion model constraints
    * @return                 True if the motion models were generated successfully, false otherwise
    */
-  virtual bool apply(const std::set<ros::Time>& stamps, Transaction::SharedPtr& transaction) = 0;
+  virtual bool apply(const std::set<ros::Time>& stamps, Transaction& transaction) = 0;
 
 protected:
   /**

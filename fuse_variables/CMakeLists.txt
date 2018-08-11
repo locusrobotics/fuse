@@ -23,7 +23,7 @@ catkin_package(
 ## Build ##
 ###########
 
-set_directory_properties(PROPERTIES COMPILE_OPTIONS "-std=c++14;-Wall;-Werror")
+add_compile_options(-std=c++14 -Wall -Werror)
 
 include_directories(
   include

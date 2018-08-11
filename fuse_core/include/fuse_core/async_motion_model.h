@@ -138,7 +138,7 @@ public:
    * @param[out] transaction The transaction object that should be augmented with motion model constraints
    * @return                 True if the motion models were generated successfully, false otherwise
    */
-  bool apply(const std::set<ros::Time>& stamps, Transaction::SharedPtr& transaction) final;
+  bool apply(const std::set<ros::Time>& stamps, Transaction& transaction) final;
 
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
@@ -170,7 +170,7 @@ protected:
    * @param[out] transaction The transaction object that should be augmented with motion model constraints
    * @return                 True if the motion models were generated successfully, false otherwise
    */
-  virtual bool applyCallback(const std::set<ros::Time>& stamps, Transaction::SharedPtr& transaction) = 0;
+  virtual bool applyCallback(const std::set<ros::Time>& stamps, Transaction& transaction) = 0;
 
   /**
    * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received from the optimizer
