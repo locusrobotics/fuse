@@ -47,7 +47,6 @@
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 
 #include <ceres/cost_function.h>
-#include <Eigen/Core>
 
 #include <ostream>
 #include <vector>

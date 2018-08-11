@@ -42,9 +42,6 @@
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/Quaternion.h>
 
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
-
 #include <array>
 #include <ostream>
 #include <vector>

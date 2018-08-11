@@ -34,9 +34,15 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/position_2d_stamped.h>
 
+#include <boost/core/demangle.hpp>
+
+#include <string>
+
 
 namespace fuse_variables
 {
+
+const std::string Position2DStamped::TYPE = boost::core::demangle(typeid(Position2DStamped).name());
 
 Position2DStamped::Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   Stamped(stamp, device_id),

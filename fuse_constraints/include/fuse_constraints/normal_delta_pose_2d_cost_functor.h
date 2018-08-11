@@ -37,8 +37,8 @@
 #include <fuse_constraints/util.h>
 #include <fuse_core/eigen.h>
 
-#include <ceres/internal/disable_warnings.h>
-#include <ceres/internal/eigen.h>
+#include <Eigen/Core>
+
 
 
 namespace fuse_constraints

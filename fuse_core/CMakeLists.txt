@@ -6,11 +6,13 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(Boost REQUIRED)
 find_package(Ceres REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
     include
     ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
   LIBRARIES
     ${PROJECT_NAME}
     ${CERES_LIBRARIES}
@@ -31,6 +33,7 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${CERES_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## fuse_core library

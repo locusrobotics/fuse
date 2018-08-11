@@ -35,12 +35,12 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
+#include <geometry_msgs/Quaternion.h>
 
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
-#include <Eigen/Core>
-#include <geometry_msgs/Quaternion.h>
+#include <Eigen/Geometry>
 #include <gtest/gtest.h>
 
 #include <utility>

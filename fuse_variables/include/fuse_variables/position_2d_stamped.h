@@ -41,6 +41,7 @@
 #include <ros/time.h>
 
 #include <ostream>
+#include <string>
 
 
 namespace fuse_variables
@@ -56,6 +57,11 @@ class Position2DStamped final : public FixedSizeVariable<2>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(Position2DStamped);
+
+  /**
+   * @brief The unique name for this variable type.
+   */
+  static const std::string TYPE;
 
   /**
    * @brief Can be used to directly index variables in the data array

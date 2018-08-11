@@ -58,6 +58,20 @@ namespace uuid
   constexpr UUID NIL = {{0}};
 
   /**
+   * @brief Convert a string representation of the UUID into a UUID variable
+   *
+   * There are a few supported formats:
+   * - "01234567-89AB-CDEF-0123-456789ABCDEF"
+   * - "01234567-89ab-cdef-0123-456789abcdef"
+   * - "0123456789abcdef0123456789abcdef"
+   * - "{01234567-89ab-cdef-0123-456789abcdef}"
+   */
+  inline UUID from_string(const std::string& uuid_string)
+  {
+    return boost::uuids::string_generator()(uuid_string);
+  }
+
+  /**
    * @brief Generate a random UUID
    */
   inline UUID generate()

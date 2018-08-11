@@ -40,7 +40,7 @@
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include <utility>

@@ -37,7 +37,6 @@
 #include <fuse_core/eigen.h>
 
 #include <ceres/cost_function.h>
-#include <ceres/internal/disable_warnings.h>
 
 
 namespace fuse_constraints
@@ -95,7 +94,5 @@ private:
 };
 
 }  // namespace fuse_constraints
-
-#include <ceres/internal/reenable_warnings.h>
 
 #endif  // FUSE_CONSTRAINTS_NORMAL_DELTA_H
