@@ -35,6 +35,7 @@
 #include <fuse_constraints/normal_prior_orientation_3d_euler_cost_functor.h>
 
 #include <ceres/autodiff_cost_function.h>
+#include <Eigen/Dense>
 
 #include <vector>
 

@@ -39,8 +39,6 @@
 #include <fuse_variables/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
-#include <ceres/internal/disable_warnings.h>
-#include <ceres/internal/eigen.h>
 #include <ceres/rotation.h>
 #include <Eigen/Core>
 
@@ -67,7 +65,7 @@ namespace fuse_constraints
  *
  * where the matrix A and the vector b are fixed and (roll, pitch, yaw) are the components of the 3D orientation
  * variable.
- * 
+ *
  * In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
@@ -82,11 +80,11 @@ public:
 
   /**
    * @brief Construct a cost function instance
-   * 
+   *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix. Its order must match
    *              the values in \p axes.
    * @param[in] b The orientation measurement or prior. Its order must match the values in \p axes.
-   * @param[in] axes The Euler angle axes for which we want to compute errors. Defaults to all axes. 
+   * @param[in] axes The Euler angle axes for which we want to compute errors. Defaults to all axes.
    */
   NormalPriorOrientation3DEulerCostFunctor(
     const fuse_core::MatrixXd& A,

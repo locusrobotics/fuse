@@ -38,7 +38,6 @@
 #include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
-#include <ceres/internal/disable_warnings.h>
 #include <ceres/rotation.h>
 #include <Eigen/Core>
 

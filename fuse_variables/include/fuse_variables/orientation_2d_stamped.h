@@ -44,6 +44,7 @@
 #include <ceres/local_parameterization.h>
 
 #include <ostream>
+#include <string>
 
 
 namespace fuse_variables

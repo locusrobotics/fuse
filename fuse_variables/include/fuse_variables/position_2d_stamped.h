@@ -41,6 +41,7 @@
 #include <ros/time.h>
 
 #include <ostream>
+#include <string>
 
 
 namespace fuse_variables

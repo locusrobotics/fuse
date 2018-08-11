@@ -41,6 +41,8 @@
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
 
+#include <Eigen/Dense>
+
 #include <ostream>
 #include <vector>
 

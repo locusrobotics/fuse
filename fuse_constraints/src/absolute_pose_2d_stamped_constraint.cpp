@@ -35,6 +35,7 @@
 #include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
 
 #include <ceres/autodiff_cost_function.h>
+#include <Eigen/Dense>
 
 
 namespace fuse_constraints
