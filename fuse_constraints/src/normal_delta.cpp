@@ -33,7 +33,6 @@
  */
 #include <fuse_constraints/normal_delta.h>
 
-#include <ceres/internal/eigen.h>
 #include <Eigen/Core>
 #include <glog/logging.h>
 

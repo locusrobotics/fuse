@@ -38,8 +38,6 @@
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.h>
 #include <fuse_core/eigen.h>
 
-#include <ceres/internal/disable_warnings.h>
-#include <ceres/internal/eigen.h>
 #include <Eigen/Core>
 
 

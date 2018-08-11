@@ -32,7 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/uuid.h>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_publishers/path_2d_publisher.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -96,27 +98,27 @@ public:
     transaction_->addVariable(position4);
     transaction_->addVariable(orientation4);
     // Add some priors on the variables some we can optimize the graph
-    Eigen::Vector3d mean1;
+    fuse_core::Vector3d mean1;
     mean1 << 1.01, 2.01, 3.01;
-    Eigen::Matrix3d cov1;
+    fuse_core::Matrix3d cov1;
     cov1 << 1.01, 0.0, 0.0,  0.0, 2.01, 0.0,  0.0, 0.0, 3.01;
     auto constraint1 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       *position1, *orientation1, mean1, cov1);
-    Eigen::Vector3d mean2;
+    fuse_core::Vector3d mean2;
     mean2 << 1.02, 2.02, 3.02;
-    Eigen::Matrix3d cov2;
+    fuse_core::Matrix3d cov2;
     cov2 << 1.02, 0.0, 0.0,  0.0, 2.02, 0.0,  0.0, 0.0, 3.02;
     auto constraint2 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       *position2, *orientation2, mean2, cov2);
-    Eigen::Vector3d mean3;
+    fuse_core::Vector3d mean3;
     mean3 << 1.03, 2.03, 3.03;
-    Eigen::Matrix3d cov3;
+    fuse_core::Matrix3d cov3;
     cov3 << 1.03, 0.0, 0.0,  0.0, 2.03, 0.0,  0.0, 0.0, 3.03;
     auto constraint3 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       *position3, *orientation3, mean3, cov3);
-    Eigen::Vector3d mean4;
+    fuse_core::Vector3d mean4;
     mean4 << 1.04, 2.04, 3.04;
-    Eigen::Matrix3d cov4;
+    fuse_core::Matrix3d cov4;
     cov4 << 1.04, 0.0, 0.0,  0.0, 2.04, 0.0,  0.0, 0.0, 3.04;
     auto constraint4 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       *position4, *orientation4, mean4, cov4);

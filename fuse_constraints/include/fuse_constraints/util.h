@@ -35,7 +35,7 @@
 #define FUSE_CONSTRAINTS_UTIL_H
 
 #include <ceres/jet.h>
-#include <Eigen/Geometry>
+#include <Eigen/Core>
 
 #include <cmath>
 

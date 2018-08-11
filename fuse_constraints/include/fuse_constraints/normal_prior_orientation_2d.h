@@ -35,7 +35,6 @@
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_2D_H
 
 #include <ceres/sized_cost_function.h>
-#include <ceres/internal/disable_warnings.h>
 
 
 namespace fuse_constraints
@@ -92,7 +91,5 @@ private:
 };
 
 }  // namespace fuse_constraints
-
-#include <ceres/internal/reenable_warnings.h>
 
 #endif  // FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_2D_H
