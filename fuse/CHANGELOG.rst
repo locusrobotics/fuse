@@ -2,8 +2,8 @@
 Changelog for package fuse
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2018-08-12)
+------------------
 * [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)
   * Added fuse_optimizers to the metapackage depends
 * [RST-1121] Moved the pose publishers (`#19 <https://github.com/locusrobotics/fuse/issues/19>`_)

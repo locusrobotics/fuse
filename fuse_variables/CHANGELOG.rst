@@ -2,8 +2,8 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2018-08-12)
+------------------
 * [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)
 * [RST-1121] Moved the pose publishers (`#19 <https://github.com/locusrobotics/fuse/issues/19>`_)
 * Adding absolute 3d pose

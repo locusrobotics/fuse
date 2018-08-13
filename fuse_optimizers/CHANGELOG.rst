@@ -2,8 +2,8 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2018-08-12)
+------------------
 * [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)
   * Moved the Optimizer and BatchOptimizer classes into the public repo
   * Added fuse_optimizers to the metapackage depends

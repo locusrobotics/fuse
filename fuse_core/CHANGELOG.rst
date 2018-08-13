@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2018-08-12)
+------------------
 * [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)
   * Added a clone() method to the Transaction object
   * Changed optimizer to unique ownership of the graph. This better captures the usage.
