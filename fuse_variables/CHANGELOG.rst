@@ -2,6 +2,14 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)
+* [RST-1121] Moved the pose publishers (`#19 <https://github.com/locusrobotics/fuse/issues/19>`_)
+* Adding absolute 3d pose
+* Adding 3D orientation constraints
+* Contributors: Stephen Williams, Tom Moore
+
 0.0.2 (2018-07-16)
 ------------------
 * Added a base class for all stamped variables (`#14 <https://github.com/locusrobotics/fuse/issues/14>`_)
