@@ -110,7 +110,7 @@ public:
 
     T output[4];
 
-    ceres::QuaternionProduct(inverse_observation, variable, output);
+    ceres::QuaternionProduct(variable, inverse_observation, output);
 
     // 2. Can use just the imaginary coefficients as the residual
     residuals[0] = output[1];
