@@ -2,6 +2,9 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.1.0 (2018-08-12)
 ------------------
 * [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)

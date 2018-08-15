@@ -2,6 +2,12 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [RST-1121] Load device id from parameter server (`#26 <https://github.com/locusrobotics/fuse/issues/26>`_)
+  * Made a load function for getting the device id from the parameter server
+* Contributors: Stephen Williams
+
 0.1.0 (2018-08-12)
 ------------------
 * [RST-1121] move optimizers (`#25 <https://github.com/locusrobotics/fuse/issues/25>`_)
