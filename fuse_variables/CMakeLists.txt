@@ -41,6 +41,7 @@ add_library(${PROJECT_NAME}
   src/orientation_3d_stamped.cpp
   src/position_2d_stamped.cpp
   src/position_3d_stamped.cpp
+  src/stamped.cpp
   src/velocity_angular_2d_stamped.cpp
   src/velocity_angular_3d_stamped.cpp
   src/velocity_linear_2d_stamped.cpp
@@ -142,6 +143,19 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_link_libraries(test_fixed_size_variable
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # Load Device ID Tests
+  add_rostest_gtest(test_load_device_id
+    test/load_device_id.test
+    test/test_load_device_id.cpp
+  )
+  add_dependencies(test_load_device_id
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_load_device_id
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
