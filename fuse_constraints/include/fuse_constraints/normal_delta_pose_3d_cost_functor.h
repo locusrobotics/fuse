@@ -37,8 +37,6 @@
 #include <fuse_constraints/util.h>
 #include <fuse_core/eigen.h>
 
-#include <ceres/internal/disable_warnings.h>
-#include <ceres/internal/eigen.h>
 #include <ceres/rotation.h>
 
 namespace fuse_constraints
@@ -59,9 +57,9 @@ namespace fuse_constraints
  *             ||    [       delta(0) - b(0)       ] ||^2
  *   cost(x) = ||    [       delta(1) - b(1)       ] ||
  *             ||A * [       delta(2) - b(2)       ] ||
- *             ||    [ (b(3:6) * delta(3:6)^-1)(1) ] ||
- *             ||    [ (b(3:6) * delta(3:6)^-1)(2) ] ||
- *             ||    [ (b(3:6) * delta(3:6)^-1)(3) ] ||
+ *             ||    [ (delta(3:6) * b(3:6)^-1)(1) ] ||
+ *             ||    [ (delta(3:6) * b(3:6)^-1)(2) ] ||
+ *             ||    [ (delta(3:6) * b(3:6)^-1)(3) ] ||
  *
  * where, the matrix A and the vector b are fixed. In case the user is interested in implementing a cost function of
  * the form:
@@ -146,26 +144,18 @@ bool NormalDeltaPose3DCostFunctor::operator()(
 
   // 3. Get the difference between the orientation delta that we just computed for orientation1 and orientation2,
   // and the measurement's orientation delta
-  T observation_orientation_delta[4] =
+  T observation_inverse[4] =
   {
     T(b_(3)),
-    T(b_(4)),
-    T(b_(5)),
-    T(b_(6))
-  };
-
-  T variable_orientation_delta_inverse[4] =
-  {
-    variable_orientation_delta[0],
-    -variable_orientation_delta[1],
-    -variable_orientation_delta[2],
-    -variable_orientation_delta[3]
+    T(-b_(4)),
+    T(-b_(5)),
+    T(-b_(6))
   };
 
   T delta_difference_orientation[4];
   ceres::QuaternionProduct(
-    observation_orientation_delta,
-    variable_orientation_delta_inverse,
+    variable_orientation_delta,
+    observation_inverse,
     delta_difference_orientation);
 
   // 4. Compute the position delta, and throw everything into a residual at the same time
