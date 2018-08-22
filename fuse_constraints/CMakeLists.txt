@@ -49,6 +49,7 @@ add_library(${PROJECT_NAME}
   src/normal_delta_orientation_2d.cpp
   src/normal_prior_orientation_2d.cpp
   src/relative_pose_2d_stamped_constraint.cpp
+  src/relative_pose_3d_stamped_constraint.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -168,6 +169,18 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_link_libraries(test_relative_pose_2d_stamped_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # Relative Pose 3D Stamped Constraint Tests
+  catkin_add_gtest(test_relative_pose_3d_stamped_constraint
+    test/test_relative_pose_3d_stamped_constraint.cpp
+  )
+  add_dependencies(test_relative_pose_3d_stamped_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(test_relative_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )

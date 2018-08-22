@@ -100,7 +100,7 @@ public:
       orientation[3]
     };
 
-    T inverse_observation[4] =
+    T observation_inverse[4] =
     {
       T(b_(0)),
       T(-b_(1)),
@@ -110,12 +110,12 @@ public:
 
     T output[4];
 
-    ceres::QuaternionProduct(inverse_observation, variable, output);
+    ceres::QuaternionProduct(variable, observation_inverse, output);
 
     // 2. Can use just the imaginary coefficients as the residual
-    residuals[0] = output[1];
-    residuals[1] = output[2];
-    residuals[2] = output[3];
+    residuals[0] = T(2.0) * output[1];
+    residuals[1] = T(2.0) * output[2];
+    residuals[2] = T(2.0) * output[3];
 
     // 3. Scale the residuals by the square root information matrix to account for the measurement uncertainty.
     Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
