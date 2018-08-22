@@ -200,7 +200,15 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   fuse_core::Matrix6d actual_covariance;
   actual_covariance << pos_pos, pos_or.block<3, 3>(0, 1), pos_or.block<3, 3>(0, 1).transpose(), or_or.block<3, 3>(1, 1);
 
-  fuse_core::Matrix6d expected_covariance = cov;
+  fuse_core::Matrix6d expected_covariance;
+  expected_covariance <<
+    1.0,  0.1,  0.2,  0.15,  0.2,   0.25,
+    0.1,  2.0,  0.6,  0.25,  0.2,   0.15,
+    0.2,  0.6,  3.0,  0.1,   0.05,  0.1,
+    0.15, 0.25, 0.1,  1.0,   0.075, 0.1,
+    0.2,  0.2,  0.05, 0.075, 1.25,  0.125,
+    0.25, 0.15, 0.1,  0.1,   0.125, 1.5;
+
   EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
 }
 

@@ -254,7 +254,14 @@ TEST(RelativePose3DStampedConstraint, Optimization)
       pos_pos, pos_or.block<3, 3>(0, 1),
       pos_or.block<3, 3>(0, 1).transpose(), or_or.block<3, 3>(1, 1);
 
-    fuse_core::Matrix6d expected_covariance = cov_origin;
+    fuse_core::Matrix6d expected_covariance;
+    expected_covariance <<
+      1.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+      0.0,  1.0,  0.0,  0.0,  0.0,  0.0,
+      0.0,  0.0,  1.0,  0.0,  0.0,  0.0,
+      0.0,  0.0,  0.0,  0.25, 0.0,  0.0,
+      0.0,  0.0,  0.0,  0.0,  0.25, 0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  0.25;
     EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
   }
 
@@ -291,11 +298,11 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     fuse_core::Matrix6d expected_covariance;
     expected_covariance <<
       2.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  6.0,  0.0,  0.0,  0.0,  2.0,
-      0.0,  0.0,  6.0,  0.0, -2.0,  0.0,
-      0.0,  0.0,  0.0,  1.25, 0.0,  0.0,
-      0.0,  0.0, -2.0,  0.0,  1.25, 0.0,
-      0.0,  2.0,  0.0,  0.0,  0.0,  1.25;
+      0.0,  3.0,  0.0,  0.0,  0.0,  0.5,
+      0.0,  0.0,  3.0,  0.0, -0.5,  0.0,
+      0.0,  0.0,  0.0,  0.5,  0.0,  0.0,
+      0.0,  0.0, -0.5,  0.0,  0.5,  0.0,
+      0.0,  0.5,  0.0,  0.0,  0.0,  0.5;
 
     EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-3));
   }

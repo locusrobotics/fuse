@@ -106,7 +106,10 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
   mean << 1.0, 0.0, 0.0, 0.0;
 
   fuse_core::Matrix3d cov;
-  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  cov <<
+    1.0, 0.1, 0.2,
+    0.1, 2.0, 0.3,
+    0.2, 0.3, 3.0;
   auto constraint = AbsoluteOrientation3DStampedConstraint::make_shared(
     *orientation_variable,
     mean,
@@ -148,7 +151,11 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
 
   // Assemble the full covariance from the covariance blocks
   fuse_core::Matrix4d actual_covariance(covariance_vector.data());
-  fuse_core::Matrix3d expected_covariance = cov;
+  fuse_core::Matrix3d expected_covariance;
+  expected_covariance <<
+    0.25,  0.025, 0.05,
+    0.025, 0.5,   0.075,
+    0.05,  0.075, 0.75;
   EXPECT_TRUE(expected_covariance.isApprox(actual_covariance.block<3, 3>(1, 1), 1.0e-9));
 }
 
