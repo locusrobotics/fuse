@@ -11,6 +11,7 @@ particular, fuse provides:
 * an extensible state variable definition
 * a "contract" on how an optimizer will interact with the above components
 * and some common implementations to get everyone stated
+
 (unpresented) ROSCon 2018 Lightning Talk [slides](docs/fuse_lightning_talk.pdf)
 
 
@@ -35,13 +36,13 @@ publishing of data to the ROS topic.
 ![fuse sequence diagram](doc/fuse_sequence_diagram.png)
 
 ## Example
-This probably still sounds pretty vague. A simple robotics example might clear things up a bit. Let's take a typical
-indoor differential-drive robot. This robot will have wheel encoders and a horizontal laser.
+Let's consider a simple robotics example to illustrate this. Suppose we have a typical indoor differential-drive robot.
+This robot will have wheel encoders and a horizontal laser.
 
 The first thing we must do is define our state variables. At a minimum, we will want the robot pose at each timestamp.
 Let's assume we model the pose using two different state variables, a 2D position and orientation `(x, y, yaw)`.
 Each 2D pose _at a specific time_ will get a unique variable name. For ease of notation, let's call the pose
-variables `X1`, `X2`, `X3`, etc. In reality, each variable will get a UUID, but those are much harder to write down.
+variables `X1`, `X2`, `X3`, etc. (In reality, each variable will get a UUID, but those are much harder to write down.)
 We will need to derive a 2D pose class from the `fuse_core::Variable` base class. (Actually, `fuse` ships with a 2D
 position and 2D orientation class, but you get the idea. You can create your own variable types when you need them.)
 
@@ -59,8 +60,8 @@ indicates which variables are involved in what measurements.
 ![fuse graph](doc/fuse_graph_1.png)
 
 However, typically the laser measurements and the wheel encoder measurements are not synchronized. The encoder
-measurements are probably sampled faster than the laser and uses a different clock. In such a situation, the constraint
-graph becomes disconnected.
+measurements are sampled faster than the laser, and are sampled at different times using a different clock. In such a
+situation, the constraint graph becomes disconnected.
 
 ![fuse graph](doc/fuse_graph_2.png)
 
@@ -108,8 +109,8 @@ don't use differential drive; you need a different motion model. Easy enough. We
 ### Adaptation #3: Online calibration
 
 Over time you notice that the accuracy of the odometry measurements is decreasing. After some investigation you realize
-that the soft rubber racing tires are wearing, decreasing the wheel's diameter over time. It sure would be nice if the
-odometry system could compensate for that automatically. To do that, we will create a new variable type, a wheel
+that the soft rubber racing tires are wearing, decreasing the diameter of the wheels over time. It sure would be nice
+if the odometry system could compensate for that automatically. To do that, we will create a new variable type, a wheel
 diameter. We will also need a new wheel encoder sensor model. This new model will involve the previous pose and
 next pose as before, but it will also involve the previous wheel diameter estimate. Finally, we will need to create
 a "motion model" that describes how the wheel diameter is expected to change over time. Maybe some sort of exponential
