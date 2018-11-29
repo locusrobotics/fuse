@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_publishers)
 
-find_package(catkin REQUIRED COMPONENTS
+set(build_depends
   fuse_core
   fuse_variables
   geometry_msgs
@@ -13,21 +13,17 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
 )
 
+find_package(catkin REQUIRED COMPONENTS
+  ${build_depends}
+)
+
 catkin_package(
   INCLUDE_DIRS
     include
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
-    fuse_core
-    fuse_variables
-    geometry_msgs
-    nav_msgs
-    pluginlib
-    roscpp
-    tf2
-    tf2_geometry_msgs
-    tf2_ros
+    ${build_depends}
 )
 
 ###########
@@ -36,11 +32,6 @@ catkin_package(
 
 add_compile_options(-std=c++14 -Wall -Werror)
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-
 # fuse_publishers library
 add_library(${PROJECT_NAME}
   src/path_2d_publisher.cpp
@@ -48,6 +39,11 @@ add_library(${PROJECT_NAME}
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -77,8 +73,15 @@ install(FILES fuse_plugins.xml
 #############
 
 if(CATKIN_ENABLE_TESTING)
-  find_package(fuse_constraints REQUIRED)
-  find_package(fuse_graphs REQUIRED)
+  set(test_depends
+    fuse_constraints
+    fuse_graphs
+  )
+
+  find_package(catkin REQUIRED COMPONENTS
+    ${build_depends}
+    ${test_depends}
+  )
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
 
@@ -96,15 +99,13 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_include_directories(test_path_2d_publisher
-    PUBLIC
-      ${fuse_constraints_INCLUDE_DIRS}
-      ${fuse_graphs_INCLUDE_DIRS}
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_path_2d_publisher
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
-    ${fuse_constraints_LIBRARIES}
-    ${fuse_graphs_LIBRARIES}
   )
 
   # Pose2DPublisher Tests
@@ -116,14 +117,12 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_EXPORTED_TARGETS}
   )
   target_include_directories(test_pose_2d_publisher
-    PUBLIC
-      ${fuse_constraints_INCLUDE_DIRS}
-      ${fuse_graphs_INCLUDE_DIRS}
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_pose_2d_publisher
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
-    ${fuse_constraints_LIBRARIES}
-    ${fuse_graphs_LIBRARIES}
   )
 endif()

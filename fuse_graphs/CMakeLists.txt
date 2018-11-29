@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_graphs)
 
-find_package(catkin REQUIRED COMPONENTS
+set(build_depends
   fuse_core
   roscpp
+)
+
+find_package(catkin REQUIRED COMPONENTS
+  ${build_depends}
 )
 find_package(Boost REQUIRED)
 find_package(Ceres REQUIRED)
@@ -16,8 +20,7 @@ catkin_package(
     ${PROJECT_NAME}
     ${CERES_LIBRARIES}
   CATKIN_DEPENDS
-    fuse_core
-    roscpp
+    ${build_depends}
   DEPENDS
     Boost
 )
@@ -28,19 +31,19 @@ catkin_package(
 
 add_compile_options(-std=c++14 -Wall -Werror)
 
-include_directories(
-  include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-)
-
 ## fuse_graphs library
 add_library(${PROJECT_NAME}
   src/hash_graph.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${Boost_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -70,9 +73,6 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
-  include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-  )
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
@@ -85,6 +85,14 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_hash_graph
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_hash_graph
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
   )
   target_link_libraries(test_hash_graph
     ${PROJECT_NAME}

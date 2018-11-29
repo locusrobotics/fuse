@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_variables)
 
-find_package(catkin REQUIRED COMPONENTS
+set(build_depends
   fuse_core
   roscpp
+)
+
+find_package(catkin REQUIRED COMPONENTS
+  ${build_depends}
 )
 find_package(Ceres REQUIRED)
 
@@ -15,8 +19,7 @@ catkin_package(
     ${PROJECT_NAME}
     ${CERES_LIBRARIES}
   CATKIN_DEPENDS
-    fuse_core
-    roscpp
+    ${build_depends}
 )
 
 ###########
@@ -24,12 +27,6 @@ catkin_package(
 ###########
 
 add_compile_options(-std=c++14 -Wall -Werror)
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-)
 
 ## fuse_variables library
 add_library(${PROJECT_NAME}
@@ -49,6 +46,12 @@ add_library(${PROJECT_NAME}
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -90,6 +93,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_acceleration_angular_2d_stamped
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_acceleration_angular_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_acceleration_angular_2d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -102,6 +111,12 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_acceleration_angular_3d_stamped
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_acceleration_angular_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
   )
   target_link_libraries(test_acceleration_angular_3d_stamped
     ${PROJECT_NAME}
@@ -116,6 +131,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_acceleration_linear_2d_stamped
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_acceleration_linear_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_acceleration_linear_2d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -128,6 +149,12 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_acceleration_linear_3d_stamped
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_acceleration_linear_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
   )
   target_link_libraries(test_acceleration_linear_3d_stamped
     ${PROJECT_NAME}
@@ -142,6 +169,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_fixed_size_variable
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_fixed_size_variable
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_fixed_size_variable
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -155,6 +188,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_load_device_id
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_load_device_id
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_load_device_id
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -166,6 +205,12 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_orientation_2d_stamped
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_orientation_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
   )
   target_link_libraries(test_orientation_2d_stamped
     ${PROJECT_NAME}
@@ -180,6 +225,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_orientation_3d_stamped
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_orientation_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_orientation_3d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -192,6 +243,12 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_position_2d_stamped
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_position_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
   )
   target_link_libraries(test_position_2d_stamped
     ${PROJECT_NAME}
@@ -206,6 +263,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_position_3d_stamped
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_position_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_position_3d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -218,6 +281,12 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_velocity_angular_2d_stamped
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_velocity_angular_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
   )
   target_link_libraries(test_velocity_angular_2d_stamped
     ${PROJECT_NAME}
@@ -232,6 +301,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_velocity_angular_3d_stamped
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_velocity_angular_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_velocity_angular_3d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -245,6 +320,12 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_velocity_linear_2d_stamped
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_velocity_linear_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
   target_link_libraries(test_velocity_linear_2d_stamped
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -257,6 +338,12 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_velocity_linear_3d_stamped
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_velocity_linear_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
   )
   target_link_libraries(test_velocity_linear_3d_stamped
     ${PROJECT_NAME}
