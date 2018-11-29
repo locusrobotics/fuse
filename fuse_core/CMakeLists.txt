@@ -83,9 +83,6 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
-  # include_directories(
-  #   ${CMAKE_CURRENT_SOURCE_DIR}
-  # )
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
