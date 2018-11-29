@@ -58,6 +58,7 @@ namespace fuse_constraints
  * it is common to define the very first pose as the origin. Some sensors, such as GPS, provide direct measurements
  * of the robot's pose in the global frame. And localization systems often match laserscans to a prior map
  * (scan-to-map measurements). This constraint holds the measured 2D pose and the measurement uncertainty/covariance.
+ * It also permits measurement of a subset of the pose provided in the position and orientation varables.
  */
 class AbsolutePose2DStampedConstraint : public fuse_core::Constraint
 {
@@ -67,16 +68,25 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of the 2D pose
    *
-   * @param[in] position    The variable representing the position components of the pose
-   * @param[in] orientation The variable representing the orientation components of the pose
-   * @param[in] mean        The measured/prior pose as a vector (3x1 vector: x, y, yaw)
-   * @param[in] covariance  The measurement/prior covariance (3x3 matrix: x, y, yaw)
+   * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies, e.g., that you
+   * don't want to measure any of the quantities in that variable.
+   *
+   * @param[in] position        The variable representing the position components of the pose
+   * @param[in] orientation     The variable representing the orientation components of the pose
+   * @param[in] mean            The measured/prior pose as a vector (max 3x1 vector: x, y, yaw)
+   * @param[in] covariance      The measurement/prior covariance (max 3x3 matrix: x, y, yaw)
+   * @param[in] linear_indices  The set of indices corresponding to the measured position dimensions
+   *                         e.g. "{ fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y }"
+   * @param[in] angular_indices The set of indices corresponding to the measured orientation dimensions (just yaw)
    */
   AbsolutePose2DStampedConstraint(
     const fuse_variables::Position2DStamped& position,
     const fuse_variables::Orientation2DStamped& orientation,
-    const fuse_core::Vector3d& mean,
-    const fuse_core::Matrix3d& covariance);
+    const fuse_core::VectorXd& mean,
+    const fuse_core::MatrixXd& covariance,
+    const std::vector<size_t>& linear_indices =
+      {fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y},             // NOLINT
+    const std::vector<size_t>& angular_indices = {fuse_variables::Orientation2DStamped::YAW});  // NOLINT
 
   /**
    * @brief Destructor
@@ -88,21 +98,21 @@ public:
    *
    * Order is (x, y, yaw)
    */
-  const fuse_core::Vector3d& mean() const { return mean_; }
+  const fuse_core::VectorXd& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
    * Order is (x, y, yaw)
    */
-  const fuse_core::Matrix3d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
    * Order is (x, y, yaw)
    */
-  fuse_core::Matrix3d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
+  fuse_core::MatrixXd covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -132,8 +142,9 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::Vector3d mean_;  //!< The measured/prior mean vector for this variable
-  fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix
+  fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
+  size_t total_indices_;  //!< The number of indices we're constraining
 };
 
 }  // namespace fuse_constraints

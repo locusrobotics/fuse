@@ -283,6 +283,57 @@ TEST(AbsoluteConstraint, Optimization)
   }
 }
 
+TEST(AbsoluteConstraint, PartialOptimization)
+{
+  // Create a variable
+  auto var = fuse_variables::Position3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("t1000"));
+  var->x() = 10.7;
+  var->y() = -3.2;
+  var->z() = 0.9;
+
+  // Create a partial constraint for the first and third indices
+  fuse_core::Vector2d mean1;
+  mean1 << 1.0, 3.0;
+  fuse_core::Matrix2d cov1;
+  cov1 << 1.0, 0.0,
+          0.0, 1.0;
+  std::vector<size_t> indices1 = {2, 0};
+  auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean1, cov1, indices1);
+
+  // Create another constraint for the second index
+  fuse_core::Vector1d mean2;
+  mean2 << 2.0;
+  fuse_core::Matrix1d cov2;
+  cov2 << 1.0;
+  std::vector<size_t> indices2 = {1};
+  auto constraint2 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean2, cov2, indices2);
+
+  // Build the problem
+  ceres::Problem problem;
+  problem.AddParameterBlock(
+    var->data(),
+    var->size(),
+    var->localParameterization());
+  std::vector<double*> parameter_blocks;
+  parameter_blocks.push_back(var->data());
+  problem.AddResidualBlock(
+    constraint1->costFunction(),
+    constraint1->lossFunction(),
+    parameter_blocks);
+  problem.AddResidualBlock(
+    constraint2->costFunction(),
+    constraint2->lossFunction(),
+    parameter_blocks);
+  // Run the solver
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  ceres::Solve(options, &problem, &summary);
+  // Check
+  EXPECT_NEAR(3.0, var->x(), 1.0e-5);
+  EXPECT_NEAR(2.0, var->y(), 1.0e-5);
+  EXPECT_NEAR(1.0, var->z(), 1.0e-5);
+}
+
 TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
 {
   // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
