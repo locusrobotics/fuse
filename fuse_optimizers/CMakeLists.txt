@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_optimizers)
 
-find_package(catkin REQUIRED COMPONENTS
+set(build_depends
   fuse_core
   fuse_graphs
   pluginlib
   roscpp
+)
+
+find_package(catkin REQUIRED COMPONENTS
+  ${build_depends}
 )
 
 catkin_package(
@@ -14,10 +18,7 @@ catkin_package(
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
-    fuse_core
-    fuse_graphs
-    pluginlib
-    roscpp
+    ${build_depends}
 )
 
 ###########
@@ -26,11 +27,6 @@ catkin_package(
 
 add_compile_options(-std=c++14 -Wall -Werror)
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-
 ## fuse_optimizers library
 add_library(${PROJECT_NAME}
   src/batch_optimizer.cpp
@@ -38,6 +34,11 @@ add_library(${PROJECT_NAME}
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -49,6 +50,11 @@ add_executable(batch_optimizer_node
 )
 add_dependencies(batch_optimizer_node
   ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(batch_optimizer_node
+  PRIVATE
+    include
+    ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(batch_optimizer_node
   ${PROJECT_NAME}

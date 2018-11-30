@@ -38,7 +38,6 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
-#include <ros/ros.h>
 
 #include <string>
 #include <vector>

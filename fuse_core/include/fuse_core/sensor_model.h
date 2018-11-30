@@ -38,6 +38,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
 #include <ros/callback_queue.h>
+#include <ros/time.h>
 
 #include <functional>
 #include <set>

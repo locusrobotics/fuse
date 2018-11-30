@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_constraints)
 
-find_package(catkin REQUIRED COMPONENTS
+set(build_depends
   geometry_msgs
   fuse_core
   fuse_variables
   roscpp
+)
+
+find_package(catkin REQUIRED COMPONENTS
+  ${build_depends}
 )
 
 find_package(Ceres REQUIRED)
@@ -20,10 +24,7 @@ catkin_package(
     ${PROJECT_NAME}
     ${CERES_LIBRARIES}
   CATKIN_DEPENDS
-    geometry_msgs
-    fuse_core
-    fuse_variables
-    roscpp
+    ${build_depends}
 )
 
 ###########
@@ -31,13 +32,6 @@ catkin_package(
 ###########
 
 add_compile_options(-std=c++14 -Wall -Werror)
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-)
 
 # fuse_constraints library
 add_library(${PROJECT_NAME}
@@ -53,6 +47,13 @@ add_library(${PROJECT_NAME}
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -94,6 +95,13 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_absolute_constraint
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_absolute_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
   target_link_libraries(test_absolute_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -107,6 +115,13 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_absolute_orientation_3d_stamped_constraint
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_absolute_orientation_3d_stamped_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
   target_link_libraries(test_absolute_orientation_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -118,6 +133,13 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_absolute_orientation_3d_stamped_euler_constraint
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_absolute_orientation_3d_stamped_euler_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_orientation_3d_stamped_euler_constraint
     ${PROJECT_NAME}
@@ -131,6 +153,13 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_absolute_pose_2d_stamped_constraint
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_absolute_pose_2d_stamped_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
   target_link_libraries(test_absolute_pose_2d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -143,6 +172,13 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_absolute_pose_3d_stamped_constraint
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_absolute_pose_3d_stamped_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
   target_link_libraries(test_absolute_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -154,6 +190,13 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_relative_constraint
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_relative_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_constraint
     ${PROJECT_NAME}
@@ -168,6 +211,13 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_relative_pose_2d_stamped_constraint
     ${catkin_EXPORTED_TARGETS}
   )
+  target_include_directories(test_relative_pose_2d_stamped_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
   target_link_libraries(test_relative_pose_2d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
@@ -179,6 +229,13 @@ if(CATKIN_ENABLE_TESTING)
   )
   add_dependencies(test_relative_pose_3d_stamped_constraint
     ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_relative_pose_3d_stamped_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_pose_3d_stamped_constraint
     ${PROJECT_NAME}
