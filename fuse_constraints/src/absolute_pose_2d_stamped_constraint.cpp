@@ -53,11 +53,11 @@ AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
     fuse_core::Constraint{position.uuid(), orientation.uuid()}
 {
   size_t total_variable_size = position.size() + orientation.size();
-  total_indices_ = linear_indices.size() + angular_indices.size();
+  size_t total_indices = linear_indices.size() + angular_indices.size();
 
-  assert(partial_mean.rows() == static_cast<int>(total_indices_));
-  assert(partial_covariance.rows() == static_cast<int>(total_indices_));
-  assert(partial_covariance.cols() == static_cast<int>(total_indices_));
+  assert(partial_mean.rows() == static_cast<int>(total_indices));
+  assert(partial_covariance.rows() == static_cast<int>(total_indices));
+  assert(partial_covariance.cols() == static_cast<int>(total_indices));
 
   // Compute the sqrt information of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
@@ -70,19 +70,33 @@ AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
   // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
   // defined by the variable.
   mean_ = fuse_core::VectorXd::Zero(total_variable_size);
-  sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices_, total_variable_size);
+  sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices, total_variable_size);
   for (size_t i = 0; i < linear_indices.size(); ++i)
   {
     mean_(linear_indices[i]) = partial_mean(i);
     sqrt_information_.col(linear_indices[i]) = partial_sqrt_information.col(i);
   }
 
-  for (size_t i = linear_indices.size(); i < total_indices_; ++i)
+  for (size_t i = linear_indices.size(); i < total_indices; ++i)
   {
     size_t final_index = position.size() + angular_indices[i - linear_indices.size()];
     mean_(final_index) = partial_mean(i);
     sqrt_information_.col(final_index) = partial_sqrt_information.col(i);
   }
+}
+
+fuse_core::MatrixXd AbsolutePose2DStampedConstraint::covariance() const
+{
+  // We want to compute:
+  // cov = (sqrt_info' * sqrt_info)^-1
+  // With some linear algebra, we can swap the transpose and the inverse.
+  // cov = (sqrt_info^-1) * (sqrt_info^-1)'
+  // But sqrt_info _may_ not be square. So we need to compute the pseudoinverse instead.
+  // Eigen doesn't have a pseudoinverse function (for probably very legitimate reasons).
+  // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
+  auto I = fuse_core::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
+  fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
+  return pinv * pinv.transpose();
 }
 
 void AbsolutePose2DStampedConstraint::print(std::ostream& stream) const
@@ -103,7 +117,7 @@ fuse_core::Constraint::UniquePtr AbsolutePose2DStampedConstraint::clone() const
 ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorPose2DCostFunctor, ceres::DYNAMIC, 2, 1>(
-    new NormalPriorPose2DCostFunctor(sqrt_information_, mean_), total_indices_);
+    new NormalPriorPose2DCostFunctor(sqrt_information_, mean_), sqrt_information_.rows());
 }
 
 }  // namespace fuse_constraints

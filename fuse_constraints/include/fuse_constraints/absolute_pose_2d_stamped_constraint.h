@@ -71,19 +71,26 @@ public:
    * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies, e.g., that you
    * don't want to measure any of the quantities in that variable.
    *
-   * @param[in] position        The variable representing the position components of the pose
-   * @param[in] orientation     The variable representing the orientation components of the pose
-   * @param[in] mean            The measured/prior pose as a vector (max 3x1 vector: x, y, yaw)
-   * @param[in] covariance      The measurement/prior covariance (max 3x3 matrix: x, y, yaw)
-   * @param[in] linear_indices  The set of indices corresponding to the measured position dimensions
-   *                         e.g. "{ fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y }"
-   * @param[in] angular_indices The set of indices corresponding to the measured orientation dimensions (just yaw)
+   * The mean is given as a vector. The first components (if any) will be dictated, both in content and in ordering, by
+   * the value of the \p linear_indices. The final component (if any) is dictated by the \p angular_indices.
+   * The covariance matrix follows the same ordering.
+   *
+   * @param[in] position           The variable representing the position components of the pose
+   * @param[in] orientation        The variable representing the orientation components of the pose
+   * @param[in] partial_mean       The measured/prior pose as a vector (max 3x1 vector, components are dictated by
+   *                               \p linear_indices and \p angular_indices)
+   * @param[in] partial_covariance The measurement/prior covariance (max 3x3 matrix, components are dictated by
+   *                               \p linear_indices and \p angular_indices)
+   * @param[in] linear_indices     The set of indices corresponding to the measured position dimensions
+   *                               e.g. "{fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y}"
+   * @param[in] angular_indices    The set of indices corresponding to the measured orientation dimensions
+   *                               e.g. "{fuse_variables::Orientation2DStamped::Yaw}"
    */
   AbsolutePose2DStampedConstraint(
     const fuse_variables::Position2DStamped& position,
     const fuse_variables::Orientation2DStamped& orientation,
-    const fuse_core::VectorXd& mean,
-    const fuse_core::MatrixXd& covariance,
+    const fuse_core::VectorXd& partial_mean,
+    const fuse_core::MatrixXd& partial_covariance,
     const std::vector<size_t>& linear_indices =
       {fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y},             // NOLINT
     const std::vector<size_t>& angular_indices = {fuse_variables::Orientation2DStamped::YAW});  // NOLINT
@@ -96,14 +103,16 @@ public:
   /**
    * @brief Read-only access to the measured/prior vector of mean values.
    *
-   * Order is (x, y, yaw)
+   * Order is (x, y, yaw). Note that the returned vector will be full sized (3x1) and in the stated order.
    */
   const fuse_core::VectorXd& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (x, y, yaw)
+   * Order is (x, y, yaw). Note that the returned covariance matrix will be full sized (3x3) and in the stated order.
+   * If only a partial covariance matrix was provided in the constructor, this covariance matrix may be a different
+   * size and in a different order than the constructor input.
    */
   const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
@@ -112,7 +121,7 @@ public:
    *
    * Order is (x, y, yaw)
    */
-  fuse_core::MatrixXd covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
+  fuse_core::MatrixXd covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -144,7 +153,6 @@ public:
 protected:
   fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
-  size_t total_indices_;  //!< The number of indices we're constraining
 };
 
 }  // namespace fuse_constraints

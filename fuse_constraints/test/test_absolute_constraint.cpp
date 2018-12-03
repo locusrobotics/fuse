@@ -297,7 +297,7 @@ TEST(AbsoluteConstraint, PartialOptimization)
   fuse_core::Matrix2d cov1;
   cov1 << 1.0, 0.0,
           0.0, 1.0;
-  std::vector<size_t> indices1 = {2, 0};
+  std::vector<size_t> indices1 = {fuse_variables::Position3DStamped::Z, fuse_variables::Position3DStamped::X};
   auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean1, cov1, indices1);
 
   // Create another constraint for the second index
