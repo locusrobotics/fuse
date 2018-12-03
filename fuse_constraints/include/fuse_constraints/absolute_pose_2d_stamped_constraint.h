@@ -105,23 +105,23 @@ public:
    *
    * Order is (x, y, yaw). Note that the returned vector will be full sized (3x1) and in the stated order.
    */
-  const fuse_core::VectorXd& mean() const { return mean_; }
+  const fuse_core::Vector3d& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (x, y, yaw). Note that the returned covariance matrix will be full sized (3x3) and in the stated order.
-   * If only a partial covariance matrix was provided in the constructor, this covariance matrix may be a different
-   * size and in a different order than the constructor input.
+   * If only a partial covariance matrix was provided in the constructor, this covariance matrix will not be square.
    */
   const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (x, y, yaw)
+   * Order is (x, y, yaw). Note that the returned covariance matrix will be full sized (3x3) and in the stated order.
+   * If only a partial covariance matrix was provided in the constructor, this covariance matrix may be a different
+   * size and in a different order than the constructor input.
    */
-  fuse_core::MatrixXd covariance() const;
+  fuse_core::Matrix3d covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -151,7 +151,7 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::Vector3d mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 };
 

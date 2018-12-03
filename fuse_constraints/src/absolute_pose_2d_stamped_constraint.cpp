@@ -85,7 +85,7 @@ AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
   }
 }
 
-fuse_core::MatrixXd AbsolutePose2DStampedConstraint::covariance() const
+fuse_core::Matrix3d AbsolutePose2DStampedConstraint::covariance() const
 {
   // We want to compute:
   // cov = (sqrt_info' * sqrt_info)^-1
