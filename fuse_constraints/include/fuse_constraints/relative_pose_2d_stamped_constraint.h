@@ -69,7 +69,7 @@ public:
    * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies, e.g., that you
    * don't want to measure any of the quantities in that variable.
    *
-	 * The mean is given as a vector. The first components (if any) will be dictated, both in content and in ordering, by
+   * The mean is given as a vector. The first components (if any) will be dictated, both in content and in ordering, by
    * the value of the \p linear_indices. The final component (if any) is dictated by the \p angular_indices. The
    * covariance matrix follows the same ordering.
    *
