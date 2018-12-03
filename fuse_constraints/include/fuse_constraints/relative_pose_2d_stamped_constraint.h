@@ -66,7 +66,7 @@ public:
   /**
    * @brief Constructor
    *
-   * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies, e.g., that you
+   * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies that you
    * don't want to measure any of the quantities in that variable.
    *
    * The mean is given as a vector. The first components (if any) will be dictated, both in content and in ordering, by
