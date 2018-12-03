@@ -91,8 +91,8 @@ public:
     const fuse_variables::Orientation2DStamped& orientation1,
     const fuse_variables::Position2DStamped& position2,
     const fuse_variables::Orientation2DStamped& orientation2,
-    const fuse_core::Vector3d& partial_delta,
-    const fuse_core::Matrix3d& partial_covariance,
+    const fuse_core::VectorXd& partial_delta,
+    const fuse_core::MatrixXd& partial_covariance,
     const std::vector<size_t>& linear_indices =
       {fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y},             // NOLINT
     const std::vector<size_t>& angular_indices = {fuse_variables::Orientation2DStamped::YAW});  // NOLINT
@@ -111,6 +111,8 @@ public:
 
   /**
    * @brief Read-only access to the square root information matrix.
+   *
+   * If only a partial covariance matrix was provided in the constructor, this covariance matrix will not be square.
    */
   const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 

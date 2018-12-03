@@ -45,8 +45,8 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   const fuse_variables::Orientation2DStamped& orientation1,
   const fuse_variables::Position2DStamped& position2,
   const fuse_variables::Orientation2DStamped& orientation2,
-  const fuse_core::Vector3d& partial_delta,
-  const fuse_core::Matrix3d& partial_covariance,
+  const fuse_core::VectorXd& partial_delta,
+  const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& linear_indices,
   const std::vector<size_t>& angular_indices) :
     fuse_core::Constraint{position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}
@@ -68,7 +68,7 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
   // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
   // defined by the variable.
-  delta_ = fuse_core::VectorXd::Zero(total_variable_size);
+  delta_ = fuse_core::Vector3d::Zero();
   sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices, total_variable_size);
 
   for (size_t i = 0; i < linear_indices.size(); ++i)

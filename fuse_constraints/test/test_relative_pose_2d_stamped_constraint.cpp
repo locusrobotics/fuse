@@ -268,9 +268,9 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
                                                             cov1);
 
   // Create a relative pose constraint for 1m in the x direction
-  fuse_core::Vector3d delta1;
+  fuse_core::Vector2d delta1;
   delta1 << 1.0, 0.0;
-  fuse_core::Matrix3d cov_rel1;
+  fuse_core::Matrix2d cov_rel1;
   cov_rel1 << 1.0, 0.0, 0.0, 1.0;
   std::vector<size_t> axes_lin1 = {fuse_variables::Position2DStamped::X};
   std::vector<size_t> axes_ang1 = {fuse_variables::Orientation2DStamped::YAW};
@@ -284,9 +284,9 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
                                                                 axes_ang1);
 
   // Create a relative pose constraint for 0m in the y direction
-  fuse_core::Vector3d delta2;
+  fuse_core::Vector1d delta2;
   delta2 << 0.0;
-  fuse_core::Matrix3d cov_rel2;
+  fuse_core::Matrix1d cov_rel2;
   cov_rel2 << 1.0;
   std::vector<size_t> axes_lin2 = {fuse_variables::Position2DStamped::Y};
   std::vector<size_t> axes_ang2 = {};
