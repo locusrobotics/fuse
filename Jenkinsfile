@@ -5,7 +5,7 @@ tailorTestPipeline(
   // Release track to test branch against.
   release_track: 'hotdog',
   // OS distributions to test.
-  distributions: ['xenial'],
+  distributions: ['xenial', 'bionic'],
   // Bundle flavour to test against.
   flavour: 'dev',
   // Branch of tailor_meta to build against
