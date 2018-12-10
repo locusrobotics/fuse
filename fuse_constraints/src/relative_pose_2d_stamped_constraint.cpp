@@ -36,6 +36,8 @@
 
 #include <ceres/autodiff_cost_function.h>
 
+#include <vector>
+
 
 namespace fuse_constraints
 {
@@ -58,10 +60,10 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   assert(partial_covariance.rows() == static_cast<int>(total_indices));
   assert(partial_covariance.cols() == static_cast<int>(total_indices));
 
-   // Compute the sqrt information of the provided cov matrix
+  // Compute the sqrt information of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
 
-   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper variable order
+  // Assemble a mean vector and sqrt information matrix from the provided values, but in proper variable order
   // What are we doing here?
   // The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
   // If we are measuring a subset of dimensions, we only want to produce costs for the measured dimensions.
