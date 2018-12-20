@@ -191,7 +191,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   ASSERT_TRUE(received_path_msg_);
   EXPECT_EQ(ros::Time(1235, 10), path_msg_.header.stamp);
   EXPECT_EQ("test_map", path_msg_.header.frame_id);
-  ASSERT_EQ(3, path_msg_.poses.size());
+  ASSERT_EQ(3ul, path_msg_.poses.size());
 
   EXPECT_EQ(ros::Time(1234, 10), path_msg_.poses[0].header.stamp);
   EXPECT_EQ("test_map", path_msg_.poses[0].header.frame_id);
@@ -218,7 +218,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   ASSERT_TRUE(received_pose_array_msg_);
   EXPECT_EQ(ros::Time(1235, 10), pose_array_msg_.header.stamp);
   EXPECT_EQ("test_map", pose_array_msg_.header.frame_id);
-  ASSERT_EQ(3, pose_array_msg_.poses.size());
+  ASSERT_EQ(3ul, pose_array_msg_.poses.size());
 
   EXPECT_NEAR(1.01, pose_array_msg_.poses[0].position.x, 1.0e-9);
   EXPECT_NEAR(2.01, pose_array_msg_.poses[0].position.y, 1.0e-9);

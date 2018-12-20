@@ -605,7 +605,7 @@ TEST(HashGraph, GetCovariance)
     EXPECT_NO_THROW(graph.getCovariance(covariance_requests, covariance_matrices));
 
     // The output covariances should be empty
-    EXPECT_EQ(0, covariance_matrices.size());
+    EXPECT_EQ(0ul, covariance_matrices.size());
   }
 
   // Test extraction of the covariance from the graph
