@@ -300,7 +300,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
   }
 
   ASSERT_TRUE(received_tf_msg_);
-  ASSERT_EQ(1, tf_msg_.transforms.size());
+  ASSERT_EQ(1ul, tf_msg_.transforms.size());
   EXPECT_EQ("test_map", tf_msg_.transforms[0].header.frame_id);
   EXPECT_EQ("test_base", tf_msg_.transforms[0].child_frame_id);
   EXPECT_NEAR(1.02, tf_msg_.transforms[0].transform.translation.x, 1.0e-9);
@@ -339,7 +339,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   }
 
   ASSERT_TRUE(received_tf_msg_);
-  ASSERT_EQ(1, tf_msg_.transforms.size());
+  ASSERT_EQ(1ul, tf_msg_.transforms.size());
   EXPECT_EQ("test_map", tf_msg_.transforms[0].header.frame_id);
   EXPECT_EQ("test_odom", tf_msg_.transforms[0].child_frame_id);
   EXPECT_NEAR(0.9788154983, tf_msg_.transforms[0].transform.translation.x, 1.0e-9);
