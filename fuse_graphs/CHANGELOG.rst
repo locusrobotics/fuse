@@ -2,8 +2,8 @@
 Changelog for package fuse_graphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2019-01-16)
+------------------
 * Fix tests for bionic (`#34 <https://github.com/locusrobotics/fuse/issues/34>`_)
 * [RST-1554] test depends (`#30 <https://github.com/locusrobotics/fuse/issues/30>`_)
   * Refactored all CMakeLists.txt to avoid path issues when using workspace overlays
