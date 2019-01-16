@@ -2,6 +2,15 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [RST-1567] Check the system has started before attempting to optimize (`#33 <https://github.com/locusrobotics/fuse/issues/33>`_)
+  * Check the system has started before attempting to optimize.
+  * Fixed linter issues
+* [RST-1554] test depends (`#30 <https://github.com/locusrobotics/fuse/issues/30>`_)
+  * Refactored all CMakeLists.txt to avoid path issues when using workspace overlays
+* Contributors: Stephen Williams
+
 0.1.1 (2018-08-15)
 ------------------
 

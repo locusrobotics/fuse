@@ -2,6 +2,12 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [RST-1554] test depends (`#30 <https://github.com/locusrobotics/fuse/issues/30>`_)
+  * Refactored all CMakeLists.txt to avoid path issues when using workspace overlays
+* Contributors: Stephen Williams
+
 0.1.1 (2018-08-15)
 ------------------
 * [RST-1121] Load device id from parameter server (`#26 <https://github.com/locusrobotics/fuse/issues/26>`_)
