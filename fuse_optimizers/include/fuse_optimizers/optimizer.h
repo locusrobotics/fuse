@@ -140,7 +140,7 @@ protected:
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
    *
-   * @param[in] name        The name of the sensor that produced the Transaction
+   * @param[in] sensor_name The name of the sensor that produced the Transaction
    * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models
    *                        to generate connected constraints.
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
@@ -199,6 +199,19 @@ protected:
   void notify(
     fuse_core::Transaction::ConstSharedPtr transaction,
     fuse_core::Graph::ConstSharedPtr graph);
+
+   /**
+   * @brief Inject a transaction callback function into the global callback queue
+   *
+   * @param[in] sensor_name The name of the sensor that produced the Transaction
+   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models
+   *                        to generate connected constraints.
+   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
+   */
+  void injectCallback(
+    const std::string& sensor_name,
+    const std::set<ros::Time>& stamps,
+    const fuse_core::Transaction::SharedPtr& transaction);
 };
 
 }  // namespace fuse_optimizers

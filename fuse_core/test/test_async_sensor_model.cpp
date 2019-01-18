@@ -85,14 +85,14 @@ public:
 TEST(AsyncSensorModel, OnInit)
 {
   MySensor sensor;
-  sensor.initialize("my_sensor", &transactionCallback, ros::getGlobalCallbackQueue());
+  sensor.initialize("my_sensor", &transactionCallback);
   EXPECT_TRUE(sensor.initialized);
 }
 
 TEST(AsyncSensorModel, OnGraphUpdate)
 {
   MySensor sensor;
-  sensor.initialize("my_sensor", &transactionCallback, ros::getGlobalCallbackQueue());
+  sensor.initialize("my_sensor", &transactionCallback);
 
   // Execute the graph callback in this thread. This should push a call to MySensor::onGraphUpdate()
   // into MySensor's callback queue, which will get executed by MySensor's async spinner.
@@ -109,23 +109,15 @@ TEST(AsyncSensorModel, OnGraphUpdate)
   EXPECT_TRUE(sensor.graph_received);
 }
 
-TEST(AsyncSensorModel, InjectCallback)
+TEST(AsyncSensorModel, Publish)
 {
   MySensor sensor;
-  sensor.initialize("my_sensor", &transactionCallback, ros::getGlobalCallbackQueue());
+  sensor.initialize("my_sensor", &transactionCallback);
 
-  // Use the sensor to inject a callback into the global callback queue. This will get executed by main's spinner.
-  // There is a time delay there. So, this call should return almost immediately, then we have to wait
-  // a bit before the "received_transaction" flag gets flipped.
+  // Use the sensor "publish" method to execute the transaction callback. This will get executed immediately.
   std::set<ros::Time> stamps;
   fuse_core::Transaction::SharedPtr transaction;  // nullptr, okay because we don't actually use it for anything
-  sensor.injectCallback(stamps, transaction);
-  EXPECT_FALSE(received_transaction);
-  ros::Time wait_time_elapsed = ros::Time::now() + ros::Duration(10.0);
-  while (!received_transaction && ros::Time::now() < wait_time_elapsed)
-  {
-    ros::Duration(0.1).sleep();
-  }
+  sensor.publish(stamps, transaction);
   EXPECT_TRUE(received_transaction);
 }
 

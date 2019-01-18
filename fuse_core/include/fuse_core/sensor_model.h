@@ -62,11 +62,12 @@ using TransactionCallback = std::function<void(const std::set<ros::Time>& stamps
  * optimizer. If you are developing your own sensor model, look at the AsyncSensorModel class, as this provides
  * additional features that make the sensor model act similar to a ROS node or nodelet.
  *
- * The interface SensorModel class provides the injectCallback() function. This function serves the same basic purpose
- * as publishing a Transaction using a standard ROS publisher, but this method is specific to sensor models and the
- * fuse ecosystem. Under the hood, this inserts a call into the fuse optimizer's callback queue, just as publishing a
- * message would, but the memory copy and serialization are avoided. Derived classes should call this method whenever
- * they are ready to send a fuse_core::Transaction object to the optimizer.
+ * During the initialize() call, the optimizer will provide a transaction callback. This function serves the same
+ * basic purpose as publishing a Transaction using a standard ROS publisher. Derived classes should call this function
+ * whenever they are ready to send a fuse_core::Transaction object to the optimizer. This function will be called in
+ * the SensorModel's thread. The optimizer implmentation should ensure that this callback to safe to execute in this
+ * thread. The optimizer should also ensure the callback executes quickly so that it will not block execution in the
+ * SensorModel.
  */
 class SensorModel
 {
@@ -102,37 +103,10 @@ public:
    *
    * @param[in] name                       A unique name to give this plugin instance
    * @param[in] transaction_callback       The function to call every time a transaction is published
-   * @param[in] transaction_callback_queue The callback queue the callback function should be inserted into. This
-   *                                       will likely belong to the parent of the plugin, as no attempt to spin this
-   *                                       queue is performed.
    */
   virtual void initialize(
     const std::string& name,
-    TransactionCallback transaction_callback,
-    ros::CallbackQueue* transaction_callback_queue) = 0;
-
- /**
-   * @brief Inject a transaction callback function into a callback queue
-   *
-   * It is expected that sensor model plugins will generate new constraints (packaged inside a Transaction) as a result
-   * of received sensor data. Instead of the Optimizer periodically checking for new transactions, we provide a
-   * "push" mechanism for the sensor model to send the transaction to the Optimizer immediately by injecting the
-   * transaction into the Optimizer's callback queue. The Optimizer's transaction callback function will fire within
-   * the Optimizer's callback thread(s). The optimize will supply a pointer to its transaction callback function and
-   * its callback queue within the initialize() call.
-   *
-   * @param[in] stamps                     All timestamps associated with the added variables. These are sent to the
-   *                                       motion models.
-   * @param[in] transaction                Object describing the set of variables and constraints that have been added
-   *                                       and/or removed.
-   * @param[in] transaction_callback       The callback function to inject into the callback queue
-   * @param[in] transaction_callback_queue The callback queue the callback function should be inserted into.
-   */
-  static void injectCallback(
-    const std::set<ros::Time>& stamps,
-    const Transaction::SharedPtr& transaction,
-    const TransactionCallback& transaction_callback,
-    ros::CallbackQueue* transaction_callback_queue);
+    TransactionCallback transaction_callback) = 0;
 
   /**
    * @brief Get the unique name of this sensor

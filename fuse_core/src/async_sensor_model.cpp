@@ -50,8 +50,7 @@ namespace fuse_core
 
 AsyncSensorModel::AsyncSensorModel(size_t thread_count) :
   name_("uninitialized"),
-  spinner_(thread_count, &callback_queue_),
-  transaction_callback_queue_(nullptr)
+  spinner_(thread_count, &callback_queue_)
 {
 }
 
@@ -63,8 +62,7 @@ void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
 
 void AsyncSensorModel::initialize(
   const std::string& name,
-  TransactionCallback transaction_callback,
-  ros::CallbackQueue* transaction_callback_queue)
+  TransactionCallback transaction_callback)
 {
   // Initialize internal state
   name_ = name;
@@ -72,7 +70,6 @@ void AsyncSensorModel::initialize(
   private_node_handle_ = ros::NodeHandle(ros::NodeHandle("~"), name_);
   private_node_handle_.setCallbackQueue(&callback_queue_);
   transaction_callback_ = transaction_callback;
-  transaction_callback_queue_ = transaction_callback_queue;
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
@@ -81,11 +78,11 @@ void AsyncSensorModel::initialize(
   spinner_.start();
 }
 
-void AsyncSensorModel::injectCallback(
+void AsyncSensorModel::publish(
   const std::set<ros::Time>& stamps,
   const Transaction::SharedPtr& transaction)
 {
-  SensorModel::injectCallback(stamps, transaction, transaction_callback_, transaction_callback_queue_);
+  transaction_callback_(stamps, transaction);
 }
 
 }  // namespace fuse_core
