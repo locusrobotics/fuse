@@ -157,5 +157,10 @@ end users to concentrate on modelling the robot, sensor, system, etc. and spend 
 sensor models together into runable code. And since all of the models are implemented as plugins, separate plugin
 libraries can be shared or kept private at the discretion of their authors.
 
-## API
-Class API details coming soon...
+## API Concepts
+* [Variables](doc/Variables.md)
+* Constraints -- coming soon
+* Sensor Models -- coming soon
+* Motion Models -- coming soon
+* Publishers -- coming soon
+* Optimizers -- coming soon
