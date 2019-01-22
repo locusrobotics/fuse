@@ -109,15 +109,15 @@ TEST(AsyncSensorModel, OnGraphUpdate)
   EXPECT_TRUE(sensor.graph_received);
 }
 
-TEST(AsyncSensorModel, Publish)
+TEST(AsyncSensorModel, SendTransaction)
 {
   MySensor sensor;
   sensor.initialize("my_sensor", &transactionCallback);
 
-  // Use the sensor "publish" method to execute the transaction callback. This will get executed immediately.
+  // Use the sensor "sendTransaction()" method to execute the transaction callback. This will get executed immediately.
   std::set<ros::Time> stamps;
   fuse_core::Transaction::SharedPtr transaction;  // nullptr, okay because we don't actually use it for anything
-  sensor.publish(stamps, transaction);
+  sensor.sendTransaction(stamps, transaction);
   EXPECT_TRUE(received_transaction);
 }
 
