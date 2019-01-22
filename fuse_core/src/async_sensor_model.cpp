@@ -78,7 +78,7 @@ void AsyncSensorModel::initialize(
   spinner_.start();
 }
 
-void AsyncSensorModel::publish(
+void AsyncSensorModel::sendTransaction(
   const std::set<ros::Time>& stamps,
   const Transaction::SharedPtr& transaction)
 {

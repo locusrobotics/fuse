@@ -53,9 +53,9 @@ namespace fuse_core
 /**
  * @brief A sensor model base class that provides node handles and a private callback queue.
  *
- * A sensor model plugin is responsible for generating new constraints and passing them along to the optimizer, where
- * the actual sensor fusion takes place. The asynchronous sensor model plugin is designed similar to the nodelet
- * plugin, attempting to be as generic and easy to use as a standard ROS node.
+ * A sensor model plugin is responsible for generating new constraints, packaging them in a fuse_core::Transaction
+ * object, and passing them along to the optimizer. The asynchronous sensor model plugin is designed similar to the
+ * nodelet plugin, attempting to be as generic and easy to use as a standard ROS node.
  *
  * There are a few notable differences between the asynchronous sensor model plugin and a standard ROS node. First
  * and most obvious, the sensor model is designed as a plugin, with all of the stipulations and requirements that
@@ -63,25 +63,25 @@ namespace fuse_core
  * AsyncSensorModel class provides a global and private node handle, both hooked to a local callback queue and local
  * spinner. This makes it act like a full ROS node -- subscriptions trigger message callbacks, callbacks will fire
  * sequentially, etc. However, authors of derived sensor models should be aware of this fact and avoid creating
- * additional node handles, or at least take care when creating new node handles and additional callback queues.
- * Finally, the concept of "publishing a transaction" has been abused slightly. The asynchronous sensor model
- * provides a "publish()" method that should be called whenever the sensor is ready to send a fuse_core::Transaction
- * object to the plugin owner. Under the hood, this executes the TransactionCallback that was provided during plugin
- * construction.
+ * additional node handles, or at least take care when creating new node handles and additional callback queues. 
+ * Finally, instead of publishing the generated constraints using a ROS publisher, the asynchronous sensor model
+ * provides a "sendTransaction()" method that should be called whenever the sensor is ready to send a
+ * fuse_core::Transaction object to the Optimizer. Under the hood, this executes the TransactionCallback that was
+ * provided during plugin construction.
  * 
  * Derived classes:
  * - _must_ implement the onInit() method. This method is used to configure the sensor model for operation.
  *   This includes things like accessing the parameter server and subscribing to sensor topics.
  * - may _optionally_ implement the onGraphUpdate() method. This should only be done if the derived sensor needs
  *   access to the latest values of the state variables. In many cases, sensors will simply not need that information.
- *   If the sensor does need access the to graph, the most common implementation will simply be to move the provided
- *   pointer into a class memebr variable, for use in other callbacks.
+ *   If the sensor does need access to the graph, the most common implementation will simply be to move the provided
+ *   pointer into a class member variable, for use in other callbacks.
  *   @code{.cpp}
  *   void onGraphUpdate(Graph::ConstSharedPtr graph) override { this->graph_ = std::move(graph); }
  *   @endcode
  * - will _probably_ subscribe to a sensor message topic and write a custom message callback function. Within that
  *   function, the derived class will generate new constraints based on the received sensor data.
- * - _must_ call publish() every time new constraints are generated. This is how constraints are sent to the
+ * - _must_ call sendTransaction() every time new constraints are generated. This is how constraints are sent to the
  *   optimizer. Otherwise, the optimizer will not know about the derived sensor's constraints, and the sensor will
  *   have no effect.
  */
@@ -137,7 +137,7 @@ public:
    * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models.
    * @param[in] transaction A Transaction object describing the set of variables that have been added and removed.
    */
-  void publish(
+  void sendTransaction(
     const std::set<ros::Time>& stamps,
     const Transaction::SharedPtr& transaction);
 
