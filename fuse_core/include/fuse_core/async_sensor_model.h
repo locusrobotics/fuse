@@ -124,13 +124,12 @@ public:
     TransactionCallback transaction_callback) final;
 
   /**
-   * @brief Inject the Transaction into the callback queue registered during initialize()
+   * @brief Send a transaction to the Optimizer
    *
    * It is expected that sensor model plugins will generate new constraints (packaged inside a Transaction) as a result
    * of received sensor data. Instead of the Optimizer periodically checking for new transactions, we provide a
-   * "push" mechanism for the sensor model to send the transaction to the Optimizer immediately by injecting the
-   * transaction into the Optimizer's callback queue. The Optimizer's transaction callback function will fire within
-   * the Optimizer's callback thread(s).
+   * "push" mechanism for the sensor model to send the transaction to the Optimizer immediately by calling the callback
+   * function provided by the Optimizer. This function will be executed by the SensorModel's thread.
    * 
    * This should be called by derived classes whenever a new Transaction is generated, probably from within the sensor
    * message callback function.
