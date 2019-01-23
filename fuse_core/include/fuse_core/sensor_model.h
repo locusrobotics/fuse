@@ -65,7 +65,7 @@ using TransactionCallback = std::function<void(const std::set<ros::Time>& stamps
  * During the initialize() call, the optimizer will provide a transaction callback. This function serves the same
  * basic purpose as publishing a Transaction using a standard ROS publisher. Derived classes should call this function
  * whenever they are ready to send a fuse_core::Transaction object to the optimizer. This function will be called in
- * the SensorModel's thread. The optimizer implmentation should ensure that this callback to safe to execute in this
+ * the SensorModel's thread. The optimizer implementation should ensure that this callback is safe to execute in this
  * thread. The optimizer should also ensure the callback executes quickly so that it will not block execution in the
  * SensorModel.
  */
