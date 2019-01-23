@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -143,8 +144,7 @@ void Optimizer::loadSensorModels()
     // Initialize the sensor
     sensor_model->initialize(
       sensor_name,
-      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::placeholders::_1, std::placeholders::_2),
-      ros::getGlobalCallbackQueue());
+      std::bind(&Optimizer::injectCallback, this, sensor_name, std::placeholders::_1, std::placeholders::_2));
     // Store the sensor in a member variable for use later
     sensor_models_.emplace(sensor_name, std::move(sensor_model));
     // Parse out the list of associated motion models, if any
@@ -282,6 +282,18 @@ void Optimizer::notify(
       continue;
     }
   }
+}
+
+void Optimizer::injectCallback(
+  const std::string& sensor_name,
+  const std::set<ros::Time>& stamps,
+  const fuse_core::Transaction::SharedPtr& transaction)
+{
+  // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
+  // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
+  // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
+  ros::getGlobalCallbackQueue()->addCallback(boost::make_shared<fuse_core::CallbackWrapper<void>>(
+    std::bind(&Optimizer::transactionCallback, this, sensor_name, stamps, transaction)));
 }
 
 }  // namespace fuse_optimizers

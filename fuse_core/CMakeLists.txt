@@ -39,7 +39,6 @@ add_library(${PROJECT_NAME}
   src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
-  src/sensor_model.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
   src/variable.cpp
