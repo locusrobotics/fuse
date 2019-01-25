@@ -1,10 +1,13 @@
 # fuse
+
 The fuse stack provides a general architecture for performing sensor fusion live on a robot. Some possible applications
 include state estimation, localization, mapping, and calibration.
 
 ## Overview
+
 fuse is a ROS framework for performing sensor fusion using nonlinear least squares optimization techniques. In
 particular, fuse provides:
+
 * a plugin-based system for modeling sensor measurements
 * a similar plugin-based system for motion models
 * a plugin-based system for publishing optimized state values
@@ -14,8 +17,8 @@ particular, fuse provides:
 
 (unpresented) ROSCon 2018 Lightning Talk [slides](doc/fuse_lightning_talk.pdf)
 
-
 Data flows through the system approximately like this:
+
 * A sensor model receives raw sensor data. The sensor model generates a constraint and sends it to the optimizer.
 * The optimizer receives the new sensor constraint. A request is sent to each configured motion model to generate
   a constraint between the previous state and the new state involved in the sensor constraint.
@@ -36,6 +39,7 @@ publishing of data to the ROS topic.
 ![fuse sequence diagram](doc/fuse_sequence_diagram.png)
 
 ## Example
+
 Let's consider a simple robotics example to illustrate this. Assume we have a typical indoor differential-drive robot.
 This robot has wheel encoders and a horizontal laser.
 
@@ -145,12 +149,14 @@ plot how the wheel diameter changes over the length of the race.
 Now our system estimates the wheel diameters at each time step as well as the robot's pose.
 
 ## The Math
+
 Internally `fuse` uses Google's [Ceres Solver](http://ceres-solver.org) to perform the nonlinear least squares
 optimization, which produces the optimal state variable values. I direct any interested parties to the Ceres Solver
 ["Non-linear Least Squares"](http://ceres-solver.org/nnls_tutorial.html) tutorial for an excellent primer on the core
 concepts and involved math.
 
 ## Summary
+
 The purpose of `fuse` is to provide a framework for performing sensor fusion tasks, allowing common components to be
 reused between systems, while also allowing components to be customized for different use cases. The goal is to allow
 end users to concentrate on modelling the robot, sensor, system, etc. and spend less time wiring the different
@@ -158,6 +164,7 @@ sensor models together into runable code. And since all of the models are implem
 libraries can be shared or kept private at the discretion of their authors.
 
 ## API Concepts
+
 * [Variables](doc/Variables.md)
 * Constraints -- coming soon
 * Sensor Models -- coming soon
