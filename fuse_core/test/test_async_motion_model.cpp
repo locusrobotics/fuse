@@ -36,8 +36,6 @@
 
 #include <gtest/gtest.h>
 
-#include <set>
-
 
 /**
  * @brief Derived AsyncMotionModel used to verify the functions get called when expected
@@ -53,7 +51,7 @@ public:
 
   virtual ~MyMotionModel() = default;
 
-  bool applyCallback(const std::set<ros::Time>& stamps, fuse_core::Transaction& transaction)
+  bool applyCallback(fuse_core::Transaction& transaction)
   {
     ros::Duration(1.0).sleep();
     transaction_received = true;
@@ -111,10 +109,9 @@ TEST(AsyncMotionModel, ApplyCallback)
   // Call the motion model base class "apply()" method to send a transaction to the derived model. The AsyncMotionModel
   // will then inject a call to applyCallback() into the motion model's callback queue. There is a time delay there, so
   // this call should block for *at least* 1.0 second. Once it returns, the "received_transaction" flag should be set.
-  std::set<ros::Time> stamps;
   fuse_core::Transaction transaction;
   ros::Time before_apply = ros::Time::now();
-  motion_model.apply(stamps, transaction);
+  motion_model.apply(transaction);
   ros::Time after_apply = ros::Time::now();
   EXPECT_TRUE(motion_model.transaction_received);
   EXPECT_LE(ros::Duration(1.0), after_apply - before_apply);

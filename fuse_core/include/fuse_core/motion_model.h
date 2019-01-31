@@ -37,9 +37,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
-#include <ros/time.h>
 
-#include <set>
 #include <string>
 
 
@@ -94,15 +92,14 @@ public:
   virtual void graphCallback(Graph::ConstSharedPtr graph) {}
 
   /**
-   * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
    *
    * This function will be called by the optimizer (in the Optimizer's thread) for each received transaction.
    *
-   * @param[in]  stamps      The set of timestamps that should be connected by motion model constraints
-   * @param[out] transaction The transaction object that should be augmented with motion model constraints
-   * @return                 True if the motion models were generated successfully, false otherwise
+   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
+   * @return                    True if the motion models were generated successfully, false otherwise
    */
-  virtual bool apply(const std::set<ros::Time>& stamps, Transaction& transaction) = 0;
+  virtual bool apply(Transaction& transaction) = 0;
 
 protected:
   /**

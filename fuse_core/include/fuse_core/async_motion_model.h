@@ -41,9 +41,7 @@
 #include <ros/callback_queue.h>
 #include <ros/node_handle.h>
 #include <ros/spinner.h>
-#include <ros/time.h>
 
-#include <set>
 #include <string>
 
 
@@ -67,13 +65,13 @@ namespace fuse_core
  * interaction of motion model nodes is best compared to a service call -- an external actor will provide a set of
  * timestamps and wait for the motion model to respond with the required set of constraints to link the timestamps
  * together (along with any previously existing timestamps). In lieu of a ROS service callback function, the
- * AsyncMotionModel class requires the queryCallback() function to be implemented. This callback will be executed
+ * AsyncMotionModel class requires the applyCallback() function to be implemented. This callback will be executed
  * from the same callback queue as any other subscriptions or service callbacks.
  * 
  * Derived classes:
  * - _probably_ need to implement the onInit() method. This method is used to configure the motion model for operation.
  *   This includes things like accessing the parameter server and subscribing to sensor topics.
- * - _must_ implement the queryCallback() method. This is the communication mechanism between the parent/optimizer and
+ * - _must_ implement the applyCallback() method. This is the communication mechanism between the parent/optimizer and
  *   the derived motion model. This is how the optimizer tells the motion model what timestamps have been added, and
  *   how the motion model sends motion model constraints to the optimizer.
  * - may _optionally_ implement the onGraphUpdate() method. This should only be done if the derived motion model needs
@@ -126,7 +124,7 @@ public:
   void graphCallback(Graph::ConstSharedPtr graph) final;
 
   /**
-   * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
    *
    * This method will be called by the optimizer, in the optimizer's thread, before each sensor transaction is applied
    * to the Graph. This implementation packages a call to the pure virtual method applyCallback() and inserts it into
@@ -134,11 +132,10 @@ public:
    * thread as any other configured callbacks. Despite the fact that the queryCallback() function call runs in a
    * different thread than this function, this function blocks until the query callback returns.
    *
-   * @param[in]  stamps      The set of timestamps that should be connected by motion model constraints
-   * @param[out] transaction The transaction object that should be augmented with motion model constraints
-   * @return                 True if the motion models were generated successfully, false otherwise
+   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
+   * @return                    True if the motion models were generated successfully, false otherwise
    */
-  bool apply(const std::set<ros::Time>& stamps, Transaction& transaction) final;
+  bool apply(Transaction& transaction) final;
 
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
@@ -157,20 +154,19 @@ protected:
   explicit AsyncMotionModel(size_t thread_count = 1);
 
   /**
-   * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
    *
    * This is not as straightforward as it would seem. Depending on the history of previously generated constraints,
    * fulfilling the request may require removing previously generated constraints and creating several new
-   * constraints, such that all timestamps are linked together in a sequential chain. This function is called by the
-   * MotionModel::query() function, but it is done in such a way that *this* function will run inside
-   * the derived AsyncMotionModel's local callback queue. This function is roughly analogous to providing service
+   * constraints, such that all involved timestamps are linked together in a sequential chain. This function is called
+   * by the MotionModel::apply() function, but it is done in such a way that *this* function will run inside
+   * the derived AsyncMotionModel's local callback queue. This function is roughly analogous to providing a service
    * callback, where the caller makes a request and blocks until the request is completed.
    *
-   * @param[in]  stamps      The set of timestamps that should be connected by motion model constraints
-   * @param[out] transaction The transaction object that should be augmented with motion model constraints
-   * @return                 True if the motion models were generated successfully, false otherwise
+   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
+   * @return                    True if the motion models were generated successfully, false otherwise
    */
-  virtual bool applyCallback(const std::set<ros::Time>& stamps, Transaction& transaction) = 0;
+  virtual bool applyCallback(Transaction& transaction) = 0;
 
   /**
    * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received from the optimizer
