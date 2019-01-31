@@ -67,13 +67,12 @@ public:
   void populate()
   {
     // Add a standard set of entries into the motion model
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(10, 0));
-    stamps.insert(ros::Time(20, 0));
-    stamps.insert(ros::Time(30, 0));
-    stamps.insert(ros::Time(40, 0));
     fuse_core::Transaction transaction;
-    manager.query(stamps, transaction);
+    transaction.addInvolvedStamp(ros::Time(10, 0));
+    transaction.addInvolvedStamp(ros::Time(20, 0));
+    transaction.addInvolvedStamp(ros::Time(30, 0));
+    transaction.addInvolvedStamp(ros::Time(40, 0));
+    manager.query(transaction);
     generated_time_spans.clear();
   }
 
@@ -99,11 +98,10 @@ TEST_F(TimestampManagerTestFixture, Empty)
   // Expected: |------********-----------------------> t
 
   // Perform a single query
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(10, 0));
-  stamps.insert(ros::Time(20, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(10, 0));
+  transaction.addInvolvedStamp(ros::Time(20, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the timestamps
   auto stamp_range = manager.stamps();
@@ -126,25 +124,22 @@ TEST_F(TimestampManagerTestFixture, Exceptions)
   populate();
   // Call the query with a beginning stamp that is too early
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(1, 0));
     fuse_core::Transaction transaction;
-    EXPECT_THROW(manager.query(stamps, transaction), std::invalid_argument);
+    transaction.addInvolvedStamp(ros::Time(1, 0));
+    EXPECT_THROW(manager.query(transaction), std::invalid_argument);
   }
   // Call the query function with a timestamp within the range. This should not throw.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(35, 0));
     fuse_core::Transaction transaction;
-    EXPECT_NO_THROW(manager.query(stamps, transaction));
+    transaction.addInvolvedStamp(ros::Time(35, 0));
+    EXPECT_NO_THROW(manager.query(transaction));
   }
   // Call the query with a timestamp outside of the buffer length, but within the current timespan of the history
   // This should not throw, as it is safe to perform this operation.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(11, 0));
     fuse_core::Transaction transaction;
-    EXPECT_NO_THROW(manager.query(stamps, transaction));
+    transaction.addInvolvedStamp(ros::Time(11, 0));
+    EXPECT_NO_THROW(manager.query(transaction));
   }
 }
 
@@ -172,10 +167,9 @@ TEST_F(TimestampManagerTestFixture, Purge)
   // Add an entry right at the edge of the time range (calculations use the ending stamp).
   // This should still keep all entries.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(50, 0));
     fuse_core::Transaction transaction;
-    manager.query(stamps, transaction);
+    transaction.addInvolvedStamp(ros::Time(50, 0));
+    manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
@@ -193,10 +187,9 @@ TEST_F(TimestampManagerTestFixture, Purge)
 
   // Add another entry. This should cause the oldest entry to be purged.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(50, 1));
     fuse_core::Transaction transaction;
-    manager.query(stamps, transaction);
+    transaction.addInvolvedStamp(ros::Time(50, 1));
+    manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
@@ -214,10 +207,9 @@ TEST_F(TimestampManagerTestFixture, Purge)
 
   // Add a longer entry. This should cause multiple entries to get purged.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(70, 1));
     fuse_core::Transaction transaction;
-    manager.query(stamps, transaction);
+    transaction.addInvolvedStamp(ros::Time(70, 1));
+    manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(4, std::distance(stamp_range.begin(), stamp_range.end()));
@@ -233,10 +225,9 @@ TEST_F(TimestampManagerTestFixture, Purge)
 
   // Add a very long entry. This should cause all but two entry to get purged.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(1000, 0));
     fuse_core::Transaction transaction;
-    manager.query(stamps, transaction);
+    transaction.addInvolvedStamp(ros::Time(1000, 0));
+    manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(2, std::distance(stamp_range.begin(), stamp_range.end()));
@@ -248,11 +239,10 @@ TEST_F(TimestampManagerTestFixture, Purge)
 
   // Add an entry far in the future. This should leave only the gap segment and the new segment.
   {
-    std::set<ros::Time> stamps;
-    stamps.insert(ros::Time(1100, 0));
-    stamps.insert(ros::Time(1101, 0));
     fuse_core::Transaction transaction;
-    manager.query(stamps, transaction);
+    transaction.addInvolvedStamp(ros::Time(1100, 0));
+    transaction.addInvolvedStamp(ros::Time(1101, 0));
+    manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(3, std::distance(stamp_range.begin(), stamp_range.end()));
@@ -273,11 +263,10 @@ TEST_F(TimestampManagerTestFixture, Existing)
   // Expected: |------111111112222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(20, 0));
-  stamps.insert(ros::Time(30, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(20, 0));
+  transaction.addInvolvedStamp(ros::Time(30, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -303,11 +292,10 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningAligned)
   // Expected: |--****111111112222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(5, 0));
-  stamps.insert(ros::Time(10, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(5, 0));
+  transaction.addInvolvedStamp(ros::Time(10, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -337,11 +325,10 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningUnaligned)
   // Expected: |--***A111111112222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(5, 0));
-  stamps.insert(ros::Time(8, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(5, 0));
+  transaction.addInvolvedStamp(ros::Time(8, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -375,11 +362,10 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningOverlap)
   // Expected: |--AAAABBBBCCCC2222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(5, 0));
-  stamps.insert(ros::Time(15, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(5, 0));
+  transaction.addInvolvedStamp(ros::Time(15, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -415,10 +401,9 @@ TEST_F(TimestampManagerTestFixture, AfterEndAligned)
   // Expected: |------111111112222222233333333****---> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(45, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(45, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -448,11 +433,10 @@ TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
   // Expected: |------111111112222222233333333A***---> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(42, 0));
-  stamps.insert(ros::Time(45, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(42, 0));
+  transaction.addInvolvedStamp(ros::Time(45, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -486,11 +470,10 @@ TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
   // Expected: |------1111111122222222AAAABBBBCCCC---> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(35, 0));
-  stamps.insert(ros::Time(45, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(35, 0));
+  transaction.addInvolvedStamp(ros::Time(45, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -526,11 +509,10 @@ TEST_F(TimestampManagerTestFixture, MultiSegment)
   // Expected: |------111111112222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(10, 0));
-  stamps.insert(ros::Time(40, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(10, 0));
+  transaction.addInvolvedStamp(ros::Time(40, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -556,11 +538,10 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentBeforBeginning)
   // Expected: |--AAAA111111112222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(5, 0));
-  stamps.insert(ros::Time(40, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(5, 0));
+  transaction.addInvolvedStamp(ros::Time(40, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -590,11 +571,10 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastEnd)
   // Expected: |------111111112222222233333333AAAA---> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(10, 0));
-  stamps.insert(ros::Time(45, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(10, 0));
+  transaction.addInvolvedStamp(ros::Time(45, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -624,11 +604,10 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
   // Expected: |--AAAA111111112222222233333333BBBB---> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(5, 0));
-  stamps.insert(ros::Time(45, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(5, 0));
+  transaction.addInvolvedStamp(ros::Time(45, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -662,11 +641,10 @@ TEST_F(TimestampManagerTestFixture, SplitBeginning)
   // Expected: |------AAAABBBB2222222233333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(15, 0));
-  stamps.insert(ros::Time(30, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(15, 0));
+  transaction.addInvolvedStamp(ros::Time(30, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -698,11 +676,10 @@ TEST_F(TimestampManagerTestFixture, SplitEnd)
   // Expected: |------1111111122222222AAAABBBB-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(20, 0));
-  stamps.insert(ros::Time(35, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(20, 0));
+  transaction.addInvolvedStamp(ros::Time(35, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -734,11 +711,10 @@ TEST_F(TimestampManagerTestFixture, SplitBoth)
   // Expected: |------AAAABBBB22222222CCCCDDDD-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(15, 0));
-  stamps.insert(ros::Time(35, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(15, 0));
+  transaction.addInvolvedStamp(ros::Time(35, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -776,11 +752,10 @@ TEST_F(TimestampManagerTestFixture, SplitSame)
   // Expected: |------11111111AABBBBCC33333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(22, 0));
-  stamps.insert(ros::Time(27, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(22, 0));
+  transaction.addInvolvedStamp(ros::Time(27, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
@@ -816,13 +791,12 @@ TEST_F(TimestampManagerTestFixture, SplitSameMultiple)
   // Expected: |------11111111AABBCCDE33333333-------> t
 
   populate();
-  std::set<ros::Time> stamps;
-  stamps.insert(ros::Time(22, 0));
-  stamps.insert(ros::Time(25, 0));
-  stamps.insert(ros::Time(27, 0));
-  stamps.insert(ros::Time(29, 0));
   fuse_core::Transaction transaction;
-  manager.query(stamps, transaction);
+  transaction.addInvolvedStamp(ros::Time(22, 0));
+  transaction.addInvolvedStamp(ros::Time(25, 0));
+  transaction.addInvolvedStamp(ros::Time(27, 0));
+  transaction.addInvolvedStamp(ros::Time(29, 0));
+  manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();

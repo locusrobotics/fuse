@@ -56,11 +56,11 @@ TimestampManager::TimestampManager(MotionModelFunction generator, const ros::Dur
 }
 
 void TimestampManager::query(
-  const std::set<ros::Time>& stamps,
   Transaction& transaction,
   bool update_variables)
 {
   // Handle the trivial cases first
+  const auto& stamps = transaction.involvedStamps();
   if (stamps.empty())
   {
     return;
@@ -75,26 +75,34 @@ void TimestampManager::query(
   }
   // Create a list of all the required timestamps involved in motion model segments that must be created
   // Add all of the existing timestamps between the first and last input stamp
-  std::set<ros::Time> augmented_stamps(stamps);
+  Transaction motion_model_transaction;
+  auto first_stamp = *stamps.begin();
+  auto last_stamp = *stamps.begin();
+  for (const auto& stamp : stamps)
   {
-    auto begin = motion_model_history_.upper_bound(*stamps.begin());
+    motion_model_transaction.addInvolvedStamp(stamp);
+    last_stamp = stamp;
+  }
+  {
+    auto begin = motion_model_history_.upper_bound(first_stamp);
     if (begin != motion_model_history_.begin())
     {
       --begin;
     }
-    auto end = motion_model_history_.upper_bound(*stamps.rbegin());
+    auto end = motion_model_history_.upper_bound(last_stamp);
     for (auto iter = begin; iter != end; ++iter)
     {
-      augmented_stamps.insert(iter->first);
+      motion_model_transaction.addInvolvedStamp(iter->first);
     }
     if (end != motion_model_history_.end())
     {
-      augmented_stamps.insert(end->first);
+      motion_model_transaction.addInvolvedStamp(end->first);
     }
   }
   // Convert the sequence of stamps into stamp pairs that must be generated
-  std::vector<std::pair<ros::Time, ros::Time> > stamp_pairs;
+  std::vector<std::pair<ros::Time, ros::Time>> stamp_pairs;
   {
+    auto augmented_stamps = motion_model_transaction.involvedStamps();
     auto augmented_stamps_iter = augmented_stamps.begin();
     ros::Time previous_stamp = *augmented_stamps_iter;
     ++augmented_stamps_iter;
@@ -113,7 +121,7 @@ void TimestampManager::query(
           && (history_iter->second.beginning_stamp < current_stamp)
           && (history_iter->second.ending_stamp >= current_stamp))
         {
-          removeSegment(history_iter, transaction);
+          removeSegment(history_iter, motion_model_transaction);
         }
       }
       previous_stamp = current_stamp;
@@ -121,32 +129,32 @@ void TimestampManager::query(
     }
   }
   // Create the required segments
-  Transaction motion_model_transaction;
   for (const auto& stamp_pair : stamp_pairs)
   {
     addSegment(stamp_pair.first, stamp_pair.second, motion_model_transaction);
   }
-  transaction.merge(motion_model_transaction, update_variables);
   // Add a dummy entry for the last stamp if one does not already exist
-  if (motion_model_history_.empty() || (motion_model_history_.rbegin()->first < *stamps.rbegin()))
+  if (motion_model_history_.empty() || (motion_model_history_.rbegin()->first < last_stamp))
   {
     // Insert the last timestamp into the motion model history, but with no constraints. The last entry in the motion
     // model history will always contain no constraints.
-    motion_model_history_.emplace(*stamps.rbegin(), MotionModelSegment());
+    motion_model_history_.emplace(last_stamp, MotionModelSegment());
   }
   // Purge any old entries from the motion model history
   purgeHistory();
+  // Finally, update the input transaction with the created constraints
+  transaction.merge(motion_model_transaction, update_variables);
 }
 
-TimestampManager::stamp_range TimestampManager::stamps() const
+TimestampManager::const_stamp_range TimestampManager::stamps() const
 {
-  return stamp_range(boost::make_transform_iterator(motion_model_history_.begin(), extractStamp),
-                     boost::make_transform_iterator(motion_model_history_.end(), extractStamp));
-}
+  auto extract_stamp = +[](const MotionModelHistory::value_type& element) -> const ros::Time&
+  {
+    return element.first;
+  };
 
-const ros::Time& TimestampManager::extractStamp(const typename MotionModelHistory::value_type& element)
-{
-  return element.first;
+  return const_stamp_range(boost::make_transform_iterator(motion_model_history_.begin(), extract_stamp),
+                           boost::make_transform_iterator(motion_model_history_.end(), extract_stamp));
 }
 
 void TimestampManager::addSegment(
