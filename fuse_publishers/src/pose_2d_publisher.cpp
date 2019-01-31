@@ -229,7 +229,7 @@ void Pose2DPublisher::notifyCallback(
   for (const auto& added_variable : transaction->addedVariables())
   {
     ros::Time stamp;
-    if (checkVariable(*added_variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp) &&
+    if (checkVariable(added_variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp) &&
        stamp >= latest_stamp_)
     {
       latest_stamp_ = stamp;
