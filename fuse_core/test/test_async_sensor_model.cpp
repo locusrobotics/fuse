@@ -36,8 +36,6 @@
 
 #include <gtest/gtest.h>
 
-#include <set>
-
 
 /**
  * @brief Flag used to track the execution of the transaction callback
@@ -47,7 +45,7 @@ static bool received_transaction = false;
 /**
  * @brief Transaction callback function used to verify the function gets called in the background
  */
-void transactionCallback(const std::set<ros::Time>& stamps, const fuse_core::Transaction::SharedPtr& transaction)
+void transactionCallback(fuse_core::Transaction::SharedPtr transaction)
 {
   ros::Duration(1.0).sleep();
   received_transaction = true;
@@ -115,9 +113,8 @@ TEST(AsyncSensorModel, SendTransaction)
   sensor.initialize("my_sensor", &transactionCallback);
 
   // Use the sensor "sendTransaction()" method to execute the transaction callback. This will get executed immediately.
-  std::set<ros::Time> stamps;
   fuse_core::Transaction::SharedPtr transaction;  // nullptr, okay because we don't actually use it for anything
-  sensor.sendTransaction(stamps, transaction);
+  sensor.sendTransaction(transaction);
   EXPECT_TRUE(received_transaction);
 }
 

@@ -37,11 +37,8 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
-#include <ros/callback_queue.h>
-#include <ros/time.h>
 
 #include <functional>
-#include <set>
 #include <string>
 
 
@@ -51,8 +48,7 @@ namespace fuse_core
 /**
  * @brief The signature of the callback function that will be executed for every generated transaction object.
  */
-using TransactionCallback = std::function<void(const std::set<ros::Time>& stamps,
-                                               const Transaction::SharedPtr& transaction)>;
+using TransactionCallback = std::function<void(Transaction::SharedPtr transaction)>;
 
 /**
  * @brief The interface definiton for sensor model plugins in the fuse ecosystem.
@@ -101,8 +97,8 @@ public:
    * encouraged to subnamespace any of their parameters to prevent conflicts and allow the same plugin to be used
    * multiple times with different settings and topics.
    *
-   * @param[in] name                       A unique name to give this plugin instance
-   * @param[in] transaction_callback       The function to call every time a transaction is published
+   * @param[in] name                 A unique name to give this plugin instance
+   * @param[in] transaction_callback The function to call every time a transaction is published
    */
   virtual void initialize(
     const std::string& name,

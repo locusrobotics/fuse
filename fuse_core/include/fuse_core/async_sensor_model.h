@@ -43,7 +43,6 @@
 #include <ros/spinner.h>
 
 #include <functional>
-#include <set>
 #include <string>
 
 
@@ -116,8 +115,8 @@ public:
    * private node handle will be in a namespace based on the plugin's name. This should prevent conflicts and allow
    * the same plugin to be used multiple times with different settings and topics.
    *
-   * @param[in] name                       A unique name to give this plugin instance
-   * @param[in] transaction_callback       The function to call every time a transaction is published
+   * @param[in] name                 A unique name to give this plugin instance
+   * @param[in] transaction_callback The function to call every time a transaction is published
    */
   void initialize(
     const std::string& name,
@@ -134,12 +133,9 @@ public:
    * This should be called by derived classes whenever a new Transaction is generated, probably from within the sensor
    * message callback function.
    *
-   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models.
    * @param[in] transaction A Transaction object describing the set of variables that have been added and removed.
    */
-  void sendTransaction(
-    const std::set<ros::Time>& stamps,
-    const Transaction::SharedPtr& transaction);
+  void sendTransaction(Transaction::SharedPtr transaction);
 
   /**
    * @brief Get the unique name of this sensor
@@ -189,7 +185,7 @@ protected:
    * Derived sensor models classes must implement this function, because otherwise I'm not sure how the derived
    * sensor model would actually do anything.
    */
-  virtual void onInit() = 0;
+  virtual void onInit() {}
 };
 
 }  // namespace fuse_core

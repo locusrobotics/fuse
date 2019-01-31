@@ -36,12 +36,10 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <ros/callback_queue.h>
-#include <ros/time.h>
 
 #include <boost/make_shared.hpp>
 
 #include <functional>
-#include <set>
 #include <string>
 
 
@@ -78,11 +76,9 @@ void AsyncSensorModel::initialize(
   spinner_.start();
 }
 
-void AsyncSensorModel::sendTransaction(
-  const std::set<ros::Time>& stamps,
-  const Transaction::SharedPtr& transaction)
+void AsyncSensorModel::sendTransaction(Transaction::SharedPtr transaction)
 {
-  transaction_callback_(stamps, transaction);
+  transaction_callback_(std::move(transaction));
 }
 
 }  // namespace fuse_core
