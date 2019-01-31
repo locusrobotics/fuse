@@ -43,7 +43,6 @@
 #include <pluginlib/class_loader.h>
 #include <ros/ros.h>
 
-#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -147,8 +146,7 @@ protected:
    */
   virtual void transactionCallback(
     const std::string& sensor_name,
-    const std::set<ros::Time>& stamps,
-    const fuse_core::Transaction::SharedPtr& transaction) = 0;
+    fuse_core::Transaction::SharedPtr transaction) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server
@@ -187,7 +185,6 @@ protected:
    */
   bool applyMotionModels(
     const std::string& sensor_name,
-    const std::set<ros::Time>& stamps,
     fuse_core::Transaction& transaction) const;
 
   /**
@@ -204,14 +201,11 @@ protected:
    * @brief Inject a transaction callback function into the global callback queue
    *
    * @param[in] sensor_name The name of the sensor that produced the Transaction
-   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models
-   *                        to generate connected constraints.
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
    */
   void injectCallback(
     const std::string& sensor_name,
-    const std::set<ros::Time>& stamps,
-    const fuse_core::Transaction::SharedPtr& transaction);
+    fuse_core::Transaction::SharedPtr transaction);
 };
 
 }  // namespace fuse_optimizers

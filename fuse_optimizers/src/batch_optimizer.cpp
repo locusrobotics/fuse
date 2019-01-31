@@ -38,7 +38,6 @@
 
 #include <algorithm>
 #include <mutex>
-#include <set>
 #include <shared_mutex>
 #include <string>
 #include <thread>
@@ -133,10 +132,9 @@ void BatchOptimizer::applyMotionModelsToQueue()
   // Attempt to process each pending transaction
   while (!pending_transactions_.empty())
   {
-    const auto& element = pending_transactions_.cbegin()->second;
+    auto& element = pending_transactions_.begin()->second;
     // Apply the motion models to the transaction
-    auto motion_transaction = fuse_core::Transaction();
-    if (!applyMotionModels(element.sensor_name, element.stamps, motion_transaction))
+    if (!applyMotionModels(element.sensor_name, *element.transaction))
     {
       if (element.transaction->stamp() + transaction_timeout_ < current_time)
       {
@@ -157,8 +155,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
     // Merge the sensor+motion model transactions into a combined transaction that will be applied directly to the graph
     {
       std::lock_guard<std::mutex> combined_transaction_lock(combined_transaction_mutex_);
-      combined_transaction_->merge(*element.transaction);
-      combined_transaction_->merge(motion_transaction, true);
+      combined_transaction_->merge(*element.transaction, true);
     }
     // We are done with this transaction. Delete it from the queue.
     pending_transactions_.erase(pending_transactions_.begin());
@@ -184,7 +181,7 @@ void BatchOptimizer::optimizationLoop()
     fuse_core::Transaction::ConstSharedPtr const_transaction;
     {
       std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
-      const_transaction = combined_transaction_->clone();
+      const_transaction = std::move(combined_transaction_);
       combined_transaction_ = fuse_core::Transaction::make_shared();
     }
     // Update the graph
@@ -228,17 +225,17 @@ void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& event)
 
 void BatchOptimizer::transactionCallback(
   const std::string& sensor_name,
-  const std::set<ros::Time>& stamps,
-  const fuse_core::Transaction::SharedPtr& transaction)
+  fuse_core::Transaction::SharedPtr transaction)
 {
   // Add the new transaction to the pending set
   // Either we haven't "started" yet and we want to keep a short history of transactions around
   // Or we have "started" already, and the new transaction is after the starting time.
-  ros::Time last_pending_time;
-  if (!started_ || transaction->stamp() >= start_time_)
+  ros::Time transaction_time = transaction->stamp();
+  ros::Time last_pending_time(0, 0);
+  if (!started_ || transaction_time >= start_time_)
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-    pending_transactions_.emplace(transaction->stamp(), TransactionQueueElement(sensor_name, stamps, transaction));
+    pending_transactions_.emplace(transaction_time, TransactionQueueElement(sensor_name, std::move(transaction)));
     last_pending_time = pending_transactions_.rbegin()->first;
   }
   // If we haven't "started" yet...
@@ -248,7 +245,7 @@ void BatchOptimizer::transactionCallback(
     if (std::binary_search(ignition_sensors_.begin(), ignition_sensors_.end(), sensor_name))
     {
       started_ = true;
-      start_time_ = transaction->stamp();
+      start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
     ros::Time purge_time(0, 0);
