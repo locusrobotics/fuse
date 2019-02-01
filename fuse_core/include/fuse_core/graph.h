@@ -52,24 +52,6 @@ namespace fuse_core
 {
 
 /**
- * @brief A range of fuse_ros::Constraint objects
- *
- * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
- * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
- * member. When dereferenced, an iterator returns a const Constraint&.
- */
-using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
-
-/**
- * @brief A range of fuse_ros::Variable objects
- *
- * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
- * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
- * member. When dereferenced, an iterator returns a const Variable&.
- */
-using const_variable_range = boost::any_range<const Variable, boost::forward_traversal_tag>;
-
-/**
  * @brief This is an interface definition describing the collection of constraints and variables that form the factor
  * graph, a graphical model of a nonlinear least-squares problem.
  *
@@ -81,6 +63,24 @@ class Graph
 {
 public:
   SMART_PTR_ALIASES_ONLY(Graph);
+
+  /**
+   * @brief A range of fuse_ros::Constraint objects
+   *
+   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
+   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
+   * member. When dereferenced, an iterator returns a const Constraint&.
+   */
+  using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
+
+  /**
+   * @brief A range of fuse_ros::Variable objects
+   *
+   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
+   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
+   * member. When dereferenced, an iterator returns a const Variable&.
+   */
+  using const_variable_range = boost::any_range<const Variable, boost::forward_traversal_tag>;
 
   /**
    * @brief Constructor
@@ -95,7 +95,7 @@ public:
 
   /**
    * @brief Return a deep copy of the graph object.
-   * 
+   *
    * This should include deep copies of all variables and constraints; not pointer copies.
    */
   virtual Graph::UniquePtr clone() const = 0;

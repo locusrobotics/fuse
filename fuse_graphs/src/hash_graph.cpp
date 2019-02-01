@@ -156,7 +156,7 @@ const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& con
   return *constraints_iter->second;
 }
 
-fuse_core::const_constraint_range HashGraph::getConstraints() const noexcept
+fuse_core::Graph::const_constraint_range HashGraph::getConstraints() const noexcept
 {
   std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid__constraint)> to_constraint_ref =
     [](const Constraints::value_type& uuid__constraint) -> const fuse_core::Constraint&
@@ -164,7 +164,7 @@ fuse_core::const_constraint_range HashGraph::getConstraints() const noexcept
       return *uuid__constraint.second;
     };
 
-  return fuse_core::const_constraint_range(
+  return fuse_core::Graph::const_constraint_range(
     boost::make_transform_iterator(constraints_.cbegin(), to_constraint_ref),
     boost::make_transform_iterator(constraints_.cend(), to_constraint_ref));
 }
@@ -221,7 +221,7 @@ const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variabl
   return *variables_iter->second;
 }
 
-fuse_core::const_variable_range HashGraph::getVariables() const noexcept
+fuse_core::Graph::const_variable_range HashGraph::getVariables() const noexcept
 {
   std::function<const fuse_core::Variable&(const Variables::value_type& uuid__variable)> to_variable_ref =
     [](const Variables::value_type& uuid__variable) -> const fuse_core::Variable&
@@ -229,7 +229,7 @@ fuse_core::const_variable_range HashGraph::getVariables() const noexcept
       return *uuid__variable.second;
     };
 
-  return fuse_core::const_variable_range(
+  return fuse_core::Graph::const_variable_range(
     boost::make_transform_iterator(variables_.cbegin(), to_variable_ref),
     boost::make_transform_iterator(variables_.cend(), to_variable_ref));
 }
