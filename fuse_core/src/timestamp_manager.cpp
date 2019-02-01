@@ -68,21 +68,26 @@ void TimestampManager::query(
   // Verify the query is within the buffer length
   if ( (!motion_model_history_.empty())
     && (buffer_length_ != ros::DURATION_MAX)
-    && (*stamps.begin() < motion_model_history_.begin()->first)
-    && (*stamps.begin() < (motion_model_history_.rbegin()->first - buffer_length_)))
+    && (stamps.front() < motion_model_history_.begin()->first)
+    && (stamps.front() < (motion_model_history_.rbegin()->first - buffer_length_)))
   {
     throw std::invalid_argument("All timestamps must be within the defined buffer length of the motion model");
   }
   // Create a list of all the required timestamps involved in motion model segments that must be created
   // Add all of the existing timestamps between the first and last input stamp
   Transaction motion_model_transaction;
-  auto first_stamp = *stamps.begin();
-  auto last_stamp = *stamps.begin();
-  for (const auto& stamp : stamps)
+  auto first_stamp = stamps.front();
+  // stamps is a forward-only range. Getting the last element takes a bit of work.
+  ros::Time last_stamp;
   {
-    motion_model_transaction.addInvolvedStamp(stamp);
-    last_stamp = stamp;
+    auto iter = stamps.begin();
+    while (std::next(iter) != stamps.end())
+    {
+      ++iter;
+    }
+    last_stamp = *iter;
   }
+  std::set<ros::Time> augmented_stamps(stamps.begin(), stamps.end());
   {
     auto begin = motion_model_history_.upper_bound(first_stamp);
     if (begin != motion_model_history_.begin())
@@ -92,40 +97,39 @@ void TimestampManager::query(
     auto end = motion_model_history_.upper_bound(last_stamp);
     for (auto iter = begin; iter != end; ++iter)
     {
-      motion_model_transaction.addInvolvedStamp(iter->first);
+      augmented_stamps.insert(iter->first);
     }
     if (end != motion_model_history_.end())
     {
-      motion_model_transaction.addInvolvedStamp(end->first);
+      augmented_stamps.insert(end->first);
     }
   }
   // Convert the sequence of stamps into stamp pairs that must be generated
   std::vector<std::pair<ros::Time, ros::Time>> stamp_pairs;
   {
-    auto augmented_stamps = motion_model_transaction.involvedStamps();
-    auto augmented_stamps_iter = augmented_stamps.begin();
-    ros::Time previous_stamp = *augmented_stamps_iter;
-    ++augmented_stamps_iter;
-    while (augmented_stamps_iter != augmented_stamps.end())
+    for (auto previous_iter = augmented_stamps.begin(), current_iter = std::next(augmented_stamps.begin());
+         current_iter != augmented_stamps.end();
+         ++previous_iter, ++current_iter)
     {
-      const ros::Time& current_stamp = *augmented_stamps_iter;
+      const ros::Time& previous_stamp = *previous_iter;
+      const ros::Time& current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
-      if (!(   (history_iter != motion_model_history_.end())
-            && (history_iter->second.beginning_stamp == previous_stamp)
-            && (history_iter->second.ending_stamp == current_stamp)))
+      if ((history_iter != motion_model_history_.end()) &&
+          (history_iter->second.beginning_stamp == previous_stamp) &&
+          (history_iter->second.ending_stamp == current_stamp))
       {
-        stamp_pairs.emplace_back(previous_stamp, current_stamp);
-        // Check if this stamp is in the middle of an existing entry. If so, delete it.
-        if ( (history_iter != motion_model_history_.end())
-          && (history_iter->second.beginning_stamp < current_stamp)
-          && (history_iter->second.ending_stamp >= current_stamp))
-        {
-          removeSegment(history_iter, motion_model_transaction);
-        }
+        continue;
       }
-      previous_stamp = current_stamp;
-      ++augmented_stamps_iter;
+      // Check if this stamp is in the middle of an existing entry. If so, delete it.
+      if ((history_iter != motion_model_history_.end()) &&
+          (history_iter->second.beginning_stamp < current_stamp) &&
+          (history_iter->second.ending_stamp >= current_stamp))
+      {
+        removeSegment(history_iter, motion_model_transaction);
+      }
+      // Add this pair
+      stamp_pairs.emplace_back(previous_stamp, current_stamp);
     }
   }
   // Create the required segments
@@ -167,6 +171,8 @@ void TimestampManager::addSegment(
   std::vector<Variable::SharedPtr> variables;
   generator_(beginning_stamp, ending_stamp, constraints, variables);
   // Update the transaction with the generated constraints/variables
+  transaction.addInvolvedStamp(beginning_stamp);
+  transaction.addInvolvedStamp(ending_stamp);
   for (const auto& constraint : constraints)
   {
     transaction.addConstraint(constraint);
@@ -187,6 +193,8 @@ void TimestampManager::removeSegment(
   Transaction& transaction)
 {
   // Mark the previously generated constraints for removal
+  transaction.addInvolvedStamp(iter->second.beginning_stamp);
+  transaction.addInvolvedStamp(iter->second.ending_stamp);
   for (const auto& constraint : iter->second.constraints)
   {
     transaction.removeConstraint(constraint->uuid());
