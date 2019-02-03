@@ -159,14 +159,14 @@ concepts and involved math.
 
 The purpose of `fuse` is to provide a framework for performing sensor fusion tasks, allowing common components to be
 reused between systems, while also allowing components to be customized for different use cases. The goal is to allow
-end users to concentrate on modelling the robot, sensor, system, etc. and spend less time wiring the different
+end users to concentrate on modeling the robot, sensor, system, etc. and spend less time wiring the different
 sensor models together into runable code. And since all of the models are implemented as plugins, separate plugin
 libraries can be shared or kept private at the discretion of their authors.
 
 ## API Concepts
 
 * [Variables](doc/Variables.md)
-* Constraints -- coming soon
+* [Constraints](doc/Constraints.md)
 * Sensor Models -- coming soon
 * Motion Models -- coming soon
 * Publishers -- coming soon
