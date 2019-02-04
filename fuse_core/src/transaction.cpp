@@ -34,11 +34,30 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 
+#include <boost/iterator/transform_iterator.hpp>
+
 #include <algorithm>
 
 
 namespace fuse_core
 {
+
+void Transaction::addInvolvedStamp(const ros::Time& stamp)
+{
+  involved_stamps_.insert(stamp);
+}
+
+Transaction::const_constraint_range Transaction::addedConstraints() const
+{
+  auto to_constraint_ref = +[](const Constraint::SharedPtr& constraint) -> const Constraint&
+  {
+    return *constraint;
+  };
+
+  return const_constraint_range(
+    boost::make_transform_iterator(added_constraints_.cbegin(), to_constraint_ref),
+    boost::make_transform_iterator(added_constraints_.cend(), to_constraint_ref));
+}
 
 void Transaction::addConstraint(Constraint::SharedPtr constraint, bool overwrite)
 {
@@ -89,6 +108,18 @@ void Transaction::removeConstraint(const UUID& constraint_uuid)
     removed_constraints_.push_back(constraint_uuid);
     return;
   }
+}
+
+Transaction::const_variable_range Transaction::addedVariables() const
+{
+  auto to_variable_ref = +[](const Variable::SharedPtr& variable) -> const Variable&
+  {
+    return *variable;
+  };
+
+  return const_variable_range(
+    boost::make_transform_iterator(added_variables_.cbegin(), to_variable_ref),
+    boost::make_transform_iterator(added_variables_.cend(), to_variable_ref));
 }
 
 void Transaction::addVariable(Variable::SharedPtr variable, bool overwrite)
@@ -146,6 +177,7 @@ void Transaction::removeVariable(const UUID& variable_uuid)
 
 void Transaction::merge(const Transaction& other, bool overwrite)
 {
+  involved_stamps_.insert(other.involved_stamps_.begin(), other.involved_stamps_.end());
   for (const auto& added_constraint : other.added_constraints_)
   {
     addConstraint(added_constraint, overwrite);
@@ -166,23 +198,28 @@ void Transaction::merge(const Transaction& other, bool overwrite)
 
 void Transaction::print(std::ostream& stream) const
 {
+  stream << "Involved Timestamps:\n";
+  for (const auto& involved_stamp : involved_stamps_)
+  {
+    stream << " - " << involved_stamp << "\n";
+  }
   stream << "Added Variables:\n";
-  for (const auto& added_variable : addedVariables())
+  for (const auto& added_variable : added_variables_)
   {
     stream << " - " << *added_variable << "\n";
   }
   stream << "Added Constraints:\n";
-  for (const auto& added_constraint : addedConstraints())
+  for (const auto& added_constraint : added_constraints_)
   {
     stream << " - " << *added_constraint << "\n";
   }
   stream << "Removed Variables:\n";
-  for (const auto& removed_variable : removedVariables())
+  for (const auto& removed_variable : removed_variables_)
   {
     stream << " - " << removed_variable << "\n";
   }
   stream << "Removed Constraints:\n";
-  for (const auto& removed_constraint : removedConstraints())
+  for (const auto& removed_constraint : removed_constraints_)
   {
     stream << " - " << removed_constraint << "\n";
   }
@@ -190,24 +227,7 @@ void Transaction::print(std::ostream& stream) const
 
 Transaction::UniquePtr Transaction::clone() const
 {
-  auto other = Transaction::make_unique();
-  for (const auto variable : addedVariables())
-  {
-    other->addVariable(variable->clone());
-  }
-  for (const auto constraint : addedConstraints())
-  {
-    other->addConstraint(constraint->clone());
-  }
-  for (const auto constraint_uuid : removedConstraints())
-  {
-    other->removeConstraint(constraint_uuid);
-  }
-  for (const auto variable_uuid : removedVariables())
-  {
-    other->removeVariable(variable_uuid);
-  }
-  return other;
+  return Transaction::make_unique(*this);
 }
 
 std::ostream& operator <<(std::ostream& stream, const Transaction& transaction)

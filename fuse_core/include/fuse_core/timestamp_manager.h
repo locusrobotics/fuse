@@ -93,7 +93,7 @@ public:
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
    * member. When dereferenced, an iterator returns a const ros::Time&.
    */
-  using stamp_range = boost::any_range<const ros::Time, boost::forward_traversal_tag>;
+  using const_stamp_range = boost::any_range<const ros::Time, boost::forward_traversal_tag>;
 
   /**
    * @brief Constructor that accepts the motion model generator as a std::function object, probably constructed using
@@ -165,28 +165,27 @@ public:
   }
 
   /**
-   * @brief Create a transaction structure such that the provided timestamps are connected by motion model constraints.
+   * @brief Update a transaction structure such that the involved timestamps are connected by motion model constraints.
    *
    * This is not as straightforward as it would seem. Depending on the history of previously generated constraints,
    * fulfilling the request may require removing previously generated constraints and creating several new
    * constraints, such that all timestamps are linked together in a sequential chain. This function calls
    * the \p generator function provided in the constructor to generate the correct set of constraints based on history.
-   * This function is designed to be used in the derived MotionModel::queryCallback() implementation -- however this
+   * This function is designed to be used in the derived MotionModel::applyCallback() implementation -- however this
    * method may throw an exception if it is unable to generate the requested motion models.
    *
-   * @param[in]  stamps           The set of timestamps that should be connected by motion model constraints
-   * @param[out] transaction      The transaction object that should be augmented with motion model constraints
-   * @param[in]  update_variables Update the values of any existing variables with the newly generated values
+   * @param[in,out] transaction      The transaction object that should be augmented with motion model constraints
+   * @param[in]     update_variables Update the values of any existing variables with the newly generated values
    * @throws
    */
-  void query(const std::set<ros::Time>& stamps, Transaction& transaction, bool update_variables = false);
+  void query(Transaction& transaction, bool update_variables = false);
 
   /**
    * @brief Read-only access to the current set of timestamps
    *
    * @return An iterator range containing all known timestamps in ascending order
    */
-  stamp_range stamps() const;
+  const_stamp_range stamps() const;
 
 protected:
   /**
@@ -226,12 +225,6 @@ protected:
   ros::Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
                                  //!< will be removed from the motion model history
   MotionModelHistory motion_model_history_;  //!< Container that stores all previously generated motion models
-
-  /**
-   * @brief Helper function used with boost::transform_iterators to convert the internal MotionModelHistory value type
-   * into a const ros::Time& iterator compatible with stamp_range
-   */
-  static const ros::Time& extractStamp(const typename MotionModelHistory::value_type& element);
 
   /**
    * @brief Create a new MotionModelSegment, updating the provided transaction.

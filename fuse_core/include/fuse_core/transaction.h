@@ -38,10 +38,11 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
-#include <ros/ros.h>
+#include <ros/time.h>
 
 #include <boost/range/any_range.hpp>
 
+#include <set>
 #include <vector>
 
 
@@ -66,18 +67,18 @@ public:
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const Constraint::SharedPtr&.
+   * member. When dereferenced, an iterator returns a const Constraint&.
    */
-  using constraint_range = boost::any_range<const fuse_core::Constraint::SharedPtr, boost::forward_traversal_tag>;
+  using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
 
   /**
-   * @brief A range of Variable::SharedPtr objects
+   * @brief A range of ros::Time objects
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const Variable::SharedPtr&.
+   * member. When dereferenced, an iterator returns a const ros::Time&.
    */
-  using variable_range = boost::any_range<const fuse_core::Variable::SharedPtr, boost::forward_traversal_tag>;
+  using const_stamp_range = boost::any_range<const ros::Time, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of UUID objects
@@ -86,7 +87,16 @@ public:
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
    * member. When dereferenced, an iterator returns a const UUID&.
    */
-  using uuid_range = boost::any_range<const UUID, boost::forward_traversal_tag>;
+  using const_uuid_range = boost::any_range<const UUID, boost::forward_traversal_tag>;
+
+  /**
+   * @brief A range of Variable::SharedPtr objects
+   *
+   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
+   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
+   * member. When dereferenced, an iterator returns a const Variable&.
+   */
+  using const_variable_range = boost::any_range<const Variable, boost::forward_traversal_tag>;
 
   /**
    * @brief Read-only access to this transaction's timestamp
@@ -99,32 +109,48 @@ public:
   void stamp(const ros::Time& stamp) { stamp_ = stamp; }
 
   /**
-   * Read-only access to the added constraints
+   * @brief Read-only access to the set of timestamps involved in this transaction
+   *
+   * @return An iterator range containing all involved timestamps, ordered oldest to newest
+   */
+  const_stamp_range involvedStamps() const { return involved_stamps_; }
+
+  /**
+   * @brief Read-only access to the added constraints
    *
    * @return  An iterator range containing all added constraints
    */
-  constraint_range addedConstraints() const { return added_constraints_; }
+  const_constraint_range addedConstraints() const;
 
   /**
-   * Read-only access to the removed constraints
+   * @brief Read-only access to the removed constraints
    *
    * @return  An iterator range containing all removed constraint UUIDs
    */
-  uuid_range removedConstraints() const { return removed_constraints_; }
+  const_uuid_range removedConstraints() const { return removed_constraints_; }
 
   /**
-   * Read-only access to the added variables
+   * @brief Read-only access to the added variables
    *
    * @return  An iterator range containing all added variables
    */
-  variable_range addedVariables() const { return added_variables_; }
+  const_variable_range addedVariables() const;
 
   /**
-   * Read-only access to the removed variables
+   * @brief Read-only access to the removed variables
    *
    * @return  An iterator range containing all removed variable UUIDs
    */
-  uuid_range removedVariables() const { return removed_variables_; }
+  const_uuid_range removedVariables() const { return removed_variables_; }
+
+  /**
+   * @brief Add a timestamp to the "involved stamps" collection
+   *
+   * Duplicate timestamps will be ignored, so adding a stamp multiple times will have no effect.
+   *
+   * @param[in] stamp The timestamp to be added
+   */
+  void addInvolvedStamp(const ros::Time& stamp);
 
   /**
    * @brief Add a constraint to this transaction
@@ -188,7 +214,6 @@ public:
    */
   void print(std::ostream& stream = std::cout) const;
 
-
   /**
    * @brief Perform a deep copy of the Transaction and return a unique pointer to the copy
    *
@@ -202,6 +227,7 @@ protected:
   ros::Time stamp_;  //!< The transaction message timestamp
   std::vector<Constraint::SharedPtr> added_constraints_;  //!< The constraints to be added
   std::vector<Variable::SharedPtr> added_variables_;  //!< The variables to be added
+  std::set<ros::Time> involved_stamps_;  //!< The set of timestamps involved in this transaction
   std::vector<UUID> removed_constraints_;  //!< The constraint UUIDs to be removed
   std::vector<UUID> removed_variables_;  //!< The variable UUIDs to be removed
 };

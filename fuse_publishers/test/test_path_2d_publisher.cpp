@@ -89,6 +89,14 @@ public:
                                                                           fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
+    transaction_->addInvolvedStamp(position1->stamp());
+    transaction_->addInvolvedStamp(orientation1->stamp());
+    transaction_->addInvolvedStamp(position2->stamp());
+    transaction_->addInvolvedStamp(orientation2->stamp());
+    transaction_->addInvolvedStamp(position3->stamp());
+    transaction_->addInvolvedStamp(orientation3->stamp());
+    transaction_->addInvolvedStamp(position4->stamp());
+    transaction_->addInvolvedStamp(orientation4->stamp());
     transaction_->addVariable(position1);
     transaction_->addVariable(orientation1);
     transaction_->addVariable(position2);

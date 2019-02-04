@@ -52,24 +52,6 @@ namespace fuse_core
 {
 
 /**
- * @brief A range of fuse_ros::Constraint objects
- *
- * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
- * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
- * member. When dereferenced, an iterator returns a const Constraint&.
- */
-using const_constraint_range = boost::any_range<const fuse_core::Constraint, boost::forward_traversal_tag>;
-
-/**
- * @brief A range of fuse_ros::Variable objects
- *
- * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
- * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
- * member. When dereferenced, an iterator returns a const Variable&.
- */
-using const_variable_range = boost::any_range<const fuse_core::Variable, boost::forward_traversal_tag>;
-
-/**
  * @brief This is an interface definition describing the collection of constraints and variables that form the factor
  * graph, a graphical model of a nonlinear least-squares problem.
  *
@@ -81,6 +63,24 @@ class Graph
 {
 public:
   SMART_PTR_ALIASES_ONLY(Graph);
+
+  /**
+   * @brief A range of fuse_ros::Constraint objects
+   *
+   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
+   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
+   * member. When dereferenced, an iterator returns a const Constraint&.
+   */
+  using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
+
+  /**
+   * @brief A range of fuse_ros::Variable objects
+   *
+   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
+   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
+   * member. When dereferenced, an iterator returns a const Variable&.
+   */
+  using const_variable_range = boost::any_range<const Variable, boost::forward_traversal_tag>;
 
   /**
    * @brief Constructor
@@ -95,7 +95,7 @@ public:
 
   /**
    * @brief Return a deep copy of the graph object.
-   * 
+   *
    * This should include deep copies of all variables and constraints; not pointer copies.
    */
   virtual Graph::UniquePtr clone() const = 0;
@@ -252,18 +252,18 @@ public:
   /**
    * @brief Update the graph with the contents of a transaction
    *
-   * @param[in]  transaction  A set of variable and constraints additions and deletions
+   * @param[in] transaction A set of variable and constraints additions and deletions
    */
-  void update(const fuse_core::Transaction& transaction);
+  void update(const Transaction& transaction);
 
   /**
    * @brief Optimize the values of the current set of variables, given the current set of constraints.
    *
    * After the call, the values in the graph will be updated to the latest values.
    *
-   * @param[in]  options  An optional Ceres Solver::Options object that controls various aspects of the optimizer.
-   *                      See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
-   * @return              A Ceres Solver Summary structure containing information about the optimization process
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of the optimizer.
+   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
+   * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   virtual ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
 };

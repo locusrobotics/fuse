@@ -60,7 +60,7 @@ namespace fuse_graphs
  * full SLAM and mapping applications. The hashmap overhead may be too expensive for use in high-frequency systems with
  * a basically fixed graph size. Something base on a boost::flat_map or similar may perform better in those situations.
  * The final decision on the graph type should be based actual performance testing.
- * 
+ *
  * This class is not thread-safe. If used in a multi-threaded application, standard thread synchronization techniques
  * should be used to guard access to the graph.
  */
@@ -79,7 +79,7 @@ public:
 
   /**
    * @brief Copy constructor
-   * 
+   *
    * Performs a deep copy of the graph
    */
   HashGraph(const HashGraph& other);
@@ -91,14 +91,14 @@ public:
 
   /**
    * @brief Assignment operator
-   * 
+   *
    * Performs a deep copy of the graph
    */
   HashGraph& operator=(const HashGraph& other);
 
   /**
    * @brief Return a deep copy of the graph object.
-   * 
+   *
    * This should include deep copies of all variables and constraints; not pointer copies.
    */
   fuse_core::Graph::UniquePtr clone() const override;
@@ -162,10 +162,10 @@ public:
    * Exceptions: None
    * Complexity: O(1) This function returns in constant time. However, iterating through the returned
    *                  range is naturally O(N).
-   * 
+   *
    * @return A read-only iterator range containing all constraints
    */
-  fuse_core::const_constraint_range getConstraints() const noexcept override;
+  fuse_core::Graph::const_constraint_range getConstraints() const noexcept override;
 
   /**
    * @brief Check if the variable already exists in the graph
@@ -224,10 +224,10 @@ public:
    * Exceptions: None
    * Complexity: O(1) This function returns in constant time. However, iterating through the returned
    *                  range is naturally O(N).
-   * 
+   *
    * @return A read-only iterator range containing all variables
    */
-  fuse_core::const_variable_range getVariables() const noexcept override;
+  fuse_core::Graph::const_variable_range getVariables() const noexcept override;
 
   /**
    * @brief Configure a variable to hold its current value during optimization
@@ -272,7 +272,7 @@ public:
    * Complexity: O(N) in the best case, O(N^3) in the worst case, where N is the total number of variables in
    *             the graph. In practice, it is significantly cheaper than the worst-case bound, but it is still
    *             an expensive operation.
-   * 
+   *
    * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal covariance is desired.
    * @param[out] covariance_matrices The dense covariance blocks of the requests.
    * @param[in]  options             A Ceres Covariance Options structure that controls the method and settings used

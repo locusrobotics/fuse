@@ -128,15 +128,12 @@ protected:
   struct TransactionQueueElement
   {
     std::string sensor_name;
-    std::set<ros::Time> stamps;
     fuse_core::Transaction::SharedPtr transaction;
 
     TransactionQueueElement(
       const std::string& sensor_name,
-      const std::set<ros::Time>& stamps,
       fuse_core::Transaction::SharedPtr transaction) :
         sensor_name(sensor_name),
-        stamps(stamps),
         transaction(std::move(transaction)) {}
   };
 
@@ -213,8 +210,7 @@ protected:
    */
   void transactionCallback(
     const std::string& sensor_name,
-    const std::set<ros::Time>& stamps,
-    const fuse_core::Transaction::SharedPtr& transaction) override;
+    fuse_core::Transaction::SharedPtr transaction) override;
 };
 
 }  // namespace fuse_optimizers

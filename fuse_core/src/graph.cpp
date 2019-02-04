@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/graph.h>
+#include <fuse_core/transaction.h>
 
 #include <vector>
 
@@ -47,7 +48,7 @@ void Graph::marginalizeVariables(const std::vector<UUID>& variable_uuids)
   }
 }
 
-void Graph::update(const fuse_core::Transaction& transaction)
+void Graph::update(const Transaction& transaction)
 {
   // Update the graph with a new transaction. In order to keep the graph consistent, variables are added first,
   // followed by the constraints which might use the newly added variables. Then constraints are removed so that
@@ -56,12 +57,12 @@ void Graph::update(const fuse_core::Transaction& transaction)
   // Insert the new variables into the graph
   for (const auto& variable : transaction.addedVariables())
   {
-    addVariable(variable);
+    addVariable(variable.clone());
   }
   // Insert the new constraints into the graph
   for (const auto& constraint : transaction.addedConstraints())
   {
-    addConstraint(constraint);
+    addConstraint(constraint.clone());
   }
   // Delete constraints from the graph
   for (const auto& constraint_uuid : transaction.removedConstraints())
