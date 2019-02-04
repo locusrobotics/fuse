@@ -153,7 +153,7 @@ code have been collapsed in the code sample below.
 ```C++
 class Position2DStamped : public fuse_core::Variable
 {
-protected:
+private:
   std::array<double, 2> data_;
   fuse_core::UUID device_id_;
   ros::Time stamp_;
@@ -162,7 +162,7 @@ protected:
 public:
   SMART_PTR_DEFINITIONS(Position2DStamped);
 
-  explicit Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
     data{},
     device_id_(device_id),
     stamp_(stamp),
@@ -217,7 +217,7 @@ variable, so there are two data dimensions: `x` and `y`. There are several obvio
 `std::array<double, 2>`. Here we choose the C++-style array so we look "modern".
 
 ```C++
-protected:
+private:
   std::array<double, 2> data_;
 ```
 
@@ -228,7 +228,7 @@ generic "robot id". fuse ships with several functions for converting strings and
 ([UUID functions](../fuse_core/include/fuse_core/uuid.h)), so this choice should support most use-cases.
 
 ```C++
-protected:
+private:
   fuse_core::UUID device_id_;
   ros::Time stamp_;
 ```
@@ -238,7 +238,7 @@ the Variable identity immutable so that the UUID may be computed once on constru
 UUID as a class member variable.
 
 ```C++
-protected:
+private:
   fuse_core::UUID uuid_;
 ```
 
@@ -247,7 +247,7 @@ construction, these values cannot be changed.
 
 ```C++
 public:
-  explicit Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
     data{},
     device_id_(device_id),
     stamp_(stamp),
