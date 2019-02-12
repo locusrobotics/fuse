@@ -1,9 +1,9 @@
 # Constraints
 
-The concept of a Constraints has many names: constraints, cost functions, factors, probably many others. At the most
+The concept of a Constraint has many names: constraints, cost functions, factors, probably many others. At the most
 basic level, a Constraint accepts one or more Variable values and produces a score. The Optimizer will then search
 for the values of all the Variables that minimizes the total score. This search is performed by a nonlinear
-least-squares solver. The fuse stack employees [Google's Ceres Solver](http://ceres-solver.org/) as that least-squares
+least-squares solver. The fuse stack employs [Google's Ceres Solver](http://ceres-solver.org/) as that least-squares
 solver. As a consequence, the fuse_core::Constraint plugin classes are basically just vehicles for creating the
 required Ceres Solver objects.
 
@@ -11,16 +11,16 @@ required Ceres Solver objects.
 
 Ceres Solver provides an excellent [tutorial](http://ceres-solver.org/nnls_modeling.html#introduction) on system
 modeling for least-squares optimization. The following are some important highlights, but reading the Ceres Solver
-documentation it is highly recommended.
+documentation is highly recommended.
 
-The nonlinear least-squares system used be the Ceres Solver is written as:
+The nonlinear least-squares system used by the Ceres Solver is written as:
 
 ![least squares equation](constraints-least_squares_equation.gif)
 
 In Ceres Solver parlance, &rho;() is called a "loss function". f() is called a "cost function", which accepts one or
 more inputs, x. And the inputs, x, are called "parameter blocks". The "parameter blocks" themselves may be
 single-dimensional or multi-dimensional vectors. The least-squares system consists of many &rho;(f()<sup>2</sup>)
-terms, and the solver's job is to find the specific values of the all the inputs that minimize the sum of the squared
+terms, and the solver's job is to find the specific values of all the inputs that minimize the sum of the squared
 costs.
 
 In fuse, a Constraint class models one of the &rho;(f()<sup>2</sup>) terms.
@@ -32,8 +32,8 @@ needs to define which specific Variable identities are to be used as the input t
 by accepting, at a minimum, the UUID of each involved Variable.
 
 The derived Constraints provided by the [fuse_constraints](../fuse_constraints) package go one step further, and
-require instances of full Variable types rather than just the Variable's UUID. This is done solely enforce type-safety;
-e.g. a specific Constraint must involve two
+require instances of full Variable types rather than just the Variable's UUID. This is done solely to enforce
+type-safety; e.g. a specific Constraint must involve two
 [Position2DStamped](../fuse_variables/include/fuse_variables/position_2d_stamped.h) variables, no other variable types
 are acceptable.
 
@@ -45,8 +45,9 @@ for arbitrary input values. In its most generic form, that equation is written s
 
 ![generic cost equation](constraints-generic_cost_equation.gif)
 
-where f() is th ecost function, x<sub>1</sub> through x<sub>n</sub> are the input Variables, each of which may contain multi-dimensional data, and r<sub>i</sub> are one or more dimensions of the computed costs. In Ceres Solver
-notation, the r<sub>i</sub> terms are called "residuals".
+where f() is the cost function, x<sub>1</sub> through x<sub>n</sub> are the input Variables, each of which may contain
+multi-dimensional data, and r<sub>i</sub> are one or more dimensions of the computed costs. In Ceres Solver notation,
+the r<sub>i</sub> terms are called "residuals".
 
 This places very few limits on the form these equations take. They must accept one or more inputs, and must produce
 one or more outputs. However, in practice there are two common forms for cost functions.
@@ -91,7 +92,7 @@ common choice, which applies a quadratic effect for small costs, and a linear ef
 you can implement your own loss functions if the desired function is not available from Ceres Solver itself.
 
 ![Loss Function Effects](http://ceres-solver.org/_images/loss.png)
-Example Loss Functions available in Ceres Solver
+<center>Example Loss Functions available in Ceres Solver</center>
 
 For additional information, see the [Loss Function](http://ceres-solver.org/nnls_modeling.html#lossfunction) section
 of the Ceres Solver documentation.
@@ -144,8 +145,8 @@ required for all derived Constraints.
   [Ceres documentation](http://ceres-solver.org/nnls_modeling.html#costfunction) for details on implementing a
   `ceres::CostFunction`. Additionally, see the [documentation](http://ceres-solver.org/derivatives.html) about
   implementing derivatives within Ceres Solver. Ceres Solver supports a powerful automatic derivative system, in
-  addition to numerical and analytic derivatives. This is one of the features drove the selection of Ceres Solver as
-  the optimization engine in fuse.
+  addition to numerical and analytic derivatives. This is one of the features that drove the selection of Ceres
+  Solver as the optimization engine in fuse.
 
 * `Derived::lossFunction() -> ceres::LossFunction*`
 
@@ -248,9 +249,10 @@ by the measurement uncertainty.
 
 We will make use of Ceres Solver's automatic derivative system to compute the Jacobians. For that to work, we must
 implement the cost function equation as a functor object (has an `operator()` method). To compute the cost, our
-functor we need access to the measurement vector (3x1 vector) and the measurement uncertainty. Holding the uncertainty
-as a square root information matrix (3x3 upper triangular matrix) is convenient for implementing the above cost
-equation. By convention, the measurement vector is named `b` and the square root information matrix is named `A`.
+functor will need access to the measurement vector (3x1 vector) and the measurement uncertainty. Holding the
+uncertainty as a square root information matrix (3x3 upper triangular matrix) is convenient for implementing the
+above cost equation. By convention, the measurement vector is named `b` and the square root information matrix is
+named `A`.
 
 ```C++
 class AbsolutePose2DCostFunctor
@@ -374,9 +376,14 @@ public:
 And finally, the required `costFunction()` implementation. We use a combination of the `ceres::AutoDiffCostFunction`
 class and our custom cost functor to create the output `ceres::CostFunction` pointer. The full details of the
 `ceres::AutoDiffCostFunction` are available [here](http://ceres-solver.org/nnls_modeling.html#autodiffcostfunction).
-But briefly, the `ceres::AutoDiffCostFunction` template parameters are: the functor class used to compute the cost,
-the number of produced residuals, the number of dimensions of the first Variable, and the number of dimensions of
-the second Variable. We use our cost functor, `AbsolutePose2DCostFunctor`. The cost functor produces three residuals,
+But briefly, the `ceres::AutoDiffCostFunction` template parameters are:
+
+* the functor class used to compute the cost
+* the number of produced residuals
+* the number of dimensions of the first Variable
+* the number of dimensions of the second Variable
+
+We use our cost functor, `AbsolutePose2DCostFunctor`. The cost functor produces three residuals,
 one for each dimension of the 2D pose. The first input Variable is a `Position2DStamped`, which has two dimensions,
 `x` and `y`. And the second Variable is an `Orientation2dStamped`, which has only one dimension, `yaw`.
 
