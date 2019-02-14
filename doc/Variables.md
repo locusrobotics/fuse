@@ -85,13 +85,13 @@ Understanding how Variable interact with the rest of the system will help in the
 For the most part, reasonable Variables will be fairly obvious: 2D position, 2D velocity, 2D acceleration, etc.
 The biggest debate is generally whether to include the linear and angular information into a single Variable (e.g.
 a 2D pose consists of a 2D position and 2D orientation), or the if they should be separate. For fuse, it was decided
-to keep the linear and angular components separate. The [`fuse_variables`](fuse_variables) package provides a set
+to keep the linear and angular components separate. The [`fuse_variables`](../fuse_variables) package provides a set
 of common, reusable 2D and 3D Variables. And submissions of new Variables are always welcome.
 
 ## Variable API
 
 Like basically everything in fuse, the Variable system is designed to be extensible. The
-[`fuse_core::Variable`](fuse_core/include/fuse_core/variable.h) base class defines the minimum interface required
+[`fuse_core::Variable`](../fuse_core/include/fuse_core/variable.h) base class defines the minimum interface required
 for all derived Variables.
 
 * `Derived::type() -> std::string`
@@ -113,7 +113,7 @@ for all derived Variables.
 * `Derived::uuid() -> fuse_core::UUID`
 
   Each derived class is required to return a unique ID to act as the identity of the Variable. Some functions for
-  generating UUIDs are provided [here](fuse_core/include/fuse_core/uuid.h).
+  generating UUIDs are provided [here](../fuse_core/include/fuse_core/uuid.h).
 
 * `Derived::print(std::ostream& stream)`
 
@@ -147,13 +147,13 @@ named accessors for the individual dimension values. This allows use of `var.y()
 ## Example
 
 As a concrete example, we will review the details of `Position2dStamped` Variable class provided in the
-[`fuse_variables`](fuse_variables) package. For illustrative purposes, some class hierarchies present in the actual
+[`fuse_variables`](../fuse_variables) package. For illustrative purposes, some class hierarchies present in the actual
 code have been collapsed in the code sample below.
 
 ```C++
 class Position2DStamped : public fuse_core::Variable
 {
-protected:
+private:
   std::array<double, 2> data_;
   fuse_core::UUID device_id_;
   ros::Time stamp_;
@@ -162,7 +162,7 @@ protected:
 public:
   SMART_PTR_DEFINITIONS(Position2DStamped);
 
-  explicit Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
     data{},
     device_id_(device_id),
     stamp_(stamp),
@@ -217,7 +217,7 @@ variable, so there are two data dimensions: `x` and `y`. There are several obvio
 `std::array<double, 2>`. Here we choose the C++-style array so we look "modern".
 
 ```C++
-protected:
+private:
   std::array<double, 2> data_;
 ```
 
@@ -225,10 +225,10 @@ Our Variable also needs to hold the identity information. For this Variable we w
 scenarios as well as time-varying processes, so we need some sort of "robot id" and a timestamp. Since this is a
 ROS library, we will use a `ros::Time` to hold the timestamp. And we will choose a `fuse_core::UUID` to act as a
 generic "robot id". fuse ships with several functions for converting strings and other types into a UUID
-([UUID functions](fuse_core/include/fuse_core/uuid.h)), so this choice should support most use-cases.
+([UUID functions](../fuse_core/include/fuse_core/uuid.h)), so this choice should support most use-cases.
 
 ```C++
-protected:
+private:
   fuse_core::UUID device_id_;
   ros::Time stamp_;
 ```
@@ -238,7 +238,7 @@ the Variable identity immutable so that the UUID may be computed once on constru
 UUID as a class member variable.
 
 ```C++
-protected:
+private:
   fuse_core::UUID uuid_;
 ```
 
@@ -247,7 +247,7 @@ construction, these values cannot be changed.
 
 ```C++
 public:
-  explicit Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
     data{},
     device_id_(device_id),
     stamp_(stamp),
