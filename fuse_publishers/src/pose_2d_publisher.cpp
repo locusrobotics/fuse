@@ -31,24 +31,23 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_publishers/pose_2d_publisher.h>
+
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
-#include <fuse_publishers/pose_2d_publisher.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TransformStamped.h>
-
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <algorithm>
-#include <iterator>
+#include <exception>
 #include <memory>
 #include <string>
 #include <utility>
@@ -58,43 +57,9 @@
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_publishers::Pose2DPublisher, fuse_core::Publisher);
 
-static const ros::Time TIME_ZERO = ros::Time(0, 0);
-
 // Some file-scope functions in an anonymous namespace
 namespace
 {
-
-bool checkVariable(
-  const fuse_core::Variable& variable,
-  const std::string& requested_type,
-  const fuse_core::UUID& requested_device,
-  ros::Time& output_stamp)
-{
-  if (variable.type() != requested_type)
-  {
-    return false;
-  }
-  try
-  {
-    auto stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(variable);
-    if (stamped_variable.deviceId() != requested_device)
-    {
-      return false;
-    }
-    output_stamp = stamped_variable.stamp();
-  }
-  catch (const std::exception& e)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error" << e.what());
-    return false;
-  }
-  catch (...)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error: unknown");
-    return false;
-  }
-  return true;
-}
 
 bool findPose(
   const fuse_core::Graph& graph,
@@ -138,7 +103,6 @@ namespace fuse_publishers
 Pose2DPublisher::Pose2DPublisher() :
   fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
-  latest_stamp_(0, 0),
   publish_to_tf_(false),
   use_tf_lookup_(false)
 {
@@ -160,6 +124,9 @@ void Pose2DPublisher::onInit()
     device_id_ = fuse_core::uuid::generate(device_str);
   }
   private_node_handle_.param("publish_to_tf", publish_to_tf_, false);
+
+  // Configure the synchronizer
+  synchronizer_ = Synchronizer::make_unique(device_id_);
 
   // Configure tf, if requested
   if (publish_to_tf_)
@@ -215,27 +182,8 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr transaction,
   fuse_core::Graph::ConstSharedPtr graph)
 {
-  // Clear the previous pose stamp if the variable was deleted
-  if (latest_stamp_ != TIME_ZERO)
-  {
-    auto previous_orientation_uuid = fuse_variables::Orientation2DStamped(latest_stamp_, device_id_).uuid();
-    auto previous_position_uuid = fuse_variables::Position2DStamped(latest_stamp_, device_id_).uuid();
-    if (!graph->variableExists(previous_orientation_uuid) || !graph->variableExists(previous_position_uuid))
-    {
-      latest_stamp_ = TIME_ZERO;
-    }
-  }
-  // Find the latest pose stamp
-  for (const auto& added_variable : transaction->addedVariables())
-  {
-    ros::Time stamp;
-    if (checkVariable(added_variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp) &&
-       stamp >= latest_stamp_)
-    {
-      latest_stamp_ = stamp;
-    }
-  }
-  if (latest_stamp_ == TIME_ZERO)
+  auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
+  if (latest_stamp == Synchronizer::TIME_ZERO)
   {
     ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a matching set of position and orientation variables.");
     return;
@@ -244,7 +192,7 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::UUID orientation_uuid;
   fuse_core::UUID position_uuid;
   geometry_msgs::Pose pose;
-  if (!findPose(*graph, latest_stamp_, device_id_, orientation_uuid, position_uuid, pose))
+  if (!findPose(*graph, latest_stamp, device_id_, orientation_uuid, position_uuid, pose))
   {
     return;
   }
@@ -253,7 +201,7 @@ void Pose2DPublisher::notifyCallback(
   {
     // Create a 3D ROS Transform message from the current 2D pose
     geometry_msgs::TransformStamped map_to_base;
-    map_to_base.header.stamp = latest_stamp_;
+    map_to_base.header.stamp = latest_stamp;
     map_to_base.header.frame_id = map_frame_;
     map_to_base.child_frame_id = base_frame_;
     map_to_base.transform.translation.x = pose.position.x;  // Transforms use Vector3 instead of Point (shakes fist)
@@ -267,7 +215,7 @@ void Pose2DPublisher::notifyCallback(
       // map->base transform
       try
       {
-        auto base_to_odom = tf_buffer_->lookupTransform(base_frame_, odom_frame_, latest_stamp_, tf_timeout_);
+        auto base_to_odom = tf_buffer_->lookupTransform(base_frame_, odom_frame_, latest_stamp, tf_timeout_);
         geometry_msgs::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, map_to_base);
         map_to_odom.child_frame_id = odom_frame_;  // The child frame is not populated for some reason
@@ -288,7 +236,7 @@ void Pose2DPublisher::notifyCallback(
   if (pose_publisher_.getNumSubscribers() > 0)
   {
     geometry_msgs::PoseStamped msg;
-    msg.header.stamp = latest_stamp_;
+    msg.header.stamp = latest_stamp;
     msg.header.frame_id = map_frame_;
     msg.pose = pose;
     pose_publisher_.publish(msg);
@@ -303,7 +251,7 @@ void Pose2DPublisher::notifyCallback(
     std::vector<std::vector<double>> covariance_blocks;
     graph->getCovariance(requests, covariance_blocks);
     geometry_msgs::PoseWithCovarianceStamped msg;
-    msg.header.stamp = latest_stamp_;
+    msg.header.stamp = latest_stamp;
     msg.header.frame_id = map_frame_;
     msg.pose.pose = pose;
     msg.pose.covariance[0] = covariance_blocks[0][0];
@@ -323,7 +271,7 @@ void Pose2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
 {
   // The tf_transform_ is updated in a separate thread, so we must guard the read/write operations.
   // Only publish if the tf transform is valid
-  if (tf_transform_.header.stamp != TIME_ZERO)
+  if (tf_transform_.header.stamp != Synchronizer::TIME_ZERO)
   {
     // Update the timestamp of the transform so the tf tree will continue to be valid
     tf_transform_.header.stamp = event.current_real;

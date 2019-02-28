@@ -34,11 +34,16 @@
 #ifndef FUSE_PUBLISHERS_POSE_2D_PUBLISHER_H
 #define FUSE_PUBLISHERS_POSE_2D_PUBLISHER_H
 
+#include <fuse_publishers/stamped_variable_synchronizer.h>
+
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
+#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/orientation_2d_stamped.h>
+
 #include <ros/ros.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
@@ -134,14 +139,17 @@ public:
   void tfPublishTimerCallback(const ros::TimerEvent& event);
 
 protected:
+  using Synchronizer = StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
+                                                   fuse_variables::Position2DStamped>;
+
   std::string base_frame_;  //!< The name of the robot's base_link frame
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
-  ros::Time latest_stamp_;  //!< The timestamp of the most recent position
   std::string map_frame_;  //!< The name of the robot's map frame
   std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is not used)
   ros::Publisher pose_publisher_;  //!< Publish the pose as a geometry_msgs::PoseStamped
   ros::Publisher pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::PoseWithCovarianceStamped
   bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the pose topics
+  Synchronizer::UniquePtr synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by time and frame id
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the tf topics and
                                                              //!< inserts the received transforms into the tf buffer
