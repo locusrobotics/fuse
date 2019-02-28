@@ -37,8 +37,8 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
-#include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
+#include <fuse_variables/position_2d_stamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TransformStamped.h>

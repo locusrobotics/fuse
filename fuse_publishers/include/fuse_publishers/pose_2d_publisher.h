@@ -41,8 +41,8 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
-#include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
+#include <fuse_variables/position_2d_stamped.h>
 
 #include <ros/ros.h>
 #include <tf2_ros/transform_broadcaster.h>
