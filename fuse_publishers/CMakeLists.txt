@@ -125,4 +125,20 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+
+  # StampedVariableSynchronizer Tests
+  catkin_add_gtest(test_stamped_variable_synchronizer
+    test/test_stamped_variable_synchronizer.cpp
+  )
+  add_dependencies(test_stamped_variable_synchronizer
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_stamped_variable_synchronizer
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_stamped_variable_synchronizer
+    ${catkin_LIBRARIES}
+  )
 endif()
