@@ -2,6 +2,9 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.2.0 (2019-01-16)
 ------------------
 * [RST-1554] test depends (`#30 <https://github.com/locusrobotics/fuse/issues/30>`_)
