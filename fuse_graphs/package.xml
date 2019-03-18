@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_graphs</name>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <description>
     The fuse_graphs package provides some concrete implementations of the fuse_core::Graph interface.
   </description>

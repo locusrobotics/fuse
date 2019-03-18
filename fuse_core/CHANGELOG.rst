@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2019-03-18)
+------------------
 * [RST-1653] transaction stamps (`#37 <https://github.com/locusrobotics/fuse/issues/37>`_)
   * Moved the set<ros::Time> object that always accompanies a Transaction into the Transaction itself.
   * Updated all related classes to support that change
