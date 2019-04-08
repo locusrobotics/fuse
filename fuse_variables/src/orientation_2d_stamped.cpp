@@ -38,11 +38,76 @@
 #include <fuse_core/uuid.h>
 #include <ros/time.h>
 
+#include <cmath>
 #include <ostream>
 
 
 namespace fuse_variables
 {
+
+/**
+ * @brief A LocalParameterization class for 2D Orientations.
+ *
+ * 2D orientations add and subtract in the "usual" way, except for the 2*pi rollover issue. This local parameterization
+ * handles the rollover. Because the Jacobians for this parameterization are always identity, we implement this
+ * parameterization with "analytic" derivatives, instead of using the Ceres's autodiff system.
+ */
+class Orientation2DLocalParameterization : public fuse_core::LocalParameterization
+{
+public:
+  // Define some necessary variations of PI
+  static constexpr double M_TWO_PI = 2 * M_PI;
+
+  int GlobalSize() const override
+  {
+    return 1;
+  }
+
+  int LocalSize() const override
+  {
+    return 1;
+  }
+
+  bool Plus(
+    const double* x,
+    const double* delta,
+    double* x_plus_delta) const override
+  {
+    // Compute the angle increment as a linear update
+    x_plus_delta[0] = x[0] + delta[0];
+    // Then handle the 2*Pi roll-over
+    x_plus_delta[0] -= M_TWO_PI * std::floor((x_plus_delta[0] + M_PI) / M_TWO_PI);
+    return true;
+  }
+
+  bool ComputeJacobian(
+    const double* x,
+    double* jacobian) const override
+  {
+    jacobian[0] = 1.0;
+    return true;
+  }
+
+  bool Minus(
+    const double* x1,
+    const double* x2,
+    double* delta) const override
+  {
+    // Compute the difference from x2 to x1
+    delta[0] = x2[0] - x1[0];
+    // Then handle the 2*Pi roll-over
+    delta[0] -= M_TWO_PI * std::floor((delta[0] + M_PI) / M_TWO_PI);
+    return true;
+  }
+
+  bool ComputeMinusJacobian(
+    const double* x,
+    double* jacobian) const override
+  {
+    jacobian[0] = 1.0;
+    return true;
+  }
+};
 
 Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   Stamped(stamp, device_id),
@@ -68,7 +133,7 @@ fuse_core::Variable::UniquePtr Orientation2DStamped::clone() const
 
 fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
 {
-  return nullptr;
+  return new Orientation2DLocalParameterization();
 }
 
 }  // namespace fuse_variables

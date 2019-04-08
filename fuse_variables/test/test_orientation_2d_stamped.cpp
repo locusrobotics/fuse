@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/autodiff_local_parameterization.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -42,8 +43,8 @@
 
 #include <vector>
 
-using fuse_variables::Orientation2DStamped;
 
+using fuse_variables::Orientation2DStamped;
 
 TEST(Orientation2DStamped, Type)
 {
@@ -95,6 +96,145 @@ TEST(Orientation2DStamped, Stamped)
   ASSERT_TRUE(static_cast<bool>(stamped));
   EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
+}
+
+struct Orientation2DPlus
+{
+  template<typename T>
+  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+  {
+    // Define some necessary variations of PI with the correct type (double or Jet)
+    static const T PI = T(M_PI);
+    static const T TWO_PI = T(2 * M_PI);
+
+    // Compute the angle increment as a linear update
+    x_plus_delta[0] = x[0] + delta[0];
+    // Then handle the 2*Pi roll-over
+    // Use ceres::floor because it is specialized for double and Jet types.
+    x_plus_delta[0] -= TWO_PI * ceres::floor((x_plus_delta[0] + PI) / TWO_PI);
+    return true;
+  }
+};
+
+struct Orientation2DMinus
+{
+  template<typename T>
+  bool operator()(const T* x1, const T* x2, T* delta) const
+  {
+    // Define some necessary variations of PI with the correct type (double or Jet)
+    static const T PI = T(M_PI);
+    static const T TWO_PI = T(2 * M_PI);
+
+    // Compute the difference from x2 to x1
+    delta[0] = x2[0] - x1[0];
+    // Then handle the 2*Pi roll-over
+    // Use ceres::floor because it is specialized for double and Jet types.
+    delta[0] -= TWO_PI * ceres::floor((delta[0] + PI) / TWO_PI);
+    return true;
+  }
+};
+
+using Orientation2DLocalParameterization =
+    fuse_core::AutoDiffLocalParameterization<Orientation2DPlus, Orientation2DMinus, 1, 1>;
+
+TEST(Orientation2DStamped, Plus)
+{
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
+
+  // Simple test
+  {
+    double x[1] = {1.0};
+    double delta[1] = {0.5};
+    double actual[1] = {0.0};
+    bool success = parameterization->Plus(x, delta, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(1.5, actual[0], 1.0e-5);
+  }
+
+  // Check roll-over
+  {
+    double x[1] = {2.0};
+    double delta[1] = {3.0};
+    double actual[1] = {0.0};
+    bool success = parameterization->Plus(x, delta, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(5 - 2*M_PI, actual[0], 1.0e-5);
+  }
+
+  delete parameterization;
+}
+
+TEST(Orientation2DStamped, PlusJacobian)
+{
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
+  auto reference = Orientation2DLocalParameterization();
+
+  auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
+  for (auto test_value : test_values)
+  {
+    double x[1] = {test_value};
+    double actual[1] = {0.0};
+    bool success = parameterization->ComputeJacobian(x, actual);
+
+    double expected[1] = {0.0};
+    reference.ComputeJacobian(x, expected);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
+  }
+
+  delete parameterization;
+}
+
+TEST(Orientation2DStamped, Minus)
+{
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
+
+  // Simple test
+  {
+    double x1[1] = {1.0};
+    double x2[1] = {1.5};
+    double actual[1] = {0.0};
+    bool success = parameterization->Minus(x1, x2, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(0.5, actual[0], 1.0e-5);
+  }
+
+  // Check roll-over
+  {
+    double x1[1] = {2.0};
+    double x2[1] = {5 - 2*M_PI};
+    double actual[1] = {0.0};
+    bool success = parameterization->Minus(x1, x2, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(3.0, actual[0], 1.0e-5);
+  }
+}
+
+TEST(Orientation2DStamped, MinusJacobian)
+{
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
+  auto reference = Orientation2DLocalParameterization();
+
+  auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
+  for (auto test_value : test_values)
+  {
+    double x[1] = {test_value};
+    double actual[1] = {0.0};
+    bool success = parameterization->ComputeMinusJacobian(x, actual);
+
+    double expected[1] = {0.0};
+    reference.ComputeMinusJacobian(x, expected);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
+  }
+
+  delete parameterization;
 }
 
 struct CostFunctor
