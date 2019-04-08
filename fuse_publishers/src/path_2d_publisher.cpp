@@ -31,6 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_publishers/stamped_variable_synchronizer.h>
+
 #include <fuse_publishers/path_2d_publisher.h>
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
@@ -59,38 +61,6 @@ PLUGINLIB_EXPORT_CLASS(fuse_publishers::Path2DPublisher, fuse_core::Publisher);
 // Some file-scope functions in an anonymous namespace
 namespace
 {
-
-bool checkVariable(
-  const fuse_core::Variable& variable,
-  const std::string& requested_type,
-  const fuse_core::UUID& requested_device,
-  ros::Time& output_stamp)
-{
-  if (variable.type() != requested_type)
-  {
-    return false;
-  }
-  try
-  {
-    auto stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(variable);
-    if (stamped_variable.deviceId() != requested_device)
-    {
-      return false;
-    }
-    output_stamp = stamped_variable.stamp();
-  }
-  catch (const std::exception& e)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error" << e.what());
-    return false;
-  }
-  catch (...)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error: unknown");
-    return false;
-  }
-  return true;
-}
 
 bool findPose(
   const fuse_core::Graph& graph,
@@ -166,16 +136,20 @@ void Path2DPublisher::notifyCallback(
   std::vector<geometry_msgs::PoseStamped> poses;
   for (const auto& variable : graph->getVariables())
   {
-    // Use the orientation variable as the "reference" variable
-    ros::Time stamp;
-    if (checkVariable(variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp))
+    if (detail::is_variable_in_pack<fuse_variables::Orientation2DStamped>::value(variable))
     {
-      geometry_msgs::PoseStamped pose;
-      if (findPose(*graph, stamp, device_id_, pose.pose))
+      const auto& stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(variable);
+      const auto& stamp = stamped_variable.stamp();
+      if ((stamped_variable.deviceId() == device_id_) &&
+          (detail::all_variables_exist<fuse_variables::Position2DStamped>::value(*graph, stamp, device_id_)))
       {
-        pose.header.stamp = stamp;
-        pose.header.frame_id = frame_id_;
-        poses.push_back(pose);
+        geometry_msgs::PoseStamped pose;
+        if (findPose(*graph, stamp, device_id_, pose.pose))
+        {
+          pose.header.stamp = stamp;
+          pose.header.frame_id = frame_id_;
+          poses.push_back(pose);
+        }
       }
     }
   }
