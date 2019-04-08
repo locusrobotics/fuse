@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #ifndef FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
+#include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
@@ -175,7 +176,7 @@ public:
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
-  ceres::LocalParameterization* localParameterization() const override;
+  fuse_core::LocalParameterization* localParameterization() const override;
 
 protected:
   fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/local_parameterization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
-
-#include <ceres/local_parameterization.h>
-
-#include <cmath>
 
 namespace fuse_variables
 {
@@ -66,9 +63,9 @@ fuse_core::Variable::UniquePtr Orientation3DStamped::clone() const
   return Orientation3DStamped::make_unique(*this);
 }
 
-ceres::LocalParameterization* Orientation3DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() const
 {
-  return new ceres::QuaternionParameterization();
+  return nullptr;
 }
 
 }  // namespace fuse_variables
