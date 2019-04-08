@@ -91,73 +91,76 @@ TEST(AbsoluteOrientation3DStampedConstraint, Covariance)
   EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
 }
 
-// TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
-// {
-//  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-//  // Create the variables
-//  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
-//  orientation_variable->w() = 0.952;
-//  orientation_variable->x() = 0.038;
-//  orientation_variable->y() = -0.189;
-//  orientation_variable->z() = 0.239;
-//
-//  // Create an absolute orientation constraint
-//  fuse_core::Vector4d mean;
-//  mean << 1.0, 0.0, 0.0, 0.0;
-//
-//  fuse_core::Matrix3d cov;
-//  cov <<
-//    1.0, 0.1, 0.2,
-//    0.1, 2.0, 0.3,
-//    0.2, 0.3, 3.0;
-//  auto constraint = AbsoluteOrientation3DStampedConstraint::make_shared(
-//    *orientation_variable,
-//    mean,
-//    cov);
-//
-//  // Build the problem
-//  ceres::Problem problem;
-//  problem.AddParameterBlock(
-//    orientation_variable->data(),
-//    orientation_variable->size(),
-//    orientation_variable->localParameterization());
-//
-//  std::vector<double*> parameter_blocks;
-//  parameter_blocks.push_back(orientation_variable->data());
-//  problem.AddResidualBlock(
-//    constraint->costFunction(),
-//    constraint->lossFunction(),
-//    parameter_blocks);
-//
-//  // Run the solver
-//  ceres::Solver::Options options;
-//  ceres::Solver::Summary summary;
-//  ceres::Solve(options, &problem, &summary);
-//
-//  // Check
-//  EXPECT_NEAR(1.0, orientation_variable->w(), 1.0e-3);
-//  EXPECT_NEAR(0.0, orientation_variable->x(), 1.0e-3);
-//  EXPECT_NEAR(0.0, orientation_variable->y(), 1.0e-3);
-//  EXPECT_NEAR(0.0, orientation_variable->z(), 1.0e-3);
-//
-//  // Compute the covariance
-//  std::vector<std::pair<const double*, const double*> > covariance_blocks;
-//  covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
-//  ceres::Covariance::Options cov_options;
-//  ceres::Covariance covariance(cov_options);
-//  covariance.Compute(covariance_blocks, &problem);
-//  std::vector<double> covariance_vector(orientation_variable->size() * orientation_variable->size());
-//  covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), covariance_vector.data());
-//
-//  // Assemble the full covariance from the covariance blocks
-//  fuse_core::Matrix4d actual_covariance(covariance_vector.data());
-//  fuse_core::Matrix3d expected_covariance;
-//  expected_covariance <<
-//    0.25,  0.025, 0.05,
-//    0.025, 0.5,   0.075,
-//    0.05,  0.075, 0.75;
-//  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance.block<3, 3>(1, 1), 1.0e-9));
-// }
+TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
+{
+  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
+  // Create the variables
+  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  orientation_variable->w() = 0.952;
+  orientation_variable->x() = 0.038;
+  orientation_variable->y() = -0.189;
+  orientation_variable->z() = 0.239;
+
+  // Create an absolute orientation constraint
+  fuse_core::Vector4d mean;
+  mean << 1.0, 0.0, 0.0, 0.0;
+
+  fuse_core::Matrix3d cov;
+  cov <<
+    1.0, 0.1, 0.2,
+    0.1, 2.0, 0.3,
+    0.2, 0.3, 3.0;
+  auto constraint = AbsoluteOrientation3DStampedConstraint::make_shared(
+    *orientation_variable,
+    mean,
+    cov);
+
+  // Build the problem
+  ceres::Problem problem;
+  problem.AddParameterBlock(
+    orientation_variable->data(),
+    orientation_variable->size(),
+    orientation_variable->localParameterization());
+
+  std::vector<double*> parameter_blocks;
+  parameter_blocks.push_back(orientation_variable->data());
+  problem.AddResidualBlock(
+    constraint->costFunction(),
+    constraint->lossFunction(),
+    parameter_blocks);
+
+  // Run the solver
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  ceres::Solve(options, &problem, &summary);
+
+  // Check
+  EXPECT_NEAR(1.0, orientation_variable->w(), 1.0e-3);
+  EXPECT_NEAR(0.0, orientation_variable->x(), 1.0e-3);
+  EXPECT_NEAR(0.0, orientation_variable->y(), 1.0e-3);
+  EXPECT_NEAR(0.0, orientation_variable->z(), 1.0e-3);
+
+  // Compute the covariance
+  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
+  ceres::Covariance::Options cov_options;
+  ceres::Covariance covariance(cov_options);
+  covariance.Compute(covariance_blocks, &problem);
+  // TODO(swilliams) The covariance is in the tangent space, but there is currently no good way of getting the
+  //                 tangent space size
+  std::vector<double> covariance_vector(3 * 3);
+  covariance.GetCovarianceBlockInTangentSpace(
+    orientation_variable->data(), orientation_variable->data(), covariance_vector.data());
+
+  // Assemble the full covariance from the covariance blocks
+  fuse_core::Matrix3d actual_covariance(covariance_vector.data());
+  fuse_core::Matrix3d expected_covariance;
+  expected_covariance <<
+    1.0, 0.1, 0.2,
+    0.1, 2.0, 0.3,
+    0.2, 0.3, 3.0;
+  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-3));
+}
 
 int main(int argc, char **argv)
 {

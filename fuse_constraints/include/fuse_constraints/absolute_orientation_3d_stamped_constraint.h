@@ -113,14 +113,14 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (qx, qy, qz)
+   * Order is (x, y, z)
    */
   const fuse_core::Matrix3d& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (qx, qy, qz)
+   * Order is (x, y, z)
    */
   fuse_core::Matrix3d covariance() const;
 

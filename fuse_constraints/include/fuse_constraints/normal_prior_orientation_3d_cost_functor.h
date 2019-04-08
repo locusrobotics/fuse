@@ -50,13 +50,13 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||    [  (b^-1 * q)(1)  ] ||^2
- *   cost(x) = ||A * [  (b^-1 * q)(2)  ] ||
- *             ||    [  (b^-1 * q)(3)  ] ||
+ *             ||                        ||^2
+ *   cost(x) = ||A * AngleAxis(b^-1 * q) ||
+ *             ||                        ||
  *
- * where the matrix A and the vector b are fixed and (w, x, y, z) are the components of the 3D orientation
- * (quaternion) variable, whose indices are (0, 1, 2, 3). Note that the cost function does not include the
- * real-valued component of the quaternion, but only its imaginary components.
+ * where the matrix A and the vector b are fixed, and q is the variable being measured, represented as a quaternion.
+ * The AngleAxis function converts a quaternion into a 3-vector of the form theta*k, where k is the unit vector axis
+ * of rotation and theta is the angle of rotation. The A matrix is applied to the angle-axis 3-vector.
  *
  * In case the user is interested in implementing a cost function of the form
  *
@@ -108,14 +108,9 @@ public:
       T(-b_(3))
     };
 
-    T output[4];
-
-    ceres::QuaternionProduct(variable, observation_inverse, output);
-
-    // 2. Can use just the imaginary coefficients as the residual
-    residuals[0] = T(2.0) * output[1];
-    residuals[1] = T(2.0) * output[2];
-    residuals[2] = T(2.0) * output[3];
+    T difference[4];
+    ceres::QuaternionProduct(observation_inverse, variable, difference);
+    ceres::QuaternionToAngleAxis(difference, residuals);
 
     // 3. Scale the residuals by the square root information matrix to account for the measurement uncertainty.
     Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
