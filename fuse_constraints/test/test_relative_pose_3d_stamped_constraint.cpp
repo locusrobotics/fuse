@@ -249,6 +249,7 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     fuse_core::Matrix6d actual_covariance;
     actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
 
+    // Define the expected covariance
     fuse_core::Matrix6d expected_covariance;
     expected_covariance <<
       1.0,  0.0,  0.0,  0.0,  0.0,  0.0,
@@ -285,6 +286,7 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     fuse_core::Matrix6d actual_covariance;
     actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
 
+    // Define the expected covariance
     fuse_core::Matrix6d expected_covariance;
     expected_covariance <<
       2.0,  0.0,  0.0,  0.0,  0.0,  0.0,

@@ -186,11 +186,11 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   fuse_core::MatrixXd cov_pos_pos(position_variable->size(), position_variable->size());
   covariance.GetCovarianceBlock(position_variable->data(), position_variable->data(), cov_pos_pos.data());
 
-  fuse_core::MatrixXd cov_or_or(3, 3);
+  fuse_core::MatrixXd cov_or_or(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
     orientation_variable->data(), orientation_variable->data(), cov_or_or.data());
 
-  fuse_core::MatrixXd cov_pos_or(position_variable->size(), 3);
+  fuse_core::MatrixXd cov_pos_or(position_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
     position_variable->data(), orientation_variable->data(), cov_pos_or.data());
 
@@ -198,6 +198,7 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   fuse_core::Matrix6d actual_covariance;
   actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
 
+  // Define the expected covariance
   fuse_core::Matrix6d expected_covariance;
   expected_covariance <<
     1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
