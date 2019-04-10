@@ -245,22 +245,6 @@ public:
   void holdVariable(const fuse_core::UUID& variable_uuid, bool hold_constant = true) override;
 
   /**
-   * @brief Marginalize out the provided variable from the graph
-   *
-   * Perform a marginalization operation, computing a new constraint that represents the remaining information from
-   * all connected constraints on all the adjacent variables. The marginalized variable will be removed from the graph,
-   * along with all constraints connected to the marginalized variable. The new computed constraint will be added to
-   * the graph. Because this new constraint was computed from the linear system, all adjacent variables values will be
-   * held to the current optimal value to ensure the constraint remains consistent.
-   *
-   * Exceptions: If the variable does not exist, a std::out_of_range exception will be thrown.
-   * Complexity: O(?) {not implemented yet}
-   *
-   * @param[in] variable_uuid The UUID of the variable to marginalize out of the problem
-   */
-  void marginalizeVariable(const fuse_core::UUID& variable_uuid) override;
-
-  /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
    *
    * To compute the marginal variance of a single variable, simply supply the same variable UUID for both members of
