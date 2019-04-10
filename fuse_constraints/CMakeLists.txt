@@ -39,6 +39,8 @@ add_library(${PROJECT_NAME}
   src/absolute_orientation_3d_stamped_euler_constraint.cpp
   src/absolute_pose_2d_stamped_constraint.cpp
   src/absolute_pose_3d_stamped_constraint.cpp
+  src/marginal_constraint.cpp
+  src/marginal_cost_function.cpp
   src/normal_delta.cpp
   src/normal_delta_orientation_2d.cpp
   src/normal_prior_orientation_2d.cpp
@@ -181,6 +183,25 @@ if(CATKIN_ENABLE_TESTING)
       ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_pose_3d_stamped_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+
+  # Marginal Constraint Tests
+  catkin_add_gtest(test_marginal_constraint
+    test/test_marginal_constraint.cpp
+  )
+  add_dependencies(test_marginal_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_marginal_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_marginal_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
