@@ -188,15 +188,7 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(cons
   else if (variableExists(variable_uuid))
   {
     // User requested a valid variable, but there are no attached constraints. Return an empty range.
-    std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid__constraint)> to_constraint_ref =
-      [](const Constraints::value_type& uuid__constraint) -> const fuse_core::Constraint&
-      {
-        return *uuid__constraint.second;
-      };
-
-    return fuse_core::Graph::const_constraint_range(
-      boost::make_transform_iterator(constraints_.cend(), to_constraint_ref),
-      boost::make_transform_iterator(constraints_.cend(), to_constraint_ref));
+    return fuse_core::Graph::const_constraint_range();
   }
   else
   {
