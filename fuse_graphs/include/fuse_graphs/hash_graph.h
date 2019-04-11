@@ -168,6 +168,14 @@ public:
   fuse_core::Graph::const_constraint_range getConstraints() const noexcept override;
 
   /**
+   * @brief Read-only access to the subset of constraints that are connected to the specified variable
+   *
+   * @param[in] variable_uuid The UUID of the variable of interest
+   * @return A read-only iterator range containing all constraints that involve the specified variable
+   */
+  fuse_core::Graph::const_constraint_range getConnectedConstraints(const fuse_core::UUID& variable_uuid) const override;
+
+  /**
    * @brief Check if the variable already exists in the graph
    *
    * Exceptions: None
