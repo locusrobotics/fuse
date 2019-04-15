@@ -47,6 +47,7 @@ add_library(${PROJECT_NAME}
   src/relative_orientation_3d_stamped_constraint.cpp
   src/relative_pose_2d_stamped_constraint.cpp
   src/relative_pose_3d_stamped_constraint.cpp
+  src/variable_order.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -260,5 +261,17 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_relative_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+
+  # VariableOrder Tests
+  catkin_add_gtest(test_variable_order
+    test/test_variable_order.cpp
+  )
+  target_include_directories(test_variable_order
+    PRIVATE
+      include
+  )
+  target_link_libraries(test_variable_order
+    ${PROJECT_NAME}
   )
 endif()
