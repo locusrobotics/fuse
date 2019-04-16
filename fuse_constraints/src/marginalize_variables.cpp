@@ -149,17 +149,187 @@ UuidOrdering computeEliminationOrder(
   return elimination_order;
 }
 
+LinearTerm linearize(
+  const fuse_core::Constraint& constraint,
+  const fuse_core::Graph& graph,
+  const UuidOrdering& elimination_order)
+{
+  LinearTerm result;
+
+  // Generate cost and loss functions from the input constraint
+  auto cost_function = constraint.costFunction();
+  size_t row_count = cost_function->num_residuals();
+
+  // Loop over the constraint's variables and do several things:
+  // * Generate a vector of variable value pointers. This is needed for the Ceres API.
+  // * Allocate a matrix for each jacobian block
+  // * Generate a vector of jacobian pointers. This is needed for the Ceres API.
+  const auto& variable_uuids = constraint.variables();
+  const size_t variable_count = variable_uuids.size();
+  std::vector<const double*> variable_values;
+  variable_values.reserve(variable_count);
+  std::vector<double*> jacobians;
+  jacobians.reserve(variable_count);
+  result.variables.reserve(variable_count);
+  result.A.reserve(variable_count);
+  for (const auto& variable_uuid : variable_uuids)
+  {
+    const auto& variable = graph.getVariable(variable_uuid);
+    variable_values.push_back(variable.data());
+    result.variables.push_back(elimination_order.at(variable_uuid));
+    result.A.push_back(fuse_core::MatrixXd(row_count, variable.size()));
+    jacobians.push_back(result.A.back().data());
+  }
+  result.b = fuse_core::VectorXd(row_count);
+
+  // Evaluate the cost function, populating the A matrices and b vector
+  bool success = cost_function->Evaluate(variable_values.data(), result.b.data(), jacobians.data());
+  delete cost_function;
+  success = success && result.b.array().isFinite().all();
+  for (const auto& A : result.A)
+  {
+    success = success && A.array().isFinite().all();
+  }
+  if (!success)
+  {
+    throw std::runtime_error("Error in evaluating the cost function. There are two possible reasons. "
+                             "Either the CostFunction did not evaluate and fill all residual and jacobians "
+                             "that were requested or there was a non-finite value (nan/infinite) generated "
+                             "during the jacobian computation.");
+  }
+
+  // Update the jacobians with the local parameterizations.
+  for (size_t index = 0; index < variable_count; ++index)
+  {
+    const auto& variable_uuid = variable_uuids[index];
+    const auto& variable = graph.getVariable(variable_uuid);
+    auto local_parameterization = variable.localParameterization();
+    if (local_parameterization)
+    {
+      auto& jacobian = result.A[index];
+      fuse_core::MatrixXd J(local_parameterization->GlobalSize(), local_parameterization->LocalSize());
+      local_parameterization->ComputeJacobian(variable_values[index], J.data());
+      delete local_parameterization;
+      jacobian *= J;
+    }
+  }
+
+  // Correct A and b for the effects of the loss function
+  auto loss_function = constraint.lossFunction();
+  if (loss_function)
+  {
+    double squared_norm = result.b.squaredNorm();
+    double rho[3];
+    loss_function->Evaluate(squared_norm, rho);
+    delete loss_function;
+    double sqrt_rho1 = std::sqrt(rho[1]);
+    double alpha = 0.0;
+    if ((squared_norm > 0.0) && (rho[2] > 0.0))
+    {
+      const double D = 1.0 + 2.0 * squared_norm * rho[2] / rho[1];
+      alpha = 1.0 - std::sqrt(D);
+    }
+
+    // Correct the Jacobians
+    for (auto& jacobian : result.A)
+    {
+      if (alpha == 0.0)
+      {
+        jacobian *= sqrt_rho1;
+      }
+      else
+      {
+        // TODO(swilliams) This may be inefficient, at least according to notes in the Ceres codebase.
+        jacobian = sqrt_rho1 * (jacobian - (alpha / squared_norm) * result.b * (result.b.transpose() * jacobian));
+      }
+    }
+
+    // Correct the residuals
+    result.b *= sqrt_rho1 / (1 - alpha);
+  }
+
+  return result;
+}
+
+LinearTerm computeMarginal(
+  const unsigned int variable,
+  const std::vector<LinearTerm>& linear_terms)
+{
+  return LinearTerm();
+}
+
+MarginalConstraint::SharedPtr createMarginalConstraint(
+  const LinearTerm& linear_term,
+  const fuse_core::Graph& graph,
+  const UuidOrdering& elimination_order)
+{
+  auto index_to_variable = [&graph, &elimination_order](const unsigned int index) -> const fuse_core::Variable&
+  {
+    return graph.getVariable(elimination_order.at(index));
+  };
+
+  return MarginalConstraint::make_shared(
+    boost::make_transform_iterator(linear_term.variables.begin(), index_to_variable),
+    boost::make_transform_iterator(linear_term.variables.end(), index_to_variable),
+    linear_term.A.begin(),
+    linear_term.A.end(),
+    linear_term.b);
+}
+
 }  // namespace detail
 
-void marginalizeVariables(
+fuse_core::Transaction marginalizeVariables(
   const std::vector<fuse_core::UUID>& to_be_marginalized,
-  const fuse_core::Graph& graph,
-  fuse_core::Transaction& transaction)
+  const fuse_core::Graph& graph)
 {
+  fuse_core::Transaction transaction;
+
+  // Mark all of the to_be_marginalized variables for removal
+  for (const auto& variable_uuid : to_be_marginalized)
+  {
+    transaction.removeVariable(variable_uuid);
+  }
+
   // Compute an ordering
   auto elimination_order = detail::computeEliminationOrder(to_be_marginalized, graph);
 
-  // Marginalize out each variable in sequence...
+  // Linearize all involved constraints, and store them with the variable where they will be used
+  auto used_constraints = std::unordered_set<fuse_core::UUID, fuse_core::uuid::hash>();
+  std::vector<std::vector<detail::LinearTerm>> linear_terms(elimination_order.size());
+  for (size_t i = 0; i < to_be_marginalized.size(); ++i)
+  {
+    auto constraints = graph.getConnectedConstraints(elimination_order[i]);
+    for (const auto& constraint : constraints)
+    {
+      if (used_constraints.find(constraint.uuid()) == used_constraints.end())
+      {
+        used_constraints.insert(constraint.uuid());
+        linear_terms[i].push_back(detail::linearize(constraint, graph, elimination_order));
+        transaction.removeConstraint(constraint.uuid());
+      }
+    }
+  }
+
+  // Use the linearized constraints to marginalize each variable in order
+  // Place the resulting marginal in the linear constraint bucket associated with the earliest remaining variable
+  for (size_t i = 0; i < to_be_marginalized.size(); ++i)
+  {
+    auto linear_marginal = detail::computeMarginal(i, linear_terms[i]);
+    auto lowest_ordered_variable = linear_marginal.variables.front();
+    linear_terms[lowest_ordered_variable].push_back(std::move(linear_marginal));
+  }
+
+  // Convert all remaining linear marginals into marginal constraints
+  for (size_t i = to_be_marginalized.size(); i < linear_terms.size(); ++i)
+  {
+    for (const auto& linear_term : linear_terms[i])
+    {
+      auto marginal_constraint = detail::createMarginalConstraint(linear_term, graph, elimination_order);
+      transaction.addConstraint(std::move(marginal_constraint));
+    }
+  }
+
+  return transaction;
 }
 
 }  // namespace fuse_constraints

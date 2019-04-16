@@ -32,12 +32,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/marginalize_variables.h>
+#include <fuse_constraints/relative_orientation_3d_stamped_constraint.h>
 #include <fuse_constraints/uuid_ordering.h>
 #include <fuse_core/constraint.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_graphs/hash_graph.h>
+#include <fuse_variables/orientation_3d_stamped.h>
 
 #include <ceres/cost_function.h>
 #include <gtest/gtest.h>
@@ -102,7 +104,6 @@ public:
 TEST(MarginalizeVariables, ComputeEliminationOrder)
 {
   // Create a graph
-  auto graph = fuse_graphs::HashGraph();
   auto x1 = GenericVariable::make_shared();
   auto x2 = GenericVariable::make_shared();
   auto x3 = GenericVariable::make_shared();
@@ -114,6 +115,7 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   auto c4 = GenericConstraint::make_shared(x1->uuid(), l1->uuid());
   auto c5 = GenericConstraint::make_shared(x2->uuid(), l1->uuid());
   auto c6 = GenericConstraint::make_shared(x3->uuid(), l2->uuid());
+  auto graph = fuse_graphs::HashGraph();
   graph.addVariable(x1);
   graph.addVariable(x2);
   graph.addVariable(x3);
@@ -145,6 +147,78 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   {
     EXPECT_EQ(expected.at(i), actual.at(i));
   }
+}
+
+TEST(MarginalizeVariables, Linearize)
+{
+  // Create a graph with one relative 3D orientation constraint
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1, 0));
+  x1->w() = 0.927362;
+  x1->x() = 0.1;
+  x1->y() = 0.2;
+  x1->z() = 0.3;
+
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2, 0));
+  x2->w() = 0.848625;
+  x2->x() = 0.13798;
+  x2->y() = 0.175959;
+  x2->z() = 0.479411;
+
+  fuse_core::Vector4d delta;
+  delta << 0.979795897, 0.0, 0.0, 0.2;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
+  auto constraint = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(*x1, *x2, delta, cov);
+
+  auto graph = fuse_graphs::HashGraph();
+  graph.addVariable(x1);
+  graph.addVariable(x2);
+  graph.addConstraint(constraint);
+
+  // Create an elimination order
+  auto elimination_order = fuse_constraints::UuidOrdering();
+  elimination_order.insert(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
+  elimination_order.insert(x2->uuid());
+  elimination_order.insert(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
+  elimination_order.insert(x1->uuid());
+
+  // Compute the linear term
+  auto actual = fuse_constraints::detail::linearize(*constraint, graph, elimination_order);
+
+  // Define the expected values
+  fuse_core::MatrixXd expected_A0(3, 3);
+  expected_A0 << -0.91999992754510684367,    -0.39191852892782985673,    -2.8735440640859089001e-07,
+                  0.27712824947756498073,    -0.65053818745824854020,    -2.5352112979770691226e-07,
+                  7.1505019336171038447e-08,  2.5546009342625186633e-07, -0.57735026918958520792;
+
+  fuse_core::MatrixXd expected_A1(3, 3);
+  expected_A1 <<  0.99999999999996114219,    -1.8482708254510815671e-07, -2.873543621662033587e-07,
+                  1.3069243487082160549e-07,  0.70710678118650927004,    -2.5352115484711390536e-07,
+                  1.6590414383954588118e-07,  2.0699913566568639567e-07,  0.57735026918958520792;
+
+  fuse_core::VectorXd expected_b(3);
+  expected_b << 7.1706607563166841896e-07, -4.0638046747479327072e-07, 2.1341989211309879704e-07;
+
+  // Check
+  ASSERT_EQ(2u, actual.variables.size());
+  EXPECT_EQ(3u, actual.variables[0]);
+  EXPECT_EQ(1u, actual.variables[1]);
+
+  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+  EXPECT_TRUE(expected_A0.isApprox(actual.A[0], 1.0e-9)) <<
+      "Expected is:\n" << expected_A0.format(clean) << "\n" <<
+      "Actual is:\n" << actual.A[0].format(clean) << "\n" <<
+      "Difference is:\n" << (expected_A0 - actual.A[0]).format(clean) << "\n";
+
+  EXPECT_TRUE(expected_A1.isApprox(actual.A[1], 1.0e-9)) <<
+      "Expected is:\n" << expected_A1.format(clean) << "\n" <<
+      "Actual is:\n" << actual.A[1].format(clean) << "\n" <<
+      "Difference is:\n" << (expected_A1 - actual.A[1]).format(clean) << "\n";
+
+  EXPECT_TRUE(expected_b.isApprox(actual.b, 1.0e-9)) <<
+      "Expected is:\n" << expected_b.format(clean) << "\n" <<
+      "Actual is:\n" << actual.b.format(clean) << "\n" <<
+      "Difference is:\n" << (expected_b - actual.b).format(clean) << "\n";
 }
 
 int main(int argc, char **argv)
