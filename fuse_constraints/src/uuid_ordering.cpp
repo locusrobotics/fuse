@@ -31,53 +31,59 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/variable_order.h>
+#include <fuse_constraints/uuid_ordering.h>
 
 
 namespace fuse_constraints
 {
-VariableOrder::VariableOrder(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-  VariableOrder(variable_uuid_list.begin(), variable_uuid_list.end())
+UuidOrdering::UuidOrdering(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
+  UuidOrdering(variable_uuid_list.begin(), variable_uuid_list.end())
 {
 }
 
-bool VariableOrder::empty() const
+bool UuidOrdering::empty() const
 {
   return order_.empty();
 }
 
-size_t VariableOrder::size() const
+size_t UuidOrdering::size() const
 {
   return order_.size();
 }
 
-bool VariableOrder::exists(const size_t index) const
+bool UuidOrdering::exists(const unsigned int index) const
 {
   return (index < order_.size());
 }
 
-bool VariableOrder::exists(const fuse_core::UUID& variable_uuid) const
+bool UuidOrdering::exists(const fuse_core::UUID& variable_uuid) const
 {
   return (order_.right.find(variable_uuid) != order_.right.end());
 }
 
-size_t VariableOrder::add(const fuse_core::UUID& variable_uuid)
+bool UuidOrdering::insert(const fuse_core::UUID& variable_uuid)
 {
-  auto result = order_.insert(order_.end(), VariableOrderMapping::value_type(order_.size(), variable_uuid));
-  return (*result.first).get_left();
+  auto result = order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), variable_uuid));
+  return result.second;
 }
 
-const fuse_core::UUID& VariableOrder::operator[](const size_t index) const
+const fuse_core::UUID& UuidOrdering::operator[](const unsigned int index) const
 {
   return order_.left[index].second;
 }
 
-const fuse_core::UUID& VariableOrder::at(const size_t index) const
+const unsigned int UuidOrdering::operator[](const fuse_core::UUID& uuid)
+{
+  auto result = order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), uuid));
+  return (*result.first).get_left();
+}
+
+const fuse_core::UUID& UuidOrdering::at(const unsigned int index) const
 {
   return order_.left.at(index).second;
 }
 
-const size_t VariableOrder::at(const fuse_core::UUID& variable_uuid) const
+const unsigned int UuidOrdering::at(const fuse_core::UUID& variable_uuid) const
 {
   return order_.right.at(variable_uuid);
 }

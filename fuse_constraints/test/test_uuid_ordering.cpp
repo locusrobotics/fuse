@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/variable_order.h>
+#include <fuse_constraints/uuid_ordering.h>
 #include <fuse_core/uuid.h>
 
 #include <gtest/gtest.h>
@@ -39,28 +39,28 @@
 #include <vector>
 
 
-using fuse_constraints::VariableOrder;
+using fuse_constraints::UuidOrdering;
 
-TEST(VariableOrder, Constructor)
+TEST(UuidOrdering, Constructor)
 {
   // Default constructor
-  EXPECT_NO_THROW(VariableOrder());
+  EXPECT_NO_THROW(UuidOrdering());
 
   // Iterators
   std::vector<fuse_core::UUID> uuids{fuse_core::uuid::generate(), fuse_core::uuid::generate()};
-  EXPECT_NO_THROW(VariableOrder(uuids.begin(), uuids.end()));
+  EXPECT_NO_THROW(UuidOrdering(uuids.begin(), uuids.end()));
 
   // Initializer List
-  EXPECT_NO_THROW(VariableOrder({fuse_core::uuid::generate(), fuse_core::uuid::generate()}));  // NOLINT
+  EXPECT_NO_THROW(UuidOrdering({fuse_core::uuid::generate(), fuse_core::uuid::generate()}));  // NOLINT
 }
 
-TEST(VariableOrder, Access)
+TEST(UuidOrdering, Access)
 {
   auto uuid1 = fuse_core::uuid::generate();
   auto uuid2 = fuse_core::uuid::generate();
   auto uuid3 = fuse_core::uuid::generate();
   auto uuid4 = fuse_core::uuid::generate();
-  auto order = VariableOrder{uuid1, uuid2, uuid3};
+  auto order = UuidOrdering{uuid1, uuid2, uuid3};
 
   EXPECT_EQ(0u, order.at(uuid1));
   EXPECT_EQ(1u, order.at(uuid2));
@@ -68,51 +68,58 @@ TEST(VariableOrder, Access)
   EXPECT_EQ(uuid1, order.at(0u));
   EXPECT_EQ(uuid2, order.at(1u));
   EXPECT_EQ(uuid3, order.at(2u));
-  EXPECT_EQ(uuid1, order[0u]);
-  EXPECT_EQ(uuid2, order[1u]);
-  EXPECT_EQ(uuid3, order[2u]);
 
   EXPECT_THROW(order.at(3u), std::out_of_range);
   EXPECT_THROW(order.at(uuid4), std::out_of_range);
+
+  EXPECT_EQ(uuid1, order[0u]);
+  EXPECT_EQ(uuid2, order[1u]);
+  EXPECT_EQ(uuid3, order[2u]);
+  EXPECT_EQ(0u, order[uuid1]);
+  EXPECT_EQ(1u, order[uuid2]);
+  EXPECT_EQ(2u, order[uuid3]);
+
+  EXPECT_EQ(3u, order[uuid4]);
 }
 
-TEST(VariableOrder, Add)
+TEST(UuidOrdering, Insert)
 {
   auto uuid1 = fuse_core::uuid::generate();
   auto uuid2 = fuse_core::uuid::generate();
   auto uuid3 = fuse_core::uuid::generate();
   auto uuid4 = fuse_core::uuid::generate();
-  auto order = VariableOrder{uuid1, uuid2, uuid3};
+  auto order = UuidOrdering{uuid1, uuid2, uuid3};
 
   EXPECT_EQ(3u, order.size());
-  order.add(uuid4);
+  EXPECT_FALSE(order.insert(uuid3));
+  EXPECT_TRUE(order.insert(uuid4));
   EXPECT_EQ(4u, order.size());
   EXPECT_EQ(3u, order.at(uuid4));
   EXPECT_EQ(uuid4, order.at(3u));
   EXPECT_EQ(uuid4, order[3u]);
 }
 
-TEST(VariableOrder, Size)
+TEST(UuidOrdering, Size)
 {
-  auto order = VariableOrder();
+  auto order = UuidOrdering();
 
   EXPECT_TRUE(order.empty());
   EXPECT_EQ(0u, order.size());
 
   auto uuid1 = fuse_core::uuid::generate();
-  order.add(uuid1);
+  order.insert(uuid1);
 
   EXPECT_FALSE(order.empty());
   EXPECT_EQ(1u, order.size());
 }
 
-TEST(VariableOrder, Exists)
+TEST(UuidOrdering, Exists)
 {
   auto uuid1 = fuse_core::uuid::generate();
   auto uuid2 = fuse_core::uuid::generate();
   auto uuid3 = fuse_core::uuid::generate();
   auto uuid4 = fuse_core::uuid::generate();
-  auto order = VariableOrder{uuid1, uuid2, uuid3};
+  auto order = UuidOrdering{uuid1, uuid2, uuid3};
 
   EXPECT_TRUE(order.exists(0));
   EXPECT_TRUE(order.exists(1));
