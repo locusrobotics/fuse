@@ -43,6 +43,7 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <ceres/cost_function.h>
 
+#include <algorithm>
 #include <cassert>
 #include <ostream>
 #include <vector>
@@ -149,7 +150,7 @@ namespace detail
 /**
  * @brief Return the UUID of the provided variable
  */
-const fuse_core::UUID getUuid(const fuse_core::Variable& variable)
+inline const fuse_core::UUID getUuid(const fuse_core::Variable& variable)
 {
   return variable.uuid();
 }
@@ -157,7 +158,7 @@ const fuse_core::UUID getUuid(const fuse_core::Variable& variable)
 /**
  * @brief Return the current value of the provided variable
  */
-const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& variable)
+inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& variable)
 {
   return Eigen::Map<const fuse_core::VectorXd>(variable.data(), variable.size());
 }
@@ -165,7 +166,7 @@ const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& variable)
 /**
  * @brief Return the local parameterization of the provided variable
  */
-fuse_core::LocalParameterization* const getLocalParameterization(const fuse_core::Variable& variable)
+inline fuse_core::LocalParameterization* const getLocalParameterization(const fuse_core::Variable& variable)
 {
   return variable.localParameterization();
 }
