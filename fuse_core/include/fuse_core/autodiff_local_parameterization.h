@@ -55,7 +55,9 @@ namespace fuse_core
  *
  * And the second functor should compute the inverse operation:
  *
- *   Minus(x1, x2) -> delta, such that Minus(x, Plus(x, delta)) = delta
+ *   Minus(x1, x2) -> delta
+ *
+ * Minus() should be defined such that if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
  *
  * The autodiff framework substitutes appropriate "Jet" objects for the template parameter T in order to compute
  * the derivative when necessary, but this is hidden, and you should write the function as if T were a scalar type
@@ -173,17 +175,8 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   const double* x,
   double* jacobian) const
 {
-  double zero_delta[kLocalSize];
-  for (int i = 0; i < kLocalSize; ++i)
-  {
-    zero_delta[i] = 0.0;
-  }
-
+  double zero_delta[kLocalSize] = {};  // zero-initialize
   double x_plus_delta[kGlobalSize];
-  for (int i = 0; i < kGlobalSize; ++i)
-  {
-    x_plus_delta[i] = 0.0;
-  }
 
   const double* parameter_ptrs[2] = {x, zero_delta};
   double* jacobian_ptrs[2] = { NULL, jacobian };
@@ -205,11 +198,7 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   const double* x,
   double* jacobian) const
 {
-  double delta[kLocalSize];
-  for (int i = 0; i < kLocalSize; ++i)
-  {
-    delta[i] = 0.0;
-  }
+  double delta[kLocalSize] = {};  // zero-initialize
 
   const double* parameter_ptrs[2] = {x, x};
   double* jacobian_ptrs[2] = { NULL, jacobian };

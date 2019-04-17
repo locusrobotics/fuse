@@ -56,11 +56,11 @@ public:
   /**
    * @brief Generalization of the subtraction operation
    *
-   * delta = Minus(x1, x2)
+   * Minus(x1, x2) -> delta
    *
    * with the conditions that:
-   * Minus(x, x) = 0
-   * Minus(x, Plus(x, delta)) = delta
+   *  - Minus(x, x) -> 0
+   *  - if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
    *
    * @param[in]  x1    The value of the first variable, of size \p GlobalSize()
    * @param[in]  x2    The value of the second variable, of size \p GlobalSize()

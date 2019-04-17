@@ -198,12 +198,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_local_parameterization
     PRIVATE
       include
-      ${CERES_INCLUDE_DIRS}
-      ${CMAKE_CURRENT_SOURCE_DIR}
   )
   target_link_libraries(test_local_parameterization
     ${PROJECT_NAME}
-    ${CERES_LIBRARIES}
   )
 
   # Message Buffer Tests
