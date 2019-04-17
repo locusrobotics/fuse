@@ -33,8 +33,8 @@
  */
 #include <fuse_core/autodiff_local_parameterization.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 
-#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 
@@ -86,19 +86,16 @@ TEST(LocalParameterization, PlusJacobian)
   TestLocalParameterization parameterization;
 
   double x[3] = {1.0, 2.0, 3.0};
-  fuse_core::MatrixXd actual(2, 3);
+  fuse_core::MatrixXd actual(3, 2);
   bool success = parameterization.ComputeJacobian(x, actual.data());
 
-  fuse_core::MatrixXd expected(2, 3);
+  fuse_core::MatrixXd expected(3, 2);
   expected << 2.0, 0.0,
               0.0, 5.0,
               0.0, 0.0;
 
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
   EXPECT_TRUE(success);
-  EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                                                 << "Actual is:\n" << actual.format(clean) << "\n"
-                                                 << "Difference is:\n" << (expected - actual).format(clean) << "\n";
+  EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
 }
 
 TEST(LocalParameterization, Minus)
@@ -120,18 +117,15 @@ TEST(LocalParameterization, MinusJacobian)
   TestLocalParameterization parameterization;
 
   double x[3] = {1.0, 2.0, 3.0};
-  fuse_core::MatrixXd actual(3, 2);
+  fuse_core::MatrixXd actual(2, 3);
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
 
-  fuse_core::MatrixXd expected(3, 2);
+  fuse_core::MatrixXd expected(2, 3);
   expected << 0.5, 0.0, 0.0,
               0.0, 0.2, 0.0;
 
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
   EXPECT_TRUE(success);
-  EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                                                 << "Actual is:\n" << actual.format(clean) << "\n"
-                                                 << "Difference is:\n" << (expected - actual).format(clean) << "\n";
+  EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
 }
 
 int main(int argc, char **argv)
