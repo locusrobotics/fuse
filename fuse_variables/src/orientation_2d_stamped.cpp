@@ -33,6 +33,7 @@
  */
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/stamped.h>
+#include <fuse_variables/util.h>
 
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/uuid.h>
@@ -55,9 +56,6 @@ namespace fuse_variables
 class Orientation2DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
-  // Define some necessary variations of PI
-  static constexpr double M_TWO_PI = 2 * M_PI;
-
   int GlobalSize() const override
   {
     return 1;
@@ -73,10 +71,8 @@ public:
     const double* delta,
     double* x_plus_delta) const override
   {
-    // Compute the angle increment as a linear update
-    x_plus_delta[0] = x[0] + delta[0];
-    // Then handle the 2*Pi roll-over
-    x_plus_delta[0] -= M_TWO_PI * std::floor((x_plus_delta[0] + M_PI) / M_TWO_PI);
+    // Compute the angle increment as a linear update, and handle the 2*Pi rollover
+    x_plus_delta[0] = wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
@@ -93,10 +89,8 @@ public:
     const double* x2,
     double* delta) const override
   {
-    // Compute the difference from x2 to x1
-    delta[0] = x2[0] - x1[0];
-    // Then handle the 2*Pi roll-over
-    delta[0] -= M_TWO_PI * std::floor((delta[0] + M_PI) / M_TWO_PI);
+    // Compute the difference from x2 to x1, and handle the 2*Pi rollover
+    delta[0] = wrapAngle2D(x2[0] - x1[0]);
     return true;
   }
 

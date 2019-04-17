@@ -103,6 +103,46 @@ static inline T getYaw(const T w, const T x, const T y, const T z)
   return ceres::atan2(sin_yaw, cos_yaw);
 }
 
+/**
+ * @brief Wrap a 2D angle to the standard (-Pi, +Pi] range.
+ *
+ * @param[in/out] angle Input angle to be wrapped to the (-Pi, +Pi] range. Angle is updated by this function.
+ */
+template<typename T>
+void wrapAngle2D(T& angle)
+{
+  // Define some necessary variations of PI with the correct type (double or Jet)
+  static const T PI = T(M_PI);
+  static const T TAU = T(2 * M_PI);
+  // Handle the 1*Tau roll-over (https://tauday.com/tau-manifesto)
+  // Use ceres::floor because it is specialized for double and Jet types.
+  angle -= TAU * ceres::floor((angle + PI) / TAU);
+}
+
+template<typename T>
+T wrapAngle2D(const T& angle)
+{
+  T wrapped = angle;
+  wrapAngle2D(wrapped);
+  return wrapped;
+}
+
+/**
+ * @brief Create an 2x2 rotation matrix from an angle
+ *
+ * @param[in] angle The rotation angle, in radians
+ * @return          The equivalent 2x2 rotation matrix
+ */
+template <typename T>
+Eigen::Matrix<T, 2, 2, Eigen::RowMajor> RotationMatrix2D(const T angle)
+{
+  const T cos_angle = ceres::cos(angle);
+  const T sin_angle = ceres::sin(angle);
+  Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotation;
+  rotation << cos_angle, -sin_angle, sin_angle, cos_angle;
+  return rotation;
+}
+
 }  // namespace fuse_variables
 
 #endif  // FUSE_VARIABLES_UTIL_H

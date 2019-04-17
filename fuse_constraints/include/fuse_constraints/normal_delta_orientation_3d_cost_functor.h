@@ -50,9 +50,9 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||                                 ||^2
- *   cost(x) = ||A * AngleAxis(b^-1 * q1^-1 * q2) ||
- *             ||                                 ||
+ *             ||                                  ||^2
+ *   cost(x) = || A * AngleAxis(b^-1 * q1^-1 * q2) ||
+ *             ||                                  ||
  *
  * where the matrix A and the vector b are fixed, and q1 and q2 are the variables, represented as quaternions.
  * The AngleAxis function converts a quaternion into a 3-vector of the form theta*k, where k is the unit vector axis
