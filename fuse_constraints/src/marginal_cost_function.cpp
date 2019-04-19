@@ -45,7 +45,7 @@ namespace fuse_constraints
 MarginalCostFunction::MarginalCostFunction(
     const std::vector<fuse_core::MatrixXd>& A,
     const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::LocalParameterization*>& local,
+    const std::vector<fuse_core::LocalParameterization::SharedPtr>& local,
     const fuse_core::VectorXd& b) :
   A_(A),
   x_bar_(x_bar),

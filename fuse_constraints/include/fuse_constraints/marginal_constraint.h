@@ -89,7 +89,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~MarginalConstraint();
+  virtual ~MarginalConstraint() = default;
 
   /**
    * @brief Read-only access to the A matrices of the marginal constraint
@@ -109,7 +109,7 @@ public:
   /**
    * @brief Read-only access to the variable local parameterizations
    */
-  const std::vector<fuse_core::LocalParameterization*>& localParameterizations() const { return local_; }
+  const std::vector<fuse_core::LocalParameterization::SharedPtr>& localParameterizations() const { return local_; }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -141,12 +141,13 @@ public:
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
   std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
-  std::vector<fuse_core::LocalParameterization*> local_;  //!< The local parameterization of each involved variable
+  std::vector<fuse_core::LocalParameterization::SharedPtr> local_;  //!< The local parameterization of each variable
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
 };
 
 namespace detail
 {
+
 /**
  * @brief Return the UUID of the provided variable
  */
@@ -166,9 +167,9 @@ inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& vari
 /**
  * @brief Return the local parameterization of the provided variable
  */
-inline fuse_core::LocalParameterization* const getLocalParameterization(const fuse_core::Variable& variable)
+inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterization(const fuse_core::Variable& variable)
 {
-  return variable.localParameterization();
+  return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
 
 /**

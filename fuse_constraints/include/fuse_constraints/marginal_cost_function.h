@@ -73,7 +73,7 @@ public:
   MarginalCostFunction(
     const std::vector<fuse_core::MatrixXd>& A,
     const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::LocalParameterization*>& local,
+    const std::vector<fuse_core::LocalParameterization::SharedPtr>& local,
     const fuse_core::VectorXd& b);
 
   /**
@@ -93,7 +93,7 @@ public:
 private:
   const std::vector<fuse_core::MatrixXd>& A_;  //!< The A matrices of the marginal cost
   const std::vector<fuse_core::VectorXd>& x_bar_;  //!< The linearization point of each variable
-  const std::vector<fuse_core::LocalParameterization*>& local_;  //!< The local parameterizaation of each variable
+  const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_;  //!< The local parameterizations
   const fuse_core::VectorXd& b_;  //!< The b vector of the marginal cost
 };
 

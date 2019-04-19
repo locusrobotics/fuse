@@ -43,18 +43,6 @@
 namespace fuse_constraints
 {
 
-MarginalConstraint::~MarginalConstraint()
-{
-  for (auto& local : local_)
-  {
-    if (local)
-    {
-      delete local;
-    }
-  }
-  local_.clear();
-}
-
 void MarginalConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
