@@ -35,8 +35,9 @@
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_3D_COST_FUNCTOR_H
 
 #include <fuse_constraints/normal_delta_orientation_3d_cost_functor.h>
-#include <fuse_constraints/util.h>
+
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 
 #include <ceres/rotation.h>
 

@@ -36,6 +36,7 @@
 #include <fuse_variables/util.h>
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
 #include <ros/time.h>
 
@@ -72,7 +73,7 @@ public:
     double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
-    x_plus_delta[0] = wrapAngle2D(x[0] + delta[0]);
+    x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
@@ -90,7 +91,7 @@ public:
     double* delta) const override
   {
     // Compute the difference from x2 to x1, and handle the 2*Pi rollover
-    delta[0] = wrapAngle2D(x2[0] - x1[0]);
+    delta[0] = fuse_core::wrapAngle2D(x2[0] - x1[0]);
     return true;
   }
 

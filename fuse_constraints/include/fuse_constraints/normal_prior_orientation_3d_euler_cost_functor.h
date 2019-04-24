@@ -34,9 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_EULER_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_EULER_COST_FUNCTOR_H
 
-#include <fuse_constraints/util.h>
+#include <fuse_core/util.h>
 #include <fuse_core/eigen.h>
-#include <fuse_variables/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <ceres/rotation.h>
@@ -111,17 +110,17 @@ public:
       {
         case Euler::ROLL:
         {
-          angle = fuse_variables::getRoll(orientation[0], orientation[1], orientation[2], orientation[3]);
+          angle = fuse_core::getRoll(orientation[0], orientation[1], orientation[2], orientation[3]);
           break;
         }
         case Euler::PITCH:
         {
-          angle = fuse_variables::getPitch(orientation[0], orientation[1], orientation[2], orientation[3]);
+          angle = fuse_core::getPitch(orientation[0], orientation[1], orientation[2], orientation[3]);
           break;
         }
         case Euler::YAW:
         {
-          angle = fuse_variables::getYaw(orientation[0], orientation[1], orientation[2], orientation[3]);
+          angle = fuse_core::getYaw(orientation[0], orientation[1], orientation[2], orientation[3]);
           break;
         }
         default:
