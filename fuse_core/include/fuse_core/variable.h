@@ -36,9 +36,9 @@
 
 #include <fuse_core/uuid.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/local_parameterization.h>
 
 #include <boost/core/demangle.hpp>
-#include <ceres/local_parameterization.h>
 
 #include <ostream>
 #include <string>
@@ -164,7 +164,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  virtual ceres::LocalParameterization* localParameterization() const
+  virtual fuse_core::LocalParameterization* localParameterization() const
   {
     return nullptr;
   }

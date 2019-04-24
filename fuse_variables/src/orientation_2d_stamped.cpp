@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
+#include <fuse_variables/stamped.h>
 
-#include <boost/core/demangle.hpp>
-#include <ceres/autodiff_local_parameterization.h>
+#include <fuse_core/local_parameterization.h>
+#include <fuse_core/uuid.h>
+#include <ros/time.h>
 
-#include <string>
+#include <ostream>
 
 
 namespace fuse_variables
 {
-
-const std::string Orientation2DStamped::TYPE = boost::core::demangle(typeid(Orientation2DStamped).name());
 
 Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   Stamped(stamp, device_id),
@@ -67,9 +66,9 @@ fuse_core::Variable::UniquePtr Orientation2DStamped::clone() const
   return Orientation2DStamped::make_unique(*this);
 }
 
-ceres::LocalParameterization* Orientation2DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
 {
-  return new ceres::AutoDiffLocalParameterization<Orientation2DPlus, 1, 1>();
+  return nullptr;
 }
 
 }  // namespace fuse_variables

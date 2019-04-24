@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,14 @@
 #ifndef FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H
 #define FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ceres/jet.h>
-#include <ceres/local_parameterization.h>
 
 #include <ostream>
 #include <string>
@@ -122,34 +122,10 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  ceres::LocalParameterization* localParameterization() const override;
+  fuse_core::LocalParameterization* localParameterization() const override;
 
 protected:
   fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
-
-  /**
-   * @brief Functor that computes an incremental update to a 2D orientation. This handles the 2*Pi rollover.
-   *
-   * This function is designed for use with Google's Ceres optimization engine. The Ceres variation of std::floor is
-   * used, which has been specialized for Jet datatypes.
-   */
-  struct Orientation2DPlus
-  {
-    template<typename T>
-    bool operator()(const T* x, const T* delta, T* x_plus_delta) const
-    {
-      // Define some necessary variations of PI with the correct type (double or Jet)
-      static const T PI = T(M_PI);
-      static const T TWO_PI = T(2 * M_PI);
-
-      // Compute the angle increment as a linear update
-      x_plus_delta[0] = x[0] + delta[0];
-      // Then handle the 2*Pi roll-over
-      // Use ceres::floor because it is specialized for double and Jet types.
-      x_plus_delta[0] -= TWO_PI * ceres::floor((x_plus_delta[0] + PI) / TWO_PI);
-      return true;
-    }
-  };
 };
 
 }  // namespace fuse_variables
