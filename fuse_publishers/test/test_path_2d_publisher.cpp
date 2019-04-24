@@ -63,7 +63,8 @@ public:
     private_node_handle_("~"),
     graph_(fuse_graphs::HashGraph::make_shared()),
     transaction_(fuse_core::Transaction::make_shared()),
-    received_path_msg_(false)
+    received_path_msg_(false),
+    received_pose_array_msg_(false)
   {
     // Add a few pose variables
     auto position1 = fuse_variables::Position2DStamped::make_shared(ros::Time(1234, 10));

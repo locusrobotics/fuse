@@ -55,75 +55,6 @@
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_publishers::Path2DPublisher, fuse_core::Publisher);
 
-
-// Some file-scope functions in an anonymous namespace
-namespace
-{
-
-bool checkVariable(
-  const fuse_core::Variable& variable,
-  const std::string& requested_type,
-  const fuse_core::UUID& requested_device,
-  ros::Time& output_stamp)
-{
-  if (variable.type() != requested_type)
-  {
-    return false;
-  }
-  try
-  {
-    auto stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(variable);
-    if (stamped_variable.deviceId() != requested_device)
-    {
-      return false;
-    }
-    output_stamp = stamped_variable.stamp();
-  }
-  catch (const std::exception& e)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error" << e.what());
-    return false;
-  }
-  catch (...)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to convert variable to a stamped type. Error: unknown");
-    return false;
-  }
-  return true;
-}
-
-bool findPose(
-  const fuse_core::Graph& graph,
-  const ros::Time& stamp,
-  const fuse_core::UUID& device_id,
-  geometry_msgs::Pose& pose)
-{
-  try
-  {
-    auto orientation_variable = dynamic_cast<const fuse_variables::Orientation2DStamped&>(
-      graph.getVariable(fuse_variables::Orientation2DStamped(stamp, device_id).uuid()));
-    auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(
-      graph.getVariable(fuse_variables::Position2DStamped(stamp, device_id).uuid()));
-    pose.position.x = position_variable.x();
-    pose.position.y = position_variable.y();
-    pose.position.z = 0.0;
-    pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
-  }
-  catch (const std::exception& e)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error" << e.what());
-    return false;
-  }
-  catch (...)
-  {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error: unknown");
-    return false;
-  }
-  return true;
-}
-
-}  // namespace
-
 namespace fuse_publishers
 {
 
@@ -166,17 +97,25 @@ void Path2DPublisher::notifyCallback(
   std::vector<geometry_msgs::PoseStamped> poses;
   for (const auto& variable : graph->getVariables())
   {
-    // Use the orientation variable as the "reference" variable
-    ros::Time stamp;
-    if (checkVariable(variable, fuse_variables::Orientation2DStamped::TYPE, device_id_, stamp))
+    auto orientation = dynamic_cast<const fuse_variables::Orientation2DStamped*>(&variable);
+    if (orientation &&
+       (orientation->deviceId() == device_id_))
     {
-      geometry_msgs::PoseStamped pose;
-      if (findPose(*graph, stamp, device_id_, pose.pose))
+      const auto& stamp = orientation->stamp();
+      auto position_uuid = fuse_variables::Position2DStamped(stamp, device_id_).uuid();
+      if (!graph->variableExists(position_uuid))
       {
-        pose.header.stamp = stamp;
-        pose.header.frame_id = frame_id_;
-        poses.push_back(pose);
+        continue;
       }
+      auto position = dynamic_cast<const fuse_variables::Position2DStamped*>(&graph->getVariable(position_uuid));
+      geometry_msgs::PoseStamped pose;
+      pose.header.stamp = stamp;
+      pose.header.frame_id = frame_id_;
+      pose.pose.position.x = position->x();
+      pose.pose.position.y = position->y();
+      pose.pose.position.z = 0.0;
+      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation->yaw()));
+      poses.push_back(std::move(pose));
     }
   }
   // Exit if there are no poses
