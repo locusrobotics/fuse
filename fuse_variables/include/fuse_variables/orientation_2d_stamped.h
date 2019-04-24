@@ -41,10 +41,7 @@
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
-#include <ceres/jet.h>
-
 #include <ostream>
-#include <string>
 
 
 namespace fuse_variables
@@ -60,11 +57,6 @@ class Orientation2DStamped final : public FixedSizeVariable<1>, public Stamped
 {
 public:
   SMART_PTR_DEFINITIONS(Orientation2DStamped);
-
-  /**
-   * @brief The unique name for this variable type.
-   */
-  static const std::string TYPE;
 
   /**
    * @brief Can be used to directly index variables in the data array

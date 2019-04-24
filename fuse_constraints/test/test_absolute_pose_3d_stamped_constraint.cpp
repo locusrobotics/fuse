@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
@@ -40,7 +41,6 @@
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
-#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include <utility>
@@ -103,114 +103,112 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
   fuse_core::Matrix6d expected_cov = cov;
 
   // Compare
-  EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
-  EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-9);
 }
 
-// TEST(AbsolutePose3DStampedConstraint, Optimization)
-// {
-//  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-//  // Create the variables
-//  auto position_variable = Position3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
-//  position_variable->x() = 1.5;
-//  position_variable->y() = -3.0;
-//  position_variable->z() = 10.0;
-//
-//  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
-//  orientation_variable->w() = 0.952;
-//  orientation_variable->x() = 0.038;
-//  orientation_variable->y() = -0.189;
-//  orientation_variable->z() = 0.239;
-//
-//  // Create an absolute pose constraint
-//  fuse_core::Vector7d mean;
-//  mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
-//
-//  fuse_core::Matrix6d cov;
-//  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
-//         0.1, 2.0, 0.6, 0.5, 0.4, 0.3,
-//         0.2, 0.6, 3.0, 0.2, 0.1, 0.2,
-//         0.3, 0.5, 0.2, 4.0, 0.3, 0.4,
-//         0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
-//         0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
-//
-//  auto constraint = AbsolutePose3DStampedConstraint::make_shared(
-//    *position_variable,
-//    *orientation_variable,
-//    mean,
-//    cov);
-//
-//  // Build the problem
-//  ceres::Problem problem;
-//  problem.AddParameterBlock(
-//    position_variable->data(),
-//    position_variable->size(),
-//    position_variable->localParameterization());
-//  problem.AddParameterBlock(
-//    orientation_variable->data(),
-//    orientation_variable->size(),
-//    orientation_variable->localParameterization());
-//
-//  std::vector<double*> parameter_blocks;
-//  parameter_blocks.push_back(position_variable->data());
-//  parameter_blocks.push_back(orientation_variable->data());
-//
-//  problem.AddResidualBlock(
-//    constraint->costFunction(),
-//    constraint->lossFunction(),
-//    parameter_blocks);
-//
-//  // Run the solver
-//  ceres::Solver::Options options;
-//  ceres::Solver::Summary summary;
-//  ceres::Solve(options, &problem, &summary);
-//
-//  // Check
-//  EXPECT_NEAR(1.0, position_variable->x(), 1.0e-5);
-//  EXPECT_NEAR(2.0, position_variable->y(), 1.0e-5);
-//  EXPECT_NEAR(3.0, position_variable->z(), 1.0e-5);
-//  EXPECT_NEAR(1.0, orientation_variable->w(), 1.0e-3);
-//  EXPECT_NEAR(0.0, orientation_variable->x(), 1.0e-3);
-//  EXPECT_NEAR(0.0, orientation_variable->y(), 1.0e-3);
-//  EXPECT_NEAR(0.0, orientation_variable->z(), 1.0e-3);
-//
-//  // Compute the covariance
-//  std::vector<std::pair<const double*, const double*> > covariance_blocks;
-//  covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
-//  covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
-//  covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
-//
-//  ceres::Covariance::Options cov_options;
-//  ceres::Covariance covariance(cov_options);
-//  covariance.Compute(covariance_blocks, &problem);
-//  std::vector<double> cov_pos_pos(position_variable->size() * position_variable->size());
-//  covariance.GetCovarianceBlock(position_variable->data(), position_variable->data(), cov_pos_pos.data());
-//
-//  std::vector<double> cov_or_or(orientation_variable->size() * orientation_variable->size());
-//  covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), cov_or_or.data());
-//
-//  std::vector<double> cov_pos_or(position_variable->size() * orientation_variable->size());
-//  covariance.GetCovarianceBlock(position_variable->data(), orientation_variable->data(), cov_pos_or.data());
-//
-//  // Assemble the full covariance from the covariance blocks
-//  Eigen::Map<fuse_core::Matrix3d> pos_pos(cov_pos_pos.data());
-//  Eigen::Map<fuse_core::Matrix4d> or_or(cov_or_or.data());
-//  Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> pos_or(cov_pos_or.data());
-//
-//  fuse_core::Matrix6d actual_covariance;
-//  actual_covariance << pos_pos, pos_or.block<3, 3>(0, 1), pos_or.block<3, 3>(0, 1).transpose(), or_or.block<3, 3>(1, 1);  // NOLINT
-//
-//  fuse_core::Matrix6d expected_covariance;
-//  expected_covariance <<
-//    1.0,  0.1,  0.2,  0.15,  0.2,   0.25,
-//    0.1,  2.0,  0.6,  0.25,  0.2,   0.15,
-//    0.2,  0.6,  3.0,  0.1,   0.05,  0.1,
-//    0.15, 0.25, 0.1,  1.0,   0.075, 0.1,
-//    0.2,  0.2,  0.05, 0.075, 1.25,  0.125,
-//    0.25, 0.15, 0.1,  0.1,   0.125, 1.5;
-//
-//  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
-// }
+TEST(AbsolutePose3DStampedConstraint, Optimization)
+{
+  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
+  // Create the variables
+  auto position_variable = Position3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  position_variable->x() = 1.5;
+  position_variable->y() = -3.0;
+  position_variable->z() = 10.0;
+
+  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  orientation_variable->w() = 0.952;
+  orientation_variable->x() = 0.038;
+  orientation_variable->y() = -0.189;
+  orientation_variable->z() = 0.239;
+
+  // Create an absolute pose constraint
+  fuse_core::Vector7d mean;
+  mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
+
+  fuse_core::Matrix6d cov;
+  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+         0.1, 2.0, 0.6, 0.5, 0.4, 0.3,
+         0.2, 0.6, 3.0, 0.2, 0.1, 0.2,
+         0.3, 0.5, 0.2, 4.0, 0.3, 0.4,
+         0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
+         0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
+
+  auto constraint = AbsolutePose3DStampedConstraint::make_shared(
+    *position_variable,
+    *orientation_variable,
+    mean,
+    cov);
+
+  // Build the problem
+  ceres::Problem problem;
+  problem.AddParameterBlock(
+    position_variable->data(),
+    position_variable->size(),
+    position_variable->localParameterization());
+  problem.AddParameterBlock(
+    orientation_variable->data(),
+    orientation_variable->size(),
+    orientation_variable->localParameterization());
+
+  std::vector<double*> parameter_blocks;
+  parameter_blocks.push_back(position_variable->data());
+  parameter_blocks.push_back(orientation_variable->data());
+
+  problem.AddResidualBlock(
+    constraint->costFunction(),
+    constraint->lossFunction(),
+    parameter_blocks);
+
+  // Run the solver
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  ceres::Solve(options, &problem, &summary);
+
+  // Check
+  EXPECT_NEAR(1.0, position_variable->x(), 1.0e-5);
+  EXPECT_NEAR(2.0, position_variable->y(), 1.0e-5);
+  EXPECT_NEAR(3.0, position_variable->z(), 1.0e-5);
+  EXPECT_NEAR(1.0, orientation_variable->w(), 1.0e-3);
+  EXPECT_NEAR(0.0, orientation_variable->x(), 1.0e-3);
+  EXPECT_NEAR(0.0, orientation_variable->y(), 1.0e-3);
+  EXPECT_NEAR(0.0, orientation_variable->z(), 1.0e-3);
+
+  // Compute the covariance
+  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
+  covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
+  covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
+
+  ceres::Covariance::Options cov_options;
+  ceres::Covariance covariance(cov_options);
+  covariance.Compute(covariance_blocks, &problem);
+  fuse_core::MatrixXd cov_pos_pos(position_variable->size(), position_variable->size());
+  covariance.GetCovarianceBlock(position_variable->data(), position_variable->data(), cov_pos_pos.data());
+
+  fuse_core::MatrixXd cov_or_or(3, 3);
+  covariance.GetCovarianceBlockInTangentSpace(
+    orientation_variable->data(), orientation_variable->data(), cov_or_or.data());
+
+  fuse_core::MatrixXd cov_pos_or(position_variable->size(), 3);
+  covariance.GetCovarianceBlockInTangentSpace(
+    position_variable->data(), orientation_variable->data(), cov_pos_or.data());
+
+  // Assemble the full covariance from the covariance blocks
+  fuse_core::Matrix6d actual_covariance;
+  actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
+
+  fuse_core::Matrix6d expected_covariance;
+  expected_covariance <<
+    1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+    0.1, 2.0, 0.6, 0.5, 0.4, 0.3,
+    0.2, 0.6, 3.0, 0.2, 0.1, 0.2,
+    0.3, 0.5, 0.2, 4.0, 0.3, 0.4,
+    0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
+    0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
+
+  EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-5);
+}
 
 int main(int argc, char **argv)
 {

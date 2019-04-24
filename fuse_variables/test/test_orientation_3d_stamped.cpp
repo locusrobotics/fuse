@@ -31,6 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/autodiff_local_parameterization.h>
+#include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -40,6 +42,7 @@
 #include <ceres/problem.h>
 #include <ceres/rotation.h>
 #include <ceres/solver.h>
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include <vector>
@@ -102,6 +105,153 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
+struct Orientation3DPlus
+{
+  template<typename T>
+  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+  {
+    T q_delta[4];
+    ceres::AngleAxisToQuaternion(delta, q_delta);
+    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    return true;
+  }
+};
+
+struct Orientation3DMinus
+{
+  template<typename T>
+  bool operator()(const T* q1, const T* q2, T* delta) const
+  {
+    T q1_inverse[4];
+    q1_inverse[0] = q1[0];
+    q1_inverse[1] = -q1[1];
+    q1_inverse[2] = -q1[2];
+    q1_inverse[3] = -q1[3];
+    T q_delta[4];
+    ceres::QuaternionProduct(q1_inverse, q2, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, delta);
+    return true;
+  }
+};
+
+using Orientation3DLocalParameterization =
+    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+
+TEST(Orientation3DStamped, Plus)
+{
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+
+  double x[4] = {0.842614977, 0.2, 0.3, 0.4};
+  double delta[3] = {0.15, -0.2, 0.433012702};
+  double result[4] = {0.0, 0.0, 0.0, 0.0};
+  bool success = parameterization->Plus(x, delta, result);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.745561, result[0], 1.0e-5);
+  EXPECT_NEAR(0.360184, result[1], 1.0e-5);
+  EXPECT_NEAR(0.194124, result[2], 1.0e-5);
+  EXPECT_NEAR(0.526043, result[3], 1.0e-5);
+
+  delete parameterization;
+}
+
+TEST(Orientation3DStamped, Minus)
+{
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+
+  double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
+  double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
+  double result[3] = {0.0, 0.0, 0.0};
+  bool success = parameterization->Minus(x1, x2, result);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.15, result[0], 1.0e-5);
+  EXPECT_NEAR(-0.2, result[1], 1.0e-5);
+  EXPECT_NEAR(0.433012702, result[2], 1.0e-5);
+
+  delete parameterization;
+}
+
+TEST(Orientation3DStamped, PlusJacobian)
+{
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+  auto reference = Orientation3DLocalParameterization();
+
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
+        double qw = std::sqrt(1.0 - qx*qx - qy*qy - qz*qz);
+
+        double x[4] = {qw, qx, qy, qz};
+        fuse_core::MatrixXd actual(4, 3);
+        actual << 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0;
+        bool success = parameterization->ComputeJacobian(x, actual.data());
+
+        fuse_core::MatrixXd expected(4, 3);
+        expected << 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0;
+        reference.ComputeJacobian(x, expected.data());
+
+        EXPECT_TRUE(success);
+        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
+                                                       << "Actual is:\n" << actual.format(clean) << "\n"
+                                                       << "Difference is:\n" << (expected - actual).format(clean)
+                                                       << "\n";
+      }
+    }
+  }
+
+  delete parameterization;
+}
+
+TEST(Orientation3DStamped, MinusJacobian)
+{
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+  auto reference = Orientation3DLocalParameterization();
+
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
+        double qw = std::sqrt(1.0 - qx*qx - qy*qy - qz*qz);
+
+        double x[4] = {qw, qx, qy, qz};
+        fuse_core::MatrixXd actual(3, 4);
+        actual << 0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0, 0.0;
+        bool success = parameterization->ComputeMinusJacobian(x, actual.data());
+
+        fuse_core::MatrixXd expected(3, 4);
+        expected << 0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0;
+        reference.ComputeMinusJacobian(x, expected.data());
+
+        EXPECT_TRUE(success);
+        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
+                                                       << "Actual is:\n" << actual.format(clean) << "\n"
+                                                       << "Difference is:\n" << (expected - actual).format(clean)
+                                                       << "\n";
+      }
+    }
+  }
+
+  delete parameterization;
+}
+
 TEST(Orientation3DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(ros::Time(12345678, 910111213),
@@ -161,44 +311,44 @@ struct QuaternionCostFunction
   double observation_[4];
 };
 
-// TEST(Orientation3DStamped, Optimization)
-// {
-//  // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
-//  Orientation3DStamped orientation(ros::Time(12345678, 910111213));
-//  orientation.w() = 0.952;
-//  orientation.x() = 0.038;
-//  orientation.y() = -0.189;
-//  orientation.z() = 0.239;
-//
-//  // Create a simple a constraint with an identity quaternion
-//  double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
-//  ceres::CostFunction* cost_function =
-//    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
-//
-//  // Build the problem.
-//  ceres::Problem problem;
-//  problem.AddParameterBlock(
-//    orientation.data(),
-//    orientation.size(),
-//    orientation.localParameterization());
-//  std::vector<double*> parameter_blocks;
-//  parameter_blocks.push_back(orientation.data());
-//  problem.AddResidualBlock(
-//    cost_function,
-//    nullptr,
-//    parameter_blocks);
-//
-//  // Run the solver
-//  ceres::Solver::Options options;
-//  ceres::Solver::Summary summary;
-//  ceres::Solve(options, &problem, &summary);
-//
-//  // Check
-//  EXPECT_NEAR(target_quat[0], orientation.w(), 1.0e-3);
-//  EXPECT_NEAR(target_quat[1], orientation.x(), 1.0e-3);
-//  EXPECT_NEAR(target_quat[2], orientation.y(), 1.0e-3);
-//  EXPECT_NEAR(target_quat[3], orientation.z(), 1.0e-3);
-// }
+TEST(Orientation3DStamped, Optimization)
+{
+  // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
+  Orientation3DStamped orientation(ros::Time(12345678, 910111213));
+  orientation.w() = 0.952;
+  orientation.x() = 0.038;
+  orientation.y() = -0.189;
+  orientation.z() = 0.239;
+
+  // Create a simple a constraint with an identity quaternion
+  double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
+  ceres::CostFunction* cost_function =
+    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
+
+  // Build the problem.
+  ceres::Problem problem;
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.localParameterization());
+  std::vector<double*> parameter_blocks;
+  parameter_blocks.push_back(orientation.data());
+  problem.AddResidualBlock(
+    cost_function,
+    nullptr,
+    parameter_blocks);
+
+  // Run the solver
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  ceres::Solve(options, &problem, &summary);
+
+  // Check
+  EXPECT_NEAR(target_quat[0], orientation.w(), 1.0e-3);
+  EXPECT_NEAR(target_quat[1], orientation.x(), 1.0e-3);
+  EXPECT_NEAR(target_quat[2], orientation.y(), 1.0e-3);
+  EXPECT_NEAR(target_quat[3], orientation.z(), 1.0e-3);
+}
 
 TEST(Orientation3DStamped, Euler)
 {

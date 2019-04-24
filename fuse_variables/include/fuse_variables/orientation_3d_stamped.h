@@ -95,16 +95,6 @@ public:
   explicit Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Read-only access to quaternion's Euler pitch angle component
-   */
-  double pitch() { return getPitch(w(), x(), y(), z()); }
-
-  /**
-   * @brief Read-only access to quaternion's Euler roll angle component
-   */
-  double roll() { return getRoll(w(), x(), y(), z()); }
-
-  /**
    * @brief Read-write access to the quaternion w component
    */
   double& w() { return data_[W]; }
@@ -135,11 +125,6 @@ public:
   const double& y() const { return data_[Y]; }
 
   /**
-   * @brief Read-only access to quaternion's Euler yaw angle component
-   */
-  double yaw() { return getYaw(w(), x(), y(), z()); }
-
-  /**
    * @brief Read-write access to the quaternion z component
    */
   double& z() { return data_[Z]; }
@@ -148,6 +133,21 @@ public:
    * @brief Read-only access to the quaternion z component
    */
   const double& z() const { return data_[Z]; }
+
+  /**
+   * @brief Read-only access to quaternion's Euler roll angle component
+   */
+  double roll() { return getRoll(w(), x(), y(), z()); }
+
+  /**
+   * @brief Read-only access to quaternion's Euler pitch angle component
+   */
+  double pitch() { return getPitch(w(), x(), y(), z()); }
+
+  /**
+   * @brief Read-only access to quaternion's Euler yaw angle component
+   */
+  double yaw() { return getYaw(w(), x(), y(), z()); }
 
   /**
    * @brief Read-only access to the unique ID of this variable instance.

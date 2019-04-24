@@ -58,12 +58,12 @@ namespace testing
  * @param[in] v2  Actual matrix
  * @return AssertionSuccess or AssertionFailure
  */
-template <typename Derived>
+template <typename Derived1, typename Derived2>
 AssertionResult AssertMatrixEqualHelper(
   const char* e1,
   const char* e2,
-  const Eigen::MatrixBase<Derived>& v1,
-  const Eigen::MatrixBase<Derived>& v2)
+  const Eigen::MatrixBase<Derived1>& v1,
+  const Eigen::MatrixBase<Derived2>& v2)
 {
   if (v1 == v2)
   {
@@ -88,12 +88,12 @@ AssertionResult AssertMatrixEqualHelper(
  * @param[in] tol Tolerance
  * @return AssertionSuccess or AssertionFailure
  */
-template <typename Derived>
+template <typename Derived1, typename Derived2>
 AssertionResult AssertMatrixNearHelper(
   const char* e1,
   const char* e2,
-  const Eigen::MatrixBase<Derived>& v1,
-  const Eigen::MatrixBase<Derived>& v2,
+  const Eigen::MatrixBase<Derived1>& v1,
+  const Eigen::MatrixBase<Derived2>& v2,
   double tol)
 {
   if ((v1 - v2).cwiseAbs().maxCoeff() < tol)
