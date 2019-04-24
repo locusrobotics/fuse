@@ -34,9 +34,10 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_H
 
-#include <fuse_constraints/util.h>
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.h>
+
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 
 #include <Eigen/Core>
 
@@ -52,16 +53,12 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||    [  x       -     b(0)  ] ||^2
- *             ||    [  y       -     b(1)  ] ||
- *             ||    [  z       -     b(2)  ] ||
- *             ||A * [  (b(3:6) * q^-1)(1)  ] ||
- *   cost(x) = ||    [  (b(3:6) * q^-1)(2)  ] ||
- *             ||    [  (b(3:6) * q^-1)(3)  ] ||
+ *   cost(x) = || A * [  p - b(0:2)               ] ||^2
+ *             ||     [  AngleAxis(b(3:6)^-1 * q) ] ||
  *
- * where, the matrix A and the vector b are fixed and (x, y, z, qw, qx, qy, qz) are the components of the position and
- * orientation variables. Note that the covariance submatrix for the quaternion is 3x3, representing errors around each
- * imaginary component axis. In case the user is interested in implementing a cost function of the form
+ * where, the matrix A and the vector b are fixed, p is the position variable, and q is the orientation variable.
+ * Note that the covariance submatrix for the quaternion is 3x3, representing errors in the orientation local
+ * parameterization tangent space. In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
@@ -75,7 +72,7 @@ public:
    * @brief Construct a cost function instance
    *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (x, y, z, qw, qx, qy, qz)
+   *              (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
   NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
@@ -103,17 +100,18 @@ NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matr
 template <typename T>
 bool NormalPriorPose3DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
 {
+  // Compute the position error
+  residual[0] = position[0] - T(b_(0));
+  residual[1] = position[1] - T(b_(1));
+  residual[2] = position[2] - T(b_(2));
+
   // Use the 3D orientation cost functor to compute the orientation delta
   orientation_functor_(orientation, &residual[3]);
 
-  Eigen::Map<Eigen::Matrix<T, 6, 1> > residuals_map(residual);
-  residuals_map(0) = position[0] - T(b_(0));
-  residuals_map(1) = position[1] - T(b_(1));
-  residuals_map(2) = position[2] - T(b_(2));
-
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  residuals_map.applyOnTheLeft(A_.template cast<T>());
+  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
+  residual_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;
 }

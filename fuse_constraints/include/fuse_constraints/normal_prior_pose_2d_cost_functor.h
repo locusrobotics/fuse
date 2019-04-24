@@ -34,8 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H
 
-#include <fuse_constraints/util.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 
 #include <Eigen/Core>
 
@@ -97,8 +97,7 @@ bool NormalPriorPose2DCostFunctor::operator()(const T* const position, const T* 
   Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residual);
   residuals_map(0) = position[0] - T(b_(0));
   residuals_map(1) = position[1] - T(b_(1));
-  residuals_map(2) = orientation[0] - T(b_(2));
-  wrapAngle2D(residuals_map(2));
+  residuals_map(2) = fuse_core::wrapAngle2D(orientation[0] - T(b_(2)));
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
   residuals_map.applyOnTheLeft(A_.template cast<T>());
