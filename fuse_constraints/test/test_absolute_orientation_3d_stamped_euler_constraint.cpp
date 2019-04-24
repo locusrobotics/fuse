@@ -87,129 +87,129 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
   EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
 }
 
-// TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
-// {
-//  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-//  // Create the variables
-//  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
-//  orientation_variable->w() = 0.952;
-//  orientation_variable->x() = 0.038;
-//  orientation_variable->y() = -0.189;
-//  orientation_variable->z() = 0.239;
-//
-//  // Create an absolute orientation constraint
-//  fuse_core::Vector3d mean;
-//  mean << 0.5, 1.0, 1.5;
-//  fuse_core::Matrix3d cov;
-//  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-//  std::vector<Orientation3DStamped::Euler> axes =
-//    {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
-//  auto constraint = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
-//    *orientation_variable,
-//    mean,
-//    cov,
-//    axes);
-//
-//  // Build the problem
-//  ceres::Problem problem;
-//  problem.AddParameterBlock(
-//    orientation_variable->data(),
-//    orientation_variable->size(),
-//    orientation_variable->localParameterization());
-//
-//  std::vector<double*> parameter_blocks;
-//  parameter_blocks.push_back(orientation_variable->data());
-//  problem.AddResidualBlock(
-//    constraint->costFunction(),
-//    constraint->lossFunction(),
-//    parameter_blocks);
-//
-//  // Run the solver
-//  ceres::Solver::Options options;
-//  ceres::Solver::Summary summary;
-//  ceres::Solve(options, &problem, &summary);
-//
-//  // Check
-//  Eigen::Quaterniond expected = Eigen::AngleAxisd(0.5, Eigen::Vector3d::UnitZ()) *
-//                                Eigen::AngleAxisd(1.5, Eigen::Vector3d::UnitY()) *
-//                                Eigen::AngleAxisd(1.0, Eigen::Vector3d::UnitX());
-//  EXPECT_NEAR(expected.w(), orientation_variable->w(), 5.0e-3);
-//  EXPECT_NEAR(expected.x(), orientation_variable->x(), 5.0e-3);
-//  EXPECT_NEAR(expected.y(), orientation_variable->y(), 5.0e-3);
-//  EXPECT_NEAR(expected.z(), orientation_variable->z(), 5.0e-3);
-//
-//  // TODO(swilliams) Determine what I expect the covariance matrix to be and test it here
-// }
+TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
+{
+  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
+  // Create the variables
+  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  orientation_variable->w() = 0.952;
+  orientation_variable->x() = 0.038;
+  orientation_variable->y() = -0.189;
+  orientation_variable->z() = 0.239;
 
-// TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
-// {
-//  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-//  // Create the variables
-//  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
-//  orientation_variable->w() = 0.952;
-//  orientation_variable->x() = 0.038;
-//  orientation_variable->y() = -0.189;
-//  orientation_variable->z() = 0.239;
-//
-//  // Create an absolute orientation constraint
-//  fuse_core::Vector2d mean1;
-//  mean1 << 0.5, 1.5;
-//  fuse_core::Matrix2d cov1;
-//  cov1 << 1.0, 0.2, 0.2, 3.0;
-//  std::vector<Orientation3DStamped::Euler> axes1 =
-//    {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::PITCH};
-//  auto constraint1 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
-//    *orientation_variable,
-//    mean1,
-//    cov1,
-//    axes1);
-//
-//  fuse_core::Vector1d mean2;
-//  mean2 << 1.0;
-//  fuse_core::Matrix1d cov2;
-//  cov2 << 2.0;
-//  std::vector<Orientation3DStamped::Euler> axes2 =
-//    {Orientation3DStamped::Euler::ROLL};
-//  auto constraint2 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
-//    *orientation_variable,
-//    mean2,
-//    cov2,
-//    axes2);
-//
-//  // Build the problem
-//  ceres::Problem problem;
-//  problem.AddParameterBlock(
-//    orientation_variable->data(),
-//    orientation_variable->size(),
-//    orientation_variable->localParameterization());
-//
-//  std::vector<double*> parameter_blocks;
-//  parameter_blocks.push_back(orientation_variable->data());
-//  problem.AddResidualBlock(
-//    constraint1->costFunction(),
-//    constraint1->lossFunction(),
-//    parameter_blocks);
-//  problem.AddResidualBlock(
-//    constraint2->costFunction(),
-//    constraint2->lossFunction(),
-//    parameter_blocks);
-//
-//  // Run the solver
-//  ceres::Solver::Options options;
-//  ceres::Solver::Summary summary;
-//  ceres::Solve(options, &problem, &summary);
-//
-//  // Check
-//  Eigen::Quaterniond expected = Eigen::AngleAxisd(0.5, Eigen::Vector3d::UnitZ()) *
-//                                Eigen::AngleAxisd(1.5, Eigen::Vector3d::UnitY()) *
-//                                Eigen::AngleAxisd(1.0, Eigen::Vector3d::UnitX());
-//  EXPECT_NEAR(expected.w(), orientation_variable->w(), 5.0e-3);
-//  EXPECT_NEAR(expected.x(), orientation_variable->x(), 5.0e-3);
-//  EXPECT_NEAR(expected.y(), orientation_variable->y(), 5.0e-3);
-//  EXPECT_NEAR(expected.z(), orientation_variable->z(), 5.0e-3);
-//
-//  // TODO(swilliams) Determine what I expect the covariance matrix to be and test it here
-// }
+  // Create an absolute orientation constraint
+  fuse_core::Vector3d mean;
+  mean << 0.5, 1.0, 1.5;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  std::vector<Orientation3DStamped::Euler> axes =
+    {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
+  auto constraint = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    *orientation_variable,
+    mean,
+    cov,
+    axes);
+
+  // Build the problem
+  ceres::Problem problem;
+  problem.AddParameterBlock(
+    orientation_variable->data(),
+    orientation_variable->size(),
+    orientation_variable->localParameterization());
+
+  std::vector<double*> parameter_blocks;
+  parameter_blocks.push_back(orientation_variable->data());
+  problem.AddResidualBlock(
+    constraint->costFunction(),
+    constraint->lossFunction(),
+    parameter_blocks);
+
+  // Run the solver
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  ceres::Solve(options, &problem, &summary);
+
+  // Check
+  Eigen::Quaterniond expected = Eigen::AngleAxisd(0.5, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(1.5, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(1.0, Eigen::Vector3d::UnitX());
+  EXPECT_NEAR(expected.w(), orientation_variable->w(), 5.0e-3);
+  EXPECT_NEAR(expected.x(), orientation_variable->x(), 5.0e-3);
+  EXPECT_NEAR(expected.y(), orientation_variable->y(), 5.0e-3);
+  EXPECT_NEAR(expected.z(), orientation_variable->z(), 5.0e-3);
+
+  // TODO(swilliams) Determine what I expect the covariance matrix to be and test it here
+}
+
+TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
+{
+  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
+  // Create the variables
+  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  orientation_variable->w() = 0.952;
+  orientation_variable->x() = 0.038;
+  orientation_variable->y() = -0.189;
+  orientation_variable->z() = 0.239;
+
+  // Create an absolute orientation constraint
+  fuse_core::Vector2d mean1;
+  mean1 << 0.5, 1.5;
+  fuse_core::Matrix2d cov1;
+  cov1 << 1.0, 0.2, 0.2, 3.0;
+  std::vector<Orientation3DStamped::Euler> axes1 =
+    {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::PITCH};
+  auto constraint1 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    *orientation_variable,
+    mean1,
+    cov1,
+    axes1);
+
+  fuse_core::Vector1d mean2;
+  mean2 << 1.0;
+  fuse_core::Matrix1d cov2;
+  cov2 << 2.0;
+  std::vector<Orientation3DStamped::Euler> axes2 =
+    {Orientation3DStamped::Euler::ROLL};
+  auto constraint2 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    *orientation_variable,
+    mean2,
+    cov2,
+    axes2);
+
+  // Build the problem
+  ceres::Problem problem;
+  problem.AddParameterBlock(
+    orientation_variable->data(),
+    orientation_variable->size(),
+    orientation_variable->localParameterization());
+
+  std::vector<double*> parameter_blocks;
+  parameter_blocks.push_back(orientation_variable->data());
+  problem.AddResidualBlock(
+    constraint1->costFunction(),
+    constraint1->lossFunction(),
+    parameter_blocks);
+  problem.AddResidualBlock(
+    constraint2->costFunction(),
+    constraint2->lossFunction(),
+    parameter_blocks);
+
+  // Run the solver
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  ceres::Solve(options, &problem, &summary);
+
+  // Check
+  Eigen::Quaterniond expected = Eigen::AngleAxisd(0.5, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(1.5, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(1.0, Eigen::Vector3d::UnitX());
+  EXPECT_NEAR(expected.w(), orientation_variable->w(), 5.0e-3);
+  EXPECT_NEAR(expected.x(), orientation_variable->x(), 5.0e-3);
+  EXPECT_NEAR(expected.y(), orientation_variable->y(), 5.0e-3);
+  EXPECT_NEAR(expected.z(), orientation_variable->z(), 5.0e-3);
+
+  // TODO(swilliams) Determine what I expect the covariance matrix to be and test it here
+}
 
 int main(int argc, char **argv)
 {
