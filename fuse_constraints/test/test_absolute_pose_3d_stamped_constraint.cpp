@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
@@ -40,7 +41,6 @@
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
-#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include <utility>
@@ -103,8 +103,8 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
   fuse_core::Matrix6d expected_cov = cov;
 
   // Compare
-  EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
-  EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-9);
 }
 
 TEST(AbsolutePose3DStampedConstraint, Optimization)
@@ -207,11 +207,7 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
     0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
     0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
 
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-5)) <<
-      "Expected is:\n" << expected_covariance.format(clean) << "\n" <<
-      "Actual is:\n" << actual_covariance.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_covariance - actual_covariance).format(clean) << "\n";
+  EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-5);
 }
 
 int main(int argc, char **argv)

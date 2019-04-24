@@ -51,8 +51,8 @@ namespace fuse_constraints
  * A single pose involves two variables: a 3D position and a 3D orientation. This cost function computes the difference
  * using standard 3D transformation math:
  *
- *   cost(x) = ||A * [ q1^-1 * (p2 - p1) - b(0:2)        ] ||^2
- *             ||    [ AngleAxis(b(3:6)^-1 * q1^-1 * q2) ] ||
+ *   cost(x) = || A * [ q1^-1 * (p2 - p1) - b(0:2)        ] ||^2
+ *             ||     [ AngleAxis(b(3:6)^-1 * q1^-1 * q2) ] ||
  *
  * where p1 and p2 are the position variables, q1 and q2 are the quaternion orientation variables, and the matrix A
  * and the vector b are fixed. In case the user is interested in implementing a cost function of
@@ -139,7 +139,7 @@ bool NormalDeltaPose3DCostFunctor::operator()(
   orientation_functor_(orientation1, orientation2, &residual[3]);
 
   // Map it to Eigen, and weight it
-  Eigen::Map<Eigen::Matrix<T, 6, 1> > residual_map(residual);
+  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
   residual_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;

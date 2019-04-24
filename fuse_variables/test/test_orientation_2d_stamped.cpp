@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/autodiff_local_parameterization.h>
+#include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -41,6 +42,7 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <vector>
 
 
@@ -103,15 +105,7 @@ struct Orientation2DPlus
   template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
-    // Define some necessary variations of PI with the correct type (double or Jet)
-    static const T PI = T(M_PI);
-    static const T TWO_PI = T(2 * M_PI);
-
-    // Compute the angle increment as a linear update
-    x_plus_delta[0] = x[0] + delta[0];
-    // Then handle the 2*Pi roll-over
-    // Use ceres::floor because it is specialized for double and Jet types.
-    x_plus_delta[0] -= TWO_PI * ceres::floor((x_plus_delta[0] + PI) / TWO_PI);
+    x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 };
@@ -121,15 +115,7 @@ struct Orientation2DMinus
   template<typename T>
   bool operator()(const T* x1, const T* x2, T* delta) const
   {
-    // Define some necessary variations of PI with the correct type (double or Jet)
-    static const T PI = T(M_PI);
-    static const T TWO_PI = T(2 * M_PI);
-
-    // Compute the difference from x2 to x1
-    delta[0] = x2[0] - x1[0];
-    // Then handle the 2*Pi roll-over
-    // Use ceres::floor because it is specialized for double and Jet types.
-    delta[0] -= TWO_PI * ceres::floor((delta[0] + PI) / TWO_PI);
+    delta[0] = fuse_core::wrapAngle2D(x2[0] - x1[0]);
     return true;
   }
 };

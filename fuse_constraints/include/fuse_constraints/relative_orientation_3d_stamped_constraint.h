@@ -159,21 +159,24 @@ public:
 protected:
   /**
    * @brief Utility method to convert an Eigen quaternion to an Eigen Vector4d
-   * @param[in] quaternion - The input Eigen quaternion
+   *
+   * @param[in] quaternion The input Eigen quaternion
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
   static fuse_core::Vector4d toEigen(const Eigen::Quaterniond& quaternion);
 
   /**
    * @brief Utility method to convert an ROS quaternion message to an Eigen Vector4d
-   * @param[in] quaternion - The input ROS quaternion message
+   *
+   * @param[in] quaternion The input ROS quaternion message
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
   static fuse_core::Vector4d toEigen(const geometry_msgs::Quaternion& quaternion);
 
   /**
    * @brief Utility method to convert a flat 1D array to a 3x3 Eigen matrix
-   * @param[in] covariance - The input covariance array
+   *
+   * @param[in] covariance The input covariance array
    * @return The \p covariance, converted to an Eigen Matrix3d
    */
   static fuse_core::Matrix3d toEigen(const std::array<double, 9>& covariance);

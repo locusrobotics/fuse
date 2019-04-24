@@ -53,15 +53,12 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||    [  x         -         b(0) ] ||^2
- *             ||    [  y         -         b(1) ] ||
- *   cost(x) = ||A * [  z         -         b(2) ] ||
- *             ||    [  AngleAxis(b(3:6)^-1 * q) ] ||
+ *   cost(x) = || A * [  p - b(0:2)               ] ||^2
+ *             ||     [  AngleAxis(b(3:6)^-1 * q) ] ||
  *
- * where, the matrix A and the vector b are fixed and (x, y, z, qw, qx, qy, qz) are the components of the position and
- * orientation variables. Note that the covariance submatrix for the quaternion is 3x3, representing errors in the
- * orientation local parameterization tangent space. In case the user is interested in implementing a cost function
- * of the form
+ * where, the matrix A and the vector b are fixed, p is the position variable, and q is the orientation variable.
+ * Note that the covariance submatrix for the quaternion is 3x3, representing errors in the orientation local
+ * parameterization tangent space. In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
@@ -75,7 +72,7 @@ public:
    * @brief Construct a cost function instance
    *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (x, y, z, qw, qx, qy, qz)
+   *              (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
   NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
@@ -113,7 +110,7 @@ bool NormalPriorPose3DCostFunctor::operator()(const T* const position, const T* 
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  Eigen::Map<Eigen::Matrix<T, 6, 1> > residual_map(residual);
+  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
   residual_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;

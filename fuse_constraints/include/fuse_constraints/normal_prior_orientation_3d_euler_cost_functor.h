@@ -34,8 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_EULER_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_EULER_COST_FUNCTOR_H
 
-#include <fuse_core/util.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <ceres/rotation.h>

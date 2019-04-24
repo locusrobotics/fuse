@@ -71,8 +71,7 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (quaternion_x, quaternion_y, quaternion_z)
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, z)
    * @param[in] b The measured change between the two orientation variables
    */
   NormalDeltaOrientation3DCostFunctor(
@@ -109,9 +108,9 @@ public:
 
     T difference[4];
     ceres::QuaternionProduct(orientation1_inverse, orientation2, difference);
-    T tmp[4];
-    ceres::QuaternionProduct(observation_inverse, difference, tmp);
-    ceres::QuaternionToAngleAxis(tmp, residuals);
+    T error[4];
+    ceres::QuaternionProduct(observation_inverse, difference, error);
+    ceres::QuaternionToAngleAxis(error, residuals);
 
     // Scale the residuals by the square root information matrix to account for the measurement uncertainty.
     Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());

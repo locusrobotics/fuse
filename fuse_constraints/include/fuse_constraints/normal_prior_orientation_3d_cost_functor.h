@@ -34,8 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_COST_FUNCTOR_H
 
-#include <fuse_core/util.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <ceres/rotation.h>
@@ -50,9 +50,9 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *             ||                        ||^2
- *   cost(x) = ||A * AngleAxis(b^-1 * q) ||
- *             ||                        ||
+ *             ||                         ||^2
+ *   cost(x) = || A * AngleAxis(b^-1 * q) ||
+ *             ||                         ||
  *
  * where the matrix A and the vector b are fixed, and q is the variable being measured, represented as a quaternion.
  * The AngleAxis function converts a quaternion into a 3-vector of the form theta*k, where k is the unit vector axis
@@ -91,7 +91,7 @@ public:
   {
     using fuse_variables::Orientation3DStamped;
 
-    // 1. Compute the delta quaternion
+    // Compute the delta quaternion
     T variable[4] =
     {
       orientation[0],
@@ -112,8 +112,8 @@ public:
     ceres::QuaternionProduct(observation_inverse, variable, difference);
     ceres::QuaternionToAngleAxis(difference, residuals);
 
-    // 3. Scale the residuals by the square root information matrix to account for the measurement uncertainty.
-    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
+    // Scale the residuals by the square root information matrix to account for the measurement uncertainty.
+    Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_.template cast<T>());
 
     return true;

@@ -45,7 +45,6 @@
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
-#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include <utility>
@@ -158,7 +157,7 @@ TEST(AbsoluteConstraint, Covariance)
     expected_mean << 1.0, 0.0, 3.0;
     fuse_core::Matrix3d expected_cov;
     expected_cov << 1.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 3.0;
-    Eigen::Matrix<double, 2, 3, Eigen::RowMajor> expected_sqrt_info;
+    fuse_core::MatrixXd expected_sqrt_info(2, 3);
     expected_sqrt_info << -0.116247638743819,  0.000000000000000,  0.581238193719096,
                            1.000000000000000,  0.000000000000000,  0.000000000000000;
     // Compare

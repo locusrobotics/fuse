@@ -32,15 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_variables/util.h>
 
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
+#include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
-#include <cmath>
 #include <ostream>
 
 

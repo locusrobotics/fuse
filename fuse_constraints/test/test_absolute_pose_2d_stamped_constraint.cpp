@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -79,8 +80,8 @@ TEST(AbsolutePose2DStampedConstraint, Covariance)
                          0.000000000000000,  0.000000000000000,  0.577350269189626;
   fuse_core::Matrix3d expected_cov = cov;
   // Compare
-  EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
-  EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-9);
 }
 
 TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
@@ -152,7 +153,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   actual_covariance(2, 1) = covariance_vector2[1];
   actual_covariance(2, 2) = covariance_vector3[0];
   fuse_core::Matrix3d expected_covariance = cov;
-  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
 }
 
 TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
@@ -262,7 +263,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   expected_covariance(2, 2) = cov1(1, 1);
   expected_covariance(1, 1) = cov2(0, 0);
 
-  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
 }
 
 int main(int argc, char **argv)
