@@ -43,7 +43,6 @@ struct Plus
   template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
-    // Compute the angle increment as a linear update
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
     x_plus_delta[1] = x[1] + 5.0 * delta[1];
     x_plus_delta[2] = x[2];
@@ -56,7 +55,6 @@ struct Minus
   template<typename T>
   bool operator()(const T* x1, const T* x2, T* delta) const
   {
-    // Compute the angle increment as a linear update
     delta[0] = (x2[0] - x1[0]) / 2.0;
     delta[1] = (x2[1] - x1[1]) / 5.0;
     return true;
@@ -72,13 +70,13 @@ TEST(LocalParameterization, Plus)
 
   double x[3] = {1.0, 2.0, 3.0};
   double delta[2] = {0.5, 1.0};
-  double result[3] = {0.0, 0.0, 0.0};
-  bool success = parameterization.Plus(x, delta, result);
+  double actual[3] = {0.0, 0.0, 0.0};
+  bool success = parameterization.Plus(x, delta, actual);
 
   EXPECT_TRUE(success);
-  EXPECT_NEAR(2.0, result[0], 1.0e-5);
-  EXPECT_NEAR(7.0, result[1], 1.0e-5);
-  EXPECT_NEAR(3.0, result[2], 1.0e-5);
+  EXPECT_NEAR(2.0, actual[0], 1.0e-5);
+  EXPECT_NEAR(7.0, actual[1], 1.0e-5);
+  EXPECT_NEAR(3.0, actual[2], 1.0e-5);
 }
 
 TEST(LocalParameterization, PlusJacobian)
@@ -104,12 +102,12 @@ TEST(LocalParameterization, Minus)
 
   double x1[3] = {1.0, 2.0, 3.0};
   double x2[3] = {2.0, 7.0, 3.0};
-  double result[2] = {0.0, 0.0};
-  bool success = parameterization.Minus(x1, x2, result);
+  double actual[2] = {0.0, 0.0};
+  bool success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);
-  EXPECT_NEAR(0.5, result[0], 1.0e-5);
-  EXPECT_NEAR(1.0, result[1], 1.0e-5);
+  EXPECT_NEAR(0.5, actual[0], 1.0e-5);
+  EXPECT_NEAR(1.0, actual[1], 1.0e-5);
 }
 
 TEST(LocalParameterization, MinusJacobian)

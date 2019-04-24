@@ -31,9 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_variables/orientation_3d_stamped.h>
+#include <fuse_variables/stamped.h>
+
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/uuid.h>
-#include <fuse_variables/orientation_3d_stamped.h>
+#include <ros/time.h>
+
+#include <ostream>
+
 
 namespace fuse_variables
 {

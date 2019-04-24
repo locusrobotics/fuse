@@ -41,7 +41,6 @@
 #include <fuse_variables/stamped.h>
 #include <fuse_variables/util.h>
 
-#include <ceres/jet.h>
 #include <ros/time.h>
 
 #include <ostream>

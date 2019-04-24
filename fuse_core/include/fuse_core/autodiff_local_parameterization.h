@@ -35,6 +35,8 @@
 #define FUSE_CORE_AUTODIFF_LOCAL_PARAMETERIZATION_H
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/macros.h>
+
 #include <ceres/internal/autodiff.h>
 
 #include <memory>
@@ -74,6 +76,8 @@ template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLoc
 class AutoDiffLocalParameterization : public LocalParameterization
 {
 public:
+  SMART_PTR_DEFINITIONS(AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>);
+
   /**
    * @brief Constructs new PlusFunctor and MinusFunctor instances
    */
@@ -99,8 +103,9 @@ public:
 
   /**
    * @brief The Jacobian of Plus(x, delta) w.r.t delta at delta = 0, computed using automatic differentiation
+   *
    * @param[in]  x        The value used to evaluate the Jacobian, of size GloblaSize()
-   * @param[out] jacobian The Jacobian in row-major order, of size GlobalSize() x LocalSize()
+   * @param[out] jacobian The Jacobian in row-major order, of size \p GlobalSize() x \p LocalSize()
    * @return True is successful, false otherwise
    */
   bool ComputeJacobian(
@@ -156,8 +161,8 @@ template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLoc
 AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::AutoDiffLocalParameterization(
   PlusFunctor* plus_functor,
   MinusFunctor* minus_functor) :
-    plus_functor_(new PlusFunctor()),
-    minus_functor_(new MinusFunctor())
+    plus_functor_(plus_functor),
+    minus_functor_(minus_functor)
 {
 }
 
@@ -179,7 +184,7 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   double x_plus_delta[kGlobalSize];
 
   const double* parameter_ptrs[2] = {x, zero_delta};
-  double* jacobian_ptrs[2] = { NULL, jacobian };
+  double* jacobian_ptrs[2] = {NULL, jacobian};
   return ceres::internal::AutoDiff<PlusFunctor, double, kGlobalSize, kLocalSize>
     ::Differentiate(*plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
 }
@@ -201,7 +206,7 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   double delta[kLocalSize] = {};  // zero-initialize
 
   const double* parameter_ptrs[2] = {x, x};
-  double* jacobian_ptrs[2] = { NULL, jacobian };
+  double* jacobian_ptrs[2] = {NULL, jacobian};
   return ceres::internal::AutoDiff<MinusFunctor, double, kGlobalSize, kGlobalSize>
     ::Differentiate(*minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
 }
