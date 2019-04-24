@@ -161,44 +161,44 @@ struct QuaternionCostFunction
   double observation_[4];
 };
 
-TEST(Orientation3DStamped, Optimization)
-{
-  // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
-  Orientation3DStamped orientation(ros::Time(12345678, 910111213));
-  orientation.w() = 0.952;
-  orientation.x() = 0.038;
-  orientation.y() = -0.189;
-  orientation.z() = 0.239;
-
-  // Create a simple a constraint with an identity quaternion
-  double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
-  ceres::CostFunction* cost_function =
-    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
-
-  // Build the problem.
-  ceres::Problem problem;
-  problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.localParameterization());
-  std::vector<double*> parameter_blocks;
-  parameter_blocks.push_back(orientation.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
-
-  // Run the solver
-  ceres::Solver::Options options;
-  ceres::Solver::Summary summary;
-  ceres::Solve(options, &problem, &summary);
-
-  // Check
-  EXPECT_NEAR(target_quat[0], orientation.w(), 1.0e-3);
-  EXPECT_NEAR(target_quat[1], orientation.x(), 1.0e-3);
-  EXPECT_NEAR(target_quat[2], orientation.y(), 1.0e-3);
-  EXPECT_NEAR(target_quat[3], orientation.z(), 1.0e-3);
-}
+// TEST(Orientation3DStamped, Optimization)
+// {
+//  // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
+//  Orientation3DStamped orientation(ros::Time(12345678, 910111213));
+//  orientation.w() = 0.952;
+//  orientation.x() = 0.038;
+//  orientation.y() = -0.189;
+//  orientation.z() = 0.239;
+//
+//  // Create a simple a constraint with an identity quaternion
+//  double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
+//  ceres::CostFunction* cost_function =
+//    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
+//
+//  // Build the problem.
+//  ceres::Problem problem;
+//  problem.AddParameterBlock(
+//    orientation.data(),
+//    orientation.size(),
+//    orientation.localParameterization());
+//  std::vector<double*> parameter_blocks;
+//  parameter_blocks.push_back(orientation.data());
+//  problem.AddResidualBlock(
+//    cost_function,
+//    nullptr,
+//    parameter_blocks);
+//
+//  // Run the solver
+//  ceres::Solver::Options options;
+//  ceres::Solver::Summary summary;
+//  ceres::Solve(options, &problem, &summary);
+//
+//  // Check
+//  EXPECT_NEAR(target_quat[0], orientation.w(), 1.0e-3);
+//  EXPECT_NEAR(target_quat[1], orientation.x(), 1.0e-3);
+//  EXPECT_NEAR(target_quat[2], orientation.y(), 1.0e-3);
+//  EXPECT_NEAR(target_quat[3], orientation.z(), 1.0e-3);
+// }
 
 TEST(Orientation3DStamped, Euler)
 {
