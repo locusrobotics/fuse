@@ -73,7 +73,7 @@ public:
    * associated variable.
    *
    * @param[in] first_variable Iterator pointing to the first involved variable for this constraint
-   * @param[in] last_variable  Iterator pointing to one passed the last involved variable for this constraint
+   * @param[in] last_variable  Iterator pointing to one past the last involved variable for this constraint
    * @param[in] first_A        Iterator pointing to the first A matrix, associated with the first variable
    * @param[in] last_A         Iterator pointing to one passed the last A matrix
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
@@ -178,7 +178,7 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
 template <class InputIt1, class InputIt2, class BinaryPredicate>
 constexpr bool all_of(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, BinaryPredicate pred)
 {
-  for (; first1 != last1; ++first1, first2)
+  for (; first1 != last1; ++first1, ++first2)
   {
     if (!pred(*first1, *first2))
     {
@@ -206,7 +206,7 @@ MarginalConstraint::MarginalConstraint(
            boost::make_transform_iterator(last_variable, &detail::getLocalParameterization)),
     b_(b)
 {
-  assert(A_.size() > 0);
+  assert(!A_.empty());
   assert(A_.size() == x_bar_.size());
   assert(A_.size() == local_.size());
   assert(b_.rows() > 0);
