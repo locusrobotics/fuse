@@ -136,17 +136,17 @@ public:
   /**
    * @brief Read-only access to quaternion's Euler roll angle component
    */
-  double roll() { return getRoll(w(), x(), y(), z()); }
+  double roll() { return fuse_core::getRoll(w(), x(), y(), z()); }
 
   /**
    * @brief Read-only access to quaternion's Euler pitch angle component
    */
-  double pitch() { return getPitch(w(), x(), y(), z()); }
+  double pitch() { return fuse_core::getPitch(w(), x(), y(), z()); }
 
   /**
    * @brief Read-only access to quaternion's Euler yaw angle component
    */
-  double yaw() { return getYaw(w(), x(), y(), z()); }
+  double yaw() { return fuse_core::getYaw(w(), x(), y(), z()); }
 
   /**
    * @brief Read-only access to the unique ID of this variable instance.
