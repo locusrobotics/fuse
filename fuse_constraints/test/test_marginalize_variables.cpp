@@ -141,10 +141,10 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
 
   // Define the expected order
   auto expected = fuse_constraints::UuidOrdering();
-  expected.insert(x1->uuid());
-  expected.insert(x2->uuid());
-  expected.insert(x3->uuid());
-  expected.insert(l1->uuid());
+  expected.push_back(x1->uuid());
+  expected.push_back(x2->uuid());
+  expected.push_back(x3->uuid());
+  expected.push_back(l1->uuid());
 
   // Check
   ASSERT_EQ(expected.size(), actual.size());
@@ -182,10 +182,10 @@ TEST(MarginalizeVariables, Linearize)
 
   // Create an elimination order
   auto elimination_order = fuse_constraints::UuidOrdering();
-  elimination_order.insert(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
-  elimination_order.insert(x2->uuid());
-  elimination_order.insert(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
-  elimination_order.insert(x1->uuid());
+  elimination_order.push_back(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
+  elimination_order.push_back(x2->uuid());
+  elimination_order.push_back(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
+  elimination_order.push_back(x1->uuid());
 
   // Compute the linear term
   auto actual = fuse_constraints::detail::linearize(*constraint, graph, elimination_order);

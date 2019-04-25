@@ -148,7 +148,7 @@ UuidOrdering computeEliminationOrder(
   auto elimination_order = UuidOrdering();
   for (size_t i = 0; i < variable_order.size(); ++i)
   {
-    elimination_order.insert(variable_order[p[i]]);
+    elimination_order.push_back(variable_order[p[i]]);
   }
 
   return elimination_order;
