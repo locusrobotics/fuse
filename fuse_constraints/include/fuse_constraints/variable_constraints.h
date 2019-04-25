@@ -34,12 +34,9 @@
 #ifndef FUSE_CONSTRAINTS_VARIABLE_CONSTRAINTS_H
 #define FUSE_CONSTRAINTS_VARIABLE_CONSTRAINTS_H
 
-#include <fuse_core/graph.h>
-
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <initializer_list>
+#include <iterator>
 #include <unordered_set>
 #include <vector>
 
@@ -63,12 +60,12 @@ public:
   void reserve(const size_t variable_count);
 
   /**
-   * @brief Return true if no variables or edges have been added
+   * @brief Return true if no variables or constraints have been added
    */
   bool empty() const;
 
   /**
-   * @brief The total number of unique (variable id, edge id) pairs
+   * @brief The total number of unique (variable id, constraint id) pairs
    */
   size_t size() const;
 
@@ -122,9 +119,7 @@ void VariableConstraints::insert(const unsigned int constraint, VariableIndexIte
 template<class OutputIterator>
 void VariableConstraints::getConstraints(const unsigned int variable_id, OutputIterator result) const
 {
-  // Query the range of adjacent vertices
   const auto& constraints = variable_constraints_[variable_id];
-  // Copy the list of adjacent vertices to the output container
   std::copy(std::begin(constraints), std::end(constraints), result);
 }
 
