@@ -33,11 +33,11 @@
  */
 #include <fuse_constraints/marginal_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <ros/time.h>
 
-#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 #include <vector>
@@ -85,16 +85,8 @@ TEST(MarginalConstraint, OneVariable)
   fuse_core::MatrixXd expected_jacobian1(1, 2);
   expected_jacobian1 << 5.0, 8.0;  // Just A1
 
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-  EXPECT_TRUE(expected_residuals.isApprox(actual_residuals, 1.0e-5)) <<
-      "Expected is:\n" << expected_residuals.format(clean) << "\n" <<
-      "Actual is:\n" << actual_residuals.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_residuals - actual_residuals).format(clean) << "\n";
-
-  EXPECT_TRUE(expected_jacobian1.isApprox(actual_jacobian1, 1.0e-5)) <<
-      "Expected is:\n" << expected_jacobian1.format(clean) << "\n" <<
-      "Actual is:\n" << actual_jacobian1.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_jacobian1 - actual_jacobian1).format(clean) << "\n";
+  EXPECT_MATRIX_NEAR(expected_residuals, actual_residuals, 1.0e-5);
+  EXPECT_MATRIX_NEAR(expected_jacobian1, actual_jacobian1, 1.0e-5);
 
   delete cost_function;
 }
@@ -156,21 +148,9 @@ TEST(MarginalConstraint, TwoVariables)
   fuse_core::MatrixXd expected_jacobian2(1, 2);
   expected_jacobian2 << 7.0, 8.0;  // Just A2
 
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-  EXPECT_TRUE(expected_residuals.isApprox(actual_residuals, 1.0e-5)) <<
-      "Expected is:\n" << expected_residuals.format(clean) << "\n" <<
-      "Actual is:\n" << actual_residuals.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_residuals - actual_residuals).format(clean) << "\n";
-
-  EXPECT_TRUE(expected_jacobian1.isApprox(actual_jacobian1, 1.0e-5)) <<
-      "Expected is:\n" << expected_jacobian1.format(clean) << "\n" <<
-      "Actual is:\n" << actual_jacobian1.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_jacobian1 - actual_jacobian1).format(clean) << "\n";
-
-  EXPECT_TRUE(expected_jacobian2.isApprox(actual_jacobian2, 1.0e-5)) <<
-      "Expected is:\n" << expected_jacobian2.format(clean) << "\n" <<
-      "Actual is:\n" << actual_jacobian2.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_jacobian2 - actual_jacobian2).format(clean) << "\n";
+  EXPECT_MATRIX_NEAR(expected_residuals, actual_residuals, 1.0e-5);
+  EXPECT_MATRIX_NEAR(expected_jacobian1, actual_jacobian1, 1.0e-5);
+  EXPECT_MATRIX_NEAR(expected_jacobian2, actual_jacobian2, 1.0e-5);
 
   delete cost_function;
 }
@@ -225,16 +205,8 @@ TEST(MarginalConstraint, LocalParameterization)
   //                   [-0.388248, -1.052086,  1.491122,   0.720368]
   //                   [-1.052086,  0.388248, -0.720368,   1.491122]
 
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-  EXPECT_TRUE(expected_residuals.isApprox(actual_residuals, 1.0e-5)) <<
-      "Expected is:\n" << expected_residuals.format(clean) << "\n" <<
-      "Actual is:\n" << actual_residuals.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_residuals - actual_residuals).format(clean) << "\n";
-
-  EXPECT_TRUE(expected_jacobian1.isApprox(actual_jacobian1, 1.0e-5)) <<
-      "Expected is:\n" << expected_jacobian1.format(clean) << "\n" <<
-      "Actual is:\n" << actual_jacobian1.format(clean) << "\n" <<
-      "Difference is:\n" << (expected_jacobian1 - actual_jacobian1).format(clean) << "\n";
+  EXPECT_MATRIX_NEAR(expected_residuals, actual_residuals, 1.0e-5);
+  EXPECT_MATRIX_NEAR(expected_jacobian1, actual_jacobian1, 1.0e-5);
 
   delete cost_function;
 }
