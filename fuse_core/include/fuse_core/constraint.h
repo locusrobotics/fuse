@@ -186,12 +186,9 @@ std::ostream& operator <<(std::ostream& stream, const Constraint& constraint);
 
 template<typename VariableUuidIterator>
 Constraint::Constraint(VariableUuidIterator first, VariableUuidIterator last) :
-  uuid_(uuid::generate())
+  uuid_(uuid::generate()),
+  variables_(first, last)
 {
-  while (first != last)
-  {
-    variables_.push_back(*first++);
-  }
 }
 
 }  // namespace fuse_core
