@@ -107,6 +107,14 @@ public:
   fuse_core::Variable::UniquePtr clone() const override;
 
   /**
+   * @brief Returns the number of elements of the local parameterization space.
+   *
+   * Since we are overriding the \p localParameterization() method, it is good practice to override the \p localSize()
+   * method as well.
+   */
+  size_t localSize() const override { return 1u; }
+
+  /**
    * @brief Create a new Ceres local parameterization object to apply to updates of this variable
    *
    * A 2D rotation has a nonlinearity when the angle wraps around from -PI to PI. This is handled by a custom
