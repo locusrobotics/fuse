@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/marginal_constraint.h>
+
 #include <fuse_constraints/marginal_cost_function.h>
 #include <fuse_core/constraint.h>
 
@@ -52,13 +53,13 @@ void MarginalConstraint::print(std::ostream& stream) const
   {
     stream << "   - " << variable << "\n";
   }
-  Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+  Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
   for (size_t i = 0; i < A_.size(); ++i)
   {
-    stream << "  A[" << i << "]:     " << A_[i].format(clean) << "\n"
-           << "  x_bar[" << i << "]: " << x_bar_[i].format(clean) << "\n";
+    stream << "  A[" << i << "]:\n" << A_[i].format(indent) << "\n"
+           << "  x_bar[" << i << "]:\n" << x_bar_[i].format(indent) << "\n";
   }
-  stream << "  b: " << b_.format(clean) << "\n";
+  stream << "  b:\n" << b_.format(indent) << "\n";
 }
 
 fuse_core::Constraint::UniquePtr MarginalConstraint::clone() const
@@ -68,7 +69,7 @@ fuse_core::Constraint::UniquePtr MarginalConstraint::clone() const
 
 ceres::CostFunction* MarginalConstraint::costFunction() const
 {
-  return new MarginalCostFunction(A_, x_bar_, local_, b_);
+  return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
 }
 
 }  // namespace fuse_constraints

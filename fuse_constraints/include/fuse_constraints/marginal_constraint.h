@@ -41,6 +41,7 @@
 #include <fuse_core/variable.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/iterator/zip_iterator.hpp>
 #include <ceres/cost_function.h>
 
 #include <algorithm>
@@ -75,7 +76,7 @@ public:
    * @param[in] first_variable Iterator pointing to the first involved variable for this constraint
    * @param[in] last_variable  Iterator pointing to one past the last involved variable for this constraint
    * @param[in] first_A        Iterator pointing to the first A matrix, associated with the first variable
-   * @param[in] last_A         Iterator pointing to one passed the last A matrix
+   * @param[in] last_A         Iterator pointing to one past the last A matrix
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
    */
   template<typename VariableIterator, typename MatrixIterator>
@@ -132,7 +133,7 @@ public:
    *
    * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
    * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * Ceres::Problem object will take ownership of the pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -140,9 +141,9 @@ public:
 
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
-  std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
-  std::vector<fuse_core::LocalParameterization::SharedPtr> local_;  //!< The local parameterization of each variable
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
+  std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< The local parameterizations
+  std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
 };
 
 namespace detail
@@ -172,22 +173,6 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
   return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
 
-/**
- * @brief Checks if the binary predicate returns true for all elements in the provided ranges
- */
-template <class InputIt1, class InputIt2, class BinaryPredicate>
-constexpr bool all_of(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, BinaryPredicate pred)
-{
-  for (; first1 != last1; ++first1, ++first2)
-  {
-    if (!pred(*first1, *first2))
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
 }  // namespace detail
 
 template<typename VariableIterator, typename MatrixIterator>
@@ -200,20 +185,20 @@ MarginalConstraint::MarginalConstraint(
     Constraint(boost::make_transform_iterator(first_variable, &detail::getUuid),
                boost::make_transform_iterator(last_variable, &detail::getUuid)),
     A_(first_A, last_A),
+    b_(b),
+    local_parameterizations_(boost::make_transform_iterator(first_variable, &detail::getLocalParameterization),
+                             boost::make_transform_iterator(last_variable, &detail::getLocalParameterization)),
     x_bar_(boost::make_transform_iterator(first_variable, &detail::getCurrentValue),
-           boost::make_transform_iterator(last_variable, &detail::getCurrentValue)),
-    local_(boost::make_transform_iterator(first_variable, &detail::getLocalParameterization),
-           boost::make_transform_iterator(last_variable, &detail::getLocalParameterization)),
-    b_(b)
+           boost::make_transform_iterator(last_variable, &detail::getCurrentValue))
 {
   assert(!A_.empty());
   assert(A_.size() == x_bar_.size());
-  assert(A_.size() == local_.size());
+  assert(A_.size() == local_parameterizations_.size());
   assert(b_.rows() > 0);
   assert(std::all_of(A_.begin(), A_.end(), [&b_](const auto& A){ return A.rows() == b_.rows(); }));  // NOLINT
-  assert(detail::all_of(A_.begin(), A_.end(),
-                        first_variable, last_variable,
-                        [](const auto& A, const auto& x){ return A.cols() == x.localSize(); }));  // NOLINT
+  assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
+                     boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
+                     [](const auto& pair){ return pair.get<0>().cols() == pair.get<1>().localSize(); }));  // NOLINT
 }
 
 }  // namespace fuse_constraints

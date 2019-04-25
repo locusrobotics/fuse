@@ -198,8 +198,6 @@ if(CATKIN_ENABLE_TESTING)
     PRIVATE
       include
       ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_marginal_constraint
     ${PROJECT_NAME}
