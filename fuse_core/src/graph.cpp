@@ -37,6 +37,7 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 
+#include <functional>
 #include <vector>
 
 
