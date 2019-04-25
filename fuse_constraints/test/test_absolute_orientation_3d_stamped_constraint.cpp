@@ -147,14 +147,11 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
-  // TODO(swilliams) The covariance is in the tangent space, but there is currently no good way of getting the
-  //                 tangent space size
-  std::vector<double> covariance_vector(3 * 3);
+  fuse_core::Matrix3d actual_covariance(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    orientation_variable->data(), orientation_variable->data(), covariance_vector.data());
+    orientation_variable->data(), orientation_variable->data(), actual_covariance.data());
 
-  // Assemble the full covariance from the covariance blocks
-  fuse_core::Matrix3d actual_covariance(covariance_vector.data());
+  // Define the expected covariance
   fuse_core::Matrix3d expected_covariance;
   expected_covariance <<
     1.0, 0.1, 0.2,

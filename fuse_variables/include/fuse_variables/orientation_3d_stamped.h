@@ -171,6 +171,14 @@ public:
   fuse_core::Variable::UniquePtr clone() const override;
 
   /**
+   * @brief Returns the number of elements of the local parameterization space.
+   *
+   * While a quaternion has 4 parameters, a 3D rotation only has 3 degrees of freedom. Hence, the local
+   * parameterization space is only size 3.
+   */
+  size_t localSize() const override { return 3u; }
+
+  /**
    * @brief Provides a Ceres local parameterization for the quaternion
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
