@@ -36,11 +36,10 @@
 
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
-#include <fuse_variables/util.h>
-
 #include <ros/time.h>
 
 #include <ostream>
