@@ -47,10 +47,10 @@ namespace fuse_constraints
 /**
  * @brief A class that represents a sequential ordering of UUIDs
  *
- * This is designed for use when marginalizing out variables, but it may have order uses.
+ * This is designed for use when marginalizing out variables, but it may have other uses.
  *
  * Specifically, this class maps a UUID to a sequential index. Bidirectional access is possible.
- * If you a UUID, the index can be retrieved in constant-time. And if you know the index, the UUID
+ * If you have a UUID, the index can be retrieved in constant-time. And if you have the index, the UUID
  * may be retrieved in constant (and fast) time. Also, iterating through the UUIDs in sequence is an
  * efficient operation.
  *
@@ -60,8 +60,6 @@ namespace fuse_constraints
 class UuidOrdering
 {
 public:
-  // TODO(swilliams) Add iterator access
-
   /**
    * @brief Default constructor
    */
@@ -86,18 +84,18 @@ public:
    * be compatible with a \p const fuse_core::UUID&.
    *
    * @param[in] first Iterator pointing to the first UUID to add to the ordering
-   * @param[in] last  Iterator pointing to one passe the last UUID to add to the ordering
+   * @param[in] last  Iterator pointing to one past the last UUID to add to the ordering
    */
   template <typename UuidConstIterator>
   UuidOrdering(UuidConstIterator first, UuidConstIterator last);
 
   /**
-   * @brief Returns true if there are no Variable UUIDs in this ordering
+   * @brief Returns true if there are no UUIDs in this ordering
    */
   bool empty() const;
 
   /**
-   * @brief Returns the number of Variable UUIDs in this ordering
+   * @brief Returns the number of UUIDs in this ordering
    *
    * This is always equal to "last index + 1"
    */
@@ -114,14 +112,14 @@ public:
   bool exists(const fuse_core::UUID& uuid) const;
 
   /**
-   * @brief Insert a new UUID to the ordering
+   * @brief Add a new UUID to the back of the ordering
    *
    * If the UUID already exists, no change to the ordering will occur.
    *
    * @param[in] uuid The UUID to insert
    * @return True if the UUID was inserted, false if the UUID already existed
    */
-  bool insert(const fuse_core::UUID& uuid);
+  bool push_back(const fuse_core::UUID& uuid);
 
   /**
    * @brief Access the UUID stored at the provided index
@@ -145,11 +143,11 @@ public:
   const fuse_core::UUID& at(const unsigned int index) const;
 
   /**
-   * @brief Access the index associated with the provided Variable UUID
+   * @brief Access the index associated with the provided UUID
    *
    * If the requested UUID does not exist, an out_of_range exception will be thrown.
    */
-  const unsigned int at(const fuse_core::UUID& variable_uuid) const;
+  const unsigned int at(const fuse_core::UUID& uuid) const;
 
 private:
   using UuidOrderMapping = boost::bimaps::bimap<boost::bimaps::vector_of<unsigned int>,

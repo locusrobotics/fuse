@@ -270,8 +270,10 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_uuid_ordering
     PRIVATE
       include
+      ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_uuid_ordering
     ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
   )
 endif()

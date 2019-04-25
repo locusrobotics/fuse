@@ -82,7 +82,7 @@ TEST(UuidOrdering, Access)
   EXPECT_EQ(3u, order[uuid4]);
 }
 
-TEST(UuidOrdering, Insert)
+TEST(UuidOrdering, PushBack)
 {
   auto uuid1 = fuse_core::uuid::generate();
   auto uuid2 = fuse_core::uuid::generate();
@@ -91,8 +91,8 @@ TEST(UuidOrdering, Insert)
   auto order = UuidOrdering{uuid1, uuid2, uuid3};
 
   EXPECT_EQ(3u, order.size());
-  EXPECT_FALSE(order.insert(uuid3));
-  EXPECT_TRUE(order.insert(uuid4));
+  EXPECT_FALSE(order.push_back(uuid3));
+  EXPECT_TRUE(order.push_back(uuid4));
   EXPECT_EQ(4u, order.size());
   EXPECT_EQ(3u, order.at(uuid4));
   EXPECT_EQ(uuid4, order.at(3u));
@@ -107,7 +107,7 @@ TEST(UuidOrdering, Size)
   EXPECT_EQ(0u, order.size());
 
   auto uuid1 = fuse_core::uuid::generate();
-  order.insert(uuid1);
+  order.push_back(uuid1);
 
   EXPECT_FALSE(order.empty());
   EXPECT_EQ(1u, order.size());

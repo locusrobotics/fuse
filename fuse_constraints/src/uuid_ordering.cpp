@@ -33,11 +33,13 @@
  */
 #include <fuse_constraints/uuid_ordering.h>
 
+#include <fuse_core/uuid.h>
+
 
 namespace fuse_constraints
 {
-UuidOrdering::UuidOrdering(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-  UuidOrdering(variable_uuid_list.begin(), variable_uuid_list.end())
+UuidOrdering::UuidOrdering(std::initializer_list<fuse_core::UUID> uuid_list) :
+  UuidOrdering(uuid_list.begin(), uuid_list.end())
 {
 }
 
@@ -56,14 +58,14 @@ bool UuidOrdering::exists(const unsigned int index) const
   return (index < order_.size());
 }
 
-bool UuidOrdering::exists(const fuse_core::UUID& variable_uuid) const
+bool UuidOrdering::exists(const fuse_core::UUID& uuid) const
 {
-  return (order_.right.find(variable_uuid) != order_.right.end());
+  return (order_.right.find(uuid) != order_.right.end());
 }
 
-bool UuidOrdering::insert(const fuse_core::UUID& variable_uuid)
+bool UuidOrdering::push_back(const fuse_core::UUID& uuid)
 {
-  auto result = order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), variable_uuid));
+  auto result = order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), uuid));
   return result.second;
 }
 
@@ -83,9 +85,9 @@ const fuse_core::UUID& UuidOrdering::at(const unsigned int index) const
   return order_.left.at(index).second;
 }
 
-const unsigned int UuidOrdering::at(const fuse_core::UUID& variable_uuid) const
+const unsigned int UuidOrdering::at(const fuse_core::UUID& uuid) const
 {
-  return order_.right.at(variable_uuid);
+  return order_.right.at(uuid);
 }
 
 }  // namespace fuse_constraints
