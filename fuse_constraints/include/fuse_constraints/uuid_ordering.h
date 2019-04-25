@@ -50,7 +50,7 @@ namespace fuse_constraints
  * This is designed for use when marginalizing out variables, but it may have other uses.
  *
  * Specifically, this class maps a UUID to a sequential index. Bidirectional access is possible.
- * If you have a UUID, the index can be retrieved in constant-time. And if you have the index, the UUID
+ * If you have a UUID, the index can be retrieved in constant time. And if you have the index, the UUID
  * may be retrieved in constant (and fast) time. Also, iterating through the UUIDs in sequence is an
  * efficient operation.
  *
@@ -160,7 +160,7 @@ UuidOrdering::UuidOrdering(UuidConstIterator first, UuidConstIterator last)
 {
   for (; first != last; ++first)
   {
-    order_.left.push_back(UuidOrderMapping::left_value_type(order_.size(), *first));
+    order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), *first));
   }
 }
 
