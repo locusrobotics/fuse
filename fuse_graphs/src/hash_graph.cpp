@@ -169,6 +169,35 @@ fuse_core::Graph::const_constraint_range HashGraph::getConstraints() const noexc
     boost::make_transform_iterator(constraints_.cend(), to_constraint_ref));
 }
 
+fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(const fuse_core::UUID& variable_uuid) const
+{
+  auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
+  if (cross_reference_iter != constraints_by_variable_uuid_.end())
+  {
+    std::function<const fuse_core::Constraint&(const fuse_core::UUID& constraint_uuid)> uuid_to_constraint_ref =
+      [this](const fuse_core::UUID& constraint_uuid) -> const fuse_core::Constraint&
+      {
+        return this->getConstraint(constraint_uuid);
+      };
+
+    const auto& constraints = cross_reference_iter->second;
+    return fuse_core::Graph::const_constraint_range(
+      boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
+      boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref));
+  }
+  else if (variableExists(variable_uuid))
+  {
+    // User requested a valid variable, but there are no attached constraints. Return an empty range.
+    return fuse_core::Graph::const_constraint_range();
+  }
+  else
+  {
+    // We only want to throw if the requested variable does not exist.
+    throw std::logic_error("Attempting to access constraints connected to variable ("
+        + fuse_core::uuid::to_string(variable_uuid) + "), but that variable does not exist in this graph.");
+  }
+}
+
 bool HashGraph::variableExists(const fuse_core::UUID& variable_uuid) const noexcept
 {
   auto variables_iter = variables_.find(variable_uuid);

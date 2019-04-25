@@ -314,6 +314,70 @@ TEST(HashGraph, GetVariables)
   }
 }
 
+TEST(HashGraph, GetConnectedVariables)
+{
+  // Test accessing the variables connected to a specific constraint
+
+  // Create the graph
+  fuse_graphs::HashGraph graph;
+
+  // Create a few variables
+  auto variable1 = ExampleVariable::make_shared();
+  variable1->data()[0] = 1.0;
+  graph.addVariable(variable1);
+
+  auto variable2 = ExampleVariable::make_shared();
+  variable2->data()[0] = 2.5;
+  graph.addVariable(variable2);
+
+  auto variable3 = ExampleVariable::make_shared();
+  variable3->data()[0] = -1.2;
+  graph.addVariable(variable3);
+
+  // Create a few constraints
+  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  graph.addConstraint(constraint1);
+
+  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  graph.addConstraint(constraint2);
+
+  {
+    auto actual_variables = graph.getConnectedVariables(constraint1->uuid());
+    ASSERT_EQ(1, std::distance(actual_variables.begin(), actual_variables.end()));
+    for (const auto& actual : actual_variables)
+    {
+      if (actual.uuid() == variable1->uuid())
+      {
+        EXPECT_TRUE(compareVariables(*variable1, actual)) << failure_description;
+        continue;
+      }
+      // The constraint was not one of the expected constraints. Fail the test.
+      FAIL() << "The actual variable '" << actual.uuid() << "' was not in the expected collection.";
+    }
+  }
+
+  {
+    auto actual_variables = graph.getConnectedVariables(constraint2->uuid());
+    ASSERT_EQ(1, std::distance(actual_variables.begin(), actual_variables.end()));
+    for (const auto& actual : actual_variables)
+    {
+      if (actual.uuid() == variable2->uuid())
+      {
+        EXPECT_TRUE(compareVariables(*variable2, actual)) << failure_description;
+        continue;
+      }
+      // The constraint was not one of the expected constraints. Fail the test.
+      FAIL() << "The actual variable '" << actual.uuid() << "' was not in the expected collection.";
+    }
+  }
+
+  {
+    // Don't add constraint3 to the graph
+    auto constraint3 = ExampleConstraint::make_shared(variable3->uuid());
+    EXPECT_THROW(graph.getConnectedVariables(constraint3->uuid()), std::logic_error);
+  }
+}
+
 TEST(HashGraph, AddConstraint)
 {
   // Test adding constraints to the graph
@@ -497,6 +561,83 @@ TEST(HashGraph, GetConstraints)
     }
     // The constraint was not one of the expected constraints. Fail the test.
     FAIL() << "The actual constraint '" << actual.uuid() << "' was not in the expected collection.";
+  }
+}
+
+TEST(HashGraph, GetConnectedConstraints)
+{
+  // Test accessing the constraints connected to a specific variable
+
+  // Create the graph
+  fuse_graphs::HashGraph graph;
+
+  // Create a few variables
+  auto variable1 = ExampleVariable::make_shared();
+  variable1->data()[0] = 1.0;
+  graph.addVariable(variable1);
+
+  auto variable2 = ExampleVariable::make_shared();
+  variable2->data()[0] = 2.5;
+  graph.addVariable(variable2);
+
+  auto variable3 = ExampleVariable::make_shared();
+  variable3->data()[0] = -1.2;
+  graph.addVariable(variable3);
+
+  // Create a few constraints
+  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  graph.addConstraint(constraint1);
+
+  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  graph.addConstraint(constraint2);
+
+  auto constraint3 = ExampleConstraint::make_shared(variable1->uuid());
+  graph.addConstraint(constraint3);
+
+  {
+    auto actual_constraints = graph.getConnectedConstraints(variable1->uuid());
+    ASSERT_EQ(2, std::distance(actual_constraints.begin(), actual_constraints.end()));
+    for (const auto& actual : actual_constraints)
+    {
+      if (actual.uuid() == constraint1->uuid())
+      {
+        EXPECT_TRUE(compareConstraints(*constraint1, actual)) << failure_description;
+        continue;
+      }
+      if (actual.uuid() == constraint3->uuid())
+      {
+        EXPECT_TRUE(compareConstraints(*constraint3, actual)) << failure_description;
+        continue;
+      }
+      // The constraint was not one of the expected constraints. Fail the test.
+      FAIL() << "The actual constraint '" << actual.uuid() << "' was not in the expected collection.";
+    }
+  }
+
+  {
+    auto actual_constraints = graph.getConnectedConstraints(variable2->uuid());
+    ASSERT_EQ(1, std::distance(actual_constraints.begin(), actual_constraints.end()));
+    for (const auto& actual : actual_constraints)
+    {
+      if (actual.uuid() == constraint2->uuid())
+      {
+        EXPECT_TRUE(compareConstraints(*constraint2, actual)) << failure_description;
+        continue;
+      }
+      // The constraint was not one of the expected constraints. Fail the test.
+      FAIL() << "The actual constraint '" << actual.uuid() << "' was not in the expected collection.";
+    }
+  }
+
+  {
+    auto actual_constraints = graph.getConnectedConstraints(variable3->uuid());
+    ASSERT_EQ(0, std::distance(actual_constraints.begin(), actual_constraints.end()));
+  }
+
+  {
+    // Don't add variable4 to the graph
+    auto variable4 = ExampleVariable::make_shared();
+    EXPECT_THROW(graph.getConnectedConstraints(variable4->uuid()), std::logic_error);
   }
 }
 

@@ -32,13 +32,33 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/graph.h>
+
 #include <fuse_core/transaction.h>
 
+#include <boost/iterator/transform_iterator.hpp>
+
+#include <functional>
 #include <vector>
 
 
 namespace fuse_core
 {
+
+Graph::const_variable_range Graph::getConnectedVariables(const UUID& constraint_uuid) const
+{
+  std::function<const fuse_core::Variable&(const UUID& variable_uuid)> uuid_to_variable_ref =
+    [this](const UUID& variable_uuid) -> const Variable&
+    {
+      return this->getVariable(variable_uuid);
+    };
+
+  const auto& constraint = getConstraint(constraint_uuid);
+  const auto& variable_uuids = constraint.variables();
+
+  return const_variable_range(
+    boost::make_transform_iterator(variable_uuids.cbegin(), uuid_to_variable_ref),
+    boost::make_transform_iterator(variable_uuids.cend(), uuid_to_variable_ref));
+}
 
 void Graph::update(const Transaction& transaction)
 {

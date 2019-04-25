@@ -145,6 +145,14 @@ public:
   virtual const_constraint_range getConstraints() const = 0;
 
   /**
+   * @brief Read-only access to the subset of constraints that are connected to the specified variable
+   *
+   * @param[in] variable_uuid The UUID of the variable of interest
+   * @return A read-only iterator range containing all constraints that involve the specified variable
+   */
+  virtual const_constraint_range getConnectedConstraints(const UUID& variable_uuid) const = 0;
+
+  /**
    * @brief Check if the variable already exists in the graph
    *
    * @param[in] variable_uuid The UUID of the variable being searched for
@@ -187,6 +195,14 @@ public:
    * @return A read-only iterator range containing all variables
    */
   virtual const_variable_range getVariables() const = 0;
+
+  /**
+   * @brief Read-only access to the subset of variables that are connected to the specified constraint
+   *
+   * @param[in] constraint_uuid The UUID of the constraint of interest
+   * @return A read-only iterator range containing all variables that involve the specified constraint
+   */
+  virtual const_variable_range getConnectedVariables(const UUID& constraint_uuid) const;
 
   /**
    * @brief Configure a variable to hold its current value constant during optimization
