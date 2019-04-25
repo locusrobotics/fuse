@@ -40,14 +40,6 @@
 namespace fuse_core
 {
 
-void Graph::marginalizeVariables(const std::vector<UUID>& variable_uuids)
-{
-  for (const auto& variable_uuid : variable_uuids)
-  {
-    marginalizeVariable(variable_uuid);
-  }
-}
-
 void Graph::update(const Transaction& transaction)
 {
   // Update the graph with a new transaction. In order to keep the graph consistent, variables are added first,

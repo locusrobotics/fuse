@@ -247,11 +247,6 @@ void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_con
   }
 }
 
-void HashGraph::marginalizeVariable(const fuse_core::UUID& variable_uuid)
-{
-  throw std::runtime_error("The function 'marginalizeVariable()' has not been implemented yet.");
-}
-
 void HashGraph::getCovariance(
   const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>& covariance_requests,
   std::vector<std::vector<double>>& covariance_matrices,

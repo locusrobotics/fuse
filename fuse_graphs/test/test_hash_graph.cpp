@@ -678,16 +678,6 @@ TEST(HashGraph, GetCovariance)
   }
 }
 
-TEST(HashGraph, MarginalizeVariable)
-{
-  // TODO(swilliams): Write a marginalization unit test after the function has been implemented
-}
-
-TEST(HashGraph, MarginalizeVariables)
-{
-  // TODO(swilliams): Write a marginalization unit test after the function has been implemented
-}
-
 TEST(HashGraph, Copy)
 {
     // Create the graph

@@ -201,37 +201,6 @@ public:
   virtual void holdVariable(const UUID& variable_uuid, bool hold_constant = true) = 0;
 
   /**
-   * @brief Marginalize out the provided variable from the graph
-   *
-   * Perform a marginalization operation, computing a new constraint that represents the remaining information from
-   * all connected constraints on all the adjacent variables. The marginalized variable will be removed from the graph,
-   * along with all constraints connected to the marginalized variable. The new computed constraint will be added to
-   * the graph. Because this new constraint was computed from the linear system, all adjacent variables values will be
-   * held to the current optimal value to ensure the constraint remains consistent.
-   *
-   * @param[in] variable_uuid The UUID of the variable to marginalize out of the problem
-   */
-  virtual void marginalizeVariable(const UUID& variable_uuid) = 0;
-
-  /**
-   * @brief Marginalize out all of the provided variables from the graph
-   *
-   * This performs the same marginalization operation as described in Graph::marginalizeVariable(), but to all of the
-   * provided variables. This is not simply a loop around the wrapper around Graph::marginalizeVariable() function call,
-   * but rather inspects the graph structure to combine several variables into a single marginalization operation when
-   * possible. Thus, when marginalizing out many variables it is likely more efficient to perform a single call to
-   * Graph::marginalizeVariables() than multiple calls to Graph::marginalizeVariable(). However, this call is guaranteed
-   * to leave the graph in the same state as if successive calls were made to Graph::marginalizeVariable(). Namely,
-   * all marginalized variables will be removed from the graph, all constraints connected to at least one marginalized
-   * variable will be removed from the graph, new constraints will be added to the graph that constitute the remaining
-   * information on the adjacent variables from the removed constraints, and all adjacent variables will be held
-   * constant during future optimizations.
-   *
-   * @param[in] variable_uuids The UUIDs of the variables to marginalize out of the problem
-   */
-  virtual void marginalizeVariables(const std::vector<UUID>& variable_uuids);
-
-  /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
    *
    * To compute the marginal variance of a single variable, simply supply the same variable UUID for both members of
