@@ -110,7 +110,10 @@ public:
   /**
    * @brief Read-only access to the variable local parameterizations
    */
-  const std::vector<fuse_core::LocalParameterization::SharedPtr>& localParameterizations() const { return local_; }
+  const std::vector<fuse_core::LocalParameterization::SharedPtr>& localParameterizations() const
+  {
+    return local_parameterizations_;
+  }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -195,10 +198,10 @@ MarginalConstraint::MarginalConstraint(
   assert(A_.size() == x_bar_.size());
   assert(A_.size() == local_parameterizations_.size());
   assert(b_.rows() > 0);
-  assert(std::all_of(A_.begin(), A_.end(), [&b_](const auto& A){ return A.rows() == b_.rows(); }));  // NOLINT
+  assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A){ return A.rows() == this->b_.rows(); }));  // NOLINT
   assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
-                     boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
-                     [](const auto& pair){ return pair.get<0>().cols() == pair.get<1>().localSize(); }));  // NOLINT
+                     boost::make_zip_iterator(std::make_pair(A_.end(), last_variable)),
+                     [](const auto& pair){ return pair.first.cols() == pair.second.localSize(); }));  // NOLINT
 }
 
 }  // namespace fuse_constraints
