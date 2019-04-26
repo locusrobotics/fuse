@@ -157,7 +157,7 @@ LinearTerm linearize(
  * @brief Marginalize out the lowest-ordered variable from the provided set of linear terms
  *
  * A linear marginal term is returned. This represents the information on the remaining variables after marginalizing
- * out the variable.
+ * out the lowest-ordered variable.
  *
  * @param[in] linear_terms The set of LinearTerms that are connected to the lowest-ordered variable index
  * @return A LinearTerm object containing the information on the remaining variables

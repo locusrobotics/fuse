@@ -49,8 +49,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include <iostream>
-
 
 namespace fuse_constraints
 {
@@ -102,14 +100,14 @@ UuidOrdering computeEliminationOrder(
   auto p_iter = p.begin();
   *p_iter = 0;
   ++p_iter;
-  for (unsigned int variable_index = 0; variable_index < variable_order.size(); ++variable_index)
+  for (unsigned int variable_index = 0u; variable_index < variable_order.size(); ++variable_index)
   {
     variable_constraints.getConstraints(variable_index, A_iter);
     *p_iter = std::distance(A.begin(), A_iter);
     ++p_iter;
   }
 
-  // Define the variables groups used by CCOLAMD. All of the marginalized variables should be group0, all the
+  // Define the variable groups used by CCOLAMD. All of the marginalized variables should be group0, all the
   // rest should be group1.
   std::vector<int> variable_groups(variable_order.size(), 1);  // Default all variables to group1
   for (const auto& variable_uuid : marginalized_variables)
@@ -142,7 +140,7 @@ UuidOrdering computeEliminationOrder(
   // CCOLAMD returns the elimination order by updating the values stored in p with the variable index
   // Remember that p is larger than variable_order.size()
   auto elimination_order = UuidOrdering();
-  for (size_t i = 0; i < variable_order.size(); ++i)
+  for (size_t i = 0ul; i < variable_order.size(); ++i)
   {
     elimination_order.push_back(variable_order[p[i]]);
   }
@@ -162,6 +160,14 @@ fuse_core::Transaction marginalizeVariables(
   const fuse_core::Graph& graph,
   const fuse_constraints::UuidOrdering& elimination_order)
 {
+  assert(std::all_of(marginalized_variables.begin(),
+                     marginalized_variables.end(),
+                     [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid)
+                     {
+                       return elimination_order.exists(variable_uuid) &&
+                              elimination_order.at(variable_uuid) < marginalized_variables.size();
+                     }));  // NOLINT
+
   fuse_core::Transaction transaction;
 
   // Mark all of the marginalized variables for removal
@@ -170,19 +176,20 @@ fuse_core::Transaction marginalizeVariables(
     transaction.removeVariable(variable_uuid);
   }
 
-  // Copy the elimination order so we can add addition variables if needed
+  // Copy the elimination order so we can add additional variables if needed
   auto variable_order = elimination_order;
 
   // Linearize all involved constraints, and store them with the variable where they will be used
   auto used_constraints = std::unordered_set<fuse_core::UUID, fuse_core::uuid::hash>();
   std::vector<std::vector<detail::LinearTerm>> linear_terms(variable_order.size());
-  for (size_t i = 0; i < marginalized_variables.size(); ++i)
+  for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
     auto constraints = graph.getConnectedConstraints(variable_order[i]);
     for (const auto& constraint : constraints)
     {
       if (used_constraints.find(constraint.uuid()) == used_constraints.end())
       {
+        used_constraints.insert(constraint.uuid());
         // Ensure all connected variables are added to the ordering
         for (const auto& variable_uuid : constraint.variables())
         {
@@ -190,23 +197,26 @@ fuse_core::Transaction marginalizeVariables(
         }
         // Add the linearized constraint to the lowest-ordered connected variable
         linear_terms[i].push_back(detail::linearize(constraint, graph, variable_order));
+        // And mark the constraint for removal from the graph
         transaction.removeConstraint(constraint.uuid());
-        used_constraints.insert(constraint.uuid());
       }
     }
   }
 
   // Expand the linear_terms to include all the connected variables as well
-  // During the marginalize process, marginal variables may be associated with these higher-order variables
+  // During the marginalize process, marginal variables may be associated with these higher-ordered variables
   linear_terms.resize(variable_order.size());
 
   // Use the linearized constraints to marginalize each variable in order
-  // Place the resulting marginal in the linear constraint bucket associated with the earliest remaining variable
-  for (size_t i = 0; i < marginalized_variables.size(); ++i)
+  // Place the resulting marginal in the linear constraint bucket associated with the lowest-ordered remaining variable
+  for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
     auto linear_marginal = detail::marginalizeNext(linear_terms[i]);
-    auto lowest_ordered_variable = linear_marginal.variables.front();
-    linear_terms[lowest_ordered_variable].push_back(std::move(linear_marginal));
+    if (!linear_marginal.variables.empty())
+    {
+      auto lowest_ordered_variable = linear_marginal.variables.front();
+      linear_terms[lowest_ordered_variable].push_back(std::move(linear_marginal));
+    }
   }
 
   // Convert all remaining linear marginals into marginal constraints
@@ -224,6 +234,10 @@ fuse_core::Transaction marginalizeVariables(
 
 namespace detail
 {
+// TODO(swilliams) There are more graph lookups of each Variable than needed. Refactor so that each Variable is only
+//                 accessed once. This will mean storing the current variable value and local parameterization in
+//                 the LinearTerm.
+
 /**
  * In order for the linearize function to work correctly, it must perform the same operations as Google Ceres-Solver.
  * Unfortunately those functions are not callable from the public API, so we must replicate them here. The following
@@ -270,13 +284,13 @@ LinearTerm linearize(
 {
   LinearTerm result;
 
-  // Generate cost and loss functions from the input constraint
+  // Generate the cost function from the input constraint
   auto cost_function = constraint.costFunction();
   size_t row_count = cost_function->num_residuals();
 
   // Loop over the constraint's variables and do several things:
   // * Generate a vector of variable value pointers. This is needed for the Ceres API.
-  // * Allocate a matrix for each jacobian block
+  // * Allocate a matrix for each jacobian block. We will have Ceres populate the matrix.
   // * Generate a vector of jacobian pointers. This is needed for the Ceres API.
   const auto& variable_uuids = constraint.variables();
   const size_t variable_count = variable_uuids.size();
@@ -313,7 +327,7 @@ LinearTerm linearize(
   }
 
   // Update the jacobians with the local parameterizations.
-  for (size_t index = 0; index < variable_count; ++index)
+  for (size_t index = 0ul; index < variable_count; ++index)
   {
     const auto& variable_uuid = variable_uuids[index];
     const auto& variable = graph.getVariable(variable_uuid);
@@ -380,15 +394,16 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   std::sort(dense_to_index.begin(), dense_to_index.end());
   dense_to_index.erase(std::unique(dense_to_index.begin(), dense_to_index.end()), dense_to_index.end());
 
+  // Construct the inverse mapping
   auto index_to_dense = std::vector<unsigned int>(dense_to_index.back() + 1, 0);
-  for (size_t dense = 0; dense < dense_to_index.size(); ++dense)
+  for (size_t dense = 0ul; dense < dense_to_index.size(); ++dense)
   {
     index_to_dense[dense_to_index[dense]] = dense;
   }
 
   // Compute the row offsets
   auto row_offsets = std::vector<unsigned int>();
-  row_offsets.reserve(linear_terms.size() + 1);
+  row_offsets.reserve(linear_terms.size() + 1ul);
   row_offsets.push_back(0u);
   for (const auto& linear_term : linear_terms)
   {
@@ -396,10 +411,10 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   }
 
   // Compute the column offsets
-  auto index_to_cols = std::vector<unsigned int>(dense_to_index.back() + 1, 0u);
+  auto index_to_cols = std::vector<unsigned int>(dense_to_index.back() + 1u, 0u);
   for (const auto& linear_term : linear_terms)
   {
-    for (size_t i = 0; i < linear_term.variables.size(); ++i)
+    for (size_t i = 0ul; i < linear_term.variables.size(); ++i)
     {
       auto index = linear_term.variables[i];
       index_to_cols[index] = linear_term.A[i].cols();
@@ -407,7 +422,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   }
 
   auto column_offsets = std::vector<unsigned int>();
-  column_offsets.reserve(dense_to_index.size() + 1);
+  column_offsets.reserve(dense_to_index.size() + 1ul);
   column_offsets.push_back(0u);
   for (size_t dense = 0; dense < dense_to_index.size(); ++dense)
   {
@@ -415,13 +430,13 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   }
 
   // Construct the Ab matrix
-  auto Ab = fuse_core::MatrixXd(row_offsets.back(), column_offsets.back() + 1);
+  auto Ab = fuse_core::MatrixXd(row_offsets.back(), column_offsets.back() + 1u);
   Ab.setZero();
-  for (size_t term_index = 0; term_index < linear_terms.size(); ++term_index)
+  for (size_t term_index = 0ul; term_index < linear_terms.size(); ++term_index)
   {
     const auto& linear_term = linear_terms[term_index];
     auto row_offset = row_offsets[term_index];
-    for (size_t variable_index = 0; variable_index < linear_term.variables.size(); ++variable_index)
+    for (size_t variable_index = 0ul; variable_index < linear_term.variables.size(); ++variable_index)
     {
       auto column_offset = column_offsets[variable_index];
       const auto& A = linear_term.A[variable_index];
@@ -432,7 +447,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   }
 
   // Compute the QR decomposition
-  // I really want to do this "in place" instead of making a copy into the Eigen QR object, and a second copy back out,
+  // I really want to do this "in place" instead of making a copy into the Eigen QR object and a second copy back out,
   // but Eigen does not make it easy.
   // https://eigen.tuxfamily.org/dox/HouseholderQR_8h_source.html Line 379 HouseholderQR<MatrixType>::computeInPlace()
   {
@@ -448,7 +463,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
     Ab.triangularView<Eigen::StrictlyLower>().setZero();  // Zero out the below-diagonal elements
   }
 
-  // Extract the marginal term from R
+  // Extract the marginal term from R (new stored in Ab)
   // The first row block is the conditional term for the marginalized variable: P(x | y, z, ...)
   // The remaining rows are the marginal on the remaining variables: P(y, z, ...)
   auto min_row = column_offsets[1];
@@ -456,14 +471,16 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   auto max_row = std::min(Ab.rows(), Ab.cols() - 1);  // -1 for the included b vector
   auto marginal_rows = max_row - min_row;
   auto marginal_term = LinearTerm();
-  for (size_t dense = 1; dense < dense_to_index.size(); ++dense)  // Skipping the marginalized variable
+  if (marginal_rows > 0)
   {
-    auto index = dense_to_index[dense];
-    marginal_term.variables.push_back(index);
-    marginal_term.A.push_back(Ab.block(min_row, column_offsets[dense], marginal_rows, index_to_cols[index]));
+    for (size_t dense = 1ul; dense < dense_to_index.size(); ++dense)  // Skipping the marginalized variable
+    {
+      auto index = dense_to_index[dense];
+      marginal_term.variables.push_back(index);
+      marginal_term.A.push_back(Ab.block(min_row, column_offsets[dense], marginal_rows, index_to_cols[index]));
+    }
+    marginal_term.b = Ab.block(min_row, column_offsets.back(), marginal_rows, 1);
   }
-  marginal_term.b = Ab.block(min_row, column_offsets.back(), marginal_rows, 1);
-
   return marginal_term;
 }
 
