@@ -113,13 +113,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
   )
 
   # Absolute Orientation 3D Stamped Constraint Tests
@@ -176,13 +174,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_pose_2d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
   )
 
   # Absolute Pose 3D Stamped Constraint Tests
@@ -197,13 +193,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
   )
 
   # Marginal Constraint Tests
@@ -234,7 +228,6 @@ if(CATKIN_ENABLE_TESTING)
     PRIVATE
       include
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
       ${fuse_graphs_INCLUDE_DIRS}
   )
   target_link_libraries(test_marginalize_variables
@@ -255,13 +248,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
   )
 
   # Relative Pose 2D Stamped Constraint Tests
@@ -276,13 +267,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_pose_2d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
   )
 
   # Relative Pose 3D Stamped Constraint Tests
@@ -297,13 +286,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
   )
 
   # UuidOrdering Tests
