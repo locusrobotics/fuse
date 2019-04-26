@@ -58,12 +58,34 @@ namespace fuse_constraints
 {
 
 /**
+ * @brief Compute an efficient elimination order for the marginalized variables
+ *
+ * The marginalized_variables are guaranteed to be placed before any additional connected variables. Each time a
+ * variable is eliminated from the system, the resulting reduced system is independent of the eliminated variable.
+ * By eliminating the "marginalized variables" first, all of the "additional connected variables" will remain in the
+ * system, but they will not depend on any of the "marginalized variables"...which is what we want.
+ *
+ * This function uses CCOLAMD to find a good elimination order that eliminates all the "marginalized variables"
+ * first.
+ *
+ * @param[in] marginalized_variables The variable UUIDs to be marginalized out
+ * @param[in] graph                  A graph containing, at least, all constraints that involve at least one
+ *                                   marginalized variable
+ * @return The mapping from variable UUID to the computed elimination order
+ */
+UuidOrdering computeEliminationOrder(
+  const std::vector<fuse_core::UUID>& marginalized_variables,
+  const fuse_core::Graph& graph);
+
+/**
  * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested variables
  *
  * This computes a linear approximation of the marginal information on the non-marginalized variables. The current
  * variable values in the graph are used as the linearization points for the linear approximation. Thus, marginalizing
  * out a variable will introduce linearization errors as the optimal values move away from the fixed linearization
  * points.
+ *
+ * This version computes an efficient elimination order using computeEliminationOrder().
  *
  * @param[in] marginalized_variables The set of variable UUIDs to marginalize out
  * @param[in] graph                  A graph containing the variables and constraints that are connected to at least
@@ -84,23 +106,21 @@ fuse_core::Transaction marginalizeVariables(
  * out a variable will introduce linearization errors as the optimal values move away from the fixed linearization
  * points.
  *
- * @param[in] first An iterator pointing to the first variable UUID to marginalize out
- * @param[in] last  An iterator pointing to one passed the last variable UUID to marginalize out
- * @param[in] graph A graph containing the variables and constraints that are connected to at least one marginalized
- *                  variable. The graph may also contain additional variables and constraints.
+ * This version allows the user to provide their own elimination order. The marginalized_variables *must* occur
+ * before any other variables in that elimination order.
+ *
+ * @param[in] marginalized_variables The set of variable UUIDs to marginalize out
+ * @param[in] graph                  A graph containing the variables and constraints that are connected to at least
+ *                                   one marginalized variable. The graph may also contain additional variables and
+ *                                   constraints.
+ * @param[in] elimination_order      An sequential ordering of at least the marginalized variables
  * @return A transaction object containing the computed marginal constraints to be added, as well as the set of
  *         variables and constraints to be removed.
  */
-template <typename VariableUuidIterator>
 fuse_core::Transaction marginalizeVariables(
-  VariableUuidIterator first,
-  VariableUuidIterator last,
-  const fuse_core::Graph& graph)
-{
-  std::vector<fuse_core::UUID> marginalized_variables;
-  std::copy(first, last, std::back_inserter(marginalized_variables));
-  return marginalizeVariables(marginalized_variables, graph);
-}
+  const std::vector<fuse_core::UUID>& marginalized_variables,
+  const fuse_core::Graph& graph,
+  const fuse_constraints::UuidOrdering& elimination_order);
 
 namespace detail
 {
@@ -116,26 +136,6 @@ struct LinearTerm
   std::vector<fuse_core::MatrixXd> A;
   fuse_core::VectorXd b;
 };
-
-/**
- * @brief Compute an efficient elimination order for the marginalized variables
- *
- * The marginalized_variables are guaranteed to be placed before any additional connected variables. Each time a
- * variable is eliminated from the system, the resulting reduced system is independent of the eliminated variable.
- * By eliminating the "marginalized variables" first, all of the "additional connected variables" will remain in the
- * system, but they will not depend on any of the "marginalized variables"...which is what we want.
- *
- * This function uses CCOLAMD to find a good elimination order that eliminates all the "marginalized variables"
- * first.
- *
- * @param[in] marginalized_variables The variable UUIDs to be marginalized out
- * @param[in] graph                  A graph containing, at least, all constraints that involve at least one
- *                                   marginalized variable
- * @return The mapping from variable UUID to the computed elimination order
- */
-UuidOrdering computeEliminationOrder(
-  const std::vector<fuse_core::UUID>& marginalized_variables,
-  const fuse_core::Graph& graph);
 
 /**
  * @brief Linearize the nonlinear constraint
@@ -176,7 +176,6 @@ MarginalConstraint::SharedPtr createMarginalConstraint(
   const LinearTerm& linear_term,
   const fuse_core::Graph& graph,
   const UuidOrdering& elimination_order);
-
 }  // namespace detail
 
 }  // namespace fuse_constraints

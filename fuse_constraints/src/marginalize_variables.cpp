@@ -55,12 +55,8 @@
 namespace fuse_constraints
 {
 
-namespace detail
-{
-// TODO(swilliams) Most of these functions need additional error and sanity checks
-
 UuidOrdering computeEliminationOrder(
-  const std::vector<fuse_core::UUID>& to_be_marginalized,
+  const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph)
 {
   // COLAMD wants a somewhat weird structure
@@ -69,14 +65,14 @@ UuidOrdering computeEliminationOrder(
   // 'A' contains the constraint index for each connected constraint to a specific variable. The connected
   //     constraints are added to 'A' in variable index order.
   // 'p' contains the boundary indices for each variable in 'A'. So variable #1 spans entries
-  //     from A[p[0]] to A[p[1]-1], and variable #2 is the range A[p[1]] to A[p[2] - 1], etc.
+  //     from A[p[0]] to A[p[1] - 1], and variable #2 is the range A[p[1]] to A[p[2] - 1], etc.
   // In order to compute A and p efficiently, we first construct a VariableConstraints object
   // We will construct sequential indices for the variables and constraints while we populate the VariableConstraints
   // object.
   auto variable_order = UuidOrdering();
   auto constraint_order = UuidOrdering();
   auto variable_constraints = VariableConstraints();
-  for (const auto& variable_uuid : to_be_marginalized)
+  for (const auto& variable_uuid : marginalized_variables)
   {
     // Get all connected constraints to this variable
     auto constraints = graph.getConnectedConstraints(variable_uuid);
@@ -109,16 +105,16 @@ UuidOrdering computeEliminationOrder(
   for (unsigned int variable_index = 0; variable_index < variable_order.size(); ++variable_index)
   {
     variable_constraints.getConstraints(variable_index, A_iter);
-    *p_iter = (A_iter - A.begin());
+    *p_iter = std::distance(A.begin(), A_iter);
     ++p_iter;
   }
 
   // Define the variables groups used by CCOLAMD. All of the marginalized variables should be group0, all the
   // rest should be group1.
   std::vector<int> variable_groups(variable_order.size(), 1);  // Default all variables to group1
-  for (const auto& variable_uuid : to_be_marginalized)
+  for (const auto& variable_uuid : marginalized_variables)
   {
-    // Reassign the to_be_marginalized variables to group0
+    // Reassign the marginalized variables to group0
     variable_groups[variable_order[variable_uuid]] = 0;
   }
 
@@ -154,6 +150,80 @@ UuidOrdering computeEliminationOrder(
   return elimination_order;
 }
 
+fuse_core::Transaction marginalizeVariables(
+  const std::vector<fuse_core::UUID>& marginalized_variables,
+  const fuse_core::Graph& graph)
+{
+  return marginalizeVariables(marginalized_variables, graph, computeEliminationOrder(marginalized_variables, graph));
+}
+
+fuse_core::Transaction marginalizeVariables(
+  const std::vector<fuse_core::UUID>& marginalized_variables,
+  const fuse_core::Graph& graph,
+  const fuse_constraints::UuidOrdering& elimination_order)
+{
+  fuse_core::Transaction transaction;
+
+  // Mark all of the marginalized variables for removal
+  for (const auto& variable_uuid : marginalized_variables)
+  {
+    transaction.removeVariable(variable_uuid);
+  }
+
+  // Copy the elimination order so we can add addition variables if needed
+  auto variable_order = elimination_order;
+
+  // Linearize all involved constraints, and store them with the variable where they will be used
+  auto used_constraints = std::unordered_set<fuse_core::UUID, fuse_core::uuid::hash>();
+  std::vector<std::vector<detail::LinearTerm>> linear_terms(variable_order.size());
+  for (size_t i = 0; i < marginalized_variables.size(); ++i)
+  {
+    auto constraints = graph.getConnectedConstraints(variable_order[i]);
+    for (const auto& constraint : constraints)
+    {
+      if (used_constraints.find(constraint.uuid()) == used_constraints.end())
+      {
+        // Ensure all connected variables are added to the ordering
+        for (const auto& variable_uuid : constraint.variables())
+        {
+          variable_order.push_back(variable_uuid);
+        }
+        // Add the linearized constraint to the lowest-ordered connected variable
+        linear_terms[i].push_back(detail::linearize(constraint, graph, variable_order));
+        transaction.removeConstraint(constraint.uuid());
+        used_constraints.insert(constraint.uuid());
+      }
+    }
+  }
+
+  // Expand the linear_terms to include all the connected variables as well
+  // During the marginalize process, marginal variables may be associated with these higher-order variables
+  linear_terms.resize(variable_order.size());
+
+  // Use the linearized constraints to marginalize each variable in order
+  // Place the resulting marginal in the linear constraint bucket associated with the earliest remaining variable
+  for (size_t i = 0; i < marginalized_variables.size(); ++i)
+  {
+    auto linear_marginal = detail::marginalizeNext(linear_terms[i]);
+    auto lowest_ordered_variable = linear_marginal.variables.front();
+    linear_terms[lowest_ordered_variable].push_back(std::move(linear_marginal));
+  }
+
+  // Convert all remaining linear marginals into marginal constraints
+  for (size_t i = marginalized_variables.size(); i < linear_terms.size(); ++i)
+  {
+    for (const auto& linear_term : linear_terms[i])
+    {
+      auto marginal_constraint = detail::createMarginalConstraint(linear_term, graph, variable_order);
+      transaction.addConstraint(std::move(marginal_constraint));
+    }
+  }
+
+  return transaction;
+}
+
+namespace detail
+{
 /**
  * In order for the linearize function to work correctly, it must perform the same operations as Google Ceres-Solver.
  * Unfortunately those functions are not callable from the public API, so we must replicate them here. The following
@@ -416,59 +486,5 @@ MarginalConstraint::SharedPtr createMarginalConstraint(
 }
 
 }  // namespace detail
-
-fuse_core::Transaction marginalizeVariables(
-  const std::vector<fuse_core::UUID>& marginalized_variables,
-  const fuse_core::Graph& graph)
-{
-  fuse_core::Transaction transaction;
-
-  // Mark all of the to_be_marginalized variables for removal
-  for (const auto& variable_uuid : marginalized_variables)
-  {
-    transaction.removeVariable(variable_uuid);
-  }
-
-  // Compute an ordering
-  auto elimination_order = detail::computeEliminationOrder(marginalized_variables, graph);
-
-  // Linearize all involved constraints, and store them with the variable where they will be used
-  auto used_constraints = std::unordered_set<fuse_core::UUID, fuse_core::uuid::hash>();
-  std::vector<std::vector<detail::LinearTerm>> linear_terms(elimination_order.size());
-  for (size_t i = 0; i < marginalized_variables.size(); ++i)
-  {
-    auto constraints = graph.getConnectedConstraints(elimination_order[i]);
-    for (const auto& constraint : constraints)
-    {
-      if (used_constraints.find(constraint.uuid()) == used_constraints.end())
-      {
-        used_constraints.insert(constraint.uuid());
-        linear_terms[i].push_back(detail::linearize(constraint, graph, elimination_order));
-        transaction.removeConstraint(constraint.uuid());
-      }
-    }
-  }
-
-  // Use the linearized constraints to marginalize each variable in order
-  // Place the resulting marginal in the linear constraint bucket associated with the earliest remaining variable
-  for (size_t i = 0; i < marginalized_variables.size(); ++i)
-  {
-    auto linear_marginal = detail::marginalizeNext(linear_terms[i]);
-    auto lowest_ordered_variable = linear_marginal.variables.front();
-    linear_terms[lowest_ordered_variable].push_back(std::move(linear_marginal));
-  }
-
-  // Convert all remaining linear marginals into marginal constraints
-  for (size_t i = marginalized_variables.size(); i < linear_terms.size(); ++i)
-  {
-    for (const auto& linear_term : linear_terms[i])
-    {
-      auto marginal_constraint = detail::createMarginalConstraint(linear_term, graph, elimination_order);
-      transaction.addConstraint(std::move(marginal_constraint));
-    }
-  }
-
-  return transaction;
-}
 
 }  // namespace fuse_constraints

@@ -137,7 +137,7 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   auto to_be_marginalized = std::vector<fuse_core::UUID>{x2->uuid(), x1->uuid()};
 
   // Compute the ordering
-  auto actual = fuse_constraints::detail::computeEliminationOrder(to_be_marginalized, graph);
+  auto actual = fuse_constraints::computeEliminationOrder(to_be_marginalized, graph);
 
   // Define the expected order
   auto expected = fuse_constraints::UuidOrdering();
