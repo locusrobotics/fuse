@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_constraints)
 
 set(build_depends
-  geometry_msgs
   fuse_core
   fuse_variables
+  geometry_msgs
   roscpp
 )
 
@@ -12,19 +12,22 @@ find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
 
 catkin_package(
   INCLUDE_DIRS
     include
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
   LIBRARIES
     ${PROJECT_NAME}
-    ${CERES_LIBRARIES}
   CATKIN_DEPENDS
     ${build_depends}
+  DEPENDS
+    CERES
+    EIGEN3
+    SUITESPARSE
 )
 
 ###########
@@ -41,6 +44,7 @@ add_library(${PROJECT_NAME}
   src/absolute_pose_3d_stamped_constraint.cpp
   src/marginal_constraint.cpp
   src/marginal_cost_function.cpp
+  src/marginalize_variables.cpp
   src/normal_delta.cpp
   src/normal_delta_orientation_2d.cpp
   src/normal_prior_orientation_2d.cpp
@@ -59,10 +63,13 @@ target_include_directories(${PROJECT_NAME}
     ${catkin_INCLUDE_DIRS}
     ${CERES_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
+    ${SUITESPARSE_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+  ${SUITESPARSE_LIBRARIES}
 )
 
 #############
@@ -87,6 +94,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
+  find_package(fuse_graphs REQUIRED)
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
@@ -105,7 +113,6 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_constraint
     ${PROJECT_NAME}
@@ -130,6 +137,8 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_absolute_orientation_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+    ${EIGEN3_LIBRARIES}
   )
 
   # Absolute Orientation 3D Stamped Euler Constraint Tests
@@ -149,6 +158,8 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_absolute_orientation_3d_stamped_euler_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+    ${EIGEN3_LIBRARIES}
   )
 
   # Absolute Pose 2D Stamped Constraint Tests
@@ -163,11 +174,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_pose_2d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
   )
 
   # Absolute Pose 3D Stamped Constraint Tests
@@ -182,11 +193,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_absolute_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
   )
 
   # Marginal Constraint Tests
@@ -206,6 +217,25 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
+  # Marginalize Variables Tests
+  catkin_add_gtest(test_marginalize_variables
+    test/test_marginalize_variables.cpp
+  )
+  add_dependencies(test_marginalize_variables
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_marginalize_variables
+    PRIVATE
+      include
+      ${CERES_INCLUDE_DIRS}
+      ${fuse_graphs_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_marginalize_variables
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${fuse_graphs_LIBRARIES}
+  )
+
   # Relative Constraint Tests
   catkin_add_gtest(test_relative_constraint
     test/test_relative_constraint.cpp
@@ -218,7 +248,6 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_constraint
     ${PROJECT_NAME}
@@ -238,11 +267,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_pose_2d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
   )
 
   # Relative Pose 3D Stamped Constraint Tests
@@ -257,11 +286,11 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
   )
   target_link_libraries(test_relative_pose_3d_stamped_constraint
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
   )
 
   # UuidOrdering Tests
