@@ -279,7 +279,8 @@ void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_con
 void HashGraph::getCovariance(
   const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>& covariance_requests,
   std::vector<std::vector<double>>& covariance_matrices,
-  const ceres::Covariance::Options& options) const
+  const ceres::Covariance::Options& options,
+  const bool use_tangent_space) const
 {
   // Avoid doing a bunch of work if the request is empty
   if (covariance_requests.empty())
@@ -323,7 +324,14 @@ void HashGraph::getCovariance(
     }
     // Both variables exist. Continue processing.
     // Create the output covariance matrix
-    covariance_matrices[i].resize(variable1_iter->second->size() * variable2_iter->second->size());
+    if (use_tangent_space)
+    {
+      covariance_matrices[i].resize(variable1_iter->second->localSize() * variable2_iter->second->localSize());
+    }
+    else
+    {
+      covariance_matrices[i].resize(variable1_iter->second->size() * variable2_iter->second->size());
+    }
     // Add this covariance block to the container of all covariance blocks. This container is in sync with the
     // covariance_requests vector.
     auto& block = all_covariance_blocks.at(i);
@@ -345,16 +353,32 @@ void HashGraph::getCovariance(
     throw std::runtime_error("Could not compute requested covariance blocks.");
   }
   // Populate the computed covariance blocks into the output variable.
-  // We use the temporary structure to avoid repeated map lookups.
-  for (size_t i = 0; i < covariance_requests.size(); ++i)
+  if (use_tangent_space)
   {
-    if (!covariance.GetCovarianceBlock(all_covariance_blocks.at(i).first,
-                                       all_covariance_blocks.at(i).second,
-                                       covariance_matrices.at(i).data()))
+    for (size_t i = 0; i < covariance_requests.size(); ++i)
     {
-      throw std::runtime_error("Could not get covariance block for variable UUIDs " +
-                               fuse_core::uuid::to_string(covariance_requests.at(i).first) + " and " +
-                               fuse_core::uuid::to_string(covariance_requests.at(i).second) + ".");
+      if (!covariance.GetCovarianceBlockInTangentSpace(all_covariance_blocks.at(i).first,
+                                                       all_covariance_blocks.at(i).second,
+                                                       covariance_matrices.at(i).data()))
+      {
+        throw std::runtime_error("Could not get covariance block for variable UUIDs " +
+                                 fuse_core::uuid::to_string(covariance_requests.at(i).first) + " and " +
+                                 fuse_core::uuid::to_string(covariance_requests.at(i).second) + ".");
+      }
+    }
+  }
+  else
+  {
+    for (size_t i = 0; i < covariance_requests.size(); ++i)
+    {
+      if (!covariance.GetCovarianceBlock(all_covariance_blocks.at(i).first,
+                                         all_covariance_blocks.at(i).second,
+                                         covariance_matrices.at(i).data()))
+      {
+        throw std::runtime_error("Could not get covariance block for variable UUIDs " +
+                                 fuse_core::uuid::to_string(covariance_requests.at(i).first) + " and " +
+                                 fuse_core::uuid::to_string(covariance_requests.at(i).second) + ".");
+      }
     }
   }
 }
