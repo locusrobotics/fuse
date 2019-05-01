@@ -55,9 +55,9 @@ Optimizer::Optimizer(
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     graph_(std::move(graph)),
-    motion_model_loader_("fuse_core", "fuse_core::MotionModel"),
     node_handle_(node_handle),
     private_node_handle_(private_node_handle),
+    motion_model_loader_("fuse_core", "fuse_core::MotionModel"),
     publisher_loader_("fuse_core", "fuse_core::Publisher"),
     sensor_model_loader_("fuse_core", "fuse_core::SensorModel")
 {

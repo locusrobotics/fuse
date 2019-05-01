@@ -35,17 +35,15 @@
 #define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/vector_queue.h>
 #include <ros/ros.h>
 
 #include <atomic>
 #include <condition_variable>
-#include <map>
+#include <functional>
 #include <mutex>
-#include <set>
-#include <shared_mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -55,17 +53,30 @@ namespace fuse_optimizers
 {
 
 /**
- * @brief A simple optimizer implementation that uses batch optimization
+ * @brief A fixed-lag smoother implementation that marginalizes out variables that are older than a defined lag time
  *
- * The batch optimization takes place in a separate thread. Received sensor transactions are queued while the
- * optimization is processing, then applied to the graph at the start of the next optimization cycle. Optimization
- * cycles are started at a fixed frequency. If the previous optimization is not yet complete when the optimization
- * period elapses, then a new optimization will not be started. The previous optimization will run to completion, and
- * the next optimization will not begin until the next scheduled optimization period. For batch optimization problems
- * that continuously grow in size, this means that the optimization period is not overly important. The time spent
- * waiting versus the time spent optimizing will approach zero as the problem size increases.
+ * This implementation assumes that all added variable types are either derived from the fuse_variables::Stamped class,
+ * or are directly connected to at least one fuse_variables::Stamped variable via a constraint. The current time of
+ * the fixed-lag smoother is determined by the newest stamp of all added fuse_variables::Stamped variables.
+ *
+ * During optimization:
+ *  (1) new variables and constraints are added to the graph
+ *  (2) the augmented graph is optimized and the variable values are updated
+ *  (3) all motion models, sensors, and publishers are notified of the updated graph
+ *  (4) all variables older than "current time - lag duration" are marginalized out.
+ *
+ * Optimization is performed at a fixed frequency, controlled by the \p update_frequency parameter. If an optimization
+ * takes longer than the update period, a warning will be logged and the optimization will not be tried again until
+ * the next update period.
+ *
+ * Optimization is performed at a fixed frequency, controlled by the \p optimization_frequency parameter. Received
+ * sensor transactions are queued while the optimization is processing, then applied to the graph at the start of the
+ * next optimization cycle. If the previous optimization is not yet complete when the optimization period elapses,
+ * then a warning will be logged but a new optimization will *not* be started. The previous optimization will run to
+ * completion, and the next optimization will not begin until the next scheduled optimization period.
  *
  * Parameters:
+ *  - lag_duration (float, default: 5.0) The duration of the smoothing window in seconds
  *  - ignition_sensors (string list, default: "") The optimization will wait until a transaction is received from one
  *                                                of these sensors. This is useful, for example, for providing an
  *                                                initial guess of the robot's position and orientation. Any
@@ -78,7 +89,8 @@ namespace fuse_optimizers
  *      type: string  (The plugin loader class string for the desired motion model type)
  *    - ...
  *    @endcode
- *  - optimization_period (float, default: 10.0) The minimum time delay, in seconds, between optimization cycles.
+ *  - optimization_frequency (float, default: 10.0) The target frequency for optimization cycles. If an optimization
+ *                                                  takes longer than expected, an optimization cycle may be skipped.
  *  - publishers (struct array) The set of publisher plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this publisher)
@@ -92,7 +104,7 @@ namespace fuse_optimizers
  *      motion_models: [name1, name2, ...]  (An optional list of motion model names that should be applied)
  *    - ...
  *    @endcode
- *  - transaction_timeout (float, default: 10.0) The maximum time to wait for motion models to be generated for a
+ *  - transaction_timeout (float, default: 0.10) The maximum time to wait for motion models to be generated for a
  *                                               received transactions. Transactions are processes sequentially, so
  *                                               no new transactions will be added to the graph while waiting for
  *                                               motion models to be generated. Once the timeout expires, that
@@ -129,36 +141,33 @@ protected:
   {
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
-
-    TransactionQueueElement(
-      const std::string& sensor_name,
-      fuse_core::Transaction::SharedPtr transaction) :
-        sensor_name(sensor_name),
-        transaction(std::move(transaction)) {}
   };
 
   /**
    * @brief Queue of Transaction objects, sorted by timestamp.
    *
-   * Note: Because the queue is sorted on insert, the insert operation is O(logN). However, it is far more likely that
-   * the computer will run out of memory before the insertion time grows large enough to surpass the sensor update
-   * period.
+   * Note: Because the queue size of the fixed-lag smoother is expected to be small, the sorted queue is implemented
+   * using a std::vector. The queue size must exceed several hundred entries before a std::set will outperform a
+   * sorted vector.
+   *
+   * Also, we sort the queue with the newest transactions first. This allows us to clear the queue using the more
+   * efficient pop_back() operation.
    */
-  using TransactionQueue = std::multimap<ros::Time, TransactionQueueElement>;
+  using TransactionQueue = VectorQueue<ros::Time, TransactionQueueElement, std::greater<ros::Time>>;
 
-  fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate constraints and variables
-                                                            //!< from multiple sensors and motions models before being
-                                                            //!< applied to the graph.
-  std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction across different threads
   std::vector<std::string> ignition_sensors_;  //!< The set of sensors whose transactions will trigger the optimizer
                                                //!< thread to start running. This is designed to keep the system idle
                                                //!< until the origin constraint has been received.
+  ros::Duration lag_duration_;  //!< Parameter that controls the time window of the fixed lag smoother. Variables
+                                //!< older than the lag duration will be marginalized out
+  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
+  ros::Duration optimization_period_;  //!< The expected time between optimization cycles
   std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
+  std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
@@ -168,15 +177,8 @@ protected:
   ros::Duration transaction_timeout_;  //!< Parameter that controls how long to wait for a transaction to be processed
                                        //!< successfully before kicking it out of the queue.
 
-  /**
-   * @brief Generate motion model constraints for pending transactions
-   *
-   * Transactions are processed sequentially based on timestamp. If motion models are successfully generated for a
-   * pending transactions, that transaction is merged into the combined_transaction_ variable and removed from the
-   * pending queue. If motion models fail to generate after the configured transaction_timeout_, the transaction
-   * will be deleted from the pending queue and a warning will be displayed.
-   */
-  void applyMotionModelsToQueue();
+  // Ordering ROS objects with callbacks last
+  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
@@ -194,6 +196,18 @@ protected:
    * @param event  The ROS timer event metadata
    */
   void optimizerTimerCallback(const ros::TimerEvent& event);
+
+  /**
+   * @brief Generate motion model constraints for pending transactions and combine them into a single transaction
+   *
+   * Transactions are processed sequentially based on timestamp. If motion models are successfully generated for a
+   * pending transactions, that transaction is merged into the combined transaction and removed from the pending
+   * queue. If motion models fail to generate after the configured transaction_timeout_, the transaction will be
+   * deleted from the pending queue and a warning will be displayed.
+   *
+   * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
+   */
+  void processQueue(fuse_core::Transaction& transaction);
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction

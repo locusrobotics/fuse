@@ -33,15 +33,18 @@
  */
 #include <fuse_optimizers/fixed_lag_smoother.h>
 
+#include <fuse_constraints/marginalize_variables.h>
+#include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/uuid.h>
 #include <fuse_optimizers/optimizer.h>
 #include <ros/ros.h>
 
 #include <algorithm>
 #include <mutex>
-#include <shared_mutex>
 #include <string>
 #include <thread>
+#include <vector>
 
 
 namespace fuse_optimizers
@@ -52,23 +55,35 @@ FixedLagSmoother::FixedLagSmoother(
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    combined_transaction_(fuse_core::Transaction::make_shared()),
     optimization_request_(false),
+    optimization_running_(true),
     start_time_(ros::TIME_MAX),
     started_(false)
 {
-  double optimization_period;
-  double default_optimization_period = 10.0;
-  private_node_handle_.param("optimization_period", optimization_period, default_optimization_period);
-  if (optimization_period <= 0)
+  double lag_duration;
+  double default_lag_duration = 5.0;
+  private_node_handle_.param("lag_duration", lag_duration, default_lag_duration);
+  if (lag_duration <= 0)
   {
-    ROS_WARN_STREAM("The requested optimization_period is <= 0. Using the default value (" <<
-                    default_optimization_period << "s) instead.");
-    optimization_period = default_optimization_period;
+    ROS_WARN_STREAM("The requested lag_duration is <= 0. Using the default value (" <<
+                    default_lag_duration << "s) instead.");
+    lag_duration = default_lag_duration;
   }
+  lag_duration_.fromSec(lag_duration);
+
+  double optimization_frequency;
+  double default_optimization_frequency = 10.0;
+  private_node_handle_.param("optimization_frequency", optimization_frequency, default_optimization_frequency);
+  if (optimization_frequency <= 0)
+  {
+    ROS_WARN_STREAM("The requested optimization_frequency is <= 0. Using the default value (" <<
+                    default_optimization_frequency << " hz) instead.");
+    optimization_frequency = default_optimization_frequency;
+  }
+  optimization_period_ = ros::Duration(1.0 / optimization_frequency);
 
   double transaction_timeout;
-  double default_transaction_timeout = 10.0;
+  double default_transaction_timeout = 0.10;
   private_node_handle_.param("transaction_timeout", transaction_timeout, default_transaction_timeout);
   if (transaction_timeout <= 0)
   {
@@ -99,19 +114,20 @@ FixedLagSmoother::FixedLagSmoother(
     std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
   }
 
-  // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
-    ros::Duration(optimization_period),
-    &FixedLagSmoother::optimizerTimerCallback,
-    this);
-
   // Start the optimization thread
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
+
+  // Configure a timer to trigger optimizations
+  optimize_timer_ = node_handle_.createTimer(
+    optimization_period_,
+    &FixedLagSmoother::optimizerTimerCallback,
+    this);
 }
 
 FixedLagSmoother::~FixedLagSmoother()
 {
   // Wake up any sleeping threads
+  optimization_running_ = false;
   optimization_requested_.notify_all();
   // Wait for the threads to shutdown
   if (optimization_thread_.joinable())
@@ -120,79 +136,52 @@ FixedLagSmoother::~FixedLagSmoother()
   }
 }
 
-void FixedLagSmoother::applyMotionModelsToQueue()
-{
-  // We need get the pending transactions from the queue
-  std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
-  // Use the most recent transaction time as the current time
-  ros::Time current_time(0, 0);
-  if (!pending_transactions_.empty())
-  {
-    current_time = pending_transactions_.rbegin()->first;
-  }
-  // Attempt to process each pending transaction
-  while (!pending_transactions_.empty())
-  {
-    auto& element = pending_transactions_.begin()->second;
-    // Apply the motion models to the transaction
-    if (!applyMotionModels(element.sensor_name, *element.transaction))
-    {
-      if (element.transaction->stamp() + transaction_timeout_ < current_time)
-      {
-        // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
-                          << " could not be processed after " << (current_time - element.transaction->stamp())
-                          << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << transaction_timeout_ << ". Ignoring this transaction.");
-        pending_transactions_.erase(pending_transactions_.begin());
-        continue;
-      }
-      else
-      {
-        // Stop processing future transactions. Try again next time.
-        break;
-      }
-    }
-    // Merge the sensor+motion model transactions into a combined transaction that will be applied directly to the graph
-    {
-      std::lock_guard<std::mutex> combined_transaction_lock(combined_transaction_mutex_);
-      combined_transaction_->merge(*element.transaction, true);
-    }
-    // We are done with this transaction. Delete it from the queue.
-    pending_transactions_.erase(pending_transactions_.begin());
-  }
-}
-
 void FixedLagSmoother::optimizationLoop()
 {
+  auto exit_wait_condition = [this]()
+  {
+    return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
+  };
   // Optimize constraints until told to exit
-  while (ros::ok())
+  auto transaction = fuse_core::Transaction::make_shared();
+  while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
+    auto optimization_deadline = ros::Time(0, 0);
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
-      optimization_requested_.wait(lock, [this]{ return optimization_request_ || !ros::ok(); });  // NOLINT
+      optimization_requested_.wait(lock, exit_wait_condition);
+      optimization_deadline = optimization_deadline_;
     }
     // If a shutdown is requested, exit now.
-    if (!ros::ok())
+    if (!optimization_running_ || !ros::ok())
     {
       break;
     }
-    // Copy the combined transaction so it can be shared with all the plugins
-    fuse_core::Transaction::ConstSharedPtr const_transaction;
-    {
-      std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
-      const_transaction = std::move(combined_transaction_);
-      combined_transaction_ = fuse_core::Transaction::make_shared();
-    }
+    // Apply motion models
+    processQueue(*transaction);
     // Update the graph
-    graph_->update(*const_transaction);
+    graph_->update(*transaction);
     // Optimize the entire graph
     graph_->optimize();
     // Make a copy of the graph to share
-    fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
+    auto graph = graph_->clone();
     // Optimization is complete. Notify all the things about the graph changes.
-    notify(const_transaction, const_graph);
+    notify(std::move(transaction), std::move(graph));
+
+    // TODO(swilliams) Compute the set of variables to marginalize out
+    auto old_variables = std::vector<fuse_core::UUID>();
+
+    // Compute a transaction that marginalizes out those variables.
+    // The transaction will not be applied until the next optimization cycle.
+    transaction = fuse_core::Transaction::make_shared(fuse_constraints::marginalizeVariables(old_variables, *graph_));
+    // Log a warning if the optimization took too long
+    auto optimization_complete = ros::Time::now();
+    if (optimization_complete > optimization_deadline)
+    {
+      ROS_WARN_STREAM("Optimization exceeded the configured duration by " <<
+                      (optimization_complete - optimization_deadline) << "s");
+    }
     // Clear the request flag now that this optimization cycle is complete
     optimization_request_ = false;
   }
@@ -205,22 +194,58 @@ void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
   {
     return;
   }
-  // Attempt to generate motion models for any queued transactions
-  applyMotionModelsToQueue();
-  // Check if there is any pending information to be applied to the graph.
-  {
-    std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
-    optimization_request_ = !combined_transaction_->addedConstraints().empty() ||
-                            !combined_transaction_->removedConstraints().empty() ||
-                            !combined_transaction_->addedVariables().empty() ||
-                            !combined_transaction_->removedVariables().empty();
-  }
   // If there is some pending work, trigger the next optimization cycle.
   // If the optimizer has not completed the previous optimization cycle, then it
   // will not be waiting on the condition variable signal, so nothing will happen.
+  {
+    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    optimization_request_ = !pending_transactions_.empty();
+  }
   if (optimization_request_)
   {
+    {
+      std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+      optimization_deadline_ = event.current_expected + optimization_period_;
+    }
     optimization_requested_.notify_one();
+  }
+}
+
+void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
+{
+  // We need to get the pending transactions from the queue
+  std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+  // Use the most recent transaction time as the current time
+  auto current_time = ros::Time(0, 0);
+  if (!pending_transactions_.empty())
+  {
+    current_time = pending_transactions_.front_key();
+  }
+  // Attempt to process each pending transaction
+  while (!pending_transactions_.empty())
+  {
+    auto& element = pending_transactions_.back_value();
+    // Apply the motion models to the transaction
+    if (!applyMotionModels(element.sensor_name, *element.transaction))
+    {
+      if (element.transaction->stamp() + transaction_timeout_ < current_time)
+      {
+        // Warn that this transaction has expired, then skip it.
+        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
+                          << " could not be processed after " << (current_time - element.transaction->stamp())
+                          << " seconds, which is greater than the 'transaction_timeout' value of "
+                          << transaction_timeout_ << ". Ignoring this transaction.");
+        pending_transactions_.pop_back();
+        continue;
+      }
+      else
+      {
+        // The motion model failed. Stop further processing and try again next time.
+        break;
+      }
+    }
+    transaction.merge(*element.transaction, true);
+    pending_transactions_.pop_back();
   }
 }
 
@@ -228,44 +253,43 @@ void FixedLagSmoother::transactionCallback(
   const std::string& sensor_name,
   fuse_core::Transaction::SharedPtr transaction)
 {
-  // Add the new transaction to the pending set
-  // Either we haven't "started" yet and we want to keep a short history of transactions around
-  // Or we have "started" already, and the new transaction is after the starting time.
-  ros::Time transaction_time = transaction->stamp();
-  ros::Time last_pending_time(0, 0);
-  if (!started_ || transaction_time >= start_time_)
+  // If this transaction occurs before the start time, just ignore it
+  auto transaction_time = transaction->stamp();
+  if (started_ && transaction_time < start_time_)
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-    pending_transactions_.emplace(transaction_time, TransactionQueueElement(sensor_name, std::move(transaction)));
-    last_pending_time = pending_transactions_.rbegin()->first;
+    ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
+                     "  start_time: " << start_time_ << ", transaction time: " << transaction_time <<
+                     ", difference: " << (start_time_ - transaction_time) << "s");
+    return;
   }
-  // If we haven't "started" yet...
+  // Add the new transaction to the pending set
+  pending_transactions_.insert(transaction_time, {sensor_name, std::move(transaction)});  // NOLINT
+  // If we haven't "started" yet..
   if (!started_)
   {
-    // Check if this transaction "starts" the system
+    // ...check if we should
     if (std::binary_search(ignition_sensors_.begin(), ignition_sensors_.end(), sensor_name))
     {
       started_ = true;
       start_time_ = transaction_time;
     }
-    // Purge old transactions from the pending queue
-    ros::Time purge_time(0, 0);
+    // And purge out old transactions
+    //  - Either we just started and we want to purge out anything before the start time
+    //  - Or we want to limit the pending size while waiting for an ignition sensor
+    auto purge_time = ros::Time(0, 0);
+    auto last_pending_time = pending_transactions_.front_key();
     if (started_)
     {
       purge_time = start_time_;
     }
-    else if (ros::Time(0, 0) + transaction_timeout_ < last_pending_time)  // taking care to prevent a bad subtraction
+    else if (ros::Time(0, 0) + transaction_timeout_ < last_pending_time)  // ros::Time doesn't allow negatives
     {
       purge_time = last_pending_time - transaction_timeout_;
     }
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-    auto purge_iter = pending_transactions_.lower_bound(purge_time);
-    pending_transactions_.erase(pending_transactions_.begin(), purge_iter);
-  }
-  // If we have "started", attempt to process any pending transactions
-  if (started_)
-  {
-    applyMotionModelsToQueue();
+    while (!pending_transactions_.empty() && pending_transactions_.back_key() < purge_time)
+    {
+      pending_transactions_.pop_back();
+    }
   }
 }
 
