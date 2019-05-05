@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_sensor_model.h>
+
 #include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
@@ -65,7 +66,7 @@ void AsyncSensorModel::initialize(
   // Initialize internal state
   name_ = name;
   node_handle_.setCallbackQueue(&callback_queue_);
-  private_node_handle_ = ros::NodeHandle(ros::NodeHandle("~"), name_);
+  private_node_handle_ = ros::NodeHandle("~/" + name_);
   private_node_handle_.setCallbackQueue(&callback_queue_);
   transaction_callback_ = transaction_callback;
 

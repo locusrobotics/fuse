@@ -34,11 +34,11 @@
 #include <fuse_core/graph.h>
 
 #include <fuse_core/transaction.h>
+#include <fuse_core/uuid.h>
 
 #include <boost/iterator/transform_iterator.hpp>
 
 #include <functional>
-#include <vector>
 
 
 namespace fuse_core

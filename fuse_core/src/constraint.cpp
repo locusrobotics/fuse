@@ -33,6 +33,11 @@
  */
 #include <fuse_core/constraint.h>
 
+#include <fuse_core/uuid.h>
+
+#include <initializer_list>
+#include <ostream>
+
 
 namespace fuse_core
 {

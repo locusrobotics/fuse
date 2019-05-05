@@ -32,11 +32,16 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/transaction.h>
+
+#include <fuse_core/constraint.h>
 #include <fuse_core/uuid.h>
+#include <fuse_core/variable.h>
+#include <ros/time.h>
 
 #include <boost/iterator/transform_iterator.hpp>
 
 #include <algorithm>
+#include <ostream>
 
 
 namespace fuse_core
