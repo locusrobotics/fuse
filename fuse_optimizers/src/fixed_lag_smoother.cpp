@@ -136,6 +136,29 @@ FixedLagSmoother::~FixedLagSmoother()
   }
 }
 
+void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& new_transaction)
+{
+  timestamp_tracking_.addNewTransaction(new_transaction);
+}
+
+std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
+{
+  auto current_stamp = timestamp_tracking_.currentStamp();
+  auto lag_stamp = ros::Time(0, 0);
+  if (current_stamp > ros::Time(0, 0) + lag_duration_)
+  {
+    lag_stamp = current_stamp - lag_duration_;
+  }
+  auto old_variables = std::vector<fuse_core::UUID>();
+  timestamp_tracking_.query(lag_stamp, std::back_inserter(old_variables));
+  return old_variables;
+}
+
+void FixedLagSmoother::postprocessMarginalization(const fuse_core::Transaction& marginal_transaction)
+{
+  timestamp_tracking_.addMarginalTransaction(marginal_transaction);
+}
+
 void FixedLagSmoother::optimizationLoop()
 {
   auto exit_wait_condition = [this]()
@@ -143,7 +166,7 @@ void FixedLagSmoother::optimizationLoop()
     return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
   };
   // Optimize constraints until told to exit
-  auto transaction = fuse_core::Transaction::make_shared();
+  auto marginal_transaction = fuse_core::Transaction();
   while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
@@ -159,22 +182,23 @@ void FixedLagSmoother::optimizationLoop()
       break;
     }
     // Apply motion models
-    processQueue(*transaction);
+    auto new_transactions = fuse_core::Transaction::make_shared();
+    processQueue(*new_transactions);
+    // Prepare for selecting the marginal variables
+    preprocessMarginalization(*new_transactions);
+    // Combine the new transactions with any marginal transaction from the end of the last cycle
+    new_transactions->merge(marginal_transaction);
     // Update the graph
-    graph_->update(*transaction);
+    graph_->update(*new_transactions);
     // Optimize the entire graph
     graph_->optimize();
-    // Make a copy of the graph to share
-    auto graph = graph_->clone();
     // Optimization is complete. Notify all the things about the graph changes.
-    notify(std::move(transaction), std::move(graph));
-
-    // TODO(swilliams) Compute the set of variables to marginalize out
-    auto old_variables = std::vector<fuse_core::UUID>();
-
+    notify(std::move(new_transactions), graph_->clone());
     // Compute a transaction that marginalizes out those variables.
-    // The transaction will not be applied until the next optimization cycle.
-    transaction = fuse_core::Transaction::make_shared(fuse_constraints::marginalizeVariables(old_variables, *graph_));
+    auto marginal_transaction = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
+    // Perform any post-marginal cleanup
+    postprocessMarginalization(marginal_transaction);
+    // Note: The marginal transaction will not be applied until the next optimization iteration
     // Log a warning if the optimization took too long
     auto optimization_complete = ros::Time::now();
     if (optimization_complete > optimization_deadline)

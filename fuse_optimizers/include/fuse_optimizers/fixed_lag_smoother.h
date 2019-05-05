@@ -37,6 +37,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_optimizers/vector_queue.h>
 #include <ros/ros.h>
 
@@ -174,11 +175,45 @@ protected:
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
+  VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
   ros::Duration transaction_timeout_;  //!< Parameter that controls how long to wait for a transaction to be processed
                                        //!< successfully before kicking it out of the queue.
 
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+
+  /**
+   * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
+   *
+   * All new transactions that will be applied to the graph are provided. This does not include the marginal
+   * transaction that is computed later.
+   *
+   * This method will be called before the graph has been updated.
+   *
+   * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
+   */
+  virtual void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+
+  /**
+   * @brief Compute the set of variables that should be marginalized from the graph
+   *
+   * This will be called after \p preprocessMarginalization() and after the graph has been updated with the any
+   * previous marginal transactions and new transactions.
+   *
+   * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
+   */
+  virtual std::vector<fuse_core::UUID> computeVariablesToMarginalize();
+
+  /**
+   * @brief Perform any required post-marginalization bookkeeping
+   *
+   * The transaction containing the actual changed to the graph is supplied. This will be called before the
+   * transaction is actually applied to the graph.
+   *
+   * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
+   *                                 variables.
+   */
+  virtual void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.

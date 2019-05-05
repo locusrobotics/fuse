@@ -33,6 +33,7 @@ add_library(${PROJECT_NAME}
   src/batch_optimizer.cpp
   src/fixed_lag_smoother.cpp
   src/optimizer.cpp
+  src/variable_stamp_index.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -116,4 +117,18 @@ if(CATKIN_ENABLE_TESTING)
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
   roslint_add_test()
+
+  # VariableStampIndex Tests
+  catkin_add_gtest(test_variable_stamp_index
+    test/test_variable_stamp_index.cpp
+  )
+  target_include_directories(test_variable_stamp_index
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_variable_stamp_index
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
 endif()
