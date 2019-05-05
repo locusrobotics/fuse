@@ -34,8 +34,8 @@
 #ifndef FUSE_CORE_CONSTRAINT_H
 #define FUSE_CORE_CONSTRAINT_H
 
-#include <fuse_core/uuid.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/uuid.h>
 
 #include <boost/core/demangle.hpp>
 #include <ceres/cost_function.h>

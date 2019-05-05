@@ -34,15 +34,14 @@
 #ifndef FUSE_CORE_VARIABLE_H
 #define FUSE_CORE_VARIABLE_H
 
-#include <fuse_core/uuid.h>
-#include <fuse_core/macros.h>
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/macros.h>
+#include <fuse_core/uuid.h>
 
 #include <boost/core/demangle.hpp>
 
 #include <ostream>
 #include <string>
-#include <typeinfo>
 
 
 namespace fuse_core

@@ -42,7 +42,7 @@
 
 #include <boost/range/any_range.hpp>
 
-#include <set>
+#include <ostream>
 #include <vector>
 
 

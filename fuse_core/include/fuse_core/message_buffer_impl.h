@@ -39,6 +39,8 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 
+#include <algorithm>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 

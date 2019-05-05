@@ -57,7 +57,7 @@ namespace fuse_core
  *
  * It is assumed that all messages are received sequentially.
  */
-template<class Message>
+template <typename Message>
 class MessageBuffer
 {
 public:

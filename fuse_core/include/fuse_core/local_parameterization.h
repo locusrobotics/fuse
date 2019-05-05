@@ -35,6 +35,7 @@
 #define FUSE_CORE_LOCAL_PARAMETERIZATION_H
 
 #include <fuse_core/macros.h>
+
 #include <ceres/local_parameterization.h>
 
 

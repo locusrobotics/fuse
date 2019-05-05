@@ -86,7 +86,7 @@ namespace fuse_core
  * ROS_INFO_STREAM("The result is: " << result.get());
  * @endcode
  */
-template<class T>
+template <typename T>
 class CallbackWrapper : public ros::CallbackInterface
 {
 public:
