@@ -357,13 +357,16 @@ void HashGraph::getCovariance(
   {
     for (size_t i = 0; i < covariance_requests.size(); ++i)
     {
-      if (!covariance.GetCovarianceBlockInTangentSpace(all_covariance_blocks.at(i).first,
-                                                       all_covariance_blocks.at(i).second,
-                                                       covariance_matrices.at(i).data()))
+      const auto& block = all_covariance_blocks.at(i);
+      auto& output_matrix = covariance_matrices.at(i);
+      if (!covariance.GetCovarianceBlockInTangentSpace(block.first,
+                                                       block.second,
+                                                       output_matrix.data()))
       {
+        const auto& request = covariance_requests.at(i);
         throw std::runtime_error("Could not get covariance block for variable UUIDs " +
-                                 fuse_core::uuid::to_string(covariance_requests.at(i).first) + " and " +
-                                 fuse_core::uuid::to_string(covariance_requests.at(i).second) + ".");
+                                 fuse_core::uuid::to_string(request.first) + " and " +
+                                 fuse_core::uuid::to_string(request.second) + ".");
       }
     }
   }
@@ -371,13 +374,16 @@ void HashGraph::getCovariance(
   {
     for (size_t i = 0; i < covariance_requests.size(); ++i)
     {
-      if (!covariance.GetCovarianceBlock(all_covariance_blocks.at(i).first,
-                                         all_covariance_blocks.at(i).second,
-                                         covariance_matrices.at(i).data()))
+      const auto& block = all_covariance_blocks.at(i);
+      auto& output_matrix = covariance_matrices.at(i);
+      if (!covariance.GetCovarianceBlock(block.first,
+                                         block.second,
+                                         output_matrix.data()))
       {
+        const auto& request = covariance_requests.at(i);
         throw std::runtime_error("Could not get covariance block for variable UUIDs " +
-                                 fuse_core::uuid::to_string(covariance_requests.at(i).first) + " and " +
-                                 fuse_core::uuid::to_string(covariance_requests.at(i).second) + ".");
+                                 fuse_core::uuid::to_string(request.first) + " and " +
+                                 fuse_core::uuid::to_string(request.second) + ".");
       }
     }
   }
