@@ -33,6 +33,8 @@
  */
 #include <fuse_core/variable.h>
 
+#include <ostream>
+
 
 namespace fuse_core
 {

@@ -230,8 +230,8 @@ public:
    *                                 to compute the covariance blocks.
    */
   virtual void getCovariance(
-    const std::vector<std::pair<UUID, UUID> >& covariance_requests,
-    std::vector<std::vector<double> >& covariance_matrices,
+    const std::vector<std::pair<UUID, UUID>>& covariance_requests,
+    std::vector<std::vector<double>>& covariance_matrices,
     const ceres::Covariance::Options& options = ceres::Covariance::Options()) const = 0;
 
   /**

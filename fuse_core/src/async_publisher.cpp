@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_publisher.h>
+
 #include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
@@ -57,7 +58,7 @@ void AsyncPublisher::initialize(const std::string& name)
   // Initialize internal state
   name_ = name;
   node_handle_.setCallbackQueue(&callback_queue_);
-  private_node_handle_ = ros::NodeHandle(ros::NodeHandle("~"), name_);
+  private_node_handle_ = ros::NodeHandle("~/" + name_);
   private_node_handle_.setCallbackQueue(&callback_queue_);
 
   // Call the derived onInit() function to perform implementation-specific initialization

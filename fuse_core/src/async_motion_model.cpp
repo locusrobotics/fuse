@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_motion_model.h>
+
 #include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
@@ -60,7 +61,7 @@ bool AsyncMotionModel::apply(Transaction& transaction)
   // Thus, it is functionally similar to a service callback, and should be a familiar pattern for ROS developers.
   // This function blocks until the queryCallback() call completes, thus enforcing that motion models are generated
   // in order.
-  auto callback = boost::make_shared<CallbackWrapper<bool> >(
+  auto callback = boost::make_shared<CallbackWrapper<bool>>(
     std::bind(&AsyncMotionModel::applyCallback, this, std::ref(transaction)));
   auto result = callback->getFuture();
   callback_queue_.addCallback(callback);
@@ -79,7 +80,7 @@ void AsyncMotionModel::initialize(const std::string& name)
   // Initialize internal state
   name_ = name;
   node_handle_.setCallbackQueue(&callback_queue_);
-  private_node_handle_ = ros::NodeHandle(ros::NodeHandle("~"), name_);
+  private_node_handle_ = ros::NodeHandle("~/" + name_);
   private_node_handle_.setCallbackQueue(&callback_queue_);
 
   // Call the derived onInit() function to perform implementation-specific initialization

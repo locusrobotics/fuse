@@ -31,8 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.h>
 #include <fuse_core/timestamp_manager.h>
+
+#include <fuse_core/constraint.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
 #include <ros/duration.h>
@@ -40,6 +41,7 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 
+#include <iterator>
 #include <set>
 #include <stdexcept>
 #include <utility>

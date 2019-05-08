@@ -37,10 +37,8 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
 
 #include <string>
-#include <vector>
 
 
 namespace fuse_core
