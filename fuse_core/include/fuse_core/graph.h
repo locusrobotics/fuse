@@ -228,11 +228,15 @@ public:
    * @param[out] covariance_matrices The dense covariance blocks of the requests.
    * @param[in]  options             A Ceres Covariance Options structure that controls the method and settings used
    *                                 to compute the covariance blocks.
+   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in the variable's tangent
+   *                                 space/local coordinates. Otherwise it is computed in the variable's parameter
+   *                                 space.
    */
   virtual void getCovariance(
     const std::vector<std::pair<UUID, UUID>>& covariance_requests,
     std::vector<std::vector<double>>& covariance_matrices,
-    const ceres::Covariance::Options& options = ceres::Covariance::Options()) const = 0;
+    const ceres::Covariance::Options& options = ceres::Covariance::Options(),
+    const bool use_tangent_space = true) const = 0;
 
   /**
    * @brief Update the graph with the contents of a transaction
