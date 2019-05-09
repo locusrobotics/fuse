@@ -66,7 +66,7 @@ public:
    * @brief Constructor
    */
   explicit VectorQueue(const Compare& comp) :
-    comparitor_(comp)
+    comparator_(comp)
   {
   }
 
@@ -145,7 +145,7 @@ public:
   void insert(key_type key, value_type value)
   {
     // Find the insertion point
-    auto insertion_point = std::upper_bound(container_.begin(), container_.end(), key, comparitor_);
+    auto insertion_point = std::upper_bound(container_.begin(), container_.end(), key, comparator_);
     container_.insert(insertion_point, std::make_pair(std::move(key), std::move(value)));
   }
 
@@ -168,34 +168,34 @@ public:
 protected:
   using Container = std::vector<std::pair<key_type, value_type>>;
 
-  struct Comparitor : std::binary_function<value_type, value_type, bool>
+  struct Comparator : std::binary_function<value_type, value_type, bool>
   {
-    explicit Comparitor(const Compare& key_comparitor = Compare()) :
-      key_comparitor_(key_comparitor)
+    explicit Comparator(const Compare& key_comparator = Compare()) :
+     key_comparator_(key_comparator)
     {
     }
 
     bool operator()(const key_type& lhs, const key_type& rhs) const
     {
-      return key_comparitor_(lhs, rhs);
+      return key_comparator_(lhs, rhs);
     }
 
     bool operator()(const typename Container::value_type& lhs, const key_type& rhs) const
     {
-      return key_comparitor_(lhs.first, rhs);
+      return key_comparator_(lhs.first, rhs);
     }
 
     bool operator()(const key_type& lhs, const typename Container::value_type& rhs) const
     {
-      return key_comparitor_(lhs, rhs.first);
+      return key_comparator_(lhs, rhs.first);
     }
 
   private:
-    Compare key_comparitor_;
+    Compare key_comparator_;
   };
 
   Container container_;  //!< The container used to hold the elements
-  const Comparitor comparitor_;  //!< Compare functor used to compare value_type objects based on their key
+  const Comparator comparator_;  //!< Compare functor used to compare value_type objects based on their key
 };
 
 }  // namespace fuse_optimizers

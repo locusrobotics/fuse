@@ -66,10 +66,6 @@ namespace fuse_optimizers
  *  (3) all motion models, sensors, and publishers are notified of the updated graph
  *  (4) all variables older than "current time - lag duration" are marginalized out.
  *
- * Optimization is performed at a fixed frequency, controlled by the \p update_frequency parameter. If an optimization
- * takes longer than the update period, a warning will be logged and the optimization will not be tried again until
- * the next update period.
- *
  * Optimization is performed at a fixed frequency, controlled by the \p optimization_frequency parameter. Received
  * sensor transactions are queued while the optimization is processing, then applied to the graph at the start of the
  * next optimization cycle. If the previous optimization is not yet complete when the optimization period elapses,
