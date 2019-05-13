@@ -35,9 +35,9 @@
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
 #include <fuse_core/local_parameterization.h>
-#include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
+#include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -59,10 +59,10 @@ namespace fuse_variables
  * The internal representation for this is different from the typical ROS representation, as w is the first component.
  * This is necessary to use the Ceres local parameterization for quaternions.
  */
-class Orientation3DStamped final : public FixedSizeVariable<4>, public Stamped
+class Orientation3DStamped : public FixedSizeVariable<4>, public Stamped
 {
 public:
-  SMART_PTR_DEFINITIONS(Orientation3DStamped);
+  FUSE_VARIABLE_DEFINITIONS(Orientation3DStamped);
 
   /**
    * @brief Can be used to directly index variables in the quaternion
@@ -149,25 +149,11 @@ public:
   double yaw() { return fuse_core::getYaw(w(), x(), y(), z()); }
 
   /**
-   * @brief Read-only access to the unique ID of this variable instance.
-   *
-   * All variables of this type with identical timestamps will return the same UUID.
-   */
-  fuse_core::UUID uuid() const override { return uuid_; }
-
-  /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param  stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
-
-  /**
-   * @brief Perform a deep copy of the Variable and return a unique pointer to the copy
-   *
-   * @return A unique pointer to a new instance of the most-derived Variable
-   */
-  fuse_core::Variable::UniquePtr clone() const override;
 
   /**
    * @brief Returns the number of elements of the local parameterization space.
@@ -183,9 +169,6 @@ public:
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
   fuse_core::LocalParameterization* localParameterization() const override;
-
-protected:
-  fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
 };
 
 }  // namespace fuse_variables

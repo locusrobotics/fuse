@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/macros.h>
+#include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 
 #include <gtest/gtest.h>
@@ -40,18 +40,14 @@
 class TestVariable : public fuse_variables::FixedSizeVariable<2>
 {
 public:
-  SMART_PTR_DEFINITIONS(TestVariable);
+  FUSE_VARIABLE_DEFINITIONS(TestVariable);
 
   TestVariable() :
-    uuid_(fuse_core::uuid::generate())
+    fuse_variables::FixedSizeVariable<2>(fuse_core::uuid::generate())
   {}
   virtual ~TestVariable() = default;
 
-  fuse_core::UUID uuid() const override { return uuid_; }
   void print(std::ostream& stream = std::cout) const override {}
-  fuse_core::Variable::UniquePtr clone() const override { return TestVariable::make_unique(*this); }
-private:
-  fuse_core::UUID uuid_;
 };
 
 

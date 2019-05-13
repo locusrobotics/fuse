@@ -58,15 +58,12 @@
 class GenericVariable : public fuse_core::Variable
 {
 public:
-  SMART_PTR_DEFINITIONS(GenericVariable);
+  FUSE_VARIABLE_DEFINITIONS(GenericVariable);
 
   GenericVariable() :
-    Variable(),
-    data_{},
-    uuid_{fuse_core::uuid::generate()}
+    fuse_core::Variable(fuse_core::uuid::generate()),
+    data_{}
   {}
-
-  fuse_core::UUID uuid() const override { return uuid_; }
 
   size_t size() const override { return 1; }
 
@@ -75,11 +72,8 @@ public:
 
   void print(std::ostream& stream = std::cout) const override {}
 
-  fuse_core::Variable::UniquePtr clone() const override { return GenericVariable::make_unique(*this); }
-
 protected:
   double data_;
-  fuse_core::UUID uuid_;
 };
 
 /**

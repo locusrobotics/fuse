@@ -34,8 +34,8 @@
 #ifndef FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H
 #define FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H
 
-#include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
+#include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -52,10 +52,10 @@ namespace fuse_variables
  * This is commonly used to represent a robot's acceleration. The UUID of this class is constant after construction.
  * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
  */
-class AccelerationAngular2DStamped final : public FixedSizeVariable<1>, public Stamped
+class AccelerationAngular2DStamped : public FixedSizeVariable<1>, public Stamped
 {
 public:
-  SMART_PTR_DEFINITIONS(AccelerationAngular2DStamped);
+  FUSE_VARIABLE_DEFINITIONS(AccelerationAngular2DStamped);
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -86,28 +86,11 @@ public:
   const double& yaw() const { return data_[YAW]; }
 
   /**
-   * @brief Read-only access to the unique ID of this variable instance.
-   *
-   * All variables of this type with identical timestamps will return the same UUID.
-   */
-  fuse_core::UUID uuid() const override { return uuid_; }
-
-  /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
-
-  /**
-   * @brief Perform a deep copy of the Variable and return a unique pointer to the copy
-   *
-   * @return A unique pointer to a new instance of the most-derived Variable
-   */
-  fuse_core::Variable::UniquePtr clone() const override;
-
-protected:
-  fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
 };
 
 }  // namespace fuse_variables

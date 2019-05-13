@@ -3,6 +3,7 @@ project(fuse_constraints)
 
 set(build_depends
   fuse_core
+  fuse_graphs
   fuse_variables
   geometry_msgs
   roscpp
@@ -94,7 +95,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
-  find_package(fuse_graphs REQUIRED)
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
@@ -227,13 +227,12 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_marginalize_variables
     PRIVATE
       include
+      ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
-      ${fuse_graphs_INCLUDE_DIRS}
   )
   target_link_libraries(test_marginalize_variables
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
-    ${fuse_graphs_LIBRARIES}
   )
 
   # Relative Constraint Tests

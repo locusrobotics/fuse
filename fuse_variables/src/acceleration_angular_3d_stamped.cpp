@@ -31,8 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_3d_stamped.h>
+
+#include <fuse_core/uuid.h>
+#include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/stamped.h>
+#include <ros/time.h>
+
+#include <ostream>
 
 
 namespace fuse_variables
@@ -41,8 +47,8 @@ namespace fuse_variables
 AccelerationAngular3DStamped::AccelerationAngular3DStamped(
   const ros::Time& stamp,
   const fuse_core::UUID& device_id) :
-    Stamped(stamp, device_id),
-    uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
+    FixedSizeVariable<3>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+    Stamped(stamp, device_id)
 {
 }
 
@@ -57,11 +63,6 @@ void AccelerationAngular3DStamped::print(std::ostream& stream) const
          << "  - roll: " << roll() << "\n"
          << "  - pitch: " << pitch() << "\n"
          << "  - yaw: " << yaw() << "\n";
-}
-
-fuse_core::Variable::UniquePtr AccelerationAngular3DStamped::clone() const
-{
-  return AccelerationAngular3DStamped::make_unique(*this);
 }
 
 }  // namespace fuse_variables
