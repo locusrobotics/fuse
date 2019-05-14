@@ -117,17 +117,17 @@ bool NormalDeltaPose2DCostFunctor::operator()(
 {
   Eigen::Map<const Eigen::Matrix<T, 2, 1>> position1_vector(position1);
   Eigen::Map<const Eigen::Matrix<T, 2, 1>> position2_vector(position2);
-  Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_matrix(residual, A_.rows());
-  Eigen::Matrix<T, 3, 1> full_residuals_matrix;
+  Eigen::Matrix<T, 3, 1> full_residuals_vector;
 
-  full_residuals_matrix.template head<2>() =
+  full_residuals_vector.template head<2>() =
     fuse_core::rotationMatrix2D(orientation1[0]).transpose() * (position2_vector - position1_vector) -
     b_.head<2>().template cast<T>();
-  full_residuals_matrix(2) = fuse_core::wrapAngle2D(orientation2[0] - orientation1[0]) - T(b_(2));
+  full_residuals_vector(2) = fuse_core::wrapAngle2D(orientation2[0] - orientation1[0]) - T(b_(2));
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  residuals_matrix = A_.template cast<T>() * full_residuals_matrix;
+  Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_vector(residual, A_.rows());
+  residuals_vector = A_.template cast<T>() * full_residuals_vector;
 
   return true;
 }
