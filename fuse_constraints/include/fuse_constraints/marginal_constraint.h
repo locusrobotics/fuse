@@ -42,6 +42,7 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/zip_iterator.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <ceres/cost_function.h>
 
 #include <algorithm>
@@ -200,8 +201,11 @@ MarginalConstraint::MarginalConstraint(
   assert(b_.rows() > 0);
   assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A){ return A.rows() == this->b_.rows(); }));  // NOLINT
   assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
-                     boost::make_zip_iterator(std::make_pair(A_.end(), last_variable)),
-                     [](const auto& pair){ return pair.first.cols() == pair.second.localSize(); }));  // NOLINT
+                     boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
+                     [](const boost::tuple<const fuse_core::MatrixXd&, const fuse_core::Variable&>& tuple)  // NOLINT
+                     {
+                       return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize();
+                     }));  // NOLINT
 }
 
 }  // namespace fuse_constraints
