@@ -55,8 +55,8 @@ namespace fuse_constraints
  *   cost(x) = ||A * [  y - b(1)] ||
  *             ||    [yaw - b(2)] ||
  *
- * where, the matrix A and the vector b are fixed and (x, y, yaw) are the components of the position and orientation
- * variables. In case the user is interested in implementing a cost function of the form
+ * Here, the matrix A can be of variable size, thereby permitting the computation of errors for partial measurements.
+ * The vector b is a fixed-size 3x1. In case the user is interested in implementing a cost function of the form:
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
@@ -69,10 +69,15 @@ public:
   /**
    * @brief Construct a cost function instance
    *
+   * The residual weighting matrix can vary in size, as this cost functor can be used to compute costs for partial
+   * vectors. The number of rows of A will be the number of dimensions for which you want to compute the error, and the
+   * number of columns in A will be fixed at 3. For example, if we just want to use the values of x and yaw, then \p A
+   * will be of size 2x3.
+   *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, yaw)
    */
-  NormalPriorPose2DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector3d& b);
+  NormalPriorPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -81,11 +86,11 @@ public:
   bool operator()(const T* const position, const T* const orientation, T* residual) const;
 
 private:
-  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
   fuse_core::Vector3d b_;  //!< The measured 2D pose value
 };
 
-NormalPriorPose2DCostFunctor::NormalPriorPose2DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector3d& b) :
+NormalPriorPose2DCostFunctor::NormalPriorPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) :
   A_(A),
   b_(b)
 {
@@ -94,13 +99,16 @@ NormalPriorPose2DCostFunctor::NormalPriorPose2DCostFunctor(const fuse_core::Matr
 template <typename T>
 bool NormalPriorPose2DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
 {
-  Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residual);
-  residuals_map(0) = position[0] - T(b_(0));
-  residuals_map(1) = position[1] - T(b_(1));
-  residuals_map(2) = fuse_core::wrapAngle2D(orientation[0] - T(b_(2)));
+  Eigen::Matrix<T, 3, 1> full_residuals_vector;
+  full_residuals_vector(0) = position[0] - T(b_(0));
+  full_residuals_vector(1) = position[1] - T(b_(1));
+  full_residuals_vector(2) = fuse_core::wrapAngle2D(orientation[0] - T(b_(2)));
+
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  residuals_map.applyOnTheLeft(A_.template cast<T>());
+  Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_vector(residual, A_.rows());
+  residuals_vector = A_.template cast<T>() * full_residuals_vector;
+
   return true;
 }
 
