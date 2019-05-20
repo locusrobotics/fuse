@@ -41,7 +41,7 @@
 namespace fuse_variables
 {
 
-fuse_core::UUID loadDeviceId(ros::NodeHandle& node_handle)
+fuse_core::UUID loadDeviceId(const ros::NodeHandle& node_handle)
 {
   fuse_core::UUID device_id;
   std::string device_str;
