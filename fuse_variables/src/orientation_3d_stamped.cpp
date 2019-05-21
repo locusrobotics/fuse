@@ -34,7 +34,9 @@
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
+#include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
@@ -132,8 +134,8 @@ public:
 };
 
 Orientation3DStamped::Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  Stamped(stamp, device_id),
-  uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
+  FixedSizeVariable<4>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+  Stamped(stamp, device_id)
 {
 }
 
@@ -149,11 +151,6 @@ void Orientation3DStamped::print(std::ostream& stream) const
          << "  - x: " << x() << "\n"
          << "  - y: " << y() << "\n"
          << "  - z: " << z() << "\n";
-}
-
-fuse_core::Variable::UniquePtr Orientation3DStamped::clone() const
-{
-  return Orientation3DStamped::make_unique(*this);
 }
 
 fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() const

@@ -34,7 +34,6 @@
 #ifndef FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 #define FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 
@@ -47,24 +46,21 @@
 class ExampleVariable : public fuse_core::Variable
 {
 public:
-  SMART_PTR_DEFINITIONS(ExampleVariable);
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariable);
 
   explicit ExampleVariable(size_t N = 1) :
-    data_(N, 0.0),
-    uuid_(fuse_core::uuid::generate())
+    fuse_core::Variable(fuse_core::uuid::generate()),
+    data_(N, 0.0)
   {
   }
 
-  fuse_core::UUID uuid() const override { return uuid_; }
   size_t size() const override { return data_.size(); }
   const double* data() const override { return data_.data(); };
   double* data() override { return data_.data(); };
   void print(std::ostream& stream = std::cout) const override {}
-  fuse_core::Variable::UniquePtr clone() const override { return ExampleVariable::make_unique(*this); }
 
 private:
   std::vector<double> data_;
-  fuse_core::UUID uuid_;
 };
 
 #endif  // FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}

@@ -38,10 +38,76 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 
-#include <boost/core/demangle.hpp>
+#include <boost/type_index/stl_type_index.hpp>
 
 #include <ostream>
 #include <string>
+
+
+/**
+ * @brief Implementation of the clone() member function for derived classes
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Variable
+ * {
+ * public:
+ *   FUSE_VARIABLE_CLONE_DEFINITION(Derived);
+ *   // The rest of the derived variable implementation
+ * }
+ * @endcode
+ */
+#define FUSE_VARIABLE_CLONE_DEFINITION(...) \
+  fuse_core::Variable::UniquePtr clone() const override \
+  { \
+    return __VA_ARGS__::make_unique(*this); \
+  }
+
+/**
+ * @brief Implements the type() member function using the suggested implementation
+ *
+ * Also creates a static detail::type() function that may be used without an object instance
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Variable
+ * {
+ * public:
+ *   FUSE_VARIABLE_TYPE_DEFINITION(Derived);
+ *   // The rest of the derived variable implementation
+ * }
+ * @endcode
+ */
+#define FUSE_VARIABLE_TYPE_DEFINITION(...) \
+  struct detail \
+  { \
+    static std::string type() \
+    { \
+      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
+    }  /* NOLINT */ \
+  };  /* NOLINT */ \
+  std::string type() const override \
+  { \
+    return detail::type(); \
+  }
+
+/**
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Variable
+ * {
+ * public:
+ *   FUSE_VARIABLE_DEFINITION(Derived);
+ *   // The rest of the derived variable implementation
+ * }
+ * @endcode
+ */
+#define FUSE_VARIABLE_DEFINITIONS(...) \
+  SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
 
 
 namespace fuse_core
@@ -71,24 +137,6 @@ public:
 
   /**
    * @brief Constructor
-   */
-  Variable() = default;
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~Variable() = default;
-
-  /**
-   * @brief Returns a unique name for this variable type.
-   *
-   * The variable type string must be unique for each class. As such, the fully-qualified class name is an excellent
-   * choice for the type string.
-   */
-  virtual std::string type() const { return boost::core::demangle(typeid(*this).name()); }
-
-  /**
-   * @brief Returns a UUID for this variable.
    *
    * The implemented UUID generation should be deterministic such that a variable with the same metadata will always
    * return the same UUID. Identical UUIDs produced by sensors will be treated as the same variable by the optimizer,
@@ -100,8 +148,36 @@ public:
    * The type() string can be used to generate a UUID namespace for all variables of a given derived type, and the
    * variable metadata of consequence can be converted into a carefully-formatted string or byte array and provided to
    * the generator to create the UUID for a specific variable instance.
+   *
+   * @param[in] uuid The unique ID number for this variable
    */
-  virtual UUID uuid() const = 0;
+  explicit Variable(const UUID& uuid);
+
+  /**
+   * @brief Destructor
+   */
+  virtual ~Variable() = default;
+
+  /**
+   * @brief Returns a UUID for this variable.
+   */
+  UUID uuid() const { return uuid_; }
+
+  /**
+   * @brief Returns a unique name for this variable type.
+   *
+   * The variable type string must be unique for each class. As such, the fully-qualified class name is an excellent
+   * choice for the type string.
+   *
+   * The suggested implementation for all derived classes is:
+   * @code{.cpp}
+   * return return boost::typeindex::stl_type_index::type_id<Derived>().pretty_name();
+   * @endcode
+   *
+   * To make this easy to implement in all derived classes, the FUSE_VARIABLE_TYPE_DEFINITION() and
+   * FUSE_VARIABLE_DEFINITIONS() macro functions have been provided.
+   */
+  virtual std::string type() const = 0;
 
   /**
    * @brief Returns the number of elements of this variable.
@@ -155,6 +231,9 @@ public:
    * return Derived::make_unique(*this);
    * @endcode
    *
+   * To make this easy to implement in all derived classes, the FUSE_VARIABLE_CLONE_DEFINITION() and
+   * FUSE_VARIABLE_DEFINITIONS() macros functions have been provided.
+   *
    * @return A unique pointer to a new instance of the most-derived Variable
    */
   virtual Variable::UniquePtr clone() const = 0;
@@ -177,6 +256,9 @@ public:
   {
     return nullptr;
   }
+
+private:
+  fuse_core::UUID uuid_;  //!< The unique ID number for this variable
 };
 
 /**

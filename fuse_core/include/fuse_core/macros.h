@@ -56,6 +56,8 @@
 #define FUSE_CORE_MACROS_H
 
 #include <memory>
+#include <string>
+
 
 /**
  * Defines aliases and static functions for using the Class with smart pointers.

@@ -31,16 +31,22 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
 #include <fuse_variables/position_3d_stamped.h>
+
+#include <fuse_core/uuid.h>
+#include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/stamped.h>
+#include <ros/time.h>
+
+#include <ostream>
 
 
 namespace fuse_variables
 {
 
 Position3DStamped::Position3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  Stamped(stamp, device_id),
-  uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
+  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+  Stamped(stamp, device_id)
 {
 }
 
@@ -55,11 +61,6 @@ void Position3DStamped::print(std::ostream& stream) const
          << "  - x: " << x() << "\n"
          << "  - y: " << y() << "\n"
          << "  - z: " << z() << "\n";
-}
-
-fuse_core::Variable::UniquePtr Position3DStamped::clone() const
-{
-  return Position3DStamped::make_unique(*this);
 }
 
 }  // namespace fuse_variables

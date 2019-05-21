@@ -79,7 +79,7 @@ public:
    */
   const fuse_core::UUID& deviceId() const { return device_id_; }
 
-protected:
+private:
   fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
   ros::Time stamp_;  //!< The timestamp associated with this variable instance
 };

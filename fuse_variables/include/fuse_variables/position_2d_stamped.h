@@ -34,14 +34,13 @@
 #ifndef FUSE_VARIABLES_POSITION_2D_STAMPED_H
 #define FUSE_VARIABLES_POSITION_2D_STAMPED_H
 
-#include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
+#include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
 #include <ostream>
-#include <string>
 
 
 namespace fuse_variables
@@ -53,15 +52,10 @@ namespace fuse_variables
  * This is commonly used to represent a robot's position within a map. The UUID of this class is static after
  * construction. As such, the timestamp and device id cannot be modified. The value of the position can be modified.
  */
-class Position2DStamped final : public FixedSizeVariable<2>, public Stamped
+class Position2DStamped : public FixedSizeVariable<2>, public Stamped
 {
 public:
-  SMART_PTR_DEFINITIONS(Position2DStamped);
-
-  /**
-   * @brief The unique name for this variable type.
-   */
-  static const std::string TYPE;
+  FUSE_VARIABLE_DEFINITIONS(Position2DStamped);
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -102,28 +96,11 @@ public:
   const double& y() const { return data_[Y]; }
 
   /**
-   * @brief Read-only access to the unique ID of this variable instance.
-   *
-   * All variables of this type with identical timestamps will return the same UUID.
-   */
-  fuse_core::UUID uuid() const override { return uuid_; }
-
-  /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
-
-  /**
-   * @brief Perform a deep copy of the Variable and return a unique pointer to the copy
-   *
-   * @return A unique pointer to a new instance of the most-derived Variable
-   */
-  fuse_core::Variable::UniquePtr clone() const override;
-
-protected:
-  fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction
 };
 
 }  // namespace fuse_variables

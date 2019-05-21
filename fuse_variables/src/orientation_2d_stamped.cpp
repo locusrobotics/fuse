@@ -36,6 +36,7 @@
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
+#include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
@@ -103,8 +104,8 @@ public:
 };
 
 Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  Stamped(stamp, device_id),
-  uuid_(fuse_core::uuid::generate(type(), stamp, device_id))
+  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+  Stamped(stamp, device_id)
 {
 }
 
@@ -117,11 +118,6 @@ void Orientation2DStamped::print(std::ostream& stream) const
          << "  size: " << size() << "\n"
          << "  data:\n"
          << "  - yaw: " << yaw() << "\n";
-}
-
-fuse_core::Variable::UniquePtr Orientation2DStamped::clone() const
-{
-  return Orientation2DStamped::make_unique(*this);
 }
 
 fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const

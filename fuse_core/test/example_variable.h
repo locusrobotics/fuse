@@ -45,24 +45,21 @@
 class ExampleVariable : public fuse_core::Variable
 {
 public:
-  SMART_PTR_DEFINITIONS(ExampleVariable);
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariable);
 
   ExampleVariable() :
-    data_(0.0),
-    uuid_(fuse_core::uuid::generate())
+    fuse_core::Variable(fuse_core::uuid::generate()),
+    data_(0.0)
   {
   }
 
-  fuse_core::UUID uuid() const override { return uuid_; }
   size_t size() const override { return 1; }
   const double* data() const override { return &data_; };
   double* data() override { return &data_; };
   void print(std::ostream& stream = std::cout) const override {}
-  fuse_core::Variable::UniquePtr clone() const override { return ExampleVariable::make_unique(*this); }
 
 private:
   double data_;
-  fuse_core::UUID uuid_;
 };
 
 #endif  // FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}

@@ -53,7 +53,7 @@ namespace fuse_variables
  * where the size of the state vector is known at compile time...which should be almost all variable types. The
  * dimension of typical variable types (points, poses, calibration parameters) are all known at design/compile time.
  */
-template<size_t N>
+template <size_t N>
 class FixedSizeVariable : public fuse_core::Variable
 {
 public:
@@ -67,8 +67,8 @@ public:
   /**
    * @brief Constructor
    */
-  FixedSizeVariable() :
-    Variable(),
+  explicit FixedSizeVariable(const fuse_core::UUID& uuid) :
+    fuse_core::Variable(uuid),
     data_{}  // zero-initialize the data array
   {}
 
@@ -108,8 +108,8 @@ protected:
   std::array<double, N> data_;  //!< Fixed-sized, contiguous memory for holding the variable data members
 };
 
-// Define the constant that was decalred above
-template<size_t N>
+// Define the constant that was declared above
+template <size_t N>
 constexpr size_t FixedSizeVariable<N>::SIZE;
 }  // namespace fuse_variables
 
