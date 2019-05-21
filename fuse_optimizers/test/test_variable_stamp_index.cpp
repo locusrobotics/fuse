@@ -53,19 +53,13 @@
 class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamped
 {
 public:
-  SMART_PTR_DEFINITIONS(StampedVariable);
+  FUSE_VARIABLE_DEFINITIONS(StampedVariable);
 
   explicit StampedVariable(const ros::Time& stamp = ros::Time(0, 0)) :
-    Variable(),
-    Stamped(stamp),
-    data_{},
-    uuid_{fuse_core::uuid::generate()}
+    fuse_core::Variable(fuse_core::uuid::generate()),
+    fuse_variables::Stamped(stamp),
+    data_{}
   {
-  }
-
-  fuse_core::UUID uuid() const override
-  {
-    return uuid_;
   }
 
   size_t size() const override
@@ -87,14 +81,8 @@ public:
   {
   }
 
-  fuse_core::Variable::UniquePtr clone() const override
-  {
-    return StampedVariable::make_unique(*this);
-  }
-
 protected:
   double data_;
-  fuse_core::UUID uuid_;
 };
 
 /**
@@ -103,18 +91,12 @@ protected:
 class UnstampedVariable : public fuse_core::Variable
 {
 public:
-  SMART_PTR_DEFINITIONS(UnstampedVariable);
+  FUSE_VARIABLE_DEFINITIONS(UnstampedVariable);
 
   UnstampedVariable() :
-    Variable(),
-    data_{},
-    uuid_{fuse_core::uuid::generate()}
+    fuse_core::Variable(fuse_core::uuid::generate()),
+    data_{}
   {
-  }
-
-  fuse_core::UUID uuid() const override
-  {
-    return uuid_;
   }
 
   size_t size() const override
@@ -136,14 +118,8 @@ public:
   {
   }
 
-  fuse_core::Variable::UniquePtr clone() const override
-  {
-    return UnstampedVariable::make_unique(*this);
-  }
-
 protected:
   double data_;
-  fuse_core::UUID uuid_;
 };
 
 /**
