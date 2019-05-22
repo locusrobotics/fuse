@@ -249,8 +249,6 @@ protected:
    * This implementation shares ownership of the transaction object.
    *
    * @param[in] name        The name of the sensor that produced the Transaction
-   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models
-   *                        to generate connected constraints.
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
    */
   void transactionCallback(
