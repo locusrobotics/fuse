@@ -182,20 +182,20 @@ void FixedLagSmoother::optimizationLoop()
       break;
     }
     // Apply motion models
-    auto new_transactions = fuse_core::Transaction::make_shared();
-    processQueue(*new_transactions);
+    auto new_transaction = fuse_core::Transaction::make_shared();
+    processQueue(*new_transaction);
     // Prepare for selecting the marginal variables
-    preprocessMarginalization(*new_transactions);
+    preprocessMarginalization(*new_transaction);
     // Combine the new transactions with any marginal transaction from the end of the last cycle
-    new_transactions->merge(marginal_transaction);
+    new_transaction->merge(marginal_transaction);
     // Update the graph
-    graph_->update(*new_transactions);
+    graph_->update(*new_transaction);
     // Optimize the entire graph
     graph_->optimize();
     // Optimization is complete. Notify all the things about the graph changes.
-    notify(std::move(new_transactions), graph_->clone());
+    notify(std::move(new_transaction), graph_->clone());
     // Compute a transaction that marginalizes out those variables.
-    auto marginal_transaction = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
+    marginal_transaction = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
     // Perform any post-marginal cleanup
     postprocessMarginalization(marginal_transaction);
     // Note: The marginal transaction will not be applied until the next optimization iteration
