@@ -50,6 +50,24 @@
 namespace fuse_optimizers
 {
 
+namespace
+{
+
+double getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, double default_value)
+{
+  double value;
+  node_handle.param(parameter_name, value, default_value);
+  if (value <= 0)
+  {
+    ROS_WARN_STREAM("The requested " << parameter_name << " is <= 0. Using the default value (" <<
+                    default_value << ") instead.");
+    value = default_value;
+  }
+  return value;
+}
+
+}  // namespace
+
 FixedLagSmoother::FixedLagSmoother(
   fuse_core::Graph::UniquePtr graph,
   const ros::NodeHandle& node_handle,
@@ -60,37 +78,14 @@ FixedLagSmoother::FixedLagSmoother(
     start_time_(ros::TIME_MAX),
     started_(false)
 {
-  double lag_duration;
-  double default_lag_duration = 5.0;
-  private_node_handle_.param("lag_duration", lag_duration, default_lag_duration);
-  if (lag_duration <= 0)
-  {
-    ROS_WARN_STREAM("The requested lag_duration is <= 0. Using the default value (" <<
-                    default_lag_duration << "s) instead.");
-    lag_duration = default_lag_duration;
-  }
+  auto lag_duration = getPositiveParam(private_node_handle_, "lag_duration", 5.0);
   lag_duration_.fromSec(lag_duration);
 
-  double optimization_frequency;
-  double default_optimization_frequency = 10.0;
-  private_node_handle_.param("optimization_frequency", optimization_frequency, default_optimization_frequency);
-  if (optimization_frequency <= 0)
-  {
-    ROS_WARN_STREAM("The requested optimization_frequency is <= 0. Using the default value (" <<
-                    default_optimization_frequency << " hz) instead.");
-    optimization_frequency = default_optimization_frequency;
-  }
+  auto optimization_frequency = getPositiveParam(private_node_handle_, "optimization_frequency", 10.0);
   optimization_period_ = ros::Duration(1.0 / optimization_frequency);
 
-  double transaction_timeout;
-  double default_transaction_timeout = 0.10;
-  private_node_handle_.param("transaction_timeout", transaction_timeout, default_transaction_timeout);
-  if (transaction_timeout <= 0)
-  {
-    ROS_WARN_STREAM("The requested transaction_timeout is <= 0. Using the default value (" <<
-                    default_transaction_timeout << "s) instead.");
-    transaction_timeout = default_transaction_timeout;
-  }
+  auto transaction_timeout = getPositiveParam(private_node_handle_, "transaction_timeout", 0.1);
+  transaction_timeout_.fromSec(transaction_timeout);
 
   private_node_handle_.getParam("ignition_sensors", ignition_sensors_);
   if (ignition_sensors_.empty())
