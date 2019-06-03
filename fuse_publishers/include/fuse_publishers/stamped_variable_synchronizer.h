@@ -306,8 +306,8 @@ void StampedVariableSynchronizer<Ts...>::updateTime(
     if (detail::is_variable_in_pack<Ts...>::value(candidate_variable))
     {
       const auto& stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(candidate_variable);
-      if ((stamped_variable.deviceId() == device_id_) &&
-          (stamped_variable.stamp() > latest_common_stamp_) &&
+      if ((stamped_variable.stamp() > latest_common_stamp_) &&
+          (stamped_variable.deviceId() == device_id_) &&
           (detail::all_variables_exist<Ts...>::value(graph, stamped_variable.stamp(), device_id_)))
       {
         latest_common_stamp_ = stamped_variable.stamp();

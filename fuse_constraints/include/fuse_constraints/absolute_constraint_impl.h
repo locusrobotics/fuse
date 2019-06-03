@@ -131,7 +131,6 @@ ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
 template<>
 inline ceres::CostFunction* AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
 {
-  // Ceres ships with a "prior" cost function. Just use that here.
   return new NormalPriorOrientation2D(sqrt_information_(0, 0), mean_(0));
 }
 

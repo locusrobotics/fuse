@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_optimizers)
 
 set(build_depends
+  fuse_constraints
   fuse_core
   fuse_graphs
   pluginlib
@@ -30,7 +31,9 @@ add_compile_options(-std=c++14 -Wall -Werror)
 ## fuse_optimizers library
 add_library(${PROJECT_NAME}
   src/batch_optimizer.cpp
+  src/fixed_lag_smoother.cpp
   src/optimizer.cpp
+  src/variable_stamp_index.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -61,23 +64,44 @@ target_link_libraries(batch_optimizer_node
   ${catkin_LIBRARIES}
 )
 
+## fixed_lag_smoother node
+add_executable(fixed_lag_smoother_node
+  src/fixed_lag_smoother_node.cpp
+)
+add_dependencies(fixed_lag_smoother_node
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(fixed_lag_smoother_node
+  PRIVATE
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+target_link_libraries(fixed_lag_smoother_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
 
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS
+    ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 
 install(
-  TARGETS batch_optimizer_node
+  TARGETS
+    batch_optimizer_node
+    fixed_lag_smoother_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
+install(
+  DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
@@ -93,4 +117,18 @@ if(CATKIN_ENABLE_TESTING)
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
   roslint_add_test()
+
+  # VariableStampIndex Tests
+  catkin_add_gtest(test_variable_stamp_index
+    test/test_variable_stamp_index.cpp
+  )
+  target_include_directories(test_variable_stamp_index
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_variable_stamp_index
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
 endif()
