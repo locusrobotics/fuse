@@ -411,10 +411,12 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   {
     const auto& linear_term = linear_terms[term_index];
     auto row_offset = row_offsets[term_index];
-    for (size_t variable_index = 0ul; variable_index < linear_term.variables.size(); ++variable_index)
+
+    for (size_t i = 0ul; i < linear_term.variables.size(); ++i)
     {
-      auto column_offset = column_offsets[variable_index];
-      const auto& A = linear_term.A[variable_index];
+      const auto& A = linear_term.A[i];
+      auto dense = index_to_dense[linear_term.variables[i]];
+      auto column_offset = column_offsets[dense];
       Ab.block(row_offset, column_offset, A.rows(), A.cols()) = A;
     }
     const auto& b = linear_term.b;
