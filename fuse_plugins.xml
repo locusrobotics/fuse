@@ -1,0 +1,52 @@
+<library path="lib/libfuse_rl">
+  <class type="fuse_rl::unicycle_2d::Model" base_class_type="fuse_core::MotionModel">
+    <description>
+    A fuse_rl 2D kinematic model that generates kinematic constraints between provided time stamps, and adds
+    those constraints to the fuse graph.
+    </description>
+  </class>
+
+  <class type="fuse_rl::odometry_2d::Publisher" base_class_type="fuse_core::Publisher">
+    <description>
+    Publisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
+    state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
+    VelocityAngular2DStamped).
+    </description>
+  </class>
+
+  <class type="fuse_rl::acceleration_2d::Model" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces 2D linear acceleration constraints from information published by
+    another node
+    </description>
+  </class>
+  <class type="fuse_rl::imu_2d::Model" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces orientation (relative or absolute), angular velocity, and linear
+    acceleration constraints from IMU sensor data published by another node
+    </description>
+  </class>
+  <class type="fuse_rl::odometry_2d::Model" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
+    published by another node
+    </description>
+  </class>
+  <class type="fuse_rl::pose_2d::Model" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces absolute or relative pose constraints from information published by
+    another node
+    </description>
+  </class>
+  <class type="fuse_rl::twist_2d::Model" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces absolute velocity constraints from information published by another node
+    </description>
+  </class>
+  <class type="fuse_rl::twist_2d::Model" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces absolute velocity constraints from information published by another node
+    </description>
+  </class>
+  
+</library>
