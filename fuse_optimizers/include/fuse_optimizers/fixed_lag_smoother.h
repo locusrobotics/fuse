@@ -182,6 +182,11 @@ protected:
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
+   * @brief Automatically start the smoother if no ignition sensors are specified
+   */
+  void autostart();
+
+  /**
    * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
    *
    * All new transactions that will be applied to the graph are provided. This does not include the marginal

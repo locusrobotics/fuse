@@ -88,26 +88,19 @@ FixedLagSmoother::FixedLagSmoother(
   transaction_timeout_.fromSec(transaction_timeout);
 
   private_node_handle_.getParam("ignition_sensors", ignition_sensors_);
-  if (ignition_sensors_.empty())
+  // Sort the sensors for efficient lookups
+  std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
+  // Warn about possible configuration errors
+  for (const auto& sensor_model_name : ignition_sensors_)
   {
-    // No ignition sensors were provided. Auto-start.
-    started_ = true;
-    start_time_ = ros::Time(0, 0);
-    ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
-  }
-  else
-  {
-    for (const auto& sensor_model_name : ignition_sensors_)
+    if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
     {
-      if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
-      {
-        ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
-                        "model with that name currently exists. This is likely a configuration error.");
-      }
+      ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
+                      "model with that name currently exists. This is likely a configuration error.");
     }
-    // Sort the sensors for efficient lookups
-    std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
   }
+  // Test for auto-start
+  autostart();
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
@@ -131,6 +124,17 @@ FixedLagSmoother::~FixedLagSmoother()
   if (optimization_thread_.joinable())
   {
     optimization_thread_.join();
+  }
+}
+
+void FixedLagSmoother::autostart()
+{
+  if (ignition_sensors_.empty())
+  {
+    // No ignition sensors were provided. Auto-start.
+    started_ = true;
+    start_time_ = ros::Time(0, 0);
+    ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
 
@@ -278,7 +282,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
 bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
   started_ = false;
-  start_time_ = ros::Time(0, 0);
+  start_time_ = ros::TIME_MAX;
   optimization_request_ = false;
   // Clear all pending transactions
   {
@@ -291,7 +295,9 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request& req, std_s
     graph_->clear();
     timestamp_tracking_.clear();
   }
-  ROS_INFO_STREAM("resetCallback() complete");
+  // Test for auto-start
+  autostart();
+
   return true;
 }
 
