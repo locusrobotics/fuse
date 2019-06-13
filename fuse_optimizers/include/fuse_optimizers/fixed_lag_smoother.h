@@ -251,7 +251,7 @@ protected:
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-  bool resetServiceCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+  bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction

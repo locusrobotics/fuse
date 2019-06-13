@@ -279,7 +279,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
   }
 }
 
-bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
   started_ = false;
   start_time_ = ros::TIME_MAX;
