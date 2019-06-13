@@ -88,6 +88,15 @@ public:
   }
 
   /**
+   * @brief Clear all tracked state
+   */
+  void clear()
+  {
+    stamped_index_.clear();
+    unstamped_index_.clear();
+  }
+
+  /**
    * @brief Returns the most recent timestamp associated with any variable
    */
   ros::Time currentStamp() const;
