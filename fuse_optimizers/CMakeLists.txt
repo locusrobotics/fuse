@@ -7,6 +7,7 @@ set(build_depends
   fuse_graphs
   pluginlib
   roscpp
+  std_srvs
 )
 
 find_package(catkin REQUIRED COMPONENTS
