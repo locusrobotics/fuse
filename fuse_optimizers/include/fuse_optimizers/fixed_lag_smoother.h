@@ -40,6 +40,7 @@
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_optimizers/vector_queue.h>
 #include <ros/ros.h>
+#include <std_srvs/Empty.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -158,6 +159,7 @@ protected:
   ros::Duration lag_duration_;  //!< Parameter that controls the time window of the fixed lag smoother. Variables
                                 //!< older than the lag duration will be marginalized out
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
+  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
   ros::Duration optimization_period_;  //!< The expected time between optimization cycles
   std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
@@ -177,6 +179,7 @@ protected:
 
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+  ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
    * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
@@ -239,6 +242,11 @@ protected:
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
    */
   void processQueue(fuse_core::Transaction& transaction);
+
+  /**
+   * @brief Service callback that resets the optimizer to its original state
+   */
+  bool resetServiceCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction
