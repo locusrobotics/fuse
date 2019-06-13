@@ -79,18 +79,24 @@ struct Odometry2DPublisherParams : public ParameterBase
       nh.getParam("map_frame_id", map_frame_id);
       nh.getParam("odom_frame_id", odom_frame_id);
       nh.getParam("base_link_frame_id", base_link_frame_id);
-      nh.getParam("world_frame_id", world_frame_id);
+      nh.param("base_link_output_frame_id", base_link_output_frame_id, base_link_frame_id);
+      nh.param("world_frame_id", world_frame_id, odom_frame_id);
 
       const bool frames_valid =
         map_frame_id != odom_frame_id &&
         map_frame_id != base_link_frame_id &&
+        map_frame_id != base_link_output_frame_id &&
         odom_frame_id != base_link_frame_id &&
+        odom_frame_id != base_link_output_frame_id &&
         (world_frame_id == map_frame_id || world_frame_id == odom_frame_id);
 
       if (!frames_valid)
       {
-        ROS_FATAL_STREAM("Invalid frame configuration! The values for map_frame_id, odom_frame_id, and "
-          "base_link_frame_id must be unique, and the world_frame_id must be the same as the map or odom frame.");
+        ROS_FATAL_STREAM("Invalid frame configuration! Please note:\n" <<
+          " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n" <<
+          " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n" <<
+          " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
+
         assert(frames_valid);
       }
 
@@ -106,6 +112,7 @@ struct Odometry2DPublisherParams : public ParameterBase
     std::string map_frame_id { "map" };
     std::string odom_frame_id { "odom" };
     std::string base_link_frame_id { "base_link" };
+    std::string base_link_output_frame_id { base_link_frame_id };
     std::string world_frame_id { odom_frame_id };
     std::string topic { "odometry/filtered" };
 };

@@ -118,7 +118,7 @@ void Publisher::notifyCallback(
 
   odom_output_.header.frame_id = params_.world_frame_id;
   odom_output_.header.stamp = latest_stamp_;
-  odom_output_.child_frame_id = params_.base_link_frame_id;
+  odom_output_.child_frame_id = params_.base_link_output_frame_id;
 
   // Don't waste CPU computing the covariance if nobody is listening
   if (odom_pub_.getNumSubscribers() > 0)
