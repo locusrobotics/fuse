@@ -538,7 +538,7 @@ inline bool processTwistWithCovariance(
       linear_vel_covariance_partial);
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
-      *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, angular_indices);
+      *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
 
     transaction.addVariable(velocity_linear);
     transaction.addConstraint(linear_vel_constraint);
