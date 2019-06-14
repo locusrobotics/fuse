@@ -58,6 +58,9 @@
 #include <memory>
 #include <string>
 
+// Required by make_aligned_shared, that uses Eigen::aligned_allocator<T>().
+#include <Eigen/Core>
+
 
 /**
  * Defines aliases and static functions for using the Class with smart pointers.
@@ -86,7 +89,9 @@
 /// Defines aliases and static functions for using the Class with shared_ptrs.
 #define SHARED_PTR_DEFINITIONS(...) \
   __SHARED_PTR_ALIAS(__VA_ARGS__) \
-  __MAKE_SHARED_DEFINITION(__VA_ARGS__)
+  __MAKE_SHARED_DEFINITION(__VA_ARGS__) \
+  __ALLOCATE_SHARED_DEFINITION(__VA_ARGS__) \
+  __ALLOCATE_ALIGNED_SHARED_DEFINITION(__VA_ARGS__)
 
 #define __SHARED_PTR_ALIAS(...) \
   using SharedPtr = std::shared_ptr<__VA_ARGS__>; \
@@ -98,6 +103,22 @@
   make_shared(Args && ... args) \
   { \
     return std::make_shared<__VA_ARGS__>(std::forward<Args>(args) ...); \
+  }
+
+#define __ALLOCATE_SHARED_DEFINITION(...) \
+  template<class Alloc, typename ... Args> \
+  static std::shared_ptr<__VA_ARGS__> \
+  allocate_shared(const Alloc& alloc, Args && ... args) \
+  { \
+    return std::allocate_shared<__VA_ARGS__>(alloc, std::forward<Args>(args) ...); \
+  }
+
+#define __ALLOCATE_ALIGNED_SHARED_DEFINITION(...) \
+  template<typename ... Args> \
+  static std::shared_ptr<__VA_ARGS__> \
+  allocate_aligned_shared(Args && ... args) \
+  { \
+    return std::allocate_shared<__VA_ARGS__>(Eigen::aligned_allocator<__VA_ARGS__>(), std::forward<Args>(args) ...); \
   }
 
 /// Defines aliases and static functions for using the Class with weak_ptrs.
