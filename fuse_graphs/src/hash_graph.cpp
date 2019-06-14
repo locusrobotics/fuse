@@ -88,6 +88,14 @@ HashGraph& HashGraph::operator=(const HashGraph& other)
   return *this;
 }
 
+void HashGraph::clear()
+{
+  constraints_.clear();
+  constraints_by_variable_uuid_.clear();
+  variables_.clear();
+  variables_on_hold_.clear();
+}
+
 fuse_core::Graph::UniquePtr HashGraph::clone() const
 {
   return HashGraph::make_unique(*this);

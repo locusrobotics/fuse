@@ -165,6 +165,14 @@ public:
     container_.pop_back();
   }
 
+  /**
+   * @brief Remove all elements from the vector
+   */
+  void clear()
+  {
+    container_.clear();
+  }
+
 protected:
   using Container = std::vector<std::pair<key_type, value_type>>;
 

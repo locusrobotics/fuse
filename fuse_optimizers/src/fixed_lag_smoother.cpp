@@ -88,26 +88,19 @@ FixedLagSmoother::FixedLagSmoother(
   transaction_timeout_.fromSec(transaction_timeout);
 
   private_node_handle_.getParam("ignition_sensors", ignition_sensors_);
-  if (ignition_sensors_.empty())
+  // Sort the sensors for efficient lookups
+  std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
+  // Warn about possible configuration errors
+  for (const auto& sensor_model_name : ignition_sensors_)
   {
-    // No ignition sensors were provided. Auto-start.
-    started_ = true;
-    start_time_ = ros::Time(0, 0);
-    ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
-  }
-  else
-  {
-    for (const auto& sensor_model_name : ignition_sensors_)
+    if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
     {
-      if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
-      {
-        ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
-                        "model with that name currently exists. This is likely a configuration error.");
-      }
+      ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
+                      "model with that name currently exists. This is likely a configuration error.");
     }
-    // Sort the sensors for efficient lookups
-    std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
   }
+  // Test for auto-start
+  autostart();
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
@@ -117,6 +110,9 @@ FixedLagSmoother::FixedLagSmoother(
     optimization_period_,
     &FixedLagSmoother::optimizerTimerCallback,
     this);
+
+  // Advertise a service that resets the optimizer to its initial state
+  reset_service_server_ = private_node_handle_.advertiseService("reset", &FixedLagSmoother::resetServiceCallback, this);
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -128,6 +124,17 @@ FixedLagSmoother::~FixedLagSmoother()
   if (optimization_thread_.joinable())
   {
     optimization_thread_.join();
+  }
+}
+
+void FixedLagSmoother::autostart()
+{
+  if (ignition_sensors_.empty())
+  {
+    // No ignition sensors were provided. Auto-start.
+    started_ = true;
+    start_time_ = ros::Time(0, 0);
+    ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
 
@@ -179,27 +186,31 @@ void FixedLagSmoother::optimizationLoop()
     // Apply motion models
     auto new_transaction = fuse_core::Transaction::make_shared();
     processQueue(*new_transaction);
-    // Prepare for selecting the marginal variables
-    preprocessMarginalization(*new_transaction);
-    // Combine the new transactions with any marginal transaction from the end of the last cycle
-    new_transaction->merge(marginal_transaction);
-    // Update the graph
-    graph_->update(*new_transaction);
-    // Optimize the entire graph
-    graph_->optimize();
-    // Optimization is complete. Notify all the things about the graph changes.
-    notify(std::move(new_transaction), graph_->clone());
-    // Compute a transaction that marginalizes out those variables.
-    marginal_transaction = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
-    // Perform any post-marginal cleanup
-    postprocessMarginalization(marginal_transaction);
-    // Note: The marginal transaction will not be applied until the next optimization iteration
-    // Log a warning if the optimization took too long
-    auto optimization_complete = ros::Time::now();
-    if (optimization_complete > optimization_deadline)
+    // Optimize
     {
-      ROS_WARN_STREAM("Optimization exceeded the configured duration by " <<
-                      (optimization_complete - optimization_deadline) << "s");
+      std::lock_guard<std::mutex> lock(optimization_mutex_);
+      // Prepare for selecting the marginal variables
+      preprocessMarginalization(*new_transaction);
+      // Combine the new transactions with any marginal transaction from the end of the last cycle
+      new_transaction->merge(marginal_transaction);
+      // Update the graph
+      graph_->update(*new_transaction);
+      // Optimize the entire graph
+      graph_->optimize();
+      // Optimization is complete. Notify all the things about the graph changes.
+      notify(std::move(new_transaction), graph_->clone());
+      // Compute a transaction that marginalizes out those variables.
+      marginal_transaction = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
+      // Perform any post-marginal cleanup
+      postprocessMarginalization(marginal_transaction);
+      // Note: The marginal transaction will not be applied until the next optimization iteration
+      // Log a warning if the optimization took too long
+      auto optimization_complete = ros::Time::now();
+      if (optimization_complete > optimization_deadline)
+      {
+        ROS_WARN_STREAM("Optimization exceeded the configured duration by " <<
+                        (optimization_complete - optimization_deadline) << "s");
+      }
     }
     // Clear the request flag now that this optimization cycle is complete
     optimization_request_ = false;
@@ -266,6 +277,28 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
     transaction.merge(*element.transaction, true);
     pending_transactions_.pop_back();
   }
+}
+
+bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  started_ = false;
+  start_time_ = ros::TIME_MAX;
+  optimization_request_ = false;
+  // Clear all pending transactions
+  {
+    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    pending_transactions_.clear();
+  }
+  // Clear the graph and marginal tracking states
+  {
+    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    graph_->clear();
+    timestamp_tracking_.clear();
+  }
+  // Test for auto-start
+  autostart();
+
+  return true;
 }
 
 void FixedLagSmoother::transactionCallback(

@@ -97,6 +97,13 @@ public:
   HashGraph& operator=(const HashGraph& other);
 
   /**
+   * @brief Clear all variables and constraints from the graph object.
+   *
+   * The object should be equivalent to a newly constructed object after clear() has been called.
+   */
+  void clear() override;
+
+  /**
    * @brief Return a deep copy of the graph object.
    *
    * This should include deep copies of all variables and constraints; not pointer copies.
