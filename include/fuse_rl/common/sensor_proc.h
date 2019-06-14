@@ -153,13 +153,13 @@ inline void appendPartialMeasurement(
   {
     assert(indices[r] >= base_index);
     size_t source_row = (indices[r] - base_index) + offset;
-    mean_partial << mean_full(source_row);
+    mean_partial(r) = mean_full(source_row);
 
     for (size_t c = 0; c < indices.size(); ++c)
     {
       assert(indices[c] >= base_index);
       size_t source_col = (indices[c] - base_index) + offset;
-      covariance_partial << covariance_full(source_row, source_col);
+      covariance_partial(r, c) = covariance_full(source_row, source_col);
     }
   }
 }
