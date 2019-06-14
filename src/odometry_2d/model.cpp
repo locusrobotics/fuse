@@ -76,7 +76,7 @@ void Model::onInit()
   }
   else
   {
-    node_handle_.subscribe(params_.topic, params_.queue_size, &Model::process, this);
+    subscriber_ = node_handle_.subscribe(params_.topic, params_.queue_size, &Model::process, this);
   }
 }
 

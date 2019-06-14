@@ -114,6 +114,8 @@ protected:
 
   ParameterType params_;
 
+  ros::Subscriber subscriber_;
+
   tf2_ros::Buffer tf_buffer_;
 
   tf2_ros::TransformListener tf_listener_;
