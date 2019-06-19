@@ -314,33 +314,38 @@ void FixedLagSmoother::transactionCallback(
                      ", difference: " << (start_time_ - transaction_time) << "s");
     return;
   }
-  // Add the new transaction to the pending set
-  pending_transactions_.insert(transaction_time, {sensor_name, std::move(transaction)});  // NOLINT
-  // If we haven't "started" yet..
-  if (!started_)
   {
-    // ...check if we should
-    if (std::binary_search(ignition_sensors_.begin(), ignition_sensors_.end(), sensor_name))
+    // We need to add the new transaction to the pending_transactions_ queue
+    std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+
+    // Add the new transaction to the pending set
+    pending_transactions_.insert(transaction_time, {sensor_name, std::move(transaction)});  // NOLINT
+    // If we haven't "started" yet..
+    if (!started_)
     {
-      started_ = true;
-      start_time_ = transaction_time;
-    }
-    // And purge out old transactions
-    //  - Either we just started and we want to purge out anything before the start time
-    //  - Or we want to limit the pending size while waiting for an ignition sensor
-    auto purge_time = ros::Time(0, 0);
-    auto last_pending_time = pending_transactions_.front_key();
-    if (started_)
-    {
-      purge_time = start_time_;
-    }
-    else if (ros::Time(0, 0) + transaction_timeout_ < last_pending_time)  // ros::Time doesn't allow negatives
-    {
-      purge_time = last_pending_time - transaction_timeout_;
-    }
-    while (!pending_transactions_.empty() && pending_transactions_.back_key() < purge_time)
-    {
-      pending_transactions_.pop_back();
+      // ...check if we should
+      if (std::binary_search(ignition_sensors_.begin(), ignition_sensors_.end(), sensor_name))
+      {
+        started_ = true;
+        start_time_ = transaction_time;
+      }
+      // And purge out old transactions
+      //  - Either we just started and we want to purge out anything before the start time
+      //  - Or we want to limit the pending size while waiting for an ignition sensor
+      auto purge_time = ros::Time(0, 0);
+      auto last_pending_time = pending_transactions_.front_key();
+      if (started_)
+      {
+        purge_time = start_time_;
+      }
+      else if (ros::Time(0, 0) + transaction_timeout_ < last_pending_time)  // ros::Time doesn't allow negatives
+      {
+        purge_time = last_pending_time - transaction_timeout_;
+      }
+      while (!pending_transactions_.empty() && pending_transactions_.back_key() < purge_time)
+      {
+        pending_transactions_.pop_back();
+      }
     }
   }
 }
