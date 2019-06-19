@@ -224,7 +224,7 @@ void Model::generateMotionModel(
   state2.acc_linear_uuid = acceleration_linear2->uuid();
 
   state_history_.emplace(beginning_stamp, std::move(state1));  // NOLINT(whitespace/braces)
-  state_history_.emplace(beginning_stamp, std::move(state2));  // NOLINT(whitespace/braces)
+  state_history_.emplace(ending_stamp, std::move(state2));  // NOLINT(whitespace/braces)
 
   // Create the constraints for this motion model segment
   auto constraint = fuse_rl::unicycle_2d::StateKinematicConstraint::make_shared(
