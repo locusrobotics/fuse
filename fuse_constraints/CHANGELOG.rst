@@ -2,8 +2,8 @@
 Changelog for package fuse_constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2019-06-19)
+------------------
 * Backport some commits to make fuse compatible with fuse rl (`#64 <https://github.com/locusrobotics/fuse/issues/64>`_)
   * [RST-1926] Extend the local parameter definition to include Minus() (`#40 <https://github.com/locusrobotics/fuse/issues/40>`_)
   * [RST-1927] Update the local parameterization for the orientation variables (`#41 <https://github.com/locusrobotics/fuse/issues/41>`_)
