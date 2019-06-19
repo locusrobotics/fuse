@@ -191,6 +191,18 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
   )
 
+  # Local Parameterization tests
+  catkin_add_gtest(test_local_parameterization
+    test/test_local_parameterization.cpp
+  )
+  target_include_directories(test_local_parameterization
+    PRIVATE
+      include
+  )
+  target_link_libraries(test_local_parameterization
+    ${PROJECT_NAME}
+  )
+
   # Message Buffer Tests
   catkin_add_gtest(test_message_buffer
     test/test_message_buffer.cpp

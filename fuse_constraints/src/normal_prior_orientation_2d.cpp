@@ -32,7 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/normal_prior_orientation_2d.h>
-#include <fuse_constraints/util.h>
+
+#include <fuse_core/util.h>
 
 
 namespace fuse_constraints
@@ -52,8 +53,7 @@ bool NormalPriorOrientation2D::Evaluate(
   // The following lines should read as
   // r = A_ * (x - b_);
   // The wrap function handles the 2_pi wrap around issue with rotations
-  double angle_diff = parameters[0][0] - b_;
-  wrapAngle2D(angle_diff);
+  double angle_diff = fuse_core::wrapAngle2D(parameters[0][0] - b_);
   residuals[0] = A_ * angle_diff;
   if ((jacobians != NULL) && (jacobians[0] != NULL))
   {

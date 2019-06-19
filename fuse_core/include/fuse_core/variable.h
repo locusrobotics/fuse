@@ -36,9 +36,9 @@
 
 #include <fuse_core/uuid.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/local_parameterization.h>
 
 #include <boost/core/demangle.hpp>
-#include <ceres/local_parameterization.h>
 
 #include <ostream>
 #include <string>
@@ -114,6 +114,14 @@ public:
   virtual size_t size() const = 0;
 
   /**
+   * @brief Returns the number of elements of the local parameterization space.
+   *
+   * If you override the \p localParameterization() method, it is good practice to also override the \p localSize()
+   * method. By default, the \p size() method is used for \p localSize() as well.
+   */
+  virtual size_t localSize() const { return size(); }
+
+  /**
    * @brief Read-only access to the variable data
    *
    * The data elements must be contiguous (such as a C-style array double[3] or std::vector<double>), and it must
@@ -155,7 +163,9 @@ public:
   /**
    * @brief Create a new Ceres local parameterization object to apply to updates of this variable
    *
-   * If a local parameterization is not needed, a null pointer should be returned.
+   * If a local parameterization is not needed, a null pointer should be returned. If a local parameterization is
+   * needed, remember to also override the \p localSize() method to return the appropriate local parameterization
+   * size.
    *
    * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
    * delete the local parameterization when it is done. Additionally, fuse promises that the Variable object will
@@ -164,7 +174,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  virtual ceres::LocalParameterization* localParameterization() const
+  virtual fuse_core::LocalParameterization* localParameterization() const
   {
     return nullptr;
   }

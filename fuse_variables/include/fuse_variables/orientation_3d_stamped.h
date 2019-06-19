@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,13 +34,12 @@
 #ifndef FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
+#include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
-#include <fuse_variables/util.h>
-
-#include <ceres/jet.h>
 #include <ros/time.h>
 
 #include <ostream>
@@ -95,16 +94,6 @@ public:
   explicit Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Read-only access to quaternion's Euler pitch angle component
-   */
-  double pitch() { return getPitch(w(), x(), y(), z()); }
-
-  /**
-   * @brief Read-only access to quaternion's Euler roll angle component
-   */
-  double roll() { return getRoll(w(), x(), y(), z()); }
-
-  /**
    * @brief Read-write access to the quaternion w component
    */
   double& w() { return data_[W]; }
@@ -135,11 +124,6 @@ public:
   const double& y() const { return data_[Y]; }
 
   /**
-   * @brief Read-only access to quaternion's Euler yaw angle component
-   */
-  double yaw() { return getYaw(w(), x(), y(), z()); }
-
-  /**
    * @brief Read-write access to the quaternion z component
    */
   double& z() { return data_[Z]; }
@@ -148,6 +132,21 @@ public:
    * @brief Read-only access to the quaternion z component
    */
   const double& z() const { return data_[Z]; }
+
+  /**
+   * @brief Read-only access to quaternion's Euler roll angle component
+   */
+  double roll() { return fuse_core::getRoll(w(), x(), y(), z()); }
+
+  /**
+   * @brief Read-only access to quaternion's Euler pitch angle component
+   */
+  double pitch() { return fuse_core::getPitch(w(), x(), y(), z()); }
+
+  /**
+   * @brief Read-only access to quaternion's Euler yaw angle component
+   */
+  double yaw() { return fuse_core::getYaw(w(), x(), y(), z()); }
 
   /**
    * @brief Read-only access to the unique ID of this variable instance.
@@ -171,11 +170,19 @@ public:
   fuse_core::Variable::UniquePtr clone() const override;
 
   /**
+   * @brief Returns the number of elements of the local parameterization space.
+   *
+   * While a quaternion has 4 parameters, a 3D rotation only has 3 degrees of freedom. Hence, the local
+   * parameterization space is only size 3.
+   */
+  size_t localSize() const override { return 3u; }
+
+  /**
    * @brief Provides a Ceres local parameterization for the quaternion
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
-  ceres::LocalParameterization* localParameterization() const override;
+  fuse_core::LocalParameterization* localParameterization() const override;
 
 protected:
   fuse_core::UUID uuid_;  //!< The UUID for this instance, computed during construction

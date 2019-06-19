@@ -34,8 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_2D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_2D_COST_FUNCTOR_H
 
-#include <fuse_constraints/util.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 
 #include <Eigen/Core>
 
@@ -114,10 +114,9 @@ bool NormalDeltaPose2DCostFunctor::operator()(
   Eigen::Map<const Eigen::Matrix<T, 2, 1>> position2_vector(position2);
   Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_matrix(residual);
   residuals_matrix.template head<2>() =
-    RotationMatrix2D(orientation1[0]).transpose() * (position2_vector - position1_vector) -
+    fuse_core::rotationMatrix2D(orientation1[0]).transpose() * (position2_vector - position1_vector) -
     b_.head<2>().template cast<T>();
-  residuals_matrix(2) = (orientation2[0] - orientation1[0]) - T(b_(2));
-  wrapAngle2D(residuals_matrix(2));
+  residuals_matrix(2) = fuse_core::wrapAngle2D(orientation2[0] - orientation1[0]) - T(b_(2));
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
   residuals_matrix.applyOnTheLeft(A_.template cast<T>());

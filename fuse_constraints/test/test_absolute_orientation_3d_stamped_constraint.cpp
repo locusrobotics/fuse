@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/Quaternion.h>
@@ -87,8 +88,8 @@ TEST(AbsoluteOrientation3DStampedConstraint, Covariance)
   fuse_core::Matrix3d expected_cov = cov;
 
   // Compare
-  EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
-  EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-9);
 }
 
 TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
@@ -146,17 +147,17 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
-  std::vector<double> covariance_vector(orientation_variable->size() * orientation_variable->size());
-  covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), covariance_vector.data());
+  fuse_core::Matrix3d actual_covariance(orientation_variable->localSize(), orientation_variable->localSize());
+  covariance.GetCovarianceBlockInTangentSpace(
+    orientation_variable->data(), orientation_variable->data(), actual_covariance.data());
 
-  // Assemble the full covariance from the covariance blocks
-  fuse_core::Matrix4d actual_covariance(covariance_vector.data());
+  // Define the expected covariance
   fuse_core::Matrix3d expected_covariance;
   expected_covariance <<
-    0.25,  0.025, 0.05,
-    0.025, 0.5,   0.075,
-    0.05,  0.075, 0.75;
-  EXPECT_TRUE(expected_covariance.isApprox(actual_covariance.block<3, 3>(1, 1), 1.0e-9));
+    1.0, 0.1, 0.2,
+    0.1, 2.0, 0.3,
+    0.2, 0.3, 3.0;
+  EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-3);
 }
 
 int main(int argc, char **argv)

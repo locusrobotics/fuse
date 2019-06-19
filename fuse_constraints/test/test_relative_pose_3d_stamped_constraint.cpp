@@ -34,6 +34,7 @@
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.h>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
@@ -117,8 +118,8 @@ TEST(RelativePose3DStampedConstraint, Covariance)
   fuse_core::Matrix6d expected_cov = cov;
 
   // Compare
-  EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
-  EXPECT_TRUE(expected_sqrt_info.isApprox(constraint.sqrtInformation(), 1.0e-9));
+  EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-9);
 }
 
 TEST(RelativePose3DStampedConstraint, Optimization)
@@ -235,34 +236,30 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     ceres::Covariance covariance(cov_options);
     covariance.Compute(covariance_blocks, &problem);
 
-    std::vector<double> cov_pos_pos(position1->size() * position1->size());
+    fuse_core::MatrixXd cov_pos_pos(position1->size(), position1->size());
     covariance.GetCovarianceBlock(position1->data(), position1->data(), cov_pos_pos.data());
 
-    std::vector<double> cov_or_or(orientation1->size() * orientation1->size());
-    covariance.GetCovarianceBlock(orientation1->data(), orientation1->data(), cov_or_or.data());
+    fuse_core::MatrixXd cov_or_or(3, 3);
+    covariance.GetCovarianceBlockInTangentSpace(orientation1->data(), orientation1->data(), cov_or_or.data());
 
-    std::vector<double> cov_pos_or(position1->size() * orientation1->size());
-    covariance.GetCovarianceBlock(position1->data(), orientation1->data(), cov_pos_or.data());
+    fuse_core::MatrixXd cov_pos_or(position1->size(), 3);
+    covariance.GetCovarianceBlockInTangentSpace(position1->data(), orientation1->data(), cov_pos_or.data());
 
     // Assemble the full covariance from the covariance blocks
-    Eigen::Map<fuse_core::Matrix3d> pos_pos(cov_pos_pos.data());
-    Eigen::Map<fuse_core::Matrix4d> or_or(cov_or_or.data());
-    Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> pos_or(cov_pos_or.data());
-
     fuse_core::Matrix6d actual_covariance;
-    actual_covariance <<
-      pos_pos, pos_or.block<3, 3>(0, 1),
-      pos_or.block<3, 3>(0, 1).transpose(), or_or.block<3, 3>(1, 1);
+    actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
 
+    // Define the expected covariance
     fuse_core::Matrix6d expected_covariance;
     expected_covariance <<
       1.0,  0.0,  0.0,  0.0,  0.0,  0.0,
       0.0,  1.0,  0.0,  0.0,  0.0,  0.0,
       0.0,  0.0,  1.0,  0.0,  0.0,  0.0,
-      0.0,  0.0,  0.0,  0.25, 0.0,  0.0,
-      0.0,  0.0,  0.0,  0.0,  0.25, 0.0,
-      0.0,  0.0,  0.0,  0.0,  0.0,  0.25;
-    EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-9));
+      0.0,  0.0,  0.0,  1.0,  0.0,  0.0,
+      0.0,  0.0,  0.0,  0.0,  1.0,  0.0,
+      0.0,  0.0,  0.0,  0.0,  0.0,  1.0;
+
+    EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
   }
 
   // Compute the marginal covariance for pose2
@@ -276,35 +273,30 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     ceres::Covariance covariance(cov_options);
     covariance.Compute(covariance_blocks, &problem);
 
-    std::vector<double> cov_pos_pos(position2->size() * position2->size());
+    fuse_core::MatrixXd cov_pos_pos(position2->size(), position2->size());
     covariance.GetCovarianceBlock(position2->data(), position2->data(), cov_pos_pos.data());
 
-    std::vector<double> cov_or_or(orientation2->size() * orientation2->size());
-    covariance.GetCovarianceBlock(orientation2->data(), orientation2->data(), cov_or_or.data());
+    fuse_core::MatrixXd cov_or_or(3, 3);
+    covariance.GetCovarianceBlockInTangentSpace(orientation2->data(), orientation2->data(), cov_or_or.data());
 
-    std::vector<double> cov_pos_or(position2->size() * orientation2->size());
-    covariance.GetCovarianceBlock(position2->data(), orientation2->data(), cov_pos_or.data());
+    fuse_core::MatrixXd cov_pos_or(position1->size(), 3);
+    covariance.GetCovarianceBlockInTangentSpace(position2->data(), orientation2->data(), cov_pos_or.data());
 
     // Assemble the full covariance from the covariance blocks
-    Eigen::Map<fuse_core::Matrix3d> pos_pos(cov_pos_pos.data());
-    Eigen::Map<fuse_core::Matrix4d> or_or(cov_or_or.data());
-    Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> pos_or(cov_pos_or.data());
-
     fuse_core::Matrix6d actual_covariance;
-    actual_covariance <<
-      pos_pos, pos_or.block<3, 3>(0, 1),
-      pos_or.block<3, 3>(0, 1).transpose(), or_or.block<3, 3>(1, 1);
+    actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
 
+    // Define the expected covariance
     fuse_core::Matrix6d expected_covariance;
     expected_covariance <<
       2.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  3.0,  0.0,  0.0,  0.0,  0.5,
-      0.0,  0.0,  3.0,  0.0, -0.5,  0.0,
-      0.0,  0.0,  0.0,  0.5,  0.0,  0.0,
-      0.0,  0.0, -0.5,  0.0,  0.5,  0.0,
-      0.0,  0.5,  0.0,  0.0,  0.0,  0.5;
+      0.0,  3.0,  0.0,  0.0,  0.0,  1.0,
+      0.0,  0.0,  3.0,  0.0, -1.0,  0.0,
+      0.0,  0.0,  0.0,  2.0,  0.0,  0.0,
+      0.0,  0.0, -1.0,  0.0,  2.0,  0.0,
+      0.0,  1.0,  0.0,  0.0,  0.0,  2.0;
 
-    EXPECT_TRUE(expected_covariance.isApprox(actual_covariance, 1.0e-3));
+    EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
   }
 }
 

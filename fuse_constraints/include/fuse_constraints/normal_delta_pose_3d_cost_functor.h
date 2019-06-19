@@ -34,10 +34,13 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_3D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_3D_COST_FUNCTOR_H
 
-#include <fuse_constraints/util.h>
+#include <fuse_constraints/normal_delta_orientation_3d_cost_functor.h>
+
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 
 #include <ceres/rotation.h>
+
 
 namespace fuse_constraints
 {
@@ -48,20 +51,11 @@ namespace fuse_constraints
  * A single pose involves two variables: a 3D position and a 3D orientation. This cost function computes the difference
  * using standard 3D transformation math:
  *
- *   delta = q1^-1 * [position2 - position1]
- *                   [          q2         ]
+ *   cost(x) = || A * [ q1^-1 * (p2 - p1) - b(0:2)        ] ||^2
+ *             ||     [ AngleAxis(b(3:6)^-1 * q1^-1 * q2) ] ||
  *
- * where q1 and q2 are the orientations of the two poses, given as quaternions. Once the delta is computed, the
- * difference between the computed delta and the expected delta is given as follows:
- *
- *             ||    [       delta(0) - b(0)       ] ||^2
- *   cost(x) = ||    [       delta(1) - b(1)       ] ||
- *             ||A * [       delta(2) - b(2)       ] ||
- *             ||    [ (delta(3:6) * b(3:6)^-1)(1) ] ||
- *             ||    [ (delta(3:6) * b(3:6)^-1)(2) ] ||
- *             ||    [ (delta(3:6) * b(3:6)^-1)(3) ] ||
- *
- * where, the matrix A and the vector b are fixed. In case the user is interested in implementing a cost function of
+ * where p1 and p2 are the position variables, q1 and q2 are the quaternion orientation variables, and the matrix A
+ * and the vector b are fixed. In case the user is interested in implementing a cost function of
  * the form:
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
@@ -97,11 +91,14 @@ public:
 private:
   fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root information matrix
   fuse_core::Vector7d b_;  //!< The measured difference between variable pose1 and variable pose2
+
+  NormalDeltaOrientation3DCostFunctor orientation_functor_;
 };
 
 NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
   A_(A),
-  b_(b)
+  b_(b),
+  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will not be scaled
 {
 }
 
@@ -113,62 +110,36 @@ bool NormalDeltaPose3DCostFunctor::operator()(
   const T* const orientation2,
   T* residual) const
 {
-  // Based on the Ceres SLAM pose graph error calculation here:
-  // https://github.com/ceres-solver/ceres-solver/blob/4fc5d25f9cbfe2aa333425ddad03bdc651335c24/examples/slam/pose_graph_3d/pose_graph_3d_error_term.h#L73
-
-  // 1. Get the relative orientation change from the variable's orientation1 to orientation2
-  T variable_orientation1_inverse[4] =
+  // Compute the position delta between pose1 and pose2
+  T orientation1_inverse[4] =
   {
     orientation1[0],
     -orientation1[1],
     -orientation1[2],
     -orientation1[3]
   };
-
-  T variable_orientation_delta[4];
-  ceres::QuaternionProduct(variable_orientation1_inverse, orientation2, variable_orientation_delta);
-
-  // 2. Get the position change from pose1 to pose2, then rotate it into the frame of pose1
-  T variable_position_delta[3] =
+  T position_delta[3] =
   {
     position2[0] - position1[0],
     position2[1] - position1[1],
     position2[2] - position1[2]
   };
-
-  T variable_position_delta_rotated[3];
+  T position_delta_rotated[3];
   ceres::QuaternionRotatePoint(
-    variable_orientation1_inverse,
-    variable_position_delta,
-    variable_position_delta_rotated);
+    orientation1_inverse,
+    position_delta,
+    position_delta_rotated);
 
-  // 3. Get the difference between the orientation delta that we just computed for orientation1 and orientation2,
-  // and the measurement's orientation delta
-  T observation_inverse[4] =
-  {
-    T(b_(3)),
-    T(-b_(4)),
-    T(-b_(5)),
-    T(-b_(6))
-  };
+  // Compute the first three residual terms as (position_delta - b)
+  residual[0] = position_delta_rotated[0] - T(b_[0]);
+  residual[1] = position_delta_rotated[1] - T(b_[1]);
+  residual[2] = position_delta_rotated[2] - T(b_[2]);
 
-  T delta_difference_orientation[4];
-  ceres::QuaternionProduct(
-    variable_orientation_delta,
-    observation_inverse,
-    delta_difference_orientation);
+  // Use the 3D orientation cost functor to compute the orientation delta
+  orientation_functor_(orientation1, orientation2, &residual[3]);
 
-  // 4. Compute the position delta, and throw everything into a residual at the same time
-  residual[0] = variable_position_delta_rotated[0] - b_[0];
-  residual[1] = variable_position_delta_rotated[1] - b_[1];
-  residual[2] = variable_position_delta_rotated[2] - b_[2];
-  residual[3] = T(2.0) * delta_difference_orientation[1];
-  residual[4] = T(2.0) * delta_difference_orientation[2];
-  residual[5] = T(2.0) * delta_difference_orientation[3];
-
-  // 5. Map it to Eigen, and weight it
-  Eigen::Map<Eigen::Matrix<T, 6, 1> > residual_map(residual);
-
+  // Map it to Eigen, and weight it
+  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
   residual_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;

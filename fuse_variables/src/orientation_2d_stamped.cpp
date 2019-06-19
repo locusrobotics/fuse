@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,76 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 
-#include <boost/core/demangle.hpp>
-#include <ceres/autodiff_local_parameterization.h>
+#include <fuse_core/local_parameterization.h>
+#include <fuse_core/util.h>
+#include <fuse_core/uuid.h>
+#include <fuse_variables/stamped.h>
+#include <ros/time.h>
 
-#include <string>
+#include <ostream>
 
 
 namespace fuse_variables
 {
 
-const std::string Orientation2DStamped::TYPE = boost::core::demangle(typeid(Orientation2DStamped).name());
+/**
+ * @brief A LocalParameterization class for 2D Orientations.
+ *
+ * 2D orientations add and subtract in the "usual" way, except for the 2*pi rollover issue. This local parameterization
+ * handles the rollover. Because the Jacobians for this parameterization are always identity, we implement this
+ * parameterization with "analytic" derivatives, instead of using the Ceres's autodiff system.
+ */
+class Orientation2DLocalParameterization : public fuse_core::LocalParameterization
+{
+public:
+  int GlobalSize() const override
+  {
+    return 1;
+  }
+
+  int LocalSize() const override
+  {
+    return 1;
+  }
+
+  bool Plus(
+    const double* x,
+    const double* delta,
+    double* x_plus_delta) const override
+  {
+    // Compute the angle increment as a linear update, and handle the 2*Pi rollover
+    x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
+    return true;
+  }
+
+  bool ComputeJacobian(
+    const double* x,
+    double* jacobian) const override
+  {
+    jacobian[0] = 1.0;
+    return true;
+  }
+
+  bool Minus(
+    const double* x1,
+    const double* x2,
+    double* delta) const override
+  {
+    // Compute the difference from x2 to x1, and handle the 2*Pi rollover
+    delta[0] = fuse_core::wrapAngle2D(x2[0] - x1[0]);
+    return true;
+  }
+
+  bool ComputeMinusJacobian(
+    const double* x,
+    double* jacobian) const override
+  {
+    jacobian[0] = 1.0;
+    return true;
+  }
+};
 
 Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   Stamped(stamp, device_id),
@@ -67,9 +124,9 @@ fuse_core::Variable::UniquePtr Orientation2DStamped::clone() const
   return Orientation2DStamped::make_unique(*this);
 }
 
-ceres::LocalParameterization* Orientation2DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
 {
-  return new ceres::AutoDiffLocalParameterization<Orientation2DPlus, 1, 1>();
+  return new Orientation2DLocalParameterization();
 }
 
 }  // namespace fuse_variables
