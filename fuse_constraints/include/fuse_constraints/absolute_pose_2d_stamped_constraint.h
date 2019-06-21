@@ -63,7 +63,7 @@ namespace fuse_constraints
 class AbsolutePose2DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsolutePose2DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(AbsolutePose2DStampedConstraint);
 
   /**
    * @brief Create a constraint using a measurement/prior of the 2D pose

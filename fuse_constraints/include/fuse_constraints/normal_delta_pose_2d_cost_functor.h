@@ -73,8 +73,6 @@ namespace fuse_constraints
 class NormalDeltaPose2DCostFunctor
 {
 public:
-  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
-
   /**
    * @brief Constructor
    *
