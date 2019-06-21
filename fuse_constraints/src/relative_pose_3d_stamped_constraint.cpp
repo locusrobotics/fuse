@@ -65,11 +65,6 @@ void RelativePose3DStampedConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr RelativePose3DStampedConstraint::clone() const
-{
-  return RelativePose3DStampedConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* RelativePose3DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalDeltaPose3DCostFunctor, 6, 3, 4, 3, 4>(

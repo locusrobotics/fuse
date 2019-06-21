@@ -114,12 +114,6 @@ void AbsoluteConstraint<Variable>::print(std::ostream& stream) const
 }
 
 template<class Variable>
-fuse_core::Constraint::UniquePtr AbsoluteConstraint<Variable>::clone() const
-{
-  return AbsoluteConstraint<Variable>::make_unique(*this);
-}
-
-template<class Variable>
 ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
 {
   // Ceres ships with a "prior" cost function. Just use that here.

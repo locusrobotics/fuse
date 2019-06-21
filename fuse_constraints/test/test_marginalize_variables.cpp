@@ -82,7 +82,7 @@ protected:
 class GenericConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(GenericConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint);
 
   GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) : Constraint(variable_uuids) {}
 
@@ -95,8 +95,6 @@ public:
   void print(std::ostream& stream = std::cout) const override {}
 
   ceres::CostFunction* costFunction() const override { return nullptr; }
-
-  fuse_core::Constraint::UniquePtr clone() const override { return GenericConstraint::make_unique(*this); }
 };
 
 

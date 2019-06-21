@@ -72,11 +72,6 @@ void AbsoluteOrientation3DStampedEulerConstraint::print(std::ostream& stream) co
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr AbsoluteOrientation3DStampedEulerConstraint::clone() const
-{
-  return AbsoluteOrientation3DStampedEulerConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* AbsoluteOrientation3DStampedEulerConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorOrientation3DEulerCostFunctor, ceres::DYNAMIC, 4>(

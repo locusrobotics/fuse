@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H
 
 #include <fuse_core/eigen.h>
+#include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 
 #include <Eigen/Core>
@@ -66,6 +67,8 @@ namespace fuse_constraints
 class NormalPriorPose2DCostFunctor
 {
 public:
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+
   /**
    * @brief Construct a cost function instance
    *

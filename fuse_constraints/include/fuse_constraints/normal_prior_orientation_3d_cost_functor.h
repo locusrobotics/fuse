@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_COST_FUNCTOR_H
 
 #include <fuse_core/eigen.h>
+#include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
@@ -68,6 +69,8 @@ namespace fuse_constraints
 class NormalPriorOrientation3DCostFunctor
 {
 public:
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+
   /**
    * @brief Construct a cost function instance
    *

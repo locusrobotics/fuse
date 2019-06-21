@@ -81,11 +81,6 @@ void AbsoluteOrientation3DStampedConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr AbsoluteOrientation3DStampedConstraint::clone() const
-{
-  return AbsoluteOrientation3DStampedConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* AbsoluteOrientation3DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorOrientation3DCostFunctor, 3, 4>(

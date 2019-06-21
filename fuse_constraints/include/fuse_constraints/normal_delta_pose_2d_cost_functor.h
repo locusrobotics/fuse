@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_2D_COST_FUNCTOR_H
 
 #include <fuse_core/eigen.h>
+#include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 
 #include <Eigen/Core>
@@ -72,6 +73,8 @@ namespace fuse_constraints
 class NormalDeltaPose2DCostFunctor
 {
 public:
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+
   /**
    * @brief Constructor
    *

@@ -47,7 +47,7 @@
 class ExampleConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(ExampleConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint);
 
   ExampleConstraint(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
     fuse_core::Constraint(variable_uuid_list),
@@ -64,7 +64,6 @@ public:
 
   void print(std::ostream& stream = std::cout) const override {}
   ceres::CostFunction* costFunction() const override { return nullptr; }
-  fuse_core::Constraint::UniquePtr clone() const override { return ExampleConstraint::make_unique(*this); }
 
   double data;  // Public member variable just for testing
 };

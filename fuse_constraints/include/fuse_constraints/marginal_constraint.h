@@ -65,7 +65,7 @@ namespace fuse_constraints
 class MarginalConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(MarginalConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(MarginalConstraint);
 
   /**
    * @brief Create a linear/marginal constraint
@@ -124,15 +124,6 @@ public:
   void print(std::ostream& stream = std::cout) const override;
 
   /**
-   * @brief Perform a deep copy of the constraint and return a unique pointer to the copy
-   *
-   * Unique pointers can be implicitly upgraded to shared pointers if needed.
-   *
-   * @return A unique pointer to a new instance of the most-derived constraint
-   */
-  fuse_core::Constraint::UniquePtr clone() const override;
-
-  /**
    * @brief Construct an instance of this constraint's cost function
    *
    * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
@@ -186,14 +177,16 @@ MarginalConstraint::MarginalConstraint(
   MatrixIterator first_A,
   MatrixIterator last_A,
   const fuse_core::VectorXd& b) :
-    Constraint(boost::make_transform_iterator(first_variable, &detail::getUuid),
-               boost::make_transform_iterator(last_variable, &detail::getUuid)),
+    Constraint(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
+               boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
     A_(first_A, last_A),
     b_(b),
-    local_parameterizations_(boost::make_transform_iterator(first_variable, &detail::getLocalParameterization),
-                             boost::make_transform_iterator(last_variable, &detail::getLocalParameterization)),
-    x_bar_(boost::make_transform_iterator(first_variable, &detail::getCurrentValue),
-           boost::make_transform_iterator(last_variable, &detail::getCurrentValue))
+    local_parameterizations_(boost::make_transform_iterator(first_variable,
+                                                            &fuse_constraints::detail::getLocalParameterization),
+                             boost::make_transform_iterator(last_variable,
+                                                            &fuse_constraints::detail::getLocalParameterization)),
+    x_bar_(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getCurrentValue),
+           boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
 {
   assert(!A_.empty());
   assert(A_.size() == x_bar_.size());

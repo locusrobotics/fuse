@@ -60,7 +60,7 @@ namespace fuse_constraints
 class AbsoluteOrientation3DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(AbsoluteOrientation3DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsoluteOrientation3DStampedConstraint);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -130,15 +130,6 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
-
-  /**
-   * @brief Perform a deep copy of the constraint and return a unique pointer to the copy
-   *
-   * Unique pointers can be implicitly upgraded to shared pointers if needed.
-   *
-   * @return A unique pointer to a new instance of the most-derived constraint
-   */
-  fuse_core::Constraint::UniquePtr clone() const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function

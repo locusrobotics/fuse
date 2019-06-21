@@ -113,11 +113,6 @@ void RelativePose2DStampedConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr RelativePose2DStampedConstraint::clone() const
-{
-  return RelativePose2DStampedConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* RelativePose2DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalDeltaPose2DCostFunctor, ceres::DYNAMIC, 2, 1, 2, 1>(

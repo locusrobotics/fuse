@@ -35,8 +35,8 @@
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_3D_COST_FUNCTOR_H
 
 #include <fuse_constraints/normal_delta_orientation_3d_cost_functor.h>
-
 #include <fuse_core/eigen.h>
+#include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 
 #include <ceres/rotation.h>
@@ -68,6 +68,8 @@ namespace fuse_constraints
 class NormalDeltaPose3DCostFunctor
 {
 public:
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+
   /**
    * @brief Constructor
    *
