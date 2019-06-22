@@ -188,4 +188,17 @@ if(CATKIN_ENABLE_TESTING)
     )
   endif()
 
+  # Other tests
+  catkin_add_gtest(
+    test_sensor_proc
+    test/test_sensor_proc.cpp
+  )
+  if(TARGET test_sensor_proc)
+    target_link_libraries(
+      test_sensor_proc
+      ${PROJECT_NAME}
+      ${catkin_LIBRARIES}
+    )
+  endif()
+
 endif()
