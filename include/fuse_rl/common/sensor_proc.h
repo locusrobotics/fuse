@@ -60,6 +60,10 @@
 #include <tf2_2d/tf2_2d.h>
 #include <tf2_2d/transform.h>
 
+#include <boost/range/join.hpp>
+
+#include <algorithm>
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -128,15 +132,29 @@ namespace common
 {
 
 /**
- * @brief Method to create sub-measurements from full measurements and append them to existing partial measurements
+ * @brief Method to merge two vectors of indices adding an offset to the RHS one.
  *
- * base_index and offset are separate parameters to prevent issues with negative size_t values being passed in by users
+ * @param[in] lhs_indices - LHS vector of indices
+ * @param[in] rhs_indices - RHS vector of indices
+ * @param[in] rhs_offset - RHS offset to be added to the RHS vector indices (defaults to 0)
+ */
+inline std::vector<size_t> mergeIndices(const std::vector<size_t>& lhs_indices, const std::vector<size_t>& rhs_indices,
+                                        const size_t rhs_offset = 0u)
+{
+  auto merged_indices = boost::copy_range<std::vector<size_t>>(boost::join(lhs_indices, rhs_indices));
+
+  const auto rhs_it = merged_indices.begin() + lhs_indices.size();
+  std::transform(rhs_it, merged_indices.end(), rhs_it, std::bind2nd(std::plus<size_t>(), rhs_offset));
+
+  return merged_indices;
+}
+
+/**
+ * @brief Method to create sub-measurements from full measurements and append them to existing partial measurements
  *
  * @param[in] mean_full - The full mean vector from which we will generate the sub-measurement
  * @param[in] covariance_full - The full covariance matrix from which we will generate the sub-measurement
  * @param[in] indices - The indices we want to include in the sub-measurement
- * @param[in] base_index - Gets subtracted from every index value in \p indices, before \p offset is added
- * @param[in] offset - Gets added to every index value in \p indices, after \p base_index is subtracted
  * @param[in,out] mean_partial - The partial measurement mean to which we want to append
  * @param[in,out] covariance_partial - The partial measurement covariance to which we want to append
  */
@@ -144,22 +162,16 @@ inline void appendPartialMeasurement(
   const fuse_core::VectorXd& mean_full,
   const fuse_core::MatrixXd& covariance_full,
   const std::vector<size_t>& indices,
-  const size_t base_index,
-  const size_t offset,
   fuse_core::VectorXd& mean_partial,
   fuse_core::MatrixXd& covariance_partial)
 {
   for (size_t r = 0; r < indices.size(); ++r)
   {
-    assert(indices[r] >= base_index);
-    size_t source_row = (indices[r] - base_index) + offset;
-    mean_partial(r) = mean_full(source_row);
+    mean_partial(r) = mean_full(indices[r]);
 
     for (size_t c = 0; c < indices.size(); ++c)
     {
-      assert(indices[c] >= base_index);
-      size_t source_col = (indices[c] - base_index) + offset;
-      covariance_partial(r, c) = covariance_full(source_row, source_col);
+      covariance_partial(r, c) = covariance_full(indices[r], indices[c]);
     }
   }
 }
@@ -280,26 +292,10 @@ inline bool processAbsolutePoseWithCovariance(
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd pose_mean_partial(position_indices.size() + orientation_indices.size());
   fuse_core::MatrixXd pose_covariance_partial(pose_mean_partial.rows(), pose_mean_partial.rows());
-  const size_t base_ind_pos = static_cast<size_t>(fuse_variables::Position2DStamped::X);
-  const size_t base_ind_or = static_cast<size_t>(fuse_variables::Orientation2DStamped::YAW);
 
-  appendPartialMeasurement(
-    pose_mean,
-    pose_covariance,
-    position_indices,
-    base_ind_pos,
-    0u,
-    pose_mean_partial,
-    pose_covariance_partial);
+  const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
 
-  appendPartialMeasurement(
-    pose_mean,
-    pose_covariance,
-    orientation_indices,
-    base_ind_or,
-    position->size(),
-    pose_mean_partial,
-    pose_covariance_partial);
+  appendPartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -417,29 +413,13 @@ inline bool processDifferentialPoseWithCovariance(
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd pose_relative_mean_partial(position_indices.size() + orientation_indices.size());
-  fuse_core::MatrixXd pose_relative_covariance_partial(
-    pose_relative_mean_partial.rows(),
-    pose_relative_mean_partial.rows());
-  const size_t base_ind_pos = static_cast<size_t>(fuse_variables::Position2DStamped::X);
-  const size_t base_ind_or = static_cast<size_t>(fuse_variables::Orientation2DStamped::YAW);
+  fuse_core::MatrixXd pose_relative_covariance_partial(pose_relative_mean_partial.rows(),
+                                                       pose_relative_mean_partial.rows());
 
-  appendPartialMeasurement(
-    pose_relative_mean,
-    pose_relative_covariance,
-    position_indices,
-    base_ind_pos,
-    0u,
-    pose_relative_mean_partial,
-    pose_relative_covariance_partial);
+  const auto indices = mergeIndices(position_indices, orientation_indices, position1->size());
 
-  appendPartialMeasurement(
-    pose_relative_mean,
-    pose_relative_covariance,
-    orientation_indices,
-    base_ind_or,
-    position1->size(),
-    pose_relative_mean_partial,
-    pose_relative_covariance_partial);
+  appendPartialMeasurement(pose_relative_mean, pose_relative_covariance, indices, pose_relative_mean_partial,
+                           pose_relative_covariance_partial);
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
@@ -526,16 +506,9 @@ inline bool processTwistWithCovariance(
     // Build the sub-vector and sub-matrices based on the requested indices
     fuse_core::VectorXd linear_vel_mean_partial(linear_indices.size());
     fuse_core::MatrixXd linear_vel_covariance_partial(linear_vel_mean_partial.rows(), linear_vel_mean_partial.rows());
-    const size_t base_ind = static_cast<size_t>(fuse_variables::VelocityLinear2DStamped::X);
 
-    appendPartialMeasurement(
-      linear_vel_mean,
-      linear_vel_covariance,
-      linear_indices,
-      base_ind,
-      0u,
-      linear_vel_mean_partial,
-      linear_vel_covariance_partial);
+    appendPartialMeasurement(linear_vel_mean, linear_vel_covariance, linear_indices, linear_vel_mean_partial,
+                             linear_vel_covariance_partial);
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
       *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
@@ -629,18 +602,10 @@ inline bool processAccelWithCovariance(
       transformed_message.accel.covariance[7];
 
   // Build the sub-vector and sub-matrices based on the requested indices
-  fuse_core::VectorXd accel_mean_partial;
-  fuse_core::MatrixXd accel_covariance_partial(indices.size(), indices.size());
-  size_t base_ind = static_cast<size_t>(fuse_variables::AccelerationLinear2DStamped::X);
+  fuse_core::VectorXd accel_mean_partial(indices.size());
+  fuse_core::MatrixXd accel_covariance_partial(accel_mean_partial.rows(), accel_mean_partial.rows());
 
-  appendPartialMeasurement(
-    accel_mean,
-    accel_covariance,
-    indices,
-    base_ind,
-    0u,
-    accel_mean_partial,
-    accel_covariance_partial);
+  appendPartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
