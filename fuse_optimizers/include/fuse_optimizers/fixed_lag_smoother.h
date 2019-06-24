@@ -36,6 +36,7 @@
 
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
+#include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_optimizers/vector_queue.h>
@@ -112,6 +113,7 @@ class FixedLagSmoother : public Optimizer
 {
 public:
   SMART_PTR_DEFINITIONS(FixedLagSmoother);
+  using ParameterType = FixedLagSmootherParams;
 
   /**
    * @brief Constructor
@@ -153,21 +155,16 @@ protected:
    */
   using TransactionQueue = VectorQueue<ros::Time, TransactionQueueElement, std::greater<ros::Time>>;
 
-  std::vector<std::string> ignition_sensors_;  //!< The set of sensors whose transactions will trigger the optimizer
-                                               //!< thread to start running. This is designed to keep the system idle
-                                               //!< until the origin constraint has been received.
-  ros::Duration lag_duration_;  //!< Parameter that controls the time window of the fixed lag smoother. Variables
-                                //!< older than the lag duration will be marginalized out
   fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
   std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
-  ros::Duration optimization_period_;  //!< The expected time between optimization cycles
   std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
+  ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
@@ -175,8 +172,6 @@ protected:
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
-  ros::Duration transaction_timeout_;  //!< Parameter that controls how long to wait for a transaction to be processed
-                                       //!< successfully before kicking it out of the queue.
 
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
