@@ -37,6 +37,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 
+#include <boost/core/demangle.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 #include <ceres/cost_function.h>
 #include <ceres/loss_function.h>
@@ -187,7 +188,7 @@ public:
    * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
    * choice for the type string.
    */
-  virtual std::string type() const = 0;
+  virtual std::string type() const { return boost::core::demangle(typeid(*this).name()); }
 
   /**
    * @brief Returns the UUID for this constraint.
