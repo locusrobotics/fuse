@@ -44,6 +44,7 @@
 #include <ceres/covariance.h>
 #include <ceres/solver.h>
 
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -262,7 +263,19 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   virtual ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
+
+  /**
+   * @brief Print a human-readable description of the graph to the provided stream.
+   *
+   * @param[out] stream The stream to write to. Defaults to stdout.
+   */
+  virtual void print(std::ostream& stream = std::cout) const = 0;
 };
+
+/**
+ * Stream operator for printing Graph objects.
+ */
+std::ostream& operator <<(std::ostream& stream, const Graph& graph);
 
 }  // namespace fuse_core
 

@@ -409,6 +409,22 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
   return summary;
 }
 
+void HashGraph::print(std::ostream& stream) const
+{
+  stream << "HashGraph\n"
+         << "  constraints:\n";
+  for (const auto& constraint : constraints_)
+  {
+    stream << "   - " << *constraint.second << "\n";
+  }
+  stream << "  variables:\n";
+  for (const auto& variable : variables_)
+  {
+    const auto is_on_hold = variables_on_hold_.find(variable.first) != variables_on_hold_.end();
+    stream << "   - " << (is_on_hold ? "[H] " : "") << *variable.second << "\n";
+  }
+}
+
 void HashGraph::createProblem(ceres::Problem& problem) const
 {
   // Add all the variables to the problem

@@ -301,6 +301,13 @@ public:
    */
   ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) override;
 
+  /**
+   * @brief Print a human-readable description of the graph to the provided stream.
+   *
+   * @param[out] stream The stream to write to. Defaults to stdout.
+   */
+  void print(std::ostream& stream = std::cout) const override;
+
 protected:
   // Define some helpful typedefs
   using Constraints = std::unordered_map<fuse_core::UUID, fuse_core::Constraint::SharedPtr, fuse_core::uuid::hash>;
