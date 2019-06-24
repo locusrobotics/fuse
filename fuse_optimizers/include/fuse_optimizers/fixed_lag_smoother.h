@@ -158,6 +158,7 @@ protected:
                                                //!< until the origin constraint has been received.
   ros::Duration lag_duration_;  //!< Parameter that controls the time window of the fixed lag smoother. Variables
                                 //!< older than the lag duration will be marginalized out
+  fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
   std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
   ros::Duration optimization_period_;  //!< The expected time between optimization cycles

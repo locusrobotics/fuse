@@ -168,7 +168,6 @@ void FixedLagSmoother::optimizationLoop()
     return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
   };
   // Optimize constraints until told to exit
-  auto marginal_transaction = fuse_core::Transaction();
   while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
@@ -192,7 +191,7 @@ void FixedLagSmoother::optimizationLoop()
       // Prepare for selecting the marginal variables
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle
-      new_transaction->merge(marginal_transaction);
+      new_transaction->merge(marginal_transaction_);
       // Update the graph
       graph_->update(*new_transaction);
       // Optimize the entire graph
@@ -200,9 +199,9 @@ void FixedLagSmoother::optimizationLoop()
       // Optimization is complete. Notify all the things about the graph changes.
       notify(std::move(new_transaction), graph_->clone());
       // Compute a transaction that marginalizes out those variables.
-      marginal_transaction = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
+      marginal_transaction_ = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
       // Perform any post-marginal cleanup
-      postprocessMarginalization(marginal_transaction);
+      postprocessMarginalization(marginal_transaction_);
       // Note: The marginal transaction will not be applied until the next optimization iteration
       // Log a warning if the optimization took too long
       auto optimization_complete = ros::Time::now();
@@ -293,6 +292,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   {
     std::lock_guard<std::mutex> lock(optimization_mutex_);
     graph_->clear();
+    marginal_transaction_ = fuse_core::Transaction();
     timestamp_tracking_.clear();
   }
   // Test for auto-start
