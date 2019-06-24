@@ -137,7 +137,7 @@ public:
 class CovarianceConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(CovarianceConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(CovarianceConstraint);
 
   CovarianceConstraint(
     const fuse_core::UUID& variable1_uuid,
@@ -148,7 +148,6 @@ public:
   }
 
   void print(std::ostream& stream = std::cout) const override {}
-  fuse_core::Constraint::UniquePtr clone() const override { return CovarianceConstraint::make_unique(*this); }
   ceres::CostFunction* costFunction() const override { return new CovarianceCostFunction(); }
 };
 

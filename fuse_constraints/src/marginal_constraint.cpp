@@ -62,11 +62,6 @@ void MarginalConstraint::print(std::ostream& stream) const
   stream << "  b:\n" << b_.format(indent) << "\n";
 }
 
-fuse_core::Constraint::UniquePtr MarginalConstraint::clone() const
-{
-  return MarginalConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* MarginalConstraint::costFunction() const
 {
   return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);

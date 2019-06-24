@@ -119,12 +119,6 @@ void RelativeConstraint<Variable>::print(std::ostream& stream) const
 }
 
 template<class Variable>
-fuse_core::Constraint::UniquePtr RelativeConstraint<Variable>::clone() const
-{
-  return RelativeConstraint<Variable>::make_unique(*this);
-}
-
-template<class Variable>
 ceres::CostFunction* RelativeConstraint<Variable>::costFunction() const
 {
   // Create a Gaussian/Normal Delta constraint

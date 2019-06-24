@@ -109,11 +109,6 @@ void AbsolutePose2DStampedConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr AbsolutePose2DStampedConstraint::clone() const
-{
-  return AbsolutePose2DStampedConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorPose2DCostFunctor, ceres::DYNAMIC, 2, 1>(

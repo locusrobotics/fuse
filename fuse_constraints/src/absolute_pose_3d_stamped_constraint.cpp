@@ -62,11 +62,6 @@ void AbsolutePose3DStampedConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr AbsolutePose3DStampedConstraint::clone() const
-{
-  return AbsolutePose3DStampedConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* AbsolutePose3DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, 6, 3, 4>(

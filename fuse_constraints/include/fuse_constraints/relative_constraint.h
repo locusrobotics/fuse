@@ -70,7 +70,7 @@ template<class Variable>
 class RelativeConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(RelativeConstraint<Variable>);
+  FUSE_CONSTRAINT_DEFINITIONS(RelativeConstraint<Variable>);
 
   /**
    * @brief Create a constraint on the change of all dimensions between the two target variables
@@ -143,15 +143,6 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
-
-  /**
-   * @brief Perform a deep copy of the constraint and return a unique pointer to the copy
-   *
-   * Unique pointers can be implicitly upgraded to shared pointers if needed.
-   *
-   * @return A unique pointer to a new instance of the most-derived constraint
-   */
-  fuse_core::Constraint::UniquePtr clone() const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function

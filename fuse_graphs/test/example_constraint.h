@@ -69,7 +69,7 @@ private:
 class ExampleConstraint : public fuse_core::Constraint
 {
 public:
-  SMART_PTR_DEFINITIONS(ExampleConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint);
 
   explicit ExampleConstraint(const fuse_core::UUID& variable_uuid) :
     fuse_core::Constraint{variable_uuid},
@@ -78,7 +78,6 @@ public:
   }
 
   void print(std::ostream& stream = std::cout) const override {}
-  fuse_core::Constraint::UniquePtr clone() const override { return ExampleConstraint::make_unique(*this); }
   ceres::CostFunction* costFunction() const override
   {
     return new ceres::AutoDiffCostFunction<ExampleFunctor, 1, 1>(new ExampleFunctor(data));

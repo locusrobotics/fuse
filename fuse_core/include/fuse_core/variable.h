@@ -99,7 +99,7 @@
  * class Derived : public Variable
  * {
  * public:
- *   FUSE_VARIABLE_DEFINITION(Derived);
+ *   FUSE_VARIABLE_DEFINITIONS(Derived);
  *   // The rest of the derived variable implementation
  * }
  * @endcode
@@ -107,7 +107,26 @@
 #define FUSE_VARIABLE_DEFINITIONS(...) \
   SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)
+
+/**
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
+ *        for derived Variable classes that have fixed-sized Eigen member objects.
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Variable
+ * {
+ * public:
+ *   FUSE_VARIABLE_DEFINITIONS_WTIH_EIGEN(Derived);
+ *   // The rest of the derived variable implementation
+ * }
+ * @endcode
+ */
+#define FUSE_VARIABLE_DEFINITIONS_WITH_EIGEN(...) \
+  SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
+  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)
 
 
 namespace fuse_core

@@ -37,7 +37,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
 
-#include <boost/core/demangle.hpp>
+#include <boost/type_index/stl_type_index.hpp>
 #include <ceres/cost_function.h>
 #include <ceres/loss_function.h>
 
@@ -45,6 +45,91 @@
 #include <ostream>
 #include <string>
 #include <vector>
+
+
+/**
+ * @brief Implementation of the clone() member function for derived classes
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Constraint
+ * {
+ * public:
+ *   FUSE_CONSTRAINT_CLONE_DEFINITION(Derived);
+ *   // The rest of the derived constraint implementation
+ * }
+ * @endcode
+ */
+#define FUSE_CONSTRAINT_CLONE_DEFINITION(...) \
+  fuse_core::Constraint::UniquePtr clone() const override \
+  { \
+    return __VA_ARGS__::make_unique(*this); \
+  }
+
+/**
+ * @brief Implements the type() member function using the suggested implementation
+ *
+ * Also creates a static detail::type() function that may be used without an object instance
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Constraint
+ * {
+ * public:
+ *   FUSE_CONSTRAINT_TYPE_DEFINITION(Derived);
+ *   // The rest of the derived constraint implementation
+ * }
+ * @endcode
+ */
+#define FUSE_CONSTRAINT_TYPE_DEFINITION(...) \
+  struct detail \
+  { \
+    static std::string type() \
+    { \
+      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
+    }  /* NOLINT */ \
+  };  /* NOLINT */ \
+  std::string type() const override \
+  { \
+    return detail::type(); \
+  }
+
+/**
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Constraint
+ * {
+ * public:
+ *   FUSE_CONSTRAINT_DEFINITIONS(Derived);
+ *   // The rest of the derived constraint implementation
+ * }
+ * @endcode
+ */
+#define FUSE_CONSTRAINT_DEFINITIONS(...) \
+  SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_CONSTRAINT_TYPE_DEFINITION(__VA_ARGS__) \
+  FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__)
+
+/**
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
+ *        for derived Variable classes that have fixed-sized Eigen member objects.
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Constraint
+ * {
+ * public:
+ *   FUSE_CONSTRAINT_DEFINITIONS_WTIH_EIGEN(Derived);
+ *   // The rest of the derived constraint implementation
+ * }
+ * @endcode
+ */
+#define FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(...) \
+  SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
+  FUSE_CONSTRAINT_TYPE_DEFINITION(__VA_ARGS__) \
+  FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__)
 
 
 namespace fuse_core
@@ -102,7 +187,7 @@ public:
    * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
    * choice for the type string.
    */
-  virtual std::string type() const { return boost::core::demangle(typeid(*this).name()); }
+  virtual std::string type() const = 0;
 
   /**
    * @brief Returns the UUID for this constraint.
