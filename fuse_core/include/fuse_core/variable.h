@@ -180,7 +180,7 @@ public:
   /**
    * @brief Returns a UUID for this variable.
    */
-  UUID uuid() const { return uuid_; }
+  const UUID& uuid() const { return uuid_; }
 
   /**
    * @brief Returns a unique name for this variable type.
