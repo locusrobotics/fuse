@@ -97,11 +97,6 @@ void StateKinematicConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-fuse_core::Constraint::UniquePtr StateKinematicConstraint::clone() const
-{
-  return StateKinematicConstraint::make_unique(*this);
-}
-
 ceres::CostFunction* StateKinematicConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<StateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>(

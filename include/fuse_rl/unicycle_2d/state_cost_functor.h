@@ -37,6 +37,7 @@
 #include <fuse_rl/unicycle_2d/predict.h>
 
 #include <fuse_core/eigen.h>
+#include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 
 
@@ -84,6 +85,8 @@ namespace unicycle_2d
 class StateCostFunctor
 {
 public:
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+
   /**
    * @brief Construct a cost function instance
    *
