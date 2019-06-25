@@ -421,7 +421,9 @@ void HashGraph::print(std::ostream& stream) const
   for (const auto& variable : variables_)
   {
     const auto is_on_hold = variables_on_hold_.find(variable.first) != variables_on_hold_.end();
-    stream << "   - " << (is_on_hold ? "[H] " : "") << *variable.second << "\n";
+
+    stream << "   - " << *variable.second << "\n"
+           << "     on_hold: " << std::boolalpha << is_on_hold << "\n";
   }
 }
 
