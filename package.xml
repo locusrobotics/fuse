@@ -21,11 +21,21 @@
   <depend>fuse_graphs</depend>
   <depend>fuse_publishers</depend>
   <depend>fuse_variables</depend>
+  <depend>geometry_msgs</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend>std_srvs</depend>
+  <depend>tf2</depend>
   <depend>tf2_2d</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2_ros</depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>roslint</build_depend>
+
+  <exec_depend>message_runtime</exec_depend>
+
+  <test_depend>rostest</test_depend>
 
   <export>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />

@@ -14,9 +14,13 @@ find_package(
     fuse_graphs
     fuse_publishers
     fuse_variables
+    geometry_msgs
+    message_generation
     pluginlib
     roscpp
     roslint
+    std_srvs
+    tf2
     tf2_2d
     tf2_geometry_msgs
     tf2_ros)
@@ -24,6 +28,21 @@ find_package(
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
+
+# Generate messages
+add_service_files(
+  DIRECTORY
+    srv
+  FILES
+    SetPose.srv
+    SetPoseDeprecated.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+    geometry_msgs
+    std_msgs
+)
 
 catkin_package(
   INCLUDE_DIRS
@@ -36,8 +55,12 @@ catkin_package(
     fuse_graphs
     fuse_publishers
     fuse_variables
+    geometry_msgs
+    message_runtime
     pluginlib
     roscpp
+    std_srvs
+    tf2
     tf2_2d
     tf2_geometry_msgs
     tf2_ros
@@ -72,6 +95,7 @@ add_library(
     src/odometry_2d/publisher.cpp
     src/twist_2d/model.cpp
     src/unicycle_2d/state_kinematic_constraint.cpp
+    src/unicycle_2d/ignition.cpp
     src/unicycle_2d/model.cpp
 )
 
@@ -80,6 +104,10 @@ target_link_libraries(
   ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+)
+add_dependencies(
+  ${PROJECT_NAME}
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 #############
@@ -113,7 +141,6 @@ install(
 #############
 
 if(CATKIN_ENABLE_TESTING)
-  find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
 
   # Lint tests
@@ -146,4 +173,19 @@ if(CATKIN_ENABLE_TESTING)
       ${CERES_LIBRARIES}
     )
   endif()
+
+  # Ignition tests
+  add_rostest_gtest(
+    test_unicycle_2d_ignition
+    test/unicycle_2d_ignition.test
+    test/test_unicycle_2d_ignition.cpp
+  )
+  if(TARGET test_unicycle_2d_ignition)
+    target_link_libraries(
+      test_unicycle_2d_ignition
+      ${PROJECT_NAME}
+      ${catkin_LIBRARIES}
+    )
+  endif()
+
 endif()
