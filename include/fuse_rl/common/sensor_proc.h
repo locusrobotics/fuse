@@ -138,13 +138,19 @@ namespace common
  * @param[in] rhs_indices - RHS vector of indices
  * @param[in] rhs_offset - RHS offset to be added to the RHS vector indices (defaults to 0)
  */
-inline std::vector<size_t> mergeIndices(const std::vector<size_t>& lhs_indices, const std::vector<size_t>& rhs_indices,
-                                        const size_t rhs_offset = 0u)
+inline std::vector<size_t> mergeIndices(
+  const std::vector<size_t>& lhs_indices,
+  const std::vector<size_t>& rhs_indices,
+  const size_t rhs_offset = 0u)
 {
   auto merged_indices = boost::copy_range<std::vector<size_t>>(boost::join(lhs_indices, rhs_indices));
 
   const auto rhs_it = merged_indices.begin() + lhs_indices.size();
-  std::transform(rhs_it, merged_indices.end(), rhs_it, std::bind(std::plus<size_t>(), std::placeholders::_1, rhs_offset));
+  std::transform(
+    rhs_it,
+    merged_indices.end(),
+    rhs_it,
+    std::bind(std::plus<size_t>(), std::placeholders::_1, rhs_offset));
 
   return merged_indices;
 }
@@ -158,7 +164,7 @@ inline std::vector<size_t> mergeIndices(const std::vector<size_t>& lhs_indices, 
  * @param[in,out] mean_partial - The partial measurement mean to which we want to append
  * @param[in,out] covariance_partial - The partial measurement covariance to which we want to append
  */
-inline void appendPartialMeasurement(
+inline void populatePartialMeasurement(
   const fuse_core::VectorXd& mean_full,
   const fuse_core::MatrixXd& covariance_full,
   const std::vector<size_t>& indices,
@@ -295,7 +301,7 @@ inline bool processAbsolutePoseWithCovariance(
 
   const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
 
-  appendPartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
+  populatePartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -418,8 +424,12 @@ inline bool processDifferentialPoseWithCovariance(
 
   const auto indices = mergeIndices(position_indices, orientation_indices, position1->size());
 
-  appendPartialMeasurement(pose_relative_mean, pose_relative_covariance, indices, pose_relative_mean_partial,
-                           pose_relative_covariance_partial);
+  populatePartialMeasurement(
+    pose_relative_mean,
+    pose_relative_covariance,
+    indices,
+    pose_relative_mean_partial,
+    pose_relative_covariance_partial);
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
@@ -507,8 +517,12 @@ inline bool processTwistWithCovariance(
     fuse_core::VectorXd linear_vel_mean_partial(linear_indices.size());
     fuse_core::MatrixXd linear_vel_covariance_partial(linear_vel_mean_partial.rows(), linear_vel_mean_partial.rows());
 
-    appendPartialMeasurement(linear_vel_mean, linear_vel_covariance, linear_indices, linear_vel_mean_partial,
-                             linear_vel_covariance_partial);
+    populatePartialMeasurement(
+      linear_vel_mean,
+      linear_vel_covariance,
+      linear_indices,
+      linear_vel_mean_partial,
+      linear_vel_covariance_partial);
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
       *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
@@ -605,7 +619,7 @@ inline bool processAccelWithCovariance(
   fuse_core::VectorXd accel_mean_partial(indices.size());
   fuse_core::MatrixXd accel_covariance_partial(accel_mean_partial.rows(), accel_mean_partial.rows());
 
-  appendPartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
+  populatePartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(

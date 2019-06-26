@@ -80,7 +80,7 @@ TEST(TestSuite, mergeEmptyPositionAndEmptyOrientationIndices)
   EXPECT_TRUE(merged_indices.empty());
 }
 
-TEST(TestSuite, appendPartialMeasurementXYPositionYawOrientation)
+TEST(TestSuite, populatePartialMeasurementXYPositionYawOrientation)
 {
   fuse_core::VectorXd pose_mean(3);
   pose_mean << 1.0, 2.0, 3.0;
@@ -98,14 +98,18 @@ TEST(TestSuite, appendPartialMeasurementXYPositionYawOrientation)
   fuse_core::VectorXd pose_mean_partial(position_indices.size() + orientation_indices.size());
   fuse_core::MatrixXd pose_covariance_partial(pose_mean_partial.rows(), pose_mean_partial.rows());
 
-  fuse_rl_common::appendPartialMeasurement(pose_mean, pose_covariance, merged_indices, pose_mean_partial,
-                                           pose_covariance_partial);
+  fuse_rl_common::populatePartialMeasurement(
+    pose_mean,
+    pose_covariance,
+    merged_indices,
+    pose_mean_partial,
+    pose_covariance_partial);
 
   EXPECT_EQ(pose_mean, pose_mean_partial);
   EXPECT_EQ(pose_covariance, pose_covariance_partial);
 }
 
-TEST(TestSuite, appendPartialMeasurementXPositionYawOrientation)
+TEST(TestSuite, populatePartialMeasurementXPositionYawOrientation)
 {
   fuse_core::VectorXd pose_mean(3);
   pose_mean << 1.0, 2.0, 3.0;
@@ -123,8 +127,12 @@ TEST(TestSuite, appendPartialMeasurementXPositionYawOrientation)
   fuse_core::VectorXd pose_mean_partial(position_indices.size() + orientation_indices.size());
   fuse_core::MatrixXd pose_covariance_partial(pose_mean_partial.rows(), pose_mean_partial.rows());
 
-  fuse_rl_common::appendPartialMeasurement(pose_mean, pose_covariance, merged_indices, pose_mean_partial,
-                                           pose_covariance_partial);
+  fuse_rl_common::populatePartialMeasurement(
+    pose_mean,
+    pose_covariance,
+    merged_indices,
+    pose_mean_partial,
+    pose_covariance_partial);
 
   // Eigen indexing is only supported in the latest stable versions, so we avoid using that feature for backwards
   // compatibility
@@ -144,7 +152,7 @@ TEST(TestSuite, appendPartialMeasurementXPositionYawOrientation)
   }
 }
 
-TEST(TestSuite, appendPartialMeasurementEmptyPositionYawOrientation)
+TEST(TestSuite, populatePartialMeasurementEmptyPositionYawOrientation)
 {
   fuse_core::VectorXd pose_mean(3);
   pose_mean << 1.0, 2.0, 3.0;
@@ -162,14 +170,18 @@ TEST(TestSuite, appendPartialMeasurementEmptyPositionYawOrientation)
   fuse_core::VectorXd pose_mean_partial(position_indices.size() + orientation_indices.size());
   fuse_core::MatrixXd pose_covariance_partial(pose_mean_partial.rows(), pose_mean_partial.rows());
 
-  fuse_rl_common::appendPartialMeasurement(pose_mean, pose_covariance, merged_indices, pose_mean_partial,
-                                           pose_covariance_partial);
+  fuse_rl_common::populatePartialMeasurement(
+    pose_mean,
+    pose_covariance,
+    merged_indices,
+    pose_mean_partial,
+    pose_covariance_partial);
 
   EXPECT_EQ(pose_mean.tail<1>(), pose_mean_partial);
   EXPECT_EQ(pose_covariance.bottomRightCorner(1, 1), pose_covariance_partial);
 }
 
-TEST(TestSuite, appendPartialMeasurementXYPositionEmptyOrientation)
+TEST(TestSuite, populatePartialMeasurementXYPositionEmptyOrientation)
 {
   fuse_core::VectorXd pose_mean(3);
   pose_mean << 1.0, 2.0, 3.0;
@@ -187,14 +199,18 @@ TEST(TestSuite, appendPartialMeasurementXYPositionEmptyOrientation)
   fuse_core::VectorXd pose_mean_partial(position_indices.size() + orientation_indices.size());
   fuse_core::MatrixXd pose_covariance_partial(pose_mean_partial.rows(), pose_mean_partial.rows());
 
-  fuse_rl_common::appendPartialMeasurement(pose_mean, pose_covariance, merged_indices, pose_mean_partial,
-                                           pose_covariance_partial);
+  fuse_rl_common::populatePartialMeasurement(
+    pose_mean,
+    pose_covariance,
+    merged_indices,
+    pose_mean_partial,
+    pose_covariance_partial);
 
   EXPECT_EQ(pose_mean.head<2>(), pose_mean_partial);
   EXPECT_EQ(pose_covariance.topLeftCorner(2, 2), pose_covariance_partial);
 }
 
-TEST(TestSuite, appendPartialMeasurementEmptyPositionEmptyOrientation)
+TEST(TestSuite, populatePartialMeasurementEmptyPositionEmptyOrientation)
 {
   fuse_core::VectorXd pose_mean(3);
   pose_mean << 1.0, 2.0, 3.0;
@@ -212,8 +228,12 @@ TEST(TestSuite, appendPartialMeasurementEmptyPositionEmptyOrientation)
   fuse_core::VectorXd pose_mean_partial(position_indices.size() + orientation_indices.size());
   fuse_core::MatrixXd pose_covariance_partial(pose_mean_partial.rows(), pose_mean_partial.rows());
 
-  fuse_rl_common::appendPartialMeasurement(pose_mean, pose_covariance, merged_indices, pose_mean_partial,
-                                           pose_covariance_partial);
+  fuse_rl_common::populatePartialMeasurement(
+    pose_mean,
+    pose_covariance,
+    merged_indices,
+    pose_mean_partial,
+    pose_covariance_partial);
 
   EXPECT_EQ(0, pose_mean_partial.size());
   EXPECT_EQ(0, pose_covariance_partial.size());
