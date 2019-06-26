@@ -41,6 +41,7 @@
 #include <ros/ros.h>
 
 #include <algorithm>
+#include <iterator>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -49,24 +50,6 @@
 
 namespace fuse_optimizers
 {
-
-namespace
-{
-
-double getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, double default_value)
-{
-  double value;
-  node_handle.param(parameter_name, value, default_value);
-  if (value <= 0)
-  {
-    ROS_WARN_STREAM("The requested " << parameter_name << " is <= 0. Using the default value (" <<
-                    default_value << ") instead.");
-    value = default_value;
-  }
-  return value;
-}
-
-}  // namespace
 
 FixedLagSmoother::FixedLagSmoother(
   fuse_core::Graph::UniquePtr graph,
@@ -78,20 +61,11 @@ FixedLagSmoother::FixedLagSmoother(
     start_time_(ros::TIME_MAX),
     started_(false)
 {
-  auto lag_duration = getPositiveParam(private_node_handle_, "lag_duration", 5.0);
-  lag_duration_.fromSec(lag_duration);
+  params_.loadFromROS(private_node_handle);
 
-  auto optimization_frequency = getPositiveParam(private_node_handle_, "optimization_frequency", 10.0);
-  optimization_period_ = ros::Duration(1.0 / optimization_frequency);
-
-  auto transaction_timeout = getPositiveParam(private_node_handle_, "transaction_timeout", 0.1);
-  transaction_timeout_.fromSec(transaction_timeout);
-
-  private_node_handle_.getParam("ignition_sensors", ignition_sensors_);
-  // Sort the sensors for efficient lookups
-  std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
   // Warn about possible configuration errors
-  for (const auto& sensor_model_name : ignition_sensors_)
+  // TODO(swilliams) Move this warning to the Parameter loadFromROS() method once all parameters are loaded there.
+  for (const auto& sensor_model_name : params_.ignition_sensors)
   {
     if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
     {
@@ -99,6 +73,7 @@ FixedLagSmoother::FixedLagSmoother(
                       "model with that name currently exists. This is likely a configuration error.");
     }
   }
+
   // Test for auto-start
   autostart();
 
@@ -107,12 +82,15 @@ FixedLagSmoother::FixedLagSmoother(
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = node_handle_.createTimer(
-    optimization_period_,
+    params_.optimization_period,
     &FixedLagSmoother::optimizerTimerCallback,
     this);
 
   // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = private_node_handle_.advertiseService("reset", &FixedLagSmoother::resetServiceCallback, this);
+  reset_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.reset_service),
+    &FixedLagSmoother::resetServiceCallback,
+    this);
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -129,7 +107,7 @@ FixedLagSmoother::~FixedLagSmoother()
 
 void FixedLagSmoother::autostart()
 {
-  if (ignition_sensors_.empty())
+  if (params_.ignition_sensors.empty())
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
@@ -147,9 +125,9 @@ std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
 {
   auto current_stamp = timestamp_tracking_.currentStamp();
   auto lag_stamp = ros::Time(0, 0);
-  if (current_stamp > ros::Time(0, 0) + lag_duration_)
+  if (current_stamp > ros::Time(0, 0) + params_.lag_duration)
   {
-    lag_stamp = current_stamp - lag_duration_;
+    lag_stamp = current_stamp - params_.lag_duration;
   }
   auto old_variables = std::vector<fuse_core::UUID>();
   timestamp_tracking_.query(lag_stamp, std::back_inserter(old_variables));
@@ -234,7 +212,7 @@ void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
   {
     {
       std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
-      optimization_deadline_ = event.current_expected + optimization_period_;
+      optimization_deadline_ = event.current_expected + params_.optimization_period;
     }
     optimization_requested_.notify_one();
   }
@@ -257,13 +235,13 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
     // Apply the motion models to the transaction
     if (!applyMotionModels(element.sensor_name, *element.transaction))
     {
-      if (element.transaction->stamp() + transaction_timeout_ < current_time)
+      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
         ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
                           << " could not be processed after " << (current_time - element.transaction->stamp())
                           << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << transaction_timeout_ << ". Ignoring this transaction.");
+                          << params_.transaction_timeout << ". Ignoring this transaction.");
         pending_transactions_.pop_back();
         continue;
       }
@@ -324,7 +302,7 @@ void FixedLagSmoother::transactionCallback(
     if (!started_)
     {
       // ...check if we should
-      if (std::binary_search(ignition_sensors_.begin(), ignition_sensors_.end(), sensor_name))
+      if (std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), sensor_name))
       {
         started_ = true;
         start_time_ = transaction_time;
@@ -338,9 +316,9 @@ void FixedLagSmoother::transactionCallback(
       {
         purge_time = start_time_;
       }
-      else if (ros::Time(0, 0) + transaction_timeout_ < last_pending_time)  // ros::Time doesn't allow negatives
+      else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // ros::Time doesn't allow negatives
       {
-        purge_time = last_pending_time - transaction_timeout_;
+        purge_time = last_pending_time - params_.transaction_timeout;
       }
       while (!pending_transactions_.empty() && pending_transactions_.back_key() < purge_time)
       {
