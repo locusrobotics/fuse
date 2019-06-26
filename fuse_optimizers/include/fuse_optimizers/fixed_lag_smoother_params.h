@@ -51,9 +51,9 @@ public:
   std::string reset_service { "reset" };
 
   /**
-   * @brief The maximum time to wait for motion models to be generated for a received transactions.
+   * @brief The maximum time to wait for motion models to be generated for a received transaction.
    *
-   * Transactions are processes sequentially, so no new transactions will be added to the graph while waiting for
+   * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
   ros::Duration transaction_timeout { 0.1 };
