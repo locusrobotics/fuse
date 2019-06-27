@@ -79,9 +79,9 @@ void Publisher::onInit()
     tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, node_handle_);
   }
 
-  odom_pub_ = private_node_handle_.advertise<nav_msgs::Odometry>(params_.topic, params_.queue_size);
+  odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
 
-  tf_publish_timer_ = private_node_handle_.createTimer(
+  tf_publish_timer_ = node_handle_.createTimer(
     ros::Duration(1.0 / params_.tf_publish_frequency), &Publisher::tfPublishTimerCallback, this);
 }
 

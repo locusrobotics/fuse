@@ -68,11 +68,12 @@ void Model::onInit()
   if (params_.linear_indices.empty() &&
       params_.angular_indices.empty())
   {
-    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << params_.topic << " will be ignored.");
+    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
+                    " will be ignored.");
   }
   else
   {
-    subscriber_ = node_handle_.subscribe(params_.topic, params_.queue_size, &Model::process, this);
+    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
   }
 }
 
