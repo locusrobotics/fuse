@@ -12,7 +12,7 @@
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>ceres-solver</depend>
+  <depend>libceres-dev</depend>
   <depend>eigen</depend>
   <depend>fuse_core</depend>
   <depend>fuse_graphs</depend>

@@ -12,7 +12,7 @@
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>ceres-solver</depend>
+  <depend>libceres-dev</depend>
   <depend>eigen</depend>
   <depend>roscpp</depend>
   <test_depend>roslint</test_depend>
