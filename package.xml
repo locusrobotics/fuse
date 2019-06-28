@@ -13,8 +13,9 @@
 
   <build_depend>roslint</build_depend>
 
+  <depend>angles</depend>
   <depend>boost</depend>
-  <depend>ceres-solver</depend>
+  <depend>libceres-dev</depend>
   <depend>eigen</depend>
   <depend>fuse_constraints</depend>
   <depend>fuse_core</depend>
