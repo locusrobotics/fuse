@@ -48,7 +48,7 @@ public:
   /**
    * @brief The topic name of the advertised reset service
    */
-  std::string reset_service { "reset" };
+  std::string reset_service { "~reset" };
 
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
