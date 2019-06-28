@@ -23,8 +23,10 @@
   <depend>fuse_publishers</depend>
   <depend>fuse_variables</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
   <depend>std_srvs</depend>
   <depend>tf2</depend>
   <depend>tf2_2d</depend>

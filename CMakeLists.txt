@@ -17,9 +17,11 @@ find_package(
     fuse_variables
     geometry_msgs
     message_generation
+    nav_msgs
     pluginlib
     roscpp
     roslint
+    sensor_msgs
     std_srvs
     tf2
     tf2_2d
@@ -59,8 +61,10 @@ catkin_package(
     fuse_variables
     geometry_msgs
     message_runtime
+    nav_msgs
     pluginlib
     roscpp
+    sensor_msgs
     std_srvs
     tf2
     tf2_2d
@@ -110,6 +114,7 @@ target_link_libraries(
 add_dependencies(
   ${PROJECT_NAME}
     ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    ${catkin_EXPORTED_TARGETS}
 )
 
 #############
