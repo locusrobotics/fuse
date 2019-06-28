@@ -44,6 +44,12 @@
 namespace fuse_core
 {
 
+std::ostream& operator <<(std::ostream& stream, const Graph& graph)
+{
+  graph.print(stream);
+  return stream;
+}
+
 Graph::const_variable_range Graph::getConnectedVariables(const UUID& constraint_uuid) const
 {
   std::function<const fuse_core::Variable&(const UUID& variable_uuid)> uuid_to_variable_ref =
