@@ -126,22 +126,22 @@ struct Unicycle2DIgnitionParams : public ParameterBase
     /**
      * @brief The name of the reset service to call before sending transactions to the optimizer
      */
-    std::string reset_service { "reset" };
+    std::string reset_service { "~reset" };
 
     /**
      * @brief The name of the set_pose service to advertise
      */
-    std::string set_pose_service { "set_pose" };
+    std::string set_pose_service { "~set_pose" };
 
     /**
      * @brief The name of the deprecated set_pose service without return codes
      */
-    std::string set_pose_deprecated_service { "set_pose_deprecated" };
+    std::string set_pose_deprecated_service { "~set_pose_deprecated" };
 
     /**
      * @brief The topic name for received PoseWithCovarianceStamped messages
      */
-    std::string topic { "set_pose" };
+    std::string topic { "~set_pose" };
 
     /**
      * @brief The uncertainty of the initial state value
