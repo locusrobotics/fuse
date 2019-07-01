@@ -13,7 +13,6 @@
 
   <build_depend>roslint</build_depend>
 
-  <depend>angles</depend>
   <depend>boost</depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>

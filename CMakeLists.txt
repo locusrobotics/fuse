@@ -9,7 +9,6 @@ add_compile_options(-Wall -Werror)
 find_package(
   catkin REQUIRED
   COMPONENTS
-    angles
     fuse_constraints
     fuse_core
     fuse_graphs
@@ -53,7 +52,6 @@ catkin_package(
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
-    angles
     fuse_constraints
     fuse_core
     fuse_graphs

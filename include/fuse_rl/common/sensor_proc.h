@@ -47,7 +47,6 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 
-#include <angles/angles.h>
 #include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TransformStamped.h>
