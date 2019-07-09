@@ -64,6 +64,7 @@ struct Odometry2DPublisherParams : public ParameterBase
     void loadFromROS(const ros::NodeHandle& nh) final
     {
       nh.getParam("publish_tf", publish_tf);
+      nh.getParam("predict_to_current_time", predict_to_current_time);
       nh.getParam("tf_publish_frequency", tf_publish_frequency);
 
       double tf_cache_time_double = tf_cache_time.toSec();
