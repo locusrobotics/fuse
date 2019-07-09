@@ -123,37 +123,46 @@ void Publisher::notifyCallback(
   // Don't waste CPU computing the covariance if nobody is listening
   if (odom_pub_.getNumSubscribers() > 0)
   {
-    std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> covariance_requests;
-    covariance_requests.emplace_back(position_uuid, position_uuid);
-    covariance_requests.emplace_back(position_uuid, orientation_uuid);
-    covariance_requests.emplace_back(orientation_uuid, orientation_uuid);
-    covariance_requests.emplace_back(velocity_linear_uuid, velocity_linear_uuid);
-    covariance_requests.emplace_back(velocity_linear_uuid, velocity_angular_uuid);
-    covariance_requests.emplace_back(velocity_angular_uuid, velocity_angular_uuid);
+    try
+    {
+      std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> covariance_requests;
+      covariance_requests.emplace_back(position_uuid, position_uuid);
+      covariance_requests.emplace_back(position_uuid, orientation_uuid);
+      covariance_requests.emplace_back(orientation_uuid, orientation_uuid);
+      covariance_requests.emplace_back(velocity_linear_uuid, velocity_linear_uuid);
+      covariance_requests.emplace_back(velocity_linear_uuid, velocity_angular_uuid);
+      covariance_requests.emplace_back(velocity_angular_uuid, velocity_angular_uuid);
 
-    std::vector<std::vector<double>> covariance_matrices;
-    graph->getCovariance(covariance_requests, covariance_matrices);
+      std::vector<std::vector<double>> covariance_matrices;
+      graph->getCovariance(covariance_requests, covariance_matrices);
 
-    odom_output_.pose.covariance[0] = covariance_matrices[0][0];
-    odom_output_.pose.covariance[1] = covariance_matrices[0][1];
-    odom_output_.pose.covariance[5] = covariance_matrices[1][0];
-    odom_output_.pose.covariance[6] = covariance_matrices[0][2];
-    odom_output_.pose.covariance[7] = covariance_matrices[0][3];
-    odom_output_.pose.covariance[11] = covariance_matrices[1][1];
-    odom_output_.pose.covariance[30] = covariance_matrices[1][0];
-    odom_output_.pose.covariance[31] = covariance_matrices[1][1];
-    odom_output_.pose.covariance[35] = covariance_matrices[2][0];
+      odom_output_.pose.covariance[0] = covariance_matrices[0][0];
+      odom_output_.pose.covariance[1] = covariance_matrices[0][1];
+      odom_output_.pose.covariance[5] = covariance_matrices[1][0];
+      odom_output_.pose.covariance[6] = covariance_matrices[0][2];
+      odom_output_.pose.covariance[7] = covariance_matrices[0][3];
+      odom_output_.pose.covariance[11] = covariance_matrices[1][1];
+      odom_output_.pose.covariance[30] = covariance_matrices[1][0];
+      odom_output_.pose.covariance[31] = covariance_matrices[1][1];
+      odom_output_.pose.covariance[35] = covariance_matrices[2][0];
 
-    odom_output_.twist.covariance[0] = covariance_matrices[3][0];
-    odom_output_.twist.covariance[1] = covariance_matrices[3][1];
-    odom_output_.twist.covariance[5] = covariance_matrices[4][0];
-    odom_output_.twist.covariance[6] = covariance_matrices[3][2];
-    odom_output_.twist.covariance[7] = covariance_matrices[3][3];
-    odom_output_.twist.covariance[11] = covariance_matrices[4][1];
-    odom_output_.twist.covariance[30] = covariance_matrices[4][0];
-    odom_output_.twist.covariance[31] = covariance_matrices[4][1];
-    odom_output_.twist.covariance[35] = covariance_matrices[5][0];
-
+      odom_output_.twist.covariance[0] = covariance_matrices[3][0];
+      odom_output_.twist.covariance[1] = covariance_matrices[3][1];
+      odom_output_.twist.covariance[5] = covariance_matrices[4][0];
+      odom_output_.twist.covariance[6] = covariance_matrices[3][2];
+      odom_output_.twist.covariance[7] = covariance_matrices[3][3];
+      odom_output_.twist.covariance[11] = covariance_matrices[4][1];
+      odom_output_.twist.covariance[30] = covariance_matrices[4][0];
+      odom_output_.twist.covariance[31] = covariance_matrices[4][1];
+      odom_output_.twist.covariance[35] = covariance_matrices[5][0];
+    }
+    catch (const std::exception& e)
+    {
+      ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp_ << ". "
+                      "The covariance will be set to zero.\n" << e.what());
+      std::fill(odom_output_.pose.covariance.begin(), odom_output_.pose.covariance.end(), 0.0);
+      std::fill(odom_output_.twist.covariance.begin(), odom_output_.twist.covariance.end(), 0.0);
+    }
     odom_pub_.publish(odom_output_);
   }
 }
