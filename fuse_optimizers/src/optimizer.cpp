@@ -61,6 +61,9 @@ Optimizer::Optimizer(
     publisher_loader_("fuse_core", "fuse_core::Publisher"),
     sensor_model_loader_("fuse_core", "fuse_core::SensorModel")
 {
+  // Wait for a valid time before loading any of the plugins
+  ros::Time::waitForValid();
+
   // Load all configured plugins
   loadMotionModels();
   loadSensorModels();
