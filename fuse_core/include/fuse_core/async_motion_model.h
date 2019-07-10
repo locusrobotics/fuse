@@ -93,21 +93,18 @@ public:
   virtual ~AsyncMotionModel() = default;
 
   /**
-   * @brief Get the unique name of this motion model
-   */
-  const std::string& name() const final { return name_; }
-
-  /**
-   * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
-   * parameter server.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
    *
-   * This will be called for each plugin after construction and after the ros node has been initialized. The provided
-   * private node handle will be in a namespace based on the plugin's name. This should prevent conflicts and allow
-   * the same plugin to be used multiple times with different settings and topics.
+   * This method will be called by the optimizer, in the optimizer's thread, before each sensor transaction is applied
+   * to the Graph. This implementation packages a call to the pure virtual method applyCallback() and inserts it into
+   * this motion model's local callback queue. This allows the applyCallback() function to be executed from the same
+   * thread as any other configured callbacks. Despite the fact that the queryCallback() function call runs in a
+   * different thread than this function, this function blocks until the query callback returns.
    *
-   * @param[in] name A unique name to give this plugin instance
+   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
+   * @return                    True if the motion models were generated successfully, false otherwise
    */
-  void initialize(const std::string& name) final;
+  bool apply(Transaction& transaction) final;
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -124,18 +121,53 @@ public:
   void graphCallback(Graph::ConstSharedPtr graph) final;
 
   /**
-   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
+   * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
+   * parameter server.
    *
-   * This method will be called by the optimizer, in the optimizer's thread, before each sensor transaction is applied
-   * to the Graph. This implementation packages a call to the pure virtual method applyCallback() and inserts it into
-   * this motion model's local callback queue. This allows the applyCallback() function to be executed from the same
-   * thread as any other configured callbacks. Despite the fact that the queryCallback() function call runs in a
-   * different thread than this function, this function blocks until the query callback returns.
+   * This will be called for each plugin after construction and after the ros node has been initialized. The provided
+   * private node handle will be in a namespace based on the plugin's name. This should prevent conflicts and allow
+   * the same plugin to be used multiple times with different settings and topics.
    *
-   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
-   * @return                    True if the motion models were generated successfully, false otherwise
+   * @param[in] name A unique name to give this plugin instance
    */
-  bool apply(Transaction& transaction) final;
+  void initialize(const std::string& name) final;
+
+  /**
+   * @brief Get the unique name of this motion model
+   */
+  const std::string& name() const final { return name_; }
+
+  /**
+   * @brief Function to be executed whenever the optimizer is ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer has been initialized
+   * and is ready to receive transactions. It may also be called as part of a stop-start cycle when the optimizer
+   * has been requested to reset itself. This allows the motion model to reset any internal state back before the
+   * optimizer begins processing after a reset. No calls to apply() will happen before the optimizer calls start().
+   *
+   * This implementation inserts a call to onStart() into this motion model's callback queue. This method then blocks
+   * until the call to onStart() has completed. This is meant to simplify thread synchronization. If this motion model
+   * uses a single-threaded spinner, then all callbacks will fire sequentially and no semaphores are needed. If this
+   * motion model uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
+   * one place should be guarded.
+   */
+  void start() final;
+
+  /**
+   * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, before the optimizer shutdowns. It may
+   * also be called as part of a stop-start cycle when the optimizer has been requested to reset itself. This allows
+   * the motion model to reset any internal state back before the optimizer begins processing after a reset. No calls
+   * to apply() will happen until start() has been called again.
+   *
+   * This implementation inserts a call to onStop() into this motion model's callback queue. This method then blocks
+   * until the call to onStop() has completed. This is meant to simplify thread synchronization. If this motion model
+   * uses a single-threaded spinner, then all callbacks will fire sequentially and no semaphores are needed. If this
+   * motion model uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
+   * one place should be guarded.
+   */
+  void stop() final;
 
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
@@ -192,6 +224,22 @@ protected:
    * not begin until after the call to onInit() completes.
    */
   virtual void onInit() {}
+
+  /**
+   * @brief Perform any required operations to prepare for servicing calls to apply()
+   *
+   * This function will be called once after initialize() but before any calls to apply(). It may also be called
+   * at any time after a call to stop().
+   */
+  virtual void onStart() {}
+
+  /**
+   * @brief Perform any required operations to clean up the internal state
+   *
+   * This function will be called once before destruction. It may also be called at any time after a call to start().
+   * No calls to apply() will occur after stop() is called, but before start() is called.
+   */
+  virtual void onStop() {}
 };
 
 }  // namespace fuse_core

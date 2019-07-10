@@ -109,6 +109,29 @@ public:
    */
   virtual const std::string& name() const = 0;
 
+  /**
+   * @brief Function to be executed whenever the optimizer is ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer has been initialized
+   * and is ready to receive transactions. It may also be called as part of a stop-start cycle when the optimizer
+   * has been requested to reset itself. This allows the sensor model to reset any internal state before the
+   * optimizer begins processing after a reset.
+   *
+   * The sensor model must not send any transactions to the optimizer before start() is called.
+   */
+  virtual void start() {}
+
+  /**
+   * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, before the optimizer shutdowns. It may
+   * also be called as part of a stop-start cycle when the optimizer has been requested to reset itself. This allows
+   * the sensor model to reset any internal state before the optimizer begins processing after a reset.
+   *
+   * The sensor model must not send any transactions to the optimizer after stop() is called.
+   */
+  virtual void stop() {}
+
 protected:
   /**
    * @brief Default Constructor

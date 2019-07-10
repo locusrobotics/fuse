@@ -82,4 +82,20 @@ void AsyncSensorModel::sendTransaction(Transaction::SharedPtr transaction)
   transaction_callback_(std::move(transaction));
 }
 
+void AsyncSensorModel::start()
+{
+  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncSensorModel::onStart, this));
+  auto result = callback->getFuture();
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+  result.wait();
+}
+
+void AsyncSensorModel::stop()
+{
+  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncSensorModel::onStop, this));
+  auto result = callback->getFuture();
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+  result.wait();
+}
+
 }  // namespace fuse_core

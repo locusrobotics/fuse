@@ -61,21 +61,14 @@ public:
   virtual ~MotionModel() = default;
 
   /**
-   * @brief Get the unique name of this motion model
-   */
-  virtual const std::string& name() const  = 0;
-
-  /**
-   * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
-   * parameter server.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
    *
-   * This will be called on each plugin after construction, and after the ros node has been initialized. Plugins are
-   * encouraged to subnamespace any of their parameters to prevent conflicts and allow the same plugin to be used
-   * multiple times with different settings and topics.
+   * This function will be called by the optimizer (in the Optimizer's thread) for each received transaction.
    *
-   * @param[in] name A unique name to give this plugin instance
+   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
+   * @return                    True if the motion models were generated successfully, false otherwise
    */
-  virtual void initialize(const std::string& name) = 0;
+  virtual bool apply(Transaction& transaction) = 0;
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -92,14 +85,41 @@ public:
   virtual void graphCallback(Graph::ConstSharedPtr /*graph*/) {}
 
   /**
-   * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
+   * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
+   * parameter server.
    *
-   * This function will be called by the optimizer (in the Optimizer's thread) for each received transaction.
+   * This will be called on each plugin after construction, and after the ros node has been initialized. Plugins are
+   * encouraged to subnamespace any of their parameters to prevent conflicts and allow the same plugin to be used
+   * multiple times with different settings and topics.
    *
-   * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
-   * @return                    True if the motion models were generated successfully, false otherwise
+   * @param[in] name A unique name to give this plugin instance
    */
-  virtual bool apply(Transaction& transaction) = 0;
+  virtual void initialize(const std::string& name) = 0;
+
+  /**
+   * @brief Get the unique name of this motion model
+   */
+  virtual const std::string& name() const  = 0;
+
+  /**
+   * @brief Function to be executed whenever the optimizer is ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer has been initialized
+   * and is ready to receive transactions. It may also be called as part of a stop-start cycle when the optimizer
+   * has been requested to reset itself. This allows the motion model to reset any internal state before the
+   * optimizer begins processing after a reset. No calls to apply() will happen before the optimizer calls start().
+   */
+  virtual void start() {}
+
+  /**
+   * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, before the optimizer shutdowns. It may
+   * also be called as part of a stop-start cycle when the optimizer has been requested to reset itself. This allows
+   * the motion model to reset any internal state before the optimizer begins processing after a reset. No calls
+   * to apply() will happen until start() has been called again.
+   */
+  virtual void stop() {}
 
 protected:
   /**
