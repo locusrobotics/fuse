@@ -65,16 +65,18 @@ public:
   ceres::Solver::Options solver_options;
 
   /**
-   * @brief Helper function that loads strictly positive floating point values from the parameter server
+   * @brief Helper function that loads strictly positive integral or floating point values from the parameter server
    *
    * @param[in] node_handle - The node handle used to load the parameter
    * @param[in] parameter_name - The parameter name to load
    * @param[in] default_value - A default value to use if the provided parameter name does not exist
    * @return The loaded (or default) value
    */
-  double getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, double default_value)
+  template <typename T,
+            typename std::enable_if<std::is_integral<T>::value || std::is_floating_point<T>::value>::type* = nullptr>
+  T getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T default_value)
   {
-    double value;
+    T value;
     node_handle.param(parameter_name, value, default_value);
     if (value <= 0)
     {
