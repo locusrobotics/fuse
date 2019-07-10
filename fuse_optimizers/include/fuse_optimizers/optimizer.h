@@ -208,6 +208,11 @@ protected:
   void injectCallback(
     const std::string& sensor_name,
     fuse_core::Transaction::SharedPtr transaction);
+
+  /**
+   * @brief Clear all of the callbacks inserted into the callback queue by the injectCallback() method
+   */
+  void clearCallbacks();
 };
 
 }  // namespace fuse_optimizers
