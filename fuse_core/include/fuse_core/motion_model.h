@@ -89,7 +89,7 @@ public:
    *
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
-  virtual void graphCallback(Graph::ConstSharedPtr graph) {}
+  virtual void graphCallback(Graph::ConstSharedPtr /*graph*/) {}
 
   /**
    * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.

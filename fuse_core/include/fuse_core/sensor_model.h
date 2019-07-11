@@ -87,7 +87,7 @@ public:
    *
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
-  virtual void graphCallback(Graph::ConstSharedPtr graph) {}
+  virtual void graphCallback(Graph::ConstSharedPtr /*graph*/) {}
 
    /**
    * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
