@@ -197,7 +197,7 @@ void BatchOptimizer::optimizationLoop()
   }
 }
 
-void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& event)
+void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& /*event*/)
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
   if (!started_)

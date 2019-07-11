@@ -194,7 +194,7 @@ constexpr bool allStampedVariables = all_stamped_variables<Ts...>::value;
 template <typename...>
 struct all_variables_exist
 {
-  static bool value(const fuse_core::Graph& graph, const ros::Time& stamp, const fuse_core::UUID& device_id)
+  static bool value(const fuse_core::Graph& /*graph*/, const ros::Time& /*stamp*/, const fuse_core::UUID& /*device_id*/)
   {
     return true;
   }
@@ -234,7 +234,7 @@ struct all_variables_exist<T, Ts...>
 template <typename...>
 struct is_variable_in_pack
 {
-  static bool value(const fuse_core::Variable& variable)
+  static bool value(const fuse_core::Variable& /*variable*/)
   {
     return false;
   }
