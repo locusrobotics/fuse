@@ -332,7 +332,6 @@ void Optimizer::startPlugins()
 
 void Optimizer::stopPlugins()
 {
-  // Tell all the plugins to stop
   for (const auto& name_plugin : publishers_)
   {
     name_plugin.second->stop();

@@ -55,8 +55,9 @@ AsyncSensorModel::AsyncSensorModel(size_t thread_count) :
 
 void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
 {
-  callback_queue_.addCallback(boost::make_shared<CallbackWrapper<void>>(
-    std::bind(&AsyncSensorModel::onGraphUpdate, this, std::move(graph))));
+  callback_queue_.addCallback(
+    boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncSensorModel::onGraphUpdate, this, std::move(graph))),
+    reinterpret_cast<uint64_t>(this));
 }
 
 void AsyncSensorModel::initialize(
