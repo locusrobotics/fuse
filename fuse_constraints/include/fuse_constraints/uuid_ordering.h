@@ -133,7 +133,7 @@ public:
    *
    * Accessing a UUID that does not exist results in the provided UUID being added to the ordering
    */
-  const unsigned int operator[](const fuse_core::UUID& uuid);
+  unsigned int operator[](const fuse_core::UUID& uuid);
 
   /**
    * @brief Access the UUID stored at the provided index
@@ -147,7 +147,7 @@ public:
    *
    * If the requested UUID does not exist, an out_of_range exception will be thrown.
    */
-  const unsigned int at(const fuse_core::UUID& uuid) const;
+  unsigned int at(const fuse_core::UUID& uuid) const;
 
 private:
   using UuidOrderMapping = boost::bimaps::bimap<boost::bimaps::vector_of<unsigned int>,
