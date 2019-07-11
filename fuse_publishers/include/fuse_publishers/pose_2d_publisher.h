@@ -116,6 +116,16 @@ public:
   void onInit() override;
 
   /**
+   * @brief Perform any required operations before the first call to notify() occurs
+   */
+  void onStart() override;
+
+  /**
+   * @brief Perform any required operations to stop publications
+   */
+  void onStop() override;
+
+  /**
    * @brief Notify the publisher about variables that have been added or removed
    *
    * This publisher publishes only the most recent pose. By analyzing the added and removed variables, the most

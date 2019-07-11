@@ -125,9 +125,6 @@ void Pose2DPublisher::onInit()
   }
   private_node_handle_.param("publish_to_tf", publish_to_tf_, false);
 
-  // Configure the synchronizer
-  synchronizer_ = Synchronizer::make_unique(device_id_);
-
   // Configure tf, if requested
   if (publish_to_tf_)
   {
@@ -169,13 +166,35 @@ void Pose2DPublisher::onInit()
       tf_publish_frequency = default_tf_publish_frequency;
     }
     tf_publish_timer_ = private_node_handle_.createTimer(
-      ros::Duration(1.0 / tf_publish_frequency), &Pose2DPublisher::tfPublishTimerCallback, this);
+      ros::Duration(1.0 / tf_publish_frequency), &Pose2DPublisher::tfPublishTimerCallback, this, false, false);
   }
 
   // Advertise the topics
   pose_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseStamped>("pose", 1);
   pose_with_covariance_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
     "pose_with_covariance", 1);
+}
+
+void Pose2DPublisher::onStart()
+{
+  // Clear the transform
+  tf_transform_ = geometry_msgs::TransformStamped();
+  // Clear the synchronizer
+  synchronizer_ = Synchronizer::make_unique(device_id_);
+  // Start the tf timer
+  if (publish_to_tf_)
+  {
+    tf_publish_timer_.start();
+  }
+}
+
+void Pose2DPublisher::onStop()
+{
+  // Stop the tf timer
+  if (publish_to_tf_)
+  {
+    tf_publish_timer_.stop();
+  }
 }
 
 void Pose2DPublisher::notifyCallback(
