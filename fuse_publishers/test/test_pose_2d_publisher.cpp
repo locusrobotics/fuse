@@ -200,6 +200,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
   private_node_handle_.setParam("test_publisher/publish_to_tf", false);
   fuse_publishers::Pose2DPublisher publisher;
   publisher.initialize("test_publisher");
+  publisher.start();
 
   // Subscribe to the "pose" topic
   ros::Subscriber subscriber = private_node_handle_.subscribe(
@@ -238,6 +239,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
   private_node_handle_.setParam("test_publisher/publish_to_tf", false);
   fuse_publishers::Pose2DPublisher publisher;
   publisher.initialize("test_publisher");
+  publisher.start();
 
   // Subscribe to the "pose_with_covariance" topic
   ros::Subscriber subscriber = private_node_handle_.subscribe(
@@ -289,6 +291,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
   private_node_handle_.setParam("test_publisher/publish_to_tf", true);
   fuse_publishers::Pose2DPublisher publisher;
   publisher.initialize("test_publisher");
+  publisher.start();
 
   // Subscribe to the "pose" topic
   ros::Subscriber subscriber = private_node_handle_.subscribe(
@@ -328,6 +331,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   private_node_handle_.setParam("test_publisher/publish_to_tf", true);
   fuse_publishers::Pose2DPublisher publisher;
   publisher.initialize("test_publisher");
+  publisher.start();
 
   // Subscribe to the "pose" topic
   ros::Subscriber subscriber = private_node_handle_.subscribe(

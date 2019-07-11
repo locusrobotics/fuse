@@ -172,6 +172,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   private_node_handle_.setParam("test_publisher/frame_id", "test_map");
   fuse_publishers::Path2DPublisher publisher;
   publisher.initialize("test_publisher");
+  publisher.start();
 
   // Subscribe to the "path" topic
   ros::Subscriber subscriber1 = private_node_handle_.subscribe(
