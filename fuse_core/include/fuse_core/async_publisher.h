@@ -138,7 +138,7 @@ protected:
    * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
    */
-  virtual void notifyCallback(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph) {}
+  virtual void notifyCallback(Transaction::ConstSharedPtr /*transaction*/, Graph::ConstSharedPtr /*graph*/) {}
 };
 
 }  // namespace fuse_core
