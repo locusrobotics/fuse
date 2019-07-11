@@ -68,6 +68,15 @@ Optimizer::Optimizer(
   loadMotionModels();
   loadSensorModels();
   loadPublishers();
+
+  // Start all the plugins
+  startPlugins();
+}
+
+Optimizer::~Optimizer()
+{
+  // Stop all the plugins
+  stopPlugins();
 }
 
 void Optimizer::loadMotionModels()
@@ -303,6 +312,39 @@ void Optimizer::injectCallback(
 void Optimizer::clearCallbacks()
 {
   ros::getGlobalCallbackQueue()->removeByID(reinterpret_cast<uint64_t>(this));
+}
+
+void Optimizer::startPlugins()
+{
+  for (const auto& name_plugin : motion_models_)
+  {
+    name_plugin.second->start();
+  }
+  for (const auto& name_plugin : sensor_models_)
+  {
+    name_plugin.second->start();
+  }
+  for (const auto& name_plugin : publishers_)
+  {
+    name_plugin.second->start();
+  }
+}
+
+void Optimizer::stopPlugins()
+{
+  // Tell all the plugins to stop
+  for (const auto& name_plugin : publishers_)
+  {
+    name_plugin.second->stop();
+  }
+  for (const auto& name_plugin : sensor_models_)
+  {
+    name_plugin.second->stop();
+  }
+  for (const auto& name_plugin : motion_models_)
+  {
+    name_plugin.second->stop();
+  }
 }
 
 }  // namespace fuse_optimizers
