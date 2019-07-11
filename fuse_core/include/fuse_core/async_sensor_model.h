@@ -105,7 +105,7 @@ public:
    *
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
-  void graphCallback(Graph::ConstSharedPtr graph) final;
+  void graphCallback(Graph::ConstSharedPtr graph) override;
 
   /**
    * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
@@ -120,7 +120,7 @@ public:
    */
   void initialize(
     const std::string& name,
-    TransactionCallback transaction_callback) final;
+    TransactionCallback transaction_callback) override;
 
   /**
    * @brief Send a transaction to the Optimizer
@@ -140,7 +140,7 @@ public:
   /**
    * @brief Get the unique name of this sensor
    */
-  const std::string& name() const final { return name_; }
+  const std::string& name() const override { return name_; }
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions
@@ -156,7 +156,7 @@ public:
    * sensor model uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
    * one place should be guarded.
    */
-  void start() final;
+  void start() override;
 
   /**
    * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
@@ -171,7 +171,7 @@ public:
    * sensor model uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
    * one place should be guarded.
    */
-  void stop() final;
+  void stop() override;
 
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
