@@ -2,6 +2,25 @@
 Changelog for package fuse_constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Depend on libceres-dev instead of ceres-solver (`#71 <https://github.com/locusrobotics/fuse/issues/71>`_)
+* [RST-2144] Support proper Eigen memory alignment (`#65 <https://github.com/locusrobotics/fuse/issues/65>`_)
+* [RST-2088] Fix bug causing bad marginal computations occasionally (`#60 <https://github.com/locusrobotics/fuse/issues/60>`_)
+* [RST-1747] fixed lag smoother implementation (`#52 <https://github.com/locusrobotics/fuse/issues/52>`_)
+* Modified Variable class to make the UUID immutable (`#55 <https://github.com/locusrobotics/fuse/issues/55>`_)
+* RST-2025 Fixing size issues (`#53 <https://github.com/locusrobotics/fuse/issues/53>`_)
+  * Fixing size issue with 2D poses
+  * Fixed the size check in MarginalConstraint (`#54 <https://github.com/locusrobotics/fuse/issues/54>`_)
+* [RST-1745] Added a marginalizeVariables() function (`#48 <https://github.com/locusrobotics/fuse/issues/48>`_)
+* [RST-1745] Created a container to hold the list of constraints by variable (`#47 <https://github.com/locusrobotics/fuse/issues/47>`_)
+* [RST-1745] Created a uuid<-->index bidirectional lookup class (`#46 <https://github.com/locusrobotics/fuse/issues/46>`_)
+* [RST-1744] Added a marginal constraint class (`#43 <https://github.com/locusrobotics/fuse/issues/43>`_)
+* [RST-1940] Added a localSize() method to the Variable class (`#42 <https://github.com/locusrobotics/fuse/issues/42>`_)
+* [RST-1927] Update the local parameterization for the orientation variables (`#41 <https://github.com/locusrobotics/fuse/issues/41>`_)
+* [RST-1926] Extend the local parameter definition to include Minus() (`#40 <https://github.com/locusrobotics/fuse/issues/40>`_)
+* Contributors: Enrique Fernández Perdomo, Stephen Williams, Tom Moore
+
 0.3.0 (2019-03-18)
 ------------------
 

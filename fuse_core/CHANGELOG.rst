@@ -2,6 +2,28 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Comment unused parameters (`#76 <https://github.com/locusrobotics/fuse/issues/76>`_)
+  Otherwise the compilation fails with: -Werror=unused-parameter
+  This happens with these flags: -Wall -Wextra
+* Add print method to Graph and HashGraph (`#70 <https://github.com/locusrobotics/fuse/issues/70>`_)
+* Depend on libceres-dev instead of ceres-solver (`#71 <https://github.com/locusrobotics/fuse/issues/71>`_)
+* Return variable UUID by const reference (`#69 <https://github.com/locusrobotics/fuse/issues/69>`_)
+* Added a default implementation for the type() method (`#67 <https://github.com/locusrobotics/fuse/issues/67>`_)
+* [RST-2144] Support proper Eigen memory alignment (`#65 <https://github.com/locusrobotics/fuse/issues/65>`_)
+* [RST-2128] Added a "reset" service to the fixed lag smoother (`#61 <https://github.com/locusrobotics/fuse/issues/61>`_)
+* Modified Variable class to make the UUID immutable (`#55 <https://github.com/locusrobotics/fuse/issues/55>`_)
+* [RST-1960] Added a tangent/parameter space flag to the covariance function (`#50 <https://github.com/locusrobotics/fuse/issues/50>`_)
+* Some minor header cleanup of fuse_core (`#51 <https://github.com/locusrobotics/fuse/issues/51>`_)
+* [RST-1949] Added getConnectedVariables() and getConnectedConstraints() (`#45 <https://github.com/locusrobotics/fuse/issues/45>`_)
+* [RST-1746] Remove the marginalizeVariable() methods from the Graph class. (`#44 <https://github.com/locusrobotics/fuse/issues/44>`_)
+* [RST-1744] Added a marginal constraint class (`#43 <https://github.com/locusrobotics/fuse/issues/43>`_)
+* [RST-1940] Added a localSize() method to the Variable class (`#42 <https://github.com/locusrobotics/fuse/issues/42>`_)
+* [RST-1927] Update the local parameterization for the orientation variables (`#41 <https://github.com/locusrobotics/fuse/issues/41>`_)
+* [RST-1926] Extend the local parameter definition to include Minus() (`#40 <https://github.com/locusrobotics/fuse/issues/40>`_)
+* Contributors: Enrique Fernandez Perdomo, Enrique Fernández Perdomo, Stephen Williams
+
 0.3.0 (2019-03-18)
 ------------------
 * [RST-1653] transaction stamps (`#37 <https://github.com/locusrobotics/fuse/issues/37>`_)
