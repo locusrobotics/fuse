@@ -2,8 +2,8 @@
 Changelog for package fuse_rl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2019-07-12)
+------------------
 * Get predict_to_current_time ROS param (`#17 <https://github.com/locusrobotics/fuse_rl/issues/17>`_)
 * [RST-2202] Catch potential errors when computing the covariances (`#18 <https://github.com/locusrobotics/fuse_rl/issues/18>`_)
   * Clear the covariance on error
