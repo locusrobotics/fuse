@@ -58,7 +58,7 @@
 #include <memory>
 #include <string>
 
-// Required by make_aligned_shared, that uses Eigen::aligned_allocator<T>().
+// Required by __MAKE_SHARED_ALIGNED_DEFINITION, that uses Eigen::aligned_allocator<T>().
 #include <Eigen/Core>
 
 /**
