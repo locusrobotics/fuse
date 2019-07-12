@@ -2,8 +2,8 @@
 Changelog for package fuse_constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2019-07-12)
+------------------
 * Depend on libceres-dev instead of ceres-solver (`#71 <https://github.com/locusrobotics/fuse/issues/71>`_)
 * [RST-2144] Support proper Eigen memory alignment (`#65 <https://github.com/locusrobotics/fuse/issues/65>`_)
 * [RST-2088] Fix bug causing bad marginal computations occasionally (`#60 <https://github.com/locusrobotics/fuse/issues/60>`_)

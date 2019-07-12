@@ -2,8 +2,8 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2019-07-12)
+------------------
 * Wait for a valid timestamp before loading the plugins. This prevents the ignition sensor from generating an initial state with the wrong stamp. (`#74 <https://github.com/locusrobotics/fuse/issues/74>`_)
 * Default private ~reset service name (`#72 <https://github.com/locusrobotics/fuse/issues/72>`_)
 * [RST-2186] Added a FixedLagSmootherParams struct (`#68 <https://github.com/locusrobotics/fuse/issues/68>`_)

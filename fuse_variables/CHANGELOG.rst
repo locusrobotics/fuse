@@ -2,8 +2,8 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2019-07-12)
+------------------
 * Depend on libceres-dev instead of ceres-solver (`#71 <https://github.com/locusrobotics/fuse/issues/71>`_)
 * Modified Variable class to make the UUID immutable (`#55 <https://github.com/locusrobotics/fuse/issues/55>`_)
 * The node handle in the loadDeviceId() function does not need to be mutable (`#56 <https://github.com/locusrobotics/fuse/issues/56>`_)

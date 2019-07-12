@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2019-07-12)
+------------------
 * Comment unused parameters (`#76 <https://github.com/locusrobotics/fuse/issues/76>`_)
   Otherwise the compilation fails with: -Werror=unused-parameter
   This happens with these flags: -Wall -Wextra
