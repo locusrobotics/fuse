@@ -59,7 +59,7 @@ size_t VariableConstraints::size() const
   return std::accumulate(variable_constraints_.begin(), variable_constraints_.end(), 0u, sum_edges);
 }
 
-const unsigned int VariableConstraints::nextVariableIndex() const
+unsigned int VariableConstraints::nextVariableIndex() const
 {
   return variable_constraints_.size();
 }

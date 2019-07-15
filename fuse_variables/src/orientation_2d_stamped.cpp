@@ -77,7 +77,7 @@ public:
   }
 
   bool ComputeJacobian(
-    const double* x,
+    const double* /*x*/,
     double* jacobian) const override
   {
     jacobian[0] = 1.0;
@@ -95,7 +95,7 @@ public:
   }
 
   bool ComputeMinusJacobian(
-    const double* x,
+    const double* /*x*/,
     double* jacobian) const override
   {
     jacobian[0] = 1.0;

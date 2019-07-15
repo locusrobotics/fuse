@@ -85,7 +85,7 @@ void Path2DPublisher::onInit()
 }
 
 void Path2DPublisher::notifyCallback(
-  fuse_core::Transaction::ConstSharedPtr transaction,
+  fuse_core::Transaction::ConstSharedPtr /*transaction*/,
   fuse_core::Graph::ConstSharedPtr graph)
 {
   // Exit early if no one is listening

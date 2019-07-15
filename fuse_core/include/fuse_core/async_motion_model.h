@@ -182,7 +182,7 @@ protected:
    * 
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
    */
-  virtual void onGraphUpdate(Graph::ConstSharedPtr graph) {}
+  virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/) {}
 
   /**
    * @brief Perform any required initialization for the motion model

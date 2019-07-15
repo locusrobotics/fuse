@@ -74,7 +74,7 @@ const fuse_core::UUID& UuidOrdering::operator[](const unsigned int index) const
   return order_.left[index].second;
 }
 
-const unsigned int UuidOrdering::operator[](const fuse_core::UUID& uuid)
+unsigned int UuidOrdering::operator[](const fuse_core::UUID& uuid)
 {
   auto result = order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), uuid));
   return (*result.first).get_left();
@@ -85,7 +85,7 @@ const fuse_core::UUID& UuidOrdering::at(const unsigned int index) const
   return order_.left.at(index).second;
 }
 
-const unsigned int UuidOrdering::at(const fuse_core::UUID& uuid) const
+unsigned int UuidOrdering::at(const fuse_core::UUID& uuid) const
 {
   return order_.right.at(uuid);
 }

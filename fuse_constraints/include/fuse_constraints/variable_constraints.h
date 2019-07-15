@@ -74,7 +74,7 @@ public:
    *
    * This is one larger than the current maximum variable index
    */
-  const unsigned int nextVariableIndex() const;
+  unsigned int nextVariableIndex() const;
 
   /**
    * @brief Add this constraint to a single variable
