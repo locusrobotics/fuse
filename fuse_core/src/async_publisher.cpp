@@ -74,7 +74,23 @@ void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::Cons
   // This minimizes the time spent by the optimizer's thread calling this function.
   auto callback = boost::make_shared<CallbackWrapper<void>>(
     std::bind(&AsyncPublisher::notifyCallback, this, std::move(transaction), std::move(graph)));
-  callback_queue_.addCallback(callback);
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+}
+
+void AsyncPublisher::start()
+{
+  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStart, this));
+  auto result = callback->getFuture();
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+  result.wait();
+}
+
+void AsyncPublisher::stop()
+{
+  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStop, this));
+  auto result = callback->getFuture();
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+  result.wait();
 }
 
 }  // namespace fuse_core

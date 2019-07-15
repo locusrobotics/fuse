@@ -72,11 +72,6 @@ public:
   virtual ~Publisher() = default;
 
   /**
-   * @brief Get the unique name of this publisher
-   */
-  virtual const std::string& name() const = 0;
-
-  /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or reading from the
    * parameter server.
    *
@@ -87,6 +82,11 @@ public:
    * @param[in] name A unique name to give this plugin instance
    */
   virtual void initialize(const std::string& name) = 0;
+
+  /**
+   * @brief Get the unique name of this publisher
+   */
+  virtual const std::string& name() const = 0;
 
   /**
    * @brief Notify the publisher that an optimization cycle is complete, and about changes to the Graph.
@@ -101,6 +101,26 @@ public:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
    */
   virtual void notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph) = 0;
+
+  /**
+   * @brief Function to be executed whenever the optimizer is ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer has been initialized
+   * and is ready to receive transactions. It may also be called as part of a stop-start cycle when the optimizer
+   * has been requested to reset itself. This allows the publisher to reset any internal state before the
+   * optimizer begins processing after a reset. No calls to notify() will happen before the optimizer calls start().
+   */
+  virtual void start() {}
+
+  /**
+   * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, before the optimizer shutdowns. It may
+   * also be called as part of a stop-start cycle when the optimizer has been requested to reset itself. This allows
+   * the publisher to reset any internal state before the optimizer begins processing after a reset. No calls
+   * to notify() will happen until start() has been called again.
+   */
+  virtual void stop() {}
 };
 
 }  // namespace fuse_core

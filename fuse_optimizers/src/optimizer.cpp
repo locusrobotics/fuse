@@ -68,6 +68,15 @@ Optimizer::Optimizer(
   loadMotionModels();
   loadSensorModels();
   loadPublishers();
+
+  // Start all the plugins
+  startPlugins();
+}
+
+Optimizer::~Optimizer()
+{
+  // Stop all the plugins
+  stopPlugins();
 }
 
 void Optimizer::loadMotionModels()
@@ -294,8 +303,47 @@ void Optimizer::injectCallback(
   // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
   // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
   // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
-  ros::getGlobalCallbackQueue()->addCallback(boost::make_shared<fuse_core::CallbackWrapper<void>>(
-    std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction))));
+  ros::getGlobalCallbackQueue()->addCallback(
+    boost::make_shared<fuse_core::CallbackWrapper<void>>(
+      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction))),
+    reinterpret_cast<uint64_t>(this));
+}
+
+void Optimizer::clearCallbacks()
+{
+  ros::getGlobalCallbackQueue()->removeByID(reinterpret_cast<uint64_t>(this));
+}
+
+void Optimizer::startPlugins()
+{
+  for (const auto& name_plugin : motion_models_)
+  {
+    name_plugin.second->start();
+  }
+  for (const auto& name_plugin : sensor_models_)
+  {
+    name_plugin.second->start();
+  }
+  for (const auto& name_plugin : publishers_)
+  {
+    name_plugin.second->start();
+  }
+}
+
+void Optimizer::stopPlugins()
+{
+  for (const auto& name_plugin : publishers_)
+  {
+    name_plugin.second->stop();
+  }
+  for (const auto& name_plugin : sensor_models_)
+  {
+    name_plugin.second->stop();
+  }
+  for (const auto& name_plugin : motion_models_)
+  {
+    name_plugin.second->stop();
+  }
 }
 
 }  // namespace fuse_optimizers

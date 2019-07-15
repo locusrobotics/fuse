@@ -64,15 +64,16 @@ bool AsyncMotionModel::apply(Transaction& transaction)
   auto callback = boost::make_shared<CallbackWrapper<bool>>(
     std::bind(&AsyncMotionModel::applyCallback, this, std::ref(transaction)));
   auto result = callback->getFuture();
-  callback_queue_.addCallback(callback);
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
   result.wait();
   return result.get();
 }
 
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
 {
-  callback_queue_.addCallback(boost::make_shared<CallbackWrapper<void>>(
-    std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph))));
+  callback_queue_.addCallback(
+    boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph))),
+    reinterpret_cast<uint64_t>(this));
 }
 
 void AsyncMotionModel::initialize(const std::string& name)
@@ -88,6 +89,22 @@ void AsyncMotionModel::initialize(const std::string& name)
 
   // Start the async spinner to service the local callback queue
   spinner_.start();
+}
+
+void AsyncMotionModel::start()
+{
+  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStart, this));
+  auto result = callback->getFuture();
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+  result.wait();
+}
+
+void AsyncMotionModel::stop()
+{
+  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStop, this));
+  auto result = callback->getFuture();
+  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+  result.wait();
 }
 
 }  // namespace fuse_core

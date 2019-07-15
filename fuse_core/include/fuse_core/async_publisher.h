@@ -79,12 +79,12 @@ public:
    *
    * @param[in] name A unique name to give this plugin instance
    */
-  void initialize(const std::string& name) final;
+  void initialize(const std::string& name) override;
 
   /**
    * @brief Get the unique name of this publisher
    */
-  const std::string& name() const final { return name_; }
+  const std::string& name() const override { return name_; }
 
   /**
    * @brief Notify the publisher that an optimization cycle is complete, and about changes to the Graph.
@@ -98,7 +98,39 @@ public:
    * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
    */
-  void notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph) final;
+  void notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph) override;
+
+  /**
+   * @brief Function to be executed whenever the optimizer is ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer has been initialized
+   * and is ready to receive transactions. It may also be called as part of a stop-start cycle when the optimizer
+   * has been requested to reset itself. This allows the publisher to reset any internal state before the
+   * optimizer begins processing after a reset. No calls to notify() will happen before the optimizer calls start().
+   *
+   * This implementation inserts a call to onStart() into this publisher's callback queue. This method then blocks
+   * until the call to onStart() has completed. This is meant to simplify thread synchronization. If this publisher
+   * uses a single-threaded spinner, then all callbacks will fire sequentially and no semaphores are needed. If this
+   * publisher uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
+   * one place should be guarded.
+   */
+  void start() override;
+
+  /**
+   * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
+   *
+   * This method will be called by the optimizer, in the optimizer's thread, before the optimizer shutdowns. It may
+   * also be called as part of a stop-start cycle when the optimizer has been requested to reset itself. This allows
+   * the publisher to reset any internal state before the optimizer begins processing after a reset. No calls
+   * to notify() will happen until start() has been called again.
+   *
+   * This implementation inserts a call to onStop() into this publisher's callback queue. This method then blocks
+   * until the call to onStop() has completed. This is meant to simplify thread synchronization. If this publisher
+   * uses a single-threaded spinner, then all callbacks will fire sequentially and no semaphores are needed. If this
+   * publisher uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
+   * one place should be guarded.
+   */
+  void stop() override;
 
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
@@ -139,6 +171,22 @@ protected:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
    */
   virtual void notifyCallback(Transaction::ConstSharedPtr /*transaction*/, Graph::ConstSharedPtr /*graph*/) {}
+
+  /**
+   * @brief Perform any required operations to prepare for servicing calls to notify()
+   *
+   * This function will be called once after initialize() but before any calls to notify(). It may also be called
+   * at any time after a call to stop().
+   */
+  virtual void onStart() {}
+
+  /**
+   * @brief Perform any required operations to clean up the internal state
+   *
+   * This function will be called once before destruction. It may also be called at any time after a call to start().
+   * No calls to notify() will occur after stop() is called, but before start() is called.
+   */
+  virtual void onStop() {}
 };
 
 }  // namespace fuse_core

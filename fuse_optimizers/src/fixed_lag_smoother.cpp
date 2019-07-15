@@ -160,12 +160,16 @@ void FixedLagSmoother::optimizationLoop()
     {
       break;
     }
-    // Apply motion models
-    auto new_transaction = fuse_core::Transaction::make_shared();
-    processQueue(*new_transaction);
     // Optimize
     {
       std::lock_guard<std::mutex> lock(optimization_mutex_);
+      // Apply motion models
+      auto new_transaction = fuse_core::Transaction::make_shared();
+      // DANGER: processQueue obtains a lock from the pending_transactions_mutex_
+      //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
+      //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
+      //         not extremely careful, we could get a deadlock.
+      processQueue(*new_transaction);
       // Prepare for selecting the marginal variables
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle
@@ -258,21 +262,29 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
 
 bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
+  // Tell all the plugins to stop
+  stopPlugins();
+  // Reset the optimizer state
   started_ = false;
   start_time_ = ros::TIME_MAX;
   optimization_request_ = false;
-  // Clear all pending transactions
-  {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-    pending_transactions_.clear();
-  }
-  // Clear the graph and marginal tracking states
+  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
+  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
+  //         prevent the possibility of deadlocks.
   {
     std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Clear all pending transactions
+    {
+      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+      pending_transactions_.clear();
+    }
+    // Clear the graph and marginal tracking states
     graph_->clear();
     marginal_transaction_ = fuse_core::Transaction();
     timestamp_tracking_.clear();
   }
+  // Tell all the plugins to start
+  startPlugins();
   // Test for auto-start
   autostart();
 

@@ -164,6 +164,14 @@ public:
   }
 
   /**
+   * @brief Clear all timestamps from the motion model history
+   */
+  void clear()
+  {
+    motion_model_history_.clear();
+  }
+
+  /**
    * @brief Update a transaction structure such that the involved timestamps are connected by motion model constraints.
    *
    * This is not as straightforward as it would seem. Depending on the history of previously generated constraints,
