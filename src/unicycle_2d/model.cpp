@@ -137,8 +137,9 @@ void Model::generateMotionModel(
   auto base_state_pair_it = state_history_.upper_bound(beginning_stamp);
   if (base_state_pair_it == state_history_.begin())
   {
-    ROS_ERROR_STREAM_NAMED("UnicycleModel", "Unable to locate a state in this history with stamp <= " <<
-        beginning_stamp << ". Variables will all be initialized to 0.");
+    ROS_WARN_STREAM_COND_NAMED(!state_history_.empty(), "UnicycleModel", "Unable to locate a state in this history "
+                               "with stamp <= " << beginning_stamp << ". Variables will all be initialized to 0.");
+    base_time = beginning_stamp;
   }
   else
   {
@@ -223,8 +224,8 @@ void Model::generateMotionModel(
   state2.vel_yaw_uuid = velocity_yaw2->uuid();
   state2.acc_linear_uuid = acceleration_linear2->uuid();
 
-  state_history_.emplace(beginning_stamp, std::move(state1));  // NOLINT(whitespace/braces)
-  state_history_.emplace(ending_stamp, std::move(state2));  // NOLINT(whitespace/braces)
+  state_history_.emplace(beginning_stamp, std::move(state1));
+  state_history_.emplace(ending_stamp, std::move(state2));
 
   // Create the constraints for this motion model segment
   auto constraint = fuse_rl::unicycle_2d::StateKinematicConstraint::make_shared(
