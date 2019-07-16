@@ -105,7 +105,7 @@ public:
    * @brief Read-only access to the time delta between the first and second state (really, between the position1 and
    position2 variables in the constructor)
    */
-  const double dt() const { return dt_; }
+  double dt() const { return dt_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
