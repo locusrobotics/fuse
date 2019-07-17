@@ -304,7 +304,7 @@ inline bool processAbsolutePoseWithCovariance(
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-    *position, *orientation, pose_mean, pose_covariance_partial, position_indices, orientation_indices);
+    *position, *orientation, pose_mean_partial, pose_covariance_partial, position_indices, orientation_indices);
 
   transaction.addVariable(position);
   transaction.addVariable(orientation);
