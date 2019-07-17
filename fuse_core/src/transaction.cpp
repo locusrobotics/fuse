@@ -202,6 +202,12 @@ void Transaction::merge(const Transaction& other, bool overwrite)
   }
 }
 
+bool Transaction::empty() const
+{
+  return added_variables_.empty() && added_constraints_.empty() && removed_variables_.empty() &&
+         removed_constraints_.empty();
+}
+
 void Transaction::print(std::ostream& stream) const
 {
   stream << "Involved Timestamps:\n";

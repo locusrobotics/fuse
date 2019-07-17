@@ -209,6 +209,13 @@ public:
   void merge(const Transaction& other, bool overwrite = false);
 
   /**
+   * @brief Check if the transaction is empty, i.e. it doesn't have any variable or constraint added or removed.
+   *
+   * @return True if the transaction is empty.
+   */
+  bool empty() const;
+
+  /**
    * @brief Print a human-readable description of the transaction to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.

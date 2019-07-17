@@ -3,6 +3,7 @@ project(fuse_publishers)
 
 set(build_depends
   fuse_core
+  fuse_msgs
   fuse_variables
   geometry_msgs
   nav_msgs
@@ -34,6 +35,7 @@ add_compile_options(-std=c++14 -Wall -Werror)
 
 # fuse_publishers library
 add_library(${PROJECT_NAME}
+  src/graph_publisher.cpp
   src/path_2d_publisher.cpp
   src/pose_2d_publisher.cpp
 )
