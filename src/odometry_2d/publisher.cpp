@@ -69,7 +69,6 @@ void Publisher::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
-  synchronizer_ = Synchronizer(device_id_);
 
   params_.loadFromROS(private_node_handle_);
 
@@ -82,7 +81,7 @@ void Publisher::onInit()
   odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
 
   tf_publish_timer_ = node_handle_.createTimer(
-    ros::Duration(1.0 / params_.tf_publish_frequency), &Publisher::tfPublishTimerCallback, this);
+    ros::Duration(1.0 / params_.tf_publish_frequency), &Publisher::tfPublishTimerCallback, this, false, false);
 }
 
 void Publisher::notifyCallback(
@@ -165,6 +164,19 @@ void Publisher::notifyCallback(
     }
     odom_pub_.publish(odom_output_);
   }
+}
+
+void Publisher::onStart()
+{
+  synchronizer_ = Synchronizer(device_id_);
+  latest_stamp_ = Synchronizer::TIME_ZERO;
+  odom_output_ = nav_msgs::Odometry();
+  tf_publish_timer_.start();
+}
+
+void Publisher::onStop()
+{
+  tf_publish_timer_.stop();
 }
 
 bool Publisher::getState(

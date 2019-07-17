@@ -101,6 +101,7 @@ TEST(Unicycle2DIgnition, InitialTransaction)
   // Create an ignition sensor and register the callback
   fuse_rl::unicycle_2d::Ignition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.start();
 
   // The ignition sensor should publish a transaction immediately. Wait for the callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
@@ -176,6 +177,7 @@ TEST(Unicycle2DIgnition, SkipInitialTransaction)
   // Create an ignition sensor and register the callback
   fuse_rl::unicycle_2d::Ignition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.start();
 
   // The ignition sensor should publish a transaction immediately. Wait for the callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(1));
@@ -200,6 +202,7 @@ TEST(Unicycle2DIgnition, SetPoseService)
   // Create an ignition sensor and register the callback
   fuse_rl::unicycle_2d::Ignition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.start();
 
   // Call the SetPose service
   fuse_rl::SetPose srv;
@@ -291,6 +294,7 @@ TEST(Unicycle2DIgnition, SetPoseDeprecatedService)
   // Create an ignition sensor and register the callback
   fuse_rl::unicycle_2d::Ignition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.start();
 
   // Call the SetPose service
   fuse_rl::SetPoseDeprecated srv;

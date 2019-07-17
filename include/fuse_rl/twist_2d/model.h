@@ -95,13 +95,23 @@ protected:
    */
   void onInit() override;
 
-  ParameterType params_;
+  /**
+   * @brief Subscribe to the input topic to start sending transactions to the optimizer
+   */
+  void onStart() override;
 
-  ros::Subscriber subscriber_;
+  /**
+   * @brief Unsubscribe from the input topic to stop sending transactions to the optimizer
+   */
+  void onStop() override;
+
+  ParameterType params_;
 
   tf2_ros::Buffer tf_buffer_;
 
   tf2_ros::TransformListener tf_listener_;
+
+  ros::Subscriber subscriber_;
 };
 
 }  // namespace twist_2d

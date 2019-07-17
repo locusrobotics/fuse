@@ -71,10 +71,20 @@ void Model::onInit()
     ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
                     " will be ignored.");
   }
-  else
+}
+
+void Model::onStart()
+{
+  if (!params_.linear_indices.empty() ||
+      !params_.angular_indices.empty())
   {
     subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
   }
+}
+
+void Model::onStop()
+{
+  subscriber_.shutdown();
 }
 
 void Model::process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& msg)

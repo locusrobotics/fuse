@@ -146,6 +146,11 @@ protected:
   void onInit() override;
 
   /**
+   * @brief Reset the internal state history before starting
+   */
+  void onStart() override;
+
+  /**
    * @brief Update all of the estimated states in the state history container using the optimized values from the graph
    * @param[in] graph         The graph object containing updated variable values
    * @param[in] state_history The state history object to be updated

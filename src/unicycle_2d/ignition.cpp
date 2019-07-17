@@ -74,6 +74,8 @@ namespace unicycle_2d
 
 Ignition::Ignition() :
   fuse_core::AsyncSensorModel(1),
+  started_(false),
+  initial_transaction_sent_(false),
   device_id_(fuse_core::uuid::NIL)
 {
 }
@@ -105,9 +107,16 @@ void Ignition::onInit()
     ros::names::resolve(params_.set_pose_deprecated_service),
     &Ignition::setPoseDeprecatedServiceCallback,
     this);
+}
 
+void Ignition::start()
+{
+  started_ = true;
+
+  // TODO(swilliams) Should this be executed every time optimizer.reset() is called, or only once ever?
+  //                 I feel like it should be "only once ever".
   // Send an initial state transaction immediately, if requested
-  if (params_.publish_on_startup)
+  if (params_.publish_on_startup && !initial_transaction_sent_)
   {
     auto pose = geometry_msgs::PoseWithCovarianceStamped();
     pose.header.stamp = ros::Time::now();
@@ -117,19 +126,25 @@ void Ignition::onInit()
     pose.pose.covariance[0] = params_.initial_sigma[0] * params_.initial_sigma[0];
     pose.pose.covariance[7] = params_.initial_sigma[1] * params_.initial_sigma[1];
     pose.pose.covariance[35] = params_.initial_sigma[2] * params_.initial_sigma[2];
-    process(pose, false);
+    sendPrior(pose);
+    initial_transaction_sent_ = true;
   }
+}
+
+void Ignition::stop()
+{
+  started_ = false;
 }
 
 void Ignition::subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
   try
   {
-    process(*msg, true);
+    process(*msg);
   }
   catch (const std::exception& e)
   {
-    ROS_ERROR_STREAM(e.what() << " Ignoring request.");
+    ROS_ERROR_STREAM(e.what() << " Ignoring message.");
   }
 }
 
@@ -137,7 +152,7 @@ bool Ignition::setPoseServiceCallback(fuse_rl::SetPose::Request& req, fuse_rl::S
 {
   try
   {
-    process(req.pose, true);
+    process(req.pose);
     res.success = true;
   }
   catch (const std::exception& e)
@@ -155,7 +170,7 @@ bool Ignition::setPoseDeprecatedServiceCallback(
 {
   try
   {
-    process(req.pose, true);
+    process(req.pose);
     return true;
   }
   catch (const std::exception& e)
@@ -165,8 +180,13 @@ bool Ignition::setPoseDeprecatedServiceCallback(
   }
 }
 
-void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose, const bool reset_optimizer)
+void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose)
 {
+  // Verify we are in the correct state to process set pose requests
+  if (!started_)
+  {
+    throw std::runtime_error("Attempting to set the pose while the sensor is stopped.");
+  }
   // Validate the requested pose and covariance before we do anything
   if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y))
   {
@@ -211,7 +231,7 @@ void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose, con
   }
 
   // Tell the optimizer to reset before providing the initial state
-  if (reset_optimizer && !params_.reset_service.empty())
+  if (!params_.reset_service.empty())
   {
     auto srv = std_srvs::Empty();
     if (!reset_client_.call(srv))
@@ -221,6 +241,13 @@ void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose, con
     }
   }
 
+  // Now that the pose has been validated and the optimizer has been reset, actually send the initial state constraints
+  // to the optimizer
+  sendPrior(pose);
+}
+
+void Ignition::sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose)
+{
   const auto& stamp = pose.header.stamp;
 
   // Create variables for the full state.
@@ -246,6 +273,11 @@ void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose, con
   // Create the covariances for each variable
   // The pose covariances are extracted from the provided PoseWithCovarianceStamped message.
   // The remaining covariances are provided as parameters to the parameter server.
+  auto position_cov = fuse_core::Matrix2d();
+  position_cov << pose.pose.covariance[0], pose.pose.covariance[1],
+                  pose.pose.covariance[6], pose.pose.covariance[7];
+  auto orientation_cov = fuse_core::Matrix1d();
+  orientation_cov << pose.pose.covariance[35];
   auto linear_velocity_cov = fuse_core::Matrix2d();
   linear_velocity_cov << params_.initial_sigma[3] * params_.initial_sigma[3], 0.0,
                          0.0, params_.initial_sigma[4] * params_.initial_sigma[4];

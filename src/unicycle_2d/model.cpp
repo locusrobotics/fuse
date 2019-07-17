@@ -123,6 +123,12 @@ void Model::onInit()
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
 }
 
+void Model::onStart()
+{
+  timestamp_manager_.clear();
+  state_history_.clear();
+}
+
 void Model::generateMotionModel(
   const ros::Time& beginning_stamp,
   const ros::Time& ending_stamp,

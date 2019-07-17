@@ -108,6 +108,7 @@ public:
    */
   virtual ~Publisher() = default;
 
+protected:
   /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or reading from the
    * parameter server.
@@ -124,7 +125,16 @@ public:
     fuse_core::Transaction::ConstSharedPtr transaction,
     fuse_core::Graph::ConstSharedPtr graph) override;
 
-protected:
+  /**
+   * @brief Perform any required operations before the first call to notify() occurs
+   */
+  void onStart() override;
+
+  /**
+   * @brief Perform any required operations to stop publications
+   */
+  void onStop() override;
+
   /**
    * @brief Retrieves the given variable values at the requested time from the graph
    * @param[in] graph The graph from which we will retrieve the state

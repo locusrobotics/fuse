@@ -77,10 +77,22 @@ void Model::onInit()
     ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
                     " will be ignored.");
   }
-  else
+}
+
+void Model::onStart()
+{
+  if (!params_.orientation_indices.empty() ||
+      !params_.linear_acceleration_indices.empty() ||
+      !params_.angular_velocity_indices.empty())
   {
+    previous_pose_.reset();
     subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
   }
+}
+
+void Model::onStop()
+{
+  subscriber_.shutdown();
 }
 
 void Model::process(const sensor_msgs::Imu::ConstPtr& msg)

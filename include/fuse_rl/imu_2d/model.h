@@ -119,6 +119,16 @@ protected:
    */
   void onInit() override;
 
+  /**
+   * @brief Subscribe to the input topic to start sending transactions to the optimizer
+   */
+  void onStart() override;
+
+  /**
+   * @brief Unsubscribe from the input topic to stop sending transactions to the optimizer
+   */
+  void onStop() override;
+
   ParameterType params_;
 
   std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;
