@@ -42,6 +42,7 @@
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <algorithm>
 #include <exception>
 #include <memory>
 #include <string>
@@ -187,7 +188,10 @@ fuse_msgs::Constraint toMsg(const fuse_core::Constraint& constraint)
   const auto& constraint_variables = constraint.variables();
   constraint_msg.variables.reserve(constraint_variables.size());
   std::transform(constraint_variables.begin(), constraint_variables.end(), std::back_inserter(constraint_msg.variables),
-                 [](const auto& variable_uuid) -> std::string { return fuse_core::uuid::to_string(variable_uuid); });
+                 [](const auto& variable_uuid) -> std::string
+                 {
+                   return fuse_core::uuid::to_string(variable_uuid);
+                 });  // NOLINT(whitespace/braces)
 
   // FIXME populate the properties vector somehow from the cost function or maybe extend the API to support this
 

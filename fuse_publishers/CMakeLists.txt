@@ -51,12 +51,28 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
+add_executable(graph_dot_writer_node
+  src/graph_dot_writer.cpp
+  src/graph_dot_writer_node.cpp
+)
+add_dependencies(${PROJECT_NAME}
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(graph_dot_writer_node
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+target_link_libraries(graph_dot_writer_node
+  ${catkin_LIBRARIES} ${Boost_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
 
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS ${PROJECT_NAME} graph_dot_writer_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

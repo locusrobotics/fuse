@@ -44,6 +44,7 @@
 
 #include <ros/ros.h>
 
+#include <string>
 #include <unordered_map>
 
 
