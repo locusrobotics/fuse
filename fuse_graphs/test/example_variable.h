@@ -57,7 +57,7 @@ public:
   size_t size() const override { return data_.size(); }
   const double* data() const override { return data_.data(); };
   double* data() override { return data_.data(); };
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
 
 private:
   std::vector<double> data_;

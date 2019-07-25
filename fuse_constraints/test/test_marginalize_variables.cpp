@@ -70,7 +70,7 @@ public:
   const double* data() const override { return &data_; }
   double* data() override { return &data_; }
 
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
 
 protected:
   double data_;
@@ -92,7 +92,7 @@ public:
   GenericConstraint(const fuse_core::UUID& variable1, const fuse_core::UUID& variable2) :
     fuse_core::Constraint{variable1, variable2} {}
 
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
 
   ceres::CostFunction* costFunction() const override { return nullptr; }
 };

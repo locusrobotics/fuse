@@ -45,7 +45,7 @@ static bool received_transaction = false;
 /**
  * @brief Transaction callback function used to verify the function gets called in the background
  */
-void transactionCallback(fuse_core::Transaction::SharedPtr transaction)
+void transactionCallback(fuse_core::Transaction::SharedPtr /*transaction*/)
 {
   ros::Duration(1.0).sleep();
   received_transaction = true;
@@ -70,7 +70,7 @@ public:
     initialized = true;
   }
 
-  void onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph) override
+  void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
     ros::Duration(1.0).sleep();
     graph_received = true;

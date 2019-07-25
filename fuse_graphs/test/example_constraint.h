@@ -77,7 +77,7 @@ public:
   {
   }
 
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
   ceres::CostFunction* costFunction() const override
   {
     return new ceres::AutoDiffCostFunction<ExampleFunctor, 1, 1>(new ExampleFunctor(data));

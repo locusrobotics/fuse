@@ -65,7 +65,7 @@ public:
     mutable_parameter_block_sizes()->push_back(1);
   }
 
-  bool Evaluate(double const* const* parameters,
+  bool Evaluate(double const* const* /*parameters*/,
                 double* residuals,
                 double** jacobians) const override
   {
@@ -147,7 +147,7 @@ public:
   {
   }
 
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
   ceres::CostFunction* costFunction() const override { return new CovarianceCostFunction(); }
 };
 

@@ -54,7 +54,9 @@ public:
 
   virtual ~MyPublisher() = default;
 
-  void notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph)
+  void notifyCallback(
+    fuse_core::Transaction::ConstSharedPtr /*transaction*/,
+    fuse_core::Graph::ConstSharedPtr /*graph*/)
   {
     ros::Duration(1.0).sleep();
     callback_processed = true;

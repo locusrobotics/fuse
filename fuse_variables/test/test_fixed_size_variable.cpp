@@ -47,7 +47,7 @@ public:
   {}
   virtual ~TestVariable() = default;
 
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
 };
 
 

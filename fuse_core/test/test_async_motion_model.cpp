@@ -51,14 +51,14 @@ public:
 
   virtual ~MyMotionModel() = default;
 
-  bool applyCallback(fuse_core::Transaction& transaction)
+  bool applyCallback(fuse_core::Transaction& /*transaction*/)
   {
     ros::Duration(1.0).sleep();
     transaction_received = true;
     return true;
   }
 
-  void onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph) override
+  void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
     ros::Duration(1.0).sleep();
     graph_received = true;
