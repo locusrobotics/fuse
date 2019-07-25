@@ -182,6 +182,7 @@ void Transaction::removeVariable(const UUID& variable_uuid)
 
 void Transaction::merge(const Transaction& other, bool overwrite)
 {
+  stamp_ = std::max(stamp_, other.stamp_);
   involved_stamps_.insert(other.involved_stamps_.begin(), other.involved_stamps_.end());
   for (const auto& added_constraint : other.added_constraints_)
   {
