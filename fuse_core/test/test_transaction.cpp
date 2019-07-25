@@ -666,6 +666,7 @@ TEST(Transaction, Merge)
   UUID removed_variable3 = fuse_core::uuid::generate();
 
   Transaction transaction1;
+  transaction1.stamp(involved_stamp2);
   transaction1.addInvolvedStamp(involved_stamp1);
   transaction1.addInvolvedStamp(involved_stamp2);
   transaction1.addConstraint(added_constraint1);
@@ -677,6 +678,7 @@ TEST(Transaction, Merge)
   transaction1.removeVariable(removed_variable3);
 
   Transaction transaction2;
+  transaction2.stamp(involved_stamp3);
   transaction2.addInvolvedStamp(involved_stamp2);
   transaction2.addInvolvedStamp(involved_stamp3);
   transaction2.addConstraint(added_constraint2);
@@ -721,6 +723,8 @@ TEST(Transaction, Merge)
   expected_removed_variables.push_back(removed_variable2);
   expected_removed_variables.push_back(removed_variable3);
   EXPECT_TRUE(testRemovedVariables(expected_removed_variables, transaction1));
+
+  EXPECT_EQ(std::max(involved_stamp2, involved_stamp3), transaction1.stamp());
 }
 
 TEST(Transaction, Clone)
