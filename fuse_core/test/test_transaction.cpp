@@ -38,6 +38,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <initializer_list>
 #include <vector>
 
