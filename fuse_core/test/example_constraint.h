@@ -62,7 +62,7 @@ public:
   {
   }
 
-  void print(std::ostream& stream = std::cout) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override {}
   ceres::CostFunction* costFunction() const override { return nullptr; }
 
   double data;  // Public member variable just for testing

@@ -77,7 +77,7 @@ public:
     return &data_;
   }
 
-  void print(std::ostream& stream = std::cout) const override
+  void print(std::ostream& /*stream = std::cout*/) const override
   {
   }
 
@@ -114,7 +114,7 @@ public:
     return &data_;
   }
 
-  void print(std::ostream& stream = std::cout) const override
+  void print(std::ostream& /*stream = std::cout*/) const override
   {
   }
 
@@ -155,7 +155,7 @@ public:
   {
   }
 
-  void print(std::ostream& stream = std::cout) const override
+  void print(std::ostream& /*stream = std::cout*/) const override
   {
   }
 

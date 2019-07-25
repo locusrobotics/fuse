@@ -79,8 +79,8 @@ public:
   void generator(
     const ros::Time& beginning_stamp,
     const ros::Time& ending_stamp,
-    std::vector<fuse_core::Constraint::SharedPtr>& constraints,
-    std::vector<fuse_core::Variable::SharedPtr>& variables)
+    std::vector<fuse_core::Constraint::SharedPtr>& /*constraints*/,
+    std::vector<fuse_core::Variable::SharedPtr>& /*variables*/)
   {
     generated_time_spans.emplace_back(beginning_stamp, ending_stamp);
   }
