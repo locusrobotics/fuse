@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>fuse_test</name>
+  <version>0.0.0</version>
+  <description>
+    The fuse_test package
+  </description>
+
+  <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
+  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>fuse_core</depend>
+  <depend>fuse_msgs</depend>
+  <depend>fuse_variables</depend>
+  <depend>pluginlib</depend>
+  <depend>roscpp</depend>
+
+  <test_depend>roslint</test_depend>
+  <test_depend>rostest</test_depend>
+</package>

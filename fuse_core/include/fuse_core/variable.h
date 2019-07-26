@@ -36,6 +36,7 @@
 
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
 #include <boost/type_index/stl_type_index.hpp>
@@ -153,6 +154,11 @@ class Variable
 {
 public:
   SMART_PTR_ALIASES_ONLY(Variable);
+
+  /**
+   * @brief Plugins must have a default constructor
+   */
+  Variable() = default;
 
   /**
    * @brief Constructor
@@ -274,6 +280,20 @@ public:
   virtual fuse_core::LocalParameterization* localParameterization() const
   {
     return nullptr;
+  }
+
+  /**
+   * @brief Serialize the fuse Variable base class using Cereal
+   *
+   * Note that this is a template function. It cannot be virtual, and I have no way of enforcing derived classes to
+   * implement such a function. If I was better at SFINAE techniques, I might be able to prevent a derived variable
+   * from compiling if it didn't have a serialize() method. For similar reasons, this function is useless to the
+   * pluginlib interface, as all loaded instances must be accessed by a base class pointer.
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(CEREAL_NVP(uuid_));
   }
 
 private:
