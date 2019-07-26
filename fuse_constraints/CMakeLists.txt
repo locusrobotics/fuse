@@ -43,6 +43,7 @@ add_library(${PROJECT_NAME}
   src/absolute_orientation_3d_stamped_euler_constraint.cpp
   src/absolute_pose_2d_stamped_constraint.cpp
   src/absolute_pose_3d_stamped_constraint.cpp
+  src/dummy_constraint.cpp
   src/marginal_constraint.cpp
   src/marginal_cost_function.cpp
   src/marginalize_variables.cpp
@@ -86,6 +87,11 @@ install(
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
+
+install(
+  FILES fuse_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 #############

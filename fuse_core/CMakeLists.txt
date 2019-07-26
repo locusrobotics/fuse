@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_core)
 
 set(build_depends
+  fuse_msgs
+  pluginlib
   roscpp
 )
 
@@ -38,10 +40,12 @@ add_library(${PROJECT_NAME}
   src/async_publisher.cpp
   src/async_sensor_model.cpp
   src/constraint.cpp
+  src/constraint_deserializer.cpp
   src/graph.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
   src/variable.cpp
+  src/variable_deserializer.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

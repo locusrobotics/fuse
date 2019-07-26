@@ -31,41 +31,51 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/dummy_variable.h>
+#include <fuse_core/variable_deserializer.h>
 
-#include <fuse_core/uuid.h>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <pluginlib/class_list_macros.hpp>
-#include <ros/time.h>
-
-#include <ostream>
+#include <sstream>
 
 
-namespace fuse_variables
+namespace fuse_core
 {
 
-DummyVariable::DummyVariable(const ros::Time& stamp, const std::string& quest) :
-  fuse_core::Variable(fuse_core::uuid::generate(detail::type(), stamp)),
-  quest_(quest),
-  stamp_(stamp)
+void serializeVariable(const fuse_core::Variable& variable, fuse_msgs::SerializedVariable& msg)
+{
+  std::stringstream stream;
+  {
+    cereal::JSONOutputArchive archive(stream);
+    variable.serializeVariable(archive);
+  }
+  msg.plugin_name = variable.type();
+  msg.data = stream.str();
+}
+
+VariableDeserializer::VariableDeserializer() :
+  plugin_loader_("fuse_core", "fuse_core::Variable")
 {
 }
 
-void DummyVariable::print(std::ostream& stream) const
+fuse_core::Variable::SharedPtr VariableDeserializer::deserialize(const fuse_msgs::SerializedVariable::ConstPtr& msg)
 {
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  stamp: " << stamp() << "\n"
-         << "  quest: " << quest() << "\n"
-         << "  size: " << size() << "\n"
-         << "  data:\n"
-         << "  - a: " << a() << "\n"
-         << "  - b: " << b() << "\n";
+  return deserialize(*msg);
 }
 
-}  // namespace fuse_variables
+fuse_core::Variable::SharedPtr VariableDeserializer::deserialize(const fuse_msgs::SerializedVariable& msg)
+{
+  // Create a Variable object using pluginlib. This will throw if the plugin name is not found.
+  // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return
+  // back to the user as the output is not equivalent to fuse_ros::Variable::UniquePtr. A shared_ptr
+  // on the other hand is able to capture the custom deleter without modifying the datatype.
+  fuse_core::Variable::SharedPtr variable = plugin_loader_.createUniqueInstance(msg.plugin_name);
+  // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
+  std::stringstream stream(msg.data);
+  {
+    cereal::JSONInputArchive archive(stream);
+    // cereal::XMLInputArchive archive(stream);
+    variable->deserializeVariable(archive);
+  }
+  // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.
+  return variable;
+}
 
-// Register this variable with ROS as a plugin. This allows the pluginlib class loader to be used to deserialize
-// variables in a generic manner in other classes.
-PLUGINLIB_EXPORT_CLASS(fuse_variables::DummyVariable, fuse_core::Variable);
+}  // namespace fuse_core

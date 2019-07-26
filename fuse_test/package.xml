@@ -13,6 +13,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>fuse_constraints</depend>
   <depend>fuse_core</depend>
   <depend>fuse_msgs</depend>
   <depend>fuse_variables</depend>

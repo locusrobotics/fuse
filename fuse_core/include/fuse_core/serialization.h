@@ -76,8 +76,8 @@ void save(Archive& archive, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxR
 {
   int rows = m.rows();
   int cols = m.cols();
-  archive(rows);
-  archive(cols);
+  archive(CEREAL_NVP(rows));
+  archive(CEREAL_NVP(cols));
 
   for (int i = 0; i < rows; i++)
   {

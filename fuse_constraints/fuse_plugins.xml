@@ -1,0 +1,7 @@
+<library path="lib/libfuse_constraints">
+  <class type="fuse_constraints::DummyConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A dummy constraint used to test serialization.
+    </description>
+  </class>
+</library>

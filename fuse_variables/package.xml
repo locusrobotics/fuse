@@ -18,4 +18,8 @@
   <depend>roscpp</depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
+
+  <export>
+    <fuse_core plugin="${prefix}/fuse_plugins.xml" />
+  </export>
 </package>

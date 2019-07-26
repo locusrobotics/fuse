@@ -31,41 +31,65 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_constraints/dummy_constraint.h>
 #include <fuse_variables/dummy_variable.h>
 
-#include <fuse_core/uuid.h>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
 #include <pluginlib/class_list_macros.hpp>
-#include <ros/time.h>
 
-#include <ostream>
+#include <ceres/normal_prior.h>
+#include <Eigen/Dense>
+
+#include <vector>
 
 
-namespace fuse_variables
+namespace fuse_constraints
 {
 
-DummyVariable::DummyVariable(const ros::Time& stamp, const std::string& quest) :
-  fuse_core::Variable(fuse_core::uuid::generate(detail::type(), stamp)),
-  quest_(quest),
-  stamp_(stamp)
+DummyConstraint::DummyConstraint(
+  const fuse_variables::DummyVariable& variable,
+  const fuse_core::Vector2d& mean,
+  const fuse_core::Matrix2d& covariance) :
+    fuse_core::Constraint{variable.uuid()},
+    mean_(mean),
+    sqrt_information_(covariance.inverse().llt().matrixU())
 {
+  assert(mean.rows() == static_cast<int>(variable.size()));
+  assert(covariance.rows() == static_cast<int>(variable.size()));
+  assert(covariance.cols() == static_cast<int>(variable.size()));
 }
 
-void DummyVariable::print(std::ostream& stream) const
+fuse_core::Matrix2d DummyConstraint::covariance() const
 {
-  stream << type() << ":\n"
+  // We want to compute:
+  // cov = (sqrt_info' * sqrt_info)^-1
+  // With some linear algebra, we can swap the transpose and the inverse.
+  // cov = (sqrt_info^-1) * (sqrt_info^-1)'
+  // But sqrt_info _may_ not be square. So we need to compute the pseudoinverse instead.
+  // Eigen doesn't have a pseudoinverse function (for probably very legitimate reasons).
+  // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
+  auto I = fuse_core::Matrix2d::Identity();
+  fuse_core::Matrix2d pinv = sqrt_information_.colPivHouseholderQr().solve(I);
+  return pinv * pinv.transpose();
+}
+
+void DummyConstraint::print(std::ostream& stream) const
+{
+  stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  stamp: " << stamp() << "\n"
-         << "  quest: " << quest() << "\n"
-         << "  size: " << size() << "\n"
-         << "  data:\n"
-         << "  - a: " << a() << "\n"
-         << "  - b: " << b() << "\n";
+         << "  variable: " << variables()[0] << "\n"
+         << "  mean: " << mean().transpose() << "\n"
+         << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-}  // namespace fuse_variables
+ceres::CostFunction* DummyConstraint::costFunction() const
+{
+  // Ceres ships with a "prior" cost function. Just use that here.
+  return new ceres::NormalPrior(sqrt_information_, mean_);
+}
+
+}  // namespace fuse_constraints
+
 
 // Register this variable with ROS as a plugin. This allows the pluginlib class loader to be used to deserialize
 // variables in a generic manner in other classes.
-PLUGINLIB_EXPORT_CLASS(fuse_variables::DummyVariable, fuse_core::Variable);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::DummyConstraint, fuse_core::Constraint);

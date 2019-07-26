@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_test)
 
 set(build_depends
+  fuse_constraints
   fuse_core
   fuse_msgs
   fuse_variables

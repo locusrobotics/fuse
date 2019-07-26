@@ -10,6 +10,7 @@ add_message_files(
   DIRECTORY
     msg
   FILES
+    SerializedConstraint.msg
     SerializedVariable.msg
 )
 

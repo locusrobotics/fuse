@@ -1,0 +1,7 @@
+<library path="lib/libfuse_variables">
+  <class type="fuse_variables::DummyVariable" base_class_type="fuse_core::Variable">
+    <description>
+    A dummy variable used to test serialization.
+    </description>
+  </class>
+</library>

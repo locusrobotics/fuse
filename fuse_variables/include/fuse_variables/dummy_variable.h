@@ -39,7 +39,6 @@
 #include <fuse_core/variable.h>
 #include <ros/time.h>
 
-#include <cereal/access.hpp>
 #include <cereal/types/array.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/polymorphic.hpp>
@@ -130,12 +129,7 @@ public:
   size_t size() const override { return 2; }
 
   /**
-   * @brief Serialize the fuse Variable base class using Cereal
-   *
-   * Note that this is a template function. It cannot be virtual, and I have no way of enforcing derived classes to
-   * implement such a function. If I was better at SFINAE techniques, I might be able to prevent a derived variable
-   * from compiling if it didn't have a serialize() method. For similar reasons, this function is useless to the
-   * pluginlib interface, as all loaded instances must be accessed by a base class pointer.
+   * @brief Serialize the Dummy Variable members
    */
   template<class Archive>
   void serialize(Archive& archive)
@@ -144,6 +138,16 @@ public:
             CEREAL_NVP(data_),
             CEREAL_NVP(quest_),
             CEREAL_NVP(stamp_));
+  }
+
+  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
+
+  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("variable", *this));
   }
 
 private:

@@ -35,12 +35,15 @@
 #define FUSE_CORE_CONSTRAINT_H
 
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
 #include <boost/core/demangle.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 #include <ceres/cost_function.h>
 #include <ceres/loss_function.h>
+
+#include <cereal/types/vector.hpp>
 
 #include <initializer_list>
 #include <ostream>
@@ -158,6 +161,11 @@ public:
   SMART_PTR_ALIASES_ONLY(Constraint);
 
   /**
+   * @brief Default constructor
+   */
+  Constraint() = default;
+
+  /**
    * @brief Constructor
    *
    * Accepts an arbitrary number of variable UUIDs directly. It can be called like:
@@ -258,6 +266,64 @@ public:
    * @brief Read-only access to the ordered list of variable UUIDs involved in this constraint
    */
   const std::vector<UUID>& variables() const { return variables_; }
+
+  /**
+   * @brief Serialize the fuse Variable base class using Cereal
+   *
+   * Note that this is a template function. It cannot be virtual, and I have no way of enforcing derived classes to
+   * implement such a function. If I was better at SFINAE techniques, I might be able to prevent a derived variable
+   * from compiling if it didn't have a serialize() method.
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(CEREAL_NVP(uuid_),
+            CEREAL_NVP(variables_));
+  }
+
+  /**
+   * The fact that the archive() function is not virtual makes using objects through base class references
+   * difficult. The base class reference will find the base class serialize() function, but not the derived
+   * class version. Thus, when a variable is serialized using a base class reference, only the base class members
+   * will be present. Note that polymorphism does work as expected when using a shared_ptr or unique_ptr.
+   *
+   * In order to get serialization to work correctly using a base class reference, we must provide a virtual
+   * serialization method. And virtual functions cannot be templates. So we must provide serialization methods for
+   * each type of archive (JSON, XML, Binary, etc) that we want to support. This is annoying.
+   *
+   * More annoyingly this segfaults every time I try it. But I am convinced with enough effort this could be made
+   * to work.
+   */
+//  virtual void serialize(cereal::JSONInputArchive& archive)
+//  {
+//    archive(CEREAL_NVP(uuid_),
+//            CEREAL_NVP(variables_));
+//  }
+//  virtual void serialize(cereal::JSONOutputArchive& archive)
+//  {
+//    archive(CEREAL_NVP(uuid_),
+//            CEREAL_NVP(variables_));
+//  }
+
+  /**
+   * As an alternative, we can provide our own virtual serialize() and deserialize() methods
+   *
+   * The implementation will be very formulaic:
+   *
+   *   void serializeVariable(cereal::JSONOutputArchive& archive) const override
+   *   {
+   *     archive(cereal::make_nvp("variable", *this));
+   *   }
+   *
+   *   void deserializeVariable(cereal::JSONInputArchive& archive) override
+   *   {
+   *     archive(cereal::make_nvp("variable", *this));
+   *   }
+   *
+   * These could be added to the FUSE_VARIABLE macro, similar to the clone() method.
+   */
+  virtual void serializeConstraint(cereal::JSONOutputArchive& archive) const {}
+  virtual void deserializeConstraint(cereal::JSONInputArchive& archive) {}
 
 protected:
   UUID uuid_;  //!< The unique ID associated with this constraint

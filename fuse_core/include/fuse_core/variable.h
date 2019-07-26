@@ -287,14 +287,55 @@ public:
    *
    * Note that this is a template function. It cannot be virtual, and I have no way of enforcing derived classes to
    * implement such a function. If I was better at SFINAE techniques, I might be able to prevent a derived variable
-   * from compiling if it didn't have a serialize() method. For similar reasons, this function is useless to the
-   * pluginlib interface, as all loaded instances must be accessed by a base class pointer.
+   * from compiling if it didn't have a serialize() method.
    */
   template<class Archive>
   void serialize(Archive& archive)
   {
     archive(CEREAL_NVP(uuid_));
   }
+
+  /**
+   * The fact that the archive() function is not virtual makes using objects through base class references
+   * difficult. The base class reference will find the base class serialize() function, but not the derived
+   * class version. Thus, when a variable is serialized using a base class reference, only the base class members
+   * will be present. Note that polymorphism does work as expected when using a shared_ptr or unique_ptr.
+   *
+   * In order to get serialization to work correctly using a base class reference, we must provide a virtual
+   * serialization method. And virtual functions cannot be templates. So we must provide serialization methods for
+   * each type of archive (JSON, XML, Binary, etc) that we want to support. This is annoying.
+   *
+   * More annoyingly this segfaults every time I try it. But I am convinced with enough effort this could be made
+   * to work.
+   */
+//  virtual void serialize(cereal::JSONInputArchive& archive)
+//  {
+//    archive(CEREAL_NVP(uuid_));
+//  }
+//  virtual void serialize(cereal::JSONOutputArchive& archive)
+//  {
+//    archive(CEREAL_NVP(uuid_));
+//  }
+
+  /**
+   * As an alternative, we can provide our own virtual serialize() and deserialize() methods
+   *
+   * The implementation will be very formulaic:
+   *
+   *   void serializeVariable(cereal::JSONOutputArchive& archive) const override
+   *   {
+   *     archive(cereal::make_nvp("variable", *this));
+   *   }
+   *
+   *   void deserializeVariable(cereal::JSONInputArchive& archive) override
+   *   {
+   *     archive(cereal::make_nvp("variable", *this));
+   *   }
+   *
+   * These could be added to the FUSE_VARIABLE macro, similar to the clone() method.
+   */
+  virtual void serializeVariable(cereal::JSONOutputArchive& archive) const {}
+  virtual void deserializeVariable(cereal::JSONInputArchive& archive) {}
 
 private:
   fuse_core::UUID uuid_;  //!< The unique ID number for this variable
