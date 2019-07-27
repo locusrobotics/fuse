@@ -65,6 +65,23 @@ target_link_libraries(${PROJECT_NAME}
   ${CERES_LIBRARIES}
 )
 
+## fuse_echo executable
+add_executable(fuse_echo
+  src/fuse_echo.cpp
+)
+add_dependencies(fuse_echo
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(fuse_echo
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+target_link_libraries(fuse_echo
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
@@ -74,6 +91,11 @@ install(
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
+
+install(
+  TARGETS fuse_echo
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(

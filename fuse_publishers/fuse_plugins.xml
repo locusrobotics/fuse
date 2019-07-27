@@ -11,4 +11,9 @@
       including tf.
     </description>
   </class>
+  <class type="fuse_publishers::SerializedPublisher" base_class_type="fuse_core::Publisher">
+    <description>
+      Publisher that publishes serialized graph and transaction messages.
+    </description>
+  </class>
 </library>

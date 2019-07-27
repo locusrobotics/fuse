@@ -3,6 +3,7 @@ project(fuse_publishers)
 
 set(build_depends
   fuse_core
+  fuse_msgs
   fuse_variables
   geometry_msgs
   nav_msgs
@@ -36,6 +37,7 @@ add_compile_options(-std=c++14 -Wall -Werror)
 add_library(${PROJECT_NAME}
   src/path_2d_publisher.cpp
   src/pose_2d_publisher.cpp
+  src/serialized_publisher.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

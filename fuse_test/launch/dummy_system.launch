@@ -1,0 +1,8 @@
+<launch>
+  <node name="fuse_estimator" pkg="fuse_optimizers" type="fixed_lag_smoother_node"
+        respawn="true" respawn_delay="5" output="screen">
+    <rosparam command="load" file="$(find fuse_test)/launch/dummy_system.yaml" subst_value="true"/>
+  </node>
+  
+  <node name="fuse_echo" pkg="fuse_core" type="fuse_echo" respawn="true" respawn_delay="5" output="screen" />
+</launch>

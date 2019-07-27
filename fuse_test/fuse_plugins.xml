@@ -1,0 +1,7 @@
+<library path="lib/libfuse_test">
+  <class type="fuse_test::DummySensor" base_class_type="fuse_core::SensorModel">
+    <description>
+    A sensor that publishes dummy constraints on a timer.
+    </description>
+  </class>
+</library>

@@ -1,0 +1,24 @@
+# Common parameters
+reset_service: ~reset
+
+# Fixed-lag smoother configuration
+optimization_frequency: 2
+transaction_timeout: 0.50
+lag_duration: 5.0
+
+ignition_sensors: ['dummy_sensor']
+
+motion_models: {}
+
+sensor_models:
+  - name: dummy_sensor
+    type: fuse_test::DummySensor
+    motion_models: []
+
+publishers:
+  - name: serialized_publisher
+    type: fuse_publishers::SerializedPublisher
+
+dummy_sensor: {}
+
+serialized_publisher: {}

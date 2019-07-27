@@ -34,6 +34,7 @@
 #ifndef FUSE_VARIABLES_DUMMY_VARIABLE_H
 #define FUSE_VARIABLES_DUMMY_VARIABLE_H
 
+#include <fuse_core/eigen.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
