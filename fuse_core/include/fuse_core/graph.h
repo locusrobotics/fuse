@@ -36,15 +36,18 @@
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 
+#include <boost/core/demangle.hpp>
 #include <boost/range/any_range.hpp>
 #include <ceres/covariance.h>
 #include <ceres/solver.h>
 
 #include <ostream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -93,6 +96,14 @@ public:
    * @brief Destructor
    */
   virtual ~Graph() = default;
+
+  /**
+   * @brief Returns a unique name for this constraint type.
+   *
+   * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
+   * choice for the type string.
+   */
+  virtual std::string type() const { return boost::core::demangle(typeid(*this).name()); }
 
   /**
    * @brief Clear all variables and constraints from the graph object.
@@ -270,6 +281,18 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   virtual void print(std::ostream& stream = std::cout) const = 0;
+
+  /**
+   * @brief Serialize the graph
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive();
+  }
+
+  virtual void serializeGraph(cereal::JSONOutputArchive& archive) const {}
+  virtual void deserializeGraph(cereal::JSONInputArchive& archive) {}
 };
 
 /**

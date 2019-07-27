@@ -1,0 +1,7 @@
+<library path="lib/libfuse_graphs">
+  <class type="fuse_graphs::HashGraph" base_class_type="fuse_core::Graph">
+    <description>
+    The HashGraph
+    </description>
+  </class>
+</library>

@@ -42,8 +42,10 @@ add_library(${PROJECT_NAME}
   src/constraint.cpp
   src/constraint_deserializer.cpp
   src/graph.cpp
+  src/graph_deserializer.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
+  src/transaction_deserializer.cpp
   src/variable.cpp
   src/variable_deserializer.cpp
 )

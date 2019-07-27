@@ -31,52 +31,56 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint_deserializer.h>
+#ifndef FUSE_CORE_GRAPH_DESERIALIZER_H
+#define FUSE_CORE_GRAPH_DESERIALIZER_H
 
-#include <sstream>
+#include <fuse_msgs/SerializedGraph.h>
+#include <fuse_core/constraint.h>
+#include <fuse_core/graph.h>
+#include <fuse_core/variable.h>
+#include <pluginlib/class_loader.h>
 
 
 namespace fuse_core
 {
 
-void serializeConstraint(const fuse_core::Constraint& constraint, fuse_msgs::SerializedConstraint& msg)
-{
-  std::stringstream stream;
-  {
-    cereal::JSONOutputArchive archive(stream);
-    constraint.serializeConstraint(archive);
-  }
-  msg.plugin_name = constraint.type();
-  msg.data = stream.str();
-}
+/**
+ * @brief Serialize a graph into a message
+ */
+void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::SerializedGraph& msg);
 
-ConstraintDeserializer::ConstraintDeserializer() :
-  plugin_loader_("fuse_core", "fuse_core::Constraint")
+/**
+ * @brief Deserialize a graph
+ */
+class GraphDeserializer
 {
-}
+public:
+  /**
+   * @brief Constructor
+   */
+  GraphDeserializer();
 
-fuse_core::Constraint::SharedPtr ConstraintDeserializer::deserialize(
-  const fuse_msgs::SerializedConstraint::ConstPtr& msg)
-{
-  return deserialize(*msg);
-}
+  /**
+   * @brief Destructor
+   */
+  ~GraphDeserializer() = default;
 
-fuse_core::Constraint::SharedPtr ConstraintDeserializer::deserialize(const fuse_msgs::SerializedConstraint& msg)
-{
-  // Create a Variable object using pluginlib. This will throw if the plugin name is not found.
-  // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return
-  // back to the user as the output is not equivalent to fuse_ros::Variable::UniquePtr. A shared_ptr
-  // on the other hand is able to capture the custom deleter without modifying the datatype.
-  fuse_core::Constraint::SharedPtr constraint = plugin_loader_.createUniqueInstance(msg.plugin_name);
-  // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
-  std::stringstream stream(msg.data);
-  {
-    cereal::JSONInputArchive archive(stream);
-    // cereal::XMLInputArchive archive(stream);
-    constraint->deserializeConstraint(archive);
-  }
-  // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.
-  return constraint;
-}
+  /**
+   * @brief Deserialize a graph
+   */
+  fuse_core::Graph::SharedPtr deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg);
+
+  /**
+   * @brief Deserialize a graph
+   */
+  fuse_core::Graph::SharedPtr deserialize(const fuse_msgs::SerializedGraph& msg);
+
+private:
+  pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader
+  pluginlib::ClassLoader<fuse_core::Graph> graph_loader_;  //!< Pluginlib class loader
+  pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;  //!< Pluginlib class loader
+};
 
 }  // namespace fuse_core
+
+#endif  // FUSE_CORE_CONSTRAINT_DESERIALIZER_H

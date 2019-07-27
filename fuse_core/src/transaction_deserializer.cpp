@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint_deserializer.h>
+#include <fuse_core/transaction_deserializer.h>
 
 #include <sstream>
 
@@ -39,44 +39,53 @@
 namespace fuse_core
 {
 
-void serializeConstraint(const fuse_core::Constraint& constraint, fuse_msgs::SerializedConstraint& msg)
+void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::SerializedTransaction& msg)
 {
   std::stringstream stream;
   {
     cereal::JSONOutputArchive archive(stream);
-    constraint.serializeConstraint(archive);
+    archive(transaction);
   }
-  msg.plugin_name = constraint.type();
   msg.data = stream.str();
 }
 
-ConstraintDeserializer::ConstraintDeserializer() :
-  plugin_loader_("fuse_core", "fuse_core::Constraint")
+TransactionDeserializer::TransactionDeserializer() :
+  constraint_loader_("fuse_core", "fuse_core::Constraint"),
+  variable_loader_("fuse_core", "fuse_core::Variable")
 {
+  // Load all known plugin libraries
+  // I believe the library containing a given Variable or Constraint must be loaded in order to deserialize
+  // an object of that type. But I haven't actually tested that theory.
+  for (const auto& class_name : constraint_loader_.getDeclaredClasses())
+  {
+    constraint_loader_.loadLibraryForClass(class_name);
+  }
+  for (const auto& class_name : variable_loader_.getDeclaredClasses())
+  {
+    variable_loader_.loadLibraryForClass(class_name);
+  }
 }
 
-fuse_core::Constraint::SharedPtr ConstraintDeserializer::deserialize(
-  const fuse_msgs::SerializedConstraint::ConstPtr& msg)
+fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction::ConstPtr& msg)
 {
   return deserialize(*msg);
 }
 
-fuse_core::Constraint::SharedPtr ConstraintDeserializer::deserialize(const fuse_msgs::SerializedConstraint& msg)
+fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction& msg)
 {
   // Create a Variable object using pluginlib. This will throw if the plugin name is not found.
   // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return
   // back to the user as the output is not equivalent to fuse_ros::Variable::UniquePtr. A shared_ptr
   // on the other hand is able to capture the custom deleter without modifying the datatype.
-  fuse_core::Constraint::SharedPtr constraint = plugin_loader_.createUniqueInstance(msg.plugin_name);
+  auto transaction = fuse_core::Transaction();
   // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
   std::stringstream stream(msg.data);
   {
     cereal::JSONInputArchive archive(stream);
-    // cereal::XMLInputArchive archive(stream);
-    constraint->deserializeConstraint(archive);
+    archive(transaction);
   }
   // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.
-  return constraint;
+  return transaction;
 }
 
 }  // namespace fuse_core

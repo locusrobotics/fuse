@@ -11,6 +11,8 @@ add_message_files(
     msg
   FILES
     SerializedConstraint.msg
+    SerializedGraph.msg
+    SerializedTransaction.msg
     SerializedVariable.msg
 )
 

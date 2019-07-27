@@ -36,11 +36,15 @@
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <ros/time.h>
 
 #include <boost/range/any_range.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/set.hpp>
+#include <cereal/types/vector.hpp>
 
 #include <ostream>
 #include <set>
@@ -223,6 +227,24 @@ public:
    * @return A unique pointer to a new instance of the most-derived Variable
    */
   Transaction::UniquePtr clone() const;
+
+  /**
+   * @brief Serialize the fuse Variable base class using Cereal
+   *
+   * Note that this is a template function. It cannot be virtual, and I have no way of enforcing derived classes to
+   * implement such a function. If I was better at SFINAE techniques, I might be able to prevent a derived variable
+   * from compiling if it didn't have a serialize() method.
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(CEREAL_NVP(stamp_),
+            CEREAL_NVP(added_constraints_),
+            CEREAL_NVP(added_variables_),
+            CEREAL_NVP(involved_stamps_),
+            CEREAL_NVP(removed_constraints_),
+            CEREAL_NVP(removed_variables_));
+  }
 
 protected:
   ros::Time stamp_;  //!< The transaction message timestamp

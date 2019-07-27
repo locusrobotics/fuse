@@ -33,6 +33,7 @@
  */
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_core/uuid.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 
@@ -47,14 +48,14 @@
 namespace fuse_graphs
 {
 
-HashGraph::HashGraph(const ceres::Problem::Options& options) :
-  problem_options_(options)
+HashGraph::HashGraph(const ceres::Problem::Options& options)
+//  problem_options_(options)
 {
 }
 
 HashGraph::HashGraph(const HashGraph& other) :
   constraints_by_variable_uuid_(other.constraints_by_variable_uuid_),
-  problem_options_(other.problem_options_),
+//  problem_options_(other.problem_options_),
   variables_on_hold_(other.variables_on_hold_)
 {
   // Make a deep copy of the constraints
@@ -82,7 +83,7 @@ HashGraph& HashGraph::operator=(const HashGraph& other)
   // Then swap (won't throw an exception)
   std::swap(constraints_, tmp.constraints_);
   std::swap(constraints_by_variable_uuid_, tmp.constraints_by_variable_uuid_);
-  std::swap(problem_options_, tmp.problem_options_);
+//  std::swap(problem_options_, tmp.problem_options_);
   std::swap(variables_, tmp.variables_);
   std::swap(variables_on_hold_, tmp.variables_on_hold_);
   return *this;
@@ -296,7 +297,8 @@ void HashGraph::getCovariance(
     return;
   }
   // Construct the ceres::Problem object from scratch
-  ceres::Problem problem(problem_options_);
+//  ceres::Problem problem(problem_options_);
+  ceres::Problem problem;
   createProblem(problem);
   // The Ceres interface requires that the variable pairs not contain duplicates. Since the covariance matrix is
   // symmetric, requesting Cov(A,B) and Cov(B,A) counts as a duplicate. Create an expression to test a pair of data
@@ -400,7 +402,8 @@ void HashGraph::getCovariance(
 ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options)
 {
   // Construct the ceres::Problem object from scratch
-  ceres::Problem problem(problem_options_);
+//  ceres::Problem problem(problem_options_);
+  ceres::Problem problem;
   createProblem(problem);
   // Run the solver. This will update the variables in place.
   ceres::Solver::Summary summary;
@@ -462,3 +465,5 @@ void HashGraph::createProblem(ceres::Problem& problem) const
 }
 
 }  // namespace fuse_graphs
+
+PLUGINLIB_EXPORT_CLASS(fuse_graphs::HashGraph, fuse_core::Graph);

@@ -37,9 +37,15 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/types/unordered_set.hpp>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -308,6 +314,29 @@ public:
    */
   void print(std::ostream& stream = std::cout) const override;
 
+  /**
+   * @brief Serialize the graph
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(CEREAL_NVP(constraints_),
+            CEREAL_NVP(constraints_by_variable_uuid_),
+            // CEREAL_NVP(problem_options_),  // I'm lazy at the moment and didn't create a serialization function
+            CEREAL_NVP(variables_),
+            CEREAL_NVP(variables_on_hold_));
+  }
+
+  void serializeGraph(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(*this);
+  }
+
+  void deserializeGraph(cereal::JSONInputArchive& archive) override
+  {
+    archive(*this);
+  }
+
 protected:
   // Define some helpful typedefs
   using Constraints = std::unordered_map<fuse_core::UUID, fuse_core::Constraint::SharedPtr, fuse_core::uuid::hash>;
@@ -317,7 +346,7 @@ protected:
 
   Constraints constraints_;  //!< The set of all constraints
   CrossReference constraints_by_variable_uuid_;  //!< Index all of the constraints by variable uuids
-  ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all constructed ceres::Problems
+//  ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all constructed ceres::Problems
   Variables variables_;  //!< The set of all variables
   VariableSet variables_on_hold_;  //!< The set of variables that should be held constant
 
@@ -333,5 +362,8 @@ protected:
 };
 
 }  // namespace fuse_graphs
+
+// Register the derived fuse Variable with Cereal.
+CEREAL_REGISTER_TYPE(fuse_graphs::HashGraph);
 
 #endif  // FUSE_GRAPHS_HASH_GRAPH_H
