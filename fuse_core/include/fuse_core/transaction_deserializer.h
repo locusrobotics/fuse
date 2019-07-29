@@ -36,6 +36,7 @@
 
 #include <fuse_msgs/SerializedTransaction.h>
 #include <fuse_core/constraint.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
 

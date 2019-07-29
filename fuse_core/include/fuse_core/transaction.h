@@ -43,6 +43,7 @@
 
 #include <boost/range/any_range.hpp>
 #include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
 #include <cereal/types/set.hpp>
 #include <cereal/types/vector.hpp>
 
