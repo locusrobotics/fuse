@@ -35,11 +35,17 @@
 #include <fuse_optimizers/batch_optimizer.h>
 #include <ros/ros.h>
 
+#include <cpr_scalopus/common.h>
+
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "batch_optimizer_node");
   fuse_optimizers::BatchOptimizer optimizer(fuse_graphs::HashGraph::make_unique());
+
+  auto exposer = cpr_scalopus::DefaultExposer(ros::this_node::getName());
+  TRACE_THREAD_NAME("main");
+
   ros::spin();
 
   return 0;

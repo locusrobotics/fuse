@@ -35,11 +35,17 @@
 #include <fuse_optimizers/fixed_lag_smoother.h>
 #include <ros/ros.h>
 
+#include <cpr_scalopus/common.h>
+
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "fixed_lag_smoother_node");
   fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique());
+
+  auto exposer = cpr_scalopus::DefaultExposer(ros::this_node::getName());
+  TRACE_THREAD_NAME("main");
+
   ros::spin();
 
   return 0;

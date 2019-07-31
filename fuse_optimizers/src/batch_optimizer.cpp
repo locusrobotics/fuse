@@ -36,6 +36,8 @@
 #include <fuse_optimizers/optimizer.h>
 #include <ros/ros.h>
 
+#include <cpr_scalopus/common.h>
+
 #include <algorithm>
 #include <mutex>
 #include <shared_mutex>
@@ -164,6 +166,8 @@ void BatchOptimizer::applyMotionModelsToQueue()
 
 void BatchOptimizer::optimizationLoop()
 {
+  TRACE_THREAD_NAME("Optimization Loop");
+
   // Optimize constraints until told to exit
   while (ros::ok())
   {
@@ -184,16 +188,21 @@ void BatchOptimizer::optimizationLoop()
       const_transaction = std::move(combined_transaction_);
       combined_transaction_ = fuse_core::Transaction::make_shared();
     }
-    // Update the graph
-    graph_->update(*const_transaction);
-    // Optimize the entire graph
-    graph_->optimize();
-    // Make a copy of the graph to share
-    fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
-    // Optimization is complete. Notify all the things about the graph changes.
-    notify(const_transaction, const_graph);
-    // Clear the request flag now that this optimization cycle is complete
-    optimization_request_ = false;
+
+    {
+      TRACE_SCOPE_RAII("Optimize");
+
+      // Update the graph
+      graph_->update(*const_transaction);
+      // Optimize the entire graph
+      graph_->optimize();
+      // Make a copy of the graph to share
+      fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
+      // Optimization is complete. Notify all the things about the graph changes.
+      notify(const_transaction, const_graph);
+      // Clear the request flag now that this optimization cycle is complete
+      optimization_request_ = false;
+    }
   }
 }
 
