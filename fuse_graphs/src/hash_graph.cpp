@@ -34,6 +34,8 @@
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_core/uuid.h>
 
+#include <cpr_scalopus/common.h>
+
 #include <boost/iterator/transform_iterator.hpp>
 
 #include <algorithm>
@@ -290,6 +292,8 @@ void HashGraph::getCovariance(
   const ceres::Covariance::Options& options,
   const bool use_tangent_space) const
 {
+  TRACE_PRETTY_FUNCTION();
+
   // Avoid doing a bunch of work if the request is empty
   if (covariance_requests.empty())
   {
@@ -399,6 +403,8 @@ void HashGraph::getCovariance(
 
 ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options)
 {
+  TRACE_PRETTY_FUNCTION();
+
   // Construct the ceres::Problem object from scratch
   ceres::Problem problem(problem_options_);
   createProblem(problem);
@@ -429,6 +435,8 @@ void HashGraph::print(std::ostream& stream) const
 
 void HashGraph::createProblem(ceres::Problem& problem) const
 {
+  TRACE_PRETTY_FUNCTION();
+
   // Add all the variables to the problem
   for (auto& uuid__variable : variables_)
   {

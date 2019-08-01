@@ -40,6 +40,8 @@
 #include <ros/init.h>
 #include <ros/node_handle.h>
 
+#include <cpr_scalopus/common.h>
+
 #include <XmlRpcValue.h>
 
 #include <functional>
@@ -226,6 +228,8 @@ bool Optimizer::applyMotionModels(
   const std::string& sensor_name,
   fuse_core::Transaction& transaction) const
 {
+  TRACE_PRETTY_FUNCTION();
+
   // Check for trivial cases where we don't have to do anything
   auto iter = associated_motion_models_.find(sensor_name);
   if (iter == associated_motion_models_.end())
@@ -316,6 +320,8 @@ void Optimizer::clearCallbacks()
 
 void Optimizer::startPlugins()
 {
+  TRACE_PRETTY_FUNCTION();
+
   for (const auto& name_plugin : motion_models_)
   {
     name_plugin.second->start();
@@ -332,6 +338,8 @@ void Optimizer::startPlugins()
 
 void Optimizer::stopPlugins()
 {
+  TRACE_PRETTY_FUNCTION();
+
   for (const auto& name_plugin : publishers_)
   {
     name_plugin.second->stop();
