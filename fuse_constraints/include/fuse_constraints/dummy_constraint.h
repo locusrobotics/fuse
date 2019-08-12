@@ -63,7 +63,7 @@ namespace fuse_constraints
 class DummyConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(DummyConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(DummyConstraint);
 
   /**
    * @brief Default constructor
