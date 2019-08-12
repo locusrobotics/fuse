@@ -48,6 +48,9 @@
 
 #include <ceres/cost_function.h>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <ostream>
 #include <vector>
 
@@ -68,6 +71,11 @@ class AbsoluteConstraint final : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(AbsoluteConstraint<Variable>);
+
+  /**
+   * @brief Default constructor
+   */
+  AbsoluteConstraint() = default;
 
   /**
    * @brief Create a constraint using a measurement/prior of all dimensions of the target variable
@@ -146,6 +154,27 @@ public:
    */
   ceres::CostFunction* costFunction() const override;
 
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
+            CEREAL_NVP(mean_),
+            CEREAL_NVP(sqrt_information_));
+  }
+
+  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("constraint", *this));
+  }
+
+  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("constraint", *this));
+  }
+
 protected:
   fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
@@ -163,5 +192,14 @@ using AbsoluteVelocityLinear2DStampedConstraint = AbsoluteConstraint<fuse_variab
 
 // Include the template implementation
 #include <fuse_constraints/absolute_constraint_impl.h>
+
+// Register the different variations of the derived absolute constraint with Cereal.
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint);
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint);
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteOrientation2DStampedConstraint);
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePosition2DStampedConstraint);
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePosition3DStampedConstraint);
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H

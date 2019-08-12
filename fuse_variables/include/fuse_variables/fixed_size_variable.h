@@ -37,6 +37,10 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/variable.h>
 
+#include <cereal/types/array.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <array>
 
 
@@ -63,6 +67,11 @@ public:
    * @brief A static version of the variable size
    */
   constexpr static size_t SIZE = N;
+
+  /**
+   * @brief Default constructor
+   */
+  FixedSizeVariable() = default;
 
   /**
    * @brief Constructor
@@ -103,6 +112,26 @@ public:
    * @brief Read-write access to the variable data as a std::array
    */
   std::array<double, N>& array() { return data_; }
+
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Variable>(this)),
+            CEREAL_NVP(data_));
+  }
+
+  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
+
+  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
 
 protected:
   std::array<double, N> data_;  //!< Fixed-sized, contiguous memory for holding the variable data members

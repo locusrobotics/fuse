@@ -40,6 +40,9 @@
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <ostream>
 
 
@@ -65,6 +68,11 @@ public:
     X = 0,
     Y = 1
   };
+
+  /**
+   * @brief Default constructor
+   */
+  AccelerationLinear2DStamped() = default;
 
   /**
    * @brief Construct a 2D acceleration at a specific point in time.
@@ -102,8 +110,31 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_variables::FixedSizeVariable<2>>(this)),
+            cereal::make_nvp("stamp", cereal::base_class<fuse_variables::Stamped>(this)));
+  }
+
+  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
+
+  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
 };
 
 }  // namespace fuse_variables
+
+// Register the derived fuse AccelerationLinear2DStamped variable with Cereal.
+CEREAL_REGISTER_TYPE(fuse_variables::AccelerationLinear2DStamped);
 
 #endif  // FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H

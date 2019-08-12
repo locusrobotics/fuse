@@ -43,6 +43,9 @@
 
 #include <Eigen/Dense>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <ostream>
 #include <vector>
 
@@ -64,6 +67,11 @@ class AbsolutePose2DStampedConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(AbsolutePose2DStampedConstraint);
+
+  /**
+   * @brief Default constructor
+   */
+  AbsolutePose2DStampedConstraint() = default;
 
   /**
    * @brief Create a constraint using a measurement/prior of the 2D pose
@@ -141,11 +149,34 @@ public:
    */
   ceres::CostFunction* costFunction() const override;
 
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
+            CEREAL_NVP(mean_),
+            CEREAL_NVP(sqrt_information_));
+  }
+
+  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("constraint", *this));
+  }
+
+  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("constraint", *this));
+  }
 protected:
   fuse_core::Vector3d mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 };
 
 }  // namespace fuse_constraints
+
+// Register the derived fuse AbsolutePose2DStampedConstraint with Cereal.
+CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePose2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_POSE_2D_STAMPED_CONSTRAINT_H

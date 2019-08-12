@@ -45,6 +45,9 @@
 #include <boost/tuple/tuple.hpp>
 #include <ceres/cost_function.h>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <algorithm>
 #include <cassert>
 #include <ostream>
@@ -66,6 +69,11 @@ class MarginalConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(MarginalConstraint);
+
+  /**
+   * @brief Default constructor
+   */
+  MarginalConstraint() = default;
 
   /**
    * @brief Create a linear/marginal constraint
@@ -134,6 +142,29 @@ public:
    */
   ceres::CostFunction* costFunction() const override;
 
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
+            CEREAL_NVP(A_),
+            CEREAL_NVP(b_));
+    // FIXME add:
+    // local_parameterizations_
+    // x_bar_
+  }
+
+  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("constraint", *this));
+  }
+
+  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("constraint", *this));
+  }
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
@@ -202,5 +233,8 @@ MarginalConstraint::MarginalConstraint(
 }
 
 }  // namespace fuse_constraints
+
+// Register the derived fuse MarginalConstraint with Cereal.
+CEREAL_REGISTER_TYPE(fuse_constraints::MarginalConstraint);
 
 #endif  // FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H

@@ -39,6 +39,8 @@
 #include <ros/node_handle.h>
 #include <ros/time.h>
 
+#include <cereal/types/polymorphic.hpp>
+
 
 namespace fuse_variables
 {
@@ -55,6 +57,11 @@ class Stamped
 {
 public:
   SMART_PTR_ALIASES_ONLY(Stamped);
+
+  /**
+   * @brief Default constructor
+   */
+  Stamped() = default;
 
   /**
    * @brief Constructor
@@ -78,6 +85,13 @@ public:
    * @brief Read-only access to the associated device ID.
    */
   const fuse_core::UUID& deviceId() const { return device_id_; }
+
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(CEREAL_NVP(device_id_),
+            CEREAL_NVP(stamp_));
+  }
 
 private:
   fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware

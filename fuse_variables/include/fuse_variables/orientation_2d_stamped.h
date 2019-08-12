@@ -41,6 +41,9 @@
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <ostream>
 
 
@@ -65,6 +68,11 @@ public:
   {
     YAW = 0
   };
+
+  /**
+   * @brief Default constructor
+   */
+  Orientation2DStamped() = default;
 
   /**
    * @brief Construct a 2D orientation at a specific point in time.
@@ -108,8 +116,31 @@ public:
    * @return A base pointer to an instance of a derived LocalParameterization
    */
   fuse_core::LocalParameterization* localParameterization() const override;
+
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_variables::FixedSizeVariable<1>>(this)),
+            cereal::make_nvp("stamp", cereal::base_class<fuse_variables::Stamped>(this)));
+  }
+
+  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
+
+  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
 };
 
 }  // namespace fuse_variables
+
+// Register the derived fuse Orientation2DStamped variable with Cereal.
+CEREAL_REGISTER_TYPE(fuse_variables::Orientation2DStamped);
 
 #endif  // FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H

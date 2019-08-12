@@ -40,6 +40,9 @@
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include <ostream>
 
 
@@ -66,6 +69,11 @@ public:
   };
 
   /**
+   * @brief Default constructor
+   */
+  VelocityAngular2DStamped() = default;
+
+  /**
    * @brief Construct a 2D velocity at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this velocity.
@@ -89,8 +97,31 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+  /**
+   * @brief Serialize the members
+   */
+  template<class Archive>
+  void serialize(Archive& archive)
+  {
+    archive(cereal::make_nvp("base", cereal::base_class<fuse_variables::FixedSizeVariable<1>>(this)),
+            cereal::make_nvp("stamp", cereal::base_class<fuse_variables::Stamped>(this)));
+  }
+
+  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
+
+  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  {
+    archive(cereal::make_nvp("variable", *this));
+  }
 };
 
 }  // namespace fuse_variables
+
+// Register the derived fuse VelocityAngular2DStamped variable with Cereal.
+CEREAL_REGISTER_TYPE(fuse_variables::VelocityAngular2DStamped);
 
 #endif  // FUSE_VARIABLES_VELOCITY_ANGULAR_2D_STAMPED_H
