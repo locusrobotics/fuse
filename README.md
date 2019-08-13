@@ -1,1 +1,3 @@
-The `fuse_rl` package contains classes and nodes that support transitioning from the `robot_localization` package to `fuse`.
+**THIS PACKAGE WILL SHORTLY BE DEPRECATED**
+
+Please see https://github.com/locusrobotics/fuse_rl/issues/24
