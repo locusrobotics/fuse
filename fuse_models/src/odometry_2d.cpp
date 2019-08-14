@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/odometry_2d/model.h>
+#include <fuse_models/odometry_2d.h>
 
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -45,22 +45,19 @@
 
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::odometry_2d::Model, fuse_core::SensorModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Odometry2D, fuse_core::SensorModel)
 
 namespace fuse_models
 {
 
-namespace odometry_2d
-{
-
-Model::Model() :
+Odometry2D::Odometry2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   tf_listener_(tf_buffer_)
 {
 }
 
-void Model::onInit()
+void Odometry2D::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -77,7 +74,7 @@ void Model::onInit()
   }
 }
 
-void Model::onStart()
+void Odometry2D::onStart()
 {
   if (!params_.position_indices.empty() ||
       !params_.orientation_indices.empty() ||
@@ -85,16 +82,17 @@ void Model::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
+    subscriber_ =
+      node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Odometry2D::process, this);
   }
 }
 
-void Model::onStop()
+void Odometry2D::onStop()
 {
   subscriber_.shutdown();
 }
 
-void Model::process(const nav_msgs::Odometry::ConstPtr& msg)
+void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -150,7 +148,5 @@ void Model::process(const nav_msgs::Odometry::ConstPtr& msg)
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
 }
-
-}  // namespace odometry_2d
 
 }  // namespace fuse_models

@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_PARAMETERS_ODOMETRY_2D_MODEL_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_ODOMETRY_2D_MODEL_PARAMS_H
+#ifndef FUSE_MODELS_PARAMETERS_ODOMETRY_2D_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_ODOMETRY_2D_PARAMS_H
 
 #include <fuse_models/parameters/parameter_base.h>
 
@@ -53,9 +53,9 @@ namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the odometry_2d::Model class
+ * @brief Defines the set of parameters required by the Odometry2D class
  */
-struct Odometry2DModelParams : public ParameterBase
+struct Odometry2DParams : public ParameterBase
 {
   public:
     /**
@@ -94,4 +94,4 @@ struct Odometry2DModelParams : public ParameterBase
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_PARAMETERS_ODOMETRY_2D_MODEL_PARAMS_H
+#endif  // FUSE_MODELS_PARAMETERS_ODOMETRY_2D_PARAMS_H

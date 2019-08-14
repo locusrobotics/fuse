@@ -51,7 +51,7 @@ namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the pose_2d::Model class
+ * @brief Defines the set of parameters required by the Odometry2DPublisher class
  */
 struct Odometry2DPublisherParams : public ParameterBase
 {
