@@ -35,12 +35,17 @@
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <ostream>
 
@@ -84,6 +89,11 @@ public:
     PITCH = 5,
     YAW = 6
   };
+
+  /**
+   * @brief Default constructor
+   */
+  Orientation3DStamped() = default;
 
   /**
    * @brief Construct a 3D orientation at a specific point in time.
@@ -169,8 +179,27 @@ public:
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
   fuse_core::LocalParameterization* localParameterization() const override;
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_variables::FixedSizeVariable<4>>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+  }
 };
 
 }  // namespace fuse_variables
+
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
 
 #endif  // FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H

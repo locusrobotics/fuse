@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_core/autodiff_local_parameterization.h>
 #include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -43,6 +44,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <sstream>
 #include <vector>
 
 
@@ -263,6 +265,32 @@ TEST(Orientation2DStamped, Optimization)
 
   // Check
   EXPECT_NEAR(3.0, orientation.yaw(), 1.0e-5);
+}
+
+TEST(Orientation2DStamped, Serialization)
+{
+  // Create a Orientation2DStamped
+  Orientation2DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  expected.yaw() = 1.5;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  Orientation2DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.yaw(), actual.yaw());
 }
 
 int main(int argc, char **argv)

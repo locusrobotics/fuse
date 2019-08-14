@@ -35,11 +35,16 @@
 #define FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <ostream>
 
@@ -65,6 +70,11 @@ public:
   {
     YAW = 0
   };
+
+  /**
+   * @brief Default constructor
+   */
+  Orientation2DStamped() = default;
 
   /**
    * @brief Construct a 2D orientation at a specific point in time.
@@ -108,8 +118,27 @@ public:
    * @return A base pointer to an instance of a derived LocalParameterization
    */
   fuse_core::LocalParameterization* localParameterization() const override;
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_variables::FixedSizeVariable<1>>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+  }
 };
 
 }  // namespace fuse_variables
+
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DStamped);
 
 #endif  // FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H

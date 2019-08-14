@@ -35,10 +35,15 @@
 #define FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H
 
 #include <fuse_core/uuid.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <ostream>
 
@@ -66,6 +71,11 @@ public:
   };
 
   /**
+   * @brief Default constructor
+   */
+  AccelerationAngular2DStamped() = default;
+
+  /**
    * @brief Construct a 2D acceleration at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this velocity.
@@ -91,8 +101,27 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_variables::FixedSizeVariable<1>>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+  }
 };
 
 }  // namespace fuse_variables
+
+BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationAngular2DStamped);
 
 #endif  // FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H

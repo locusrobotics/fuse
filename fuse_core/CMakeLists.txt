@@ -8,22 +8,21 @@ set(build_depends
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
     include
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
   LIBRARIES
     ${PROJECT_NAME}
-    ${CERES_LIBRARIES}
   CATKIN_DEPENDS
     ${build_depends}
   DEPENDS
     Boost
+    CERES
+    EIGEN3
 )
 
 ###########

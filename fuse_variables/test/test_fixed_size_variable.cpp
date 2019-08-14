@@ -31,9 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 #include <gtest/gtest.h>
 
 
@@ -48,6 +51,22 @@ public:
   virtual ~TestVariable() = default;
 
   void print(std::ostream& /*stream = std::cout*/) const override {}
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_variables::FixedSizeVariable<2>>(*this);
+  }
 };
 
 

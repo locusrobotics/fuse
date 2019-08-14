@@ -36,8 +36,10 @@
 
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
+#include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 
 #include <ostream>
@@ -61,6 +63,37 @@
   fuse_core::Variable::UniquePtr clone() const override \
   { \
     return __VA_ARGS__::make_unique(*this); \
+  }
+
+/**
+ * @brief Implementation of the serialize() and deserialize() member functions for derived classes
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Variable
+ * {
+ * public:
+ *   FUSE_VARIABLE_SERIALIZE_DEFINITION(Derived);
+ *   // The rest of the derived variable implementation
+ * }
+ * @endcode
+ */
+#define FUSE_VARIABLE_SERIALIZE_DEFINITION(...) \
+  void serialize(fuse_core::BinaryOutputArchive& archive) const override \
+  { \
+    archive << *this; \
+  }  /* NOLINT */ \
+  void serialize(fuse_core::TextOutputArchive& archive) const override \
+  { \
+    archive << *this; \
+  }  /* NOLINT */ \
+  void deserialize(fuse_core::BinaryInputArchive& archive) override \
+  { \
+    archive >> *this; \
+  }  /* NOLINT */ \
+  void deserialize(fuse_core::TextInputArchive& archive) override \
+  { \
+    archive >> *this; \
   }
 
 /**
@@ -107,7 +140,8 @@
 #define FUSE_VARIABLE_DEFINITIONS(...) \
   SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
+  FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
  * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
@@ -126,7 +160,8 @@
 #define FUSE_VARIABLE_DEFINITIONS_WITH_EIGEN(...) \
   SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
   FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
+  FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 
 namespace fuse_core
@@ -153,6 +188,11 @@ class Variable
 {
 public:
   SMART_PTR_ALIASES_ONLY(Variable);
+
+  /**
+   * @brief Default constructor
+   */
+  Variable() = default;
 
   /**
    * @brief Constructor
@@ -276,8 +316,77 @@ public:
     return nullptr;
   }
 
+  // TODO(swilliams) Make this method pure virtual once all the variables have been updated
+  /**
+   * @brief Serialize this Variable into the provided binary archive
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive << *this;
+   * @endcode
+   *
+   * @param[out] archive - The archive to serialize this variable into
+   */
+  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const {}
+
+  /**
+   * @brief Serialize this Variable into the provided text archive
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive << *this;
+   * @endcode
+   *
+   * @param[out] archive - The archive to serialize this variable into
+   */
+  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const {}
+
+  // TODO(swilliams) Make this method pure virtual once all the variables have been updated
+  /**
+   * @brief Deserialize data from the provided binary archive into this Variable
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive >> *this;
+   * @endcode
+   *
+   * @param[in] archive - The archive holding serialized Variable data
+   */
+  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) {}
+
+  /**
+   * @brief Deserialize data from the provided text archive into this Variable
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive >> *this;
+   * @endcode
+   *
+   * @param[in] archive - The archive holding serialized Variable data
+   */
+  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) {}
+
 private:
   fuse_core::UUID uuid_;  //!< The unique ID number for this variable
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * This method, or a combination of save() and load() methods, must be implemented by all derived classes. See
+   * documentation on Boost Serialization for information on how to implement the serialize() method.
+   * https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & uuid_;
+  }
 };
 
 /**
