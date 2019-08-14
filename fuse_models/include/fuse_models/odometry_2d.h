@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_ODOMETRY_2D_MODEL_H
-#define FUSE_MODELS_ODOMETRY_2D_MODEL_H
+#ifndef FUSE_MODELS_ODOMETRY_2D_H
+#define FUSE_MODELS_ODOMETRY_2D_H
 
-#include <fuse_models/parameters/odometry_2d_model_params.h>
+#include <fuse_models/parameters/odometry_2d_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -48,9 +48,6 @@
 namespace fuse_models
 {
 
-namespace odometry_2d
-{
-
 /**
  * @brief An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
  * published by another node
@@ -62,7 +59,7 @@ namespace odometry_2d
  *   2. Creates 2D velocity variables and constraints.
  *
  * This sensor really just separates out the pose and twist components of the message, and processes them just like the
- * pose_2d::Model and twist_2d::Model classes.
+ * pose_2d::Odometry2D and twist_2d::Odometry2D classes.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
@@ -79,21 +76,21 @@ namespace odometry_2d
  * Subscribes:
  *  - \p topic (nav_msgs::Odometry) Odometry information at a given timestep
  */
-class Model : public fuse_core::AsyncSensorModel
+class Odometry2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Odometry2DModelParams;
+  SMART_PTR_DEFINITIONS(Odometry2D);
+  using ParameterType = parameters::Odometry2DParams;
 
   /**
    * @brief Default constructor
    */
-  Model();
+  Odometry2D();
 
   /**
    * @brief Destructor
    */
-  virtual ~Model() = default;
+  virtual ~Odometry2D() = default;
 
   /**
    * @brief Callback for pose messages
@@ -134,8 +131,6 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace odometry_2d
-
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_ODOMETRY_2D_MODEL_H
+#endif  // FUSE_MODELS_ODOMETRY_2D_H

@@ -55,11 +55,8 @@
 namespace fuse_models
 {
 
-namespace odometry_2d
-{
-
 /**
- * @class Publisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
+ * @class Odometry2DPublisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
  * state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
  * VelocityAngular2DStamped).
  *
@@ -92,21 +89,21 @@ namespace odometry_2d
  *  - tf, tf_static (tf2_msgs::TFMessage)  Subscribes to tf data to obtain the requisite odom->base_link transform,
  *                                         but only if the world_frame_id is set to the value of the map_frame_id.
  */
-class Publisher : public fuse_core::AsyncPublisher
+class Odometry2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS(Publisher);
+  SMART_PTR_DEFINITIONS(Odometry2DPublisher);
   using ParameterType = parameters::Odometry2DPublisherParams;
 
   /**
    * @brief Constructor
    */
-  Publisher();
+  Odometry2DPublisher();
 
   /**
    * @brief Destructor
    */
-  virtual ~Publisher() = default;
+  virtual ~Odometry2DPublisher() = default;
 
 protected:
   /**
@@ -191,8 +188,6 @@ protected:
 
   ros::Timer tf_publish_timer_;
 };
-
-}  // namespace odometry_2d
 
 }  // namespace fuse_models
 

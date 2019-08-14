@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/odometry_2d/publisher.h>
+#include <fuse_models/odometry_2d_publisher.h>
 #include <fuse_models/unicycle_2d/predict.h>
 
 #include <fuse_core/async_publisher.h>
@@ -50,22 +50,19 @@
 #include <vector>
 
 // Register this publisher with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::odometry_2d::Publisher, fuse_core::Publisher)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Odometry2DPublisher, fuse_core::Publisher)
 
 namespace fuse_models
 {
 
-namespace odometry_2d
-{
-
-Publisher::Publisher() :
+Odometry2DPublisher::Odometry2DPublisher() :
   fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
   latest_stamp_(Synchronizer::TIME_ZERO)
 {
 }
 
-void Publisher::onInit()
+void Odometry2DPublisher::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -81,10 +78,14 @@ void Publisher::onInit()
   odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
 
   tf_publish_timer_ = node_handle_.createTimer(
-    ros::Duration(1.0 / params_.tf_publish_frequency), &Publisher::tfPublishTimerCallback, this, false, false);
+    ros::Duration(1.0 / params_.tf_publish_frequency),
+    &Odometry2DPublisher::tfPublishTimerCallback,
+    this,
+    false,
+    false);
 }
 
-void Publisher::notifyCallback(
+void Odometry2DPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr transaction,
   fuse_core::Graph::ConstSharedPtr graph)
 {
@@ -166,7 +167,7 @@ void Publisher::notifyCallback(
   }
 }
 
-void Publisher::onStart()
+void Odometry2DPublisher::onStart()
 {
   synchronizer_ = Synchronizer(device_id_);
   latest_stamp_ = Synchronizer::TIME_ZERO;
@@ -174,12 +175,12 @@ void Publisher::onStart()
   tf_publish_timer_.start();
 }
 
-void Publisher::onStop()
+void Odometry2DPublisher::onStop()
 {
   tf_publish_timer_.stop();
 }
 
-bool Publisher::getState(
+bool Odometry2DPublisher::getState(
   const fuse_core::Graph& graph,
   const ros::Time& stamp,
   const fuse_core::UUID& device_id,
@@ -232,7 +233,7 @@ bool Publisher::getState(
   return true;
 }
 
-void Publisher::tfPublishTimerCallback(const ros::TimerEvent& event)
+void Odometry2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
 {
   if (latest_stamp_ == Synchronizer::TIME_ZERO)
   {
@@ -301,7 +302,5 @@ void Publisher::tfPublishTimerCallback(const ros::TimerEvent& event)
 
   tf_broadcaster_.sendTransform(trans);
 }
-
-}  // namespace odometry_2d
 
 }  // namespace fuse_models

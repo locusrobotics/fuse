@@ -6,7 +6,7 @@
     </description>
   </class>
 
-  <class type="fuse_models::odometry_2d::Publisher" base_class_type="fuse_core::Publisher">
+  <class type="fuse_models::Odometry2DPublisher" base_class_type="fuse_core::Publisher">
     <description>
     Publisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
     state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
@@ -26,7 +26,7 @@
     acceleration constraints from IMU sensor data published by another node
     </description>
   </class>
-  <class type="fuse_models::odometry_2d::Model" base_class_type="fuse_core::SensorModel">
+  <class type="fuse_models::Odometry2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
     published by another node
