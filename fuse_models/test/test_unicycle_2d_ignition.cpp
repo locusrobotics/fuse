@@ -35,7 +35,7 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
 #include <fuse_core/transaction.h>
-#include <fuse_models/unicycle_2d/ignition.h>
+#include <fuse_models/unicycle_2d_ignition.h>
 #include <fuse_models/SetPose.h>
 #include <fuse_models/SetPoseDeprecated.h>
 #include <ros/ros.h>
@@ -99,7 +99,7 @@ TEST(Unicycle2DIgnition, InitialTransaction)
   auto callback_future = callback_promise.get_future();
 
   // Create an ignition sensor and register the callback
-  fuse_models::unicycle_2d::Ignition ignition_sensor;
+  fuse_models::Unicycle2DIgnition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
@@ -175,7 +175,7 @@ TEST(Unicycle2DIgnition, SkipInitialTransaction)
   auto callback_future = callback_promise.get_future();
 
   // Create an ignition sensor and register the callback
-  fuse_models::unicycle_2d::Ignition ignition_sensor;
+  fuse_models::Unicycle2DIgnition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
@@ -200,7 +200,7 @@ TEST(Unicycle2DIgnition, SetPoseService)
   auto callback_future = callback_promise.get_future();
 
   // Create an ignition sensor and register the callback
-  fuse_models::unicycle_2d::Ignition ignition_sensor;
+  fuse_models::Unicycle2DIgnition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
@@ -292,7 +292,7 @@ TEST(Unicycle2DIgnition, SetPoseDeprecatedService)
   auto callback_future = callback_promise.get_future();
 
   // Create an ignition sensor and register the callback
-  fuse_models::unicycle_2d::Ignition ignition_sensor;
+  fuse_models::Unicycle2DIgnition ignition_sensor;
   ignition_sensor.initialize("ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 

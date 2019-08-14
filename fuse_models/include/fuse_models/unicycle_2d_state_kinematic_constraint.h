@@ -51,19 +51,16 @@
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
 /**
  * @brief A class that represents a kinematic constraint between 2D states at two different times
  *
  * The fuse_models 2D state is a combination of 2D position, 2D orientation, 2D linear velocity, 2D angular velocity,
  * and 2D linear acceleration.
  */
-class StateKinematicConstraint : public fuse_core::Constraint
+class Unicycle2DStateKinematicConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(StateKinematicConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Unicycle2DStateKinematicConstraint);
 
   /**
    * @brief Create a constraint using a time delta and a kinematic model cost functor
@@ -83,7 +80,7 @@ public:
    * @param[in] covariance - The covariance matrix used to weight the constraint. Order is
    *                         (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  StateKinematicConstraint(
+  Unicycle2DStateKinematicConstraint(
     const fuse_variables::Position2DStamped& position1,
     const fuse_variables::Orientation2DStamped& yaw1,
     const fuse_variables::VelocityLinear2DStamped& linear_velocity1,
@@ -99,7 +96,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~StateKinematicConstraint() = default;
+  virtual ~Unicycle2DStateKinematicConstraint() = default;
 
   /**
    * @brief Read-only access to the time delta between the first and second state (really, between the position1 and
@@ -143,8 +140,6 @@ protected:
   double dt_;  //!< The time delta for the constraint
   fuse_core::Matrix8d sqrt_information_;  //!< The square root information matrix
 };
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models
 

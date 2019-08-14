@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_UNICYCLE_2D_MODEL_H
-#define FUSE_MODELS_UNICYCLE_2D_MODEL_H
+#ifndef FUSE_MODELS_UNICYCLE_2D_H
+#define FUSE_MODELS_UNICYCLE_2D_H
 
 #include <fuse_core/async_motion_model.h>
 #include <fuse_core/constraint.h>
@@ -54,9 +54,6 @@
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
 /**
  * @brief A fuse_models 2D kinematic model that generates kinematic constraints between provided time stamps, and adds
  * those constraints to the fuse graph.
@@ -72,22 +69,22 @@ namespace unicycle_2d
  *                                                process noise covariance matrix. Variable order is (x, y, yaw,
  *                                                x_vel, y_vel, yaw_vel, x_acc, y_acc).
  */
-class Model : public fuse_core::AsyncMotionModel
+class Unicycle2D : public fuse_core::AsyncMotionModel
 {
 public:
-  SMART_PTR_DEFINITIONS_WITH_EIGEN(Model);
+  SMART_PTR_DEFINITIONS_WITH_EIGEN(Unicycle2D);
 
   /**
    * @brief Default constructor
    *
    * All plugins are required to have a constructor that accepts no arguments
    */
-  Model();
+  Unicycle2D();
 
   /**
    * @brief Destructor
    */
-  ~Model() = default;
+  ~Unicycle2D() = default;
 
 protected:
   /**
@@ -168,8 +165,6 @@ protected:
   StateHistory state_history_;                     //!< History of optimized graph pose estimates
 };
 
-}  // namespace unicycle_2d
-
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_UNICYCLE_2D_MODEL_H
+#endif  // FUSE_MODELS_UNICYCLE_2D_H

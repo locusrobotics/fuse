@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium, is strictly prohibited
  * Proprietary and confidential
  ***************************************************************************/
-#include <fuse_models/unicycle_2d/model.h>
+#include <fuse_models/unicycle_2d.h>
 
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -20,15 +20,15 @@
 /**
  * @brief Derived class used in unit tests to expose protected functions
  */
-class Unicycle2DModelTest : public fuse_models::unicycle_2d::Model
+class Unicycle2DModelTest : public fuse_models::Unicycle2D
 {
 public:
-  using fuse_models::unicycle_2d::Model::updateStateHistoryEstimates;
-  using fuse_models::unicycle_2d::Model::StateHistoryElement;
-  using fuse_models::unicycle_2d::Model::StateHistory;
+  using fuse_models::Unicycle2D::updateStateHistoryEstimates;
+  using fuse_models::Unicycle2D::StateHistoryElement;
+  using fuse_models::Unicycle2D::StateHistory;
 };
 
-TEST(Unicycle2DModel, UpdateStateHistoryEstimates)
+TEST(Unicycle2D, UpdateStateHistoryEstimates)
 {
   // Create some variables
   auto position1 = fuse_variables::Position2DStamped::make_shared(ros::Time(1, 0));

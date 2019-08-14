@@ -34,7 +34,7 @@
 #ifndef FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTOR_H
 #define FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTOR_H
 
-#include <fuse_models/unicycle_2d/predict.h>
+#include <fuse_models/unicycle_2d_predict.h>
 
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
@@ -42,9 +42,6 @@
 
 
 namespace fuse_models
-{
-
-namespace unicycle_2d
 {
 
 /**
@@ -82,7 +79,7 @@ namespace unicycle_2d
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
  * information matrix (the inverse of the covariance).
  */
-class StateCostFunctor
+class Unicycle2DStateCostFunctor
 {
 public:
   FUSE_MAKE_ALIGNED_OPERATOR_NEW();
@@ -94,7 +91,7 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
    *              (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  StateCostFunctor(const double dt, const fuse_core::Matrix8d& A);
+  Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -129,14 +126,14 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-StateCostFunctor::StateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
   dt_(dt),
   A_(A)
 {
 }
 
 template <typename T>
-bool StateCostFunctor::operator()(
+bool Unicycle2DStateCostFunctor::operator()(
   const T* const position1,
   const T* const yaw1,
   const T* const vel_linear1,
@@ -185,8 +182,6 @@ bool StateCostFunctor::operator()(
 
   return true;
 }
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models
 

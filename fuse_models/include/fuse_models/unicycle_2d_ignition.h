@@ -50,9 +50,6 @@
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
 /**
  * @brief A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
  *
@@ -78,10 +75,10 @@ namespace unicycle_2d
  *  - ~set_pose_service (string, default: "~set_pose") The name of the set_pose service to advertise
  *  - ~topic (string, default: "~set_pose") The topic name for received PoseWithCovarianceStamped messages
  */
-class Ignition : public fuse_core::AsyncSensorModel
+class Unicycle2DIgnition : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Ignition);
+  SMART_PTR_DEFINITIONS(Unicycle2DIgnition);
   using ParameterType = parameters::Unicycle2DIgnitionParams;
 
   /**
@@ -89,18 +86,18 @@ public:
    *
    * All plugins are required to have a constructor that accepts no arguments
    */
-  Ignition();
+  Unicycle2DIgnition();
 
   /**
    * @brief Destructor
    */
-  ~Ignition() = default;
+  ~Unicycle2DIgnition() = default;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
    *
    * As a very special case, we are overriding the start() method instead of providing an onStart() implementation.
-   * This is because the Ignition sensor calls reset() on the optimizer, which in turn calls stop() and start(). If we
+   * This is because the Unicycle2DIgnition sensor calls reset() on the optimizer, which in turn calls stop() and start(). If we
    * used the AsyncSensorModel implementations of start() and stop(), the system would hang inside of one callback
    * function while waiting for another callback to complete.
    */
@@ -110,7 +107,7 @@ public:
    * @brief Unsubscribe from the input topic to stop sending transactions to the optimizer
    *
    * As a very special case, we are overriding the stop() method instead of providing an onStop() implementation.
-   * This is because the Ignition sensor calls reset() on the optimizer, which in turn calls stop() and start(). If we
+   * This is because the Unicycle2DIgnition sensor calls reset() on the optimizer, which in turn calls stop() and start(). If we
    * used the AsyncSensorModel implementations of start() and stop(), the system would hang inside of one callback
    * function while waiting for another callback to complete.
    */
@@ -175,8 +172,6 @@ protected:
 
   ros::Subscriber subscriber_;  //!< ROS subscriber that receives PoseWithCovarianceStamped messages
 };
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models
 

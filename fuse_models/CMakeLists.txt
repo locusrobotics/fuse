@@ -98,9 +98,9 @@ add_library(
     src/odometry_2d_publisher.cpp
     src/pose_2d.cpp
     src/twist_2d.cpp
-    src/unicycle_2d/state_kinematic_constraint.cpp
-    src/unicycle_2d/ignition.cpp
-    src/unicycle_2d/model.cpp
+    src/unicycle_2d.cpp
+    src/unicycle_2d_ignition.cpp
+    src/unicycle_2d_state_kinematic_constraint.cpp
 )
 
 ## Specify libraries to link a library or executable target against
@@ -153,12 +153,12 @@ if(CATKIN_ENABLE_TESTING)
 
   # Model tests
   catkin_add_gtest(
-    test_unicycle_2d_model
-    test/test_unicycle_2d_model.cpp
+    test_unicycle_2d
+    test/test_unicycle_2d.cpp
   )
-  if(TARGET test_unicycle_2d_model)
+  if(TARGET test_unicycle_2d)
     target_link_libraries(
-      test_unicycle_2d_model
+      test_unicycle_2d
       ${PROJECT_NAME}
       ${catkin_LIBRARIES}
       ${CERES_LIBRARIES}
@@ -170,7 +170,7 @@ if(CATKIN_ENABLE_TESTING)
     test_unicycle_2d_predict
     test/test_unicycle_2d_predict.cpp
   )
-  if(TARGET test_unicycle_2d_model)
+  if(TARGET test_unicycle_2d_predict)
     target_link_libraries(
       test_unicycle_2d_predict
       ${PROJECT_NAME}
