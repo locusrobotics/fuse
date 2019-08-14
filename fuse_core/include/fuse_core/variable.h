@@ -316,7 +316,6 @@ public:
     return nullptr;
   }
 
-  // TODO(swilliams) Make this method pure virtual once all the variables have been updated
   /**
    * @brief Serialize this Variable into the provided binary archive
    *
@@ -327,7 +326,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this variable into
    */
-  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const {}
+  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Serialize this Variable into the provided text archive
@@ -339,9 +338,8 @@ public:
    *
    * @param[out] archive - The archive to serialize this variable into
    */
-  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const {}
+  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
 
-  // TODO(swilliams) Make this method pure virtual once all the variables have been updated
   /**
    * @brief Deserialize data from the provided binary archive into this Variable
    *
@@ -352,7 +350,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Variable data
    */
-  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) {}
+  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
 
   /**
    * @brief Deserialize data from the provided text archive into this Variable
@@ -364,7 +362,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Variable data
    */
-  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) {}
+  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
   fuse_core::UUID uuid_;  //!< The unique ID number for this variable
