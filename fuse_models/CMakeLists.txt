@@ -97,7 +97,7 @@ add_library(
     src/odometry_2d.cpp
     src/odometry_2d_publisher.cpp
     src/pose_2d.cpp
-    src/twist_2d/model.cpp
+    src/twist_2d.cpp
     src/unicycle_2d/state_kinematic_constraint.cpp
     src/unicycle_2d/ignition.cpp
     src/unicycle_2d/model.cpp
