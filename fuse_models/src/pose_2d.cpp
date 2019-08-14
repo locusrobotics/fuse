@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/pose_2d/model.h>
+#include <fuse_models/pose_2d.h>
 
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -43,22 +43,19 @@
 
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::pose_2d::Model, fuse_core::SensorModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Pose2D, fuse_core::SensorModel)
 
 namespace fuse_models
 {
 
-namespace pose_2d
-{
-
-Model::Model() :
+Pose2D::Pose2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   tf_listener_(tf_buffer_)
 {
 }
 
-void Model::onInit()
+void Pose2D::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -73,21 +70,22 @@ void Model::onInit()
   }
 }
 
-void Model::onStart()
+void Pose2D::onStart()
 {
   if (!params_.position_indices.empty() ||
       !params_.orientation_indices.empty())
   {
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
+    subscriber_ =
+      node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Pose2D::process, this);
   }
 }
 
-void Model::onStop()
+void Pose2D::onStop()
 {
   subscriber_.shutdown();
 }
 
-void Model::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -123,7 +121,5 @@ void Model::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& ms
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
 }
-
-}  // namespace pose_2d
 
 }  // namespace fuse_models

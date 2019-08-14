@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_POSE_2D_MODEL_H
-#define FUSE_MODELS_POSE_2D_MODEL_H
+#ifndef FUSE_MODELS_POSE_2D_H
+#define FUSE_MODELS_POSE_2D_H
 
-#include <fuse_models/parameters/pose_2d_model_params.h>
+#include <fuse_models/parameters/pose_2d_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -45,9 +45,6 @@
 
 
 namespace fuse_models
-{
-
-namespace pose_2d
 {
 
 /**
@@ -70,21 +67,21 @@ namespace pose_2d
  * Subscribes:
  *  - \p topic (geometry_msgs::PoseWithCovarianceStamped) Absolute pose information at a given timestamp
  */
-class Model : public fuse_core::AsyncSensorModel
+class Pose2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Pose2DModelParams;
+  SMART_PTR_DEFINITIONS(Pose2D);
+  using ParameterType = parameters::Pose2DParams;
 
   /**
    * @brief Default constructor
    */
-  Model();
+  Pose2D();
 
   /**
    * @brief Destructor
    */
-  virtual ~Model() = default;
+  virtual ~Pose2D() = default;
 
   /**
    * @brief Callback for pose messages
@@ -125,8 +122,6 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace pose_2d
-
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_POSE_2D_MODEL_H
+#endif  // FUSE_MODELS_POSE_2D_H
