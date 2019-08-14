@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_rl/unicycle_2d/state_kinematic_constraint.h>
-#include <fuse_rl/unicycle_2d/state_cost_functor.h>
+#include <fuse_models/unicycle_2d/state_kinematic_constraint.h>
+#include <fuse_models/unicycle_2d/state_cost_functor.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
@@ -45,7 +45,7 @@
 #include <ostream>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
@@ -105,4 +105,4 @@ ceres::CostFunction* StateKinematicConstraint::costFunction() const
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models

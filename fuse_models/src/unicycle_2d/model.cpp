@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_rl/unicycle_2d/predict.h>
-#include <fuse_rl/unicycle_2d/state_kinematic_constraint.h>
-#include <fuse_rl/unicycle_2d/model.h>
+#include <fuse_models/unicycle_2d/predict.h>
+#include <fuse_models/unicycle_2d/state_kinematic_constraint.h>
+#include <fuse_models/unicycle_2d/model.h>
 
 #include <Eigen/Dense>
 #include <fuse_core/async_motion_model.h>
@@ -57,9 +57,9 @@
 
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_rl::unicycle_2d::Model, fuse_core::MotionModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::unicycle_2d::Model, fuse_core::MotionModel)
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
@@ -234,7 +234,7 @@ void Model::generateMotionModel(
   state_history_.emplace(ending_stamp, std::move(state2));
 
   // Create the constraints for this motion model segment
-  auto constraint = fuse_rl::unicycle_2d::StateKinematicConstraint::make_shared(
+  auto constraint = fuse_models::unicycle_2d::StateKinematicConstraint::make_shared(
     *position1,
     *yaw1,
     *velocity_linear1,
@@ -344,4 +344,4 @@ void Model::updateStateHistoryEstimates(
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,65 +31,47 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_IMU_2D_MODEL_H
-#define FUSE_RL_IMU_2D_MODEL_H
+#ifndef FUSE_MODELS_ACCELERATION_2D_MODEL_H
+#define FUSE_MODELS_ACCELERATION_2D_MODEL_H
 
-#include <fuse_rl/parameters/imu_2d_model_params.h>
+#include <fuse_models/parameters/acceleration_2d_model_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
-#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include <memory>
 
-
-namespace fuse_rl
+namespace fuse_models
 {
 
-namespace imu_2d
+namespace acceleration_2d
 {
 
 /**
- * @brief An adapter-type sensor that produces orientation (relative or absolute), angular velocity, and linear
- * acceleration constraints from IMU sensor data published by another node
+ * @brief An adapter-type sensor that produces 2D linear acceleration constraints from information published by another
+ *   node
  *
- * This sensor subscribes to a sensor_msgs::Imu topic and:
- *   1. Creates relative or absolute orientation and constraints. If the \p differential parameter is set to false (the
- *      default), the orientation measurement will be treated as an absolute constraint. If it is set to true,
- *      consecutive measurements will be used to generate relative orientation constraints.
- *   2. Creates 2D velocity variables and constraints.
- *
- * This sensor really just separates out the orientation, angular velocity, and linear acceleration components of the
- * message, and processes them just like the pose_2d::Model, twist_2d::Model, and acceleration_2d::Model classes.
+ * This sensor subscribes to a geometry_msgs::AccelWithCovarianceStamped topic and converts each received message
+ * into an 2D linear acceleration variable and constraint.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - topic (string) The topic to which to subscribe for the pose messages
- *  - differential (bool, default: false) Whether we should fuse orientation measurements absolutely, or to create
- *      relative orientation constraints using consecutive measurements.
- *  - remove_gravitational_acceleration (bool, default: false) Whether we should remove acceleration due to gravity
- *      from the acceleration values produced by the IMU before fusing
- *  - gravitational_acceleration (double, default: 9.80665) Acceleration due to gravity, in meters/sec^2. This value is
- *      only used if \p remove_gravitational_acceleration is true
- *  - orientation_target_frame (string) Orientation data will be transformed into this frame before it is fused.
- *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it is fused.
- *  - acceleration_target_frame (string) Acceleration data will be transformed into this frame before it is fused.
+ *  - queue_size (int, default: 10) The subscriber queue size for the twist messages
+ *  - target_frame (string) The target frame_id to transform the data into before using it
+ *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (sensor_msgs::Imu) IMU data at a given timestep
+ *  - \p topic (geometry_msgs::AccelWithCovarianceStamped) Acceleration information at a given timestamp
  */
 class Model : public fuse_core::AsyncSensorModel
 {
 public:
   SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Imu2DModelParams;
+  using ParameterType = parameters::Acceleration2DModelParams;
 
   /**
    * @brief Default constructor
@@ -102,10 +84,10 @@ public:
   virtual ~Model() = default;
 
   /**
-   * @brief Callback for pose messages
-   * @param[in] msg - The IMU message to process
+   * @brief Callback for acceleration messages
+   * @param[in] msg - The acceleration message to process
    */
-  void process(const sensor_msgs::Imu::ConstPtr& msg);
+  void process(const geometry_msgs::AccelWithCovarianceStamped::ConstPtr& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -131,8 +113,6 @@ protected:
 
   ParameterType params_;
 
-  std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;
-
   tf2_ros::Buffer tf_buffer_;
 
   tf2_ros::TransformListener tf_listener_;
@@ -140,8 +120,8 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace imu_2d
+}  // namespace acceleration_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_IMU_2D_MODEL_H
+#endif  // FUSE_MODELS_ACCELERATION_2D_MODEL_H

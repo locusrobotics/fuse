@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_rl/unicycle_2d/ignition.h>
+#include <fuse_models/unicycle_2d/ignition.h>
 
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_core/async_sensor_model.h>
@@ -40,8 +40,8 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
-#include <fuse_rl/SetPose.h>
-#include <fuse_rl/SetPoseDeprecated.h>
+#include <fuse_models/SetPose.h>
+#include <fuse_models/SetPoseDeprecated.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -64,9 +64,9 @@
 
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_rl::unicycle_2d::Ignition, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_models::unicycle_2d::Ignition, fuse_core::SensorModel);
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
@@ -148,7 +148,7 @@ void Ignition::subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped
   }
 }
 
-bool Ignition::setPoseServiceCallback(fuse_rl::SetPose::Request& req, fuse_rl::SetPose::Response& res)
+bool Ignition::setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_models::SetPose::Response& res)
 {
   try
   {
@@ -165,8 +165,8 @@ bool Ignition::setPoseServiceCallback(fuse_rl::SetPose::Request& req, fuse_rl::S
 }
 
 bool Ignition::setPoseDeprecatedServiceCallback(
-  fuse_rl::SetPoseDeprecated::Request& req,
-  fuse_rl::SetPoseDeprecated::Response&)
+  fuse_models::SetPoseDeprecated::Request& req,
+  fuse_models::SetPoseDeprecated::Response&)
 {
   try
   {
@@ -333,4 +333,4 @@ void Ignition::sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose)
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models

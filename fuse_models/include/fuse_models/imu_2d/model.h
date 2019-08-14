@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,59 +31,65 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_ODOMETRY_2D_MODEL_H
-#define FUSE_RL_ODOMETRY_2D_MODEL_H
+#ifndef FUSE_MODELS_IMU_2D_MODEL_H
+#define FUSE_MODELS_IMU_2D_MODEL_H
 
-#include <fuse_rl/parameters/odometry_2d_model_params.h>
+#include <fuse_models/parameters/imu_2d_model_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <memory>
 
-namespace fuse_rl
+
+namespace fuse_models
 {
 
-namespace odometry_2d
+namespace imu_2d
 {
 
 /**
- * @brief An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
- * published by another node
+ * @brief An adapter-type sensor that produces orientation (relative or absolute), angular velocity, and linear
+ * acceleration constraints from IMU sensor data published by another node
  *
- * This sensor subscribes to a nav_msgs::Odometry topic and:
- *   1. Creates relative or absolute pose variables and constraints. If the \p differential parameter is set to false
- *      (the default), the  measurement will be treated as an absolute constraint. If it is set to true, consecutive
- *      measurements will be used to generate relative pose constraints.
+ * This sensor subscribes to a sensor_msgs::Imu topic and:
+ *   1. Creates relative or absolute orientation and constraints. If the \p differential parameter is set to false (the
+ *      default), the orientation measurement will be treated as an absolute constraint. If it is set to true,
+ *      consecutive measurements will be used to generate relative orientation constraints.
  *   2. Creates 2D velocity variables and constraints.
  *
- * This sensor really just separates out the pose and twist components of the message, and processes them just like the
- * pose_2d::Model and twist_2d::Model classes.
+ * This sensor really just separates out the orientation, angular velocity, and linear acceleration components of the
+ * message, and processes them just like the pose_2d::Model, twist_2d::Model, and acceleration_2d::Model classes.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - topic (string) The topic to which to subscribe for the pose messages
- *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to create relative pose
- *      constraints using consecutive measurements.
- *  - pose_target_frame (string) Pose data will be transformed into this frame before it is fused. This frame should be
- *      a world-fixed frame, typically 'odom' or 'map'.
- *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it is fused. This
- *      frame should be a body-relative frame, typically 'base_link'.
+ *  - differential (bool, default: false) Whether we should fuse orientation measurements absolutely, or to create
+ *      relative orientation constraints using consecutive measurements.
+ *  - remove_gravitational_acceleration (bool, default: false) Whether we should remove acceleration due to gravity
+ *      from the acceleration values produced by the IMU before fusing
+ *  - gravitational_acceleration (double, default: 9.80665) Acceleration due to gravity, in meters/sec^2. This value is
+ *      only used if \p remove_gravitational_acceleration is true
+ *  - orientation_target_frame (string) Orientation data will be transformed into this frame before it is fused.
+ *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it is fused.
+ *  - acceleration_target_frame (string) Acceleration data will be transformed into this frame before it is fused.
  *
  * Subscribes:
- *  - \p topic (nav_msgs::Odometry) Odometry information at a given timestep
+ *  - \p topic (sensor_msgs::Imu) IMU data at a given timestep
  */
 class Model : public fuse_core::AsyncSensorModel
 {
 public:
   SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Odometry2DModelParams;
+  using ParameterType = parameters::Imu2DModelParams;
 
   /**
    * @brief Default constructor
@@ -97,9 +103,9 @@ public:
 
   /**
    * @brief Callback for pose messages
-   * @param[in] msg - The pose message to process
+   * @param[in] msg - The IMU message to process
    */
-  void process(const nav_msgs::Odometry::ConstPtr& msg);
+  void process(const sensor_msgs::Imu::ConstPtr& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -125,7 +131,7 @@ protected:
 
   ParameterType params_;
 
-  geometry_msgs::PoseWithCovarianceStamped::Ptr previous_pose_;
+  std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;
 
   tf2_ros::Buffer tf_buffer_;
 
@@ -134,8 +140,8 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace odometry_2d
+}  // namespace imu_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_ODOMETRY_2D_MODEL_H
+#endif  // FUSE_MODELS_IMU_2D_MODEL_H

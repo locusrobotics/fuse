@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_PARAMETERS_ODOMETRY_2D_PUBLISHER_PARAMS_H
-#define FUSE_RL_PARAMETERS_ODOMETRY_2D_PUBLISHER_PARAMS_H
+#ifndef FUSE_MODELS_PARAMETERS_ODOMETRY_2D_PUBLISHER_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_ODOMETRY_2D_PUBLISHER_PARAMS_H
 
-#include <fuse_rl/parameters/parameter_base.h>
+#include <fuse_models/parameters/parameter_base.h>
 
 #include <ros/console.h>
 #include <ros/node_handle.h>
@@ -44,7 +44,7 @@
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace parameters
@@ -120,6 +120,6 @@ struct Odometry2DPublisherParams : public ParameterBase
 
 }  // namespace parameters
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_PARAMETERS_ODOMETRY_2D_PUBLISHER_PARAMS_H
+#endif  // FUSE_MODELS_PARAMETERS_ODOMETRY_2D_PUBLISHER_PARAMS_H

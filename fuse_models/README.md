@@ -1,3 +1,1 @@
-**THIS PACKAGE WILL SHORTLY BE DEPRECATED**
-
-Please see https://github.com/locusrobotics/fuse_rl/issues/24
+The `fuse_models` package contains plugins that can be used to produce state estimates for a wide variety of robots. The package is intended to support transitioning from the `robot_localization` package to `fuse`.

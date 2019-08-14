@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_ODOMETRY_2D_PUBLISHER_H
-#define FUSE_RL_ODOMETRY_2D_PUBLISHER_H
+#ifndef FUSE_MODELS_ODOMETRY_2D_PUBLISHER_H
+#define FUSE_MODELS_ODOMETRY_2D_PUBLISHER_H
 
-#include <fuse_rl/parameters/odometry_2d_publisher_params.h>
+#include <fuse_models/parameters/odometry_2d_publisher_params.h>
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
@@ -52,7 +52,7 @@
 #include <memory>
 #include <string>
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace odometry_2d
@@ -194,6 +194,6 @@ protected:
 
 }  // namespace odometry_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_ODOMETRY_2D_PUBLISHER_H
+#endif  // FUSE_MODELS_ODOMETRY_2D_PUBLISHER_H

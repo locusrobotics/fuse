@@ -31,17 +31,17 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_UNICYCLE_2D_STATE_COST_FUNCTOR_H
-#define FUSE_RL_UNICYCLE_2D_STATE_COST_FUNCTOR_H
+#ifndef FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTOR_H
+#define FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTOR_H
 
-#include <fuse_rl/unicycle_2d/predict.h>
+#include <fuse_models/unicycle_2d/predict.h>
 
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/util.h>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
@@ -188,6 +188,6 @@ bool StateCostFunctor::operator()(
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_UNICYCLE_2D_STATE_COST_FUNCTOR_H
+#endif  // FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTOR_H

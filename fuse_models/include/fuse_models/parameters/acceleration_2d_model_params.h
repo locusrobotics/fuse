@@ -31,29 +31,28 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_PARAMETERS_TWIST_2D_MODEL_PARAMS_H
-#define FUSE_RL_PARAMETERS_TWIST_2D_MODEL_PARAMS_H
+#ifndef FUSE_MODELS_PARAMETERS_ACCELERATION_2D_MODEL_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_ACCELERATION_2D_MODEL_PARAMS_H
 
-#include <fuse_rl/parameters/parameter_base.h>
+#include <fuse_variables/acceleration_linear_2d_stamped.h>
+#include <fuse_models/parameters/parameter_base.h>
 
-#include <fuse_variables/velocity_angular_2d_stamped.h>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <ros/node_handle.h>
 
 #include <string>
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the twist_2d::Model class
+ * @brief Defines the set of parameters required by the acceleration_2d::Model class
  */
-struct Twist2DModelParams : public ParameterBase
+struct Acceleration2DModelParams : public ParameterBase
 {
   public:
     /**
@@ -63,8 +62,7 @@ struct Twist2DModelParams : public ParameterBase
      */
     void loadFromROS(const ros::NodeHandle& nh) final
     {
-      linear_indices = loadSensorConfig<fuse_variables::VelocityLinear2DStamped>(nh, "linear_dimensions");
-      angular_indices = loadSensorConfig<fuse_variables::VelocityAngular2DStamped>(nh, "angular_dimensions");
+      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
 
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
@@ -74,12 +72,11 @@ struct Twist2DModelParams : public ParameterBase
     int queue_size { 10 };
     std::string topic {};
     std::string target_frame {};
-    std::vector<size_t> linear_indices;
-    std::vector<size_t> angular_indices;
+    std::vector<size_t> indices;
 };
 
 }  // namespace parameters
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_PARAMETERS_TWIST_2D_MODEL_PARAMS_H
+#endif  // FUSE_MODELS_PARAMETERS_ACCELERATION_2D_MODEL_PARAMS_H

@@ -31,15 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_UNICYCLE_2D_PREDICT_H
-#define FUSE_RL_UNICYCLE_2D_PREDICT_H
+#ifndef FUSE_MODELS_UNICYCLE_2D_PREDICT_H
+#define FUSE_MODELS_UNICYCLE_2D_PREDICT_H
 
 #include <ceres/jet.h>
 #include <fuse_core/util.h>
 #include <tf2_2d/tf2_2d.h>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
@@ -212,6 +212,6 @@ inline void predict(
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_UNICYCLE_2D_PREDICT_H
+#endif  // FUSE_MODELS_UNICYCLE_2D_PREDICT_H

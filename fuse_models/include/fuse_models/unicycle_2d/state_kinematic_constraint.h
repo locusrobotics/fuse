@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H
-#define FUSE_RL_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H
+#ifndef FUSE_MODELS_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H
+#define FUSE_MODELS_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
@@ -48,7 +48,7 @@
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
@@ -57,7 +57,7 @@ namespace unicycle_2d
 /**
  * @brief A class that represents a kinematic constraint between 2D states at two different times
  *
- * The fuse_rl 2D state is a combination of 2D position, 2D orientation, 2D linear velocity, 2D angular velocity,
+ * The fuse_models 2D state is a combination of 2D position, 2D orientation, 2D linear velocity, 2D angular velocity,
  * and 2D linear acceleration.
  */
 class StateKinematicConstraint : public fuse_core::Constraint
@@ -146,6 +146,6 @@ protected:
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H
+#endif  // FUSE_MODELS_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H

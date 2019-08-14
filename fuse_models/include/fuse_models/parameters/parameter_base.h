@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_PARAMETERS_PARAMETER_BASE_H
-#define FUSE_RL_PARAMETERS_PARAMETER_BASE_H
+#ifndef FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
+#define FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 
-#include <fuse_rl/common/sensor_config.h>
+#include <fuse_models/common/sensor_config.h>
 
 #include <ros/node_handle.h>
 
@@ -43,7 +43,7 @@
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace parameters
@@ -95,6 +95,6 @@ inline std::vector<size_t> loadSensorConfig(const ros::NodeHandle& nh, const std
 
 }  // namespace parameters
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_PARAMETERS_PARAMETER_BASE_H
+#endif  // FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H

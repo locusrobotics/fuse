@@ -31,45 +31,59 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_TWIST_2D_MODEL_H
-#define FUSE_RL_TWIST_2D_MODEL_H
+#ifndef FUSE_MODELS_ODOMETRY_2D_MODEL_H
+#define FUSE_MODELS_ODOMETRY_2D_MODEL_H
 
-#include <fuse_rl/parameters/twist_2d_model_params.h>
+#include <fuse_models/parameters/odometry_2d_model_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
 
-#include <geometry_msgs/TwistWithCovarianceStamped.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
-namespace twist_2d
+namespace odometry_2d
 {
 
 /**
- * @brief An adapter-type sensor that produces absolute velocity constraints from information published by another node
+ * @brief An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
+ * published by another node
  *
- * This sensor subscribes to a geometry_msgs::TwistWithCovarianceStamped topic and converts each received message
- * into two absolute velocity constraints (one for linear velocity, and one for angular).
+ * This sensor subscribes to a nav_msgs::Odometry topic and:
+ *   1. Creates relative or absolute pose variables and constraints. If the \p differential parameter is set to false
+ *      (the default), the  measurement will be treated as an absolute constraint. If it is set to true, consecutive
+ *      measurements will be used to generate relative pose constraints.
+ *   2. Creates 2D velocity variables and constraints.
+ *
+ * This sensor really just separates out the pose and twist components of the message, and processes them just like the
+ * pose_2d::Model and twist_2d::Model classes.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - queue_size (int, default: 10) The subscriber queue size for the twist messages
- *  - topic (string) The topic to which to subscribe for the twist messages
+ *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
+ *  - topic (string) The topic to which to subscribe for the pose messages
+ *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to create relative pose
+ *      constraints using consecutive measurements.
+ *  - pose_target_frame (string) Pose data will be transformed into this frame before it is fused. This frame should be
+ *      a world-fixed frame, typically 'odom' or 'map'.
+ *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it is fused. This
+ *      frame should be a body-relative frame, typically 'base_link'.
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
+ *  - \p topic (nav_msgs::Odometry) Odometry information at a given timestep
  */
 class Model : public fuse_core::AsyncSensorModel
 {
 public:
   SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Twist2DModelParams;
+  using ParameterType = parameters::Odometry2DModelParams;
 
   /**
    * @brief Default constructor
@@ -82,16 +96,20 @@ public:
   virtual ~Model() = default;
 
   /**
-   * @brief Callback for twist messages
-   * @param[in] msg - The twist message to process
+   * @brief Callback for pose messages
+   * @param[in] msg - The pose message to process
    */
-  void process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& msg);
+  void process(const nav_msgs::Odometry::ConstPtr& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
 
   /**
-   * @brief Loads ROS parameters and subscribes to the parameterized topic
+   * @brief Perform any required initialization for the sensor model
+   *
+   * This could include things like reading from the parameter server or subscribing to topics. The class's node
+   * handles will be properly initialized before SensorModel::onInit() is called. Spinning of the callback queue will
+   * not begin until after the call to SensorModel::onInit() completes.
    */
   void onInit() override;
 
@@ -107,6 +125,8 @@ protected:
 
   ParameterType params_;
 
+  geometry_msgs::PoseWithCovarianceStamped::Ptr previous_pose_;
+
   tf2_ros::Buffer tf_buffer_;
 
   tf2_ros::TransformListener tf_listener_;
@@ -114,8 +134,8 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace twist_2d
+}  // namespace odometry_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_TWIST_2D_MODEL_H
+#endif  // FUSE_MODELS_ODOMETRY_2D_MODEL_H

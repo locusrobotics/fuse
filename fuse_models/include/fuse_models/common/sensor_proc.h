@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_COMMON_SENSOR_PROC_H
-#define FUSE_RL_COMMON_SENSOR_PROC_H
+#ifndef FUSE_MODELS_COMMON_SENSOR_PROC_H
+#define FUSE_MODELS_COMMON_SENSOR_PROC_H
 
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
@@ -124,7 +124,7 @@ void doTransform(const geometry_msgs::AccelWithCovarianceStamped& t_in, geometry
 }  // namespace tf2
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace common
@@ -636,6 +636,6 @@ inline bool processAccelWithCovariance(
 
 }  // namespace common
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_COMMON_SENSOR_PROC_H
+#endif  // FUSE_MODELS_COMMON_SENSOR_PROC_H

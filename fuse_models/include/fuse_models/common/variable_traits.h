@@ -31,52 +31,66 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_PARAMETERS_ACCELERATION_2D_MODEL_PARAMS_H
-#define FUSE_RL_PARAMETERS_ACCELERATION_2D_MODEL_PARAMS_H
+#ifndef FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
+#define FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
 
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_rl/parameters/parameter_base.h>
-
-#include <ros/node_handle.h>
-
-#include <string>
-#include <vector>
+#include <fuse_variables/orientation_2d_stamped.h>
+#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/velocity_angular_2d_stamped.h>
+#include <fuse_variables/velocity_linear_2d_stamped.h>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
-namespace parameters
+namespace common
 {
 
-/**
- * @brief Defines the set of parameters required by the acceleration_2d::Model class
- */
-struct Acceleration2DModelParams : public ParameterBase
+template <typename T>
+struct is_linear_2d
 {
-  public:
-    /**
-     * @brief Method for loading parameter values from ROS.
-     *
-     * @param[in] nh - The ROS node handle with which to load parameters
-     */
-    void loadFromROS(const ros::NodeHandle& nh) final
-    {
-      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
-
-      nh.getParam("queue_size", queue_size);
-      getParamRequired(nh, "topic", topic);
-      getParamRequired(nh, "target_frame", target_frame);
-    }
-
-    int queue_size { 10 };
-    std::string topic {};
-    std::string target_frame {};
-    std::vector<size_t> indices;
+  static const bool value = false;
 };
 
-}  // namespace parameters
+template<>
+struct is_linear_2d<fuse_variables::AccelerationLinear2DStamped>
+{
+  static const bool value = true;
+};
 
-}  // namespace fuse_rl
+template<>
+struct is_linear_2d<fuse_variables::VelocityLinear2DStamped>
+{
+  static const bool value = true;
+};
 
-#endif  // FUSE_RL_PARAMETERS_ACCELERATION_2D_MODEL_PARAMS_H
+template<>
+struct is_linear_2d<fuse_variables::Position2DStamped>
+{
+  static const bool value = true;
+};
+
+template <typename T>
+struct is_angular_2d
+{
+  static const bool value = false;
+};
+
+template<>
+struct is_angular_2d<fuse_variables::Orientation2DStamped>
+{
+  static const bool value = true;
+};
+
+template<>
+struct is_angular_2d<fuse_variables::VelocityAngular2DStamped>
+{
+  static const bool value = true;
+};
+
+}  // namespace common
+
+}  // namespace fuse_models
+
+#endif  // FUSE_MODELS_COMMON_VARIABLE_TRAITS_H

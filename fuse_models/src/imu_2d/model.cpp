@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_rl/common/sensor_proc.h>
-#include <fuse_rl/imu_2d/model.h>
+#include <fuse_models/common/sensor_proc.h>
+#include <fuse_models/imu_2d/model.h>
 
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -48,9 +48,9 @@
 
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_rl::imu_2d::Model, fuse_core::SensorModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::imu_2d::Model, fuse_core::SensorModel)
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace imu_2d
@@ -208,4 +208,4 @@ void Model::process(const sensor_msgs::Imu::ConstPtr& msg)
 
 }  // namespace imu_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models

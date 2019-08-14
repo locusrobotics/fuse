@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_rl/unicycle_2d/predict.h>
+#include <fuse_models/unicycle_2d/predict.h>
 
 #include <gtest/gtest.h>
 #include <tf2_2d/tf2_2d.h>
@@ -59,7 +59,7 @@ TEST(Predict, predictDirectVals)
   double acc_linear2_x = 0.0;
   double acc_linear2_y = 0.0;
 
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     position1_x,
     position1_y,
     yaw1,
@@ -88,7 +88,7 @@ TEST(Predict, predictDirectVals)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2_y);
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     position2_x,
     position2_y,
     yaw2,
@@ -121,7 +121,7 @@ TEST(Predict, predictDirectVals)
   vel_yaw1 = -1.570796327;
   acc_linear1_y = -1.0;
 
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     position1_x,
     position1_y,
     yaw1,
@@ -167,7 +167,7 @@ TEST(Predict, predictPointers)
   double vel_yaw2 = 1.570796327;
   std::vector<double> acc_linear2(2, 0.0);
 
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     position1.data(),
     &yaw1,
     vel_linear1.data(),
@@ -190,7 +190,7 @@ TEST(Predict, predictPointers)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2[1]);
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     position2.data(),
     &yaw2,
     vel_linear2.data(),
@@ -217,7 +217,7 @@ TEST(Predict, predictPointers)
   vel_yaw1 = -1.570796327;
   acc_linear1[1] = -1.0;
 
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     position1.data(),
     &yaw1,
     vel_linear1.data(),
@@ -254,7 +254,7 @@ TEST(Predict, predictObjects)
   double vel_yaw2 = 0.0;
   tf2_2d::Vector2 acc_linear2;
 
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     pose1,
     vel_linear1,
     vel_yaw1,
@@ -275,7 +275,7 @@ TEST(Predict, predictObjects)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2.y());
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     pose2,
     vel_linear2,
     vel_yaw2,
@@ -301,7 +301,7 @@ TEST(Predict, predictObjects)
   vel_yaw1 = -1.570796327;
   acc_linear1.setY(-1.0);
 
-  fuse_rl::unicycle_2d::predict(
+  fuse_models::unicycle_2d::predict(
     pose1,
     vel_linear1,
     vel_yaw1,

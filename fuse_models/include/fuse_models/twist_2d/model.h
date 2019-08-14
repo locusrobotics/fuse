@@ -31,50 +31,45 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_POSE_2D_MODEL_H
-#define FUSE_RL_POSE_2D_MODEL_H
+#ifndef FUSE_MODELS_TWIST_2D_MODEL_H
+#define FUSE_MODELS_TWIST_2D_MODEL_H
 
-#include <fuse_rl/parameters/pose_2d_model_params.h>
+#include <fuse_models/parameters/twist_2d_model_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
-namespace pose_2d
+namespace twist_2d
 {
 
 /**
- * @brief An adapter-type sensor that produces absolute or relative pose constraints from information published by
- * another node.
+ * @brief An adapter-type sensor that produces absolute velocity constraints from information published by another node
  *
- * This sensor subscribes to a geometry_msgs::PoseWithCovarianceStamped topic and converts each received message
- * into an absolute or relative pose constraint. If the \p differential parameter is set to false (the default), the
- * measurement will be treated as an absolute constraint. If it is set to true, consecutive measurements will be used
- * to generate relative pose constraints.
+ * This sensor subscribes to a geometry_msgs::TwistWithCovarianceStamped topic and converts each received message
+ * into two absolute velocity constraints (one for linear velocity, and one for angular).
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - topic (string) The topic to which to subscribe for the pose messages (required if \p subscribe is true)
- *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to create relative pose
- *      constraints using consecutive measurements.
+ *  - queue_size (int, default: 10) The subscriber queue size for the twist messages
+ *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::PoseWithCovarianceStamped) Absolute pose information at a given timestamp
+ *  - \p topic (geometry_msgs::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
  */
 class Model : public fuse_core::AsyncSensorModel
 {
 public:
   SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Pose2DModelParams;
+  using ParameterType = parameters::Twist2DModelParams;
 
   /**
    * @brief Default constructor
@@ -87,20 +82,16 @@ public:
   virtual ~Model() = default;
 
   /**
-   * @brief Callback for pose messages
-   * @param[in] msg - The pose message to process
+   * @brief Callback for twist messages
+   * @param[in] msg - The twist message to process
    */
-  void process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
 
   /**
-   * @brief Perform any required initialization for the sensor model
-   *
-   * This could include things like reading from the parameter server or subscribing to topics. The class's node
-   * handles will be properly initialized before SensorModel::onInit() is called. Spinning of the callback queue will
-   * not begin until after the call to SensorModel::onInit() completes.
+   * @brief Loads ROS parameters and subscribes to the parameterized topic
    */
   void onInit() override;
 
@@ -116,8 +107,6 @@ protected:
 
   ParameterType params_;
 
-  geometry_msgs::PoseWithCovarianceStamped::ConstPtr previous_pose_msg_;
-
   tf2_ros::Buffer tf_buffer_;
 
   tf2_ros::TransformListener tf_listener_;
@@ -125,8 +114,8 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace pose_2d
+}  // namespace twist_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_POSE_2D_MODEL_H
+#endif  // FUSE_MODELS_TWIST_2D_MODEL_H

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,29 +31,30 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_PARAMETERS_POSE_2D_MODEL_PARAMS_H
-#define FUSE_RL_PARAMETERS_POSE_2D_MODEL_PARAMS_H
+#ifndef FUSE_MODELS_PARAMETERS_IMU_2D_MODEL_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_IMU_2D_MODEL_PARAMS_H
 
-#include <fuse_rl/parameters/parameter_base.h>
+#include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <ros/node_handle.h>
 
 #include <string>
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the pose_2d::Model class
+ * @brief Defines the set of parameters required by the imu_2d::Model class
  */
-struct Pose2DModelParams : public ParameterBase
+struct Imu2DModelParams : public ParameterBase
 {
   public:
     /**
@@ -63,25 +64,49 @@ struct Pose2DModelParams : public ParameterBase
      */
     void loadFromROS(const ros::NodeHandle& nh) final
     {
-      position_indices = loadSensorConfig<fuse_variables::Position2DStamped>(nh, "position_dimensions");
+      angular_velocity_indices =
+        loadSensorConfig<fuse_variables::VelocityAngular2DStamped>(nh, "angular_velocity_dimensions");
+      linear_acceleration_indices =
+        loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "linear_acceleration_dimensions");
       orientation_indices = loadSensorConfig<fuse_variables::Orientation2DStamped>(nh, "orientation_dimensions");
 
       nh.getParam("differential", differential);
       nh.getParam("queue_size", queue_size);
+      nh.getParam("remove_gravitational_acceleration", remove_gravitational_acceleration);
+      nh.getParam("gravitational_acceleration", gravitational_acceleration);
       getParamRequired(nh, "topic", topic);
-      getParamRequired(nh, "target_frame", target_frame);
+
+      if (!linear_acceleration_indices.empty())
+      {
+        getParamRequired(nh, "acceleration_target_frame", acceleration_target_frame);
+      }
+
+      if (!orientation_indices.empty())
+      {
+        getParamRequired(nh, "orientation_target_frame", orientation_target_frame);
+      }
+
+      if (!angular_velocity_indices.empty())
+      {
+        getParamRequired(nh, "twist_target_frame", twist_target_frame);
+      }
     }
 
     bool differential { false };
+    bool remove_gravitational_acceleration { false };
     int queue_size { 10 };
+    double gravitational_acceleration { 9.80665 };
+    std::string acceleration_target_frame {};
+    std::string orientation_target_frame {};
     std::string topic {};
-    std::string target_frame {};
-    std::vector<size_t> position_indices;
+    std::string twist_target_frame {};
+    std::vector<size_t> angular_velocity_indices;
+    std::vector<size_t> linear_acceleration_indices;
     std::vector<size_t> orientation_indices;
 };
 
 }  // namespace parameters
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_PARAMETERS_POSE_2D_MODEL_PARAMS_H
+#endif  // FUSE_MODELS_PARAMETERS_IMU_2D_MODEL_PARAMS_H

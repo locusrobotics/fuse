@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_COMMON_SENSOR_CONFIG_H
-#define FUSE_RL_COMMON_SENSOR_CONFIG_H
+#ifndef FUSE_MODELS_COMMON_SENSOR_CONFIG_H
+#define FUSE_MODELS_COMMON_SENSOR_CONFIG_H
 
-#include <fuse_rl/common/variable_traits.h>
+#include <fuse_models/common/variable_traits.h>
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -51,7 +51,7 @@
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace common
@@ -141,6 +141,6 @@ std::vector<size_t> getDimensionIndices(const std::vector<std::string>& dimensio
 
 }  // namespace common
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_COMMON_SENSOR_CONFIG_H
+#endif  // FUSE_MODELS_COMMON_SENSOR_CONFIG_H

@@ -31,66 +31,57 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_COMMON_VARIABLE_TRAITS_H
-#define FUSE_RL_COMMON_VARIABLE_TRAITS_H
+#ifndef FUSE_MODELS_PARAMETERS_POSE_2D_MODEL_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_POSE_2D_MODEL_PARAMS_H
 
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
+#include <fuse_models/parameters/parameter_base.h>
+
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <fuse_variables/velocity_angular_2d_stamped.h>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
+#include <ros/node_handle.h>
+
+#include <string>
+#include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
-namespace common
+namespace parameters
 {
 
-template <typename T>
-struct is_linear_2d
+/**
+ * @brief Defines the set of parameters required by the pose_2d::Model class
+ */
+struct Pose2DModelParams : public ParameterBase
 {
-  static const bool value = false;
+  public:
+    /**
+     * @brief Method for loading parameter values from ROS.
+     *
+     * @param[in] nh - The ROS node handle with which to load parameters
+     */
+    void loadFromROS(const ros::NodeHandle& nh) final
+    {
+      position_indices = loadSensorConfig<fuse_variables::Position2DStamped>(nh, "position_dimensions");
+      orientation_indices = loadSensorConfig<fuse_variables::Orientation2DStamped>(nh, "orientation_dimensions");
+
+      nh.getParam("differential", differential);
+      nh.getParam("queue_size", queue_size);
+      getParamRequired(nh, "topic", topic);
+      getParamRequired(nh, "target_frame", target_frame);
+    }
+
+    bool differential { false };
+    int queue_size { 10 };
+    std::string topic {};
+    std::string target_frame {};
+    std::vector<size_t> position_indices;
+    std::vector<size_t> orientation_indices;
 };
 
-template<>
-struct is_linear_2d<fuse_variables::AccelerationLinear2DStamped>
-{
-  static const bool value = true;
-};
+}  // namespace parameters
 
-template<>
-struct is_linear_2d<fuse_variables::VelocityLinear2DStamped>
-{
-  static const bool value = true;
-};
+}  // namespace fuse_models
 
-template<>
-struct is_linear_2d<fuse_variables::Position2DStamped>
-{
-  static const bool value = true;
-};
-
-template <typename T>
-struct is_angular_2d
-{
-  static const bool value = false;
-};
-
-template<>
-struct is_angular_2d<fuse_variables::Orientation2DStamped>
-{
-  static const bool value = true;
-};
-
-template<>
-struct is_angular_2d<fuse_variables::VelocityAngular2DStamped>
-{
-  static const bool value = true;
-};
-
-}  // namespace common
-
-}  // namespace fuse_rl
-
-#endif  // FUSE_RL_COMMON_VARIABLE_TRAITS_H
+#endif  // FUSE_MODELS_PARAMETERS_POSE_2D_MODEL_PARAMS_H

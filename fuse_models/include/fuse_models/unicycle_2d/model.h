@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_UNICYCLE_2D_MODEL_H
-#define FUSE_RL_UNICYCLE_2D_MODEL_H
+#ifndef FUSE_MODELS_UNICYCLE_2D_MODEL_H
+#define FUSE_MODELS_UNICYCLE_2D_MODEL_H
 
 #include <fuse_core/async_motion_model.h>
 #include <fuse_core/constraint.h>
@@ -51,14 +51,14 @@
 #include <vector>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
 {
 
 /**
- * @brief A fuse_rl 2D kinematic model that generates kinematic constraints between provided time stamps, and adds
+ * @brief A fuse_models 2D kinematic model that generates kinematic constraints between provided time stamps, and adds
  * those constraints to the fuse graph.
  *
  * This class uses a unicycle kinematic model for the robot. It is equivalent to the motion model that one would have
@@ -170,6 +170,6 @@ protected:
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_UNICYCLE_2D_MODEL_H
+#endif  // FUSE_MODELS_UNICYCLE_2D_MODEL_H

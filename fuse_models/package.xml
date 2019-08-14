@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>fuse_rl</name>
+  <name>fuse_models</name>
   <version>0.2.0</version>
-  <description>fuse plugins that implement robot_localization's kinematic and sensor models</description>
+  <description>fuse plugins that implement various kinematic and sensor models</description>
 
   <author email="tmoore@locusrobotics.com">Tom Moore</author>
   <maintainer email="tmoore@locusrobotics.com">Tom Moore</maintainer>

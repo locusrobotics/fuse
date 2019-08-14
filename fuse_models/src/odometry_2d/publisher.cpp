@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_rl/odometry_2d/publisher.h>
-#include <fuse_rl/unicycle_2d/predict.h>
+#include <fuse_models/odometry_2d/publisher.h>
+#include <fuse_models/unicycle_2d/predict.h>
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/uuid.h>
@@ -50,9 +50,9 @@
 #include <vector>
 
 // Register this publisher with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_rl::odometry_2d::Publisher, fuse_core::Publisher)
+PLUGINLIB_EXPORT_CLASS(fuse_models::odometry_2d::Publisher, fuse_core::Publisher)
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace odometry_2d
@@ -304,4 +304,4 @@ void Publisher::tfPublishTimerCallback(const ros::TimerEvent& event)
 
 }  // namespace odometry_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models

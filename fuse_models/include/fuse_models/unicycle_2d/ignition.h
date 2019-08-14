@@ -31,15 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_RL_UNICYCLE_2D_IGNITION_H
-#define FUSE_RL_UNICYCLE_2D_IGNITION_H
+#ifndef FUSE_MODELS_UNICYCLE_2D_IGNITION_H
+#define FUSE_MODELS_UNICYCLE_2D_IGNITION_H
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/uuid.h>
-#include <fuse_rl/parameters/unicycle_2d_ignition_params.h>
-#include <fuse_rl/SetPose.h>
-#include <fuse_rl/SetPoseDeprecated.h>
+#include <fuse_models/parameters/unicycle_2d_ignition_params.h>
+#include <fuse_models/SetPose.h>
+#include <fuse_models/SetPoseDeprecated.h>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <ros/ros.h>
@@ -47,14 +47,14 @@
 #include <atomic>
 
 
-namespace fuse_rl
+namespace fuse_models
 {
 
 namespace unicycle_2d
 {
 
 /**
- * @brief A fuse_rl ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
+ * @brief A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
  *
  * This class publishes a transaction that contains a prior on each state subvariable used in the unicycle 2D motion
  * model (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, and y_acc). When the sensor is first loaded, it publishes a single
@@ -124,14 +124,14 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  bool setPoseServiceCallback(fuse_rl::SetPose::Request& req, fuse_rl::SetPose::Response& res);
+  bool setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_models::SetPose::Response& res);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
   bool setPoseDeprecatedServiceCallback(
-    fuse_rl::SetPoseDeprecated::Request& req,
-    fuse_rl::SetPoseDeprecated::Response&);
+    fuse_models::SetPoseDeprecated::Request& req,
+    fuse_models::SetPoseDeprecated::Response&);
 
 protected:
   /**
@@ -178,6 +178,6 @@ protected:
 
 }  // namespace unicycle_2d
 
-}  // namespace fuse_rl
+}  // namespace fuse_models
 
-#endif  // FUSE_RL_UNICYCLE_2D_IGNITION_H
+#endif  // FUSE_MODELS_UNICYCLE_2D_IGNITION_H
