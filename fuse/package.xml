@@ -15,6 +15,7 @@
   <exec_depend>fuse_core</exec_depend>
   <exec_depend>fuse_graphs</exec_depend>
   <exec_depend>fuse_models</exec_depend>
+  <exec_depend>fuse_msgs</exec_depend>
   <exec_depend>fuse_optimizers</exec_depend>
   <exec_depend>fuse_publishers</exec_depend>
   <exec_depend>fuse_variables</exec_depend>
