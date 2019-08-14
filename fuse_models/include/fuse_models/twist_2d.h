@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_TWIST_2D_MODEL_H
-#define FUSE_MODELS_TWIST_2D_MODEL_H
+#ifndef FUSE_MODELS_TWIST_2D_H
+#define FUSE_MODELS_TWIST_2D_H
 
-#include <fuse_models/parameters/twist_2d_model_params.h>
+#include <fuse_models/parameters/twist_2d_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -45,9 +45,6 @@
 
 
 namespace fuse_models
-{
-
-namespace twist_2d
 {
 
 /**
@@ -65,21 +62,21 @@ namespace twist_2d
  * Subscribes:
  *  - \p topic (geometry_msgs::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
  */
-class Model : public fuse_core::AsyncSensorModel
+class Twist2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Twist2DModelParams;
+  SMART_PTR_DEFINITIONS(Twist2D);
+  using ParameterType = parameters::Twist2DParams;
 
   /**
    * @brief Default constructor
    */
-  Model();
+  Twist2D();
 
   /**
    * @brief Destructor
    */
-  virtual ~Model() = default;
+  virtual ~Twist2D() = default;
 
   /**
    * @brief Callback for twist messages
@@ -114,8 +111,6 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace twist_2d
-
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_TWIST_2D_MODEL_H
+#endif  // FUSE_MODELS_TWIST_2D_H

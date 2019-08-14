@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_PARAMETERS_TWIST_2D_MODEL_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_TWIST_2D_MODEL_PARAMS_H
+#ifndef FUSE_MODELS_PARAMETERS_TWIST_2D_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_TWIST_2D_PARAMS_H
 
 #include <fuse_models/parameters/parameter_base.h>
 
@@ -51,9 +51,9 @@ namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the twist_2d::Model class
+ * @brief Defines the set of parameters required by the Twist2D class
  */
-struct Twist2DModelParams : public ParameterBase
+struct Twist2DParams : public ParameterBase
 {
   public:
     /**
@@ -82,4 +82,4 @@ struct Twist2DModelParams : public ParameterBase
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_PARAMETERS_TWIST_2D_MODEL_PARAMS_H
+#endif  // FUSE_MODELS_PARAMETERS_TWIST_2D_PARAMS_H
