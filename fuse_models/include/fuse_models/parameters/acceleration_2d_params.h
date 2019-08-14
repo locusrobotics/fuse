@@ -31,78 +31,52 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/acceleration_2d/model.h>
+#ifndef FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
+#define FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
 
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_variables/acceleration_linear_2d_stamped.h>
+#include <fuse_models/parameters/parameter_base.h>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include <ros/node_handle.h>
 
+#include <string>
+#include <vector>
 
-// Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::acceleration_2d::Model, fuse_core::SensorModel)
 
 namespace fuse_models
 {
 
-namespace acceleration_2d
+namespace parameters
 {
 
-Model::Model() :
-  fuse_core::AsyncSensorModel(1),
-  device_id_(fuse_core::uuid::NIL),
-  tf_listener_(tf_buffer_)
+/**
+ * @brief Defines the set of parameters required by the Acceleration2D class
+ */
+struct Acceleration2DParams : public ParameterBase
 {
-}
+  public:
+    /**
+     * @brief Method for loading parameter values from ROS.
+     *
+     * @param[in] nh - The ROS node handle with which to load parameters
+     */
+    void loadFromROS(const ros::NodeHandle& nh) final
+    {
+      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
 
-void Model::onInit()
-{
-  // Read settings from the parameter sever
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+      nh.getParam("queue_size", queue_size);
+      getParamRequired(nh, "topic", topic);
+      getParamRequired(nh, "target_frame", target_frame);
+    }
 
-  params_.loadFromROS(private_node_handle_);
+    int queue_size { 10 };
+    std::string topic {};
+    std::string target_frame {};
+    std::vector<size_t> indices;
+};
 
-  if (params_.indices.empty())
-  {
-    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
-                    " will be ignored.");
-  }
-}
-
-void Model::onStart()
-{
-  if (!params_.indices.empty())
-  {
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
-  }
-}
-
-void Model::onStop()
-{
-  subscriber_.shutdown();
-}
-
-void Model::process(const geometry_msgs::AccelWithCovarianceStamped::ConstPtr& msg)
-{
-  // Create a transaction object
-  auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
-
-  common::processAccelWithCovariance(
-    device_id_,
-    *msg,
-    params_.target_frame,
-    params_.indices,
-    tf_buffer_,
-    *transaction);
-
-  // Send the transaction object to the plugin's parent
-  sendTransaction(transaction);
-}
-
-}  // namespace acceleration_2d
+}  // namespace parameters
 
 }  // namespace fuse_models
+
+#endif  // FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
