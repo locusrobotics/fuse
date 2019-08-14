@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_IMU_2D_MODEL_H
-#define FUSE_MODELS_IMU_2D_MODEL_H
+#ifndef FUSE_MODELS_IMU_2D_H
+#define FUSE_MODELS_IMU_2D_H
 
-#include <fuse_models/parameters/imu_2d_model_params.h>
+#include <fuse_models/parameters/imu_2d_params.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -49,9 +49,6 @@
 
 
 namespace fuse_models
-{
-
-namespace imu_2d
 {
 
 /**
@@ -85,21 +82,21 @@ namespace imu_2d
  * Subscribes:
  *  - \p topic (sensor_msgs::Imu) IMU data at a given timestep
  */
-class Model : public fuse_core::AsyncSensorModel
+class Imu2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Model);
-  using ParameterType = parameters::Imu2DModelParams;
+  SMART_PTR_DEFINITIONS(Imu2D);
+  using ParameterType = parameters::Imu2DParams;
 
   /**
    * @brief Default constructor
    */
-  Model();
+  Imu2D();
 
   /**
    * @brief Destructor
    */
-  virtual ~Model() = default;
+  virtual ~Imu2D() = default;
 
   /**
    * @brief Callback for pose messages
@@ -140,8 +137,6 @@ protected:
   ros::Subscriber subscriber_;
 };
 
-}  // namespace imu_2d
-
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_IMU_2D_MODEL_H
+#endif  // FUSE_MODELS_IMU_2D_H

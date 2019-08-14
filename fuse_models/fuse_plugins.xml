@@ -20,7 +20,7 @@
     another node
     </description>
   </class>
-  <class type="fuse_models::imu_2d::Model" base_class_type="fuse_core::SensorModel">
+  <class type="fuse_models::Imu2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces orientation (relative or absolute), angular velocity, and linear
     acceleration constraints from IMU sensor data published by another node

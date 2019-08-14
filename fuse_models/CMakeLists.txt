@@ -93,7 +93,7 @@ include_directories(
 add_library(
   ${PROJECT_NAME}
     src/acceleration_2d.cpp
-    src/imu_2d/model.cpp
+    src/imu_2d.cpp
     src/pose_2d/model.cpp
     src/odometry_2d/model.cpp
     src/odometry_2d/publisher.cpp
