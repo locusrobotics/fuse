@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/imu_2d/model.h>
+#include <fuse_models/imu_2d.h>
 
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -48,22 +48,19 @@
 
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::imu_2d::Model, fuse_core::SensorModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Imu2D, fuse_core::SensorModel)
 
 namespace fuse_models
 {
 
-namespace imu_2d
-{
-
-Model::Model() :
+Imu2D::Imu2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   tf_listener_(tf_buffer_)
 {
 }
 
-void Model::onInit()
+void Imu2D::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -79,23 +76,23 @@ void Model::onInit()
   }
 }
 
-void Model::onStart()
+void Imu2D::onStart()
 {
   if (!params_.orientation_indices.empty() ||
       !params_.linear_acceleration_indices.empty() ||
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Model::process, this);
+    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Imu2D::process, this);
   }
 }
 
-void Model::onStop()
+void Imu2D::onStop()
 {
   subscriber_.shutdown();
 }
 
-void Model::process(const sensor_msgs::Imu::ConstPtr& msg)
+void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -205,7 +202,5 @@ void Model::process(const sensor_msgs::Imu::ConstPtr& msg)
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
 }
-
-}  // namespace imu_2d
 
 }  // namespace fuse_models
