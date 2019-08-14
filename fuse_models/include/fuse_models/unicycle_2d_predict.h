@@ -42,9 +42,6 @@
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
 /**
  * @brief Given a state and time delta, predicts a new state
  * @param[in] position1_x - First X position
@@ -209,8 +206,6 @@ inline void predict(
   acc_linear2.setX(acc_linear_x_pred);
   acc_linear2.setY(acc_linear_y_pred);
 }
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models
 

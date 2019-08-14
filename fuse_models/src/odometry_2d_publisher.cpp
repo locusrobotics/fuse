@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_models/odometry_2d_publisher.h>
-#include <fuse_models/unicycle_2d/predict.h>
+#include <fuse_models/unicycle_2d_predict.h>
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/uuid.h>
@@ -257,7 +257,7 @@ void Odometry2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
     tf2_2d::Vector2 unused_acc;
     double unused_yaw_vel;
 
-    unicycle_2d::predict(
+    predict(
       pose,
       velocity_linear,
       odom_output_.twist.twist.angular.z,

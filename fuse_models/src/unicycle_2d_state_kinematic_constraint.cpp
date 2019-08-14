@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d/state_kinematic_constraint.h>
-#include <fuse_models/unicycle_2d/state_cost_functor.h>
+#include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
+#include <fuse_models/unicycle_2d_state_cost_functor.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
@@ -48,10 +48,7 @@
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
-StateKinematicConstraint::StateKinematicConstraint(
+Unicycle2DStateKinematicConstraint::Unicycle2DStateKinematicConstraint(
   const fuse_variables::Position2DStamped& position1,
   const fuse_variables::Orientation2DStamped& yaw1,
   const fuse_variables::VelocityLinear2DStamped& linear_velocity1,
@@ -79,7 +76,7 @@ StateKinematicConstraint::StateKinematicConstraint(
 {
 }
 
-void StateKinematicConstraint::print(std::ostream& stream) const
+void Unicycle2DStateKinematicConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
@@ -97,12 +94,10 @@ void StateKinematicConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction* StateKinematicConstraint::costFunction() const
+ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<StateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>(
-    new StateCostFunctor(dt_, sqrt_information_));
+  return new ceres::AutoDiffCostFunction<Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>(
+    new Unicycle2DStateCostFunctor(dt_, sqrt_information_));
 }
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models

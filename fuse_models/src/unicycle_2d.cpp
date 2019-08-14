@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d/predict.h>
-#include <fuse_models/unicycle_2d/state_kinematic_constraint.h>
-#include <fuse_models/unicycle_2d/model.h>
+#include <fuse_models/unicycle_2d_predict.h>
+#include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
+#include <fuse_models/unicycle_2d.h>
 
 #include <Eigen/Dense>
 #include <fuse_core/async_motion_model.h>
@@ -57,25 +57,22 @@
 
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::unicycle_2d::Model, fuse_core::MotionModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2D, fuse_core::MotionModel)
 
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
 static constexpr double EPSILON = 1.0e-9;  //!< "Small" value used to check if state variables are effectively zero
 
-Model::Model() :
+Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
   buffer_length_(ros::DURATION_MAX),
   device_id_(fuse_core::uuid::NIL),
-  timestamp_manager_(&Model::generateMotionModel, this, ros::DURATION_MAX)
+  timestamp_manager_(&Unicycle2D::generateMotionModel, this, ros::DURATION_MAX)
 {
 }
 
-bool Model::applyCallback(fuse_core::Transaction& transaction)
+bool Unicycle2D::applyCallback(fuse_core::Transaction& transaction)
 {
   // Use the timestamp manager to generate just the required motion model segments. The timestamp manager, in turn,
   // makes calls to the generateMotionModel() function.
@@ -92,12 +89,12 @@ bool Model::applyCallback(fuse_core::Transaction& transaction)
   return true;
 }
 
-void Model::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
+void Unicycle2D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
 {
   updateStateHistoryEstimates(*graph, state_history_, buffer_length_);
 }
 
-void Model::onInit()
+void Unicycle2D::onInit()
 {
   std::vector<double> process_noise_diagonal;
   private_node_handle_.param("process_noise_diagonal", process_noise_diagonal, process_noise_diagonal);
@@ -123,13 +120,13 @@ void Model::onInit()
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
 }
 
-void Model::onStart()
+void Unicycle2D::onStart()
 {
   timestamp_manager_.clear();
   state_history_.clear();
 }
 
-void Model::generateMotionModel(
+void Unicycle2D::generateMotionModel(
   const ros::Time& beginning_stamp,
   const ros::Time& ending_stamp,
   std::vector<fuse_core::Constraint::SharedPtr>& constraints,
@@ -234,7 +231,7 @@ void Model::generateMotionModel(
   state_history_.emplace(ending_stamp, std::move(state2));
 
   // Create the constraints for this motion model segment
-  auto constraint = fuse_models::unicycle_2d::StateKinematicConstraint::make_shared(
+  auto constraint = fuse_models::Unicycle2DStateKinematicConstraint::make_shared(
     *position1,
     *yaw1,
     *velocity_linear1,
@@ -261,7 +258,7 @@ void Model::generateMotionModel(
   variables.push_back(acceleration_linear2);
 }
 
-void Model::updateStateHistoryEstimates(
+void Unicycle2D::updateStateHistoryEstimates(
   const fuse_core::Graph& graph,
   StateHistory& state_history,
   const ros::Duration& buffer_length)
@@ -341,7 +338,5 @@ void Model::updateStateHistoryEstimates(
     }
   }
 }
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models

@@ -51,7 +51,7 @@ namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the acceleration_2d::Model class
+ * @brief Defines the set of parameters required by the Unicle2DIgnition class
  */
 struct Unicycle2DIgnitionParams : public ParameterBase
 {

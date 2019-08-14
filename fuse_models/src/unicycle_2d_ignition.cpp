@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d/ignition.h>
+#include <fuse_models/unicycle_2d_ignition.h>
 
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_core/async_sensor_model.h>
@@ -64,15 +64,12 @@
 
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::unicycle_2d::Ignition, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2DIgnition, fuse_core::SensorModel);
 
 namespace fuse_models
 {
 
-namespace unicycle_2d
-{
-
-Ignition::Ignition() :
+Unicycle2DIgnition::Unicycle2DIgnition() :
   fuse_core::AsyncSensorModel(1),
   started_(false),
   initial_transaction_sent_(false),
@@ -80,7 +77,7 @@ Ignition::Ignition() :
 {
 }
 
-void Ignition::onInit()
+void Unicycle2DIgnition::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -97,19 +94,19 @@ void Ignition::onInit()
   subscriber_ = node_handle_.subscribe(
     ros::names::resolve(params_.topic),
     params_.queue_size,
-    &Ignition::subscriberCallback,
+    &Unicycle2DIgnition::subscriberCallback,
     this);
   set_pose_service_ = node_handle_.advertiseService(
     ros::names::resolve(params_.set_pose_service),
-    &Ignition::setPoseServiceCallback,
+    &Unicycle2DIgnition::setPoseServiceCallback,
     this);
   set_pose_deprecated_service_ = node_handle_.advertiseService(
     ros::names::resolve(params_.set_pose_deprecated_service),
-    &Ignition::setPoseDeprecatedServiceCallback,
+    &Unicycle2DIgnition::setPoseDeprecatedServiceCallback,
     this);
 }
 
-void Ignition::start()
+void Unicycle2DIgnition::start()
 {
   started_ = true;
 
@@ -131,12 +128,12 @@ void Ignition::start()
   }
 }
 
-void Ignition::stop()
+void Unicycle2DIgnition::stop()
 {
   started_ = false;
 }
 
-void Ignition::subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
   try
   {
@@ -148,7 +145,7 @@ void Ignition::subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped
   }
 }
 
-bool Ignition::setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_models::SetPose::Response& res)
+bool Unicycle2DIgnition::setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_models::SetPose::Response& res)
 {
   try
   {
@@ -164,7 +161,7 @@ bool Ignition::setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_m
   return true;
 }
 
-bool Ignition::setPoseDeprecatedServiceCallback(
+bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
   fuse_models::SetPoseDeprecated::Request& req,
   fuse_models::SetPoseDeprecated::Response&)
 {
@@ -180,7 +177,7 @@ bool Ignition::setPoseDeprecatedServiceCallback(
   }
 }
 
-void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose)
+void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped& pose)
 {
   // Verify we are in the correct state to process set pose requests
   if (!started_)
@@ -246,7 +243,7 @@ void Ignition::process(const geometry_msgs::PoseWithCovarianceStamped& pose)
   sendPrior(pose);
 }
 
-void Ignition::sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose)
+void Unicycle2DIgnition::sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose)
 {
   const auto& stamp = pose.header.stamp;
 
@@ -330,7 +327,5 @@ void Ignition::sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose)
   ROS_INFO_STREAM("Received a set_pose request (stamp: " << stamp << ", x: " << position->x() << ", y: " <<
                   position->y() << ", yaw: " << orientation->yaw() << ")");
 }
-
-}  // namespace unicycle_2d
 
 }  // namespace fuse_models
