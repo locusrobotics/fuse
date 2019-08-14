@@ -49,10 +49,10 @@ namespace fuse_models
 
 /**
  * @brief An adapter-type sensor that produces 2D linear acceleration constraints from information published by another
- *   node
+ * node
  *
  * This sensor subscribes to a geometry_msgs::AccelWithCovarianceStamped topic and converts each received message
- * into an 2D linear acceleration variable and constraint.
+ * into a 2D linear acceleration variable and constraint.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
