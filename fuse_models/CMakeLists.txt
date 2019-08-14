@@ -92,7 +92,7 @@ include_directories(
 ## Declare a C++ library
 add_library(
   ${PROJECT_NAME}
-    src/acceleration_2d/model.cpp
+    src/acceleration_2d.cpp
     src/imu_2d/model.cpp
     src/pose_2d/model.cpp
     src/odometry_2d/model.cpp

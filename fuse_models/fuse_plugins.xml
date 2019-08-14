@@ -14,7 +14,7 @@
     </description>
   </class>
 
-  <class type="fuse_models::acceleration_2d::Model" base_class_type="fuse_core::SensorModel">
+  <class type="fuse_models::Acceleration2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces 2D linear acceleration constraints from information published by
     another node
