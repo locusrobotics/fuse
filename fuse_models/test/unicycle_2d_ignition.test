@@ -1,0 +1,4 @@
+<?xml version="1.0"?>	
+<launch>	
+  <test test-name="unicycle_2d_ignition_test" pkg="fuse_models" type="test_unicycle_2d_ignition" />	
+</launch>
