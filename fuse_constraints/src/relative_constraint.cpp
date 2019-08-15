@@ -56,43 +56,43 @@ ceres::CostFunction* RelativeConstraint<fuse_variables::Orientation2DStamped>::c
 template<>
 std::string RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>::type() const
 {
-  return "RelativeAccelerationAngular2DStampedConstraint";
+  return "fuse_constraints::RelativeAccelerationAngular2DStampedConstraint";
 }
 
 template<>
 std::string RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>::type() const
 {
-  return "RelativeAccelerationLinear2DStampedConstraint";
+  return "fuse_constraints::RelativeAccelerationLinear2DStampedConstraint";
 }
 
 template<>
 std::string RelativeConstraint<fuse_variables::Orientation2DStamped>::type() const
 {
-  return "RelativeOrientation2DStampedConstraint";
+  return "fuse_constraints::RelativeOrientation2DStampedConstraint";
 }
 
 template<>
 std::string RelativeConstraint<fuse_variables::Position2DStamped>::type() const
 {
-  return "RelativePosition2DStampedConstraint";
+  return "fuse_constraints::RelativePosition2DStampedConstraint";
 }
 
 template<>
 std::string RelativeConstraint<fuse_variables::Position3DStamped>::type() const
 {
-  return "RelativePosition3DStampedConstraint";
+  return "fuse_constraints::RelativePosition3DStampedConstraint";
 }
 
 template<>
 std::string RelativeConstraint<fuse_variables::VelocityAngular2DStamped>::type() const
 {
-  return "RelativeVelocityAngular2DStampedConstraint";
+  return "fuse_constraints::RelativeVelocityAngular2DStampedConstraint";
 }
 
 template<>
 std::string RelativeConstraint<fuse_variables::VelocityLinear2DStamped>::type() const
 {
-  return "RelativeVelocityLinear2DStampedConstraint";
+  return "fuse_constraints::RelativeVelocityLinear2DStampedConstraint";
 }
 
 }  // namespace fuse_constraints

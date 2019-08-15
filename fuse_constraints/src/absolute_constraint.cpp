@@ -56,43 +56,43 @@ ceres::CostFunction* AbsoluteConstraint<fuse_variables::Orientation2DStamped>::c
 template<>
 std::string AbsoluteConstraint<fuse_variables::AccelerationAngular2DStamped>::type() const
 {
-  return "AbsoluteAccelerationAngular2DStampedConstraint";
+  return "fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint";
 }
 
 template<>
 std::string AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>::type() const
 {
-  return "AbsoluteAccelerationLinear2DStampedConstraint";
+  return "fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint";
 }
 
 template<>
 std::string AbsoluteConstraint<fuse_variables::Orientation2DStamped>::type() const
 {
-  return "AbsoluteOrientation2DStampedConstraint";
+  return "fuse_constraints::AbsoluteOrientation2DStampedConstraint";
 }
 
 template<>
 std::string AbsoluteConstraint<fuse_variables::Position2DStamped>::type() const
 {
-  return "AbsolutePosition2DStampedConstraint";
+  return "fuse_constraints::AbsolutePosition2DStampedConstraint";
 }
 
 template<>
 std::string AbsoluteConstraint<fuse_variables::Position3DStamped>::type() const
 {
-  return "AbsolutePosition3DStampedConstraint";
+  return "fuse_constraints::AbsolutePosition3DStampedConstraint";
 }
 
 template<>
 std::string AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>::type() const
 {
-  return "AbsoluteVelocityAngular2DStampedConstraint";
+  return "fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint";
 }
 
 template<>
 std::string AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>::type() const
 {
-  return "AbsoluteVelocityLinear2DStampedConstraint";
+  return "fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint";
 }
 
 }  // namespace fuse_constraints
