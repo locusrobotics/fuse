@@ -345,10 +345,6 @@ private:
   /**
    * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
    *
-   * This method, or a combination of save() and load() methods, must be implemented by all derived classes. See
-   * documentation on Boost Serialization for information on how to implement the serialize() method.
-   * https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/
-   *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */

@@ -95,7 +95,7 @@
  * class Derived : public Graph
  * {
  * public:
- *   FUSE_CONSTRAINT_TYPE_DEFINITION(Derived);
+ *   FUSE_GRAPH_TYPE_DEFINITION(Derived);
  *   // The rest of the derived graph implementation
  * }
  * @endcode
@@ -118,11 +118,11 @@
 *
 * Usage:
 * @code{.cpp}
-* class Derived : public Constraint
+* class Derived : public Graph
 * {
 * public:
-*   FUSE_CONSTRAINT_DEFINITIONS(Derived);
-*   // The rest of the derived constraint implementation
+*   FUSE_GRAPH_DEFINITIONS(Derived);
+*   // The rest of the derived graph implementation
 * }
 * @endcode
 */
@@ -363,50 +363,50 @@ public:
   virtual void print(std::ostream& stream = std::cout) const = 0;
 
   /**
-   * @brief Serialize this Constraint into the provided binary archive
+   * @brief Serialize this graph into the provided binary archive
    *
    * This can/should be implemented as follows in all derived classes:
    * @code{.cpp}
    * archive << *this;
    * @endcode
    *
-   * @param[out] archive - The archive to serialize this constraint into
+   * @param[out] archive - The archive to serialize this graph into
    */
   virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
 
   /**
-   * @brief Serialize this Constraint into the provided text archive
+   * @brief Serialize this graph into the provided text archive
    *
    * This can/should be implemented as follows in all derived classes:
    * @code{.cpp}
    * archive << *this;
    * @endcode
    *
-   * @param[out] archive - The archive to serialize this constraint into
+   * @param[out] archive - The archive to serialize this graph into
    */
   virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
 
   /**
-   * @brief Deserialize data from the provided binary archive into this Constraint
+   * @brief Deserialize data from the provided binary archive into this graph
    *
    * This can/should be implemented as follows in all derived classes:
    * @code{.cpp}
    * archive >> *this;
    * @endcode
    *
-   * @param[in] archive - The archive holding serialized Constraint data
+   * @param[in] archive - The archive holding serialized graph data
    */
   virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
 
   /**
-   * @brief Deserialize data from the provided text archive into this Constraint
+   * @brief Deserialize data from the provided text archive into this graph
    *
    * This can/should be implemented as follows in all derived classes:
    * @code{.cpp}
    * archive >> *this;
    * @endcode
    *
-   * @param[in] archive - The archive holding serialized Constraint data
+   * @param[in] archive - The archive holding serialized graph data
    */
   virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
