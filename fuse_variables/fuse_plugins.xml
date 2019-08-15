@@ -1,0 +1,65 @@
+<library path="lib/libfuse_variables">
+  <class type="fuse_variables::AccelerationAngular2DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D angular acceleration at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::AccelerationAngular3DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D angular acceleration (aroll, apitch, ayaw) at a specific time, with a specific
+    piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::AccelerationLinear2DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D linear acceleration (ax, ay) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::AccelerationLinear3DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D linear acceleration (ax, ay, az) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::Orientation2DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D orientation (theta) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::Orientation3DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D orientation as a quaternion at a specific time and for a specific piece of
+    hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::Position2DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D position (x, y) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::Position3DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D position (x, y, z) at a specific time and for a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::VelocityAngular2DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D angular velocity (vtheta) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::VelocityAngular3DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D angular velocity (vroll, vpitch, vyaw) at a specific time, with a specific piece
+    of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::VelocityLinear2DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D linear velocity (vx, vy) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+  <class type="fuse_variables::VelocityLinear3DStamped" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D linear velocity (vx, vy, vz) at a specific time, with a specific piece of hardware.
+    </description>
+  </class>
+</library>

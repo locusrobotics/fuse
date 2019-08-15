@@ -52,7 +52,8 @@ namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 3D linear acceleration (ax, ay, az) at a specific time, with a specific piece of hardware.
+ * @brief Variable representing a 3D linear acceleration (ax, ay, az) at a specific time, with a specific piece
+ * of hardware.
  *
  * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
  * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
