@@ -125,8 +125,8 @@ private:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_variables::FixedSizeVariable<2>>(*this);
-    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive & boost::serialization::base_object<Stamped>(*this);
   }
 };
 
