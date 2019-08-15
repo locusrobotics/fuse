@@ -38,10 +38,16 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/zip_iterator.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <ceres/cost_function.h>
 
@@ -66,6 +72,11 @@ class MarginalConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(MarginalConstraint);
+
+  /**
+   * @brief Default constructor
+   */
+  MarginalConstraint() = default;
 
   /**
    * @brief Create a linear/marginal constraint
@@ -139,6 +150,26 @@ protected:
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
   std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< The local parameterizations
   std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & A_;
+    archive & b_;
+    archive & local_parameterizations_;
+    archive & x_bar_;
+  }
 };
 
 namespace detail
@@ -202,5 +233,7 @@ MarginalConstraint::MarginalConstraint(
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint);
 
 #endif  // FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H

@@ -37,11 +37,15 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/Quaternion.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <Eigen/Geometry>
 
 #include <array>
@@ -60,6 +64,11 @@ class RelativeOrientation3DStampedConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativeOrientation3DStampedConstraint);
+
+  /**
+   * @brief Default constructor
+   */
+  RelativeOrientation3DStampedConstraint() = default;
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -174,8 +183,28 @@ protected:
 
   fuse_core::Vector4d delta_;  //!< The measured/prior mean vector for this variable
   fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & delta_;
+    archive & sqrt_information_;
+  }
 };
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativeOrientation3DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_RELATIVE_ORIENTATION_3D_STAMPED_CONSTRAINT_H

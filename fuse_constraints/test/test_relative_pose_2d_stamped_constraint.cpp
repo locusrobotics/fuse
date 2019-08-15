@@ -35,6 +35,7 @@
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -419,6 +420,40 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
     expected_covariance << 2.0, 0.0, 0.0, 0.0, 3.0, 1.0, 0.0, 1.0, 2.0;
     EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
   }
+}
+
+TEST(RelativePose2DStampedConstraint, Serialization)
+{
+  // Construct a constraint
+  Orientation2DStamped orientation1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  fuse_core::Vector3d delta;
+  delta << 1.0, 2.0, 3.0;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  RelativePose2DStampedConstraint expected(position1, orientation1, position2, orientation2, delta, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  RelativePose2DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.delta(), actual.delta());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

@@ -37,6 +37,7 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -46,6 +47,9 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <ceres/cost_function.h>
 
 #include <ostream>
@@ -64,10 +68,15 @@ namespace fuse_constraints
  * This constraint holds the measured variable value and the measurement uncertainty/covariance.
  */
 template<class Variable>
-class AbsoluteConstraint final : public fuse_core::Constraint
+class AbsoluteConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(AbsoluteConstraint<Variable>);
+
+  /**
+   * @brief Default constructor
+   */
+  AbsoluteConstraint() = default;
 
   /**
    * @brief Create a constraint using a measurement/prior of all dimensions of the target variable
@@ -149,6 +158,24 @@ public:
 protected:
   fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & mean_;
+    archive & sqrt_information_;
+  }
 };
 
 // Define unique names for the different variations of the absolute constraint
@@ -163,5 +190,13 @@ using AbsoluteVelocityLinear2DStampedConstraint = AbsoluteConstraint<fuse_variab
 
 // Include the template implementation
 #include <fuse_constraints/absolute_constraint_impl.h>
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H

@@ -37,6 +37,7 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -46,6 +47,9 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <ceres/cost_function.h>
 
 #include <ostream>
@@ -71,6 +75,11 @@ class RelativeConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(RelativeConstraint<Variable>);
+
+  /**
+   * @brief Default constructor
+   */
+  RelativeConstraint() = default;
 
   /**
    * @brief Create a constraint on the change of all dimensions between the two target variables
@@ -158,6 +167,24 @@ public:
 protected:
   fuse_core::VectorXd delta_;  //!< The measured change between the two variables
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & delta_;
+    archive & sqrt_information_;
+  }
 };
 
 // Define unique names for the different variations of the absolute constraint
@@ -172,5 +199,13 @@ using RelativeVelocityLinear2DStampedConstraint = RelativeConstraint<fuse_variab
 
 // Include the template implementation
 #include <fuse_constraints/relative_constraint_impl.h>
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativeOrientation2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePosition2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePosition3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativeVelocityAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativeVelocityLinear2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_RELATIVE_CONSTRAINT_H

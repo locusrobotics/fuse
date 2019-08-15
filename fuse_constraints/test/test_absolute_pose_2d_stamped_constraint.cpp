@@ -34,6 +34,7 @@
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -264,6 +265,38 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   expected_covariance(1, 1) = cov2(0, 0);
 
   EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
+}
+
+TEST(AbsolutePose2DStampedConstraint, Serialization)
+{
+  // Construct a constraint
+  Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  fuse_core::Vector3d mean;
+  mean << 1.0, 2.0, 3.0;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  AbsolutePose2DStampedConstraint expected(position_variable, orientation_variable, mean, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  AbsolutePose2DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

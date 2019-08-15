@@ -34,13 +34,15 @@
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
-#include <ceres/autodiff_cost_function.h>
-#include <Eigen/Dense>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
+
+#include <boost/serialization/export.hpp>
+#include <ceres/autodiff_cost_function.h>
+#include <Eigen/Dense>
 
 #include <ostream>
 
@@ -101,3 +103,5 @@ ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
 }
 
 }  // namespace fuse_models
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Unicycle2DStateKinematicConstraint);

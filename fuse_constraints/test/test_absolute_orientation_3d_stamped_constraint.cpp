@@ -34,6 +34,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/Quaternion.h>
@@ -158,6 +159,37 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
     0.1, 2.0, 0.3,
     0.2, 0.3, 3.0;
   EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-3);
+}
+
+TEST(AbsoluteOrientation3DStampedConstraint, Serialization)
+{
+  // Construct a constraint
+  Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  fuse_core::Vector4d mean;
+  mean << 1.0, 0.0, 0.0, 0.0;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  AbsoluteOrientation3DStampedConstraint expected(orientation_variable, mean, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  AbsoluteOrientation3DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

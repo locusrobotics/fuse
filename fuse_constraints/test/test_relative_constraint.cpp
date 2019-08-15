@@ -34,6 +34,8 @@
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_constraints/relative_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -434,6 +436,38 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   fuse_core::Matrix1d x2_expected_covariance;
   x2_expected_covariance << 3.0;
   EXPECT_TRUE(x2_expected_covariance.isApprox(x2_actual_covariance, 1.0e-9));
+}
+
+TEST(RelativeConstraint, Serialization)
+{
+  // Construct a constraint
+  fuse_variables::AccelerationAngular2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("robby"));
+  fuse_variables::AccelerationAngular2DStamped x2(ros::Time(1235, 5678), fuse_core::uuid::generate("robby"));
+  fuse_core::Vector1d delta;
+  delta << 3.0;
+  fuse_core::Matrix1d cov;
+  cov << 1.0;
+  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint expected(x1, x2, delta, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.delta(), actual.delta());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

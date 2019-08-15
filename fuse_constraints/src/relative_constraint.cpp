@@ -31,49 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/orientation_3d_stamped.h>
-
-#include <fuse_core/local_parameterization.h>
-#include <fuse_core/uuid.h>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_constraints/relative_constraint.h>
 
 #include <boost/serialization/export.hpp>
 
 
-#include <ostream>
-
-
-namespace fuse_variables
-{
-
-Orientation3DStamped::Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable<4>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
-  Stamped(stamp, device_id)
-{
-}
-
-void Orientation3DStamped::print(std::ostream& stream) const
-{
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  device_id: " << deviceId() << "\n"
-         << "  stamp: " << stamp() << "\n"
-         << "  size: " << size() << "\n"
-         << "  data:\n"
-         << "  - w: " << w() << "\n"
-         << "  - x: " << x() << "\n"
-         << "  - y: " << y() << "\n"
-         << "  - z: " << z() << "\n";
-}
-
-fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() const
-{
-  return new Orientation3DLocalParameterization();
-}
-
-}  // namespace fuse_variables
-
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DLocalParameterization);
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DStamped);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeOrientation2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePosition2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePosition3DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeVelocityAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeVelocityLinear2DStampedConstraint);
