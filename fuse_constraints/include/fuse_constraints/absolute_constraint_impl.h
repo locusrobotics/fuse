@@ -34,9 +34,12 @@
 #ifndef FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_IMPL_H
 #define FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_IMPL_H
 
+#include <fuse_constraints/normal_prior_orientation_2d.h>
+
 #include <ceres/normal_prior.h>
 #include <Eigen/Dense>
 
+#include <string>
 #include <vector>
 
 
@@ -116,6 +119,57 @@ ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
 {
   // Ceres ships with a "prior" cost function. Just use that here.
   return new ceres::NormalPrior(sqrt_information_, mean_);
+}
+
+// Specialization for Orientation2D
+// We need to handle the 2*pi rollover for 2D orientations, so simple subtraction does not produce the correct cost
+template<>
+inline ceres::CostFunction* AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
+{
+  return new NormalPriorOrientation2D(sqrt_information_(0, 0), mean_(0));
+}
+
+// Specialize the type() method to return the name that is registered with the plugins
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::AccelerationAngular2DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::Orientation2DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteOrientation2DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::Position2DStamped>::type() const
+{
+  return "fuse_constraints::AbsolutePosition2DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::Position3DStamped>::type() const
+{
+  return "fuse_constraints::AbsolutePosition3DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint";
 }
 
 }  // namespace fuse_constraints

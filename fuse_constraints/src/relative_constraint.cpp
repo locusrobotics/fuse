@@ -33,69 +33,10 @@
  */
 #include <fuse_constraints/relative_constraint.h>
 
-#include <fuse_constraints/normal_delta_orientation_2d.h>
 #include <pluginlib/class_list_macros.h>
 
 #include <boost/serialization/export.hpp>
 
-#include <string>
-
-
-namespace fuse_constraints
-{
-
-// Specialization for Orientation2D
-template<>
-ceres::CostFunction* RelativeConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
-{
-  // Create a Gaussian/Normal Delta constraint
-  return new NormalDeltaOrientation2D(sqrt_information_(0, 0), delta_(0));
-}
-
-// Specialize the type() method to return the name that is registered with the plugins
-template<>
-std::string RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>::type() const
-{
-  return "fuse_constraints::RelativeAccelerationAngular2DStampedConstraint";
-}
-
-template<>
-std::string RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>::type() const
-{
-  return "fuse_constraints::RelativeAccelerationLinear2DStampedConstraint";
-}
-
-template<>
-std::string RelativeConstraint<fuse_variables::Orientation2DStamped>::type() const
-{
-  return "fuse_constraints::RelativeOrientation2DStampedConstraint";
-}
-
-template<>
-std::string RelativeConstraint<fuse_variables::Position2DStamped>::type() const
-{
-  return "fuse_constraints::RelativePosition2DStampedConstraint";
-}
-
-template<>
-std::string RelativeConstraint<fuse_variables::Position3DStamped>::type() const
-{
-  return "fuse_constraints::RelativePosition3DStampedConstraint";
-}
-
-template<>
-std::string RelativeConstraint<fuse_variables::VelocityAngular2DStamped>::type() const
-{
-  return "fuse_constraints::RelativeVelocityAngular2DStampedConstraint";
-}
-
-template<>
-std::string RelativeConstraint<fuse_variables::VelocityLinear2DStamped>::type() const
-{
-  return "fuse_constraints::RelativeVelocityLinear2DStampedConstraint";
-}
-
-}  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint);
