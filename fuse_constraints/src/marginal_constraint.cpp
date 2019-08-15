@@ -50,17 +50,17 @@ void MarginalConstraint::print(std::ostream& stream) const
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable:\n";
-  for (const auto& variable : variables_)
+  for (const auto& variable : variables())
   {
     stream << "   - " << variable << "\n";
   }
   Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A_.size(); ++i)
+  for (size_t i = 0; i < A().size(); ++i)
   {
-    stream << "  A[" << i << "]:\n" << A_[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar_[i].format(indent) << "\n";
+    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
+           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
   }
-  stream << "  b:\n" << b_.format(indent) << "\n";
+  stream << "  b:\n" << b().format(indent) << "\n";
 }
 
 ceres::CostFunction* MarginalConstraint::costFunction() const

@@ -77,8 +77,8 @@ void AbsoluteOrientation3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  orientation variable: " << variables_.at(0) << "\n"
-         << "  mean: " << mean_.transpose() << "\n"
+         << "  orientation variable: " << variables().at(0) << "\n"
+         << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 

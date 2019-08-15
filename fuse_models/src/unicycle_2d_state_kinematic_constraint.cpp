@@ -82,17 +82,17 @@ void Unicycle2DStateKinematicConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position variable 1: " << variables_.at(0) << "\n"
-         << "  yaw variable 1: " << variables_.at(1) << "\n"
-         << "  linear velocity variable 1: " << variables_.at(2) << "\n"
-         << "  yaw velocity variable 1: " << variables_.at(3) << "\n"
-         << "  linear acceleration variable 1: " << variables_.at(4) << "\n"
-         << "  position variable 2: " << variables_.at(5) << "\n"
-         << "  yaw variable 2: " << variables_.at(6) << "\n"
-         << "  linear velocity variable 2: " << variables_.at(7) << "\n"
-         << "  yaw velocity variable 2: " << variables_.at(8) << "\n"
-         << "  linear acceleration variable 2: " << variables_.at(9) << "\n"
-         << "  dt: " << dt_ << "\n"
+         << "  position variable 1: " << variables().at(0) << "\n"
+         << "  yaw variable 1: " << variables().at(1) << "\n"
+         << "  linear velocity variable 1: " << variables().at(2) << "\n"
+         << "  yaw velocity variable 1: " << variables().at(3) << "\n"
+         << "  linear acceleration variable 1: " << variables().at(4) << "\n"
+         << "  position variable 2: " << variables().at(5) << "\n"
+         << "  yaw variable 2: " << variables().at(6) << "\n"
+         << "  linear velocity variable 2: " << variables().at(7) << "\n"
+         << "  yaw velocity variable 2: " << variables().at(8) << "\n"
+         << "  linear acceleration variable 2: " << variables().at(9) << "\n"
+         << "  dt: " << dt() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 

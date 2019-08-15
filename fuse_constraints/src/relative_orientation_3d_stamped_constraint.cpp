@@ -81,9 +81,9 @@ void RelativeOrientation3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  orientation variable1: " << variables_.at(0) << "\n"
-         << "  orientation variable2: " << variables_.at(1) << "\n"
-         << "  delta: " << delta_.transpose() << "\n"
+         << "  orientation variable1: " << variables().at(0) << "\n"
+         << "  orientation variable2: " << variables().at(1) << "\n"
+         << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 

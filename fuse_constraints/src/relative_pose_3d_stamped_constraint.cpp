@@ -58,10 +58,10 @@ void RelativePose3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position1 variable: " << variables_.at(0) << "\n"
-         << "  orientation1 variable: " << variables_.at(1) << "\n"
-         << "  position2 variable: " << variables_.at(2) << "\n"
-         << "  orientation2 variable: " << variables_.at(3) << "\n"
+         << "  position1 variable: " << variables().at(0) << "\n"
+         << "  orientation1 variable: " << variables().at(1) << "\n"
+         << "  position2 variable: " << variables().at(2) << "\n"
+         << "  orientation2 variable: " << variables().at(3) << "\n"
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }

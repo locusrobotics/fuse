@@ -38,7 +38,6 @@
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
-#include <boost/core/demangle.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/type_index/stl_type_index.hpp>
@@ -229,7 +228,7 @@ public:
    * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
    * choice for the type string.
    */
-  virtual std::string type() const { return boost::core::demangle(typeid(*this).name()); }
+  virtual std::string type() const = 0;
 
   /**
    * @brief Returns the UUID for this constraint.
@@ -348,7 +347,7 @@ public:
    */
   virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
-protected:
+private:
   UUID uuid_;  //!< The unique ID associated with this constraint
   std::vector<UUID> variables_;  //!< The ordered set of variables involved with this constraint
 
