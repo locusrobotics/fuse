@@ -236,6 +236,26 @@ Transaction::UniquePtr Transaction::clone() const
   return Transaction::make_unique(*this);
 }
 
+void Transaction::serialize(fuse_core::BinaryOutputArchive& archive) const
+{
+  archive << *this;
+}
+
+void Transaction::serialize(fuse_core::TextOutputArchive& archive) const
+{
+  archive << *this;
+}
+
+void Transaction::deserialize(fuse_core::BinaryInputArchive& archive)
+{
+  archive >> *this;
+}
+
+void Transaction::deserialize(fuse_core::TextInputArchive& archive)
+{
+  archive >> *this;
+}
+
 std::ostream& operator <<(std::ostream& stream, const Transaction& transaction)
 {
   transaction.print(stream);
