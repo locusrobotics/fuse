@@ -31,8 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_delta_pose_3d_cost_functor.h>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.h>
+
+#include <fuse_constraints/normal_delta_pose_3d_cost_functor.h>
+#include <pluginlib/class_list_macros.h>
 
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
@@ -75,3 +77,4 @@ ceres::CostFunction* RelativePose3DStampedConstraint::costFunction() const
 }  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose3DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePose3DStampedConstraint, fuse_core::Constraint);

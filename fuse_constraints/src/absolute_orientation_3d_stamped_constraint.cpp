@@ -32,7 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
+
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.h>
+#include <pluginlib/class_list_macros.h>
 
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
@@ -110,3 +112,4 @@ fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::a
 }  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedConstraint, fuse_core::Constraint);
