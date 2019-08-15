@@ -50,6 +50,9 @@
 #include <boost/uuid/uuid_serialize.hpp>
 #include <Eigen/Core>
 
+#include <sstream>
+#include <vector>
+
 
 namespace fuse_core
 {
@@ -57,7 +60,17 @@ namespace fuse_core
   using BinaryOutputArchive = boost::archive::binary_oarchive;
   using TextInputArchive = boost::archive::text_iarchive;
   using TextOutputArchive = boost::archive::text_oarchive;
-}
+
+  /**
+   * @brief Copy the contents of the stream into a vector of bytes
+   *
+   * This function inserts additional data into the \p destination vector. Any existing contents will remain.
+   *
+   * @param[IN]  source       Populated stringstream object
+   * @param[OUT] destination  Byte vector where stream data should be copied
+   */
+  void copyStream(std::stringstream& source, std::vector<uint8_t>& destination);
+}  // namespace fuse_core
 
 namespace boost
 {
