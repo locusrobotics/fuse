@@ -285,7 +285,7 @@ TEST(AbsolutePose2DStampedConstraint, Serialization)
     expected.serialize(archive);
   }
 
-  // Deserialize a new variable from that same stream
+  // Deserialize a new constraint from that same stream
   AbsolutePose2DStampedConstraint actual;
   {
     fuse_core::TextInputArchive archive(stream);

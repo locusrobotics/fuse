@@ -231,7 +231,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Serialization)
     expected.serialize(archive);
   }
 
-  // Deserialize a new variable from that same stream
+  // Deserialize a new constraint from that same stream
   AbsoluteOrientation3DStampedEulerConstraint actual;
   {
     fuse_core::TextInputArchive archive(stream);

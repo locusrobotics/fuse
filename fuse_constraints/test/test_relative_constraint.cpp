@@ -456,7 +456,7 @@ TEST(RelativeConstraint, Serialization)
     expected.serialize(archive);
   }
 
-  // Deserialize a new variable from that same stream
+  // Deserialize a new constraint from that same stream
   fuse_constraints::RelativeAccelerationAngular2DStampedConstraint actual;
   {
     fuse_core::TextInputArchive archive(stream);

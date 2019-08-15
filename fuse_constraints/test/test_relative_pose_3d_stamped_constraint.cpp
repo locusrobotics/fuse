@@ -330,7 +330,7 @@ TEST(RelativePose3DStampedConstraint, Serialization)
     expected.serialize(archive);
   }
 
-  // Deserialize a new variable from that same stream
+  // Deserialize a new constraint from that same stream
   RelativePose3DStampedConstraint actual;
   {
     fuse_core::TextInputArchive archive(stream);
