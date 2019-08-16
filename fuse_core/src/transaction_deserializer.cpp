@@ -47,8 +47,8 @@ namespace fuse_core
 void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::SerializedTransaction& msg)
 {
   std::stringstream stream;
-  // Serialize graph into the stream
-  // The archive to not flushed until it goes out of scope
+  // Serialize the transaction into the stream
+  // Scope the archive object. The archive is not guaranteed to write to the stream until the archive goes out of scope.
   {
     BinaryOutputArchive archive(stream);
     transaction.serialize(archive);

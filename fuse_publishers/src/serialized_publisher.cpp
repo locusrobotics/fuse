@@ -58,8 +58,8 @@ SerializedPublisher::SerializedPublisher() :
 void SerializedPublisher::onInit()
 {
   // Advertise the topics
-  graph_publisher_ = node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1);
-  transaction_publisher_ = node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1);
+  graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1);
+  transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1);
 }
 
 void SerializedPublisher::notifyCallback(

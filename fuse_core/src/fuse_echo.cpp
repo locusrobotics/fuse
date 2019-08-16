@@ -41,7 +41,7 @@
 
 
 /**
- * Class that subscribes to the 'graph' and 'transaction' topic and prints the objects to stdout
+ * Class that subscribes to the 'graph' and 'transaction' topics and prints the objects to stdout
  */
 class FuseEcho
 {
@@ -50,8 +50,8 @@ public:
     node_handle_(node_handle)
   {
     // Subscribe to the constraint topic
-    graph_subscriber_ = node_handle_.subscribe("graph", 1, &FuseEcho::graphCallback, this);
-    transaction_subscriber_ = node_handle_.subscribe("transaction", 1, &FuseEcho::transactionCallback, this);
+    graph_subscriber_ = node_handle_.subscribe("graph", 100, &FuseEcho::graphCallback, this);
+    transaction_subscriber_ = node_handle_.subscribe("transaction", 100, &FuseEcho::transactionCallback, this);
   }
 
 private:
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "fuse_echo", ros::init_options::AnonymousName);
 
-  // Object that subscribes to the 'transaction' topic and prints the constraints and variables to stdout
+  // Object that subscribes to the 'graph' and 'transaction' topics and prints the objects to stdout
   FuseEcho echoer;
 
   // Wait for an exit signal

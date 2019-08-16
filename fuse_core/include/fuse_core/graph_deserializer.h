@@ -75,18 +75,18 @@ public:
    * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
    * an exception is thrown.
    *
-   * @param[IN]  msg  The SerializedGraph message to be deserialized
+   * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
    */
   fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg);
 
   /**
-   * @brief Deserialize a graph
+   * @brief Deserialize a SerializedGraph message into a fuse Graph object.
    *
    * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
    * an exception is thrown.
    *
-   * @param[IN]  msg  The SerializedGraph message to be deserialized
+   * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
    */
   fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph& msg);
