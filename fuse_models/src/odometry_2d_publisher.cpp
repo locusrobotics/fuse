@@ -44,6 +44,8 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <cpr_scalopus/common.h>
+
 #include <mutex>
 #include <string>
 #include <utility>
@@ -64,6 +66,8 @@ Odometry2DPublisher::Odometry2DPublisher() :
 
 void Odometry2DPublisher::onInit()
 {
+  TRACE_PRETTY_FUNCTION();
+
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
 
@@ -89,6 +93,8 @@ void Odometry2DPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr transaction,
   fuse_core::Graph::ConstSharedPtr graph)
 {
+  TRACE_PRETTY_FUNCTION();
+
   // Find the most recent common timestamp
   latest_stamp_ = synchronizer_.findLatestCommonStamp(*transaction, *graph);
   if (latest_stamp_ == Synchronizer::TIME_ZERO)
@@ -158,6 +164,8 @@ void Odometry2DPublisher::notifyCallback(
     }
     catch (const std::exception& e)
     {
+      TRACE_MARK_EVENT_THREAD("Error computing covariance.");
+
       ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp_ << ". "
                       "The covariance will be set to zero.\n" << e.what());
       std::fill(odom_output_.pose.covariance.begin(), odom_output_.pose.covariance.end(), 0.0);
@@ -169,6 +177,9 @@ void Odometry2DPublisher::notifyCallback(
 
 void Odometry2DPublisher::onStart()
 {
+  TRACE_THREAD_NAME(name_ + " Spinner");
+  TRACE_PRETTY_FUNCTION();
+
   synchronizer_ = Synchronizer(device_id_);
   latest_stamp_ = Synchronizer::TIME_ZERO;
   odom_output_ = nav_msgs::Odometry();
@@ -177,6 +188,8 @@ void Odometry2DPublisher::onStart()
 
 void Odometry2DPublisher::onStop()
 {
+  TRACE_PRETTY_FUNCTION();
+
   tf_publish_timer_.stop();
 }
 
