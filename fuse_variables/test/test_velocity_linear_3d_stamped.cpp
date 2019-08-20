@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_variables/velocity_linear_3d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -40,6 +41,7 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <sstream>
 #include <vector>
 
 using fuse_variables::VelocityLinear3DStamped;
@@ -116,7 +118,7 @@ TEST(VelocityLinear3DStamped, Optimization)
   VelocityLinear3DStamped velocity(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   velocity.x() = 1.5;
   velocity.y() = -3.0;
-  velocity.y() = 14.0;
+  velocity.z() = 14.0;
 
   // Create a simple a constraint
   ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(new CostFunctor());
@@ -143,6 +145,36 @@ TEST(VelocityLinear3DStamped, Optimization)
   EXPECT_NEAR(3.0, velocity.x(), 1.0e-5);
   EXPECT_NEAR(-8.0, velocity.y(), 1.0e-5);
   EXPECT_NEAR(17.0, velocity.z(), 1.0e-5);
+}
+
+TEST(VelocityLinear3DStamped, Serialization)
+{
+  // Create a VelocityLinear3DStamped
+  VelocityLinear3DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  expected.x() = 1.5;
+  expected.y() = -3.0;
+  expected.z() = 14.0;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  VelocityLinear3DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.x(), actual.x());
+  EXPECT_EQ(expected.y(), actual.y());
+  EXPECT_EQ(expected.z(), actual.z());
 }
 
 int main(int argc, char **argv)

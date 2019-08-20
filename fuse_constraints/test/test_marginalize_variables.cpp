@@ -39,11 +39,15 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <ceres/cost_function.h>
 #include <gtest/gtest.h>
 
@@ -74,7 +78,26 @@ public:
 
 protected:
   double data_;
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
+  }
 };
+
+BOOST_CLASS_EXPORT(GenericVariable);
 
 /**
  * @brief Create a simple Constraint implementation for testing

@@ -40,6 +40,8 @@
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
+#include <boost/serialization/export.hpp>
+
 #include <ostream>
 
 
@@ -126,3 +128,5 @@ fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() 
 }
 
 }  // namespace fuse_variables
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);

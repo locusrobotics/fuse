@@ -35,9 +35,12 @@
 #define FUSE_VARIABLES_STAMPED_H
 
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <ros/node_handle.h>
 #include <ros/time.h>
+
+#include <boost/serialization/access.hpp>
 
 
 namespace fuse_variables
@@ -55,6 +58,11 @@ class Stamped
 {
 public:
   SMART_PTR_ALIASES_ONLY(Stamped);
+
+  /**
+   * @brief Default constructor
+   */
+  Stamped() = default;
 
   /**
    * @brief Constructor
@@ -82,6 +90,22 @@ public:
 private:
   fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
   ros::Time stamp_;  //!< The timestamp associated with this variable instance
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & device_id_;
+    archive & stamp_;
+  }
 };
 
 /**

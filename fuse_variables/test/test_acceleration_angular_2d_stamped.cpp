@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -40,6 +41,7 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <sstream>
 #include <vector>
 
 using fuse_variables::AccelerationAngular2DStamped;
@@ -137,6 +139,32 @@ TEST(AccelerationAngular2DStamped, Optimization)
 
   // Check
   EXPECT_NEAR(2.7, acceleration.yaw(), 1.0e-5);
+}
+
+TEST(AccelerationAngular2DStamped, Serialization)
+{
+  // Create a AccelerationAngular2DStamped
+  AccelerationAngular2DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  expected.yaw() = 1.5;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  AccelerationAngular2DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.yaw(), actual.yaw());
 }
 
 int main(int argc, char **argv)
