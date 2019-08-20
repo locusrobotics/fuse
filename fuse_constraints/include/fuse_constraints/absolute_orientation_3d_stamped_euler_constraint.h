@@ -57,7 +57,7 @@ namespace fuse_constraints
 
 /**
  * @brief A constraint that represents either prior information about a 3D orientation, or a direct measurement of the
- * 3D orientation.
+ * 3D orientation as roll-pitch-yaw Euler angles.
  *
  * This constraint holds the measured 3D orientation and the measurement uncertainty/covariance. The orientation is
  * represented as Euler angles, and the covariance represents the error around each rotational axis. This constraint

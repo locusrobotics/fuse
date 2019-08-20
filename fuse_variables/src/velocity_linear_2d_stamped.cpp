@@ -36,6 +36,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
+#include <pluginlib/class_list_macros.h>
 #include <ros/time.h>
 
 #include <boost/serialization/export.hpp>
@@ -67,3 +68,4 @@ void VelocityLinear2DStamped::print(std::ostream& stream) const
 }  // namespace fuse_variables
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::VelocityLinear2DStamped);
+PLUGINLIB_EXPORT_CLASS(fuse_variables::VelocityLinear2DStamped, fuse_core::Variable);

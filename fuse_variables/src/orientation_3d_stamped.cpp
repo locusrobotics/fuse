@@ -37,6 +37,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
+#include <pluginlib/class_list_macros.h>
 #include <ros/time.h>
 
 #include <boost/serialization/export.hpp>
@@ -77,3 +78,4 @@ fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() 
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DLocalParameterization);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DStamped);
+PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation3DStamped, fuse_core::Variable);

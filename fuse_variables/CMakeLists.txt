@@ -3,6 +3,7 @@ project(fuse_variables)
 
 set(build_depends
   fuse_core
+  pluginlib
   roscpp
 )
 
@@ -14,12 +15,12 @@ find_package(Ceres REQUIRED)
 catkin_package(
   INCLUDE_DIRS
     include
-    ${CERES_INCLUDE_DIRS}
   LIBRARIES
     ${PROJECT_NAME}
-    ${CERES_LIBRARIES}
   CATKIN_DEPENDS
     ${build_depends}
+  DEPENDS
+    CERES
 )
 
 ###########
@@ -71,6 +72,11 @@ install(
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
+
+install(
+  FILES fuse_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 #############
