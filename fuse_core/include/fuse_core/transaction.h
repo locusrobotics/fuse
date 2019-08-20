@@ -36,11 +36,16 @@
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <ros/time.h>
 
 #include <boost/range/any_range.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include <ostream>
 #include <set>
@@ -224,13 +229,61 @@ public:
    */
   Transaction::UniquePtr clone() const;
 
-protected:
+  /**
+   * @brief Serialize this Constraint into the provided binary archive
+   *
+   * @param[out] archive - The archive to serialize this constraint into
+   */
+  void serialize(fuse_core::BinaryOutputArchive& /* archive */) const;
+
+  /**
+   * @brief Serialize this Constraint into the provided text archive
+   *
+   * @param[out] archive - The archive to serialize this constraint into
+   */
+  void serialize(fuse_core::TextOutputArchive& /* archive */) const;
+
+  /**
+   * @brief Deserialize data from the provided binary archive into this Constraint
+   *
+   * @param[in] archive - The archive holding serialized Constraint data
+   */
+  void deserialize(fuse_core::BinaryInputArchive& /* archive */);
+
+  /**
+   * @brief Deserialize data from the provided text archive into this Constraint
+   *
+   * @param[in] archive - The archive holding serialized Constraint data
+   */
+  void deserialize(fuse_core::TextInputArchive& /* archive */);
+
+private:
   ros::Time stamp_;  //!< The transaction message timestamp
   std::vector<Constraint::SharedPtr> added_constraints_;  //!< The constraints to be added
   std::vector<Variable::SharedPtr> added_variables_;  //!< The variables to be added
   std::set<ros::Time> involved_stamps_;  //!< The set of timestamps involved in this transaction
   std::vector<UUID> removed_constraints_;  //!< The constraint UUIDs to be removed
   std::vector<UUID> removed_variables_;  //!< The variable UUIDs to be removed
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & stamp_;
+    archive & added_constraints_;
+    archive & added_variables_;
+    archive & involved_stamps_;
+    archive & removed_constraints_;
+    archive & removed_variables_;
+  }
 };
 
 /**
