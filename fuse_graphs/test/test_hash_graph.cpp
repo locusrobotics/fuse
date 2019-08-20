@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/constraint.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_graphs/hash_graph.h>
@@ -42,6 +43,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -898,6 +900,54 @@ TEST(HashGraph, Copy)
     // The variables should have been cloned/copied, so modifying 'other' should not modify 'graph'.
     EXPECT_NEAR(1.0, graph.getVariable(variable1->uuid()).data()[0], 1.0e-7);
     EXPECT_NEAR(5.0, other->getVariable(variable1->uuid()).data()[0], 1.0e-7);
+  }
+}
+
+TEST(HashGraph, Serialization)
+{
+  // Create the graph
+  fuse_graphs::HashGraph expected;
+
+  // Add a few variables
+  auto variable1 = ExampleVariable::make_shared();
+  variable1->data()[0] = 1.0;
+  expected.addVariable(variable1);
+
+  auto variable2 = ExampleVariable::make_shared();
+  variable2->data()[0] = 2.5;
+  expected.addVariable(variable2);
+
+  // Add a few constraints
+  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  constraint1->data = 5.0;
+  expected.addConstraint(constraint1);
+
+  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  constraint2->data = -3.0;
+  expected.addConstraint(constraint2);
+
+  // Serialize the graph into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new graph from that same stream
+  fuse_graphs::HashGraph actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Verify the copy
+  for (const auto& constraint : expected.getConstraints())
+  {
+    EXPECT_TRUE(actual.constraintExists(constraint.uuid()));
+  }
+  for (const auto& variable : expected.getVariables())
+  {
+    EXPECT_TRUE(actual.variableExists(variable.uuid()));
   }
 }
 

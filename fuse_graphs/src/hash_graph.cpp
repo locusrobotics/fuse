@@ -35,6 +35,7 @@
 #include <fuse_core/uuid.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -462,3 +463,5 @@ void HashGraph::createProblem(ceres::Problem& problem) const
 }
 
 }  // namespace fuse_graphs
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_graphs::HashGraph);
