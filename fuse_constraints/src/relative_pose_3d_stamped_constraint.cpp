@@ -34,6 +34,7 @@
 #include <fuse_constraints/normal_delta_pose_3d_cost_functor.h>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.h>
 
+#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 
 
@@ -57,10 +58,10 @@ void RelativePose3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position1 variable: " << variables_.at(0) << "\n"
-         << "  orientation1 variable: " << variables_.at(1) << "\n"
-         << "  position2 variable: " << variables_.at(2) << "\n"
-         << "  orientation2 variable: " << variables_.at(3) << "\n"
+         << "  position1 variable: " << variables().at(0) << "\n"
+         << "  orientation1 variable: " << variables().at(1) << "\n"
+         << "  position2 variable: " << variables().at(2) << "\n"
+         << "  orientation2 variable: " << variables().at(3) << "\n"
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
@@ -72,3 +73,5 @@ ceres::CostFunction* RelativePose3DStampedConstraint::costFunction() const
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose3DStampedConstraint);

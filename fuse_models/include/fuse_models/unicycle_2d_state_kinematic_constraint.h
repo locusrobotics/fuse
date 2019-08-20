@@ -37,12 +37,17 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <ostream>
 #include <vector>
@@ -61,6 +66,11 @@ class Unicycle2DStateKinematicConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Unicycle2DStateKinematicConstraint);
+
+  /**
+   * @brief Default constructor
+   */
+  Unicycle2DStateKinematicConstraint() = default;
 
   /**
    * @brief Create a constraint using a time delta and a kinematic model cost functor
@@ -139,8 +149,28 @@ public:
 protected:
   double dt_;  //!< The time delta for the constraint
   fuse_core::Matrix8d sqrt_information_;  //!< The square root information matrix
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & dt_;
+    archive & sqrt_information_;
+  }
 };
 
 }  // namespace fuse_models
+
+BOOST_CLASS_EXPORT_KEY(fuse_models::Unicycle2DStateKinematicConstraint);
 
 #endif  // FUSE_MODELS_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H

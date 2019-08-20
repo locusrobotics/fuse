@@ -34,7 +34,6 @@
 #include <fuse_variables/orientation_2d_stamped.h>
 
 #include <fuse_core/local_parameterization.h>
-#include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
@@ -47,63 +46,6 @@
 
 namespace fuse_variables
 {
-
-/**
- * @brief A LocalParameterization class for 2D Orientations.
- *
- * 2D orientations add and subtract in the "usual" way, except for the 2*pi rollover issue. This local parameterization
- * handles the rollover. Because the Jacobians for this parameterization are always identity, we implement this
- * parameterization with "analytic" derivatives, instead of using the Ceres's autodiff system.
- */
-class Orientation2DLocalParameterization : public fuse_core::LocalParameterization
-{
-public:
-  int GlobalSize() const override
-  {
-    return 1;
-  }
-
-  int LocalSize() const override
-  {
-    return 1;
-  }
-
-  bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override
-  {
-    // Compute the angle increment as a linear update, and handle the 2*Pi rollover
-    x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
-    return true;
-  }
-
-  bool ComputeJacobian(
-    const double* /*x*/,
-    double* jacobian) const override
-  {
-    jacobian[0] = 1.0;
-    return true;
-  }
-
-  bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const override
-  {
-    // Compute the difference from x2 to x1, and handle the 2*Pi rollover
-    delta[0] = fuse_core::wrapAngle2D(x2[0] - x1[0]);
-    return true;
-  }
-
-  bool ComputeMinusJacobian(
-    const double* /*x*/,
-    double* jacobian) const override
-  {
-    jacobian[0] = 1.0;
-    return true;
-  }
-};
 
 Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
@@ -129,4 +71,5 @@ fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() 
 
 }  // namespace fuse_variables
 
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);

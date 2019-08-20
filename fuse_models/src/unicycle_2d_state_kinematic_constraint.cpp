@@ -34,13 +34,15 @@
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
-#include <ceres/autodiff_cost_function.h>
-#include <Eigen/Dense>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
+
+#include <boost/serialization/export.hpp>
+#include <ceres/autodiff_cost_function.h>
+#include <Eigen/Dense>
 
 #include <ostream>
 
@@ -80,17 +82,17 @@ void Unicycle2DStateKinematicConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position variable 1: " << variables_.at(0) << "\n"
-         << "  yaw variable 1: " << variables_.at(1) << "\n"
-         << "  linear velocity variable 1: " << variables_.at(2) << "\n"
-         << "  yaw velocity variable 1: " << variables_.at(3) << "\n"
-         << "  linear acceleration variable 1: " << variables_.at(4) << "\n"
-         << "  position variable 2: " << variables_.at(5) << "\n"
-         << "  yaw variable 2: " << variables_.at(6) << "\n"
-         << "  linear velocity variable 2: " << variables_.at(7) << "\n"
-         << "  yaw velocity variable 2: " << variables_.at(8) << "\n"
-         << "  linear acceleration variable 2: " << variables_.at(9) << "\n"
-         << "  dt: " << dt_ << "\n"
+         << "  position variable 1: " << variables().at(0) << "\n"
+         << "  yaw variable 1: " << variables().at(1) << "\n"
+         << "  linear velocity variable 1: " << variables().at(2) << "\n"
+         << "  yaw velocity variable 1: " << variables().at(3) << "\n"
+         << "  linear acceleration variable 1: " << variables().at(4) << "\n"
+         << "  position variable 2: " << variables().at(5) << "\n"
+         << "  yaw variable 2: " << variables().at(6) << "\n"
+         << "  linear velocity variable 2: " << variables().at(7) << "\n"
+         << "  yaw velocity variable 2: " << variables().at(8) << "\n"
+         << "  linear acceleration variable 2: " << variables().at(9) << "\n"
+         << "  dt: " << dt() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -101,3 +103,5 @@ ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
 }
 
 }  // namespace fuse_models
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Unicycle2DStateKinematicConstraint);

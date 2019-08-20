@@ -34,6 +34,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.h>
 
+#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Geometry>
 
@@ -76,8 +77,8 @@ void AbsoluteOrientation3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  orientation variable: " << variables_.at(0) << "\n"
-         << "  mean: " << mean_.transpose() << "\n"
+         << "  orientation variable: " << variables().at(0) << "\n"
+         << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -107,3 +108,5 @@ fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::a
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedConstraint);

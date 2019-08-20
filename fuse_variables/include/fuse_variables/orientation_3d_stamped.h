@@ -46,12 +46,117 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <ceres/rotation.h>
 
 #include <ostream>
 
 
 namespace fuse_variables
 {
+
+/**
+ * @brief A LocalParameterization class for 3D Orientations.
+ *
+ * 3D orientations add and subtract nonlinearly. Additionally, the typcial 3D orientation representation is a
+ * quaternion, which has 4 degrees of freedom to parameterize a 3D space. This local parameterization uses the
+ * Rodrigues/angle-axis formulas to combine 3D rotations, along with the appropriate "analytic" derivatives.
+ */
+class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
+{
+public:
+  /**
+   * @brief Create the inverse quaternion
+   *
+   * ceres/rotation.h is missing this function for some reason.
+   */
+  template<typename T> inline
+  static void QuaternionInverse(const T in[4], T out[4])
+  {
+    out[0] = in[0];
+    out[1] = -in[1];
+    out[2] = -in[2];
+    out[3] = -in[3];
+  }
+
+  int GlobalSize() const override
+  {
+    return 4;
+  }
+
+  int LocalSize() const override
+  {
+    return 3;
+  }
+
+  bool Plus(
+    const double* x,
+    const double* delta,
+    double* x_plus_delta) const override
+  {
+    double q_delta[4];
+    ceres::AngleAxisToQuaternion(delta, q_delta);
+    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    return true;
+}
+
+  bool ComputeJacobian(
+    const double* x,
+    double* jacobian) const override
+  {
+    double x0 = x[0] / 2;
+    double x1 = x[1] / 2;
+    double x2 = x[2] / 2;
+    double x3 = x[3] / 2;
+    jacobian[0] = -x1; jacobian[1]  = -x2; jacobian[2]  = -x3;  // NOLINT
+    jacobian[3] =  x0; jacobian[4]  = -x3; jacobian[5]  =  x2;  // NOLINT
+    jacobian[6] =  x3; jacobian[7]  =  x0; jacobian[8]  = -x1;  // NOLINT
+    jacobian[9] = -x2; jacobian[10] =  x1; jacobian[11] =  x0;  // NOLINT
+    return true;
+  }
+
+  bool Minus(
+    const double* x1,
+    const double* x2,
+    double* delta) const override
+  {
+    double x1_inverse[4];
+    QuaternionInverse(x1, x1_inverse);
+    double q_delta[4];
+    ceres::QuaternionProduct(x1_inverse, x2, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, delta);
+    return true;
+  }
+
+  bool ComputeMinusJacobian(
+    const double* x,
+    double* jacobian) const override
+  {
+    double x0 = x[0] * 2;
+    double x1 = x[1] * 2;
+    double x2 = x[2] * 2;
+    double x3 = x[3] * 2;
+    jacobian[0] = -x1; jacobian[1]  =  x0; jacobian[2]  =  x3;  jacobian[3]  = -x2;  // NOLINT
+    jacobian[4] = -x2; jacobian[5]  = -x3; jacobian[6]  =  x0;  jacobian[7]  =  x1;  // NOLINT
+    jacobian[8] = -x3; jacobian[9]  =  x2; jacobian[10] = -x1;  jacobian[11] =  x0;  // NOLINT
+    return true;
+  }
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
+  }
+};
 
 /**
  * @brief Variable representing a 3D orientation as a quaternion at a specific time and for a specific piece of
@@ -200,6 +305,7 @@ private:
 
 }  // namespace fuse_variables
 
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization);
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
 
 #endif  // FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
