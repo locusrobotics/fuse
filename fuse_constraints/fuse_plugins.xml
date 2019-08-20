@@ -50,7 +50,7 @@
   <class type="fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 3D orientation, or a direct measurement of the
-    3D orientation.
+    3D orientation as roll-pitch-yaw Euler angles.
     </description>
   </class>
   <class type="fuse_constraints::AbsolutePose2DStampedConstraint" base_class_type="fuse_core::Constraint">
