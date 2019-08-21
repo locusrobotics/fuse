@@ -60,36 +60,20 @@ void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::SerializedGraph& m
 }
 
 GraphDeserializer::GraphDeserializer() :
+  variable_loader_("fuse_core", "fuse_core::Variable"),
   constraint_loader_("fuse_core", "fuse_core::Constraint"),
-  graph_loader_("fuse_core", "fuse_core::Graph"),
-  variable_loader_("fuse_core", "fuse_core::Variable")
+  graph_loader_("fuse_core", "fuse_core::Graph")
 {
   // Load all known plugin libraries
   // I believe the library containing a given Variable or Constraint type must be loaded in order to deserialize
   // an object of that type. But I haven't actually tested that theory.
-  for (const auto& class_name : constraint_loader_.getDeclaredClasses())
-  {
-    constraint_loader_.loadLibraryForClass(class_name);
-  }
   for (const auto& class_name : variable_loader_.getDeclaredClasses())
   {
     variable_loader_.loadLibraryForClass(class_name);
   }
-}
-
-GraphDeserializer::~GraphDeserializer()
-{
-  for (const auto& class_name : variable_loader_.getDeclaredClasses())
-  {
-    variable_loader_.unloadLibraryForClass(class_name);
-  }
-  for (const auto& class_name : graph_loader_.getDeclaredClasses())
-  {
-    graph_loader_.unloadLibraryForClass(class_name);
-  }
   for (const auto& class_name : constraint_loader_.getDeclaredClasses())
   {
-    constraint_loader_.unloadLibraryForClass(class_name);
+    constraint_loader_.loadLibraryForClass(class_name);
   }
 }
 

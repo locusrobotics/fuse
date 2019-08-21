@@ -65,11 +65,6 @@ public:
   TransactionDeserializer();
 
   /**
-   * @brief Destructor
-   */
-  ~TransactionDeserializer();
-
-  /**
    * @brief Deserialize a SerializedTransaction message into a fuse Transaction object.
    *
    * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
@@ -92,8 +87,8 @@ public:
   fuse_core::Transaction deserialize(const fuse_msgs::SerializedTransaction& msg);
 
 private:
-  pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader for Constraint types
   pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;  //!< Pluginlib class loader for Variable types
+  pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader for Constraint types
 };
 
 }  // namespace fuse_core

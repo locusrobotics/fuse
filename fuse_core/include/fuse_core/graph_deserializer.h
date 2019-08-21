@@ -65,11 +65,6 @@ public:
   GraphDeserializer();
 
   /**
-   * @brief Destructor
-   */
-  ~GraphDeserializer();
-
-  /**
    * @brief Deserialize a SerializedGraph message into a fuse Graph object.
    *
    * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
@@ -92,9 +87,9 @@ public:
   fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph& msg);
 
 private:
+  pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;  //!< Pluginlib class loader for Variable types
   pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader for Constraint types
   pluginlib::ClassLoader<fuse_core::Graph> graph_loader_;  //!< Pluginlib class loader for Graph types
-  pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;  //!< Pluginlib class loader for Variable types
 };
 
 }  // namespace fuse_core
