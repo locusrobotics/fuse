@@ -36,9 +36,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_msgs/SerializedGraph.h>
 
-#include <algorithm>
-#include <sstream>
-#include <vector>
+#include <boost/iostreams/stream.hpp>
 
 
 namespace fuse_core
@@ -46,16 +44,14 @@ namespace fuse_core
 
 void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::SerializedGraph& msg)
 {
-  std::stringstream stream;
-  // Serialize graph into the stream
-  // The archive to not flushed until it goes out of scope
+  // Serialize the graph into the msg.data field
+  boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
+  // Scope the archive object. The archive is not guaranteed to write to the stream until the archive goes out of scope.
   {
     BinaryOutputArchive archive(stream);
     graph.serialize(archive);
   }
-  // Copy the stream into the message's data[] variable
-  copyStream(stream, msg.data);
-  // Set the plugin name using the variable's type() member function (blindly assuming these are the same thing)
+  // Set the plugin name using the graph's type() member function (blindly assuming these are the same thing)
   msg.plugin_name = graph.type();
 }
 
@@ -89,9 +85,9 @@ fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::Seri
   // back to the user as the output is not equivalent to fuse_core::Graph::UniquePtr. Instead, wrap an
   // unmanaged raw pointer in a unique_ptr, and handle the library unloading in the destructor.
   auto graph = fuse_core::Graph::UniquePtr(graph_loader_.createUnmanagedInstance(msg.plugin_name));
-  // Deserialize the message into the Graph. This will throw if something goes wrong during deserialization.
-  std::stringstream stream;
-  std::copy(msg.data.begin(), msg.data.end(), std::ostream_iterator<char>(stream));
+  // Deserialize the msg.data field into the graph.
+  // This will throw if something goes wrong in the deserialization.
+  boost::iostreams::stream<fuse_core::MessageBufferStreamSource> stream(msg.data);
   {
     BinaryInputArchive archive(stream);
     graph->deserialize(archive);

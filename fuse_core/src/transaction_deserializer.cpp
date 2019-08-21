@@ -36,9 +36,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_msgs/SerializedTransaction.h>
 
-#include <algorithm>
-#include <sstream>
-#include <vector>
+#include <boost/iostreams/stream.hpp>
 
 
 namespace fuse_core
@@ -46,15 +44,13 @@ namespace fuse_core
 
 void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::SerializedTransaction& msg)
 {
-  std::stringstream stream;
-  // Serialize the transaction into the stream
+  // Serialize the transaction into the msg.data field
+  boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
   // Scope the archive object. The archive is not guaranteed to write to the stream until the archive goes out of scope.
   {
     BinaryOutputArchive archive(stream);
     transaction.serialize(archive);
   }
-  // Copy the stream into the message's data[] variable
-  copyStream(stream, msg.data);
 }
 
 TransactionDeserializer::TransactionDeserializer() :
@@ -83,14 +79,13 @@ fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::Ser
 {
   // The Transaction object is not a plugin and has no derived types. That makes it much easier to use.
   auto transaction = fuse_core::Transaction();
-  // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
-  std::stringstream stream;
-  std::copy(msg.data.begin(), msg.data.end(), std::ostream_iterator<char>(stream));
+  // Deserialize the msg.data field into the transaction.
+  // This will throw if something goes wrong in the deserialization.
+  boost::iostreams::stream<fuse_core::MessageBufferStreamSource> stream(msg.data);
   {
     BinaryInputArchive archive(stream);
     transaction.deserialize(archive);
   }
-  // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.
   return transaction;
 }
 

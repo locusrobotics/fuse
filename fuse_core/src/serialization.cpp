@@ -33,27 +33,43 @@
  */
 #include <fuse_core/serialization.h>
 
-#include <sstream>
+#include <algorithm>
 #include <vector>
 
 
 namespace fuse_core
 {
 
-void copyStream(std::stringstream& source, std::vector<uint8_t>& destination)
+MessageBufferStreamSource::MessageBufferStreamSource(const std::vector<unsigned char>& data) :
+  data_(data),
+  index_(0)
 {
-  // Reserve the required memory in the vector. This prevents unnecessary memory reallocations if tellp is accurate.
-  int source_length = source.tellp();
-  if (source_length > 0)
+}
+
+std::streamsize MessageBufferStreamSource::read(char_type* s, std::streamsize n)
+{
+  std::streamsize result = std::min(n, static_cast<std::streamsize>(data_.size() - index_));
+  if (result != 0)
   {
-    destination.reserve(destination.size() + source_length);
+    std::copy(data_.begin() + index_, data_.begin() + index_ + result, s);
+    index_ += result;
+    return result;
   }
-  // Copy the data from the stream into the vector, byte by byte
-  char c;
-  while (source.get(c))
+  else
   {
-    destination.push_back(static_cast<uint8_t>(c));
+    return -1;  // EOF
   }
+}
+
+MessageBufferStreamSink::MessageBufferStreamSink(std::vector<unsigned char>& data) :
+  data_(data)
+{
+}
+
+std::streamsize MessageBufferStreamSink::write(const char_type* s, std::streamsize n)
+{
+  data_.insert(data_.end(), s, s + n);
+  return n;
 }
 
 }  // namespace fuse_core
