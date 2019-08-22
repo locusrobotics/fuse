@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_core)
 
 set(build_depends
+  fuse_msgs
+  pluginlib
   roscpp
 )
 
@@ -38,8 +40,11 @@ add_library(${PROJECT_NAME}
   src/async_sensor_model.cpp
   src/constraint.cpp
   src/graph.cpp
+  src/graph_deserializer.cpp
+  src/serialization.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
+  src/transaction_deserializer.cpp
   src/variable.cpp
 )
 add_dependencies(${PROJECT_NAME}
@@ -59,6 +64,23 @@ target_link_libraries(${PROJECT_NAME}
   ${CERES_LIBRARIES}
 )
 
+# fuse_echo executable
+add_executable(fuse_echo
+  src/fuse_echo.cpp
+)
+add_dependencies(fuse_echo
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(fuse_echo
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+target_link_libraries(fuse_echo
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
@@ -68,6 +90,11 @@ install(
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
+
+install(
+  TARGETS fuse_echo
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(
