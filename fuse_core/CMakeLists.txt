@@ -45,6 +45,7 @@ add_library(${PROJECT_NAME}
   src/timestamp_manager.cpp
   src/transaction.cpp
   src/transaction_deserializer.cpp
+  src/uuid.cpp
   src/variable.cpp
 )
 add_dependencies(${PROJECT_NAME}
