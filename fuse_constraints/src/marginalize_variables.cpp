@@ -405,22 +405,30 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   }
 
   // Construct the Ab matrix
-  auto Ab = fuse_core::MatrixXd(row_offsets.back(), column_offsets.back() + 1u);
-  Ab.setZero();
+  fuse_core::MatrixXd Ab = fuse_core::MatrixXd::Zero(row_offsets.back(), column_offsets.back() + 1u);
   for (size_t term_index = 0ul; term_index < linear_terms.size(); ++term_index)
   {
     const auto& linear_term = linear_terms[term_index];
     auto row_offset = row_offsets[term_index];
-
     for (size_t i = 0ul; i < linear_term.variables.size(); ++i)
     {
       const auto& A = linear_term.A[i];
       auto dense = index_to_dense[linear_term.variables[i]];
       auto column_offset = column_offsets[dense];
-      Ab.block(row_offset, column_offset, A.rows(), A.cols()) = A;
+      for (int row = 0; row < A.rows(); ++row)
+      {
+        for (int col = 0; col < A.cols(); ++col)
+        {
+          Ab(row_offset + row, column_offset + col) = A(row, col);
+        }
+      }
     }
     const auto& b = linear_term.b;
-    Ab.block(row_offset, column_offsets.back(), b.rows(), b.cols()) = b;
+    int column_offset = column_offsets.back();
+    for (int row = 0; row < b.rows(); ++row)
+    {
+      Ab(row_offset, column_offset) = b(row);
+    }
   }
 
   // Compute the QR decomposition
@@ -450,13 +458,30 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   auto marginal_term = LinearTerm();
   if (marginal_rows > 0)
   {
+    auto variable_count = dense_to_index.size() - 1;
+    marginal_term.variables.reserve(variable_count);
+    marginal_term.A.reserve(variable_count);
     for (size_t dense = 1ul; dense < dense_to_index.size(); ++dense)  // Skipping the marginalized variable
     {
       auto index = dense_to_index[dense];
       marginal_term.variables.push_back(index);
-      marginal_term.A.push_back(Ab.block(min_row, column_offsets[dense], marginal_rows, index_to_cols[index]));
+      fuse_core::MatrixXd A = fuse_core::MatrixXd::Zero(marginal_rows, index_to_cols[index]);
+      auto column_offset = column_offsets[dense];
+      for (int row = 0; row < A.rows(); ++row)
+      {
+        for (int col = 0; col < A.cols(); ++col)
+        {
+          A(row, col) = Ab(min_row + row, column_offset + col);
+        }
+      }
+      marginal_term.A.push_back(std::move(A));
     }
-    marginal_term.b = Ab.block(min_row, column_offsets.back(), marginal_rows, 1);
+    marginal_term.b = fuse_core::VectorXd::Zero(marginal_rows);
+    auto column_offset = column_offsets.back();
+    for (int row = 0; row < marginal_term.b.rows(); ++row)
+    {
+      marginal_term.b(row) = Ab(min_row + row, column_offset);
+    }
   }
   return marginal_term;
 }
