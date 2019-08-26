@@ -51,12 +51,16 @@ namespace fuse_publishers
 {
 
 SerializedPublisher::SerializedPublisher() :
-  fuse_core::AsyncPublisher(1)
+  fuse_core::AsyncPublisher(1),
+  frame_id_("map")
 {
 }
 
 void SerializedPublisher::onInit()
 {
+  // Configure the publisher
+  private_node_handle_.getParam("frame_id", frame_id_);
+
   // Advertise the topics
   graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1);
   transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1);
@@ -71,6 +75,7 @@ void SerializedPublisher::notifyCallback(
   {
     fuse_msgs::SerializedGraph msg;
     msg.header.stamp = stamp;
+    msg.header.frame_id = frame_id_;
     fuse_core::serializeGraph(*graph, msg);
     graph_publisher_.publish(msg);
   }
@@ -79,6 +84,7 @@ void SerializedPublisher::notifyCallback(
   {
     fuse_msgs::SerializedTransaction msg;
     msg.header.stamp = stamp;
+    msg.header.frame_id = frame_id_;
     fuse_core::serializeTransaction(*transaction, msg);
     transaction_publisher_.publish(msg);
   }

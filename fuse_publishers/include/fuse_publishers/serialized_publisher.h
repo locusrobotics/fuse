@@ -40,6 +40,8 @@
 #include <fuse_core/transaction.h>
 #include <ros/ros.h>
 
+#include <string>
+
 
 namespace fuse_publishers
 {
@@ -79,6 +81,7 @@ public:
     fuse_core::Graph::ConstSharedPtr graph) override;
 
 protected:
+  std::string frame_id_;  //!< The name of the frame for this path
   ros::Publisher graph_publisher_;
   ros::Publisher transaction_publisher_;
 };
