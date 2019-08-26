@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_variables/position_3d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -40,6 +41,7 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <sstream>
 #include <vector>
 
 using fuse_variables::Position3DStamped;
@@ -160,6 +162,36 @@ TEST(Position3DStamped, Optimization)
   EXPECT_NEAR(3.0, position.x(), 1.0e-5);
   EXPECT_NEAR(-8.0, position.y(), 1.0e-5);
   EXPECT_NEAR(3.1, position.z(), 1.0e-5);
+}
+
+TEST(Position3DStamped, Serialization)
+{
+  // Create a Position3DStamped
+  Position3DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  expected.x() = 1.5;
+  expected.y() = -3.0;
+  expected.z() = 0.8;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  Position3DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.x(), actual.x());
+  EXPECT_EQ(expected.y(), actual.y());
+  EXPECT_EQ(expected.z(), actual.z());
 }
 
 int main(int argc, char **argv)

@@ -32,8 +32,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
-#include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
 
+#include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
+#include <pluginlib/class_list_macros.h>
+
+#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
@@ -103,9 +106,9 @@ void AbsolutePose2DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position variable: " << variables_.at(0) << "\n"
-         << "  orientation variable: " << variables_.at(1) << "\n"
-         << "  mean: " << mean_.transpose() << "\n"
+         << "  position variable: " << variables().at(0) << "\n"
+         << "  orientation variable: " << variables().at(1) << "\n"
+         << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -116,3 +119,6 @@ ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose2DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose2DStampedConstraint, fuse_core::Constraint);

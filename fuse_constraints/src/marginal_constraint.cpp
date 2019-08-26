@@ -35,7 +35,9 @@
 
 #include <fuse_constraints/marginal_cost_function.h>
 #include <fuse_core/constraint.h>
+#include <pluginlib/class_list_macros.h>
 
+#include <boost/serialization/export.hpp>
 #include <Eigen/Core>
 
 #include <ostream>
@@ -49,17 +51,17 @@ void MarginalConstraint::print(std::ostream& stream) const
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable:\n";
-  for (const auto& variable : variables_)
+  for (const auto& variable : variables())
   {
     stream << "   - " << variable << "\n";
   }
   Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A_.size(); ++i)
+  for (size_t i = 0; i < A().size(); ++i)
   {
-    stream << "  A[" << i << "]:\n" << A_[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar_[i].format(indent) << "\n";
+    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
+           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
   }
-  stream << "  b:\n" << b_.format(indent) << "\n";
+  stream << "  b:\n" << b().format(indent) << "\n";
 }
 
 ceres::CostFunction* MarginalConstraint::costFunction() const
@@ -68,3 +70,6 @@ ceres::CostFunction* MarginalConstraint::costFunction() const
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint);

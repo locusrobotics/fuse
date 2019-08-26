@@ -33,12 +33,16 @@
  */
 #include <fuse_core/constraint.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -81,9 +85,28 @@ public:
   {
   }
 
-protected:
+private:
   double data_;
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+    archive & data_;
+  }
 };
+
+BOOST_CLASS_EXPORT(StampedVariable);
 
 /**
  * @brief Create a simple unstamped Variable for testing
@@ -118,9 +141,27 @@ public:
   {
   }
 
-protected:
+private:
   double data_;
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
+  }
 };
+
+BOOST_CLASS_EXPORT(UnstampedVariable);
 
 /**
  * @brief Create a simple Constraint for testing
@@ -129,6 +170,8 @@ class GenericConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint);
+
+  GenericConstraint() = default;
 
   GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) :
     Constraint(variable_uuids)
@@ -163,7 +206,26 @@ public:
   {
     return nullptr;
   }
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+  }
 };
+
+BOOST_CLASS_EXPORT(GenericConstraint);
+
 
 TEST(VariableStampIndex, Size)
 {

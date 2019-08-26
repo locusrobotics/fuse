@@ -39,6 +39,7 @@
 
 #include <Eigen/Dense>
 
+#include <string>
 #include <vector>
 
 
@@ -112,9 +113,9 @@ void RelativeConstraint<Variable>::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  variable1: " << variables_.at(0) << "\n"
-         << "  variable2: " << variables_.at(1) << "\n"
-         << "  delta: " << delta_.transpose() << "\n"
+         << "  variable1: " << variables().at(0) << "\n"
+         << "  variable2: " << variables().at(1) << "\n"
+         << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -131,6 +132,49 @@ inline ceres::CostFunction* RelativeConstraint<fuse_variables::Orientation2DStam
 {
   // Create a Gaussian/Normal Delta constraint
   return new NormalDeltaOrientation2D(sqrt_information_(0, 0), delta_(0));
+}
+
+// Specialize the type() method to return the name that is registered with the plugins
+template<>
+inline std::string RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>::type() const
+{
+  return "fuse_constraints::RelativeAccelerationAngular2DStampedConstraint";
+}
+
+template<>
+inline std::string RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>::type() const
+{
+  return "fuse_constraints::RelativeAccelerationLinear2DStampedConstraint";
+}
+
+template<>
+inline std::string RelativeConstraint<fuse_variables::Orientation2DStamped>::type() const
+{
+  return "fuse_constraints::RelativeOrientation2DStampedConstraint";
+}
+
+template<>
+inline std::string RelativeConstraint<fuse_variables::Position2DStamped>::type() const
+{
+  return "fuse_constraints::RelativePosition2DStampedConstraint";
+}
+
+template<>
+inline std::string RelativeConstraint<fuse_variables::Position3DStamped>::type() const
+{
+  return "fuse_constraints::RelativePosition3DStampedConstraint";
+}
+
+template<>
+inline std::string RelativeConstraint<fuse_variables::VelocityAngular2DStamped>::type() const
+{
+  return "fuse_constraints::RelativeVelocityAngular2DStampedConstraint";
+}
+
+template<>
+inline std::string RelativeConstraint<fuse_variables::VelocityLinear2DStamped>::type() const
+{
+  return "fuse_constraints::RelativeVelocityLinear2DStampedConstraint";
 }
 
 }  // namespace fuse_constraints

@@ -35,7 +35,9 @@
 #define FUSE_CORE_LOCAL_PARAMETERIZATION_H
 
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 
+#include <boost/serialization/access.hpp>
 #include <ceres/local_parameterization.h>
 
 
@@ -86,6 +88,21 @@ public:
   virtual bool ComputeMinusJacobian(
     const double* x,
     double* jacobian) const = 0;
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  {
+  }
 };
 
 }  // namespace fuse_core

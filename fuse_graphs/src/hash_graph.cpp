@@ -32,9 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_graphs/hash_graph.h>
+
 #include <fuse_core/uuid.h>
+#include <pluginlib/class_list_macros.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -462,3 +465,6 @@ void HashGraph::createProblem(ceres::Problem& problem) const
 }
 
 }  // namespace fuse_graphs
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_graphs::HashGraph);
+PLUGINLIB_EXPORT_CLASS(fuse_graphs::HashGraph, fuse_core::Graph);

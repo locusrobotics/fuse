@@ -34,7 +34,9 @@
 #include <fuse_constraints/relative_orientation_3d_stamped_constraint.h>
 
 #include <fuse_constraints/normal_delta_orientation_3d_cost_functor.h>
+#include <pluginlib/class_list_macros.h>
 
+#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Geometry>
 
@@ -80,9 +82,9 @@ void RelativeOrientation3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  orientation variable1: " << variables_.at(0) << "\n"
-         << "  orientation variable2: " << variables_.at(1) << "\n"
-         << "  delta: " << delta_.transpose() << "\n"
+         << "  orientation variable1: " << variables().at(0) << "\n"
+         << "  orientation variable2: " << variables().at(1) << "\n"
+         << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -112,3 +114,6 @@ fuse_core::Matrix3d RelativeOrientation3DStampedConstraint::toEigen(const std::a
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeOrientation3DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativeOrientation3DStampedConstraint, fuse_core::Constraint);
