@@ -53,6 +53,7 @@
 #include <ceres/cost_function.h>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -81,11 +82,13 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of all dimensions of the target variable
    *
+   * @param[in] source     The name of the sensor or motion model that generated this constraint
    * @param[in] variable   An object derived from fuse_core::Variable.
    * @param[in] mean       The measured/prior value of all variable dimensions
    * @param[in] covariance The measurement/prior uncertainty of all variable dimensions
    */
   AbsoluteConstraint(
+    const std::string& source,
     const Variable& variable,
     const fuse_core::VectorXd& mean,
     const fuse_core::MatrixXd& covariance);
@@ -93,12 +96,14 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the target variable
    *
+   * @param[in] source             The name of the sensor or motion model that generated this constraint
    * @param[in] variable           An object derived from fuse_core::Variable.
    * @param[in] partial_mean       The measured value of the subset of dimensions in the order defined by \p indices
    * @param[in] partial_covariance The uncertainty of the subset of dimensions in the order defined by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
   AbsoluteConstraint(
+    const std::string& source,
     const Variable& variable,
     const fuse_core::VectorXd& partial_mean,
     const fuse_core::MatrixXd& partial_covariance,

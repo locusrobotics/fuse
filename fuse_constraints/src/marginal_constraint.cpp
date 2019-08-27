@@ -49,6 +49,7 @@ namespace fuse_constraints
 void MarginalConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable:\n";
   for (const auto& variable : variables())

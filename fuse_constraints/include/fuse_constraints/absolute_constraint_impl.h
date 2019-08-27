@@ -48,10 +48,11 @@ namespace fuse_constraints
 
 template<class Variable>
 AbsoluteConstraint<Variable>::AbsoluteConstraint(
+  const std::string& source,
   const Variable& variable,
   const fuse_core::VectorXd& mean,
   const fuse_core::MatrixXd& covariance) :
-    fuse_core::Constraint{variable.uuid()},
+    fuse_core::Constraint(source, {variable.uuid()}),  // NOLINT(whitespace/braces)
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
@@ -62,11 +63,12 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
 
 template<class Variable>
 AbsoluteConstraint<Variable>::AbsoluteConstraint(
+  const std::string& source,
   const Variable& variable,
   const fuse_core::VectorXd& partial_mean,
   const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& indices) :
-    fuse_core::Constraint{variable.uuid()}
+    fuse_core::Constraint(source, {variable.uuid()})  // NOLINT(whitespace/braces)
 {
   assert(partial_mean.rows() == static_cast<int>(indices.size()));
   assert(partial_covariance.rows() == static_cast<int>(indices.size()));
@@ -108,6 +110,7 @@ template<class Variable>
 void AbsoluteConstraint<Variable>::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable: " << variables().at(0) << "\n"
          << "  mean: " << mean().transpose() << "\n"

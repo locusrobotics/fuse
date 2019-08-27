@@ -50,6 +50,7 @@
 #include <boost/serialization/export.hpp>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -76,7 +77,8 @@ public:
    * @brief Create a constraint using a time delta and a kinematic model cost functor
    *
    * The constraint is created between two states. The state is broken up into multiple fuse variable types.
-   * 
+   *
+   * @param[in] source The name of the sensor or motion model that generated this constraint
    * @param[in] position1 Position component variable of the fist state
    * @param[in] yaw1 Yaw component variable of the first state
    * @param[in] linear_velocity1 Linear velocity component variable of the first state
@@ -91,6 +93,7 @@ public:
    *                         (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
   Unicycle2DStateKinematicConstraint(
+    const std::string& source,
     const fuse_variables::Position2DStamped& position1,
     const fuse_variables::Orientation2DStamped& yaw1,
     const fuse_variables::VelocityLinear2DStamped& linear_velocity1,

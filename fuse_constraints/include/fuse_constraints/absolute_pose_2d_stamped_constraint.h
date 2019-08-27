@@ -48,6 +48,7 @@
 #include <Eigen/Dense>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -84,6 +85,7 @@ public:
    * the value of the \p linear_indices. The final component (if any) is dictated by the \p angular_indices.
    * The covariance matrix follows the same ordering.
    *
+   * @param[in] source             The name of the sensor or motion model that generated this constraint
    * @param[in] position           The variable representing the position components of the pose
    * @param[in] orientation        The variable representing the orientation components of the pose
    * @param[in] partial_mean       The measured/prior pose as a vector (max 3x1 vector, components are dictated by
@@ -96,6 +98,7 @@ public:
    *                               e.g. "{fuse_variables::Orientation2DStamped::Yaw}"
    */
   AbsolutePose2DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Position2DStamped& position,
     const fuse_variables::Orientation2DStamped& orientation,
     const fuse_core::VectorXd& partial_mean,

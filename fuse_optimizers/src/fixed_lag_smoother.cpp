@@ -181,7 +181,10 @@ void FixedLagSmoother::optimizationLoop()
       // Optimization is complete. Notify all the things about the graph changes.
       notify(std::move(new_transaction), graph_->clone());
       // Compute a transaction that marginalizes out those variables.
-      marginal_transaction_ = fuse_constraints::marginalizeVariables(computeVariablesToMarginalize(), *graph_);
+      marginal_transaction_ = fuse_constraints::marginalizeVariables(
+        ros::this_node::getName(),
+        computeVariablesToMarginalize(),
+        *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
       // Note: The marginal transaction will not be applied until the next optimization iteration

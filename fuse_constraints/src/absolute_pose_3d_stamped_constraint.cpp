@@ -40,16 +40,19 @@
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
+#include <string>
+
 
 namespace fuse_constraints
 {
 
 AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
+  const std::string& source,
   const fuse_variables::Position3DStamped& position,
   const fuse_variables::Orientation3DStamped& orientation,
   const fuse_core::Vector7d& mean,
   const fuse_core::Matrix6d& covariance) :
-    fuse_core::Constraint{position.uuid(), orientation.uuid()},
+    fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT(whitespace/braces)
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
@@ -58,6 +61,7 @@ AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
 void AbsolutePose3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  position variable: " << variables().at(0) << "\n"
          << "  orientation variable: " << variables().at(1) << "\n"

@@ -51,7 +51,7 @@ namespace fuse_core
 using TransactionCallback = std::function<void(Transaction::SharedPtr transaction)>;
 
 /**
- * @brief The interface definiton for sensor model plugins in the fuse ecosystem.
+ * @brief The interface definition for sensor model plugins in the fuse ecosystem.
  *
  * A sensor model plugin is responsible for generating new constraints and passing them along to the optimizer, where
  * the actual sensor fusion takes place. This class defines the basic interface between the sensor model and the

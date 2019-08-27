@@ -54,6 +54,7 @@
 #include <algorithm>
 #include <cassert>
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -85,6 +86,7 @@ public:
    * have the same number of rows, and the number of columns of each A matrix must match the \p localSize() of its
    * associated variable.
    *
+   * @param[in] source         The name of the sensor or motion model that generated this constraint
    * @param[in] first_variable Iterator pointing to the first involved variable for this constraint
    * @param[in] last_variable  Iterator pointing to one past the last involved variable for this constraint
    * @param[in] first_A        Iterator pointing to the first A matrix, associated with the first variable
@@ -93,6 +95,7 @@ public:
    */
   template<typename VariableIterator, typename MatrixIterator>
   MarginalConstraint(
+    const std::string& source,
     VariableIterator first_variable,
     VariableIterator last_variable,
     MatrixIterator first_A,
@@ -203,12 +206,14 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
 
 template<typename VariableIterator, typename MatrixIterator>
 MarginalConstraint::MarginalConstraint(
+  const std::string& source,
   VariableIterator first_variable,
   VariableIterator last_variable,
   MatrixIterator first_A,
   MatrixIterator last_A,
   const fuse_core::VectorXd& b) :
-    Constraint(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
+    Constraint(source,
+               boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
                boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
     A_(first_A, last_A),
     b_(b),

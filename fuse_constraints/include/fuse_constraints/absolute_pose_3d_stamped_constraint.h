@@ -48,6 +48,7 @@
 #include <Eigen/Dense>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -77,12 +78,14 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of the 3D pose
    *
+   * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] position    The variable representing the position components of the pose
    * @param[in] orientation The variable representing the orientation components of the pose
    * @param[in] mean        The measured/prior pose as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
    * @param[in] covariance  The measurement/prior covariance (6x6 matrix: x, y, z, qx, qy, qz)
    */
   AbsolutePose3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Position3DStamped& position,
     const fuse_variables::Orientation3DStamped& orientation,
     const fuse_core::Vector7d& mean,
