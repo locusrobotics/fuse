@@ -427,7 +427,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
     int column_offset = column_offsets.back();
     for (int row = 0; row < b.rows(); ++row)
     {
-      Ab(row_offset, column_offset) = b(row);
+      Ab(row_offset + row, column_offset) = b(row);
     }
   }
 
