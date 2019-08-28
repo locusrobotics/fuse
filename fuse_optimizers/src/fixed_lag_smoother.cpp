@@ -230,33 +230,48 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
   auto current_time = ros::Time(0, 0);
   if (!pending_transactions_.empty())
   {
-    current_time = pending_transactions_.front_key();
+    current_time = pending_transactions_.front().stamp();
   }
   // Attempt to process each pending transaction
-  while (!pending_transactions_.empty())
+  auto sensor_blacklist = std::vector<std::string>();
+  auto transaction_iter = pending_transactions_.rbegin();
+  while (transaction_iter != pending_transactions_.rend())
   {
-    auto& element = pending_transactions_.back_value();
-    // Apply the motion models to the transaction
-    if (!applyMotionModels(element.sensor_name, *element.transaction))
+    auto& element = *transaction_iter;
+    if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
     {
+      // We should not process transactions from this sensor
+      ++transaction_iter;
+    }
+    else if (applyMotionModels(element.sensor_name, *element.transaction))
+    {
+      // Processing was successful. Add the results to the final transaction, delete this one, and move to the next.
+      transaction.merge(*element.transaction, true);
+      ++transaction_iter;
+      pending_transactions_.erase(transaction_iter.base());  // Reverse iterators are weird
+    }
+    else
+    {
+      // The motion model processing failed.
+      // Check the transaction timeout to determine if it should be removed or skipped.
       if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
-                          << " could not be processed after " << (current_time - element.transaction->stamp())
-                          << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << params_.transaction_timeout << ". Ignoring this transaction.");
-        pending_transactions_.pop_back();
-        continue;
+        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp() <<
+                          " from sensor " << element.sensor_name << " could not be processed after " <<
+                          (current_time - element.transaction->stamp()) << " seconds, which is greater " <<
+                          "than the 'transaction_timeout' value of " << params_.transaction_timeout <<
+                          ". Ignoring this transaction.");
+        ++transaction_iter;
+        pending_transactions_.erase(transaction_iter.base());  // Reverse iterators are weird
       }
       else
       {
-        // The motion model failed. Stop further processing and try again next time.
-        break;
+        // The motion model failed. Stop further processing of this sensor and try again next time.
+        sensor_blacklist.push_back(element.sensor_name);
+        ++transaction_iter;
       }
     }
-    transaction.merge(*element.transaction, true);
-    pending_transactions_.pop_back();
   }
 }
 
@@ -309,7 +324,18 @@ void FixedLagSmoother::transactionCallback(
     std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
 
     // Add the new transaction to the pending set
-    pending_transactions_.insert(transaction_time, {sensor_name, std::move(transaction)});  // NOLINT
+    // The pending set is arranged "smallest stamp last" to making popping off the back more efficient
+    auto comparator = [](const ros::Time& value, const TransactionQueueElement& element)
+    {
+      return value >= element.stamp();
+    };
+    auto position = std::upper_bound(
+      pending_transactions_.begin(),
+      pending_transactions_.end(),
+      transaction->stamp(),
+      comparator);
+    pending_transactions_.insert(position, {sensor_name, std::move(transaction)});  // NOLINT
+
     // If we haven't "started" yet..
     if (!started_)
     {
@@ -323,7 +349,7 @@ void FixedLagSmoother::transactionCallback(
       //  - Either we just started and we want to purge out anything before the start time
       //  - Or we want to limit the pending size while waiting for an ignition sensor
       auto purge_time = ros::Time(0, 0);
-      auto last_pending_time = pending_transactions_.front_key();
+      auto last_pending_time = pending_transactions_.front().stamp();
       if (started_)
       {
         purge_time = start_time_;
@@ -332,7 +358,7 @@ void FixedLagSmoother::transactionCallback(
       {
         purge_time = last_pending_time - params_.transaction_timeout;
       }
-      while (!pending_transactions_.empty() && pending_transactions_.back_key() < purge_time)
+      while (!pending_transactions_.empty() && pending_transactions_.back().stamp() < purge_time)
       {
         pending_transactions_.pop_back();
       }

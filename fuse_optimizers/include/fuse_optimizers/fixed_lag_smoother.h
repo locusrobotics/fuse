@@ -39,7 +39,6 @@
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
-#include <fuse_optimizers/vector_queue.h>
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
 
@@ -141,6 +140,8 @@ protected:
   {
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
+
+    const ros::Time& stamp() const { return transaction->stamp(); }
   };
 
   /**
@@ -150,10 +151,10 @@ protected:
    * using a std::vector. The queue size must exceed several hundred entries before a std::set will outperform a
    * sorted vector.
    *
-   * Also, we sort the queue with the newest transactions first. This allows us to clear the queue using the more
+   * Also, we sort the queue with the smallest stamp last. This allows us to clear the queue using the more
    * efficient pop_back() operation.
    */
-  using TransactionQueue = VectorQueue<ros::Time, TransactionQueueElement, std::greater<ros::Time>>;
+  using TransactionQueue = std::vector<TransactionQueueElement>;
 
   fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
