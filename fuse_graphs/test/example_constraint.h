@@ -80,7 +80,7 @@ public:
   ExampleConstraint() = default;
 
   explicit ExampleConstraint(const std::string& source, const fuse_core::UUID& variable_uuid) :
-    fuse_core::Constraint(source, {variable_uuid}),
+    fuse_core::Constraint(source, {variable_uuid}),  // NOLINT
     data(0.0)
   {
   }
