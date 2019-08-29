@@ -44,6 +44,7 @@
 #include <boost/serialization/export.hpp>
 
 #include <initializer_list>
+#include <string>
 
 
 /**
@@ -56,16 +57,16 @@ public:
 
   ExampleConstraint() = default;
 
-  ExampleConstraint(std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-    fuse_core::Constraint(variable_uuid_list),
+  ExampleConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuid_list) :
+    fuse_core::Constraint(source, variable_uuid_list),
     data(0.0)
   {
   }
 
   template<typename VariableUuidIterator>
-  ExampleConstraint(VariableUuidIterator first, VariableUuidIterator last) :
-    fuse_core::Constraint(first, last),
-    data(0)
+  ExampleConstraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last) :
+    fuse_core::Constraint(source, first, last),
+    data(0.0)
   {
   }
 
