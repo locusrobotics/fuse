@@ -107,13 +107,14 @@ class GenericConstraint : public fuse_core::Constraint
 public:
   FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint);
 
-  GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) : Constraint(variable_uuids) {}
+  GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) :
+    Constraint("test", variable_uuids) {}
 
   explicit GenericConstraint(const fuse_core::UUID& variable1) :
-    fuse_core::Constraint{variable1} {}
+    fuse_core::Constraint("test", {variable1}) {}
 
   GenericConstraint(const fuse_core::UUID& variable1, const fuse_core::UUID& variable2) :
-    fuse_core::Constraint{variable1, variable2} {}
+    fuse_core::Constraint("test", {variable1, variable2}) {}
 
   void print(std::ostream& /*stream = std::cout*/) const override {}
 
@@ -204,7 +205,7 @@ TEST(MarginalizeVariables, Linearize)
   delta << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
-  auto constraint = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(*x1, *x2, delta, cov);
+  auto constraint = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x1, *x2, delta, cov);
 
   auto graph = fuse_graphs::HashGraph();
   graph.addVariable(x1);
@@ -333,25 +334,29 @@ TEST(MarginalizeVariables, MarginalizeVariables)
   mean1 << 0.92736185, 0.1, 0.2, 0.3;
   fuse_core::Matrix3d cov1;
   cov1 << 1.0, 0.0, 0.0,  0.0, 2.0, 0.0,  0.0, 0.0, 3.0;
-  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(*x1, mean1, cov1);
+  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
+    "test", *x1, mean1, cov1);
 
   fuse_core::Vector4d delta2;
   delta2 << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov2;
   cov2 << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
-  auto relative_x1_x2 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(*x1, *x2, delta2, cov2);
+  auto relative_x1_x2 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
+    "test", *x1, *x2, delta2, cov2);
 
   fuse_core::Vector4d delta3;
   delta3 << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov3;
   cov3 << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
-  auto relative_x2_x3 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(*x2, *x3, delta3, cov3);
+  auto relative_x2_x3 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
+    "test", *x2, *x3, delta3, cov3);
 
   fuse_core::Vector4d delta4;
   delta4 << 0.979795897, 0.2, 0.0, 0.0;
   fuse_core::Matrix3d cov4;
   cov4 << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
-  auto relative_x2_l1 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(*x2, *l1, delta4, cov4);
+  auto relative_x2_l1 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
+    "test", *x2, *l1, delta4, cov4);
 
   // Add to the graph
   auto graph = fuse_graphs::HashGraph();
@@ -383,7 +388,7 @@ TEST(MarginalizeVariables, MarginalizeVariables)
   const auto& expected_l1_cov = expected_covariances[2];
 
   // Marginalize out X1
-  auto transaction = fuse_constraints::marginalizeVariables({x1->uuid()}, graph);  // NOLINT
+  auto transaction = fuse_constraints::marginalizeVariables("test", {x1->uuid()}, graph);  // NOLINT
 
   // Verify the computed transaction
   auto added_variables = transaction.addedVariables();

@@ -60,15 +60,15 @@ TEST(AbsoluteOrientation3DStampedConstraint, Constructor)
   mean << 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint(orientation_variable, mean, cov));
+  EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint("test", orientation_variable, mean, cov));
 
   Eigen::Quaterniond quat_eigen(1.0, 0.0, 0.0, 0.0);
-  EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint(orientation_variable, quat_eigen, cov));
+  EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint("test", orientation_variable, quat_eigen, cov));
 
   geometry_msgs::Quaternion quat_geom;
   quat_geom.w = 1.0;
   std::array<double, 9> cov_arr = {1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0};
-  EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint(orientation_variable, quat_geom, cov_arr));
+  EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint("test", orientation_variable, quat_geom, cov_arr));
 }
 
 TEST(AbsoluteOrientation3DStampedConstraint, Covariance)
@@ -79,7 +79,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Covariance)
   mean << 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  AbsoluteOrientation3DStampedConstraint constraint(orientation_variable, mean, cov);
+  AbsoluteOrientation3DStampedConstraint constraint("test", orientation_variable, mean, cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix3d expected_sqrt_info;
@@ -113,6 +113,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
     0.1, 2.0, 0.3,
     0.2, 0.3, 3.0;
   auto constraint = AbsoluteOrientation3DStampedConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean,
     cov);
@@ -169,7 +170,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Serialization)
   mean << 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  AbsoluteOrientation3DStampedConstraint expected(orientation_variable, mean, cov);
+  AbsoluteOrientation3DStampedConstraint expected("test", orientation_variable, mean, cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

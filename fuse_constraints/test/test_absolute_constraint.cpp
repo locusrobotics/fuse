@@ -62,7 +62,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
     fuse_variables::AccelerationLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("bender"));
@@ -70,7 +71,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
     fuse_variables::Orientation2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
@@ -78,7 +80,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsoluteOrientation2DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsoluteOrientation2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
     fuse_variables::Position2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
@@ -86,7 +89,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsolutePosition2DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsolutePosition2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
     fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("clank"));
@@ -94,7 +98,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov;
     cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsolutePosition3DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsolutePosition3DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
     fuse_variables::VelocityAngular2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("gort"));
@@ -102,7 +107,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
     fuse_variables::VelocityLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
@@ -110,7 +116,8 @@ TEST(AbsoluteConstraint, Constructor)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint constraint(variable, mean, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint constraint("test", variable, mean, cov));
   }
 }
 
@@ -122,7 +129,8 @@ TEST(AbsoluteConstraint, PartialMeasurement)
   fuse_core::Matrix2d cov;
   cov << 3.0, 0.2, 0.2, 1.0;
   auto indices = std::vector<size_t>{2, 0};
-  EXPECT_NO_THROW(fuse_constraints::AbsolutePosition3DStampedConstraint constraint(variable, mean, cov, indices));
+  EXPECT_NO_THROW(
+    fuse_constraints::AbsolutePosition3DStampedConstraint constraint("test", variable, mean, cov, indices));
 }
 
 TEST(AbsoluteConstraint, Covariance)
@@ -135,7 +143,7 @@ TEST(AbsoluteConstraint, Covariance)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint(variable, mean, cov);
+    fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint("test", variable, mean, cov);
     // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
     fuse_core::Matrix2d expected_sqrt_info;
     expected_sqrt_info <<  1.002509414234171, -0.050125470711709,
@@ -153,7 +161,7 @@ TEST(AbsoluteConstraint, Covariance)
     fuse_core::Matrix2d cov;
     cov << 3.0, 0.2, 0.2, 1.0;
     auto indices = std::vector<size_t>{2, 0};
-    fuse_constraints::AbsolutePosition3DStampedConstraint constraint(variable, mean, cov, indices);
+    fuse_constraints::AbsolutePosition3DStampedConstraint constraint("test", variable, mean, cov, indices);
     // Define the expected matrices
     fuse_core::Vector3d expected_mean;
     expected_mean << 1.0, 0.0, 3.0;
@@ -175,8 +183,9 @@ TEST(AbsoluteConstraint, Optimization)
   {
     // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
     // Create a variable
-    auto variable = fuse_variables::AccelerationLinear2DStamped::make_shared(ros::Time(1234, 5678),
-                                                                             fuse_core::uuid::generate("t800"));
+    auto variable = fuse_variables::AccelerationLinear2DStamped::make_shared(
+      ros::Time(1234, 5678),
+      fuse_core::uuid::generate("t800"));
     variable->x() = 10.7;
     variable->y() = -3.2;
     // Create an absolute constraint
@@ -184,9 +193,11 @@ TEST(AbsoluteConstraint, Optimization)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    auto constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(*variable,
-                                                                                                   mean,
-                                                                                                   cov);
+    auto constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
+      "test",
+      *variable,
+      mean,
+      cov);
     // Build the problem
     ceres::Problem problem;
     problem.AddParameterBlock(
@@ -235,14 +246,23 @@ TEST(AbsoluteConstraint, Optimization)
     cov1 << 1.0, 0.0, 0.0,
             0.0, 1.0, 0.0,
             0.0, 0.0, 1.0;
-    auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean1, cov1);
+    auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
+      "test",
+      *var,
+      mean1,
+      cov1);
     fuse_core::Vector2d mean2;
     mean2 << 4.0, 2.0;
     fuse_core::Matrix2d cov2;
     cov2 << 1.0, 0.0,
             0.0, 1.0;
     auto indices2 = std::vector<size_t>{2, 0};
-    auto constraint2 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean2, cov2, indices2);
+    auto constraint2 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
+      "test",
+      *var,
+      mean2,
+      cov2,
+      indices2);
     // Build the problem
     ceres::Problem problem;
     problem.AddParameterBlock(
@@ -299,7 +319,12 @@ TEST(AbsoluteConstraint, PartialOptimization)
   cov1 << 1.0, 0.0,
           0.0, 1.0;
   std::vector<size_t> indices1 = {fuse_variables::Position3DStamped::Z, fuse_variables::Position3DStamped::X};
-  auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean1, cov1, indices1);
+  auto constraint1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
+    "test",
+    *var,
+    mean1,
+    cov1,
+    indices1);
 
   // Create another constraint for the second index
   fuse_core::Vector1d mean2;
@@ -307,7 +332,12 @@ TEST(AbsoluteConstraint, PartialOptimization)
   fuse_core::Matrix1d cov2;
   cov2 << 1.0;
   std::vector<size_t> indices2 = {fuse_variables::Position3DStamped::Y};
-  auto constraint2 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*var, mean2, cov2, indices2);
+  auto constraint2 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
+    "test",
+    *var,
+    mean2,
+    cov2,
+    indices2);
 
   // Build the problem
   ceres::Problem problem;
@@ -339,15 +369,20 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
 {
   // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
   // Create a variable
-  auto variable = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1234, 5678),
-                                                                    fuse_core::uuid::generate("tiktok"));
+  auto variable = fuse_variables::Orientation2DStamped::make_shared(
+    ros::Time(1234, 5678),
+    fuse_core::uuid::generate("tiktok"));
   variable->yaw() = 0.7;
   // Create an absolute constraint
   fuse_core::Vector1d mean;
   mean << 7.0;
   fuse_core::Matrix1d cov;
   cov << 0.10;
-  auto constraint = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(*variable, mean, cov);
+  auto constraint = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
+    "test",
+    *variable,
+    mean,
+    cov);
   // Build the problem
   ceres::Problem problem;
   problem.AddParameterBlock(
@@ -386,7 +421,7 @@ TEST(AbsoluteConstraint, Serialization)
   mean << 3.0;
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint expected(variable, mean, cov);
+  fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint expected("test", variable, mean, cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;
