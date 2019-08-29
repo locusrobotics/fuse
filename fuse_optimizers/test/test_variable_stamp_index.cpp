@@ -48,6 +48,7 @@
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 
@@ -173,28 +174,30 @@ public:
 
   GenericConstraint() = default;
 
-  GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) :
-    Constraint(variable_uuids)
+  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids) :
+    Constraint(source, variable_uuids)
   {
   }
 
-  explicit GenericConstraint(const fuse_core::UUID& variable1) :
-    fuse_core::Constraint{variable1}
+  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1) :
+    fuse_core::Constraint(source, {variable1})
   {
   }
 
   GenericConstraint(
+    const std::string& source,
     const fuse_core::UUID& variable1,
     const fuse_core::UUID& variable2) :
-      fuse_core::Constraint{variable1, variable2}
+      fuse_core::Constraint(source, {variable1, variable2})
   {
   }
 
   GenericConstraint(
+    const std::string& source,
     const fuse_core::UUID& variable1,
     const fuse_core::UUID& variable2,
     const fuse_core::UUID& variable3) :
-      fuse_core::Constraint{variable1, variable2, variable3}
+      fuse_core::Constraint(source, {variable1, variable2, variable3})
   {
   }
 
@@ -305,7 +308,7 @@ TEST(VariableStampIndex, At)
   EXPECT_EQ(ros::Time(1, 0), index.at(x2->uuid()));
 
   // Add a constraint connecting x1 and x2
-  auto c1 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
+  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
   auto transaction3 = fuse_core::Transaction();
   transaction3.addConstraint(c1);
   index.addNewTransaction(transaction3);
@@ -334,11 +337,11 @@ TEST(VariableStampIndex, Query)
   auto l1 = UnstampedVariable::make_shared();
   auto l2 = UnstampedVariable::make_shared();
 
-  auto c1 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
-  auto c2 = GenericConstraint::make_shared(x2->uuid(), x3->uuid());
-  auto c3 = GenericConstraint::make_shared(x1->uuid(), l1->uuid());
-  auto c4 = GenericConstraint::make_shared(x2->uuid(), l1->uuid());
-  auto c5 = GenericConstraint::make_shared(x3->uuid(), l2->uuid());
+  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
+  auto c2 = GenericConstraint::make_shared("test", x2->uuid(), x3->uuid());
+  auto c3 = GenericConstraint::make_shared("test", x1->uuid(), l1->uuid());
+  auto c4 = GenericConstraint::make_shared("test", x2->uuid(), l1->uuid());
+  auto c5 = GenericConstraint::make_shared("test", x3->uuid(), l2->uuid());
 
   auto transaction = fuse_core::Transaction();
   transaction.addVariable(x1);
@@ -378,11 +381,11 @@ TEST(VariableStampIndex, MarginalTransaction)
   auto l1 = UnstampedVariable::make_shared();
   auto l2 = UnstampedVariable::make_shared();
 
-  auto c1 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
-  auto c2 = GenericConstraint::make_shared(x2->uuid(), x3->uuid());
-  auto c3 = GenericConstraint::make_shared(x1->uuid(), l1->uuid());
-  auto c4 = GenericConstraint::make_shared(x2->uuid(), l1->uuid());
-  auto c5 = GenericConstraint::make_shared(x3->uuid(), l2->uuid());
+  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
+  auto c2 = GenericConstraint::make_shared("test", x2->uuid(), x3->uuid());
+  auto c3 = GenericConstraint::make_shared("test", x1->uuid(), l1->uuid());
+  auto c4 = GenericConstraint::make_shared("test", x2->uuid(), l1->uuid());
+  auto c5 = GenericConstraint::make_shared("test", x3->uuid(), l2->uuid());
 
   auto transaction = fuse_core::Transaction();
   transaction.addVariable(x1);
@@ -403,7 +406,7 @@ TEST(VariableStampIndex, MarginalTransaction)
   marginal.removeVariable(x1->uuid());
   marginal.removeConstraint(c1->uuid());
   marginal.removeConstraint(c3->uuid());
-  auto m1 = GenericConstraint::make_shared(x3->uuid(), l1->uuid());
+  auto m1 = GenericConstraint::make_shared("test", x3->uuid(), l1->uuid());
   marginal.addConstraint(m1);
   index.addMarginalTransaction(marginal);
 
