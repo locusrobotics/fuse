@@ -112,25 +112,25 @@ public:
     fuse_core::Matrix3d cov1;
     cov1 << 1.01, 0.0, 0.0,  0.0, 2.01, 0.0,  0.0, 0.0, 3.01;
     auto constraint1 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      *position1, *orientation1, mean1, cov1);
+      "test", *position1, *orientation1, mean1, cov1);
     fuse_core::Vector3d mean2;
     mean2 << 1.02, 2.02, 3.02;
     fuse_core::Matrix3d cov2;
     cov2 << 1.02, 0.0, 0.0,  0.0, 2.02, 0.0,  0.0, 0.0, 3.02;
     auto constraint2 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      *position2, *orientation2, mean2, cov2);
+      "test", *position2, *orientation2, mean2, cov2);
     fuse_core::Vector3d mean3;
     mean3 << 1.03, 2.03, 3.03;
     fuse_core::Matrix3d cov3;
     cov3 << 1.03, 0.0, 0.0,  0.0, 2.03, 0.0,  0.0, 0.0, 3.03;
     auto constraint3 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      *position3, *orientation3, mean3, cov3);
+      "test", *position3, *orientation3, mean3, cov3);
     fuse_core::Vector3d mean4;
     mean4 << 1.04, 2.04, 3.04;
     fuse_core::Matrix3d cov4;
     cov4 << 1.04, 0.0, 0.0,  0.0, 2.04, 0.0,  0.0, 0.0, 3.04;
     auto constraint4 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      *position4, *orientation4, mean4, cov4);
+      "test", *position4, *orientation4, mean4, cov4);
     transaction_->addConstraint(constraint1);
     transaction_->addConstraint(constraint2);
     transaction_->addConstraint(constraint3);
