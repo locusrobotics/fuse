@@ -45,6 +45,7 @@
 #include <ceres/cost_function.h>
 
 #include <algorithm>
+#include <string>
 
 
 /**
@@ -146,10 +147,11 @@ public:
   CovarianceConstraint() = default;
 
   CovarianceConstraint(
+    const std::string& source,
     const fuse_core::UUID& variable1_uuid,
     const fuse_core::UUID& variable2_uuid,
     const fuse_core::UUID& variable3_uuid) :
-    fuse_core::Constraint{variable1_uuid, variable2_uuid, variable3_uuid}
+    fuse_core::Constraint(source, {variable1_uuid, variable2_uuid, variable3_uuid})
   {
   }
 

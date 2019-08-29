@@ -44,6 +44,8 @@
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 
+#include <string>
+
 
 /**
  * @brief Dummy cost function used for testing
@@ -77,8 +79,8 @@ public:
 
   ExampleConstraint() = default;
 
-  explicit ExampleConstraint(const fuse_core::UUID& variable_uuid) :
-    fuse_core::Constraint{variable_uuid},
+  explicit ExampleConstraint(const std::string& source, const fuse_core::UUID& variable_uuid) :
+    fuse_core::Constraint(source, {variable_uuid}),
     data(0.0)
   {
   }
