@@ -51,6 +51,7 @@
 #include <cassert>
 #include <iterator>
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -87,6 +88,7 @@ UuidOrdering computeEliminationOrder(
  *
  * This version computes an efficient elimination order using computeEliminationOrder().
  *
+ * @param[in] source                 The name of the sensor or motion model that generated this constraint
  * @param[in] marginalized_variables The set of variable UUIDs to marginalize out
  * @param[in] graph                  A graph containing the variables and constraints that are connected to at least
  *                                   one marginalized variable. The graph may also contain additional variables and
@@ -95,6 +97,7 @@ UuidOrdering computeEliminationOrder(
  *         variables and constraints to be removed.
  */
 fuse_core::Transaction marginalizeVariables(
+  const std::string& source,
   const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph);
 
@@ -109,6 +112,7 @@ fuse_core::Transaction marginalizeVariables(
  * This version allows the user to provide their own elimination order. The marginalized_variables *must* occur
  * before any other variables in that elimination order.
  *
+ * @param[in] source                 The name of the sensor or motion model that generated this constraint
  * @param[in] marginalized_variables The set of variable UUIDs to marginalize out
  * @param[in] graph                  A graph containing the variables and constraints that are connected to at least
  *                                   one marginalized variable. The graph may also contain additional variables and
@@ -118,6 +122,7 @@ fuse_core::Transaction marginalizeVariables(
  *         variables and constraints to be removed.
  */
 fuse_core::Transaction marginalizeVariables(
+  const std::string& source,
   const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph,
   const fuse_constraints::UuidOrdering& elimination_order);
@@ -167,12 +172,14 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms);
 /**
  * @brief Convert the provided linear term into a MarginalConstraint
  *
+ * @param[in] source            The name of the sensor or motion model that generated this constraint
  * @param[in] linear_term       The LinearTerm object to convert
  * @param[in] graph             The graph object containing the current variable values
  * @param[in] elimination_order The mapping from variable UUID to LinearTerm variable index
  * @return An equivalent MarginalConstraint object
  */
 MarginalConstraint::SharedPtr createMarginalConstraint(
+  const std::string& source,
   const LinearTerm& linear_term,
   const fuse_core::Graph& graph,
   const UuidOrdering& elimination_order);

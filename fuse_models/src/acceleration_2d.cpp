@@ -90,6 +90,7 @@ void Acceleration2D::process(const geometry_msgs::AccelWithCovarianceStamped::Co
   transaction->stamp(msg->header.stamp);
 
   common::processAccelWithCovariance(
+    name(),
     device_id_,
     *msg,
     params_.target_frame,

@@ -45,6 +45,7 @@
 #include <algorithm>
 #include <iterator>
 #include <numeric>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -149,13 +150,19 @@ UuidOrdering computeEliminationOrder(
 }
 
 fuse_core::Transaction marginalizeVariables(
+  const std::string& source,
   const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph)
 {
-  return marginalizeVariables(marginalized_variables, graph, computeEliminationOrder(marginalized_variables, graph));
+  return marginalizeVariables(
+    source,
+    marginalized_variables,
+    graph,
+    computeEliminationOrder(marginalized_variables, graph));
 }
 
 fuse_core::Transaction marginalizeVariables(
+  const std::string& source,
   const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph,
   const fuse_constraints::UuidOrdering& elimination_order)
@@ -224,7 +231,7 @@ fuse_core::Transaction marginalizeVariables(
   {
     for (const auto& linear_term : linear_terms[i])
     {
-      auto marginal_constraint = detail::createMarginalConstraint(linear_term, graph, variable_order);
+      auto marginal_constraint = detail::createMarginalConstraint(source, linear_term, graph, variable_order);
       transaction.addConstraint(std::move(marginal_constraint));
     }
   }
@@ -462,6 +469,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
 }
 
 MarginalConstraint::SharedPtr createMarginalConstraint(
+  const std::string& source,
   const LinearTerm& linear_term,
   const fuse_core::Graph& graph,
   const UuidOrdering& elimination_order)
@@ -472,6 +480,7 @@ MarginalConstraint::SharedPtr createMarginalConstraint(
   };
 
   return MarginalConstraint::make_shared(
+    source,
     boost::make_transform_iterator(linear_term.variables.begin(), index_to_variable),
     boost::make_transform_iterator(linear_term.variables.end(), index_to_variable),
     linear_term.A.begin(),

@@ -61,7 +61,8 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Constructor)
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
-  EXPECT_NO_THROW(AbsoluteOrientation3DStampedEulerConstraint constraint(orientation_variable, mean, cov, axes));
+  EXPECT_NO_THROW(
+    AbsoluteOrientation3DStampedEulerConstraint constraint("test", orientation_variable, mean, cov, axes));
 }
 
 TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
@@ -74,7 +75,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
-  AbsoluteOrientation3DStampedEulerConstraint constraint(orientation_variable, mean, cov, axes);
+  AbsoluteOrientation3DStampedEulerConstraint constraint("test", orientation_variable, mean, cov, axes);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix3d expected_sqrt_info;
@@ -106,6 +107,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
   auto constraint = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean,
     cov,
@@ -160,6 +162,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   std::vector<Orientation3DStamped::Euler> axes1 =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::PITCH};
   auto constraint1 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean1,
     cov1,
@@ -172,6 +175,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   std::vector<Orientation3DStamped::Euler> axes2 =
     {Orientation3DStamped::Euler::ROLL};
   auto constraint2 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean2,
     cov2,
@@ -222,7 +226,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Serialization)
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
-  AbsoluteOrientation3DStampedEulerConstraint expected(orientation_variable, mean, cov, axes);
+  AbsoluteOrientation3DStampedEulerConstraint expected("test", orientation_variable, mean, cov, axes);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

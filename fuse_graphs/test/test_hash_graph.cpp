@@ -223,7 +223,7 @@ TEST(HashGraph, RemoveVariable)
   EXPECT_FALSE(graph.removeVariable(variable1->uuid()));
 
   // Add a constraint involving one of the variables
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addVariable(variable1);
   graph.addVariable(variable2);
   graph.addConstraint(constraint1);
@@ -337,10 +337,10 @@ TEST(HashGraph, GetConnectedVariables)
   graph.addVariable(variable3);
 
   // Create a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   graph.addConstraint(constraint2);
 
   {
@@ -375,7 +375,7 @@ TEST(HashGraph, GetConnectedVariables)
 
   {
     // Don't add constraint3 to the graph
-    auto constraint3 = ExampleConstraint::make_shared(variable3->uuid());
+    auto constraint3 = ExampleConstraint::make_shared("test", variable3->uuid());
     EXPECT_THROW(graph.getConnectedVariables(constraint3->uuid()), std::logic_error);
   }
 }
@@ -398,9 +398,9 @@ TEST(HashGraph, AddConstraint)
   graph.addVariable(variable2);
 
   // Create two different constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
 
   // Verify neither constraint exists
   EXPECT_FALSE(graph.constraintExists(constraint1->uuid()));
@@ -433,7 +433,7 @@ TEST(HashGraph, AddConstraint)
   // Create a constraint involving a new variable
   auto variable3 = ExampleVariable::make_shared();
   variable3->data()[0] = -1.2;
-  auto constraint4 = ExampleConstraint::make_shared(variable3->uuid());
+  auto constraint4 = ExampleConstraint::make_shared("test", variable3->uuid());
 
   // Attempt to add constraint4. This should throw a logic_error, as the variable has not been added yet.
   EXPECT_THROW(graph.addConstraint(constraint4), std::logic_error);
@@ -456,10 +456,10 @@ TEST(HashGraph, RemoveConstraint)
   graph.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   graph.addConstraint(constraint2);
 
   // Verify both constraints exists
@@ -501,10 +501,10 @@ TEST(HashGraph, GetConstraint)
   graph.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   graph.addConstraint(constraint2);
 
   // Verify all of the constraints are available
@@ -530,13 +530,13 @@ TEST(HashGraph, GetConstraints)
   graph.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   graph.addConstraint(constraint2);
 
-  auto constraint3 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint3 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint3);
 
   // Access all constraints
@@ -587,13 +587,13 @@ TEST(HashGraph, GetConnectedConstraints)
   graph.addVariable(variable3);
 
   // Create a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   graph.addConstraint(constraint2);
 
-  auto constraint3 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint3 = ExampleConstraint::make_shared("test", variable1->uuid());
   graph.addConstraint(constraint3);
 
   {
@@ -660,11 +660,11 @@ TEST(HashGraph, Optimize)
   graph.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   constraint1->data = 5.0;
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   constraint2->data = -3.0;
   graph.addConstraint(constraint2);
 
@@ -693,11 +693,11 @@ TEST(HashGraph, HoldVariable)
   graph.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   constraint1->data = 5.0;
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   constraint2->data = -3.0;
   graph.addConstraint(constraint2);
 
@@ -726,7 +726,7 @@ TEST(HashGraph, GetCovariance)
   auto z = ExampleVariable::make_shared(1);
   z->data()[0] = 3;
   // Create a constraint that matches the Ceres unit test
-  auto constraint = CovarianceConstraint::make_shared(x->uuid(), y->uuid(), z->uuid());
+  auto constraint = CovarianceConstraint::make_shared("test", x->uuid(), y->uuid(), z->uuid());
 
   // Add the variables and constraints to the graph
   fuse_graphs::HashGraph graph;
@@ -836,11 +836,11 @@ TEST(HashGraph, Copy)
   graph.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   constraint1->data = 5.0;
   graph.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   constraint2->data = -3.0;
   graph.addConstraint(constraint2);
 
@@ -918,11 +918,11 @@ TEST(HashGraph, Serialization)
   expected.addVariable(variable2);
 
   // Add a few constraints
-  auto constraint1 = ExampleConstraint::make_shared(variable1->uuid());
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   constraint1->data = 5.0;
   expected.addConstraint(constraint1);
 
-  auto constraint2 = ExampleConstraint::make_shared(variable2->uuid());
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   constraint2->data = -3.0;
   expected.addConstraint(constraint2);
 

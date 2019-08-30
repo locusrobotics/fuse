@@ -49,6 +49,7 @@
 #include <boost/serialization/vector.hpp>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -78,6 +79,7 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] orientation The variable representing the orientation components of the pose
    * @param[in] mean        The measured/prior Euler orientations in the order specified in /p axes
    * @param[in] covariance  The measurement/prior covariance
@@ -85,6 +87,7 @@ public:
    *                        e.g. "{ Euler::ROLL, EULER::YAW }"
    */
   AbsoluteOrientation3DStampedEulerConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation,
     const fuse_core::VectorXd& mean,
     const fuse_core::MatrixXd& covariance,

@@ -40,6 +40,7 @@
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
+#include <string>
 #include <vector>
 
 
@@ -47,11 +48,12 @@ namespace fuse_constraints
 {
 
 AbsoluteOrientation3DStampedEulerConstraint::AbsoluteOrientation3DStampedEulerConstraint(
+  const std::string& source,
   const fuse_variables::Orientation3DStamped& orientation,
   const fuse_core::VectorXd& mean,
   const fuse_core::MatrixXd& covariance,
   const std::vector<Euler> &axes) :
-    fuse_core::Constraint{orientation.uuid()},
+    fuse_core::Constraint(source, {orientation.uuid()}),  // NOLINT(whitespace/braces)
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU()),
     axes_(axes)
@@ -69,6 +71,7 @@ fuse_core::MatrixXd AbsoluteOrientation3DStampedEulerConstraint::covariance() co
 void AbsoluteOrientation3DStampedEulerConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  orientation variable: " << variables().at(0) << "\n"
          << "  mean: " << mean().transpose() << "\n"

@@ -48,11 +48,12 @@ namespace fuse_constraints
 
 template<class Variable>
 RelativeConstraint<Variable>::RelativeConstraint(
+  const std::string& source,
   const Variable& variable1,
   const Variable& variable2,
   const fuse_core::VectorXd& delta,
   const fuse_core::MatrixXd& covariance) :
-    fuse_core::Constraint{variable1.uuid(), variable2.uuid()},
+    fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()}),  // NOLINT(whitespace/braces)
     delta_(delta),
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
@@ -64,12 +65,13 @@ RelativeConstraint<Variable>::RelativeConstraint(
 
 template<class Variable>
 RelativeConstraint<Variable>::RelativeConstraint(
+  const std::string& source,
   const Variable& variable1,
   const Variable& variable2,
   const fuse_core::VectorXd& partial_delta,
   const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& indices) :
-    fuse_core::Constraint{variable1.uuid(), variable2.uuid()}
+    fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()})  // NOLINT(whitespace/braces)
 {
   assert(variable1.size() == variable2.size());
   assert(partial_delta.rows() == static_cast<int>(indices.size()));
@@ -112,6 +114,7 @@ template<class Variable>
 void RelativeConstraint<Variable>::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable1: " << variables().at(0) << "\n"
          << "  variable2: " << variables().at(1) << "\n"

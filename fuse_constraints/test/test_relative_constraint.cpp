@@ -64,7 +64,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativeAccelerationAngular2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::AccelerationLinear2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("bender"));
@@ -73,7 +74,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::Orientation2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
@@ -82,7 +84,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativeOrientation2DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativeOrientation2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::Position2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
@@ -91,7 +94,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativePosition2DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativePosition2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::Position3DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("clank"));
@@ -100,7 +104,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov;
     cov << 1.0, 0.1, 0.2, 0.3, 2.0, 0.3, 0.2, 0.3, 3.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativePosition3DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::VelocityAngular2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("gort"));
@@ -109,7 +114,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativeVelocityAngular2DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativeVelocityAngular2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::VelocityLinear2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
@@ -118,7 +124,8 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint(x1, x2, delta, cov));
+    EXPECT_NO_THROW(
+      fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
 }
 
@@ -131,7 +138,8 @@ TEST(RelativeConstraint, PartialMeasurement)
   fuse_core::Matrix2d cov;
   cov << 3.0, 0.2, 0.2, 1.0;
   auto indices = std::vector<size_t>{2, 0};
-  EXPECT_NO_THROW(fuse_constraints::RelativePosition3DStampedConstraint constraint(x1, x2, delta, cov, indices));
+  EXPECT_NO_THROW(
+    fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov, indices));
 }
 
 TEST(RelativeConstraint, Covariance)
@@ -145,7 +153,7 @@ TEST(RelativeConstraint, Covariance)
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint(x1, x2, delta, cov);
+    fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint("test", x1, x2, delta, cov);
     // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
     fuse_core::Matrix2d expected_sqrt_info;
     expected_sqrt_info <<  1.002509414234171, -0.050125470711709,
@@ -164,7 +172,7 @@ TEST(RelativeConstraint, Covariance)
     fuse_core::Matrix2d cov;
     cov << 3.0, 0.2, 0.2, 1.0;
     auto indices = std::vector<size_t>{2, 0};
-    fuse_constraints::RelativePosition3DStampedConstraint constraint(x1, x2, delta, cov, indices);
+    fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov, indices);
     // Define the expected matrices
     fuse_core::Vector3d expected_delta;
     expected_delta << 1.0, 0.0, 3.0;
@@ -187,12 +195,14 @@ TEST(RelativeConstraint, Optimization)
     // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
     // Verify the expected value and covariance are generated.
     // Create the variables
-    auto x1 = fuse_variables::AccelerationLinear2DStamped::make_shared(ros::Time(1234, 5678),
-                                                                       fuse_core::uuid::generate("t800"));
+    auto x1 = fuse_variables::AccelerationLinear2DStamped::make_shared(
+      ros::Time(1234, 5678),
+      fuse_core::uuid::generate("t800"));
     x1->x() = 10.7;
     x1->y() = -3.2;
-    auto x2 = fuse_variables::AccelerationLinear2DStamped::make_shared(ros::Time(1235, 5678),
-                                                                       fuse_core::uuid::generate("t800"));
+    auto x2 = fuse_variables::AccelerationLinear2DStamped::make_shared(
+      ros::Time(1235, 5678),
+      fuse_core::uuid::generate("t800"));
     x2->x() = -4.2;
     x2->y() = 1.9;
     // Create an absolute constraint
@@ -200,13 +210,22 @@ TEST(RelativeConstraint, Optimization)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov1;
     cov1 << 1.0, 0.1, 0.1, 2.0;
-    auto prior = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(*x1, mean, cov1);
+    auto prior = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
+      "test",
+      *x1,
+      mean,
+      cov1);
     // Create an relative constraint
     fuse_core::Vector2d delta;
     delta << 0.1, 0.2;
     fuse_core::Matrix2d cov2;
     cov2 << 1.0, 0.0, 0.0, 2.0;
-    auto relative = fuse_constraints::RelativeAccelerationLinear2DStampedConstraint::make_shared(*x1, *x2, delta, cov2);
+    auto relative = fuse_constraints::RelativeAccelerationLinear2DStampedConstraint::make_shared(
+      "test",
+      *x1,
+      *x2,
+      delta,
+      cov2);
     // Build the problem
     ceres::Problem problem;
     problem.AddParameterBlock(
@@ -268,13 +287,15 @@ TEST(RelativeConstraint, Optimization)
     // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
     // Verify the expected value and covariance are generated.
     // Create the variables
-    auto x1 = fuse_variables::Position3DStamped::make_shared(ros::Time(1234, 5678),
-                                                             fuse_core::uuid::generate("t1000"));
+    auto x1 = fuse_variables::Position3DStamped::make_shared(
+      ros::Time(1234, 5678),
+      fuse_core::uuid::generate("t1000"));
     x1->x() = 10.7;
     x1->y() = -3.2;
     x1->z() = 0.4;
-    auto x2 = fuse_variables::Position3DStamped::make_shared(ros::Time(1235, 5678),
-                                                             fuse_core::uuid::generate("t1000"));
+    auto x2 = fuse_variables::Position3DStamped::make_shared(
+      ros::Time(1235, 5678),
+      fuse_core::uuid::generate("t1000"));
     x2->x() = -4.2;
     x2->y() = 1.9;
     x2->z() = 19.2;
@@ -283,20 +304,35 @@ TEST(RelativeConstraint, Optimization)
     mean1 << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov1;
     cov1 << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-    auto c1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(*x1, mean1, cov1);
+    auto c1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
+      "test",
+      *x1,
+      mean1,
+      cov1);
     // Create an relative constraint
     fuse_core::Vector3d delta2;
     delta2 << 0.1, 0.2, 0.3;
     fuse_core::Matrix3d cov2;
     cov2 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-    auto c2 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(*x1, *x2, delta2, cov2);
+    auto c2 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(
+      "test",
+      *x1,
+      *x2,
+      delta2,
+      cov2);
     // Create an partial relative constraint
     fuse_core::Vector2d delta3;
     delta3 << 0.1, 0.2;
     fuse_core::Matrix2d cov3;
     cov3 << 1.0, 0.0, 0.0, 3.0;
     auto indices3 = std::vector<size_t>{2, 0};
-    auto c3 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(*x1, *x2, delta3, cov3, indices3);
+    auto c3 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(
+      "test",
+      *x1,
+      *x2,
+      delta3,
+      cov3,
+      indices3);
     // Build the problem
     ceres::Problem problem;
     problem.AddParameterBlock(
@@ -367,24 +403,35 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
   // Verify the expected value and covariance are generated.
   // Create the variables
-  auto x1 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1234, 5678),
-                                                              fuse_core::uuid::generate("t800"));
+  auto x1 = fuse_variables::Orientation2DStamped::make_shared(
+    ros::Time(1234, 5678),
+    fuse_core::uuid::generate("t800"));
   x1->yaw() = 0.7;
-  auto x2 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1235, 5678),
-                                                              fuse_core::uuid::generate("t800"));
+  auto x2 = fuse_variables::Orientation2DStamped::make_shared(
+    ros::Time(1235, 5678),
+    fuse_core::uuid::generate("t800"));
   x2->yaw() = -2.2;
   // Create an absolute constraint
   fuse_core::Vector1d mean;
   mean << 1.0;
   fuse_core::Matrix1d cov1;
   cov1 << 2.0;
-  auto prior = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(*x1, mean, cov1);
+  auto prior = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
+    "test",
+    *x1,
+    mean,
+    cov1);
   // Create an relative constraint
   fuse_core::Vector1d delta;
   delta << 0.1;
   fuse_core::Matrix1d cov2;
   cov2 << 1.0;
-  auto relative = fuse_constraints::RelativeOrientation2DStampedConstraint::make_shared(*x1, *x2, delta, cov2);
+  auto relative = fuse_constraints::RelativeOrientation2DStampedConstraint::make_shared(
+    "test",
+    *x1,
+    *x2,
+    delta,
+    cov2);
   // Build the problem
   ceres::Problem problem;
   problem.AddParameterBlock(
@@ -447,7 +494,7 @@ TEST(RelativeConstraint, Serialization)
   delta << 3.0;
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint expected(x1, x2, delta, cov);
+  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint expected("test", x1, x2, delta, cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

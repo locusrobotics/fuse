@@ -70,7 +70,8 @@ TEST(AbsolutePose3DStampedConstraint, Constructor)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  EXPECT_NO_THROW(AbsolutePose3DStampedConstraint constraint(position_variable, orientation_variable, mean, cov));
+  EXPECT_NO_THROW(
+    AbsolutePose3DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov));
 }
 
 TEST(AbsolutePose3DStampedConstraint, Covariance)
@@ -91,7 +92,7 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  AbsolutePose3DStampedConstraint constraint(position_variable, orientation_variable, mean, cov);
+  AbsolutePose3DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix6d expected_sqrt_info;
@@ -136,6 +137,7 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
          0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
 
   auto constraint = AbsolutePose3DStampedConstraint::make_shared(
+    "test",
     *position_variable,
     *orientation_variable,
     mean,
@@ -230,7 +232,7 @@ TEST(AbsolutePose3DStampedConstraint, Serialization)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  AbsolutePose3DStampedConstraint expected(position_variable, orientation_variable, mean, cov);
+  AbsolutePose3DStampedConstraint expected("test", position_variable, orientation_variable, mean, cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

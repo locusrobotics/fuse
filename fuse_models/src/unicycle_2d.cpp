@@ -232,6 +232,7 @@ void Unicycle2D::generateMotionModel(
 
   // Create the constraints for this motion model segment
   auto constraint = fuse_models::Unicycle2DStateKinematicConstraint::make_shared(
+    name(),
     *position1,
     *yaw1,
     *velocity_linear1,

@@ -50,6 +50,7 @@
 
 #include <array>
 #include <ostream>
+#include <string>
 
 
 namespace fuse_constraints
@@ -74,11 +75,13 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] orientation The variable representing the orientation components of the pose
    * @param[in] mean        The measured/prior orientation as a quaternion (4x1 vector: w, x, y, z)
    * @param[in] covariance  The measurement/prior covariance (3x3 matrix: qx, qy, qz)
    */
   AbsoluteOrientation3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation,
     const fuse_core::Vector4d& mean,
     const fuse_core::Matrix3d& covariance);
@@ -86,11 +89,13 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] orientation The variable representing the orientation components of the pose
    * @param[in] mean        The measured/prior orientation as an Eigen quaternion
    * @param[in] covariance  The measurement/prior covariance (3x3 matrix: qx, qy, qz)
    */
   AbsoluteOrientation3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation,
     const Eigen::Quaterniond& mean,
     const fuse_core::Matrix3d& covariance);
@@ -98,11 +103,13 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] orientation The variable representing the orientation components of the pose
    * @param[in] mean        The measured/prior orientation as a ROS quaternion message
    * @param[in] covariance  The measurement/prior covariance (3x3 matrix: qx, qy, qz)
    */
   AbsoluteOrientation3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation,
     const geometry_msgs::Quaternion& mean,
     const std::array<double, 9>& covariance);

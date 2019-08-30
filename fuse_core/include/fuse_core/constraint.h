@@ -202,12 +202,12 @@ public:
    *
    * Accepts an arbitrary number of variable UUIDs directly. It can be called like:
    * @code{.cpp}
-   * Constraint{uuid1, uuid2, uuid3};
+   * Constraint("source", {uuid1, uuid2, uuid3});
    * @endcode
    *
    * @param[in] variable_uuid_list The list of involved variable UUIDs
    */
-  Constraint(std::initializer_list<UUID> variable_uuid_list);
+  Constraint(const std::string& source, std::initializer_list<UUID> variable_uuid_list);
 
   /**
    * @brief Constructor
@@ -215,7 +215,7 @@ public:
    * Accepts an arbitrary number of variable UUIDs stored in a container using iterators.
    */
   template<typename VariableUuidIterator>
-  Constraint(VariableUuidIterator first, VariableUuidIterator last);
+  Constraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last);
 
   /**
    * @brief Destructor
@@ -236,6 +236,11 @@ public:
    * Each constraint will generate a unique, random UUID during construction.
    */
   const UUID& uuid() const { return uuid_; }
+
+  /**
+   * @brief Returns the name of the sensor or motion model that generated this constraint
+   */
+  const std::string& source() const { return source_; }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -348,6 +353,7 @@ public:
   virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
+  std::string source_;  //!< The name of the sensor or motion model that generated this constraint
   UUID uuid_;  //!< The unique ID associated with this constraint
   std::vector<UUID> variables_;  //!< The ordered set of variables involved with this constraint
 
@@ -367,6 +373,7 @@ private:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
+    archive & source_;
     archive & uuid_;
     archive & variables_;
   }
@@ -379,7 +386,8 @@ std::ostream& operator <<(std::ostream& stream, const Constraint& constraint);
 
 
 template<typename VariableUuidIterator>
-Constraint::Constraint(VariableUuidIterator first, VariableUuidIterator last) :
+Constraint::Constraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last) :
+  source_(source),
   uuid_(uuid::generate()),
   variables_(first, last)
 {

@@ -50,6 +50,7 @@
 
 #include <array>
 #include <ostream>
+#include <string>
 
 
 namespace fuse_constraints
@@ -73,12 +74,14 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source       The name of the sensor or motion model that generated this constraint
    * @param[in] orientation1 The variable representing the first orientation
    * @param[in] orientation2 The variable representing the second orientation
    * @param[in] delta        The measured orientation change as a quaternion (4x1 vector: w, x, y, z)
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
   RelativeOrientation3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation1,
     const fuse_variables::Orientation3DStamped& orientation2,
     const fuse_core::Vector4d& delta,
@@ -87,12 +90,14 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source       The name of the sensor or motion model that generated this constraint
    * @param[in] orientation1 The variable representing the first orientation
    * @param[in] orientation2 The variable representing the second orientation
    * @param[in] delta        The measured orientation change as an Eigen quaternion
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
   RelativeOrientation3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation1,
     const fuse_variables::Orientation3DStamped& orientation2,
     const Eigen::Quaterniond& delta,
@@ -101,12 +106,14 @@ public:
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source       The name of the sensor or motion model that generated this constraint
    * @param[in] orientation1 The variable representing the first orientation
    * @param[in] orientation2 The variable representing the second orientation
    * @param[in] delta        The measured orientation change as a ROS quaternion message
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
   RelativeOrientation3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation1,
     const fuse_variables::Orientation3DStamped& orientation2,
     const geometry_msgs::Quaternion& delta,

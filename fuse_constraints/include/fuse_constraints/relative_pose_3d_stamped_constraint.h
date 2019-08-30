@@ -48,6 +48,7 @@
 #include <Eigen/Dense>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -74,6 +75,7 @@ public:
   /**
    * @brief Constructor
    *
+   * @param[in] source       The name of the sensor or motion model that generated this constraint
    * @param[in] position1    The variable representing the position components of the first pose
    * @param[in] orientation1 The variable representing the orientation components of the first pose
    * @param[in] position2    The variable representing the position components of the second pose
@@ -82,6 +84,7 @@ public:
    * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, dqx, dqy, dqz)
    */
   RelativePose3DStampedConstraint(
+    const std::string& source,
     const fuse_variables::Position3DStamped& position1,
     const fuse_variables::Orientation3DStamped& orientation1,
     const fuse_variables::Position3DStamped& position2,

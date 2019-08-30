@@ -53,6 +53,7 @@
 #include <ceres/cost_function.h>
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -84,12 +85,14 @@ public:
   /**
    * @brief Create a constraint on the change of all dimensions between the two target variables
    *
+   * @param[in] source     The name of the sensor or motion model that generated this constraint
    * @param[in] variable1  The first variable
    * @param[in] variable2  The second variable
    * @param[in] delta      The measured change between variable1 and variable2
    * @param[in] covariance The measurement uncertainty
    */
   RelativeConstraint(
+    const std::string& source,
     const Variable& variable1,
     const Variable& variable2,
     const fuse_core::VectorXd& delta,
@@ -100,6 +103,7 @@ public:
    *
    * Create a constraint on the change of a partial set of dimensions between the two target variables
    *
+   * @param[in] source             The name of the sensor or motion model that generated this constraint
    * @param[in] variable1          The first variable
    * @param[in] variable2          The second variable
    * @param[in] partial_delta      The measured change of the subset of dimensions in the order defined by \p indices
@@ -107,6 +111,7 @@ public:
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
   RelativeConstraint(
+    const std::string& source,
     const Variable& variable1,
     const Variable& variable2,
     const fuse_core::VectorXd& delta,
