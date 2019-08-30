@@ -48,6 +48,32 @@
 #include <vector>
 
 
+namespace
+{
+/**
+ * @brief Delete an element from the vector using a reverse iterator
+ *
+ * @param[in] container The contain to delete from
+ * @param[in] position  A reverse iterator that access the element to be erased
+ * @return A reverse iterator pointing to the element after the erased element
+ */
+template <typename T>
+typename std::vector<T>::reverse_iterator erase(
+  std::vector<T>& container,
+  typename std::vector<T>::reverse_iterator position)
+{
+  // Reverse iterators are weird
+  // https://stackoverflow.com/questions/1830158/how-to-call-erase-with-a-reverse-iterator
+  // Basically a reverse iterator access the element one place before the element it points at.
+  // E.g. The reverse iterator rbegin points at end, but accesses end-1.
+  // When you delete something, you need to increment the reverse iterator first, then convert it to a standard
+  // iterator for the erase operation.
+  std::advance(position, 1);
+  container.erase(position.base());
+  return position;
+}
+}  // namespace
+
 namespace fuse_optimizers
 {
 
@@ -234,21 +260,20 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
   }
   // Attempt to process each pending transaction
   auto sensor_blacklist = std::vector<std::string>();
-  auto transaction_iter = pending_transactions_.rbegin();
-  while (transaction_iter != pending_transactions_.rend())
+  auto transaction_riter = pending_transactions_.rbegin();
+  while (transaction_riter != pending_transactions_.rend())
   {
-    auto& element = *transaction_iter;
+    auto& element = *transaction_riter;
     if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
     {
       // We should not process transactions from this sensor
-      ++transaction_iter;
+      ++transaction_riter;
     }
     else if (applyMotionModels(element.sensor_name, *element.transaction))
     {
       // Processing was successful. Add the results to the final transaction, delete this one, and move to the next.
       transaction.merge(*element.transaction, true);
-      ++transaction_iter;
-      pending_transactions_.erase(transaction_iter.base());  // Reverse iterators are weird
+      transaction_riter = erase(pending_transactions_, transaction_riter);
     }
     else
     {
@@ -262,14 +287,13 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
                           (current_time - element.transaction->stamp()) << " seconds, which is greater " <<
                           "than the 'transaction_timeout' value of " << params_.transaction_timeout <<
                           ". Ignoring this transaction.");
-        ++transaction_iter;
-        pending_transactions_.erase(transaction_iter.base());  // Reverse iterators are weird
+        transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
       {
         // The motion model failed. Stop further processing of this sensor and try again next time.
         sensor_blacklist.push_back(element.sensor_name);
-        ++transaction_iter;
+        ++transaction_riter;
       }
     }
   }
