@@ -48,6 +48,32 @@
 #include <vector>
 
 
+namespace
+{
+/**
+ * @brief Delete an element from the vector using a reverse iterator
+ *
+ * @param[in] container The contain to delete from
+ * @param[in] position  A reverse iterator that access the element to be erased
+ * @return A reverse iterator pointing to the element after the erased element
+ */
+template <typename T>
+typename std::vector<T>::reverse_iterator erase(
+  std::vector<T>& container,
+  typename std::vector<T>::reverse_iterator position)
+{
+  // Reverse iterators are weird
+  // https://stackoverflow.com/questions/1830158/how-to-call-erase-with-a-reverse-iterator
+  // Basically a reverse iterator access the element one place before the element it points at.
+  // E.g. The reverse iterator rbegin points at end, but accesses end-1.
+  // When you delete something, you need to increment the reverse iterator first, then convert it to a standard
+  // iterator for the erase operation.
+  std::advance(position, 1);
+  container.erase(position.base());
+  return position;
+}
+}  // namespace
+
 namespace fuse_optimizers
 {
 
@@ -230,33 +256,46 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
   auto current_time = ros::Time(0, 0);
   if (!pending_transactions_.empty())
   {
-    current_time = pending_transactions_.front_key();
+    current_time = pending_transactions_.front().stamp();
   }
   // Attempt to process each pending transaction
-  while (!pending_transactions_.empty())
+  auto sensor_blacklist = std::vector<std::string>();
+  auto transaction_riter = pending_transactions_.rbegin();
+  while (transaction_riter != pending_transactions_.rend())
   {
-    auto& element = pending_transactions_.back_value();
-    // Apply the motion models to the transaction
-    if (!applyMotionModels(element.sensor_name, *element.transaction))
+    auto& element = *transaction_riter;
+    if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
     {
+      // We should not process transactions from this sensor
+      ++transaction_riter;
+    }
+    else if (applyMotionModels(element.sensor_name, *element.transaction))
+    {
+      // Processing was successful. Add the results to the final transaction, delete this one, and move to the next.
+      transaction.merge(*element.transaction, true);
+      transaction_riter = erase(pending_transactions_, transaction_riter);
+    }
+    else
+    {
+      // The motion model processing failed.
+      // Check the transaction timeout to determine if it should be removed or skipped.
       if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
-                          << " could not be processed after " << (current_time - element.transaction->stamp())
-                          << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << params_.transaction_timeout << ". Ignoring this transaction.");
-        pending_transactions_.pop_back();
-        continue;
+        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp() <<
+                          " from sensor " << element.sensor_name << " could not be processed after " <<
+                          (current_time - element.transaction->stamp()) << " seconds, which is greater " <<
+                          "than the 'transaction_timeout' value of " << params_.transaction_timeout <<
+                          ". Ignoring this transaction.");
+        transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
       {
-        // The motion model failed. Stop further processing and try again next time.
-        break;
+        // The motion model failed. Stop further processing of this sensor and try again next time.
+        sensor_blacklist.push_back(element.sensor_name);
+        ++transaction_riter;
       }
     }
-    transaction.merge(*element.transaction, true);
-    pending_transactions_.pop_back();
   }
 }
 
@@ -309,7 +348,18 @@ void FixedLagSmoother::transactionCallback(
     std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
 
     // Add the new transaction to the pending set
-    pending_transactions_.insert(transaction_time, {sensor_name, std::move(transaction)});  // NOLINT
+    // The pending set is arranged "smallest stamp last" to making popping off the back more efficient
+    auto comparator = [](const ros::Time& value, const TransactionQueueElement& element)
+    {
+      return value >= element.stamp();
+    };
+    auto position = std::upper_bound(
+      pending_transactions_.begin(),
+      pending_transactions_.end(),
+      transaction->stamp(),
+      comparator);
+    pending_transactions_.insert(position, {sensor_name, std::move(transaction)});  // NOLINT
+
     // If we haven't "started" yet..
     if (!started_)
     {
@@ -323,7 +373,7 @@ void FixedLagSmoother::transactionCallback(
       //  - Either we just started and we want to purge out anything before the start time
       //  - Or we want to limit the pending size while waiting for an ignition sensor
       auto purge_time = ros::Time(0, 0);
-      auto last_pending_time = pending_transactions_.front_key();
+      auto last_pending_time = pending_transactions_.front().stamp();
       if (started_)
       {
         purge_time = start_time_;
@@ -332,7 +382,7 @@ void FixedLagSmoother::transactionCallback(
       {
         purge_time = last_pending_time - params_.transaction_timeout;
       }
-      while (!pending_transactions_.empty() && pending_transactions_.back_key() < purge_time)
+      while (!pending_transactions_.empty() && pending_transactions_.back().stamp() < purge_time)
       {
         pending_transactions_.pop_back();
       }
