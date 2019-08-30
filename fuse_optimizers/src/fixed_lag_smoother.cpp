@@ -203,7 +203,7 @@ void FixedLagSmoother::optimizationLoop()
       // Update the graph
       graph_->update(*new_transaction);
       // Optimize the entire graph
-      graph_->optimize();
+      graph_->optimize(params_.solver_options);
       // Optimization is complete. Notify all the things about the graph changes.
       notify(std::move(new_transaction), graph_->clone());
       // Compute a transaction that marginalizes out those variables.

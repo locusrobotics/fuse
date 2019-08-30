@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2019 Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,20 +31,59 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_graphs/hash_graph.h>
-#include <fuse_graphs/hash_graph_params.h>
-#include <fuse_optimizers/fixed_lag_smoother.h>
-#include <ros/ros.h>
+#ifndef FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
+#define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 
+#include <ros/console.h>
+#include <ros/duration.h>
+#include <ros/node_handle.h>
 
-int main(int argc, char **argv)
+#include <ceres/problem.h>
+
+#include <algorithm>
+#include <string>
+#include <vector>
+
+namespace fuse_graphs
 {
-  ros::init(argc, argv, "fixed_lag_smoother_node");
-  ros::NodeHandle private_node_handle("~");
-  fuse_graphs::HashGraphParams hash_graph_params;
-  hash_graph_params.loadFromROS(private_node_handle);
-  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params));
-  ros::spin();
 
-  return 0;
-}
+/**
+ * @brief Defines the set of parameters required by the fuse_graphs::HashGraph class
+ */
+struct HashGraphParams
+{
+public:
+  /**
+   * @brief Ceres Problem::Options object that controls various aspects of the optimization problem.
+   *
+   * See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#123
+   */
+  ceres::Problem::Options problem_options;
+
+  /**
+   * @brief Method for loading parameter values from ROS.
+   *
+   * @param[in] nh - The ROS node handle with which to load parameters
+   */
+  void loadFromROS(const ros::NodeHandle& nh)
+  {
+    loadProblemOptionsFromROS(ros::NodeHandle(nh, "problem_options"));
+  }
+
+private:
+  /**
+   * @brief Method for loading Ceres Problem::Options parameter values from ROS.
+   *
+   * @param[in] nh - The ROS node handle with which to load Ceres Problem::Options parameters
+   */
+  void loadProblemOptionsFromROS(const ros::NodeHandle& nh)
+  {
+    nh.param("enable_fast_removal", problem_options.enable_fast_removal, problem_options.enable_fast_removal);
+    nh.param("disable_all_safety_checks", problem_options.disable_all_safety_checks,
+             problem_options.disable_all_safety_checks);
+  }
+};
+
+}  // namespace fuse_graphs
+
+#endif  // FUSE_GRAPHS_HASH_GRAPH_PARAMS_H

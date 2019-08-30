@@ -36,8 +36,12 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_core/ceres_options.h>
+
 #include <ros/console.h>
 #include <ros/node_handle.h>
+
+#include <ceres/covariance.h>
 
 #include <cassert>
 #include <string>
@@ -102,6 +106,8 @@ struct Odometry2DPublisherParams : public ParameterBase
       }
 
       nh.getParam("topic", topic);
+
+      loadCovarianceOptionsFromROS(ros::NodeHandle(nh, "covariance_options"));
     }
 
     bool publish_tf { true };
@@ -116,6 +122,29 @@ struct Odometry2DPublisherParams : public ParameterBase
     std::string base_link_output_frame_id { base_link_frame_id };
     std::string world_frame_id { odom_frame_id };
     std::string topic { "odometry/filtered" };
+    ceres::Covariance::Options covariance_options;
+
+  private:
+    /**
+     * @brief Method for loading ceres::Covariance::Options values from ROS.
+     *
+     * @param[in] nh - The ROS node handle with which to load parameters
+     */
+    void loadCovarianceOptionsFromROS(const ros::NodeHandle& nh)
+    {
+#if CERES_VERSION_AT_LEAST(1, 13, 0)
+      // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
+      // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
+      covariance_options.sparse_linear_algebra_library_type = fuse_core::getParam(
+          nh, "sparse_linear_algebra_library_type", covariance_options.sparse_linear_algebra_library_type);
+#endif
+      covariance_options.algorithm_type = fuse_core::getParam(nh, "algorithm_type", covariance_options.algorithm_type);
+      nh.param("min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number,
+               covariance_options.min_reciprocal_condition_number);
+      nh.param("null_space_rank", covariance_options.null_space_rank, covariance_options.null_space_rank);
+      nh.param("num_threads", covariance_options.num_threads, covariance_options.num_threads);
+      nh.param("apply_loss_function", covariance_options.apply_loss_function, covariance_options.apply_loss_function);
+    }
 };
 
 }  // namespace parameters
