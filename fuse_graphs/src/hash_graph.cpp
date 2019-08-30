@@ -50,8 +50,8 @@
 namespace fuse_graphs
 {
 
-HashGraph::HashGraph(const ceres::Problem::Options& options) :
-  problem_options_(options)
+HashGraph::HashGraph(const HashGraphParams& params) :
+  problem_options_(params.problem_options)
 {
 }
 

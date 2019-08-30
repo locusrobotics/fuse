@@ -43,7 +43,7 @@ int main(int argc, char **argv)
   ros::NodeHandle private_node_handle("~");
   fuse_graphs::HashGraphParams hash_graph_params;
   hash_graph_params.loadFromROS(private_node_handle);
-  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params.problem_options));
+  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params));
   ros::spin();
 
   return 0;

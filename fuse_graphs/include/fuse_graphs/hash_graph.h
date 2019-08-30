@@ -41,12 +41,8 @@
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/unordered_set.hpp>
+#include <fuse_graphs/hash_graph_params.h>
+
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -79,10 +75,9 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] options A configured Ceres Problem::Options object
-   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#123
+   * @param[in] params HashGraph parameters.
    */
-  explicit HashGraph(const ceres::Problem::Options& options = ceres::Problem::Options());
+  explicit HashGraph(const HashGraphParams& params = HashGraphParams());
 
   /**
    * @brief Copy constructor

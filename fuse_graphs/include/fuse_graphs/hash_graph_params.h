@@ -10,6 +10,8 @@
 #include <ros/duration.h>
 #include <ros/node_handle.h>
 
+#include <ceres/problem.h>
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -25,6 +27,8 @@ struct HashGraphParams
 public:
   /**
    * @brief Ceres Problem::Options object that controls various aspects of the optimization problem.
+   *
+   * See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#123
    */
   ceres::Problem::Options problem_options;
 
