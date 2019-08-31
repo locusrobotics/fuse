@@ -81,7 +81,7 @@ void TimestampManager::query(
   Transaction motion_model_transaction;
   std::set<ros::Time> augmented_stamps(stamps.begin(), stamps.end());
   auto first_stamp = *augmented_stamps.begin();
-  ros::Time last_stamp = *augmented_stamps.rbegin();
+  auto last_stamp = *augmented_stamps.rbegin();
   {
     auto begin = motion_model_history_.upper_bound(first_stamp);
     if (begin != motion_model_history_.begin())
