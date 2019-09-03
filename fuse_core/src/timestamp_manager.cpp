@@ -123,9 +123,9 @@ void TimestampManager::query(
             if (std::any_of(
                   transaction_variables.begin(),
                   transaction_variables.end(),
-                  [&variable](const fuse_core::Variable& input_variable)
+                  [variable_uuid = variable->uuid()](const auto& input_variable)
                   {
-                    return input_variable.uuid() == variable->uuid();
+                    return input_variable.uuid() == variable_uuid;
                   }))  // NOLINT
             {
               motion_model_transaction.addVariable(variable, update_variables);
