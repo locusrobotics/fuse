@@ -34,104 +34,20 @@
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <fuse_core/local_parameterization.h>
-#include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
+#include <pluginlib/class_list_macros.h>
 #include <ros/time.h>
 
-#include <ceres/rotation.h>
+#include <boost/serialization/export.hpp>
+
 
 #include <ostream>
 
 
-namespace
-{
-/**
- * @brief Create the inverse quaternion
- *
- * ceres/rotation.h is missing this function for some reason.
- */
-template<typename T> inline
-void QuaternionInverse(const T in[4], T out[4])
-{
-  out[0] = in[0];
-  out[1] = -in[1];
-  out[2] = -in[2];
-  out[3] = -in[3];
-}
-
-}  // namespace
-
 namespace fuse_variables
 {
-
-class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
-{
-public:
-  int GlobalSize() const override
-  {
-    return 4;
-  }
-
-  int LocalSize() const override
-  {
-    return 3;
-  }
-
-  bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override
-  {
-    double q_delta[4];
-    ceres::AngleAxisToQuaternion(delta, q_delta);
-    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
-    return true;
-}
-
-  bool ComputeJacobian(
-    const double* x,
-    double* jacobian) const override
-  {
-    double x0 = x[0] / 2;
-    double x1 = x[1] / 2;
-    double x2 = x[2] / 2;
-    double x3 = x[3] / 2;
-    jacobian[0] = -x1; jacobian[1]  = -x2; jacobian[2]  = -x3;  // NOLINT
-    jacobian[3] =  x0; jacobian[4]  = -x3; jacobian[5]  =  x2;  // NOLINT
-    jacobian[6] =  x3; jacobian[7]  =  x0; jacobian[8]  = -x1;  // NOLINT
-    jacobian[9] = -x2; jacobian[10] =  x1; jacobian[11] =  x0;  // NOLINT
-    return true;
-  }
-
-  bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const override
-  {
-    double x1_inverse[4];
-    QuaternionInverse(x1, x1_inverse);
-    double q_delta[4];
-    ceres::QuaternionProduct(x1_inverse, x2, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, delta);
-    return true;
-  }
-
-  bool ComputeMinusJacobian(
-    const double* x,
-    double* jacobian) const override
-  {
-    double x0 = x[0] * 2;
-    double x1 = x[1] * 2;
-    double x2 = x[2] * 2;
-    double x3 = x[3] * 2;
-    jacobian[0] = -x1; jacobian[1]  =  x0; jacobian[2]  =  x3;  jacobian[3]  = -x2;  // NOLINT
-    jacobian[4] = -x2; jacobian[5]  = -x3; jacobian[6]  =  x0;  jacobian[7]  =  x1;  // NOLINT
-    jacobian[8] = -x3; jacobian[9]  =  x2; jacobian[10] = -x1;  jacobian[11] =  x0;  // NOLINT
-    return true;
-  }
-};
 
 Orientation3DStamped::Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
   FixedSizeVariable<4>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
@@ -159,3 +75,7 @@ fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() 
 }
 
 }  // namespace fuse_variables
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DLocalParameterization);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DStamped);
+PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation3DStamped, fuse_core::Variable);

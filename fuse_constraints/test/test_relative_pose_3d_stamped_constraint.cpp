@@ -35,6 +35,7 @@
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
@@ -64,7 +65,7 @@ TEST(RelativePose3DStampedConstraint, Constructor)
   fuse_core::Vector7d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079, 0.094;
 
-  // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
   fuse_core::Matrix6d cov;
   cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
          1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
@@ -73,12 +74,8 @@ TEST(RelativePose3DStampedConstraint, Constructor)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  EXPECT_NO_THROW(RelativePose3DStampedConstraint constraint(position1,
-                                                             orientation1,
-                                                             position2,
-                                                             orientation2,
-                                                             delta,
-                                                             cov));
+  EXPECT_NO_THROW(
+    RelativePose3DStampedConstraint constraint("test", position1, orientation1, position2, orientation2, delta, cov));
 }
 
 TEST(RelativePose3DStampedConstraint, Covariance)
@@ -100,12 +97,14 @@ TEST(RelativePose3DStampedConstraint, Covariance)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  RelativePose3DStampedConstraint constraint(position1,
-                                             orientation1,
-                                             position2,
-                                             orientation2,
-                                             delta,
-                                             cov);
+  RelativePose3DStampedConstraint constraint(
+    "test",
+    position1,
+    orientation1,
+    position2,
+    orientation2,
+    delta,
+    cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix6d expected_sqrt_info;
@@ -153,21 +152,25 @@ TEST(RelativePose3DStampedConstraint, Optimization)
   fuse_core::Vector7d mean_origin;
   mean_origin << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix6d cov_origin = fuse_core::Matrix6d::Identity();
-  auto prior = AbsolutePose3DStampedConstraint::make_shared(*position1,
-                                                            *orientation1,
-                                                            mean_origin,
-                                                            cov_origin);
+  auto prior = AbsolutePose3DStampedConstraint::make_shared(
+    "test",
+    *position1,
+    *orientation1,
+    mean_origin,
+    cov_origin);
 
   // Create a relative pose constraint for 1m in the x direction
   fuse_core::Vector7d mean_delta;
   mean_delta << 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix6d cov_delta = fuse_core::Matrix6d::Identity();
-  auto relative = RelativePose3DStampedConstraint::make_shared(*position1,
-                                                               *orientation1,
-                                                               *position2,
-                                                               *orientation2,
-                                                               mean_delta,
-                                                               cov_delta);
+  auto relative = RelativePose3DStampedConstraint::make_shared(
+    "test",
+    *position1,
+    *orientation1,
+    *position2,
+    *orientation2,
+    mean_delta,
+    cov_delta);
 
   // Build the problem
   ceres::Problem problem;
@@ -298,6 +301,49 @@ TEST(RelativePose3DStampedConstraint, Optimization)
 
     EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
   }
+}
+
+TEST(RelativePose3DStampedConstraint, Serialization)
+{
+  // Construct a constraint
+  Orientation3DStamped orientation1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped position1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped orientation2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped position2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+
+  fuse_core::Vector7d delta;
+  delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079, 0.094;
+
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  fuse_core::Matrix6d cov;
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
+         1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
+         1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
+         1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
+         1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
+         1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
+
+  RelativePose3DStampedConstraint expected("test", position1, orientation1, position2, orientation2, delta, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new constraint from that same stream
+  RelativePose3DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.delta(), actual.delta());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

@@ -37,13 +37,19 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/Quaternion.h>
 
-#include <array>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -52,7 +58,7 @@ namespace fuse_constraints
 
 /**
  * @brief A constraint that represents either prior information about a 3D orientation, or a direct measurement of the
- * 3D orientation.
+ * 3D orientation as roll-pitch-yaw Euler angles.
  *
  * This constraint holds the measured 3D orientation and the measurement uncertainty/covariance. The orientation is
  * represented as Euler angles, and the covariance represents the error around each rotational axis. This constraint
@@ -66,8 +72,14 @@ public:
   using Euler = fuse_variables::Orientation3DStamped::Euler;
 
   /**
+   * @brief Default constructor
+   */
+  AbsoluteOrientation3DStampedEulerConstraint() = default;
+
+  /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
    *
+   * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] orientation The variable representing the orientation components of the pose
    * @param[in] mean        The measured/prior Euler orientations in the order specified in /p axes
    * @param[in] covariance  The measurement/prior covariance
@@ -75,6 +87,7 @@ public:
    *                        e.g. "{ Euler::ROLL, EULER::YAW }"
    */
   AbsoluteOrientation3DStampedEulerConstraint(
+    const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation,
     const fuse_core::VectorXd& mean,
     const fuse_core::MatrixXd& covariance,
@@ -137,8 +150,29 @@ protected:
   fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
   std::vector<Euler> axes_;  //!< Which Euler angle axes we want to measure
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & mean_;
+    archive & sqrt_information_;
+    archive & axes_;
+  }
 };
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint);
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_H

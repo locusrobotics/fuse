@@ -236,6 +236,7 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
  * \p transaction. The pose data is extracted from the \p pose message. Only 2D data is used. The data will be
  * automatically transformed into the \p target_frame before it is used.
  *
+ * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose - The PoseWithCovarianceStamped message from which we will extract the pose data
  * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is used
@@ -244,6 +245,7 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
  * @return true if any constraints were added, false otherwise
  */
 inline bool processAbsolutePoseWithCovariance(
+  const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose,
   const std::string& target_frame,
@@ -304,7 +306,13 @@ inline bool processAbsolutePoseWithCovariance(
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-    *position, *orientation, pose_mean_partial, pose_covariance_partial, position_indices, orientation_indices);
+    source,
+    *position,
+    *orientation,
+    pose_mean_partial,
+    pose_covariance_partial,
+    position_indices,
+    orientation_indices);
 
   transaction.addVariable(position);
   transaction.addVariable(orientation);
@@ -325,6 +333,7 @@ inline bool processAbsolutePoseWithCovariance(
  * Additionally, the covariance of each pose message is rotated into the robot's base frame at the time of
  * pose_absolute1. They are then added in the constraint. This assumes independence between the pose measurements.
  *
+ * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The first (and temporally later) PoseWithCovarianceStamped message
@@ -332,6 +341,7 @@ inline bool processAbsolutePoseWithCovariance(
  * @return true if any constraints were added, false otherwise
  */
 inline bool processDifferentialPoseWithCovariance(
+  const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose1,
   const geometry_msgs::PoseWithCovarianceStamped& pose2,
@@ -432,6 +442,7 @@ inline bool processDifferentialPoseWithCovariance(
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
+    source,
     *position1,
     *orientation1,
     *position2,
@@ -459,6 +470,7 @@ inline bool processDifferentialPoseWithCovariance(
  * constraints to the given \p transaction. The velocity data is extracted from the \p twist message. Only 2D data is
  * used. The data will be automatically transformed into the \p target_frame before it is used.
  *
+ * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] twist - The TwistWithCovarianceStamped message from which we will extract the twist data
  * @param[in] target_frame - The frame ID into which the twist data will be transformed before it is used
@@ -467,6 +479,7 @@ inline bool processDifferentialPoseWithCovariance(
  * @return true if any constraints were added, false otherwise
  */
 inline bool processTwistWithCovariance(
+  const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::TwistWithCovarianceStamped& twist,
   const std::string& target_frame,
@@ -524,7 +537,7 @@ inline bool processTwistWithCovariance(
       linear_vel_covariance_partial);
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
-      *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
+      source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
 
     transaction.addVariable(velocity_linear);
     transaction.addConstraint(linear_vel_constraint);
@@ -545,7 +558,7 @@ inline bool processTwistWithCovariance(
     angular_vel_covariance << transformed_message.twist.covariance[35];
 
     auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
-      *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
+      source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
 
     transaction.addVariable(velocity_angular);
     transaction.addConstraint(angular_vel_constraint);
@@ -567,6 +580,7 @@ inline bool processTwistWithCovariance(
  * The acceleration data is extracted from the \p acceleration message. Only 2D data is used. The data will be
  * automatically transformed into the \p target_frame before it is used.
  *
+ * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] acceleration - The AccelWithCovarianceStamped message from which we will extract the acceleration data
  * @param[in] target_frame - The frame ID into which the acceleration data will be transformed before it is used
@@ -575,6 +589,7 @@ inline bool processTwistWithCovariance(
  * @return true if any constraints were added, false otherwise
  */
 inline bool processAccelWithCovariance(
+  const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::AccelWithCovarianceStamped& acceleration,
   const std::string& target_frame,
@@ -622,6 +637,7 @@ inline bool processAccelWithCovariance(
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
+    source,
     *acceleration_linear,
     accel_mean_partial,
     accel_covariance_partial,

@@ -286,22 +286,27 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::PoseWithCovarianceStampe
 
   // Create absolute constraints for each variable
   auto position_constraint = fuse_constraints::AbsolutePosition2DStampedConstraint::make_shared(
+    name(),
     *position,
     fuse_core::Vector2d(position->x(), position->y()),
     position_cov);
   auto orientation_constraint = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
+    name(),
     *orientation,
     fuse_core::Vector1d(orientation->yaw()),
     orientation_cov);
   auto linear_velocity_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
+    name(),
     *linear_velocity,
     fuse_core::Vector2d(linear_velocity->x(), linear_velocity->y()),
     linear_velocity_cov);
   auto angular_velocity_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
+    name(),
     *angular_velocity,
     fuse_core::Vector1d(angular_velocity->yaw()),
     angular_velocity_cov);
   auto linear_acceleration_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
+    name(),
     *linear_acceleration,
     fuse_core::Vector2d(linear_acceleration->x(), linear_acceleration->y()),
     linear_acceleration_cov);

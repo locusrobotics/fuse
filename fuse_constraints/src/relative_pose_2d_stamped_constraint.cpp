@@ -31,11 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_delta_pose_2d_cost_functor.h>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 
+#include <fuse_constraints/normal_delta_pose_2d_cost_functor.h>
+#include <pluginlib/class_list_macros.h>
+
+#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 
+#include <string>
 #include <vector>
 
 
@@ -43,6 +47,7 @@ namespace fuse_constraints
 {
 
 RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
+  const std::string& source,
   const fuse_variables::Position2DStamped& position1,
   const fuse_variables::Orientation2DStamped& orientation1,
   const fuse_variables::Position2DStamped& position2,
@@ -51,7 +56,9 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& linear_indices,
   const std::vector<size_t>& angular_indices) :
-    fuse_core::Constraint{position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}
+    fuse_core::Constraint(
+      source,
+      {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})  // NOLINT(whitespace/braces)
 {
   size_t total_variable_size = position1.size() + orientation1.size();
   size_t total_indices = linear_indices.size() + angular_indices.size();
@@ -104,11 +111,12 @@ fuse_core::Matrix3d RelativePose2DStampedConstraint::covariance() const
 void RelativePose2DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position1 variable: " << variables_.at(0) << "\n"
-         << "  orientation1 variable: " << variables_.at(1) << "\n"
-         << "  position2 variable: " << variables_.at(2) << "\n"
-         << "  orientation2 variable: " << variables_.at(3) << "\n"
+         << "  position1 variable: " << variables().at(0) << "\n"
+         << "  orientation1 variable: " << variables().at(1) << "\n"
+         << "  position2 variable: " << variables().at(2) << "\n"
+         << "  orientation2 variable: " << variables().at(3) << "\n"
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
@@ -120,3 +128,6 @@ ceres::CostFunction* RelativePose2DStampedConstraint::costFunction() const
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose2DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePose2DStampedConstraint, fuse_core::Constraint);

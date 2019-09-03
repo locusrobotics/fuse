@@ -34,6 +34,7 @@
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -60,7 +61,8 @@ TEST(AbsolutePose2DStampedConstraint, Constructor)
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  EXPECT_NO_THROW(AbsolutePose2DStampedConstraint constraint(position_variable, orientation_variable, mean, cov));
+  EXPECT_NO_THROW(
+    AbsolutePose2DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov));
 }
 
 TEST(AbsolutePose2DStampedConstraint, Covariance)
@@ -72,7 +74,7 @@ TEST(AbsolutePose2DStampedConstraint, Covariance)
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  AbsolutePose2DStampedConstraint constraint(position_variable, orientation_variable, mean, cov);
+  AbsolutePose2DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov);
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix3d expected_sqrt_info;
   expected_sqrt_info <<  1.008395589795798, -0.040950074712520, -0.063131365181801,
@@ -98,10 +100,12 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  auto constraint = AbsolutePose2DStampedConstraint::make_shared(*position_variable,
-                                                                 *orientation_variable,
-                                                                 mean,
-                                                                 cov);
+  auto constraint = AbsolutePose2DStampedConstraint::make_shared(
+    "test",
+    *position_variable,
+    *orientation_variable,
+    mean,
+    cov);
   // Build the problem
   ceres::Problem problem;
   problem.AddParameterBlock(
@@ -173,12 +177,14 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   cov1 << 1.0, 0.2, 0.2, 3.0;
   std::vector<size_t> axes_lin1 = {fuse_variables::Position2DStamped::X};
   std::vector<size_t> axes_ang1 = {fuse_variables::Orientation2DStamped::YAW};
-  auto constraint1 = AbsolutePose2DStampedConstraint::make_shared(*position_variable,
-                                                                  *orientation_variable,
-                                                                  mean1,
-                                                                  cov1,
-                                                                  axes_lin1,
-                                                                  axes_ang1);
+  auto constraint1 = AbsolutePose2DStampedConstraint::make_shared(
+    "test",
+    *position_variable,
+    *orientation_variable,
+    mean1,
+    cov1,
+    axes_lin1,
+    axes_ang1);
 
   // Create an absolute pose constraint
   fuse_core::Vector1d mean2;
@@ -187,12 +193,14 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   cov2 << 2.0;
   std::vector<size_t> axes_lin2 = {fuse_variables::Position2DStamped::Y};
   std::vector<size_t> axes_ang2;
-  auto constraint2 = AbsolutePose2DStampedConstraint::make_shared(*position_variable,
-                                                                  *orientation_variable,
-                                                                  mean2,
-                                                                  cov2,
-                                                                  axes_lin2,
-                                                                  axes_ang2);
+  auto constraint2 = AbsolutePose2DStampedConstraint::make_shared(
+    "test",
+    *position_variable,
+    *orientation_variable,
+    mean2,
+    cov2,
+    axes_lin2,
+    axes_ang2);
 
   // Build the problem
   ceres::Problem problem;
@@ -264,6 +272,38 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   expected_covariance(1, 1) = cov2(0, 0);
 
   EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
+}
+
+TEST(AbsolutePose2DStampedConstraint, Serialization)
+{
+  // Construct a constraint
+  Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  fuse_core::Vector3d mean;
+  mean << 1.0, 2.0, 3.0;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  AbsolutePose2DStampedConstraint expected("test", position_variable, orientation_variable, mean, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new constraint from that same stream
+  AbsolutePose2DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

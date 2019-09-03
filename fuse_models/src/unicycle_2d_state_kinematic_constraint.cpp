@@ -34,21 +34,26 @@
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
-#include <ceres/autodiff_cost_function.h>
-#include <Eigen/Dense>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
+#include <pluginlib/class_list_macros.h>
+
+#include <boost/serialization/export.hpp>
+#include <ceres/autodiff_cost_function.h>
+#include <Eigen/Dense>
 
 #include <ostream>
+#include <string>
 
 
 namespace fuse_models
 {
 
 Unicycle2DStateKinematicConstraint::Unicycle2DStateKinematicConstraint(
+  const std::string& source,
   const fuse_variables::Position2DStamped& position1,
   const fuse_variables::Orientation2DStamped& yaw1,
   const fuse_variables::VelocityLinear2DStamped& linear_velocity1,
@@ -60,17 +65,18 @@ Unicycle2DStateKinematicConstraint::Unicycle2DStateKinematicConstraint(
   const fuse_variables::VelocityAngular2DStamped& yaw_velocity2,
   const fuse_variables::AccelerationLinear2DStamped& linear_acceleration2,
   const fuse_core::Matrix8d& covariance) :
-    fuse_core::Constraint{  // NOLINT
-      position1.uuid(),
-      yaw1.uuid(),
-      linear_velocity1.uuid(),
-      yaw_velocity1.uuid(),
-      linear_acceleration1.uuid(),
-      position2.uuid(),
-      yaw2.uuid(),
-      linear_velocity2.uuid(),
-      yaw_velocity2.uuid(),
-      linear_acceleration2.uuid()},  // NOLINT
+    fuse_core::Constraint(
+      source,
+      {position1.uuid(),
+       yaw1.uuid(),
+       linear_velocity1.uuid(),
+       yaw_velocity1.uuid(),
+       linear_acceleration1.uuid(),
+       position2.uuid(),
+       yaw2.uuid(),
+       linear_velocity2.uuid(),
+       yaw_velocity2.uuid(),
+       linear_acceleration2.uuid()}),  // NOLINT
     dt_((position2.stamp() - position1.stamp()).toSec()),
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
@@ -79,18 +85,19 @@ Unicycle2DStateKinematicConstraint::Unicycle2DStateKinematicConstraint(
 void Unicycle2DStateKinematicConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position variable 1: " << variables_.at(0) << "\n"
-         << "  yaw variable 1: " << variables_.at(1) << "\n"
-         << "  linear velocity variable 1: " << variables_.at(2) << "\n"
-         << "  yaw velocity variable 1: " << variables_.at(3) << "\n"
-         << "  linear acceleration variable 1: " << variables_.at(4) << "\n"
-         << "  position variable 2: " << variables_.at(5) << "\n"
-         << "  yaw variable 2: " << variables_.at(6) << "\n"
-         << "  linear velocity variable 2: " << variables_.at(7) << "\n"
-         << "  yaw velocity variable 2: " << variables_.at(8) << "\n"
-         << "  linear acceleration variable 2: " << variables_.at(9) << "\n"
-         << "  dt: " << dt_ << "\n"
+         << "  position variable 1: " << variables().at(0) << "\n"
+         << "  yaw variable 1: " << variables().at(1) << "\n"
+         << "  linear velocity variable 1: " << variables().at(2) << "\n"
+         << "  yaw velocity variable 1: " << variables().at(3) << "\n"
+         << "  linear acceleration variable 1: " << variables().at(4) << "\n"
+         << "  position variable 2: " << variables().at(5) << "\n"
+         << "  yaw variable 2: " << variables().at(6) << "\n"
+         << "  linear velocity variable 2: " << variables().at(7) << "\n"
+         << "  yaw velocity variable 2: " << variables().at(8) << "\n"
+         << "  linear acceleration variable 2: " << variables().at(9) << "\n"
+         << "  dt: " << dt() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -101,3 +108,6 @@ ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
 }
 
 }  // namespace fuse_models
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Unicycle2DStateKinematicConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2DStateKinematicConstraint, fuse_core::Constraint);

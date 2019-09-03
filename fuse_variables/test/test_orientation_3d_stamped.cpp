@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_core/autodiff_local_parameterization.h>
 #include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
@@ -45,6 +46,7 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
+#include <sstream>
 #include <vector>
 
 
@@ -378,6 +380,38 @@ TEST(Orientation3DStamped, Euler)
   orientation_y.z() = 0.258819;
 
   EXPECT_NEAR(30.0, RAD_TO_DEG * orientation_y.yaw(), 1e-5);
+}
+
+TEST(Orientation3DStamped, Serialization)
+{
+  // Create an Orientation3DStamped
+  Orientation3DStamped expected(ros::Time(12345678, 910111213));
+  expected.w() = 0.952;
+  expected.x() = 0.038;
+  expected.y() = -0.189;
+  expected.z() = 0.239;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  Orientation3DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.w(), actual.w());
+  EXPECT_EQ(expected.x(), actual.x());
+  EXPECT_EQ(expected.y(), actual.y());
+  EXPECT_EQ(expected.z(), actual.z());
 }
 
 int main(int argc, char **argv)

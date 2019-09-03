@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/eigen_gtest.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/Quaternion.h>
@@ -60,7 +61,8 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Constructor)
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
-  EXPECT_NO_THROW(AbsoluteOrientation3DStampedEulerConstraint constraint(orientation_variable, mean, cov, axes));
+  EXPECT_NO_THROW(
+    AbsoluteOrientation3DStampedEulerConstraint constraint("test", orientation_variable, mean, cov, axes));
 }
 
 TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
@@ -73,7 +75,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
-  AbsoluteOrientation3DStampedEulerConstraint constraint(orientation_variable, mean, cov, axes);
+  AbsoluteOrientation3DStampedEulerConstraint constraint("test", orientation_variable, mean, cov, axes);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix3d expected_sqrt_info;
@@ -105,6 +107,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
   std::vector<Orientation3DStamped::Euler> axes =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
   auto constraint = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean,
     cov,
@@ -159,6 +162,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   std::vector<Orientation3DStamped::Euler> axes1 =
     {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::PITCH};
   auto constraint1 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean1,
     cov1,
@@ -171,6 +175,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   std::vector<Orientation3DStamped::Euler> axes2 =
     {Orientation3DStamped::Euler::ROLL};
   auto constraint2 = AbsoluteOrientation3DStampedEulerConstraint::make_shared(
+    "test",
     *orientation_variable,
     mean2,
     cov2,
@@ -209,6 +214,39 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   EXPECT_NEAR(expected.z(), orientation_variable->z(), 5.0e-3);
 
   // TODO(swilliams) Determine what I expect the covariance matrix to be and test it here
+}
+
+TEST(AbsoluteOrientation3DStampedEulerConstraint, Serialization)
+{
+  // Construct a constraint
+  Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  fuse_core::Vector3d mean;
+  mean << 1.0, 2.0, 3.0;
+  fuse_core::Matrix3d cov;
+  cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
+  std::vector<Orientation3DStamped::Euler> axes =
+    {Orientation3DStamped::Euler::YAW, Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH};
+  AbsoluteOrientation3DStampedEulerConstraint expected("test", orientation_variable, mean, cov, axes);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new constraint from that same stream
+  AbsoluteOrientation3DStampedEulerConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

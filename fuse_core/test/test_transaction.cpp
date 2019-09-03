@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/transaction.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <test/example_constraint.h>
 #include <test/example_variable.h>
@@ -51,16 +52,17 @@ using fuse_core::UUID;
  *
  * Order of the stamps is not important. Extra stamps in the Transaction will return False.
  *
- * @param expected_stamps  The set of expected stamps
- * @param transaction      The transaction to test
- * @return                 True if the expected stamps, and only the expected stamps, exist in the
- *                         transaction, False otherwise.
+ * @tparam TimeRange   A range or container with objects compatible with a "const ros::Time&" signature
+ * @param expected     The set of expected stamps
+ * @param transaction  The transaction to test
+ * @return             True if the expected stamps, and only the expected stamps, exist in the
+ *                     transaction, False otherwise.
  */
-bool testInvolvedStamps(
-  const std::vector<ros::Time>& expected_stamps, const Transaction& transaction)
+template <typename TimeRange>
+bool testInvolvedStamps(const TimeRange& expected, const Transaction& transaction)
 {
   auto range = transaction.involvedStamps();
-  if (static_cast<int>(expected_stamps.size()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
@@ -70,7 +72,7 @@ bool testInvolvedStamps(
     const auto& actual_stamp = *iter;
 
     bool found = false;
-    for (const auto& expected_stamp : expected_stamps)
+    for (const auto& expected_stamp : expected)
     {
       if (actual_stamp == expected_stamp)
       {
@@ -94,16 +96,17 @@ bool testInvolvedStamps(
  *
  * Order of the constraints is not important. Extra constraints in the Transaction will return False.
  *
- * @param expected_constraints  The set of expected added constraints
- * @param transaction           The transaction to test
- * @return                      True if the expected constraints, and only the expected constraints, exist in the
- *                              transaction, False otherwise.
+ * @tparam ConstraintRange  A range or container with objects compatible with a "const ExampleConstraint&" signature
+ * @param expected          The set of expected added constraints
+ * @param transaction       The transaction to test
+ * @return                  True if the expected constraints, and only the expected constraints, exist in the
+ *                          transaction, False otherwise.
  */
-bool testAddedConstraints(
-  const std::vector<ExampleConstraint::SharedPtr>& expected_constraints, const Transaction& transaction)
+template <typename ConstraintRange>
+bool testAddedConstraints(const ConstraintRange& expected, const Transaction& transaction)
 {
   auto range = transaction.addedConstraints();
-  if (static_cast<int>(expected_constraints.size()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
@@ -113,19 +116,20 @@ bool testAddedConstraints(
     const auto& actual_constraint = dynamic_cast<const ExampleConstraint&>(*iter);
 
     bool found = false;
-    for (const auto& expected_constraint : expected_constraints)
+    for (const auto& expected_constraint : expected)
     {
-      if (actual_constraint.uuid() == expected_constraint->uuid())
+      if (actual_constraint.uuid() == expected_constraint.uuid())
       {
         found = true;
         bool is_equal = true;
-        is_equal = is_equal && (expected_constraint->type() == actual_constraint.type());
-        is_equal = is_equal && (expected_constraint->variables().size() == actual_constraint.variables().size());
-        for (size_t i = 0; i < expected_constraint->variables().size(); ++i)
+        is_equal = is_equal && (expected_constraint.type() == actual_constraint.type());
+        is_equal = is_equal && (expected_constraint.variables().size() == actual_constraint.variables().size());
+        for (size_t i = 0; i < expected_constraint.variables().size(); ++i)
         {
-          is_equal = is_equal && (expected_constraint->variables().at(i) == actual_constraint.variables().at(i));
+          is_equal = is_equal && (expected_constraint.variables().at(i) == actual_constraint.variables().at(i));
         }
-        is_equal = is_equal && (expected_constraint->data == actual_constraint.data);
+        const auto& expected_derived = dynamic_cast<const ExampleConstraint&>(expected_constraint);
+        is_equal = is_equal && (expected_derived.data == actual_constraint.data);
 
         if (!is_equal)
         {
@@ -149,16 +153,17 @@ bool testAddedConstraints(
  *
  * Order of the constraint UUIDs is not important. Extra constraint UUIDs in the Transaction will return False.
  *
- * @param expected_constraints  The set of expected removed constraint UUIDs
- * @param transaction           The transaction to test
- * @return                      True if the expected constraints, and only the expected constraints, exist in the
- *                              transaction, False otherwise.
+ * @tparam UuidRange   A range or container with objects compatible with a "const fuse_core::UUID&" signature
+ * @param expected     The set of expected removed constraint UUIDs
+ * @param transaction  The transaction to test
+ * @return             True if the expected constraints, and only the expected constraints, exist in the
+ *                     transaction, False otherwise.
  */
-bool testRemovedConstraints(
-  const std::vector<UUID>& expected_constraints, const Transaction& transaction)
+template <typename UuidRange>
+bool testRemovedConstraints(const UuidRange& expected, const Transaction& transaction)
 {
   auto range = transaction.removedConstraints();
-  if (static_cast<int>(expected_constraints.size()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
@@ -168,7 +173,7 @@ bool testRemovedConstraints(
     const auto& actual_constraint_uuid = *iter;
 
     bool found = false;
-    for (const auto& expected_constraint_uuid : expected_constraints)
+    for (const auto& expected_constraint_uuid : expected)
     {
       if (actual_constraint_uuid == expected_constraint_uuid)
       {
@@ -192,16 +197,17 @@ bool testRemovedConstraints(
  *
  * Order of the variables is not important. Extra variables in the Transaction will return False.
  *
- * @param expected_variables  The set of expected added variables
- * @param transaction         The transaction to test
- * @return                    True if the expected variables, and only the expected variables, exist in the
- *                            transaction, False otherwise.
+ * @tparam VariableRange  A range or container with objects compatible with a "const ExampleVariable&" signature
+ * @param expected        The set of expected added variables
+ * @param transaction     The transaction to test
+ * @return                True if the expected variables, and only the expected variables, exist in the
+ *                        transaction, False otherwise.
  */
-bool testAddedVariables(
-  const std::vector<ExampleVariable::SharedPtr>& expected_variables, const Transaction& transaction)
+template <typename VariableRange>
+bool testAddedVariables(const VariableRange& expected, const Transaction& transaction)
 {
   auto range = transaction.addedVariables();
-  if (static_cast<int>(expected_variables.size()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
@@ -211,15 +217,15 @@ bool testAddedVariables(
     const auto& actual_variable = dynamic_cast<const ExampleVariable&>(*iter);
 
     bool found = false;
-    for (const auto& expected_variable : expected_variables)
+    for (const auto& expected_variable : expected)
     {
-      if (actual_variable.uuid() == expected_variable->uuid())
+      if (actual_variable.uuid() == expected_variable.uuid())
       {
         found = true;
         bool is_equal = true;
-        is_equal = is_equal && (expected_variable->type() == actual_variable.type());
-        is_equal = is_equal && (expected_variable->size() == actual_variable.size());
-        is_equal = is_equal && (expected_variable->data()[0] == actual_variable.data()[0]);
+        is_equal = is_equal && (expected_variable.type() == actual_variable.type());
+        is_equal = is_equal && (expected_variable.size() == actual_variable.size());
+        is_equal = is_equal && (expected_variable.data()[0] == actual_variable.data()[0]);
 
         if (!is_equal)
         {
@@ -243,16 +249,17 @@ bool testAddedVariables(
  *
  * Order of the variable UUIDs is not important. Extra variable UUIDs in the Transaction will return False.
  *
- * @param expected_variables  The set of expected removed variable UUIDs
- * @param transaction         The transaction to test
- * @return                    True if the expected variables, and only the expected variables, exist in the
- *                            transaction, False otherwise.
+ * @tparam UuidRange   A range or container with objects compatible with a "const fuse_core::UUID&" signature
+ * @param expected     The set of expected removed variable UUIDs
+ * @param transaction  The transaction to test
+ * @return             True if the expected variables, and only the expected variables, exist in the
+ *                     transaction, False otherwise.
  */
-bool testRemovedVariables(
-  const std::vector<UUID>& expected_variables, const Transaction& transaction)
+template <typename UuidRange>
+bool testRemovedVariables(const UuidRange& expected, const Transaction& transaction)
 {
   auto range = transaction.removedVariables();
-  if (static_cast<int>(expected_variables.size()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
@@ -262,7 +269,7 @@ bool testRemovedVariables(
     const auto& actual_variable_uuid = *iter;
 
     bool found = false;
-    for (const auto& expected_variable_uuid : expected_variables)
+    for (const auto& expected_variable_uuid : expected)
     {
       if (actual_variable_uuid == expected_variable_uuid)
       {
@@ -286,49 +293,49 @@ TEST(Transaction, AddConstraint)
   // Add a single constraint and verify it exists in the added constraints
   {
     UUID variable_uuid = fuse_core::uuid::generate();
-    auto constraint = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable_uuid});  // NOLINT
+    auto constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable_uuid});  // NOLINT
 
     Transaction transaction;
     transaction.addConstraint(constraint);
 
-    std::vector<ExampleConstraint::SharedPtr> expected_constraints;
-    expected_constraints.push_back(constraint);
+    std::vector<ExampleConstraint> expected_constraints;
+    expected_constraints.push_back(*constraint);
     EXPECT_TRUE(testAddedConstraints(expected_constraints, transaction));
   }
 
   // Add the same constraint multiple times. Verify only one constraint exists in the Transaction.
   {
     UUID variable_uuid = fuse_core::uuid::generate();
-    auto constraint = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable_uuid});  // NOLINT
+    auto constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable_uuid});  // NOLINT
 
     Transaction transaction;
     transaction.addConstraint(constraint);
     transaction.addConstraint(constraint);
     transaction.addConstraint(constraint);
 
-    std::vector<ExampleConstraint::SharedPtr> expected_constraints;
-    expected_constraints.push_back(constraint);
+    std::vector<ExampleConstraint> expected_constraints;
+    expected_constraints.push_back(*constraint);
     EXPECT_TRUE(testAddedConstraints(expected_constraints, transaction));
   }
 
   // Add multiple constraints. Verify they all exist in the Transaction.
   {
     UUID variable1_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable1_uuid});  // NOLINT
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable1_uuid});  // NOLINT
     UUID variable2_uuid = fuse_core::uuid::generate();
-    auto constraint2 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable2_uuid});  // NOLINT
+    auto constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable2_uuid});  // NOLINT
     UUID variable3_uuid = fuse_core::uuid::generate();
-    auto constraint3 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable3_uuid});  // NOLINT
+    auto constraint3 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable3_uuid});  // NOLINT
 
     Transaction transaction;
     transaction.addConstraint(constraint1);
     transaction.addConstraint(constraint2);
     transaction.addConstraint(constraint3);
 
-    std::vector<ExampleConstraint::SharedPtr> expected_constraints;
-    expected_constraints.push_back(constraint1);
-    expected_constraints.push_back(constraint2);
-    expected_constraints.push_back(constraint3);
+    std::vector<ExampleConstraint> expected_constraints;
+    expected_constraints.push_back(*constraint1);
+    expected_constraints.push_back(*constraint2);
+    expected_constraints.push_back(*constraint3);
     EXPECT_TRUE(testAddedConstraints(expected_constraints, transaction));
   }
 
@@ -336,7 +343,7 @@ TEST(Transaction, AddConstraint)
   // from the 'removed' container.
   {
     UUID variable1_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable1_uuid});  // NOLINT
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable1_uuid});  // NOLINT
 
     UUID constraint2_uuid = fuse_core::uuid::generate();
 
@@ -345,7 +352,7 @@ TEST(Transaction, AddConstraint)
     transaction.removeConstraint(constraint2_uuid);
     transaction.addConstraint(constraint1);
 
-    std::vector<ExampleConstraint::SharedPtr> added_constraints;  // empty
+    std::vector<ExampleConstraint> added_constraints;  // empty
     std::vector<UUID> removed_constraints;
     removed_constraints.push_back(constraint2_uuid);
     EXPECT_TRUE(testAddedConstraints(added_constraints, transaction));
@@ -356,7 +363,7 @@ TEST(Transaction, AddConstraint)
   {
     // Create and add the constraint to the transaction
     UUID variable_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable_uuid});  // NOLINT
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable_uuid});  // NOLINT
     constraint1->data = 1.0;
 
     Transaction transaction;
@@ -364,8 +371,8 @@ TEST(Transaction, AddConstraint)
 
     // Verify it exists
     {
-      std::vector<ExampleConstraint::SharedPtr> expected_constraints;
-      expected_constraints.push_back(constraint1);
+      std::vector<ExampleConstraint> expected_constraints;
+      expected_constraints.push_back(*constraint1);
       EXPECT_TRUE(testAddedConstraints(expected_constraints, transaction));
     }
 
@@ -378,8 +385,8 @@ TEST(Transaction, AddConstraint)
 
     // Verify the data value is unchanged
     {
-      std::vector<ExampleConstraint::SharedPtr> expected_constraints;
-      expected_constraints.push_back(constraint1);
+      std::vector<ExampleConstraint> expected_constraints;
+      expected_constraints.push_back(*constraint1);
       EXPECT_TRUE(testAddedConstraints(expected_constraints, transaction));
     }
 
@@ -388,8 +395,8 @@ TEST(Transaction, AddConstraint)
 
     // Verify the data value is updated
     {
-      std::vector<ExampleConstraint::SharedPtr> expected_constraints;
-      expected_constraints.push_back(constraint2);
+      std::vector<ExampleConstraint> expected_constraints;
+      expected_constraints.push_back(*constraint2);
       EXPECT_TRUE(testAddedConstraints(expected_constraints, transaction));
     }
   }
@@ -445,10 +452,10 @@ TEST(Transaction, RemoveConstraint)
   // instead it should be deleted from the added constraints.
   {
     UUID variable1_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable1_uuid});  // NOLINT
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable1_uuid});  // NOLINT
 
     UUID variable2_uuid = fuse_core::uuid::generate();
-    auto constraint2 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable2_uuid});  // NOLINT
+    auto constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable2_uuid});  // NOLINT
 
     Transaction transaction;
     transaction.addConstraint(constraint1);
@@ -456,8 +463,8 @@ TEST(Transaction, RemoveConstraint)
     transaction.removeConstraint(constraint1->uuid());
 
     // Test
-    std::vector<ExampleConstraint::SharedPtr> expected_added_constraints;
-    expected_added_constraints.push_back(constraint2);
+    std::vector<ExampleConstraint> expected_added_constraints;
+    expected_added_constraints.push_back(*constraint2);
     EXPECT_TRUE(testAddedConstraints(expected_added_constraints, transaction));
 
     std::vector<UUID> expected_removed_constraints;
@@ -474,8 +481,8 @@ TEST(Transaction, AddVariable)
     Transaction transaction;
     transaction.addVariable(variable);
 
-    std::vector<ExampleVariable::SharedPtr> expected_variables;
-    expected_variables.push_back(variable);
+    std::vector<ExampleVariable> expected_variables;
+    expected_variables.push_back(*variable);
     EXPECT_TRUE(testAddedVariables(expected_variables, transaction));
   }
 
@@ -488,8 +495,8 @@ TEST(Transaction, AddVariable)
     transaction.addVariable(variable);
     transaction.addVariable(variable);
 
-    std::vector<ExampleVariable::SharedPtr> expected_variables;
-    expected_variables.push_back(variable);
+    std::vector<ExampleVariable> expected_variables;
+    expected_variables.push_back(*variable);
     EXPECT_TRUE(testAddedVariables(expected_variables, transaction));
   }
 
@@ -504,10 +511,10 @@ TEST(Transaction, AddVariable)
     transaction.addVariable(variable2);
     transaction.addVariable(variable3);
 
-    std::vector<ExampleVariable::SharedPtr> expected_variables;
-    expected_variables.push_back(variable1);
-    expected_variables.push_back(variable2);
-    expected_variables.push_back(variable3);
+    std::vector<ExampleVariable> expected_variables;
+    expected_variables.push_back(*variable1);
+    expected_variables.push_back(*variable2);
+    expected_variables.push_back(*variable3);
     EXPECT_TRUE(testAddedVariables(expected_variables, transaction));
   }
 
@@ -523,7 +530,7 @@ TEST(Transaction, AddVariable)
     transaction.addVariable(variable1);
 
     // Test
-    std::vector<ExampleVariable::SharedPtr> expected_added_variables;
+    std::vector<ExampleVariable> expected_added_variables;
     EXPECT_TRUE(testAddedVariables(expected_added_variables, transaction));
 
     std::vector<UUID> expected_removed_variables;
@@ -542,8 +549,8 @@ TEST(Transaction, AddVariable)
 
     // Verify the variable exists
     {
-      std::vector<ExampleVariable::SharedPtr> expected_variables;
-      expected_variables.push_back(variable1);
+      std::vector<ExampleVariable> expected_variables;
+      expected_variables.push_back(*variable1);
       EXPECT_TRUE(testAddedVariables(expected_variables, transaction));
     }
 
@@ -556,8 +563,8 @@ TEST(Transaction, AddVariable)
 
     // Verify the variable1 values still exist
     {
-      std::vector<ExampleVariable::SharedPtr> expected_variables;
-      expected_variables.push_back(variable1);
+      std::vector<ExampleVariable> expected_variables;
+      expected_variables.push_back(*variable1);
       EXPECT_TRUE(testAddedVariables(expected_variables, transaction));
     }
 
@@ -566,8 +573,8 @@ TEST(Transaction, AddVariable)
 
     // Verify the variable2 values now exist
     {
-      std::vector<ExampleVariable::SharedPtr> expected_variables;
-      expected_variables.push_back(variable2);
+      std::vector<ExampleVariable> expected_variables;
+      expected_variables.push_back(*variable2);
       EXPECT_TRUE(testAddedVariables(expected_variables, transaction));
     }
   }
@@ -631,8 +638,8 @@ TEST(Transaction, RemoveVariable)
     transaction.removeVariable(variable1->uuid());
 
     // Test
-    std::vector<ExampleVariable::SharedPtr> expected_added_variables;
-    expected_added_variables.push_back(variable2);
+    std::vector<ExampleVariable> expected_added_variables;
+    expected_added_variables.push_back(*variable2);
     EXPECT_TRUE(testAddedVariables(expected_added_variables, transaction));
 
     std::vector<UUID> expected_removed_variables;
@@ -650,9 +657,9 @@ TEST(Transaction, Merge)
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
   UUID variable3_uuid = fuse_core::uuid::generate();
-  auto added_constraint1 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable1_uuid});  // NOLINT
-  auto added_constraint2 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable2_uuid});  // NOLINT
-  auto added_constraint3 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable3_uuid});  // NOLINT
+  auto added_constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable1_uuid});  // NOLINT
+  auto added_constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable2_uuid});  // NOLINT
+  auto added_constraint3 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable3_uuid});  // NOLINT
 
   UUID removed_constraint1 = fuse_core::uuid::generate();
   UUID removed_constraint2 = fuse_core::uuid::generate();
@@ -701,10 +708,10 @@ TEST(Transaction, Merge)
   expected_involved_stamps.push_back(involved_stamp3);
   EXPECT_TRUE(testInvolvedStamps(expected_involved_stamps, transaction1));
 
-  std::vector<ExampleConstraint::SharedPtr> expected_added_constraints;
-  expected_added_constraints.push_back(added_constraint1);
-  expected_added_constraints.push_back(added_constraint2);
-  expected_added_constraints.push_back(added_constraint3);
+  std::vector<ExampleConstraint> expected_added_constraints;
+  expected_added_constraints.push_back(*added_constraint1);
+  expected_added_constraints.push_back(*added_constraint2);
+  expected_added_constraints.push_back(*added_constraint3);
   EXPECT_TRUE(testAddedConstraints(expected_added_constraints, transaction1));
 
   std::vector<UUID> expected_removed_constraints;
@@ -713,10 +720,10 @@ TEST(Transaction, Merge)
   expected_removed_constraints.push_back(removed_constraint3);
   EXPECT_TRUE(testRemovedConstraints(expected_removed_constraints, transaction1));
 
-  std::vector<ExampleVariable::SharedPtr> expected_added_variables;
-  expected_added_variables.push_back(added_variable1);
-  expected_added_variables.push_back(added_variable2);
-  expected_added_variables.push_back(added_variable3);
+  std::vector<ExampleVariable> expected_added_variables;
+  expected_added_variables.push_back(*added_variable1);
+  expected_added_variables.push_back(*added_variable2);
+  expected_added_variables.push_back(*added_variable3);
   EXPECT_TRUE(testAddedVariables(expected_added_variables, transaction1));
 
   std::vector<UUID> expected_removed_variables;
@@ -736,8 +743,8 @@ TEST(Transaction, Clone)
 
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
-  auto added_constraint1 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable1_uuid});  // NOLINT
-  auto added_constraint2 = ExampleConstraint::make_shared(std::initializer_list<UUID>{variable2_uuid});  // NOLINT
+  auto added_constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable1_uuid});  // NOLINT
+  auto added_constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable2_uuid});  // NOLINT
 
   UUID removed_constraint1 = fuse_core::uuid::generate();
   UUID removed_constraint2 = fuse_core::uuid::generate();
@@ -769,9 +776,9 @@ TEST(Transaction, Clone)
   expected_involved_stamps.push_back(involved_stamp2);
   EXPECT_TRUE(testInvolvedStamps(expected_involved_stamps, *transaction2));
 
-  std::vector<ExampleConstraint::SharedPtr> expected_added_constraints;
-  expected_added_constraints.push_back(added_constraint1);
-  expected_added_constraints.push_back(added_constraint2);
+  std::vector<ExampleConstraint> expected_added_constraints;
+  expected_added_constraints.push_back(*added_constraint1);
+  expected_added_constraints.push_back(*added_constraint2);
   EXPECT_TRUE(testAddedConstraints(expected_added_constraints, *transaction2));
 
   std::vector<UUID> expected_removed_constraints;
@@ -779,15 +786,69 @@ TEST(Transaction, Clone)
   expected_removed_constraints.push_back(removed_constraint2);
   EXPECT_TRUE(testRemovedConstraints(expected_removed_constraints, *transaction2));
 
-  std::vector<ExampleVariable::SharedPtr> expected_added_variables;
-  expected_added_variables.push_back(added_variable1);
-  expected_added_variables.push_back(added_variable2);
+  std::vector<ExampleVariable> expected_added_variables;
+  expected_added_variables.push_back(*added_variable1);
+  expected_added_variables.push_back(*added_variable2);
   EXPECT_TRUE(testAddedVariables(expected_added_variables, *transaction2));
 
   std::vector<UUID> expected_removed_variables;
   expected_removed_variables.push_back(removed_variable1);
   expected_removed_variables.push_back(removed_variable2);
   EXPECT_TRUE(testRemovedVariables(expected_removed_variables, *transaction2));
+}
+
+TEST(Transaction, Serialize)
+{
+  // Create a transaction
+  ros::Time involved_stamp1(12345, 6789);
+  ros::Time involved_stamp2(12346, 6789);
+
+  UUID variable1_uuid = fuse_core::uuid::generate();
+  UUID variable2_uuid = fuse_core::uuid::generate();
+  auto added_constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable1_uuid});  // NOLINT
+  auto added_constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{variable2_uuid});  // NOLINT
+
+  UUID removed_constraint1 = fuse_core::uuid::generate();
+  UUID removed_constraint2 = fuse_core::uuid::generate();
+
+  auto added_variable1 = ExampleVariable::make_shared();
+  auto added_variable2 = ExampleVariable::make_shared();
+
+  UUID removed_variable1 = fuse_core::uuid::generate();
+  UUID removed_variable2 = fuse_core::uuid::generate();
+
+  Transaction expected;
+  expected.addInvolvedStamp(involved_stamp1);
+  expected.addInvolvedStamp(involved_stamp2);
+  expected.addConstraint(added_constraint1);
+  expected.addConstraint(added_constraint2);
+  expected.removeConstraint(removed_constraint1);
+  expected.removeConstraint(removed_constraint2);
+  expected.addVariable(added_variable1);
+  expected.addVariable(added_variable2);
+  expected.removeVariable(removed_variable1);
+  expected.removeVariable(removed_variable2);
+
+  // Serialize the object into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new object from that same stream
+  Transaction actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_TRUE(testInvolvedStamps(expected.involvedStamps(), actual));
+  EXPECT_TRUE(testAddedConstraints(expected.addedConstraints(), actual));
+  EXPECT_TRUE(testRemovedConstraints(expected.removedConstraints(), actual));
+  EXPECT_TRUE(testAddedVariables(expected.addedVariables(), actual));
+  EXPECT_TRUE(testRemovedVariables(expected.removedVariables(), actual));
 }
 
 int main(int argc, char **argv)

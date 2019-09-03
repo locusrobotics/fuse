@@ -92,6 +92,7 @@ void Twist2D::process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr&
   transaction->stamp(msg->header.stamp);
 
   common::processTwistWithCovariance(
+    name(),
     device_id_,
     *msg,
     params_.target_frame,

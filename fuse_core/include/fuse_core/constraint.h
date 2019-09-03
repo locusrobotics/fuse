@@ -35,9 +35,11 @@
 #define FUSE_CORE_CONSTRAINT_H
 
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
-#include <boost/core/demangle.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 #include <ceres/cost_function.h>
 #include <ceres/loss_function.h>
@@ -65,6 +67,37 @@
   fuse_core::Constraint::UniquePtr clone() const override \
   { \
     return __VA_ARGS__::make_unique(*this); \
+  }
+
+/**
+ * @brief Implementation of the serialize() and deserialize() member functions for derived classes
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Constraint
+ * {
+ * public:
+ *   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(Derived);
+ *   // The rest of the derived constraint implementation
+ * }
+ * @endcode
+ */
+#define FUSE_CONSTRAINT_SERIALIZE_DEFINITION(...) \
+  void serialize(fuse_core::BinaryOutputArchive& archive) const override \
+  { \
+    archive << *this; \
+  }  /* NOLINT */ \
+  void serialize(fuse_core::TextOutputArchive& archive) const override \
+  { \
+    archive << *this; \
+  }  /* NOLINT */ \
+  void deserialize(fuse_core::BinaryInputArchive& archive) override \
+  { \
+    archive >> *this; \
+  }  /* NOLINT */ \
+  void deserialize(fuse_core::TextInputArchive& archive) override \
+  { \
+    archive >> *this; \
   }
 
 /**
@@ -111,11 +144,12 @@
 #define FUSE_CONSTRAINT_DEFINITIONS(...) \
   SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_CONSTRAINT_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__)
+  FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__) \
+  FUSE_CONSTRAINT_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
  * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
- *        for derived Variable classes that have fixed-sized Eigen member objects.
+ *        for derived Constraint classes that have fixed-sized Eigen member objects.
  *
  * Usage:
  * @code{.cpp}
@@ -130,7 +164,8 @@
 #define FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(...) \
   SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
   FUSE_CONSTRAINT_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__)
+  FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__) \
+  FUSE_CONSTRAINT_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 
 namespace fuse_core
@@ -158,16 +193,21 @@ public:
   SMART_PTR_ALIASES_ONLY(Constraint);
 
   /**
+   * @brief Default constructor
+   */
+  Constraint() = default;
+
+  /**
    * @brief Constructor
    *
    * Accepts an arbitrary number of variable UUIDs directly. It can be called like:
    * @code{.cpp}
-   * Constraint{uuid1, uuid2, uuid3};
+   * Constraint("source", {uuid1, uuid2, uuid3});
    * @endcode
    *
    * @param[in] variable_uuid_list The list of involved variable UUIDs
    */
-  Constraint(std::initializer_list<UUID> variable_uuid_list);
+  Constraint(const std::string& source, std::initializer_list<UUID> variable_uuid_list);
 
   /**
    * @brief Constructor
@@ -175,7 +215,7 @@ public:
    * Accepts an arbitrary number of variable UUIDs stored in a container using iterators.
    */
   template<typename VariableUuidIterator>
-  Constraint(VariableUuidIterator first, VariableUuidIterator last);
+  Constraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last);
 
   /**
    * @brief Destructor
@@ -188,7 +228,7 @@ public:
    * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
    * choice for the type string.
    */
-  virtual std::string type() const { return boost::core::demangle(typeid(*this).name()); }
+  virtual std::string type() const = 0;
 
   /**
    * @brief Returns the UUID for this constraint.
@@ -196,6 +236,11 @@ public:
    * Each constraint will generate a unique, random UUID during construction.
    */
   const UUID& uuid() const { return uuid_; }
+
+  /**
+   * @brief Returns the name of the sensor or motion model that generated this constraint
+   */
+  const std::string& source() const { return source_; }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -259,9 +304,79 @@ public:
    */
   const std::vector<UUID>& variables() const { return variables_; }
 
-protected:
+  /**
+   * @brief Serialize this Constraint into the provided binary archive
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive << *this;
+   * @endcode
+   *
+   * @param[out] archive - The archive to serialize this constraint into
+   */
+  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
+
+  /**
+   * @brief Serialize this Constraint into the provided text archive
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive << *this;
+   * @endcode
+   *
+   * @param[out] archive - The archive to serialize this constraint into
+   */
+  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
+
+  /**
+   * @brief Deserialize data from the provided binary archive into this Constraint
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive >> *this;
+   * @endcode
+   *
+   * @param[in] archive - The archive holding serialized Constraint data
+   */
+  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
+
+  /**
+   * @brief Deserialize data from the provided text archive into this Constraint
+   *
+   * This can/should be implemented as follows in all derived classes:
+   * @code{.cpp}
+   * archive >> *this;
+   * @endcode
+   *
+   * @param[in] archive - The archive holding serialized Constraint data
+   */
+  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
+
+private:
+  std::string source_;  //!< The name of the sensor or motion model that generated this constraint
   UUID uuid_;  //!< The unique ID associated with this constraint
   std::vector<UUID> variables_;  //!< The ordered set of variables involved with this constraint
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * This method, or a combination of save() and load() methods, must be implemented by all derived classes. See
+   * documentation on Boost Serialization for information on how to implement the serialize() method.
+   * https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & source_;
+    archive & uuid_;
+    archive & variables_;
+  }
 };
 
 /**
@@ -271,7 +386,8 @@ std::ostream& operator <<(std::ostream& stream, const Constraint& constraint);
 
 
 template<typename VariableUuidIterator>
-Constraint::Constraint(VariableUuidIterator first, VariableUuidIterator last) :
+Constraint::Constraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last) :
+  source_(source),
   uuid_(uuid::generate()),
   variables_(first, last)
 {

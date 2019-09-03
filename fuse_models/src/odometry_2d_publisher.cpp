@@ -140,7 +140,7 @@ void Odometry2DPublisher::notifyCallback(
       covariance_requests.emplace_back(velocity_angular_uuid, velocity_angular_uuid);
 
       std::vector<std::vector<double>> covariance_matrices;
-      graph->getCovariance(covariance_requests, covariance_matrices);
+      graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options);
 
       odom_output_.pose.covariance[0] = covariance_matrices[0][0];
       odom_output_.pose.covariance[1] = covariance_matrices[0][1];

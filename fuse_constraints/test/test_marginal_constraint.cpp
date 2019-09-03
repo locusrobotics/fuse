@@ -34,12 +34,14 @@
 #include <fuse_constraints/marginal_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <ros/time.h>
 
 #include <gtest/gtest.h>
 
+#include <memory>
 #include <vector>
 
 
@@ -60,11 +62,13 @@ TEST(MarginalConstraint, OneVariable)
   fuse_core::Vector1d b;
   b << 3.0;
 
-  auto constraint = fuse_constraints::MarginalConstraint(variables.begin(),
-                                                         variables.end(),
-                                                         A.begin(),
-                                                         A.end(),
-                                                         b);
+  auto constraint = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
 
   auto cost_function = constraint.costFunction();
 
@@ -117,11 +121,13 @@ TEST(MarginalConstraint, TwoVariables)
   fuse_core::Vector1d b;
   b << 9.0;
 
-  auto constraint = fuse_constraints::MarginalConstraint(variables.begin(),
-                                                         variables.end(),
-                                                         A.begin(),
-                                                         A.end(),
-                                                         b);
+  auto constraint = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
 
   auto cost_function = constraint.costFunction();
 
@@ -157,7 +163,7 @@ TEST(MarginalConstraint, TwoVariables)
 
 TEST(MarginalConstraint, LocalParameterization)
 {
-  // Create a marginal constraint with one variable, no local parameterizations
+  // Create a marginal constraint with one variable with a local parameterizations
   std::vector<fuse_variables::Orientation3DStamped> variables;
   fuse_variables::Orientation3DStamped x1(ros::Time(1, 0));
   x1.w() = 0.842614977;
@@ -174,11 +180,13 @@ TEST(MarginalConstraint, LocalParameterization)
   fuse_core::Vector1d b;
   b << 8.0;
 
-  auto constraint = fuse_constraints::MarginalConstraint(variables.begin(),
-                                                         variables.end(),
-                                                         A.begin(),
-                                                         A.end(),
-                                                         b);
+  auto constraint = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
   auto cost_function = constraint.costFunction();
 
   // Update the variable value
@@ -209,6 +217,63 @@ TEST(MarginalConstraint, LocalParameterization)
   EXPECT_MATRIX_NEAR(expected_jacobian1, actual_jacobian1, 1.0e-5);
 
   delete cost_function;
+}
+
+TEST(MarginalConstraint, Serialization)
+{
+  // Construct a constraint
+  std::vector<fuse_variables::Orientation3DStamped> variables;
+  fuse_variables::Orientation3DStamped x1(ros::Time(1, 0));
+  x1.w() = 0.842614977;
+  x1.x() = 0.2;
+  x1.y() = 0.3;
+  x1.z() = 0.4;
+  variables.push_back(x1);
+
+  std::vector<fuse_core::MatrixXd> A;
+  fuse_core::MatrixXd A1(1, 3);
+  A1 << 5.0, 6.0, 7.0;
+  A.push_back(A1);
+
+  fuse_core::Vector1d b;
+  b << 8.0;
+
+  auto expected = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new constraint from that same stream
+  fuse_constraints::MarginalConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_EQ(expected.A(), actual.A());
+  EXPECT_EQ(expected.b(), actual.b());
+  EXPECT_EQ(expected.x_bar(), actual.x_bar());
+  // The shared ptrs will not be the same instances, but they should point to the same types
+  using ExpectedLocalParam = fuse_variables::Orientation3DLocalParameterization;
+  ASSERT_EQ(expected.localParameterizations().size(), actual.localParameterizations().size());
+  for (auto i = 0u; i < actual.localParameterizations().size(); ++i)
+  {
+    auto actual_derived = std::dynamic_pointer_cast<ExpectedLocalParam>(actual.localParameterizations()[i]);
+    EXPECT_TRUE(static_cast<bool>(actual_derived));
+  }
 }
 
 int main(int argc, char **argv)

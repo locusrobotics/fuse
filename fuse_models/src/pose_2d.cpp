@@ -96,6 +96,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
     if (previous_pose_msg_)
     {
       common::processDifferentialPoseWithCovariance(
+        name(),
         device_id_,
         *previous_pose_msg_,
         *msg,
@@ -109,6 +110,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
   else
   {
     common::processAbsolutePoseWithCovariance(
+      name(),
       device_id_,
       *msg,
       params_.target_frame,

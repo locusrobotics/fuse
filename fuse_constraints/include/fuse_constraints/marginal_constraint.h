@@ -38,16 +38,23 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/zip_iterator.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <ceres/cost_function.h>
 
 #include <algorithm>
 #include <cassert>
 #include <ostream>
+#include <string>
 #include <vector>
 
 
@@ -68,12 +75,18 @@ public:
   FUSE_CONSTRAINT_DEFINITIONS(MarginalConstraint);
 
   /**
+   * @brief Default constructor
+   */
+  MarginalConstraint() = default;
+
+  /**
    * @brief Create a linear/marginal constraint
    *
    * The variable iterators and matrix iterators must be the same size. Further, all A matrices and the b vector must
    * have the same number of rows, and the number of columns of each A matrix must match the \p localSize() of its
    * associated variable.
    *
+   * @param[in] source         The name of the sensor or motion model that generated this constraint
    * @param[in] first_variable Iterator pointing to the first involved variable for this constraint
    * @param[in] last_variable  Iterator pointing to one past the last involved variable for this constraint
    * @param[in] first_A        Iterator pointing to the first A matrix, associated with the first variable
@@ -82,6 +95,7 @@ public:
    */
   template<typename VariableIterator, typename MatrixIterator>
   MarginalConstraint(
+    const std::string& source,
     VariableIterator first_variable,
     VariableIterator last_variable,
     MatrixIterator first_A,
@@ -139,6 +153,26 @@ protected:
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
   std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< The local parameterizations
   std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & A_;
+    archive & b_;
+    archive & local_parameterizations_;
+    archive & x_bar_;
+  }
 };
 
 namespace detail
@@ -172,12 +206,14 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
 
 template<typename VariableIterator, typename MatrixIterator>
 MarginalConstraint::MarginalConstraint(
+  const std::string& source,
   VariableIterator first_variable,
   VariableIterator last_variable,
   MatrixIterator first_A,
   MatrixIterator last_A,
   const fuse_core::VectorXd& b) :
-    Constraint(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
+    Constraint(source,
+               boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
                boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
     A_(first_A, last_A),
     b_(b),
@@ -202,5 +238,7 @@ MarginalConstraint::MarginalConstraint(
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint);
 
 #endif  // FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H

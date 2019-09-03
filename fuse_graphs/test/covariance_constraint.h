@@ -36,11 +36,16 @@
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <ceres/cost_function.h>
 
 #include <algorithm>
+#include <string>
 
 
 /**
@@ -139,16 +144,37 @@ class CovarianceConstraint : public fuse_core::Constraint
 public:
   FUSE_CONSTRAINT_DEFINITIONS(CovarianceConstraint);
 
+  CovarianceConstraint() = default;
+
   CovarianceConstraint(
+    const std::string& source,
     const fuse_core::UUID& variable1_uuid,
     const fuse_core::UUID& variable2_uuid,
     const fuse_core::UUID& variable3_uuid) :
-    fuse_core::Constraint{variable1_uuid, variable2_uuid, variable3_uuid}
+    fuse_core::Constraint(source, {variable1_uuid, variable2_uuid, variable3_uuid})
   {
   }
 
   void print(std::ostream& /*stream = std::cout*/) const override {}
   ceres::CostFunction* costFunction() const override { return new CovarianceCostFunction(); }
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+  }
 };
+
+BOOST_CLASS_EXPORT(CovarianceConstraint);
 
 #endif  // FUSE_GRAPHS_TEST_COVARIANCE_CONSTRAINT_H  // NOLINT{build/header_guard}

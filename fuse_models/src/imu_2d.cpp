@@ -117,6 +117,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     if (previous_pose_)
     {
       common::processDifferentialPoseWithCovariance(
+        name(),
         device_id_,
         *previous_pose_,
         *pose,
@@ -130,6 +131,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   else
   {
     common::processAbsolutePoseWithCovariance(
+      name(),
       device_id_,
       *pose,
       params_.orientation_target_frame,
@@ -154,6 +156,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   twist.twist.covariance[35] = msg->angular_velocity_covariance[8];
 
   common::processTwistWithCovariance(
+    name(),
     device_id_,
     twist,
     params_.twist_target_frame,
@@ -192,6 +195,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   }
 
   common::processAccelWithCovariance(
+    name(),
     device_id_,
     accel,
     params_.acceleration_target_frame,

@@ -14,6 +14,8 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
+  <depend>fuse_msgs</depend>
+  <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>

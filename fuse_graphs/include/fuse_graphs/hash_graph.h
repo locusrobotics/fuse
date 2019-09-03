@@ -37,9 +37,17 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
+#include <fuse_graphs/hash_graph_params.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include <boost/serialization/unordered_set.hpp>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -67,15 +75,14 @@ namespace fuse_graphs
 class HashGraph : public fuse_core::Graph
 {
 public:
-  SMART_PTR_DEFINITIONS(HashGraph);
+  FUSE_GRAPH_DEFINITIONS(HashGraph);
 
   /**
    * @brief Constructor
    *
-   * @param[in] options A configured Ceres Problem::Options object
-   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#123
+   * @param[in] params HashGraph parameters.
    */
-  explicit HashGraph(const ceres::Problem::Options& options = ceres::Problem::Options());
+  explicit HashGraph(const HashGraphParams& params = HashGraphParams());
 
   /**
    * @brief Copy constructor
@@ -330,8 +337,52 @@ protected:
    * @param[out] problem The ceres::Problem object to modify
    */
   void createProblem(ceres::Problem& problem) const;
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Graph>(*this);
+    archive & constraints_;
+    archive & constraints_by_variable_uuid_;
+    archive & problem_options_;
+    archive & variables_;
+    archive & variables_on_hold_;
+  }
 };
 
 }  // namespace fuse_graphs
+
+namespace boost
+{
+namespace serialization
+{
+
+/**
+ * @brief Serialize a ceres::Problem::Options object using Boost Serialization
+ */
+template<class Archive>
+void serialize(Archive& archive, ceres::Problem::Options& options, const unsigned int /* version */)
+{
+  archive & options.cost_function_ownership;
+  archive & options.disable_all_safety_checks;
+  archive & options.enable_fast_removal;
+  archive & options.local_parameterization_ownership;
+  archive & options.loss_function_ownership;
+}
+
+}  // namespace serialization
+}  // namespace boost
+
+BOOST_CLASS_EXPORT_KEY(fuse_graphs::HashGraph);
 
 #endif  // FUSE_GRAPHS_HASH_GRAPH_H

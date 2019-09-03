@@ -33,17 +33,22 @@
  */
 #include <fuse_core/constraint.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <gtest/gtest.h>
 
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 
@@ -81,9 +86,28 @@ public:
   {
   }
 
-protected:
+private:
   double data_;
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+    archive & data_;
+  }
 };
+
+BOOST_CLASS_EXPORT(StampedVariable);
 
 /**
  * @brief Create a simple unstamped Variable for testing
@@ -118,9 +142,27 @@ public:
   {
   }
 
-protected:
+private:
   double data_;
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
+  }
 };
+
+BOOST_CLASS_EXPORT(UnstampedVariable);
 
 /**
  * @brief Create a simple Constraint for testing
@@ -130,28 +172,32 @@ class GenericConstraint : public fuse_core::Constraint
 public:
   FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint);
 
-  GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) :
-    Constraint(variable_uuids)
+  GenericConstraint() = default;
+
+  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids) :
+    Constraint(source, variable_uuids)
   {
   }
 
-  explicit GenericConstraint(const fuse_core::UUID& variable1) :
-    fuse_core::Constraint{variable1}
+  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1) :
+    fuse_core::Constraint(source, {variable1})
   {
   }
 
   GenericConstraint(
+    const std::string& source,
     const fuse_core::UUID& variable1,
     const fuse_core::UUID& variable2) :
-      fuse_core::Constraint{variable1, variable2}
+      fuse_core::Constraint(source, {variable1, variable2})
   {
   }
 
   GenericConstraint(
+    const std::string& source,
     const fuse_core::UUID& variable1,
     const fuse_core::UUID& variable2,
     const fuse_core::UUID& variable3) :
-      fuse_core::Constraint{variable1, variable2, variable3}
+      fuse_core::Constraint(source, {variable1, variable2, variable3})
   {
   }
 
@@ -163,7 +209,26 @@ public:
   {
     return nullptr;
   }
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+  }
 };
+
+BOOST_CLASS_EXPORT(GenericConstraint);
+
 
 TEST(VariableStampIndex, Size)
 {
@@ -243,7 +308,7 @@ TEST(VariableStampIndex, At)
   EXPECT_EQ(ros::Time(1, 0), index.at(x2->uuid()));
 
   // Add a constraint connecting x1 and x2
-  auto c1 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
+  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
   auto transaction3 = fuse_core::Transaction();
   transaction3.addConstraint(c1);
   index.addNewTransaction(transaction3);
@@ -272,11 +337,11 @@ TEST(VariableStampIndex, Query)
   auto l1 = UnstampedVariable::make_shared();
   auto l2 = UnstampedVariable::make_shared();
 
-  auto c1 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
-  auto c2 = GenericConstraint::make_shared(x2->uuid(), x3->uuid());
-  auto c3 = GenericConstraint::make_shared(x1->uuid(), l1->uuid());
-  auto c4 = GenericConstraint::make_shared(x2->uuid(), l1->uuid());
-  auto c5 = GenericConstraint::make_shared(x3->uuid(), l2->uuid());
+  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
+  auto c2 = GenericConstraint::make_shared("test", x2->uuid(), x3->uuid());
+  auto c3 = GenericConstraint::make_shared("test", x1->uuid(), l1->uuid());
+  auto c4 = GenericConstraint::make_shared("test", x2->uuid(), l1->uuid());
+  auto c5 = GenericConstraint::make_shared("test", x3->uuid(), l2->uuid());
 
   auto transaction = fuse_core::Transaction();
   transaction.addVariable(x1);
@@ -316,11 +381,11 @@ TEST(VariableStampIndex, MarginalTransaction)
   auto l1 = UnstampedVariable::make_shared();
   auto l2 = UnstampedVariable::make_shared();
 
-  auto c1 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
-  auto c2 = GenericConstraint::make_shared(x2->uuid(), x3->uuid());
-  auto c3 = GenericConstraint::make_shared(x1->uuid(), l1->uuid());
-  auto c4 = GenericConstraint::make_shared(x2->uuid(), l1->uuid());
-  auto c5 = GenericConstraint::make_shared(x3->uuid(), l2->uuid());
+  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
+  auto c2 = GenericConstraint::make_shared("test", x2->uuid(), x3->uuid());
+  auto c3 = GenericConstraint::make_shared("test", x1->uuid(), l1->uuid());
+  auto c4 = GenericConstraint::make_shared("test", x2->uuid(), l1->uuid());
+  auto c5 = GenericConstraint::make_shared("test", x3->uuid(), l2->uuid());
 
   auto transaction = fuse_core::Transaction();
   transaction.addVariable(x1);
@@ -341,7 +406,7 @@ TEST(VariableStampIndex, MarginalTransaction)
   marginal.removeVariable(x1->uuid());
   marginal.removeConstraint(c1->uuid());
   marginal.removeConstraint(c3->uuid());
-  auto m1 = GenericConstraint::make_shared(x3->uuid(), l1->uuid());
+  auto m1 = GenericConstraint::make_shared("test", x3->uuid(), l1->uuid());
   marginal.addConstraint(m1);
   index.addMarginalTransaction(marginal);
 

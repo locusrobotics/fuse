@@ -34,6 +34,7 @@
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
@@ -60,7 +61,7 @@ TEST(AbsolutePose3DStampedConstraint, Constructor)
   fuse_core::Vector7d mean;
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
-  // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
   fuse_core::Matrix6d cov;
   cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
          1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
@@ -69,7 +70,8 @@ TEST(AbsolutePose3DStampedConstraint, Constructor)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  EXPECT_NO_THROW(AbsolutePose3DStampedConstraint constraint(position_variable, orientation_variable, mean, cov));
+  EXPECT_NO_THROW(
+    AbsolutePose3DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov));
 }
 
 TEST(AbsolutePose3DStampedConstraint, Covariance)
@@ -90,7 +92,7 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
          1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
          1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
-  AbsolutePose3DStampedConstraint constraint(position_variable, orientation_variable, mean, cov);
+  AbsolutePose3DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix6d expected_sqrt_info;
@@ -135,6 +137,7 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
          0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
 
   auto constraint = AbsolutePose3DStampedConstraint::make_shared(
+    "test",
     *position_variable,
     *orientation_variable,
     mean,
@@ -209,6 +212,47 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
     0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
 
   EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-5);
+}
+
+TEST(AbsolutePose3DStampedConstraint, Serialization)
+{
+  // Construct a constraint
+  Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+
+  fuse_core::Vector7d mean;
+  mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
+
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  fuse_core::Matrix6d cov;
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
+         1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
+         1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
+         1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
+         1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
+         1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
+
+  AbsolutePose3DStampedConstraint expected("test", position_variable, orientation_variable, mean, cov);
+
+  // Serialize the constraint into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new constraint from that same stream
+  AbsolutePose3DStampedConstraint actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.uuid(), actual.uuid());
+  EXPECT_EQ(expected.variables(), actual.variables());
+  EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
+  EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
 int main(int argc, char **argv)

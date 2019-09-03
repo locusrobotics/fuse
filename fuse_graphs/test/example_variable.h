@@ -34,8 +34,14 @@
 #ifndef FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 #define FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include <vector>
 
@@ -61,6 +67,24 @@ public:
 
 private:
   std::vector<double> data_;
+
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
+  }
 };
+
+BOOST_CLASS_EXPORT(ExampleVariable);
 
 #endif  // FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}

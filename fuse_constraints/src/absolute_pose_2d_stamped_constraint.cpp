@@ -32,11 +32,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
-#include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
 
+#include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
+#include <pluginlib/class_list_macros.h>
+
+#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
+#include <string>
 #include <vector>
 
 
@@ -44,13 +48,14 @@ namespace fuse_constraints
 {
 
 AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
+  const std::string& source,
   const fuse_variables::Position2DStamped& position,
   const fuse_variables::Orientation2DStamped& orientation,
   const fuse_core::VectorXd& partial_mean,
   const fuse_core::MatrixXd& partial_covariance,
   const std::vector<size_t>& linear_indices,
   const std::vector<size_t>& angular_indices) :
-    fuse_core::Constraint{position.uuid(), orientation.uuid()}
+    fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})  // NOLINT(whitespace/braces)
 {
   size_t total_variable_size = position.size() + orientation.size();
   size_t total_indices = linear_indices.size() + angular_indices.size();
@@ -102,10 +107,11 @@ fuse_core::Matrix3d AbsolutePose2DStampedConstraint::covariance() const
 void AbsolutePose2DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  position variable: " << variables_.at(0) << "\n"
-         << "  orientation variable: " << variables_.at(1) << "\n"
-         << "  mean: " << mean_.transpose() << "\n"
+         << "  position variable: " << variables().at(0) << "\n"
+         << "  orientation variable: " << variables().at(1) << "\n"
+         << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
@@ -116,3 +122,6 @@ ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const
 }
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose2DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose2DStampedConstraint, fuse_core::Constraint);

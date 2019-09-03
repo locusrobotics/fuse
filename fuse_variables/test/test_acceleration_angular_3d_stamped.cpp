@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/serialization.h>
 #include <fuse_variables/acceleration_angular_3d_stamped.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
@@ -40,6 +41,7 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <sstream>
 #include <vector>
 
 using fuse_variables::AccelerationAngular3DStamped;
@@ -143,6 +145,36 @@ TEST(AccelerationAngular3DStamped, Optimization)
   EXPECT_NEAR(3.0, acceleration.roll(), 1.0e-5);
   EXPECT_NEAR(-8.0, acceleration.pitch(), 1.0e-5);
   EXPECT_NEAR(17.0, acceleration.yaw(), 1.0e-5);
+}
+
+TEST(AccelerationAngular3DStamped, Serialization)
+{
+  // Create a AccelerationAngular3DStamped
+  AccelerationAngular3DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  expected.roll() = 1.5;
+  expected.pitch() = -3.0;
+  expected.yaw() = 14.0;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  AccelerationAngular3DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.roll(), actual.roll());
+  EXPECT_EQ(expected.pitch(), actual.pitch());
+  EXPECT_EQ(expected.yaw(), actual.yaw());
 }
 
 int main(int argc, char **argv)
