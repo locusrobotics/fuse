@@ -56,51 +56,22 @@ BatchOptimizer::BatchOptimizer(
     start_time_(ros::TIME_MAX),
     started_(false)
 {
-  double optimization_period;
-  double default_optimization_period = 10.0;
-  private_node_handle_.param("optimization_period", optimization_period, default_optimization_period);
-  if (optimization_period <= 0)
-  {
-    ROS_WARN_STREAM("The requested optimization_period is <= 0. Using the default value (" <<
-                    default_optimization_period << "s) instead.");
-    optimization_period = default_optimization_period;
-  }
+  params_.loadFromROS(private_node_handle);
 
-  double transaction_timeout;
-  double default_transaction_timeout = 10.0;
-  private_node_handle_.param("transaction_timeout", transaction_timeout, default_transaction_timeout);
-  if (transaction_timeout <= 0)
+  // Warn about possible configuration errors
+  // TODO(swilliams) Move this warning to the Parameter loadFromROS() method once all parameters are loaded there.
+  for (const auto& sensor_model_name : params_.ignition_sensors)
   {
-    ROS_WARN_STREAM("The requested transaction_timeout is <= 0. Using the default value (" <<
-                    default_transaction_timeout << "s) instead.");
-    transaction_timeout = default_transaction_timeout;
-  }
-
-  private_node_handle_.getParam("ignition_sensors", ignition_sensors_);
-  if (ignition_sensors_.empty())
-  {
-    // No ignition sensors were provided. Auto-start.
-    started_ = true;
-    start_time_ = ros::Time(0, 0);
-    ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
-  }
-  else
-  {
-    for (const auto& sensor_model_name : ignition_sensors_)
+    if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
     {
-      if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
-      {
-        ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
-                        "model with that name currently exists. This is likely a configuration error.");
-      }
+      ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
+                      "model with that name currently exists. This is likely a configuration error.");
     }
-    // Sort the sensors for efficient lookups
-    std::sort(ignition_sensors_.begin(), ignition_sensors_.end());
   }
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = node_handle_.createTimer(
-    ros::Duration(optimization_period),
+    ros::Duration(params_.optimization_period),
     &BatchOptimizer::optimizerTimerCallback,
     this);
 
@@ -136,13 +107,13 @@ void BatchOptimizer::applyMotionModelsToQueue()
     // Apply the motion models to the transaction
     if (!applyMotionModels(element.sensor_name, *element.transaction))
     {
-      if (element.transaction->stamp() + transaction_timeout_ < current_time)
+      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
         ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
                           << " could not be processed after " << (current_time - element.transaction->stamp())
                           << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << transaction_timeout_ << ". Ignoring this transaction.");
+                          << params_.transaction_timeout << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
       }
@@ -187,7 +158,7 @@ void BatchOptimizer::optimizationLoop()
     // Update the graph
     graph_->update(*const_transaction);
     // Optimize the entire graph
-    graph_->optimize();
+    graph_->optimize(params_.solver_options);
     // Make a copy of the graph to share
     fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
     // Optimization is complete. Notify all the things about the graph changes.
@@ -242,7 +213,7 @@ void BatchOptimizer::transactionCallback(
   if (!started_)
   {
     // Check if this transaction "starts" the system
-    if (std::binary_search(ignition_sensors_.begin(), ignition_sensors_.end(), sensor_name))
+    if (std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), sensor_name))
     {
       started_ = true;
       start_time_ = transaction_time;
@@ -253,9 +224,9 @@ void BatchOptimizer::transactionCallback(
     {
       purge_time = start_time_;
     }
-    else if (ros::Time(0, 0) + transaction_timeout_ < last_pending_time)  // taking care to prevent a bad subtraction
+    else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
     {
-      purge_time = last_pending_time - transaction_timeout_;
+      purge_time = last_pending_time - params_.transaction_timeout;
     }
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
     auto purge_iter = pending_transactions_.lower_bound(purge_time);
