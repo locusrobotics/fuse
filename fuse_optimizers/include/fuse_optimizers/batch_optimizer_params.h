@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
-#define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
+#ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
+#define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
 
 #include <fuse_core/ceres_options.h>
 #include <fuse_core/util.h>
@@ -52,7 +52,7 @@ namespace fuse_optimizers
 /**
  * @brief Defines the set of parameters required by the fuse_optimizers::FixedLagSmoother class
  */
-struct FixedLagSmootherParams
+struct BatchOptimizerParams
 {
 public:
   /**
@@ -63,11 +63,6 @@ public:
   std::vector<std::string> ignition_sensors;
 
   /**
-   * @brief The duration of the smoothing window in seconds
-   */
-  ros::Duration lag_duration { 5.0 };
-
-  /**
    * @brief The target duration for optimization cycles
    *
    * If an optimization takes longer than expected, an optimization cycle may be skipped. The optimization period
@@ -75,11 +70,6 @@ public:
    * parameter in Hz.
    */
   ros::Duration optimization_period { 0.1 };
-
-  /**
-   * @brief The topic name of the advertised reset service
-   */
-  std::string reset_service { "~reset" };
 
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
@@ -105,9 +95,6 @@ public:
     nh.getParam("ignition_sensors", ignition_sensors);
     std::sort(ignition_sensors.begin(), ignition_sensors.end());
 
-    auto lag_duration_sec = fuse_core::getPositiveParam(nh, "lag_duration", lag_duration.toSec());
-    lag_duration.fromSec(lag_duration_sec);
-
     if (nh.hasParam("optimization_frequency"))
     {
       auto optimization_frequency =
@@ -121,8 +108,6 @@ public:
       optimization_period.fromSec(optimization_period_sec);
     }
 
-    nh.getParam("reset_service", reset_service);
-
     auto transaction_timeout_sec =
       fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout.toSec());
     transaction_timeout.fromSec(transaction_timeout_sec);
@@ -133,4 +118,4 @@ public:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
+#endif  // FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H

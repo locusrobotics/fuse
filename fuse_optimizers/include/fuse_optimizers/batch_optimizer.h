@@ -37,6 +37,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
+#include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <ros/ros.h>
 
@@ -102,6 +103,7 @@ class BatchOptimizer : public Optimizer
 {
 public:
   SMART_PTR_DEFINITIONS(BatchOptimizer);
+  using ParameterType = BatchOptimizerParams;
 
   /**
    * @brief Constructor
@@ -150,9 +152,7 @@ protected:
                                                             //!< from multiple sensors and motions models before being
                                                             //!< applied to the graph.
   std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction across different threads
-  std::vector<std::string> ignition_sensors_;  //!< The set of sensors whose transactions will trigger the optimizer
-                                               //!< thread to start running. This is designed to keep the system idle
-                                               //!< until the origin constraint has been received.
+  ParameterType params_;  //!< Configuration settings for this optimizer
   std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
@@ -165,8 +165,6 @@ protected:
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
-  ros::Duration transaction_timeout_;  //!< Parameter that controls how long to wait for a transaction to be processed
-                                       //!< successfully before kicking it out of the queue.
 
   /**
    * @brief Generate motion model constraints for pending transactions

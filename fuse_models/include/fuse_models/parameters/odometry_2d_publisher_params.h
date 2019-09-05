@@ -59,92 +59,70 @@ namespace parameters
  */
 struct Odometry2DPublisherParams : public ParameterBase
 {
-  public:
-    /**
-     * @brief Method for loading parameter values from ROS.
-     *
-     * @param[in] nh - The ROS node handle with which to load parameters
-     */
-    void loadFromROS(const ros::NodeHandle& nh) final
+public:
+  /**
+   * @brief Method for loading parameter values from ROS.
+   *
+   * @param[in] nh - The ROS node handle with which to load parameters
+   */
+  void loadFromROS(const ros::NodeHandle& nh) final
+  {
+    nh.getParam("publish_tf", publish_tf);
+    nh.getParam("predict_to_current_time", predict_to_current_time);
+    nh.getParam("tf_publish_frequency", tf_publish_frequency);
+
+    double tf_cache_time_double = tf_cache_time.toSec();
+    nh.getParam("tf_cache_time", tf_cache_time_double);
+    tf_cache_time.fromSec(tf_cache_time_double);
+
+    double tf_timeout_double = tf_timeout.toSec();
+    nh.getParam("tf_timeout", tf_timeout_double);
+    tf_timeout.fromSec(tf_timeout_double);
+
+    nh.getParam("queue_size", queue_size);
+
+    nh.getParam("map_frame_id", map_frame_id);
+    nh.getParam("odom_frame_id", odom_frame_id);
+    nh.getParam("base_link_frame_id", base_link_frame_id);
+    nh.param("base_link_output_frame_id", base_link_output_frame_id, base_link_frame_id);
+    nh.param("world_frame_id", world_frame_id, odom_frame_id);
+
+    const bool frames_valid =
+      map_frame_id != odom_frame_id &&
+      map_frame_id != base_link_frame_id &&
+      map_frame_id != base_link_output_frame_id &&
+      odom_frame_id != base_link_frame_id &&
+      odom_frame_id != base_link_output_frame_id &&
+      (world_frame_id == map_frame_id || world_frame_id == odom_frame_id);
+
+    if (!frames_valid)
     {
-      nh.getParam("publish_tf", publish_tf);
-      nh.getParam("predict_to_current_time", predict_to_current_time);
-      nh.getParam("tf_publish_frequency", tf_publish_frequency);
+      ROS_FATAL_STREAM("Invalid frame configuration! Please note:\n" <<
+        " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n" <<
+        " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n" <<
+        " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
 
-      double tf_cache_time_double = tf_cache_time.toSec();
-      nh.getParam("tf_cache_time", tf_cache_time_double);
-      tf_cache_time.fromSec(tf_cache_time_double);
-
-      double tf_timeout_double = tf_timeout.toSec();
-      nh.getParam("tf_timeout", tf_timeout_double);
-      tf_timeout.fromSec(tf_timeout_double);
-
-      nh.getParam("queue_size", queue_size);
-
-      nh.getParam("map_frame_id", map_frame_id);
-      nh.getParam("odom_frame_id", odom_frame_id);
-      nh.getParam("base_link_frame_id", base_link_frame_id);
-      nh.param("base_link_output_frame_id", base_link_output_frame_id, base_link_frame_id);
-      nh.param("world_frame_id", world_frame_id, odom_frame_id);
-
-      const bool frames_valid =
-        map_frame_id != odom_frame_id &&
-        map_frame_id != base_link_frame_id &&
-        map_frame_id != base_link_output_frame_id &&
-        odom_frame_id != base_link_frame_id &&
-        odom_frame_id != base_link_output_frame_id &&
-        (world_frame_id == map_frame_id || world_frame_id == odom_frame_id);
-
-      if (!frames_valid)
-      {
-        ROS_FATAL_STREAM("Invalid frame configuration! Please note:\n" <<
-          " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n" <<
-          " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n" <<
-          " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
-
-        assert(frames_valid);
-      }
-
-      nh.getParam("topic", topic);
-
-      loadCovarianceOptionsFromROS(ros::NodeHandle(nh, "covariance_options"));
+      assert(frames_valid);
     }
 
-    bool publish_tf { true };
-    bool predict_to_current_time { false };
-    double tf_publish_frequency { 10.0 };
-    ros::Duration tf_cache_time { 10.0 };
-    ros::Duration tf_timeout { 0.1 };
-    int queue_size { 1 };
-    std::string map_frame_id { "map" };
-    std::string odom_frame_id { "odom" };
-    std::string base_link_frame_id { "base_link" };
-    std::string base_link_output_frame_id { base_link_frame_id };
-    std::string world_frame_id { odom_frame_id };
-    std::string topic { "odometry/filtered" };
-    ceres::Covariance::Options covariance_options;
+    nh.getParam("topic", topic);
 
-  private:
-    /**
-     * @brief Method for loading ceres::Covariance::Options values from ROS.
-     *
-     * @param[in] nh - The ROS node handle with which to load parameters
-     */
-    void loadCovarianceOptionsFromROS(const ros::NodeHandle& nh)
-    {
-#if CERES_VERSION_AT_LEAST(1, 13, 0)
-      // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
-      // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
-      covariance_options.sparse_linear_algebra_library_type = fuse_core::getParam(
-          nh, "sparse_linear_algebra_library_type", covariance_options.sparse_linear_algebra_library_type);
-#endif
-      covariance_options.algorithm_type = fuse_core::getParam(nh, "algorithm_type", covariance_options.algorithm_type);
-      nh.param("min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number,
-               covariance_options.min_reciprocal_condition_number);
-      nh.param("null_space_rank", covariance_options.null_space_rank, covariance_options.null_space_rank);
-      nh.param("num_threads", covariance_options.num_threads, covariance_options.num_threads);
-      nh.param("apply_loss_function", covariance_options.apply_loss_function, covariance_options.apply_loss_function);
-    }
+    fuse_core::loadCovarianceOptionsFromROS(ros::NodeHandle(nh, "covariance_options"), covariance_options);
+  }
+
+  bool publish_tf { true };
+  bool predict_to_current_time { false };
+  double tf_publish_frequency { 10.0 };
+  ros::Duration tf_cache_time { 10.0 };
+  ros::Duration tf_timeout { 0.1 };
+  int queue_size { 1 };
+  std::string map_frame_id { "map" };
+  std::string odom_frame_id { "odom" };
+  std::string base_link_frame_id { "base_link" };
+  std::string base_link_output_frame_id { base_link_frame_id };
+  std::string world_frame_id { odom_frame_id };
+  std::string topic { "odometry/filtered" };
+  ceres::Covariance::Options covariance_options;
 };
 
 }  // namespace parameters

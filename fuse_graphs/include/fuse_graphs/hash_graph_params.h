@@ -34,15 +34,11 @@
 #ifndef FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 #define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 
-#include <ros/console.h>
-#include <ros/duration.h>
+#include <fuse_core/ceres_options.h>
 #include <ros/node_handle.h>
 
 #include <ceres/problem.h>
 
-#include <algorithm>
-#include <string>
-#include <vector>
 
 namespace fuse_graphs
 {
@@ -67,20 +63,7 @@ public:
    */
   void loadFromROS(const ros::NodeHandle& nh)
   {
-    loadProblemOptionsFromROS(ros::NodeHandle(nh, "problem_options"));
-  }
-
-private:
-  /**
-   * @brief Method for loading Ceres Problem::Options parameter values from ROS.
-   *
-   * @param[in] nh - The ROS node handle with which to load Ceres Problem::Options parameters
-   */
-  void loadProblemOptionsFromROS(const ros::NodeHandle& nh)
-  {
-    nh.param("enable_fast_removal", problem_options.enable_fast_removal, problem_options.enable_fast_removal);
-    nh.param("disable_all_safety_checks", problem_options.disable_all_safety_checks,
-             problem_options.disable_all_safety_checks);
+    fuse_core::loadProblemOptionsFromROS(ros::NodeHandle(nh, "problem_options"), problem_options);
   }
 };
 
