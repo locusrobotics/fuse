@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>fuse_viz</name>
+  <version>0.4.0</version>
+  <description>
+    The fuse_viz package provides visualization tools for fuse.
+  </description>
+
+  <maintainer email="efernandez@clearpath.ai">Enrique Fernandez</maintainer>
+  <author email="efernandez@clearpath.ai">Enrique Fernandez</author>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>fuse_msgs</depend>
+  <depend>fuse_variables</depend>
+  <depend>rviz</depend>
+
+  <export>
+    <rviz plugin="${prefix}/rviz_plugins.xml"/>
+  </export>
+</package>
