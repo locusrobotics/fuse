@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
 
+find_package(Boost REQUIRED COMPONENTS graph)
+
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 set(QT_LIBRARIES Qt5::Widgets)
 
@@ -28,6 +30,7 @@ catkin_package(
   CATKIN_DEPENDS
     ${build_depends}
   DEPENDS
+    Boost
     QT
 )
 
@@ -56,11 +59,28 @@ target_link_libraries(${PROJECT_NAME}
   ${QT_LIBRARIES}
 )
 
+add_executable(serialized_graph_dot_writer_node
+  src/serialized_graph_dot_writer.cpp
+  src/serialized_graph_dot_writer_node.cpp
+)
+add_dependencies(serialized_graph_dot_writer_node
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(serialized_graph_dot_writer_node
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+target_link_libraries(serialized_graph_dot_writer_node
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} serialized_graph_dot_writer_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
