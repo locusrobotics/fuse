@@ -41,8 +41,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <algorithm>
-#include <array>
+#include <functional>
 #include <string>
 
 
@@ -74,10 +73,7 @@ namespace uuid
   /**
    * @brief Generate a random UUID
    */
-  inline UUID generate()
-  {
-    return boost::uuids::random_generator()();
-  }
+  UUID generate();
 
   /**
    * @brief Generate a UUID from a raw data buffer
@@ -159,19 +155,7 @@ namespace uuid
    * @param[in] stamp            A ROS::Time timestamp
    * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
-  inline UUID generate(const std::string& namespace_string, const ros::Time& stamp)
-  {
-    constexpr size_t buffer_size = sizeof(stamp.sec) + sizeof(stamp.nsec);
-    std::array<unsigned char, buffer_size> buffer;
-    auto iter = buffer.begin();
-    iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.sec),
-                     reinterpret_cast<const unsigned char*>(&stamp.sec) + sizeof(stamp.sec),
-                     iter);
-    iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.nsec),
-                     reinterpret_cast<const unsigned char*>(&stamp.nsec) + sizeof(stamp.nsec),
-                     iter);
-    return generate(namespace_string, buffer.data(), buffer.size());
-  }
+  UUID generate(const std::string& namespace_string, const ros::Time& stamp);
 
   /**
    * @brief Generate a UUID from a namespace string, a ros timestamp, and an additional id
@@ -183,24 +167,26 @@ namespace uuid
    * @param[in] id               A UUID
    * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
-  inline UUID generate(const std::string& namespace_string, const ros::Time& stamp, const UUID& id)
-  {
-    constexpr size_t buffer_size = sizeof(stamp.sec) + sizeof(stamp.nsec) + UUID::static_size();
-    std::array<unsigned char, buffer_size> buffer;
-    auto iter = buffer.begin();
-    iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.sec),
-                     reinterpret_cast<const unsigned char*>(&stamp.sec) + sizeof(stamp.sec),
-                     iter);
-    iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.nsec),
-                     reinterpret_cast<const unsigned char*>(&stamp.nsec) + sizeof(stamp.nsec),
-                     iter);
-    iter = std::copy(id.begin(),
-                     id.end(),
-                     iter);
-    return generate(namespace_string, buffer.data(), buffer.size());
-  }
+  UUID generate(const std::string& namespace_string, const ros::Time& stamp, const UUID& id);
 }  // namespace uuid
 
 }  // namespace fuse_core
+
+namespace std
+{
+
+/**
+ * @brief Define a hash specialization for the UUID to make it easier to use in unordered_maps and unordered_sets
+ */
+template <>
+struct hash<fuse_core::UUID>
+{
+  size_t operator()(const fuse_core::UUID& id) const
+  {
+    return boost::uuids::hash_value(id);
+  }
+};
+
+}  // namespace std
 
 #endif  // FUSE_CORE_UUID_H
