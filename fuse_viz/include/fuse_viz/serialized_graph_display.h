@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019 Clearpath Robotics
+ *  Copyright (c) 2019, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,42 +31,74 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
-#define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 
-#include <fuse_core/ceres_options.h>
-#include <ros/node_handle.h>
+#ifndef FUSE_VIZ_SERIALIZED_GRAPH_DISPLAY_H
+#define FUSE_VIZ_SERIALIZED_GRAPH_DISPLAY_H
 
-#include <ceres/problem.h>
+#ifndef Q_MOC_RUN
+#include <fuse_core/graph_deserializer.h>
+#include <fuse_msgs/SerializedGraph.h>
 
+#include <rviz/message_filter_display.h>
+#endif  // Q_MOC_RUN
 
-namespace fuse_graphs
+#include <vector>
+
+namespace Ogre
 {
+class SceneNode;
+}
+
+namespace rviz
+{
+
+class Object;
+
+class BoolProperty;
+class FloatProperty;
 
 /**
- * @brief Defines the set of parameters required by the fuse_graphs::HashGraph class
+ * @brief An rviz dispaly for fuse_msgs::SerializedGraph messages.
  */
-struct HashGraphParams
+class SerializedGraphDisplay : public MessageFilterDisplay<fuse_msgs::SerializedGraph>
 {
+  Q_OBJECT
 public:
-  /**
-   * @brief Ceres Problem::Options object that controls various aspects of the optimization problem.
-   *
-   * See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#123
-   */
-  ceres::Problem::Options problem_options;
+  SerializedGraphDisplay();
 
-  /**
-   * @brief Method for loading parameter values from ROS.
-   *
-   * @param[in] nh - The ROS node handle with which to load parameters
-   */
-  void loadFromROS(const ros::NodeHandle& nh)
-  {
-    fuse_core::loadProblemOptionsFromROS(ros::NodeHandle(nh, "problem_options"), problem_options);
-  }
+  ~SerializedGraphDisplay() override;
+
+  void reset() override;
+
+protected:
+  void onInitialize() override;
+
+  void onEnable() override;
+
+  void onDisable() override;
+
+private Q_SLOTS:
+  void updateDrawVariablesAxesProperty();
+
+  void updateScaleProperty();
+
+private:
+  void clear();
+
+  void processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg) override;
+
+  Ogre::SceneNode* root_node_;
+  Ogre::SceneNode* variables_axes_node_;
+  Ogre::SceneNode* variables_spheres_node_;
+
+  std::vector<Object*> graph_shapes_;
+
+  BoolProperty* draw_variables_axes_property_;
+  FloatProperty* scale_property_;
+
+  fuse_core::GraphDeserializer graph_deserializer_;
 };
 
-}  // namespace fuse_graphs
+}  // namespace rviz
 
-#endif  // FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
+#endif  // FUSE_VIZ_SERIALIZED_GRAPH_DISPLAY_H

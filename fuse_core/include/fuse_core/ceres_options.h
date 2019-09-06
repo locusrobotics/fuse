@@ -37,6 +37,9 @@
 #include <ros/console.h>
 #include <ros/node_handle.h>
 
+#include <ceres/covariance.h>
+#include <ceres/problem.h>
+#include <ceres/solver.h>
 #include <ceres/types.h>
 
 #include <string>
@@ -98,7 +101,7 @@ static void UpperCase(std::string* input)
   std::transform(input->begin(), input->end(), input->begin(), ::toupper);  // NOLINT(build/include_what_you_use)
 }
 
-const char* LoggingTypeToString(LoggingType type)
+inline const char* LoggingTypeToString(LoggingType type)
 {
   switch (type)
   {
@@ -109,7 +112,7 @@ const char* LoggingTypeToString(LoggingType type)
   }
 }
 
-bool StringToLoggingType(std::string value, LoggingType* type)
+inline bool StringToLoggingType(std::string value, LoggingType* type)
 {
   UpperCase(&value);
   STRENUM(SILENT);
@@ -117,7 +120,7 @@ bool StringToLoggingType(std::string value, LoggingType* type)
   return false;
 }
 
-const char* DumpFormatTypeToString(DumpFormatType type)
+inline const char* DumpFormatTypeToString(DumpFormatType type)
 {
   switch (type)
   {
@@ -128,7 +131,7 @@ const char* DumpFormatTypeToString(DumpFormatType type)
   }
 }
 
-bool StringToDumpFormatType(std::string value, DumpFormatType* type)
+inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 {
   UpperCase(&value);
   STRENUM(CONSOLE);
@@ -210,6 +213,30 @@ T getParam(const ros::NodeHandle& node_handle, const std::string& parameter_name
 
   return value;
 }
+
+/**
+ * @brief Populate a ceres::Covariance::Options object with information from the parameter server
+ *
+ * @param[in] nh - A node handle in a namespace containing ceres::Covariance::Options settings
+ * @param[out] covariance_options - The ceres::Covariance::Options object to update
+ */
+void loadCovarianceOptionsFromROS(const ros::NodeHandle& nh, ceres::Covariance::Options& covariance_options);
+
+/**
+ * @brief Populate a ceres::Problem::Options object with information from the parameter server
+ *
+ * @param[in] nh - A node handle in a namespace containing ceres::Problem::Options settings
+ * @param[out] problem_options - The ceres::Problem::Options object to update
+ */
+void loadProblemOptionsFromROS(const ros::NodeHandle& nh, ceres::Problem::Options& problem_options);
+
+/**
+ * @brief Populate a ceres::Solver::Options object with information from the parameter server
+ *
+ * @param[in] nh - A node handle in a namespace containing ceres::Solver::Options settings
+ * @param[out] solver_options - The ceres::Solver::Options object to update
+ */
+void loadSolverOptionsFromROS(const ros::NodeHandle& nh, ceres::Solver::Options& solver_options);
 
 }  // namespace fuse_core
 
