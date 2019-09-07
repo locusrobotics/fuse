@@ -2,14 +2,21 @@ cmake_minimum_required(VERSION 2.8.3)
 project(fuse_viz)
 
 set(build_depends
+  fuse_constraints
+  fuse_core
   fuse_msgs
   fuse_variables
+  geometry_msgs
   rviz
+  tf2_geometry_msgs
 )
 
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
+
+find_package(Boost REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 set(QT_LIBRARIES Qt5::Widgets)
@@ -28,14 +35,25 @@ catkin_package(
   CATKIN_DEPENDS
     ${build_depends}
   DEPENDS
+    Boost
+    EIGEN3
     QT
 )
 
 qt5_wrap_cpp(moc_files
+  include/fuse_viz/mapped_covariance_property.h
+  include/fuse_viz/pose_2d_stamped_property.h
+  include/fuse_viz/relative_pose_2d_stamped_constraint_property.h
   include/fuse_viz/serialized_graph_display.h
 )
 
 set(source_files
+  src/mapped_covariance_property.cpp
+  src/mapped_covariance_visual.cpp
+  src/pose_2d_stamped_property.cpp
+  src/pose_2d_stamped_visual.cpp
+  src/relative_pose_2d_stamped_constraint_property.cpp
+  src/relative_pose_2d_stamped_constraint_visual.cpp
   src/serialized_graph_display.cpp
   ${moc_files}
 )
@@ -49,10 +67,13 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+    ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
   ${QT_LIBRARIES}
 )
 
