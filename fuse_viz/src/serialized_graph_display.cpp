@@ -37,35 +37,42 @@
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
-#include <rviz/ogre_helpers/axes.h>
-#include <rviz/ogre_helpers/billboard_line.h>
-#include <rviz/ogre_helpers/object.h>
-#include <rviz/ogre_helpers/shape.h>
-
 #include <rviz/display_context.h>
 #include <rviz/frame_manager.h>
 
-#include <rviz/properties/bool_property.h>
-#include <rviz/properties/float_property.h>
+#include <rviz/properties/parse_color.h>
+#include <rviz/properties/property.h>
 #endif  // Q_MOC_RUN
 
+#include <fuse_viz/pose_2d_stamped_property.h>
+#include <fuse_viz/pose_2d_stamped_visual.h>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_property.h>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.h>
 #include <fuse_viz/serialized_graph_display.h>
 
+#include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_core/graph.h>
+#include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
+
+#include <boost/range.hpp>
 
 namespace rviz
 {
 
 SerializedGraphDisplay::SerializedGraphDisplay()
 {
-  draw_variables_axes_property_ = new BoolProperty("Draw Variables as Axes", true,
-                                                   "Whether to draw graph variables axes or not (spheres are always "
-                                                   "drawn)",
-                                                   this, SLOT(updateDrawVariablesAxesProperty()));
+  show_variables_property_ =
+      new BoolProperty("Variables", true, "The list of all variables.", this, SLOT(updateShowVariables()));
 
-  scale_property_ = new FloatProperty("Scale", 0.1, "Scale of graph markers drawn", this, SLOT(updateScaleProperty()));
+  variable_property_ = new Pose2DStampedProperty("pose_2d", true,
+                                                 "Pose2DStamped (fuse_variables::Position2DStamped + "
+                                                 "fuse_variables::Orientation2DStamped) variable.",
+                                                 show_variables_property_, SLOT(queueRender()), this);
+
+  show_constraints_property_ = new BoolProperty("Constraints", true, "The list of all constraints by source.", this,
+                                                SLOT(updateShowConstraints()));
 }
 
 SerializedGraphDisplay::~SerializedGraphDisplay()
@@ -73,6 +80,7 @@ SerializedGraphDisplay::~SerializedGraphDisplay()
   if (initialized())
   {
     clear();
+
     root_node_->removeAndDestroyAllChildren();
     scene_manager_->destroySceneNode(root_node_->getName());
   }
@@ -81,7 +89,6 @@ SerializedGraphDisplay::~SerializedGraphDisplay()
 void SerializedGraphDisplay::reset()
 {
   MFDClass::reset();
-  clear();
 }
 
 void SerializedGraphDisplay::onInitialize()
@@ -89,9 +96,6 @@ void SerializedGraphDisplay::onInitialize()
   MFDClass::onInitialize();
 
   root_node_ = scene_node_->createChildSceneNode();
-
-  variables_axes_node_ = root_node_->createChildSceneNode();
-  variables_spheres_node_ = root_node_->createChildSceneNode();
 }
 
 void SerializedGraphDisplay::onEnable()
@@ -99,6 +103,13 @@ void SerializedGraphDisplay::onEnable()
   MFDClass::onEnable();
 
   root_node_->setVisible(true);
+
+  variable_property_->updateVisibility();
+
+  for (auto& entry : constraint_source_properties_)
+  {
+    entry.second->updateVisibility();
+  }
 }
 
 void SerializedGraphDisplay::onDisable()
@@ -108,24 +119,49 @@ void SerializedGraphDisplay::onDisable()
   root_node_->setVisible(false);
 }
 
-void SerializedGraphDisplay::updateDrawVariablesAxesProperty()
+void SerializedGraphDisplay::load(const Config& config)
 {
-  variables_axes_node_->setVisible(draw_variables_axes_property_->getBool());
+  MFDClass::load(config);
+
+  // Cache constraint config for each source in order to apply it when the RelativePose2DStampedConstraintProperty is
+  // created the first time a constraint of each source is present in the graph:
+  const auto constraints_config = config.mapGetChild("Constraints");
+
+  for (Config::MapIterator iter = constraints_config.mapIterator(); iter.isValid(); iter.advance())
+  {
+    constraint_source_configs_[iter.currentKey().toStdString()] = iter.currentChild();
+  }
 }
 
-void SerializedGraphDisplay::updateScaleProperty()
+void SerializedGraphDisplay::updateShowVariables()
 {
-  // TODO(efernandez) Redraw all variables so the scale is applied to the current graph. This is useful if no new
-  // message is received
+  variable_property_->setBool(show_variables_property_->getBool());
+}
+
+void SerializedGraphDisplay::updateShowConstraints()
+{
+  const auto visible = show_constraints_property_->getBool();
+
+  for (auto& entry : constraint_source_properties_)
+  {
+    entry.second->setBool(visible);
+  }
 }
 
 void SerializedGraphDisplay::clear()
 {
-  for (auto& graph_shape : graph_shapes_)
+  constraint_visuals_.clear();
+
+  delete variable_property_;
+
+  for (auto& entry : constraint_source_properties_)
   {
-    delete graph_shape;
+    delete entry.second;
   }
-  graph_shapes_.clear();
+  constraint_source_properties_.clear();
+
+  variables_changed_map_.clear();
+  constraints_changed_map_.clear();
 }
 
 void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg)
@@ -141,11 +177,17 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
   root_node_->setPosition(position);
   root_node_->setOrientation(orientation);
 
-  clear();
+  for (auto& entry : variables_changed_map_)
+  {
+    entry.second = false;
+  }
+
+  for (auto& entry : constraints_changed_map_)
+  {
+    entry.second = false;
+  }
 
   const auto graph = graph_deserializer_.deserialize(msg);
-
-  const Ogre::Vector3 scale(scale_property_->getFloat());
 
   for (const auto& variable : graph->getVariables())
   {
@@ -155,8 +197,7 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
       continue;
     }
 
-    const auto& stamp = orientation->stamp();
-    const auto position_uuid = fuse_variables::Position2DStamped(stamp, orientation->deviceId()).uuid();
+    const auto position_uuid = fuse_variables::Position2DStamped(orientation->stamp(), orientation->deviceId()).uuid();
     if (!graph->variableExists(position_uuid))
     {
       continue;
@@ -164,27 +205,107 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
 
     const auto position = dynamic_cast<const fuse_variables::Position2DStamped*>(&graph->getVariable(position_uuid));
 
-    const tf2::Quaternion tf_q(tf2::Vector3(0, 0, 1), orientation->yaw());
+    variable_property_->createAndInsertOrUpdateVisual(scene_manager_, root_node_, *position, *orientation);
 
-    const Ogre::Vector3 p(position->x(), position->y(), 0);
-    const Ogre::Quaternion q(tf_q.w(), tf_q.x(), tf_q.y(), tf_q.z());
-
-    // Add sphere:
-    Object* sphere = new rviz::Shape(rviz::Shape::Sphere, scene_manager_, variables_spheres_node_);
-    sphere->setPosition(p);
-    sphere->setScale(scale);
-    sphere->setColor(1.0, 0.0, 0.0, 1.0);
-    graph_shapes_.push_back(sphere);
-
-    // Add axes:
-    Object* axes = new rviz::Axes(scene_manager_, variables_axes_node_, 10.0, 1.0);
-    axes->setPosition(p);
-    axes->setOrientation(q);
-    axes->setScale(scale);
-    graph_shapes_.push_back(axes);
+    variables_changed_map_[position_uuid] = true;
   }
 
-  updateDrawVariablesAxesProperty();
+  for (const auto& constraint : graph->getConstraints())
+  {
+    const auto relative_pose = dynamic_cast<const fuse_constraints::RelativePose2DStampedConstraint*>(&constraint);
+    if (!relative_pose)
+    {
+      continue;
+    }
+
+    const auto constraint_uuid = constraint.uuid();
+    const auto& constraint_source = constraint.source();
+
+    if (source_color_map_.find(constraint_source) == source_color_map_.end())
+    {
+      // Generate hue color automatically based on the number of sources including the new one (n)
+      // The hue is computed in such a way that the (dynamic) colormap is always well spread along the spectrum. This is
+      // achieved by traversing a virtual complete binary tree in breadth-first order. Each node represents a sampling
+      // position in the hue interval (0, 1) based on the current level and the number of nodes in that level (m)
+      const auto n = source_color_map_.size() + 1;
+      const size_t level = std::floor(std::log2(n));
+      const auto m = n + 1 - std::pow(2, level);
+      const auto hue = (2 * (m - 1) + 1) / std::pow(2, level + 1);
+
+      auto& source_color = source_color_map_[constraint_source];
+      source_color.setHSB(hue, 1.0, 1.0);
+
+      constraint_source_properties_[constraint_source] =
+          new RelativePose2DStampedConstraintProperty(QString::fromStdString(constraint_source), true,
+                                                      QString::fromStdString(constraint_source + " fuse_constraints::"
+                                                                                                 "RelativePose2DStamped"
+                                                                                                 "Constraint "
+                                                                                                 "constraint."),
+                                                      show_constraints_property_, SLOT(queueRender()), this);
+
+      if (constraint_source_configs_.find(constraint_source) == constraint_source_configs_.end())
+      {
+        constraint_source_properties_[constraint_source]->setColor(ogreToQt(source_color));
+      }
+      else
+      {
+        constraint_source_properties_[constraint_source]->load(constraint_source_configs_[constraint_source]);
+      }
+    }
+
+    if (constraint_visuals_.find(constraint_uuid) == constraint_visuals_.end())
+    {
+      constraint_visuals_[constraint_uuid] = constraint_source_properties_[constraint_source]->createAndInsertVisual(
+          scene_manager_, root_node_, *relative_pose, *graph);
+    }
+    else
+    {
+      constraint_visuals_[constraint_uuid]->setConstraint(*relative_pose, *graph);
+    }
+
+    constraints_changed_map_[constraint_uuid] = true;
+  }
+
+  for (const auto& entry : variables_changed_map_)
+  {
+    if (!entry.second)
+    {
+      variable_property_->eraseVisual(entry.first);
+    }
+  }
+
+  for (auto it = variables_changed_map_.begin(); it != variables_changed_map_.end();)
+  {
+    if (it->second)
+    {
+      ++it;
+    }
+    else
+    {
+      it = variables_changed_map_.erase(it);
+    }
+  }
+
+  for (const auto& entry : constraints_changed_map_)
+  {
+    if (!entry.second)
+    {
+      constraint_source_properties_[constraint_visuals_[entry.first]->getSource()]->eraseVisual(entry.first);
+      constraint_visuals_.erase(entry.first);
+    }
+  }
+
+  for (auto it = constraints_changed_map_.begin(); it != constraints_changed_map_.end();)
+  {
+    if (it->second)
+    {
+      ++it;
+    }
+    else
+    {
+      it = constraints_changed_map_.erase(it);
+    }
+  }
 }
 
 }  // namespace rviz
