@@ -49,7 +49,6 @@ qt5_wrap_cpp(moc_files
 
 set(source_files
   src/mapped_covariance_property.cpp
-  src/mapped_covariance_visual.cpp
   src/pose_2d_stamped_property.cpp
   src/pose_2d_stamped_visual.cpp
   src/relative_pose_2d_stamped_constraint_property.cpp
