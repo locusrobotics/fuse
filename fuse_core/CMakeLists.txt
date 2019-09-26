@@ -10,6 +10,7 @@ set(build_depends
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
+set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)

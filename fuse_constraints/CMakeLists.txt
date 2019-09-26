@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
