@@ -393,4 +393,20 @@ void FixedLagSmoother::transactionCallback(
   }
 }
 
+void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
+{
+  Optimizer::setDiagnostics(status);
+
+  if (status.level == diagnostic_msgs::DiagnosticStatus::OK)
+  {
+    status.message = "FixedLagSmoother " + status.message;
+  }
+
+  status.add("Started", started_);
+  {
+    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    status.add("Pending Transactions", pending_transactions_.size());
+  }
+}
+
 }  // namespace fuse_optimizers

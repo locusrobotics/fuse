@@ -34,6 +34,7 @@
 #ifndef FUSE_OPTIMIZERS_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_OPTIMIZER_H
 
+#include <diagnostic_updater/diagnostic_updater.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/motion_model.h>
@@ -138,6 +139,10 @@ protected:
   pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
+  diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
+  ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
+  double diagnostic_updater_timer_period_;  //!< Diagnostic updater timer period in seconds
+
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
    *
@@ -223,6 +228,12 @@ protected:
    * @brief Stop all configured plugins (motion models, publishers, and sensor models)
    */
   void stopPlugins();
+
+  /**
+   * @brief Update and publish diagnotics
+   * @param[in] status The diagnostic status
+   */
+  virtual void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status);
 };
 
 }  // namespace fuse_optimizers
