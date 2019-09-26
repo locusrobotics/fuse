@@ -50,6 +50,7 @@ add_library(${PROJECT_NAME}
   src/uuid.cpp
   src/variable.cpp
 )
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )

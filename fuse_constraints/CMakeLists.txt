@@ -59,6 +59,7 @@ add_library(${PROJECT_NAME}
   src/uuid_ordering.cpp
   src/variable_constraints.cpp
 )
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )
@@ -216,6 +217,7 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_marginal_constraint
     ${catkin_EXPORTED_TARGETS}
   )
+  target_compile_features(test_marginal_constraint PRIVATE cxx_generic_lambdas)
   target_include_directories(test_marginal_constraint
     PRIVATE
       include
@@ -233,6 +235,7 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_marginalize_variables
     ${catkin_EXPORTED_TARGETS}
   )
+  target_compile_features(test_marginalize_variables PRIVATE cxx_generic_lambdas)
   target_include_directories(test_marginalize_variables
     PRIVATE
       include
