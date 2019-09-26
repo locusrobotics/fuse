@@ -37,25 +37,33 @@
 
 #ifndef Q_MOC_RUN
 #include <fuse_core/graph_deserializer.h>
+#include <fuse_core/uuid.h>
 #include <fuse_msgs/SerializedGraph.h>
 
 #include <rviz/message_filter_display.h>
 #endif  // Q_MOC_RUN
 
-#include <vector>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 namespace Ogre
 {
+
 class SceneNode;
-}
+class ColourValue;
+
+}  // namespace Ogre
 
 namespace rviz
 {
 
-class Object;
+class Pose2DStampedVisual;
+class RelativePose2DStampedConstraintVisual;
 
 class BoolProperty;
-class FloatProperty;
+class Pose2DStampedProperty;
+class RelativePose2DStampedConstraintProperty;
 
 /**
  * @brief An rviz dispaly for fuse_msgs::SerializedGraph messages.
@@ -77,24 +85,40 @@ protected:
 
   void onDisable() override;
 
-private Q_SLOTS:
-  void updateDrawVariablesAxesProperty();
+  void load(const Config& config) override;
 
-  void updateScaleProperty();
+private Q_SLOTS:
+  void updateShowVariables();
+  void updateShowConstraints();
 
 private:
+  using ChangedByUUIDMap = std::unordered_map<fuse_core::UUID, bool, fuse_core::uuid::hash>;
+  using ConstraintByUUIDMap =
+      std::unordered_map<fuse_core::UUID, std::shared_ptr<RelativePose2DStampedConstraintVisual>,
+                         fuse_core::uuid::hash>;
+  using ColorBySourceMap = std::unordered_map<std::string, Ogre::ColourValue>;
+  using ConstraintPropertyBySourceMap = std::unordered_map<std::string, RelativePose2DStampedConstraintProperty*>;
+  using ConfigBySourceMap = std::unordered_map<std::string, Config>;
+
   void clear();
 
   void processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg) override;
 
   Ogre::SceneNode* root_node_;
-  Ogre::SceneNode* variables_axes_node_;
-  Ogre::SceneNode* variables_spheres_node_;
 
-  std::vector<Object*> graph_shapes_;
+  ConstraintByUUIDMap constraint_visuals_;
 
-  BoolProperty* draw_variables_axes_property_;
-  FloatProperty* scale_property_;
+  ColorBySourceMap source_color_map_;
+
+  ChangedByUUIDMap variables_changed_map_;
+  ChangedByUUIDMap constraints_changed_map_;
+
+  BoolProperty* show_variables_property_;
+  BoolProperty* show_constraints_property_;
+  Pose2DStampedProperty* variable_property_;
+  ConstraintPropertyBySourceMap constraint_source_properties_;
+
+  ConfigBySourceMap constraint_source_configs_;
 
   fuse_core::GraphDeserializer graph_deserializer_;
 };
