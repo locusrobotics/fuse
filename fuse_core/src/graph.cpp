@@ -36,7 +36,10 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 
+#include <cpr_scalopus/common.h>
+
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/range.hpp>
 
 #include <functional>
 
@@ -71,6 +74,10 @@ void Graph::update(const Transaction& transaction)
   // Update the graph with a new transaction. In order to keep the graph consistent, variables are added first,
   // followed by the constraints which might use the newly added variables. Then constraints are removed so that
   // the variable usage is updated. Finally, variables are removed.
+  TRACE_COUNT_SERIES("transaction", "added_variables", boost::size(transaction.addedVariables()));
+  TRACE_COUNT_SERIES("transaction", "added_constraints", boost::size(transaction.addedConstraints()));
+  TRACE_COUNT_SERIES("transaction", "removed_constraints", boost::size(transaction.removedConstraints()));
+  TRACE_COUNT_SERIES("transaction", "removed_variables", boost::size(transaction.removedVariables()));
 
   // Insert the new variables into the graph
   for (const auto& variable : transaction.addedVariables())

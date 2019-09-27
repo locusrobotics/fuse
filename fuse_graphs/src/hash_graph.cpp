@@ -407,6 +407,8 @@ void HashGraph::getCovariance(
 ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options)
 {
   TRACE_PRETTY_FUNCTION();
+  TRACE_COUNT_SERIES("graph", "variables", variables_.size());
+  TRACE_COUNT_SERIES("graph", "constraints", constraints_.size());
 
   // Construct the ceres::Problem object from scratch
   ceres::Problem problem(problem_options_);
