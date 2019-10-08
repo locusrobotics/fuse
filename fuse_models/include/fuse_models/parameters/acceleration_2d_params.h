@@ -34,6 +34,7 @@
 #ifndef FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
 #define FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
 
+#include <fuse_core/loss.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_models/parameters/parameter_base.h>
 
@@ -67,12 +68,15 @@ struct Acceleration2DParams : public ParameterBase
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       getParamRequired(nh, "target_frame", target_frame);
+
+      loss = loadLossConfig(nh, "loss");
     }
 
     int queue_size { 10 };
     std::string topic {};
     std::string target_frame {};
     std::vector<size_t> indices;
+    fuse_core::Loss::SharedPtr loss;
 };
 
 }  // namespace parameters

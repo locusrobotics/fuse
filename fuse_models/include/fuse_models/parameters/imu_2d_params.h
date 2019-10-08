@@ -36,6 +36,7 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_core/loss.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
@@ -90,6 +91,10 @@ struct Imu2DParams : public ParameterBase
       {
         getParamRequired(nh, "twist_target_frame", twist_target_frame);
       }
+
+      pose_loss = loadLossConfig(nh, "pose_loss");
+      angular_velocity_loss = loadLossConfig(nh, "angular_velocity_loss");
+      linear_acceleration_loss = loadLossConfig(nh, "linear_acceleration_loss");
     }
 
     bool differential { false };
@@ -103,6 +108,9 @@ struct Imu2DParams : public ParameterBase
     std::vector<size_t> angular_velocity_indices;
     std::vector<size_t> linear_acceleration_indices;
     std::vector<size_t> orientation_indices;
+    fuse_core::Loss::SharedPtr pose_loss;
+    fuse_core::Loss::SharedPtr angular_velocity_loss;
+    fuse_core::Loss::SharedPtr linear_acceleration_loss;
 };
 
 }  // namespace parameters

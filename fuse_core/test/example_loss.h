@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,56 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.h>
+#ifndef FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
+#define FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
 
-#include <fuse_constraints/marginal_cost_function.h>
-#include <fuse_core/constraint.h>
-#include <pluginlib/class_list_macros.h>
+#include <fuse_core/loss.h>
+#include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <Eigen/Core>
 
-#include <ostream>
+#include <string>
 
 
-namespace fuse_constraints
+/**
+ * @brief Dummy loss implementation for testing
+ */
+class ExampleLoss : public fuse_core::Loss
 {
+public:
+  FUSE_LOSS_DEFINITIONS(ExampleLoss);
 
-void MarginalConstraint::print(std::ostream& stream) const
-{
-  stream << type() << "\n"
-         << "  source: " << source() << "\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  variable:\n";
-  for (const auto& variable : variables())
+  explicit ExampleLoss(const double a = 1.0) : fuse_core::Loss(new ceres::HuberLoss(a)), a(a)
   {
-    stream << "   - " << variable << "\n";
   }
-  Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A().size(); ++i)
+
+  void initialize(const std::string& /*name*/) override {}
+
+  void print(std::ostream& /*stream = std::cout*/) const override {}
+
+  double a{ 1.0 };  // Public member variable just for testing
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
+    archive & boost::serialization::base_object<fuse_core::Loss>(*this);
+    archive & a;
   }
-  stream << "  b:\n" << b().format(indent) << "\n";
+};
 
-  if (loss())
-  {
-    stream << "  loss: ";
-    loss()->print(stream);
-  }
-}
+BOOST_CLASS_EXPORT(ExampleLoss);
 
-ceres::CostFunction* MarginalConstraint::costFunction() const
-{
-  return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
-}
-
-}  // namespace fuse_constraints
-
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint);
+#endif  // FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}

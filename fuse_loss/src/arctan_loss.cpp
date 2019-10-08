@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,38 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.h>
+#include <fuse_loss/arctan_loss.h>
 
-#include <fuse_constraints/marginal_cost_function.h>
-#include <fuse_core/constraint.h>
-#include <pluginlib/class_list_macros.h>
+#include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
-#include <Eigen/Core>
 
-#include <ostream>
+#include <string>
 
 
-namespace fuse_constraints
+namespace fuse_loss
 {
 
-void MarginalConstraint::print(std::ostream& stream) const
+ArctanLoss::ArctanLoss(const double a) : fuse_core::Loss(new ceres::ArctanLoss(a)), a_(a)
+{
+}
+
+void ArctanLoss::initialize(const std::string& name)
+{
+  ros::NodeHandle private_node_handle(name);
+
+  private_node_handle.param("a", a_, a_);
+}
+
+void ArctanLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
-         << "  source: " << source() << "\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  variable:\n";
-  for (const auto& variable : variables())
-  {
-    stream << "   - " << variable << "\n";
-  }
-  Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A().size(); ++i)
-  {
-    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
-  }
-  stream << "  b:\n" << b().format(indent) << "\n";
-
-  if (loss())
-  {
-    stream << "  loss: ";
-    loss()->print(stream);
-  }
+         << "  a: " << a_ << "\n";
 }
 
-ceres::CostFunction* MarginalConstraint::costFunction() const
-{
-  return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
-}
+}  // namespace fuse_loss
 
-}  // namespace fuse_constraints
+#include <pluginlib/class_list_macros.h>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::ArctanLoss);
+PLUGINLIB_EXPORT_CLASS(fuse_loss::ArctanLoss, fuse_core::Loss);

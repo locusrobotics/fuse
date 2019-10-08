@@ -100,6 +100,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
         device_id_,
         *previous_pose_msg_,
         *msg,
+        params_.loss,
         params_.position_indices,
         params_.orientation_indices,
         *transaction);
@@ -113,6 +114,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
       name(),
       device_id_,
       *msg,
+      params_.loss,
       params_.target_frame,
       params_.position_indices,
       params_.orientation_indices,

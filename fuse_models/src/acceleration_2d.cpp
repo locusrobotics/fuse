@@ -93,6 +93,7 @@ void Acceleration2D::process(const geometry_msgs::AccelWithCovarianceStamped::Co
     name(),
     device_id_,
     *msg,
+    params_.loss,
     params_.target_frame,
     params_.indices,
     tf_buffer_,

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,21 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.h>
+#include <test/example_loss.h>
 
-#include <fuse_constraints/marginal_cost_function.h>
-#include <fuse_core/constraint.h>
-#include <pluginlib/class_list_macros.h>
-
-#include <boost/serialization/export.hpp>
-#include <Eigen/Core>
-
-#include <ostream>
+#include <gtest/gtest.h>
 
 
-namespace fuse_constraints
+TEST(Loss, Constructor)
 {
-
-void MarginalConstraint::print(std::ostream& stream) const
-{
-  stream << type() << "\n"
-         << "  source: " << source() << "\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  variable:\n";
-  for (const auto& variable : variables())
-  {
-    stream << "   - " << variable << "\n";
-  }
-  Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A().size(); ++i)
-  {
-    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
-  }
-  stream << "  b:\n" << b().format(indent) << "\n";
-
-  if (loss())
-  {
-    stream << "  loss: ";
-    loss()->print(stream);
-  }
+  const double a{ 0.3 };
+  ExampleLoss loss(a);
+  ASSERT_EQ(a, loss.a);
+  ASSERT_NE(nullptr, loss.lossFunction());
 }
 
-ceres::CostFunction* MarginalConstraint::costFunction() const
+int main(int argc, char **argv)
 {
-  return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
-
-}  // namespace fuse_constraints
-
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint);
