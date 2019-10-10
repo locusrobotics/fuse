@@ -35,6 +35,7 @@
 #include <fuse_models/unicycle_2d_predict.h>
 
 #include <fuse_core/async_publisher.h>
+#include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 
 #include <nav_msgs/Odometry.h>
@@ -58,7 +59,8 @@ namespace fuse_models
 Odometry2DPublisher::Odometry2DPublisher() :
   fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
-  latest_stamp_(Synchronizer::TIME_ZERO)
+  latest_stamp_(Synchronizer::TIME_ZERO),
+  latest_covariance_stamp_(Synchronizer::TIME_ZERO)
 {
 }
 
@@ -77,9 +79,9 @@ void Odometry2DPublisher::onInit()
 
   odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
 
-  tf_publish_timer_ = node_handle_.createTimer(
+  publish_timer_ = node_handle_.createTimer(
     ros::Duration(1.0 / params_.tf_publish_frequency),
-    &Odometry2DPublisher::tfPublishTimerCallback,
+    &Odometry2DPublisher::publishTimerCallback,
     this,
     false,
     false);
@@ -156,6 +158,8 @@ void Odometry2DPublisher::notifyCallback(
       odom_output_.twist.covariance[30] = covariance_matrices[4][0];
       odom_output_.twist.covariance[31] = covariance_matrices[4][1];
       odom_output_.twist.covariance[35] = covariance_matrices[5][0];
+
+      latest_covariance_stamp_ = latest_stamp_;
     }
     catch (const std::exception& e)
     {
@@ -164,21 +168,20 @@ void Odometry2DPublisher::notifyCallback(
       std::fill(odom_output_.pose.covariance.begin(), odom_output_.pose.covariance.end(), 0.0);
       std::fill(odom_output_.twist.covariance.begin(), odom_output_.twist.covariance.end(), 0.0);
     }
-    odom_pub_.publish(odom_output_);
   }
 }
 
 void Odometry2DPublisher::onStart()
 {
   synchronizer_ = Synchronizer(device_id_);
-  latest_stamp_ = Synchronizer::TIME_ZERO;
+  latest_stamp_ = latest_covariance_stamp_ = Synchronizer::TIME_ZERO;
   odom_output_ = nav_msgs::Odometry();
-  tf_publish_timer_.start();
+  publish_timer_.start();
 }
 
 void Odometry2DPublisher::onStop()
 {
-  tf_publish_timer_.stop();
+  publish_timer_.stop();
 }
 
 bool Odometry2DPublisher::getState(
@@ -234,7 +237,7 @@ bool Odometry2DPublisher::getState(
   return true;
 }
 
-void Odometry2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
+void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 {
   if (latest_stamp_ == Synchronizer::TIME_ZERO)
   {
@@ -245,63 +248,137 @@ void Odometry2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
   tf2_2d::Transform pose;
   tf2::fromMsg(odom_output_.pose.pose, pose);
 
-  geometry_msgs::TransformStamped trans;
-  trans.header = odom_output_.header;
-  trans.child_frame_id = odom_output_.child_frame_id;
-
   // If requested, we need to project our state forward in time using the 2D kinematic model
   if (params_.predict_to_current_time)
   {
     tf2_2d::Vector2 velocity_linear;
     tf2::fromMsg(odom_output_.twist.twist.linear, velocity_linear);
 
+    const double dt = event.current_real.toSec() - odom_output_.header.stamp.toSec();
+
+    fuse_core::Matrix8d jacobian;
+
     tf2_2d::Vector2 unused_acc;
-    double unused_yaw_vel;
+    double yaw_vel;
 
     predict(
       pose,
       velocity_linear,
       odom_output_.twist.twist.angular.z,
+      // TODO(efernandez) we should use the actual acceleration, both here and in the else, even if we don't care of
+      // the resulting acceleration, because it also affects other components
       unused_acc,
-      event.current_real.toSec() - odom_output_.header.stamp.toSec(),
+      dt,
       pose,
       velocity_linear,
-      unused_yaw_vel,
-      unused_acc);
+      yaw_vel,
+      unused_acc,
+      jacobian);
 
-    trans.header.stamp = event.current_real;
+    odom_output_.pose.pose.position.x = pose.getX();
+    odom_output_.pose.pose.position.y = pose.getY();
+    odom_output_.pose.pose.orientation = tf2::toMsg(pose.getRotation());
+
+    odom_output_.twist.twist.linear.x = velocity_linear.x();
+    odom_output_.twist.twist.linear.y = velocity_linear.y();
+    odom_output_.twist.twist.angular.z = yaw_vel;
+
+    odom_output_.header.stamp = event.current_real;
+
+    // Either the last covariance computation was skipped because there was no subscriber,
+    // or it failed
+    if (latest_covariance_stamp_ == latest_stamp_)
+    {
+      Eigen::Matrix<double, 6, 6> covariance;
+      covariance(0, 0) = odom_output_.pose.covariance[0];
+      covariance(0, 1) = odom_output_.pose.covariance[1];
+      covariance(0, 2) = odom_output_.pose.covariance[5];
+      covariance(1, 0) = odom_output_.pose.covariance[6];
+      covariance(1, 1) = odom_output_.pose.covariance[7];
+      covariance(1, 2) = odom_output_.pose.covariance[11];
+      covariance(2, 0) = odom_output_.pose.covariance[30];
+      covariance(2, 1) = odom_output_.pose.covariance[31];
+      covariance(2, 2) = odom_output_.pose.covariance[35];
+
+      covariance(3, 3) = odom_output_.twist.covariance[0];
+      covariance(3, 4) = odom_output_.twist.covariance[1];
+      covariance(3, 5) = odom_output_.twist.covariance[5];
+      covariance(4, 3) = odom_output_.twist.covariance[6];
+      covariance(4, 4) = odom_output_.twist.covariance[7];
+      covariance(4, 5) = odom_output_.twist.covariance[11];
+      covariance(5, 3) = odom_output_.twist.covariance[30];
+      covariance(5, 4) = odom_output_.twist.covariance[31];
+      covariance(5, 5) = odom_output_.twist.covariance[35];
+
+      // TODO(efernandez) for now we set the top right and bottom left corners to zero, but we could cache them in
+      // another attribute when we retrieve the covariance from the ceres problem
+      covariance.topRightCorner<3, 3>().setZero();
+      covariance.bottomLeftCorner<3, 3>().setZero();
+
+      const Eigen::Matrix<double, 6, 6> J = jacobian.topLeftCorner<6, 6>();
+      covariance = J * covariance * J.transpose();
+      covariance.noalias() += dt * params_.process_noise_covariance.topLeftCorner<6, 6>();
+
+      odom_output_.pose.covariance[0] = covariance(0, 0);
+      odom_output_.pose.covariance[1] = covariance(0, 1);
+      odom_output_.pose.covariance[5] = covariance(0, 2);
+      odom_output_.pose.covariance[6] = covariance(1, 0);
+      odom_output_.pose.covariance[7] = covariance(1, 1);
+      odom_output_.pose.covariance[11] = covariance(1, 2);
+      odom_output_.pose.covariance[30] = covariance(2, 0);
+      odom_output_.pose.covariance[31] = covariance(2, 1);
+      odom_output_.pose.covariance[35] = covariance(2, 2);
+
+      odom_output_.twist.covariance[0] = covariance(3, 3);
+      odom_output_.twist.covariance[1] = covariance(3, 4);
+      odom_output_.twist.covariance[5] = covariance(3, 5);
+      odom_output_.twist.covariance[6] = covariance(4, 3);
+      odom_output_.twist.covariance[7] = covariance(4, 4);
+      odom_output_.twist.covariance[11] = covariance(4, 5);
+      odom_output_.twist.covariance[30] = covariance(5, 3);
+      odom_output_.twist.covariance[31] = covariance(5, 4);
+      odom_output_.twist.covariance[35] = covariance(5, 5);
+    }
   }
 
-  trans.transform.translation.x = pose.getX();
-  trans.transform.translation.y = pose.getY();
-  trans.transform.translation.z = odom_output_.pose.pose.position.z;
-  trans.transform.rotation = tf2::toMsg(pose.getRotation());
+  odom_pub_.publish(odom_output_);
 
-  if (params_.world_frame_id == params_.map_frame_id)
+  if (params_.publish_tf)
   {
-    try
-    {
-      auto base_to_odom = tf_buffer_->lookupTransform(
-        params_.base_link_frame_id,
-        params_.odom_frame_id,
-        latest_stamp_,
-        params_.tf_timeout);
+    geometry_msgs::TransformStamped trans;
+    trans.header = odom_output_.header;
+    trans.child_frame_id = odom_output_.child_frame_id;
+    trans.transform.translation.x = pose.getX();
+    trans.transform.translation.y = pose.getY();
+    trans.transform.translation.z = odom_output_.pose.pose.position.z;
+    trans.transform.rotation = tf2::toMsg(pose.getRotation());
 
-      geometry_msgs::TransformStamped map_to_odom;
-      tf2::doTransform(base_to_odom, map_to_odom, trans);
-      map_to_odom.child_frame_id = params_.odom_frame_id;
-      trans = map_to_odom;
-    }
-    catch (const std::exception& e)
+    if (params_.world_frame_id == params_.map_frame_id)
     {
-      ROS_WARN_STREAM_THROTTLE(5.0, "Could not lookup the " << params_.base_link_frame_id << "->" <<
-        params_.odom_frame_id << " transform. Error: " << e.what());
+      try
+      {
+        auto base_to_odom = tf_buffer_->lookupTransform(
+          params_.base_link_frame_id,
+          params_.odom_frame_id,
+          latest_stamp_,
+          params_.tf_timeout);
 
-      return;
+        geometry_msgs::TransformStamped map_to_odom;
+        tf2::doTransform(base_to_odom, map_to_odom, trans);
+        map_to_odom.child_frame_id = params_.odom_frame_id;
+        trans = map_to_odom;
+      }
+      catch (const std::exception& e)
+      {
+        ROS_WARN_STREAM_THROTTLE(5.0, "Could not lookup the " << params_.base_link_frame_id << "->" <<
+          params_.odom_frame_id << " transform. Error: " << e.what());
+
+        return;
+      }
     }
+
+    tf_broadcaster_.sendTransform(trans);
   }
-
-  tf_broadcaster_.sendTransform(trans);
 }
 
 }  // namespace fuse_models

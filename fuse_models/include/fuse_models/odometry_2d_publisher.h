@@ -92,7 +92,7 @@ namespace fuse_models
 class Odometry2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS(Odometry2DPublisher);
+  SMART_PTR_DEFINITIONS_WITH_EIGEN(Odometry2DPublisher);
   using ParameterType = parameters::Odometry2DPublisherParams;
 
   /**
@@ -155,10 +155,10 @@ protected:
     nav_msgs::Odometry& state);
 
   /**
-   * @brief Timer callback method for the tf publication
+   * @brief Timer callback method for the filtered state publication and tf broadcasting
    * @param[in] event The timer event parameters that are associated with the given invocation
    */
-  void tfPublishTimerCallback(const ros::TimerEvent& event);
+  void publishTimerCallback(const ros::TimerEvent& event);
 
   /**
    * @brief Object that searches for the most recent common timestamp for a set of variables
@@ -174,6 +174,8 @@ protected:
 
   ros::Time latest_stamp_;
 
+  ros::Time latest_covariance_stamp_;
+
   nav_msgs::Odometry odom_output_;
 
   Synchronizer synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
@@ -186,7 +188,7 @@ protected:
 
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  ros::Timer tf_publish_timer_;
+  ros::Timer publish_timer_;
 };
 
 }  // namespace fuse_models
