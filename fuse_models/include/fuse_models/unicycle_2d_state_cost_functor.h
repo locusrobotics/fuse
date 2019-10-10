@@ -52,6 +52,7 @@ namespace fuse_models
  *   y position
  *   yaw (rotation about the z axis)
  *   x velocity
+ *   y velocity
  *   yaw velocity
  *   x acceleration
  *   y acceleration
