@@ -92,7 +92,7 @@ namespace fuse_models
 class Odometry2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS(Odometry2DPublisher);
+  SMART_PTR_DEFINITIONS_WITH_EIGEN(Odometry2DPublisher);
   using ParameterType = parameters::Odometry2DPublisherParams;
 
   /**
@@ -173,6 +173,8 @@ protected:
   ParameterType params_;
 
   ros::Time latest_stamp_;
+
+  ros::Time latest_covariance_stamp_;
 
   nav_msgs::Odometry odom_output_;
 

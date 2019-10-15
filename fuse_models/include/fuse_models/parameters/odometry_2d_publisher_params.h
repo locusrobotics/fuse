@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/ceres_options.h>
+#include <fuse_core/eigen.h>
 
 #include <ros/console.h>
 #include <ros/node_handle.h>
@@ -60,6 +61,8 @@ namespace parameters
 struct Odometry2DPublisherParams : public ParameterBase
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /**
    * @brief Method for loading parameter values from ROS.
    *
@@ -69,7 +72,18 @@ public:
   {
     nh.getParam("publish_tf", publish_tf);
     nh.getParam("predict_to_current_time", predict_to_current_time);
+    nh.getParam("predict_odom", predict_odom);
     nh.getParam("tf_publish_frequency", tf_publish_frequency);
+
+    std::vector<double> process_noise_diagonal(8, 0.0);
+    nh.param("process_noise_diagonal", process_noise_diagonal, process_noise_diagonal);
+
+    if (process_noise_diagonal.size() != 8)
+    {
+      throw std::runtime_error("Process noise diagonal must be of length 8!");
+    }
+
+    process_noise_covariance = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
     double tf_cache_time_double = tf_cache_time.toSec();
     nh.getParam("tf_cache_time", tf_cache_time_double);
@@ -112,7 +126,9 @@ public:
 
   bool publish_tf { true };
   bool predict_to_current_time { false };
+  bool predict_odom { false };
   double tf_publish_frequency { 10.0 };
+  fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   ros::Duration tf_cache_time { 10.0 };
   ros::Duration tf_timeout { 0.1 };
   int queue_size { 1 };
