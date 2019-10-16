@@ -43,6 +43,7 @@
 #include <XmlRpcValue.h>
 
 #include <functional>
+#include <numeric>
 #include <stdexcept>
 #include <string>
 
@@ -59,8 +60,20 @@ Optimizer::Optimizer(
     private_node_handle_(private_node_handle),
     motion_model_loader_("fuse_core", "fuse_core::MotionModel"),
     publisher_loader_("fuse_core", "fuse_core::Publisher"),
-    sensor_model_loader_("fuse_core", "fuse_core::SensorModel")
+    sensor_model_loader_("fuse_core", "fuse_core::SensorModel"),
+    diagnostic_updater_(node_handle_)
 {
+  // Setup diagnostics updater
+  private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
+                             diagnostic_updater_timer_period_);
+
+  diagnostic_updater_timer_ =
+      private_node_handle_.createTimer(ros::Duration(diagnostic_updater_timer_period_),
+                                       boost::bind(&diagnostic_updater::Updater::update, &diagnostic_updater_));
+
+  diagnostic_updater_.add("Optimizer", this, &Optimizer::setDiagnostics);
+  diagnostic_updater_.setHardwareID("fuse");
+
   // Wait for a valid time before loading any of the plugins
   ros::Time::waitForValid();
 
@@ -118,6 +131,8 @@ void Optimizer::loadMotionModels()
     // Store the publisher in a member variable for use later
     motion_models_.emplace(motion_model_name, std::move(motion_model));
   }
+
+  diagnostic_updater_.force_update();
 }
 
 void Optimizer::loadSensorModels()
@@ -178,6 +193,8 @@ void Optimizer::loadSensorModels()
       }
     }
   }
+
+  diagnostic_updater_.force_update();
 }
 
 void Optimizer::loadPublishers()
@@ -220,6 +237,8 @@ void Optimizer::loadPublishers()
     // Store the publisher in a member variable for use later
     publishers_.emplace(publisher_name, std::move(publisher));
   }
+
+  diagnostic_updater_.force_update();
 }
 
 bool Optimizer::applyMotionModels(
@@ -328,6 +347,8 @@ void Optimizer::startPlugins()
   {
     name_plugin.second->start();
   }
+
+  diagnostic_updater_.force_update();
 }
 
 void Optimizer::stopPlugins()
@@ -344,6 +365,25 @@ void Optimizer::stopPlugins()
   {
     name_plugin.second->stop();
   }
+
+  diagnostic_updater_.force_update();
+}
+
+void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
+{
+  if (!ros::Time::isValid())
+  {
+    status.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Waiting for valid ROS time");
+    return;
+  }
+
+  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimizer");
+
+  auto print_key = [](const std::string& result, const auto& entry) { return result + entry.first + ' '; };
+
+  status.add("Sensor Models", std::accumulate(sensor_models_.begin(), sensor_models_.end(), std::string(), print_key));
+  status.add("Motion Models", std::accumulate(motion_models_.begin(), motion_models_.end(), std::string(), print_key));
+  status.add("Publishers", std::accumulate(publishers_.begin(), publishers_.end(), std::string(), print_key));
 }
 
 }  // namespace fuse_optimizers
