@@ -93,7 +93,8 @@ void Odometry2DPublisher::notifyCallback(
   latest_stamp_ = synchronizer_.findLatestCommonStamp(*transaction, *graph);
   if (latest_stamp_ == Synchronizer::TIME_ZERO)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a matching set of position and orientation variables.");
+    ROS_WARN_STREAM_THROTTLE(
+        10.0, "Failed to find a matching set of state variables with device id '" << device_id_ << "'.");
     return;
   }
 

@@ -204,7 +204,8 @@ void Pose2DPublisher::notifyCallback(
   auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
   if (latest_stamp == Synchronizer::TIME_ZERO)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a matching set of position and orientation variables.");
+    ROS_WARN_STREAM_THROTTLE(
+        10.0, "Failed to find a matching set of stamped pose variables with device id '" << device_id_ << "'.");
     return;
   }
   // Get the pose values associated with the selected timestamp
