@@ -15,6 +15,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>cpr_scalopus</depend>
+  <depend>diagnostic_updater</depend>
   <depend>fuse_constraints</depend>
   <depend>fuse_core</depend>
   <depend>fuse_graphs</depend>

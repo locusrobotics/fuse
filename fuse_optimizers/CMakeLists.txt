@@ -3,6 +3,7 @@ project(fuse_optimizers)
 
 set(build_depends
   cpr_scalopus
+  diagnostic_updater
   fuse_constraints
   fuse_core
   fuse_graphs
