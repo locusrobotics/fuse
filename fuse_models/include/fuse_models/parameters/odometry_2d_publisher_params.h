@@ -44,6 +44,7 @@
 
 #include <ceres/covariance.h>
 
+#include <algorithm>
 #include <cassert>
 #include <string>
 #include <vector>
@@ -81,6 +82,12 @@ public:
     if (process_noise_diagonal.size() != 8)
     {
       throw std::runtime_error("Process noise diagonal must be of length 8!");
+    }
+
+    if (std::any_of(process_noise_diagonal.begin(), process_noise_diagonal.end(),
+                    [](const auto& v) { return v < 0.0; }))  // NOLINT(whitespace/braces)
+    {
+      throw std::runtime_error("All process noise diagonal entries must be positive!");
     }
 
     process_noise_covariance = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
