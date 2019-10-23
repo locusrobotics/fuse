@@ -81,9 +81,9 @@ UuidOrdering computeEliminationOrder(
     for (const auto& constraint : constraints)
     {
       unsigned int constraint_index = constraint_order[constraint.uuid()];
-      for (const auto& variable_uuid : constraint.variables())
+      for (const auto& constraint_variable_uuid : constraint.variables())
       {
-        variable_constraints.insert(constraint_index, variable_order[variable_uuid]);
+        variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
       }
     }
   }
