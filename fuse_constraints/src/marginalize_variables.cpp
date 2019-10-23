@@ -74,7 +74,7 @@ UuidOrdering computeEliminationOrder(
   for (const auto& variable_uuid : marginalized_variables)
   {
     // Get all connected constraints to this variable
-    auto constraints = graph.getConnectedConstraints(variable_uuid);
+    const auto constraints = graph.getConnectedConstraints(variable_uuid);
 
     // Add each constraint to the VariableConstraints object
     // New constraint and variable indices are automatically generated
@@ -191,7 +191,7 @@ fuse_core::Transaction marginalizeVariables(
   std::vector<std::vector<detail::LinearTerm>> linear_terms(variable_order.size());
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
-    auto constraints = graph.getConnectedConstraints(variable_order[i]);
+    const auto constraints = graph.getConnectedConstraints(variable_order[i]);
     for (const auto& constraint : constraints)
     {
       if (used_constraints.find(constraint.uuid()) == used_constraints.end())
