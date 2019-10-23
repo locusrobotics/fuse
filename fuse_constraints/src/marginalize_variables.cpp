@@ -74,16 +74,16 @@ UuidOrdering computeEliminationOrder(
   for (const auto& variable_uuid : marginalized_variables)
   {
     // Get all connected constraints to this variable
-    auto constraints = graph.getConnectedConstraints(variable_uuid);
+    const auto constraints = graph.getConnectedConstraints(variable_uuid);
 
     // Add each constraint to the VariableConstraints object
     // New constraint and variable indices are automatically generated
     for (const auto& constraint : constraints)
     {
       unsigned int constraint_index = constraint_order[constraint.uuid()];
-      for (const auto& variable_uuid : constraint.variables())
+      for (const auto& constraint_variable_uuid : constraint.variables())
       {
-        variable_constraints.insert(constraint_index, variable_order[variable_uuid]);
+        variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
       }
     }
   }
@@ -191,7 +191,7 @@ fuse_core::Transaction marginalizeVariables(
   std::vector<std::vector<detail::LinearTerm>> linear_terms(variable_order.size());
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
-    auto constraints = graph.getConnectedConstraints(variable_order[i]);
+    const auto constraints = graph.getConnectedConstraints(variable_order[i]);
     for (const auto& constraint : constraints)
     {
       if (used_constraints.find(constraint.uuid()) == used_constraints.end())
@@ -218,6 +218,11 @@ fuse_core::Transaction marginalizeVariables(
   // Place the resulting marginal in the linear constraint bucket associated with the lowest-ordered remaining variable
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
+    if (linear_terms[i].empty())
+    {
+      continue;
+    }
+
     auto linear_marginal = detail::marginalizeNext(linear_terms[i]);
     if (!linear_marginal.variables.empty())
     {
