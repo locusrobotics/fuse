@@ -80,7 +80,7 @@ void Odometry2DPublisher::onInit()
   odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
 
   publish_timer_ = node_handle_.createTimer(
-    ros::Duration(1.0 / params_.tf_publish_frequency),
+    ros::Duration(1.0 / params_.publish_frequency),
     &Odometry2DPublisher::publishTimerCallback,
     this,
     false,

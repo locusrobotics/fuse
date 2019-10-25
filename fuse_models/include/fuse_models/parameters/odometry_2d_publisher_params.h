@@ -73,8 +73,7 @@ public:
   {
     nh.getParam("publish_tf", publish_tf);
     nh.getParam("predict_to_current_time", predict_to_current_time);
-    nh.getParam("predict_odom", predict_odom);
-    nh.getParam("tf_publish_frequency", tf_publish_frequency);
+    nh.getParam("publish_frequency", publish_frequency);
 
     std::vector<double> process_noise_diagonal(8, 0.0);
     nh.param("process_noise_diagonal", process_noise_diagonal, process_noise_diagonal);
@@ -133,8 +132,7 @@ public:
 
   bool publish_tf { true };
   bool predict_to_current_time { false };
-  bool predict_odom { false };
-  double tf_publish_frequency { 10.0 };
+  double publish_frequency { 10.0 };
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   ros::Duration tf_cache_time { 10.0 };
   ros::Duration tf_timeout { 0.1 };

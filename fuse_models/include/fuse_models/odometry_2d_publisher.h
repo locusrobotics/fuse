@@ -68,7 +68,8 @@ namespace fuse_models
  *                                                   specifies whether we should predict, using the 2D unicycle model,
  *                                                   the state at the time of the tf publication, rather than the last
  *                                                   posterior (optimized) state.
- *  - tf_publish_frequency (double, default: 10.0)  How often, in Hz, we publish the transform
+ *  - publish_frequency (double, default: 10.0)  How often, in Hz, we publish the filtered state data and broadcast the
+ *                                               transform
  *  - tf_cache_time (double, default: 10.0)  The length of our tf cache (only used if the world_frame_id and the
  *                                           map_frame_id are the same)
  *  - tf_timeout (double, default: 0.1)  Our tf lookup timeout period (only used if the world_frame_id and the
