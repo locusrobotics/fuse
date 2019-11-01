@@ -360,7 +360,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
         auto base_to_odom = tf_buffer_->lookupTransform(
           params_.base_link_frame_id,
           params_.odom_frame_id,
-          latest_stamp_,
+          trans.header.stamp,
           params_.tf_timeout);
 
         geometry_msgs::TransformStamped map_to_odom;
