@@ -141,7 +141,7 @@ protected:
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
   ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
-  double diagnostic_updater_timer_period_;  //!< Diagnostic updater timer period in seconds
+  double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
 
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
