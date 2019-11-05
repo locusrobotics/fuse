@@ -74,16 +74,16 @@ UuidOrdering computeEliminationOrder(
   for (const auto& variable_uuid : marginalized_variables)
   {
     // Get all connected constraints to this variable
-    auto constraints = graph.getConnectedConstraints(variable_uuid);
+    const auto constraints = graph.getConnectedConstraints(variable_uuid);
 
     // Add each constraint to the VariableConstraints object
     // New constraint and variable indices are automatically generated
     for (const auto& constraint : constraints)
     {
       unsigned int constraint_index = constraint_order[constraint.uuid()];
-      for (const auto& variable_uuid : constraint.variables())
+      for (const auto& constraint_variable_uuid : constraint.variables())
       {
-        variable_constraints.insert(constraint_index, variable_order[variable_uuid]);
+        variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
       }
     }
   }
@@ -191,7 +191,7 @@ fuse_core::Transaction marginalizeVariables(
   std::vector<std::vector<detail::LinearTerm>> linear_terms(variable_order.size());
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
-    auto constraints = graph.getConnectedConstraints(variable_order[i]);
+    const auto constraints = graph.getConnectedConstraints(variable_order[i]);
     for (const auto& constraint : constraints)
     {
       if (used_constraints.find(constraint.uuid()) == used_constraints.end())
@@ -363,6 +363,11 @@ LinearTerm linearize(
 
 LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
 {
+  if (linear_terms.empty())
+  {
+    return {};
+  }
+
   // We need to create a dense matrix from all of the provided linear terms, and that matrix must order the variables
   // in the proper elimination order. The LinearTerms have the elimination order baked into the variable indices, but
   // since not all variables are necessarily present, we need to remove any gaps from the variable indices.
