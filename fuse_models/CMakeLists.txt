@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_models)
 
-set(CMAKE_CXX_STANDARD 14)
-
-add_compile_options(-Wall -Werror)
-
 find_package(
   catkin REQUIRED
   COMPONENTS
@@ -79,14 +75,9 @@ roslint_cpp()
 ###########
 ## Build ##
 ###########
-
-include_directories(
-  include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-Wall -Werror)
 
 ## Declare a C++ library
 add_library(
@@ -101,17 +92,23 @@ add_library(
     src/unicycle_2d_ignition.cpp
     src/unicycle_2d_state_kinematic_constraint.cpp
 )
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(
-  ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-)
 add_dependencies(
   ${PROJECT_NAME}
     ${${PROJECT_NAME}_EXPORTED_TARGETS}
     ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${Boost_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+)
+target_link_libraries(
+  ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
 )
 
 #############

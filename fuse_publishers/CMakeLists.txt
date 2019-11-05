@@ -30,7 +30,8 @@ catkin_package(
 ## Build ##
 ###########
 set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-std=c++14 -Wall -Werror)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-Wall -Werror)
 
 # fuse_publishers library
 add_library(${PROJECT_NAME}

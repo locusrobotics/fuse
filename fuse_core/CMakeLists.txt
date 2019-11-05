@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libglog REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -31,7 +33,8 @@ catkin_package(
 ## Build ##
 ###########
 set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-std=c++14 -Wall -Werror)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-Wall -Werror)
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
