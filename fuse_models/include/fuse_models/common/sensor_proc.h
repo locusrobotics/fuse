@@ -273,8 +273,8 @@ inline bool processAbsolutePoseWithCovariance(
   tf2::fromMsg(transformed_message.pose.pose, absolute_pose_2d);
 
   // Create the pose variable
-  auto position = fuse_variables::Position2DStamped::make_shared(transformed_message.header.stamp, device_id);
-  auto orientation = fuse_variables::Orientation2DStamped::make_shared(transformed_message.header.stamp, device_id);
+  auto position = fuse_variables::Position2DStamped::make_shared(pose.header.stamp, device_id);
+  auto orientation = fuse_variables::Orientation2DStamped::make_shared(pose.header.stamp, device_id);
   position->x() = absolute_pose_2d.x();
   position->y() = absolute_pose_2d.y();
   orientation->yaw() = absolute_pose_2d.yaw();
@@ -509,7 +509,7 @@ inline bool processTwistWithCovariance(
   if (!linear_indices.empty())
   {
     auto velocity_linear =
-      fuse_variables::VelocityLinear2DStamped::make_shared(transformed_message.header.stamp, device_id);
+      fuse_variables::VelocityLinear2DStamped::make_shared(twist.header.stamp, device_id);
     velocity_linear->x() = transformed_message.twist.twist.linear.x;
     velocity_linear->y() = transformed_message.twist.twist.linear.y;
 
@@ -548,7 +548,7 @@ inline bool processTwistWithCovariance(
   {
     // Create the twist variables
     auto velocity_angular =
-      fuse_variables::VelocityAngular2DStamped::make_shared(transformed_message.header.stamp, device_id);
+      fuse_variables::VelocityAngular2DStamped::make_shared(twist.header.stamp, device_id);
     velocity_angular->yaw() = transformed_message.twist.twist.angular.z;
 
     fuse_core::Vector1d angular_vel_vector;
@@ -614,7 +614,7 @@ inline bool processAccelWithCovariance(
 
   // Create the acceleration variables
   auto acceleration_linear =
-    fuse_variables::AccelerationLinear2DStamped::make_shared(transformed_message.header.stamp, device_id);
+    fuse_variables::AccelerationLinear2DStamped::make_shared(acceleration.header.stamp, device_id);
   acceleration_linear->x() = transformed_message.accel.accel.linear.x;
   acceleration_linear->y() = transformed_message.accel.accel.linear.y;
 
