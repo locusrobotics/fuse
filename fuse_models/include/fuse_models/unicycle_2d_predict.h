@@ -39,6 +39,8 @@
 #include <fuse_core/eigen.h>
 #include <tf2_2d/tf2_2d.h>
 
+#include <array>
+
 
 namespace fuse_models
 {
@@ -54,14 +56,14 @@ namespace fuse_models
  * @param[in] acc_linear1_x - First X acceleration
  * @param[in] acc_linear1_y - First Y acceleration
  * @param[in] dt - The time delta across which to predict the state
- * @param[in] position2_x - Second X position
- * @param[in] position2_y - Second Y position
- * @param[in] yaw2 - Second orientation
- * @param[in] vel_linear2_x - Second X velocity
- * @param[in] vel_linear2_y - Second Y velocity
- * @param[in] vel_yaw2 - Second yaw velocity
- * @param[in] acc_linear2_x - Second X acceleration
- * @param[in] acc_linear2_y - Second Y acceleration
+ * @param[out] position2_x - Second X position
+ * @param[out] position2_y - Second Y position
+ * @param[out] yaw2 - Second orientation
+ * @param[out] vel_linear2_x - Second X velocity
+ * @param[out] vel_linear2_y - Second Y velocity
+ * @param[out] vel_yaw2 - Second yaw velocity
+ * @param[out] acc_linear2_x - Second X acceleration
+ * @param[out] acc_linear2_y - Second Y acceleration
  */
 template<typename T>
 inline void predict(
@@ -101,18 +103,6 @@ inline void predict(
   fuse_core::wrapAngle2D(yaw2);
 }
 
-enum StateIndex : uint8_t
-{
-  X,
-  Y,
-  YAW,
-  V_X,
-  V_Y,
-  V_YAW,
-  A_X,
-  A_Y
-};
-
 /**
  * @brief Given a state and time delta, predicts a new state
  * @param[in] position1_x - First X position
@@ -124,18 +114,16 @@ enum StateIndex : uint8_t
  * @param[in] acc_linear1_x - First X acceleration
  * @param[in] acc_linear1_y - First Y acceleration
  * @param[in] dt - The time delta across which to predict the state
- * @param[in] position2_x - Second X position
- * @param[in] position2_y - Second Y position
- * @param[in] yaw2 - Second orientation
- * @param[in] vel_linear2_x - Second X velocity
- * @param[in] vel_linear2_y - Second Y velocity
- * @param[in] vel_yaw2 - Second yaw velocity
- * @param[in] acc_linear2_x - Second X acceleration
- * @param[in] acc_linear2_y - Second Y acceleration
- * @param[in] jacobians - Jacobians wrt the state
+ * @param[out] position2_x - Second X position
+ * @param[out] position2_y - Second Y position
+ * @param[out] yaw2 - Second orientation
+ * @param[out] vel_linear2_x - Second X velocity
+ * @param[out] vel_linear2_y - Second Y velocity
+ * @param[out] vel_yaw2 - Second yaw velocity
+ * @param[out] acc_linear2_x - Second X acceleration
+ * @param[out] acc_linear2_y - Second Y acceleration
+ * @param[out] jacobians - Jacobians wrt the state
  */
-// TODO(efernandez) fuse this with the templated predict function so we can use the analytic Jacobian in the cost
-// function. See http://ceres-solver.org/analytical_derivatives.html
 inline void predict(
   const double position1_x,
   const double position1_y,
@@ -154,10 +142,10 @@ inline void predict(
   double& vel_yaw2,
   double& acc_linear2_x,
   double& acc_linear2_y,
-  // TODO(efernandez) double** jacobians didn't play well with Eigen::Map<>, at least directly
-  double* jacobians)
+  double** jacobians)
 {
-  const double sy = ceres::sin(yaw1);
+  // There are better models for this projection, but this matches the one used by r_l.
+  const double sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses this model
   const double cy = ceres::cos(yaw1);
 
   const double half_dt2 = 0.5 * dt * dt;
@@ -178,26 +166,70 @@ inline void predict(
 
   fuse_core::wrapAngle2D(yaw2);
 
-  if (!jacobians)
+  if (jacobians)
   {
-    return;
-  }
+    // Jacobian wrt position1
+    if (jacobians[0])
+    {
+      Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[0]);
+      jacobian << 1, 0,
+                  0, 1,
+                  0, 0,
+                  0, 0,
+                  0, 0,
+                  0, 0,
+                  0, 0,
+                  0, 0;
+    }
 
-  Eigen::Map<fuse_core::Matrix8d> J(jacobians);
-  J.setIdentity();
-  J(X, YAW) = -delta_y_rot;
-  J(X, V_X) = cy * dt;
-  J(Y, V_X) = sy * dt;
-  J(X, V_Y) = -J(Y, V_X);
-  J(X, A_X) = 0.5 * J(X, V_X) * dt;
-  J(X, A_Y) = 0.5 * J(X, V_Y) * dt;
-  J(Y, YAW) = delta_x_rot;
-  J(Y, V_Y) = J(X, V_X);
-  J(Y, A_X) = -J(X, A_Y);
-  J(Y, A_Y) = J(X, A_X);
-  J(YAW, V_YAW) = dt;
-  J(V_X, A_X) = dt;
-  J(V_Y, A_Y) = dt;
+    // Jacobian wrt yaw1
+    if (jacobians[1])
+    {
+      Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[1]);
+      jacobian << -delta_y_rot, delta_x_rot, 1, 0, 0, 0, 0, 0;
+    }
+
+    // Jacobian wrt vel_linear1
+    if (jacobians[2])
+    {
+      const double cy_dt = cy * dt;
+      const double sy_dt = sy * dt;
+
+      Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[2]);
+      jacobian << cy_dt, -sy_dt,
+                  sy_dt,  cy_dt,
+                      0, 0,
+                      1, 0,
+                      0, 1,
+                      0, 0,
+                      0, 0,
+                      0, 0;
+    }
+
+    // Jacobian wrt vel_yaw1
+    if (jacobians[3])
+    {
+      Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[3]);
+      jacobian << 0, 0, dt, 0, 0, 1, 0, 0;
+    }
+
+    // Jacobian wrt acc_linear1
+    if (jacobians[4])
+    {
+      const double cy_half_dt2 = cy * half_dt2;
+      const double sy_half_dt2 = sy * half_dt2;
+
+      Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[4]);
+      jacobian << cy_half_dt2, -sy_half_dt2,
+                  sy_half_dt2,  cy_half_dt2,
+                            0, 0,
+                           dt, 0,
+                            0, dt,
+                            0, 0,
+                            1, 0,
+                            0, 1;
+    }
+  }
 }
 
 /**
@@ -281,6 +313,23 @@ inline void predict(
   double acc_linear_x_pred {};
   double acc_linear_y_pred {};
 
+  // fuse_core::Matrix8d is Eigen::RowMajor, so we cannot use pointers to the columns where each parameter block starts.
+  // Instead, we need to create a vector of Eigen::RowMajor matrices per parameter block and later reconstruct the
+  // fuse_core::Matrix8d with the full jacobian.
+  // The parameter blocks have the following sizes: {2, 1, 2, 1, 2}
+  static constexpr size_t num_residuals{ 8 };
+  static constexpr size_t num_parameter_blocks{ 5 };
+  static const std::array<size_t, num_parameter_blocks> block_sizes = {2, 1, 2, 1, 2};
+
+  std::array<fuse_core::MatrixXd, num_parameter_blocks> J;
+  std::array<double*, num_parameter_blocks> jacobians;
+
+  for (size_t i = 0; i < num_parameter_blocks; ++i)
+  {
+    J[i].resize(num_residuals, block_sizes[i]);
+    jacobians[i] = J[i].data();
+  }
+
   predict(
     pose1.x(),
     pose1.y(),
@@ -299,7 +348,9 @@ inline void predict(
     vel_yaw2,
     acc_linear_x_pred,
     acc_linear_y_pred,
-    jacobian.data());
+    jacobians.data());
+
+  jacobian << J[0], J[1], J[2], J[3], J[4];
 
   pose2.setX(x_pred);
   pose2.setY(y_pred);

@@ -37,6 +37,7 @@
 #include <tf2_2d/tf2_2d.h>
 #include <fuse_core/eigen_gtest.h>
 
+#include <array>
 #include <limits>
 #include <vector>
 
@@ -344,7 +345,19 @@ TEST(Predict, predictJacobians)
   double acc_linear2_x = 0.0;
   double acc_linear2_y = 0.0;
 
-  fuse_core::Matrix8d J;
+  const std::array<size_t, 5> block_sizes = {2, 1, 2, 1, 2};
+  const auto num_parameter_blocks = block_sizes.size();
+
+  const size_t num_residuals{ 8 };
+
+  std::array<fuse_core::MatrixXd, num_parameter_blocks> J;
+  std::array<double*, num_parameter_blocks> jacobians;
+
+  for (size_t i = 0; i < num_parameter_blocks; ++i)
+  {
+    J[i].resize(num_residuals, block_sizes[i]);
+    jacobians[i] = J[i].data();
+  }
 
   fuse_models::predict(
     position1_x,
@@ -364,7 +377,10 @@ TEST(Predict, predictJacobians)
     vel_yaw2,
     acc_linear2_x,
     acc_linear2_y,
-    J.data());
+    jacobians.data());
+
+  fuse_core::Matrix8d J_analytic;
+  J_analytic << J[0], J[1], J[2], J[3], J[4];
 
   EXPECT_DOUBLE_EQ(0.105, position2_x);
   EXPECT_DOUBLE_EQ(0.0, position2_y);
@@ -430,9 +446,9 @@ TEST(Predict, predictJacobians)
   const Eigen::IOFormat HeavyFmt(
       Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
 
-  EXPECT_MATRIX_NEAR(J_autodiff, J, std::numeric_limits<double>::epsilon())
+  EXPECT_MATRIX_NEAR(J_autodiff, J_analytic, std::numeric_limits<double>::epsilon())
     << "Autodiff Jacobian =\n" << J_autodiff.format(HeavyFmt)
-    << "\nAnalytic Jacobian =\n" << J.format(HeavyFmt);
+    << "\nAnalytic Jacobian =\n" << J_analytic.format(HeavyFmt);
 }
 
 int main(int argc, char **argv)
