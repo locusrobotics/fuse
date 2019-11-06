@@ -218,11 +218,6 @@ fuse_core::Transaction marginalizeVariables(
   // Place the resulting marginal in the linear constraint bucket associated with the lowest-ordered remaining variable
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
-    if (linear_terms[i].empty())
-    {
-      continue;
-    }
-
     auto linear_marginal = detail::marginalizeNext(linear_terms[i]);
     if (!linear_marginal.variables.empty())
     {
