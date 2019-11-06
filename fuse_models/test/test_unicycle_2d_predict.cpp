@@ -35,7 +35,9 @@
 
 #include <gtest/gtest.h>
 #include <tf2_2d/tf2_2d.h>
+#include <fuse_core/eigen_gtest.h>
 
+#include <limits>
 #include <vector>
 
 
@@ -320,6 +322,117 @@ TEST(Predict, predictObjects)
   EXPECT_DOUBLE_EQ(-1.570796327, vel_yaw2);
   EXPECT_DOUBLE_EQ(1.0, acc_linear2.x());
   EXPECT_DOUBLE_EQ(-1.0, acc_linear2.y());
+}
+
+TEST(Predict, predictJacobians)
+{
+  const double position1_x = 0.0;
+  const double position1_y = 0.0;
+  const double yaw1 = 0.0;
+  const double vel_linear1_x = 1.0;
+  const double vel_linear1_y = 0.0;
+  const double vel_yaw1 = 1.570796327;
+  const double acc_linear1_x = 1.0;
+  const double acc_linear1_y = 0.0;
+  const double dt = 0.1;
+  double position2_x = 0.0;
+  double position2_y = 0.0;
+  double yaw2 = 0.0;
+  double vel_linear2_x = 0.0;
+  double vel_linear2_y = 0.0;
+  double vel_yaw2 = 0.0;
+  double acc_linear2_x = 0.0;
+  double acc_linear2_y = 0.0;
+
+  fuse_core::Matrix8d J;
+
+  fuse_models::predict(
+    position1_x,
+    position1_y,
+    yaw1,
+    vel_linear1_x,
+    vel_linear1_y,
+    vel_yaw1,
+    acc_linear1_x,
+    acc_linear1_y,
+    dt,
+    position2_x,
+    position2_y,
+    yaw2,
+    vel_linear2_x,
+    vel_linear2_y,
+    vel_yaw2,
+    acc_linear2_x,
+    acc_linear2_y,
+    J.data());
+
+  EXPECT_DOUBLE_EQ(0.105, position2_x);
+  EXPECT_DOUBLE_EQ(0.0, position2_y);
+  EXPECT_DOUBLE_EQ(0.1570796327, yaw2);
+  EXPECT_DOUBLE_EQ(1.1, vel_linear2_x);
+  EXPECT_DOUBLE_EQ(0.0, vel_linear2_y);
+  EXPECT_DOUBLE_EQ(1.570796327, vel_yaw2);
+  EXPECT_DOUBLE_EQ(1.0, acc_linear2_x);
+  EXPECT_DOUBLE_EQ(0.0, acc_linear2_y);
+
+  // Predict and compute Jacobian using autodiff
+  using Jet = ceres::Jet<double, 8>;
+
+  const Jet jet_position1_x(position1_x, 0);
+  const Jet jet_position1_y(position1_y, 1);
+  const Jet jet_yaw1(yaw1, 2);
+  const Jet jet_vel_linear1_x(vel_linear1_x, 3);
+  const Jet jet_vel_linear1_y(vel_linear1_y, 4);
+  const Jet jet_vel_yaw1(vel_yaw1, 5);
+  const Jet jet_acc_linear1_x(acc_linear1_x, 6);
+  const Jet jet_acc_linear1_y(acc_linear1_y, 7);
+  const Jet jet_dt(dt);
+  Jet jet_position2_x(position2_x, 0);
+  Jet jet_position2_y(position2_y, 1);
+  Jet jet_yaw2(yaw2, 2);
+  Jet jet_vel_linear2_x(vel_linear2_x, 3);
+  Jet jet_vel_linear2_y(vel_linear2_y, 4);
+  Jet jet_vel_yaw2(vel_yaw2, 5);
+  Jet jet_acc_linear2_x(acc_linear2_x, 6);
+  Jet jet_acc_linear2_y(acc_linear2_y, 7);
+
+  fuse_models::predict(
+    jet_position1_x,
+    jet_position1_y,
+    jet_yaw1,
+    jet_vel_linear1_x,
+    jet_vel_linear1_y,
+    jet_vel_yaw1,
+    jet_acc_linear1_x,
+    jet_acc_linear1_y,
+    jet_dt,
+    jet_position2_x,
+    jet_position2_y,
+    jet_yaw2,
+    jet_vel_linear2_x,
+    jet_vel_linear2_y,
+    jet_vel_yaw2,
+    jet_acc_linear2_x,
+    jet_acc_linear2_y);
+
+  fuse_core::Matrix8d J_autodiff;
+  J_autodiff << jet_position2_x.v,
+                jet_position2_y.v,
+                jet_yaw2.v,
+                jet_vel_linear2_x.v,
+                jet_vel_linear2_y.v,
+                jet_vel_yaw2.v,
+                jet_acc_linear2_x.v,
+                jet_acc_linear2_y.v;
+
+  J_autodiff.transposeInPlace();
+
+  const Eigen::IOFormat HeavyFmt(
+      Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+
+  EXPECT_MATRIX_NEAR(J_autodiff, J, std::numeric_limits<double>::epsilon())
+    << "Autodiff Jacobian =\n" << J_autodiff.format(HeavyFmt)
+    << "\nAnalytic Jacobian =\n" << J.format(HeavyFmt);
 }
 
 int main(int argc, char **argv)

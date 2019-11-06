@@ -368,6 +368,11 @@ LinearTerm linearize(
 
 LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
 {
+  if (linear_terms.empty())
+  {
+    return {};
+  }
+
   // We need to create a dense matrix from all of the provided linear terms, and that matrix must order the variables
   // in the proper elimination order. The LinearTerms have the elimination order baked into the variable indices, but
   // since not all variables are necessarily present, we need to remove any gaps from the variable indices.

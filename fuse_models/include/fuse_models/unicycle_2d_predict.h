@@ -134,8 +134,8 @@ enum StateIndex : uint8_t
  * @param[in] acc_linear2_y - Second Y acceleration
  * @param[in] jacobians - Jacobians wrt the state
  */
-// TODO fuse this with the templated predict function so we can use the analytic Jacobian in the cost function.
-// See http://ceres-solver.org/analytical_derivatives.html
+// TODO(efernandez) fuse this with the templated predict function so we can use the analytic Jacobian in the cost
+// function. See http://ceres-solver.org/analytical_derivatives.html
 inline void predict(
   const double position1_x,
   const double position1_y,
@@ -154,7 +154,7 @@ inline void predict(
   double& vel_yaw2,
   double& acc_linear2_x,
   double& acc_linear2_y,
-  // TODO double** jacobians didn't play well with Eigen::Map<>, at least directly
+  // TODO(efernandez) double** jacobians didn't play well with Eigen::Map<>, at least directly
   double* jacobians)
 {
   const double sy = ceres::sin(yaw1);
