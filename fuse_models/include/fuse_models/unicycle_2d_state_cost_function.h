@@ -181,7 +181,7 @@ public:
       // Update jacobian wrt position1
       if (jacobians[0])
       {
-        Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[0]);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
         jacobian.applyOnTheLeft(-A_);
       }
 
@@ -195,7 +195,7 @@ public:
       // Update jacobian wrt pvel_linear1
       if (jacobians[2])
       {
-        Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[2]);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
         jacobian.applyOnTheLeft(-A_);
       }
 
@@ -209,7 +209,7 @@ public:
       // Update jacobian wrt pacc_linear1
       if (jacobians[4])
       {
-        Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[4]);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
         jacobian.applyOnTheLeft(-A_);
       }
 
@@ -233,7 +233,7 @@ public:
       // Jacobian wrt position2
       if (jacobians[5])
       {
-        Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[5]);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[5]);
         jacobian = A_.block<8, 2>(0, 0);
       }
 
@@ -247,7 +247,7 @@ public:
       // Jacobian wrt vel_linear2
       if (jacobians[7])
       {
-        Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[7]);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[7]);
         jacobian = A_.block<8, 2>(0, 3);
       }
 
@@ -261,7 +261,7 @@ public:
       // Jacobian wrt acc_linear2
       if (jacobians[9])
       {
-        Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[9]);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[9]);
         jacobian = A_.block<8, 2>(0, 6);
       }
     }

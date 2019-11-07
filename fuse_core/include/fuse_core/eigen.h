@@ -63,6 +63,9 @@ using Matrix7d = Eigen::Matrix<double, 7, 7, Eigen::RowMajor>;
 using Matrix8d = Eigen::Matrix<double, 8, 8, Eigen::RowMajor>;
 using Matrix9d = Eigen::Matrix<double, 9, 9, Eigen::RowMajor>;
 
+template <typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
+using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor>;
+
 }  // namespace fuse_core
 
 #endif  // FUSE_CORE_EIGEN_H

@@ -171,7 +171,7 @@ inline void predict(
     // Jacobian wrt position1
     if (jacobians[0])
     {
-      Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[0]);
+      Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
       jacobian << 1, 0,
                   0, 1,
                   0, 0,
@@ -195,7 +195,7 @@ inline void predict(
       const double cy_dt = cy * dt;
       const double sy_dt = sy * dt;
 
-      Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[2]);
+      Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
       jacobian << cy_dt, -sy_dt,
                   sy_dt,  cy_dt,
                       0, 0,
@@ -219,7 +219,7 @@ inline void predict(
       const double cy_half_dt2 = cy * half_dt2;
       const double sy_half_dt2 = sy * half_dt2;
 
-      Eigen::Map<Eigen::Matrix<double, 8, 2, Eigen::RowMajor>> jacobian(jacobians[4]);
+      Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
       jacobian << cy_half_dt2, -sy_half_dt2,
                   sy_half_dt2,  cy_half_dt2,
                             0, 0,
@@ -316,7 +316,7 @@ inline void predict(
   // fuse_core::Matrix8d is Eigen::RowMajor, so we cannot use pointers to the columns where each parameter block starts.
   // Instead, we need to create a vector of Eigen::RowMajor matrices per parameter block and later reconstruct the
   // fuse_core::Matrix8d with the full jacobian.
-  // The parameter blocks have the following sizes: {2, 1, 2, 1, 2}
+  // The parameter blocks have the following sizes: {position1: 2, yaw1: 1, vel_linear1: 2, vel_yaw1: 1, acc_linear1: 2}
   static constexpr size_t num_residuals{ 8 };
   static constexpr size_t num_parameter_blocks{ 5 };
   static const std::array<size_t, num_parameter_blocks> block_sizes = {2, 1, 2, 1, 2};
