@@ -230,6 +230,12 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
   // Tell the optimizer to reset before providing the initial state
   if (!params_.reset_service.empty())
   {
+    // Wait for the reset service
+    while (!reset_client_.waitForExistence(ros::Duration(10.0)) && ros::ok())
+    {
+      ROS_WARN_STREAM("Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
+    }
+
     auto srv = std_srvs::Empty();
     if (!reset_client_.call(srv))
     {
