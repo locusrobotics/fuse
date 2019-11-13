@@ -152,12 +152,12 @@ inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 namespace ceres
 {
 
-bool StringToLoggingType(std::string value, LoggingType* type)
+inline bool StringToLoggingType(std::string value, LoggingType* type)
 {
   return StringtoLoggingType(value, type);
 }
 
-bool StringToDumpFormatType(std::string value, DumpFormatType* type)
+inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 {
   return StringtoDumpFormatType(value, type);
 }
