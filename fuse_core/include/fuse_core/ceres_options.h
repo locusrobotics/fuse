@@ -37,6 +37,7 @@
 #include <ros/console.h>
 #include <ros/node_handle.h>
 
+#include <ceres/version.h>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
