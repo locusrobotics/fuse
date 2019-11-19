@@ -37,6 +37,7 @@
 #include <ros/console.h>
 #include <ros/node_handle.h>
 
+#include <ceres/version.h>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -151,12 +152,12 @@ inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 namespace ceres
 {
 
-bool StringToLoggingType(std::string value, LoggingType* type)
+inline bool StringToLoggingType(std::string value, LoggingType* type)
 {
   return StringtoLoggingType(value, type);
 }
 
-bool StringToDumpFormatType(std::string value, DumpFormatType* type)
+inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 {
   return StringtoDumpFormatType(value, type);
 }
