@@ -178,6 +178,20 @@ if(CATKIN_ENABLE_TESTING)
     )
   endif()
 
+  # Cost function tests
+  catkin_add_gtest(
+    test_unicycle_2d_state_cost_function
+    test/test_unicycle_2d_state_cost_function.cpp
+  )
+  if(TARGET test_unicycle_2d_state_cost_function)
+    target_link_libraries(
+      test_unicycle_2d_state_cost_function
+      ${PROJECT_NAME}
+      ${catkin_LIBRARIES}
+      ${CERES_LIBRARIES}
+    )
+  endif()
+
   # Ignition tests
   add_rostest_gtest(
     test_unicycle_2d_ignition
