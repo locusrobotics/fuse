@@ -10,7 +10,6 @@ set(build_depends
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
-set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -50,7 +49,6 @@ add_library(${PROJECT_NAME}
   src/uuid.cpp
   src/variable.cpp
 )
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )
