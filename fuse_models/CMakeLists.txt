@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_models)
 
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
+set(CMAKE_CXX_STANDARD 14)
+
 add_compile_options(-Wall -Werror)
 
 find_package(
@@ -175,6 +174,20 @@ if(CATKIN_ENABLE_TESTING)
   if(TARGET test_unicycle_2d_predict)
     target_link_libraries(
       test_unicycle_2d_predict
+      ${PROJECT_NAME}
+      ${catkin_LIBRARIES}
+      ${CERES_LIBRARIES}
+    )
+  endif()
+
+  # Cost function tests
+  catkin_add_gtest(
+    test_unicycle_2d_state_cost_function
+    test/test_unicycle_2d_state_cost_function.cpp
+  )
+  if(TARGET test_unicycle_2d_state_cost_function)
+    target_link_libraries(
+      test_unicycle_2d_state_cost_function
       ${PROJECT_NAME}
       ${catkin_LIBRARIES}
       ${CERES_LIBRARIES}

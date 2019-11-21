@@ -26,7 +26,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 ###########
 ## Build ##
 ###########
-
+set(CMAKE_CXX_STANDARD 14)
 add_compile_options(-std=c++14 -Wall -Werror)
 
 catkin_package(
