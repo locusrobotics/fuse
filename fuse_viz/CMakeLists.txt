@@ -26,8 +26,6 @@ add_definitions(-DQT_NO_KEYWORDS)
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Werror)
 
 catkin_package(
@@ -76,6 +74,11 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
   ${QT_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############

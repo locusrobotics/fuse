@@ -26,8 +26,6 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Werror)
 
 ## fuse_variables library
@@ -58,6 +56,11 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -111,6 +114,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_acceleration_angular_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Acceleration Angular 3D Stamped Tests
   catkin_add_gtest(test_acceleration_angular_3d_stamped
@@ -129,6 +137,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_acceleration_angular_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Acceleration Linear 2D Stamped Tests
@@ -149,6 +162,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_acceleration_linear_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Acceleration Linear 3D Stamped Tests
   catkin_add_gtest(test_acceleration_linear_3d_stamped
@@ -168,6 +186,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_acceleration_linear_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Fixed Size Variable Tests
   catkin_add_gtest(test_fixed_size_variable
@@ -185,6 +208,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_fixed_size_variable
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_fixed_size_variable
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Load Device ID Tests
@@ -205,6 +233,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_load_device_id
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Orientation 2D Stamped Tests
   catkin_add_gtest(test_orientation_2d_stamped
@@ -223,6 +256,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_orientation_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Orientation 3D Stamped Tests
@@ -243,6 +281,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_orientation_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Position 2D Stamped Tests
   catkin_add_gtest(test_position_2d_stamped
@@ -261,6 +304,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_position_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Position 3D stamped tests
@@ -281,6 +329,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_position_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Velocity Angular 2D Stamped Tests
   catkin_add_gtest(test_velocity_angular_2d_stamped
@@ -299,6 +352,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_velocity_angular_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Velocity Angular 3D Stamped Tests
@@ -319,6 +377,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_velocity_angular_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Velocity Linear 2D Stamped Tests
   catkin_add_gtest(test_velocity_linear_2d_stamped
@@ -338,6 +401,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_velocity_linear_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Velocity Linear 3D Stamped Tests
   catkin_add_gtest(test_velocity_linear_3d_stamped
@@ -356,5 +424,10 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_velocity_linear_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 endif()

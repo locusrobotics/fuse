@@ -27,8 +27,6 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Werror)
 
 ## fuse_optimizers library
@@ -49,6 +47,11 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+)
 
 ## batch_optimizer node
 add_executable(batch_optimizer_node
@@ -66,6 +69,11 @@ target_link_libraries(batch_optimizer_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+set_target_properties(batch_optimizer_node
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+)
 
 ## fixed_lag_smoother node
 add_executable(fixed_lag_smoother_node
@@ -82,6 +90,11 @@ target_include_directories(fixed_lag_smoother_node
 target_link_libraries(fixed_lag_smoother_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
+)
+set_target_properties(fixed_lag_smoother_node
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -133,5 +146,10 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_variable_stamp_index
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_variable_stamp_index
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 endif()
