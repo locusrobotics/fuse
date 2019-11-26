@@ -13,7 +13,22 @@
 
   <build_depend>roslint</build_depend>
 
-  <depend>benchmark</depend>
+  <!-- The official rosdep doesn't have an entry for Google's benchmark deb:
+       https://github.com/ros/rosdistro/blob/master/rosdep/base.yaml
+
+       There's an official deb named libbenchmark-dev available since Ubuntu Bionic:
+       https://packages.ubuntu.com/bionic/libbenchmark-dev
+
+       ROS Melodic officially supports Ubuntu Bionic:
+       https://www.ros.org/reps/rep-0003.html
+
+       This could be uncommented if we add a benchmark entry like this to the official rosdep:
+
+       benchmark:
+         ubuntu:
+           bionic: libbenchmark-dev
+  -->
+  <!--<depend>benchmark</depend>-->
   <depend>boost</depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
