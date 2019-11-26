@@ -123,7 +123,7 @@ bool NormalDeltaPose2DCostFunctor::operator()(
   full_residuals_vector.template head<2>() =
     fuse_core::rotationMatrix2D(orientation1[0]).transpose() * (position2_vector - position1_vector) -
     b_.head<2>().template cast<T>();
-  full_residuals_vector(2) = fuse_core::wrapAngle2D(orientation2[0] - orientation1[0]) - T(b_(2));
+  full_residuals_vector(2) = fuse_core::wrapAngle2D(orientation2[0] - orientation1[0] - T(b_(2)));
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
