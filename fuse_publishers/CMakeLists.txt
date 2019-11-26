@@ -29,8 +29,7 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 # fuse_publishers library
 add_library(${PROJECT_NAME}
@@ -48,6 +47,11 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -108,6 +112,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_path_2d_publisher
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Pose2DPublisher Tests
   add_rostest_gtest(test_pose_2d_publisher
@@ -126,6 +135,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_pose_2d_publisher
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # StampedVariableSynchronizer Tests
   catkin_add_gtest(test_stamped_variable_synchronizer
@@ -141,5 +155,10 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_stamped_variable_synchronizer
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_stamped_variable_synchronizer
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 endif()

@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
@@ -36,8 +35,7 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 # fuse_constraints library
 add_library(${PROJECT_NAME}
@@ -59,7 +57,6 @@ add_library(${PROJECT_NAME}
   src/uuid_ordering.cpp
   src/variable_constraints.cpp
 )
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )
@@ -76,6 +73,11 @@ target_link_libraries(${PROJECT_NAME}
   ${CERES_LIBRARIES}
   ${EIGEN3_LIBRARIES}
   ${SUITESPARSE_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -129,6 +131,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_absolute_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Absolute Orientation 3D Stamped Constraint Tests
   catkin_add_gtest(test_absolute_orientation_3d_stamped_constraint
@@ -149,6 +156,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
     ${EIGEN3_LIBRARIES}
+  )
+  set_target_properties(test_absolute_orientation_3d_stamped_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Absolute Orientation 3D Stamped Euler Constraint Tests
@@ -171,6 +183,11 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
     ${EIGEN3_LIBRARIES}
   )
+  set_target_properties(test_absolute_orientation_3d_stamped_euler_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Absolute Pose 2D Stamped Constraint Tests
   catkin_add_gtest(test_absolute_pose_2d_stamped_constraint
@@ -189,6 +206,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_absolute_pose_2d_stamped_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Absolute Pose 3D Stamped Constraint Tests
@@ -209,6 +231,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_absolute_pose_3d_stamped_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Marginal Constraint Tests
   catkin_add_gtest(test_marginal_constraint
@@ -217,7 +244,6 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_marginal_constraint
     ${catkin_EXPORTED_TARGETS}
   )
-  target_compile_features(test_marginal_constraint PRIVATE cxx_generic_lambdas)
   target_include_directories(test_marginal_constraint
     PRIVATE
       include
@@ -227,6 +253,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_marginal_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Marginalize Variables Tests
   catkin_add_gtest(test_marginalize_variables
@@ -235,7 +266,6 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(test_marginalize_variables
     ${catkin_EXPORTED_TARGETS}
   )
-  target_compile_features(test_marginalize_variables PRIVATE cxx_generic_lambdas)
   target_include_directories(test_marginalize_variables
     PRIVATE
       include
@@ -245,6 +275,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_marginalize_variables
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_marginalize_variables
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Relative Constraint Tests
@@ -265,6 +300,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_relative_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Relative Pose 2D Stamped Constraint Tests
   catkin_add_gtest(test_relative_pose_2d_stamped_constraint
@@ -283,6 +323,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_relative_pose_2d_stamped_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Relative Pose 3D Stamped Constraint Tests
@@ -303,6 +348,11 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
+  set_target_properties(test_relative_pose_3d_stamped_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # UuidOrdering Tests
   catkin_add_gtest(test_uuid_ordering
@@ -317,6 +367,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_uuid_ordering
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # VariableConstraints Tests
   catkin_add_gtest(test_variable_constraints
@@ -328,5 +383,10 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_variable_constraints
     ${PROJECT_NAME}
+  )
+  set_target_properties(test_variable_constraints
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 endif()

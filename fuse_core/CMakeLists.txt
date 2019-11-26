@@ -11,10 +11,11 @@ set(build_depends
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
-set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libglog REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -27,13 +28,13 @@ catkin_package(
     Boost
     CERES
     EIGEN3
+    GLOG
 )
 
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
@@ -51,7 +52,6 @@ add_library(${PROJECT_NAME}
   src/uuid.cpp
   src/variable.cpp
 )
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )
@@ -62,11 +62,18 @@ target_include_directories(${PROJECT_NAME}
     ${catkin_INCLUDE_DIRS}
     ${CERES_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
+    ${GLOG_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
+  ${GLOG_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 # fuse_echo executable
@@ -84,6 +91,11 @@ target_include_directories(fuse_echo
 target_link_libraries(fuse_echo
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
+)
+set_target_properties(fuse_echo
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -140,6 +152,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_async_motion_model
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # AsyncPublisher tests
   add_rostest_gtest(test_async_publisher
@@ -160,6 +177,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_async_publisher
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_async_publisher
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # AsyncSensorModel tests
@@ -182,6 +204,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_async_sensor_model
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # CallbackWrapper tests
   add_rostest_gtest(test_callback_wrapper
@@ -201,6 +228,11 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_callback_wrapper
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_callback_wrapper
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Constraint tests
@@ -222,6 +254,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_constraint
     ${PROJECT_NAME}
   )
+  set_target_properties(test_constraint
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Local Parameterization tests
   catkin_add_gtest(test_local_parameterization
@@ -233,6 +270,11 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_local_parameterization
     ${PROJECT_NAME}
+  )
+  set_target_properties(test_local_parameterization
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Message Buffer Tests
@@ -253,6 +295,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_message_buffer
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_message_buffer
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Timestamp Manager Tests
   catkin_add_gtest(test_timestamp_manager
@@ -272,6 +319,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_timestamp_manager
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_timestamp_manager
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 
   # Transaction tests
@@ -294,6 +346,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_transaction
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # UUID tests
   catkin_add_gtest(test_uuid
@@ -314,6 +371,11 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
   )
+  set_target_properties(test_uuid
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Variable tests
   catkin_add_gtest(test_variable
@@ -333,5 +395,10 @@ if(CATKIN_ENABLE_TESTING)
   )
   target_link_libraries(test_variable
     ${PROJECT_NAME}
+  )
+  set_target_properties(test_variable
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 endif()

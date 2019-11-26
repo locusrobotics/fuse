@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(fuse_models)
 
-set(CMAKE_CXX_STANDARD 14)
-
-add_compile_options(-Wall -Werror)
-
 find_package(
   catkin REQUIRED
   COMPONENTS
@@ -81,39 +77,40 @@ roslint_cpp()
 ###########
 ## Build ##
 ###########
-
-include_directories(
-  include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-)
+add_compile_options(-Wall -Werror)
 
 ## Declare a C++ library
-add_library(
-  ${PROJECT_NAME}
-    src/acceleration_2d.cpp
-    src/imu_2d.cpp
-    src/odometry_2d.cpp
-    src/odometry_2d_publisher.cpp
-    src/pose_2d.cpp
-    src/twist_2d.cpp
-    src/unicycle_2d.cpp
-    src/unicycle_2d_ignition.cpp
-    src/unicycle_2d_state_kinematic_constraint.cpp
+add_library(${PROJECT_NAME}
+  src/acceleration_2d.cpp
+  src/imu_2d.cpp
+  src/odometry_2d.cpp
+  src/odometry_2d_publisher.cpp
+  src/pose_2d.cpp
+  src/twist_2d.cpp
+  src/unicycle_2d.cpp
+  src/unicycle_2d_ignition.cpp
+  src/unicycle_2d_state_kinematic_constraint.cpp
 )
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(
-  ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
+add_dependencies(${PROJECT_NAME}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
 )
-add_dependencies(
-  ${PROJECT_NAME}
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-    ${catkin_EXPORTED_TARGETS}
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${Boost_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+)
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${CERES_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -153,32 +150,35 @@ if(CATKIN_ENABLE_TESTING)
   roslint_add_test()
 
   # Model tests
-  catkin_add_gtest(
-    test_unicycle_2d
+  catkin_add_gtest(test_unicycle_2d
     test/test_unicycle_2d.cpp
   )
-  if(TARGET test_unicycle_2d)
-    target_link_libraries(
-      test_unicycle_2d
-      ${PROJECT_NAME}
-      ${catkin_LIBRARIES}
-      ${CERES_LIBRARIES}
-    )
-  endif()
+  target_link_libraries(test_unicycle_2d
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_unicycle_2d
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Prediction tests
   catkin_add_gtest(
     test_unicycle_2d_predict
     test/test_unicycle_2d_predict.cpp
   )
-  if(TARGET test_unicycle_2d_predict)
-    target_link_libraries(
-      test_unicycle_2d_predict
-      ${PROJECT_NAME}
-      ${catkin_LIBRARIES}
-      ${CERES_LIBRARIES}
-    )
-  endif()
+  target_link_libraries(test_unicycle_2d_predict
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_unicycle_2d_predict
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Cost function tests
   catkin_add_gtest(
@@ -200,25 +200,28 @@ if(CATKIN_ENABLE_TESTING)
     test/unicycle_2d_ignition.test
     test/test_unicycle_2d_ignition.cpp
   )
-  if(TARGET test_unicycle_2d_ignition)
-    target_link_libraries(
-      test_unicycle_2d_ignition
-      ${PROJECT_NAME}
-      ${catkin_LIBRARIES}
-    )
-  endif()
+  target_link_libraries(test_unicycle_2d_ignition
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_unicycle_2d_ignition
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Other tests
   catkin_add_gtest(
     test_sensor_proc
     test/test_sensor_proc.cpp
   )
-  if(TARGET test_sensor_proc)
-    target_link_libraries(
-      test_sensor_proc
-      ${PROJECT_NAME}
-      ${catkin_LIBRARIES}
-    )
-  endif()
-
+  target_link_libraries(test_sensor_proc
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_sensor_proc
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 endif()
