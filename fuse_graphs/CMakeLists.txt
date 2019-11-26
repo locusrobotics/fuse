@@ -28,8 +28,7 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 ## fuse_graphs library
 add_library(${PROJECT_NAME}
@@ -48,6 +47,11 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -102,5 +106,10 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_hash_graph
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_hash_graph
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
   )
 endif()
