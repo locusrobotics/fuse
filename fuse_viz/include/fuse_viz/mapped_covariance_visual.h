@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPED_COVARIANCE_VISUAL_H
-#define MAPPED_COVARIANCE_VISUAL_H
+#ifndef FUSE_VIZ_MAPPED_COVARIANCE_VISUAL_H
+#define FUSE_VIZ_MAPPED_COVARIANCE_VISUAL_H
 
 #include <cmath>
 
@@ -237,13 +237,17 @@ private:
   Ogre::Vector3 current_ori_scale_[kNumOriShapes];
   float current_ori_scale_factor_;
 
-  const static float max_degrees;
+  static const float max_degrees;
 
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  virtual void setScale(const Ogre::Vector3& scale){};
-  virtual void setColor(float r, float g, float b, float a){};
+  virtual void setScale(const Ogre::Vector3& scale)
+  {
+  }
+  virtual void setColor(float r, float g, float b, float a)
+  {
+  }
   virtual const Ogre::Vector3& getPosition();
   virtual const Ogre::Quaternion& getOrientation();
 
@@ -253,4 +257,4 @@ private:
 
 }  // namespace rviz
 
-#endif /* MAPPED_COVARIANCE_VISUAL_H */
+#endif  // FUSE_VIZ_MAPPED_COVARIANCE_VISUAL_H

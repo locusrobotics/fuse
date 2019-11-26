@@ -106,7 +106,7 @@ inline Ogre::Vector3 toOgre(const tf2::Vector3& position)
 
 inline Ogre::Quaternion toOgre(const tf2::Quaternion& orientation)
 {
-  return { static_cast<float>(orientation.w()), static_cast<float>(orientation.x()),
+  return { static_cast<float>(orientation.w()), static_cast<float>(orientation.x()),  // NOLINT(whitespace/braces)
            static_cast<float>(orientation.y()), static_cast<float>(orientation.z()) };
 }
 
@@ -125,7 +125,7 @@ inline Ogre::Quaternion toOgre(const fuse_variables::Orientation2DStamped& orien
 namespace
 {
 
-inline tf2::Transform getPose(const fuse_core::Graph& graph, const fuse_variables::Position2DStamped& position,
+inline tf2::Transform getPose(const fuse_variables::Position2DStamped& position,
                               const fuse_variables::Orientation2DStamped& orientation)
 {
   return tf2::Transform(toTF(orientation), toTF(position));
@@ -149,7 +149,7 @@ inline tf2::Transform getPose(const fuse_core::Graph& graph, const fuse_core::UU
                              " from graph as fuse_variables::Orientation2DStamped.");
   }
 
-  return getPose(graph, *position, *orientation);
+  return getPose(*position, *orientation);
 }
 
 }  // namespace

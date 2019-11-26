@@ -266,7 +266,7 @@ void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesAlpha(const 
 
 void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesScale(const VisualPtr& constraint)
 {
-  constraint->setRelativePoseAxesScale(Ogre::Vector3{ relative_pose_axes_scale_property_->getFloat() });
+  constraint->setRelativePoseAxesScale(Ogre::Vector3{ relative_pose_axes_scale_property_->getFloat() });  // NOLINT
 }
 
 void RelativePose2DStampedConstraintProperty::updateRelativePoseLineAlpha(const VisualPtr& constraint)
@@ -289,7 +289,7 @@ void RelativePose2DStampedConstraintProperty::updateShowText(const VisualPtr& co
 
 void RelativePose2DStampedConstraintProperty::updateTextScale(const VisualPtr& constraint)
 {
-  constraint->setTextScale(Ogre::Vector3{ text_scale_property_->getFloat() });
+  constraint->setTextScale(Ogre::Vector3{ text_scale_property_->getFloat() });  // NOLINT(whitespace/braces)
 }
 
 void RelativePose2DStampedConstraintProperty::updateVisibility(const VisualPtr& constraint)

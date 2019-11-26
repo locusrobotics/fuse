@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef POSE_2D_STAMPED_PROPERTY_H
-#define POSE_2D_STAMPED_PROPERTY_H
+#ifndef FUSE_VIZ_POSE_2D_STAMPED_PROPERTY_H
+#define FUSE_VIZ_POSE_2D_STAMPED_PROPERTY_H
 
 #include <rviz/properties/bool_property.h>
 
@@ -116,4 +116,4 @@ private:
 
 }  // namespace rviz
 
-#endif  // POSE_2D_STAMPED_PROPERTY_H
+#endif  // FUSE_VIZ_POSE_2D_STAMPED_PROPERTY_H

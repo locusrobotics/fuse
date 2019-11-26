@@ -182,11 +182,11 @@ void RelativePose2DStampedConstraintVisual::setRelativePoseAxesAlpha(const float
   static const auto& default_z_color_ = rviz::Axes::getDefaultZColor();
 
   relative_pose_axes_->setXColor(
-      Ogre::ColourValue{ default_x_color_.r, default_x_color_.g, default_x_color_.b, alpha });
+      Ogre::ColourValue{ default_x_color_.r, default_x_color_.g, default_x_color_.b, alpha });  // NOLINT
   relative_pose_axes_->setYColor(
-      Ogre::ColourValue{ default_y_color_.r, default_y_color_.g, default_y_color_.b, alpha });
+      Ogre::ColourValue{ default_y_color_.r, default_y_color_.g, default_y_color_.b, alpha });  // NOLINT
   relative_pose_axes_->setZColor(
-      Ogre::ColourValue{ default_z_color_.r, default_z_color_.g, default_z_color_.b, alpha });
+      Ogre::ColourValue{ default_z_color_.r, default_z_color_.g, default_z_color_.b, alpha });  // NOLINT
 }
 
 void RelativePose2DStampedConstraintVisual::setRelativePoseAxesScale(const Ogre::Vector3& scale)

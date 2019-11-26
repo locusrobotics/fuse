@@ -39,6 +39,8 @@
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
+#include <string>
+
 namespace rviz
 {
 
@@ -184,7 +186,6 @@ void MappedCovarianceProperty::updateVisibility(const MappedCovarianceVisualPtr&
   else
   {
     bool show_position_covariance = position_property_->getBool();
-    ;
     bool show_orientation_covariance = orientation_property_->getBool();
     visual->setPositionVisible(show_position_covariance);
     visual->setOrientationVisible(show_orientation_covariance);

@@ -186,7 +186,7 @@ void Pose2DStampedProperty::updateAxesAlpha(const VisualPtr& variable)
 
 void Pose2DStampedProperty::updateScale(const VisualPtr& variable)
 {
-  variable->setScale(Ogre::Vector3{ scale_property_->getFloat() });
+  variable->setScale(Ogre::Vector3{ scale_property_->getFloat() });  // NOLINT(whitespace/braces)
 }
 
 void Pose2DStampedProperty::updateShowText(const VisualPtr& variable)
@@ -203,7 +203,7 @@ void Pose2DStampedProperty::updateSphereColorAlpha(const VisualPtr& variable)
 
 void Pose2DStampedProperty::updateTextScale(const VisualPtr& variable)
 {
-  variable->setTextScale(Ogre::Vector3{ text_scale_property_->getFloat() });
+  variable->setTextScale(Ogre::Vector3{ text_scale_property_->getFloat() });  // NOLINT(whitespace/braces)
 }
 
 void Pose2DStampedProperty::updateVisibility(const VisualPtr& variable)

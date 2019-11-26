@@ -223,6 +223,10 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
 
     if (source_color_map_.find(constraint_source) == source_color_map_.end())
     {
+      // Generate hue color automatically based on the number of sources including the new one (n)
+      // The hue is computed in such a way that the (dynamic) colormap is always well spread along the spectrum. This is
+      // achieved by traversing a virtual complete binary tree in breadth-first order. Each node represents a sampling
+      // position in the hue interval (0, 1) based on the current level and the number of nodes in that level (m)
       const auto n = source_color_map_.size() + 1;
       const size_t level = std::floor(std::log2(n));
       const auto m = n + 1 - std::pow(2, level);
