@@ -36,6 +36,11 @@
 
 #include <fuse_core/loss.h>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+#include <ostream>
 #include <string>
 
 

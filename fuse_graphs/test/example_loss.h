@@ -42,6 +42,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+#include <ostream>
 #include <string>
 
 

@@ -33,10 +33,12 @@
  */
 #include <fuse_loss/softlone_loss.h>
 
+#include <pluginlib/class_list_macros.h>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
 
+#include <ostream>
 #include <string>
 
 
@@ -66,8 +68,6 @@ ceres::LossFunction* SoftLOneLoss::lossFunction() const
 }
 
 }  // namespace fuse_loss
-
-#include <pluginlib/class_list_macros.h>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::SoftLOneLoss);
 PLUGINLIB_EXPORT_CLASS(fuse_loss::SoftLOneLoss, fuse_core::Loss);
