@@ -302,6 +302,11 @@ private:
   }
 };
 
+/**
+ * Stream operator implementation used for all derived Loss classes.
+ */
+std::ostream& operator <<(std::ostream& stream, const Loss& loss);
+
 }  // namespace fuse_core
 
 #endif  // FUSE_CORE_LOSS_H
