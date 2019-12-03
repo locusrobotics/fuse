@@ -279,9 +279,9 @@ public:
    *
    * @param[in] loss - The loss function
    */
-  void loss(const Loss::SharedPtr& loss)
+  void loss(Loss::SharedPtr loss)
   {
-    loss_ = loss;
+    loss_ = std::move(loss);
   }
 
   /**
