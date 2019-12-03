@@ -153,6 +153,31 @@ TEST(HuberLoss, Serialization)
 
   // Compare
   EXPECT_EQ(expected.a(), actual.a());
+  EXPECT_NE(nullptr, actual.lossFunction());
+
+  // Test inlier (s <= a*a)
+  const double s = 0.95 * a * a;
+  double rho[3] = {0.0};
+  actual.lossFunction()->Evaluate(s, rho);
+
+  EXPECT_EQ(s, rho[0]);
+  EXPECT_EQ(1.0, rho[1]);
+  EXPECT_EQ(0.0, rho[2]);
+
+  // Test outlier
+  const double s_outlier = 1.05 * a * a;
+  actual.lossFunction()->Evaluate(s_outlier, rho);
+
+  // In the outlier region rho() satisfies:
+  //
+  //   rho(s) < s
+  //   rho'(s) < 1
+  //   rho''(s) < 0
+  //
+  // where rho(s) is rho[0], rho'(s) is rho[1] and rho''(s) is rho[2]
+  EXPECT_GT(s_outlier, rho[0]);
+  EXPECT_GT(1.0, rho[1]);
+  EXPECT_GT(0.0, rho[2]);
 }
 
 int main(int argc, char** argv)
