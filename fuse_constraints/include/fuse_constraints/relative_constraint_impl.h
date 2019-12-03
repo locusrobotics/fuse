@@ -120,6 +120,12 @@ void RelativeConstraint<Variable>::print(std::ostream& stream) const
          << "  variable2: " << variables().at(1) << "\n"
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
 template<class Variable>
