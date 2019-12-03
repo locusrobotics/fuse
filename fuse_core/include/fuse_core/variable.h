@@ -388,7 +388,7 @@ private:
 };
 
 /**
- * Stream operator implementation used for all derived Constraint classes.
+ * Stream operator implementation used for all derived Variable classes.
  */
 std::ostream& operator <<(std::ostream& stream, const Variable& variable);
 
