@@ -263,14 +263,11 @@ public:
   virtual ceres::CostFunction* costFunction() const = 0;
 
   /**
-   * @brief Read-only access to the loss function.
+   * @brief Read-only access to the loss.
    *
-   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
-   * delete the loss function when it is done. Additionally, Fuse promises that the Constraint object will outlive any
-   * generated loss functions (i.e. the Ceres objects will be destroyed before the Constraint objects). This guarantee
-   * may allow optimizations for the creation of the loss function objects.
+   * The loss interfaces wraps a ceres::LossFunction that can be accessed directly with lossFunction().
    *
-   * @return A base shared pointer to an instance of a derived LossFunction.
+   * @return A base shared pointer to an instance of a derived Loss.
    */
   Loss::SharedPtr loss() const
   {
