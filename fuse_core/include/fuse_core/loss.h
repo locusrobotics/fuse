@@ -151,7 +151,7 @@ namespace fuse_core
  *
  * This class encapsulates the ceres::LossFunction class, adding the ability to serialize it.
  *
- * The attributes from all derived ceres::LostFunction classes are private, so we cannot
+ * The attributes from all derived ceres::LossFunction classes are private, so we cannot
  * serialize them directly. For that reason we need this fuse_core::Loss to provide additional
  * functionality on top of them.
  *

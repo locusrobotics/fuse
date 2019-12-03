@@ -270,7 +270,7 @@ public:
    * generated loss functions (i.e. the Ceres objects will be destroyed before the Constraint objects). This guarantee
    * may allow optimizations for the creation of the loss function objects.
    *
-   * @return A base shared pointer to an instance of a derived LostFunction.
+   * @return A base shared pointer to an instance of a derived LossFunction.
    */
   Loss::SharedPtr loss() const
   {
