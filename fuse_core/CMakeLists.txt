@@ -296,6 +296,11 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_loss
     ${PROJECT_NAME}
   )
+  set_target_properties(test_loss
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Message Buffer Tests
   catkin_add_gtest(test_message_buffer
