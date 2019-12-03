@@ -43,7 +43,7 @@
 namespace fuse_loss
 {
 
-SoftLOneLoss::SoftLOneLoss(const double a) : fuse_core::Loss(new ceres::SoftLOneLoss(a)), a_(a)
+SoftLOneLoss::SoftLOneLoss(const double a) : a_(a)
 {
 }
 
@@ -58,6 +58,11 @@ void SoftLOneLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
+}
+
+ceres::LossFunction* SoftLOneLoss::lossFunction() const
+{
+  return new ceres::SoftLOneLoss(a_);
 }
 
 }  // namespace fuse_loss

@@ -331,6 +331,10 @@ LinearTerm linearize(
     double squared_norm = result.b.squaredNorm();
     double rho[3];
     loss_function->Evaluate(squared_norm, rho);
+    if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP)
+    {
+      delete loss_function;
+    }
     double sqrt_rho1 = std::sqrt(rho[1]);
     double alpha = 0.0;
     if ((squared_norm > 0.0) && (rho[2] > 0.0))

@@ -41,7 +41,15 @@ TEST(Loss, Constructor)
   const double a{ 0.3 };
   ExampleLoss loss(a);
   ASSERT_EQ(a, loss.a);
-  ASSERT_NE(nullptr, loss.lossFunction());
+
+  auto loss_function = loss.lossFunction();
+
+  ASSERT_NE(nullptr, loss_function);
+
+  if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP)
+  {
+    delete loss_function;
+  }
 }
 
 int main(int argc, char **argv)

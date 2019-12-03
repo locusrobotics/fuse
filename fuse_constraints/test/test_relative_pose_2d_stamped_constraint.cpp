@@ -139,7 +139,9 @@ TEST(RelativePose2DStampedConstraint, OptimizationFull)
     delta2,
     cov2);
   // Build the problem
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+  ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
     orientation1->data(),
     orientation1->size(),
@@ -310,7 +312,9 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
     axes_ang2);
 
   // Build the problem
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+  ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
     orientation1->data(),
     orientation1->size(),

@@ -53,7 +53,7 @@ class ExampleLoss : public fuse_core::Loss
 public:
   FUSE_LOSS_DEFINITIONS(ExampleLoss);
 
-  explicit ExampleLoss(const double a = 1.0) : fuse_core::Loss(new ceres::HuberLoss(a)), a(a)
+  explicit ExampleLoss(const double a = 1.0) : a(a)
   {
   }
 
@@ -61,7 +61,12 @@ public:
 
   void print(std::ostream& /*stream = std::cout*/) const override {}
 
-  double a{ 1.0 };  // Public member variable just for testing
+  ceres::LossFunction* lossFunction() const override
+  {
+    return new ceres::HuberLoss(a);
+  }
+
+  double a{ 1.0 };  //!< Public member variable just for testing
 
 private:
   // Allow Boost Serialization access to private methods

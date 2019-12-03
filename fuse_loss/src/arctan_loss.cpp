@@ -43,7 +43,7 @@
 namespace fuse_loss
 {
 
-ArctanLoss::ArctanLoss(const double a) : fuse_core::Loss(new ceres::ArctanLoss(a)), a_(a)
+ArctanLoss::ArctanLoss(const double a) : a_(a)
 {
 }
 
@@ -58,6 +58,11 @@ void ArctanLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
+}
+
+ceres::LossFunction* ArctanLoss::lossFunction() const
+{
+  return new ceres::ArctanLoss(a_);
 }
 
 }  // namespace fuse_loss

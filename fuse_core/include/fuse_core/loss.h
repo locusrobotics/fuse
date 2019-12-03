@@ -171,14 +171,13 @@ class Loss
 public:
   SMART_PTR_ALIASES_ONLY(Loss);
 
+  static constexpr ceres::Ownership Ownership =
+      ceres::Ownership::TAKE_OWNERSHIP;  //<! The ownership of the ceres::LossFunction* returned by lossFunction()
+
   /**
-   * @brief Constructor
-   *
-   * @param[in] loss_function - A base pointer to an instance of a derive ceres::LostFunction, or a nullptr (default)
+   * @brief Default constructor
    */
-  explicit Loss(ceres::LossFunction* loss_function = nullptr) : loss_function_(loss_function)
-  {
-  }
+  Loss() = default;
 
   /**
    * @brief Destructor
@@ -210,19 +209,16 @@ public:
   virtual void print(std::ostream& stream = std::cout) const = 0;
 
   /**
-   * @brief Return a raw pointer to the ceres::LostFunction encapsulated
+   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
    *
    * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
    * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
    * generated loss functions (i.e. the Ceres objects will be destroyed before the Loss Function objects). This
    * guarantee may allow optimizations for the creation of the loss function objects.
    *
-   * @return A base pointer to an instance of a derived ceres::LostFunction.
+   * @return A base pointer to an instance of a derived ceres::LossFunction.
    */
-  ceres::LossFunction* lossFunction() const
-  {
-    return loss_function_;
-  }
+  virtual ceres::LossFunction* lossFunction() const = 0;
 
   /**
    * @brief Perform a deep copy of the Loss and return a unique pointer to the copy
@@ -285,8 +281,6 @@ public:
   virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
-  ceres::LossFunction* loss_function_{ nullptr };  //!< The ceres::LossFunction
-
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 

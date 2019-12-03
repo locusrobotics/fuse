@@ -87,14 +87,17 @@ TEST(HuberLoss, Optimization)
   fuse_loss::HuberLoss loss(0.1);
 
   // Build the problem.
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+
+  ceres::Problem problem(problem_options);
 
   const size_t num_inliers{ 1000 };
   for (size_t i = 0; i < num_inliers; ++i)
   {
     problem.AddResidualBlock(
       new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(inlier)),
-      loss.lossFunction(),  // nullptr would produce a slightly better solution
+      loss.lossFunction(),  // A nullptr here would produce a slightly better solution
       &x);
   }
 

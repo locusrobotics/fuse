@@ -43,7 +43,7 @@
 namespace fuse_loss
 {
 
-TukeyLoss::TukeyLoss(const double a) : fuse_core::Loss(new ceres::TukeyLoss(a)), a_(a)
+TukeyLoss::TukeyLoss(const double a) : a_(a)
 {
 }
 
@@ -58,6 +58,11 @@ void TukeyLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
+}
+
+ceres::LossFunction* TukeyLoss::lossFunction() const
+{
+  return new ceres::TukeyLoss(a_);
 }
 
 }  // namespace fuse_loss

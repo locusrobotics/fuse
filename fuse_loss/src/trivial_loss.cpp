@@ -41,13 +41,14 @@
 namespace fuse_loss
 {
 
-TrivialLoss::TrivialLoss() : fuse_core::Loss(new ceres::TrivialLoss)
-{
-}
-
 void TrivialLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n";
+}
+
+ceres::LossFunction* TrivialLoss::lossFunction() const
+{
+  return new ceres::TrivialLoss();
 }
 
 }  // namespace fuse_loss

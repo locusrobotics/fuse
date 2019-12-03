@@ -44,7 +44,7 @@ namespace fuse_loss
 {
 
 TolerantLoss::TolerantLoss(const double a, const double b)
-  : fuse_core::Loss(new ceres::TolerantLoss(a, b)), a_(a), b_(b)
+  : a_(a), b_(b)
 {
 }
 
@@ -61,6 +61,11 @@ void TolerantLoss::print(std::ostream& stream) const
   stream << type() << "\n"
          << "  a: " << a_ << "\n"
          << "  b: " << b_ << "\n";
+}
+
+ceres::LossFunction* TolerantLoss::lossFunction() const
+{
+  return new ceres::TolerantLoss(a_, b_);
 }
 
 }  // namespace fuse_loss

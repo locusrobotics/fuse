@@ -53,8 +53,8 @@ namespace fuse_graphs
 HashGraph::HashGraph(const HashGraphParams& params) :
   problem_options_(params.problem_options)
 {
-  // We don't want Ceres to take ownership of the loss functions
-  problem_options_.loss_function_ownership = ceres::Ownership::DO_NOT_TAKE_OWNERSHIP;
+  // Set Ceres loss function ownership according to the fuse_core::Loss specification
+  problem_options_.loss_function_ownership = fuse_core::Loss::Ownership;
 }
 
 HashGraph::HashGraph(const HashGraph& other) :

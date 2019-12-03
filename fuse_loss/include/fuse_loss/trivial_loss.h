@@ -57,7 +57,7 @@ public:
   /**
    * @brief Constructor
    */
-  TrivialLoss();
+  TrivialLoss() = default;
 
   /**
    * @brief Destructor
@@ -81,6 +81,18 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+  /**
+   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
+   *
+   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
+   * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
+   * generated loss functions (i.e. the Ceres objects will be destroyed before the Loss Function objects). This
+   * guarantee may allow optimizations for the creation of the loss function objects.
+   *
+   * @return A base pointer to an instance of a derived ceres::LossFunction.
+   */
+  ceres::LossFunction* lossFunction() const override;
 
 private:
   // Allow Boost Serialization access to private methods

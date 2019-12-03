@@ -43,7 +43,7 @@
 namespace fuse_loss
 {
 
-HuberLoss::HuberLoss(const double a) : fuse_core::Loss(new ceres::HuberLoss(a)), a_(a)
+HuberLoss::HuberLoss(const double a) : a_(a)
 {
 }
 
@@ -58,6 +58,11 @@ void HuberLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
+}
+
+ceres::LossFunction* HuberLoss::lossFunction() const
+{
+  return new ceres::HuberLoss(a_);
 }
 
 }  // namespace fuse_loss
