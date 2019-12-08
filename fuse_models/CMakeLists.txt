@@ -224,4 +224,22 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
+
+  # Benchmarks
+  find_package(benchmark QUIET)
+
+  if(benchmark_FOUND)
+    add_executable(benchmark_unicycle_2d_state_cost_function
+      benchmark/benchmark_unicycle_2d_state_cost_function.cpp
+    )
+    if(TARGET benchmark_unicycle_2d_state_cost_function)
+      target_link_libraries(
+        benchmark_unicycle_2d_state_cost_function
+        benchmark
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${CERES_LIBRARIES}
+      )
+    endif()
+  endif()
 endif()
