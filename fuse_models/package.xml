@@ -37,25 +37,7 @@
 
   <exec_depend>message_runtime</exec_depend>
 
-  <!-- The official rosdep doesn't have an entry for Google's benchmark deb:
-       https://github.com/ros/rosdistro/blob/master/rosdep/base.yaml
-
-       There's an official deb named libbenchmark-dev available since Ubuntu Bionic:
-       https://packages.ubuntu.com/bionic/libbenchmark-dev
-
-       ROS Melodic officially supports Ubuntu Bionic:
-       https://www.ros.org/reps/rep-0003.html
-
-       This could be uncommented if we add a benchmark entry like this to the official rosdep:
-
-       benchmark:
-         ubuntu:
-           bionic: [libbenchmark-dev]
-
-       There is PR requesting that still under review:
-       https://github.com/ros/rosdistro/pull/23163
-  -->
-  <!--<test_depend>benchmark</test_depend>-->
+  <test_depend>benchmark</test_depend>
   <test_depend>rostest</test_depend>
 
   <export>
