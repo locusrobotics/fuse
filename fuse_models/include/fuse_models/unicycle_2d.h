@@ -162,6 +162,10 @@ protected:
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
   fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
   fuse_core::Matrix8d process_noise_covariance_;   //!< Process noise covariance matrix
+  bool scale_process_noise_{ false };              //!< Whether to scale the process noise covariance pose by the norm
+                                                   //!< of the current state twist
+  double velocity_norm_min_{ 1e-3 };               //!< The minimum velocity/twist norm allowed when scaling the
+                                                   //!< process noise covariance
   StateHistory state_history_;                     //!< History of optimized graph pose estimates
 };
 

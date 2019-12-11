@@ -34,6 +34,7 @@
 #include <fuse_models/unicycle_2d_predict.h>
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_models/unicycle_2d.h>
+#include <fuse_models/common/sensor_proc.h>
 
 #include <Eigen/Dense>
 #include <fuse_core/async_motion_model.h>
@@ -105,6 +106,9 @@ void Unicycle2D::onInit()
   }
 
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
+
+  private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
+  private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
 
   double buffer_length = 3.0;
   private_node_handle_.param("buffer_length", buffer_length, buffer_length);
@@ -230,6 +234,14 @@ void Unicycle2D::generateMotionModel(
   state_history_.emplace(beginning_stamp, std::move(state1));
   state_history_.emplace(ending_stamp, std::move(state2));
 
+  // Scale process noise covariance pose by the norm of the current state twist
+  auto process_noise_covariance = process_noise_covariance_;
+  if (scale_process_noise_)
+  {
+    common::scaleProcessNoiseCovariance(process_noise_covariance, state1.velocity_linear, state1.velocity_yaw,
+                                        velocity_norm_min_);
+  }
+
   // Create the constraints for this motion model segment
   auto constraint = fuse_models::Unicycle2DStateKinematicConstraint::make_shared(
     name(),
@@ -243,7 +255,7 @@ void Unicycle2D::generateMotionModel(
     *velocity_linear2,
     *velocity_yaw2,
     *acceleration_linear2,
-    process_noise_covariance_ * dt);
+    process_noise_covariance * dt);
 
   // Update the output variables
   constraints.push_back(constraint);

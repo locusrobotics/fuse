@@ -689,6 +689,41 @@ inline bool processAccelWithCovariance(
   return true;
 }
 
+/**
+ * @brief Scales the process noise covariance pose by the norm of the velocity
+ *
+ * @param[in, out] process_noise_covariance - The process noise covariance to scale. Only the pose components (x, y,
+ *                                            yaw) are scaled, and they are assumed to be in the top left 3x3 corner
+ * @param[in] velocity_linear - The linear velocity
+ * @param[in] velocity_yaw - The yaw velocity
+ * @param[in] velocity_norm_min - The minimum velocity norm
+ */
+inline void scaleProcessNoiseCovariance(fuse_core::Matrix8d& process_noise_covariance,
+                                        const tf2_2d::Vector2& velocity_linear, const double velocity_yaw,
+                                        const double velocity_norm_min)
+{
+  // A more principled approach would be to get the current velocity from the state, make a diagonal matrix from it,
+  // and then rotate it to be in the world frame (i.e., the same frame as the pose data). We could then use this
+  // rotated velocity matrix to scale the process noise covariance for the pose variables as
+  // rotatedVelocityMatrix * poseCovariance * rotatedVelocityMatrix'
+  // However, this presents trouble for robots that may incur rotational error as a result of linear motion (and
+  // vice-versa). Instead, we create a diagonal matrix whose diagonal values are the vector norm of the state's
+  // velocity. We use that to scale the process noise covariance.
+  //
+  // The comment above has been taken from:
+  // https://github.com/cra-ros-pkg/robot_localization/blob/melodic-devel/src/filter_base.cpp#L138-L144
+  //
+  // We also need to make sure the norm is not zero, because otherwise the resulting process noise covariance for the
+  // pose becomes zero and we get NaN when we compute the inverse to obtain the information
+  fuse_core::Matrix3d velocity;
+  velocity.setIdentity();
+  velocity.diagonal() *=
+      std::max(velocity_norm_min, fuse_core::Vector3d(velocity_linear.x(), velocity_linear.y(), velocity_yaw).norm());
+
+  process_noise_covariance.topLeftCorner<3, 3>() =
+      velocity * process_noise_covariance.topLeftCorner<3, 3>() * velocity.transpose();
+}
+
 }  // namespace common
 
 }  // namespace fuse_models
