@@ -193,34 +193,16 @@ template <typename T>
 bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& output)
 {
   geometry_msgs::TransformStamped trans;
-
-  bool have_transform = false;
-
   if (tf_buffer.canTransform(output.header.frame_id, input.header.frame_id, input.header.stamp))
   {
     try
     {
       trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
-      have_transform = true;
     }
     catch (const tf2::TransformException& ex)
     {
       ROS_WARN_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
-        output.header.frame_id << ". Error was " << ex.what() << " Will attempt to use latest transform instead.");
-    }
-  }
-
-  if (!have_transform)
-  {
-    try
-    {
-      trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, ros::Time(0));
-    }
-    catch (const tf2::TransformException& ex)
-    {
-      ROS_ERROR_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
         output.header.frame_id << ". Error was " << ex.what());
-
       return false;
     }
   }
