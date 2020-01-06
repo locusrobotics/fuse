@@ -75,7 +75,10 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("differential", differential);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
-      getParamRequired(nh, "pose_target_frame", pose_target_frame);
+      if (!differential)
+      {
+        getParamRequired(nh, "pose_target_frame", pose_target_frame);
+      }
       getParamRequired(nh, "twist_target_frame", twist_target_frame);
     }
 
