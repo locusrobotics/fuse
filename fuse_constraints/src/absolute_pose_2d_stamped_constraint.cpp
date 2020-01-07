@@ -113,6 +113,12 @@ void AbsolutePose2DStampedConstraint::print(std::ostream& stream) const
          << "  orientation variable: " << variables().at(1) << "\n"
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
 ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const

@@ -227,7 +227,9 @@ TEST(RelativeConstraint, Optimization)
       delta,
       cov2);
     // Build the problem
-    ceres::Problem problem;
+    ceres::Problem::Options problem_options;
+    problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+    ceres::Problem problem(problem_options);
     problem.AddParameterBlock(
       x1->data(),
       x1->size(),
@@ -334,7 +336,9 @@ TEST(RelativeConstraint, Optimization)
       cov3,
       indices3);
     // Build the problem
-    ceres::Problem problem;
+    ceres::Problem::Options problem_options;
+    problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+    ceres::Problem problem(problem_options);
     problem.AddParameterBlock(
       x1->data(),
       x1->size(),
@@ -433,7 +437,9 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
     delta,
     cov2);
   // Build the problem
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+  ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
     x1->data(),
     x1->size(),

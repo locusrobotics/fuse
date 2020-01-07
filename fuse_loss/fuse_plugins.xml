@@ -1,0 +1,72 @@
+<library path="lib/libfuse_loss">
+  <class type="fuse_loss::TrivialLoss" base_class_type="fuse_core::Loss">
+    <description>
+    This corresponds to no robustification. It is not normally necessary to use this, as setting not loss function
+    accomplishes the same thing.
+
+    f(s) = s
+    </description>
+  </class>
+  <class type="fuse_loss::HuberLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    f(s) = 2 * a * sqrt(s) - b  if s > b   // outlier region
+         = s                    otherwise  // inlier region
+
+    where b = a^2.
+    </description>
+  </class>
+  <class type="fuse_loss::SoftLOneLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Soft L1 loss function with scaling parameter 'a', that is similar to Huber but smooth, defined as follows for the
+    residual 's':
+
+    f(s) = 2 * b * (sqrt(1 + s * c) - 1)
+
+    where b = a^2 and c = 1 / b.
+    </description>
+  </class>
+  <class type="fuse_loss::CauchyLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Loss function inspired by the Cauchy distribution, with scaling parameter 'a', defined as follows for the residual
+    's':
+
+    f(s) = b * log(1 + s * c)
+
+    where b = a^2 and c = 1 / b.
+    </description>
+  </class>
+  <class type="fuse_loss::ArctanLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Loss function that is capped beyond a certain level using the arc-tangent function, with scaling parameter 'a' that
+    determines the level where falloff occurs. For costs much smaller than 'a', the loss function is linear and behaves
+    like TrivialLoss, and for values much larger than 'a' the value asymptotically approaches the constant value of
+    'a * PI / 2'. It is defined as follows for the residual 's':
+
+    f(s) = a * atan2(s, a)
+    </description>
+  </class>
+  <class type="fuse_loss::TolerantLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Loss function that maps to approximately zero cost in a range around the origin, and reverts to linear in error
+    (quadratic in cost) beyond this range. The tolerance parameter 'a' sets the nominal point at which the transition
+    occurs, and the transition size parameter 'b' sets the nominal distance over which most of the transition occurs.
+    Both 'a' and 'b' must be reater than zero, and typically 'b' will be set to a fraction of 'a'. It is defined as
+    follows for the residual 's':
+
+    f(s) = b * log(1 + exp((s - a) / b)) - c0
+
+    where c0 = b * log(1 + exp(-a / b)).
+    </description>
+  </class>
+  <class type="fuse_loss::TukeyLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Tukey biweight loss function which aggressively attempts to suppress large errors, with scaling parameter 'a',
+    defined as follows for the residual 's':
+
+    f(s) = a^2 / 6                    if s > a^2  // inlier region
+         = a^2 / 6 * (1 - (1 - s / a^2)^3)  otherwise   // outlier region
+    </description>
+  </class>
+</library>

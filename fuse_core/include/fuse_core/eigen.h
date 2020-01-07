@@ -36,6 +36,9 @@
 
 #include <Eigen/Core>
 
+#include <sstream>
+#include <string>
+
 
 namespace fuse_core
 {
@@ -65,6 +68,16 @@ using Matrix9d = Eigen::Matrix<double, 9, 9, Eigen::RowMajor>;
 
 template <typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
 using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor>;
+
+template <typename Derived>
+std::string to_string(const Eigen::DenseBase<Derived>& m)
+{
+  static const Eigen::IOFormat pretty(4, 0, ", ", "\n", "[", "]");
+
+  std::ostringstream oss;
+  oss << m.format(pretty) << '\n';
+  return oss.str();
+}
 
 }  // namespace fuse_core
 

@@ -67,6 +67,12 @@ void AbsolutePose3DStampedConstraint::print(std::ostream& stream) const
          << "  orientation variable: " << variables().at(1) << "\n"
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
 ceres::CostFunction* AbsolutePose3DStampedConstraint::costFunction() const

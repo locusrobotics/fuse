@@ -199,7 +199,9 @@ TEST(AbsoluteConstraint, Optimization)
       mean,
       cov);
     // Build the problem
-    ceres::Problem problem;
+    ceres::Problem::Options problem_options;
+    problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+    ceres::Problem problem(problem_options);
     problem.AddParameterBlock(
       variable->data(),
       variable->size(),
@@ -264,7 +266,9 @@ TEST(AbsoluteConstraint, Optimization)
       cov2,
       indices2);
     // Build the problem
-    ceres::Problem problem;
+    ceres::Problem::Options problem_options;
+    problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+    ceres::Problem problem(problem_options);
     problem.AddParameterBlock(
       var->data(),
       var->size(),
@@ -340,7 +344,9 @@ TEST(AbsoluteConstraint, PartialOptimization)
     indices2);
 
   // Build the problem
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+  ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
     var->data(),
     var->size(),
@@ -384,7 +390,9 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
     mean,
     cov);
   // Build the problem
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+  ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
     variable->data(),
     variable->size(),

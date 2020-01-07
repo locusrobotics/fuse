@@ -38,6 +38,7 @@
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/loss.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -58,6 +59,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_2d/tf2_2d.h>
 #include <tf2_2d/transform.h>
+
+#include <Eigen/Eigenvalues>
 
 #include <boost/range/join.hpp>
 
@@ -182,6 +185,34 @@ inline void populatePartialMeasurement(
 }
 
 /**
+ * @brief Method to validate partial measurements, that checks for finite values and covariance properties
+ *
+ * @param[in] mean_partial - The partial measurement mean we want to validate
+ * @param[in] covariance_partial - The partial measurement covariance we want to validate
+ */
+inline void validatePartialMeasurement(
+  const fuse_core::VectorXd& mean_partial,
+  const fuse_core::MatrixXd& covariance_partial)
+{
+  if (!mean_partial.allFinite())
+  {
+    throw std::runtime_error("Invalid partial mean " + fuse_core::to_string(mean_partial));
+  }
+
+  if (!covariance_partial.isApprox(covariance_partial.transpose()))
+  {
+    throw std::runtime_error("Non-symmetric partial covariance matrix " + fuse_core::to_string(covariance_partial));
+  }
+
+  Eigen::SelfAdjointEigenSolver<fuse_core::MatrixXd> solver(covariance_partial);
+  if (solver.eigenvalues().minCoeff() <= 0.0)
+  {
+    throw std::runtime_error("Non-positive-definite partial covariance matrix " +
+                             fuse_core::to_string(covariance_partial));
+  }
+}
+
+/**
  * @brief Transforms a ROS geometry message from its frame to the frame of the output message
  *
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
@@ -221,6 +252,7 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose - The PoseWithCovarianceStamped message from which we will extract the pose data
+ * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -230,6 +262,7 @@ inline bool processAbsolutePoseWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose,
+  const fuse_core::Loss::SharedPtr& loss,
   const std::string& target_frame,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
@@ -285,6 +318,7 @@ inline bool processAbsolutePoseWithCovariance(
   const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
 
   populatePartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
+  validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -295,6 +329,8 @@ inline bool processAbsolutePoseWithCovariance(
     pose_covariance_partial,
     position_indices,
     orientation_indices);
+
+  constraint->loss(loss);
 
   transaction.addVariable(position);
   transaction.addVariable(orientation);
@@ -319,6 +355,7 @@ inline bool processAbsolutePoseWithCovariance(
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The first (and temporally later) PoseWithCovarianceStamped message
+ * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -327,6 +364,7 @@ inline bool processDifferentialPoseWithCovariance(
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose1,
   const geometry_msgs::PoseWithCovarianceStamped& pose2,
+  const fuse_core::Loss::SharedPtr& loss,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
   fuse_core::Transaction& transaction)
@@ -421,6 +459,7 @@ inline bool processDifferentialPoseWithCovariance(
     indices,
     pose_relative_mean_partial,
     pose_relative_covariance_partial);
+  validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial);
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
@@ -433,6 +472,8 @@ inline bool processDifferentialPoseWithCovariance(
     pose_relative_covariance_partial,
     position_indices,
     orientation_indices);
+
+  constraint->loss(loss);
 
   transaction.addVariable(position1);
   transaction.addVariable(orientation1);
@@ -455,6 +496,8 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] twist - The TwistWithCovarianceStamped message from which we will extract the twist data
+ * @param[in] linear_velocity_loss - The loss function for the 2D linear velocity constraint generated
+ * @param[in] angular_velocity_loss - The loss function for the 2D angular velocity constraint generated
  * @param[in] target_frame - The frame ID into which the twist data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -464,6 +507,8 @@ inline bool processTwistWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::TwistWithCovarianceStamped& twist,
+  const fuse_core::Loss::SharedPtr& linear_velocity_loss,
+  const fuse_core::Loss::SharedPtr& angular_velocity_loss,
   const std::string& target_frame,
   const std::vector<size_t>& linear_indices,
   const std::vector<size_t>& angular_indices,
@@ -517,9 +562,12 @@ inline bool processTwistWithCovariance(
       linear_indices,
       linear_vel_mean_partial,
       linear_vel_covariance_partial);
+    validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
       source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
+
+    linear_vel_constraint->loss(linear_velocity_loss);
 
     transaction.addVariable(velocity_linear);
     transaction.addConstraint(linear_vel_constraint);
@@ -539,8 +587,12 @@ inline bool processTwistWithCovariance(
     fuse_core::Matrix1d angular_vel_covariance;
     angular_vel_covariance << transformed_message.twist.covariance[35];
 
+    validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
+
     auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
       source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
+
+    angular_vel_constraint->loss(angular_velocity_loss);
 
     transaction.addVariable(velocity_angular);
     transaction.addConstraint(angular_vel_constraint);
@@ -565,6 +617,7 @@ inline bool processTwistWithCovariance(
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] acceleration - The AccelWithCovarianceStamped message from which we will extract the acceleration data
+ * @param[in] loss - The loss function for the 2D linear acceleration constraint generated
  * @param[in] target_frame - The frame ID into which the acceleration data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -574,6 +627,7 @@ inline bool processAccelWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::AccelWithCovarianceStamped& acceleration,
+  const fuse_core::Loss::SharedPtr& loss,
   const std::string& target_frame,
   const std::vector<size_t>& indices,
   const tf2_ros::Buffer& tf_buffer,
@@ -616,6 +670,7 @@ inline bool processAccelWithCovariance(
   fuse_core::MatrixXd accel_covariance_partial(accel_mean_partial.rows(), accel_mean_partial.rows());
 
   populatePartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
+  validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
@@ -624,6 +679,8 @@ inline bool processAccelWithCovariance(
     accel_mean_partial,
     accel_covariance_partial,
     indices);
+
+  linear_accel_constraint->loss(loss);
 
   transaction.addVariable(acceleration_linear);
   transaction.addConstraint(linear_accel_constraint);

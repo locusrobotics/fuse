@@ -36,6 +36,7 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_core/loss.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <ros/node_handle.h>
@@ -69,6 +70,9 @@ struct Twist2DParams : public ParameterBase
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       getParamRequired(nh, "target_frame", target_frame);
+
+      linear_loss = loadLossConfig(nh, "linear_loss");
+      angular_loss = loadLossConfig(nh, "angular_loss");
     }
 
     int queue_size { 10 };
@@ -76,6 +80,8 @@ struct Twist2DParams : public ParameterBase
     std::string target_frame {};
     std::vector<size_t> linear_indices;
     std::vector<size_t> angular_indices;
+    fuse_core::Loss::SharedPtr linear_loss;
+    fuse_core::Loss::SharedPtr angular_loss;
 };
 
 }  // namespace parameters

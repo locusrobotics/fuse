@@ -92,6 +92,12 @@ void RelativeOrientation3DStampedConstraint::print(std::ostream& stream) const
          << "  orientation variable2: " << variables().at(1) << "\n"
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
 ceres::CostFunction* RelativeOrientation3DStampedConstraint::costFunction() const

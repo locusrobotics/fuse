@@ -36,6 +36,7 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_core/loss.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
@@ -75,8 +76,15 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("differential", differential);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
-      getParamRequired(nh, "pose_target_frame", pose_target_frame);
+      if (!differential)
+      {
+        getParamRequired(nh, "pose_target_frame", pose_target_frame);
+      }
       getParamRequired(nh, "twist_target_frame", twist_target_frame);
+
+      pose_loss = loadLossConfig(nh, "pose_loss");
+      linear_velocity_loss = loadLossConfig(nh, "linear_velocity_loss");
+      angular_velocity_loss = loadLossConfig(nh, "angular_velocity_loss");
     }
 
     bool differential { false };
@@ -88,6 +96,9 @@ struct Odometry2DParams : public ParameterBase
     std::vector<size_t> orientation_indices;
     std::vector<size_t> linear_velocity_indices;
     std::vector<size_t> angular_velocity_indices;
+    fuse_core::Loss::SharedPtr pose_loss;
+    fuse_core::Loss::SharedPtr linear_velocity_loss;
+    fuse_core::Loss::SharedPtr angular_velocity_loss;
 };
 
 }  // namespace parameters

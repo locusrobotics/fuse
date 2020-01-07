@@ -119,6 +119,12 @@ void RelativePose2DStampedConstraint::print(std::ostream& stream) const
          << "  orientation2 variable: " << variables().at(3) << "\n"
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
 ceres::CostFunction* RelativePose2DStampedConstraint::costFunction() const

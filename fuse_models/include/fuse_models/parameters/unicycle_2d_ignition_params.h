@@ -36,6 +36,7 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_core/loss.h>
 #include <ros/node_handle.h>
 
 #include <algorithm>
@@ -109,6 +110,8 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         }
         initial_state.swap(state_vector);
       }
+
+      loss = loadLossConfig(nh, "loss");
     }
 
 
@@ -156,6 +159,11 @@ struct Unicycle2DIgnitionParams : public ParameterBase
      * @brief The initial value of the 8-dimension state vector (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
      */
     std::vector<double> initial_state {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    /**
+     * @brief Loss function
+     */
+    fuse_core::Loss::SharedPtr loss;
 };
 
 }  // namespace parameters
