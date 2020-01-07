@@ -38,6 +38,7 @@
 #include <fuse_graphs/hash_graph.h>
 #include <test/covariance_constraint.h>
 #include <test/example_constraint.h>
+#include <test/example_loss.h>
 #include <test/example_variable.h>
 
 #include <gtest/gtest.h>
@@ -659,6 +660,9 @@ TEST(HashGraph, Optimize)
   variable2->data()[0] = 2.5;
   graph.addVariable(variable2);
 
+  // Create loss
+  auto loss = ExampleLoss::make_shared();
+
   // Add a few constraints
   auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
   constraint1->data = 5.0;
@@ -666,6 +670,7 @@ TEST(HashGraph, Optimize)
 
   auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
   constraint2->data = -3.0;
+  constraint2->loss(loss);
   graph.addConstraint(constraint2);
 
   // Optimize the constraints and variables.

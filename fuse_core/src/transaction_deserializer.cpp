@@ -55,7 +55,8 @@ void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::
 
 TransactionDeserializer::TransactionDeserializer() :
   variable_loader_("fuse_core", "fuse_core::Variable"),
-  constraint_loader_("fuse_core", "fuse_core::Constraint")
+  constraint_loader_("fuse_core", "fuse_core::Constraint"),
+  loss_loader_("fuse_core", "fuse_core::Loss")
 {
   // Load all known plugin libraries
   // I believe the library containing a given Variable or Constraint must be loaded in order to deserialize
@@ -67,6 +68,10 @@ TransactionDeserializer::TransactionDeserializer() :
   for (const auto& class_name : constraint_loader_.getDeclaredClasses())
   {
     constraint_loader_.loadLibraryForClass(class_name);
+  }
+  for (const auto& class_name : loss_loader_.getDeclaredClasses())
+  {
+    loss_loader_.loadLibraryForClass(class_name);
   }
 }
 

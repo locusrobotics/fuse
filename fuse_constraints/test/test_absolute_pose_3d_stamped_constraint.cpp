@@ -144,7 +144,9 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
     cov);
 
   // Build the problem
-  ceres::Problem problem;
+  ceres::Problem::Options problem_options;
+  problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
+  ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
     position_variable->data(),
     position_variable->size(),

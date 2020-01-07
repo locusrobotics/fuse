@@ -36,6 +36,7 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
+#include <fuse_core/loss.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <ros/node_handle.h>
@@ -70,6 +71,8 @@ struct Pose2DParams : public ParameterBase
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       getParamRequired(nh, "target_frame", target_frame);
+
+      loss = loadLossConfig(nh, "loss");
     }
 
     bool differential { false };
@@ -78,6 +81,7 @@ struct Pose2DParams : public ParameterBase
     std::string target_frame {};
     std::vector<size_t> position_indices;
     std::vector<size_t> orientation_indices;
+    fuse_core::Loss::SharedPtr loss;
 };
 
 }  // namespace parameters

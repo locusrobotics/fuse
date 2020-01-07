@@ -34,6 +34,7 @@
 #ifndef FUSE_CORE_CONSTRAINT_H
 #define FUSE_CORE_CONSTRAINT_H
 
+#include <fuse_core/loss.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
@@ -262,29 +263,35 @@ public:
   virtual ceres::CostFunction* costFunction() const = 0;
 
   /**
-   * @brief Create a new Ceres loss function and return a raw pointer to it.
+   * @brief Read-only access to the loss.
    *
-   * See http://ceres-solver.org/nnls_modeling.html#lossfunction for a detailed description about loss functions.
-   * Basically, a loss function defines the penalty associated with a specific amount error. By default, or if a NULL
-   * pointer is provided as the loss function, the penalty will be quadratic. This is the loss function associated
-   * with standard least-squares optimization. By providing a different loss function, the penalty for the constraint's
-   * error can be altered.
+   * The loss interfaces wraps a ceres::LossFunction that can be accessed directly with lossFunction().
    *
-   * This is generally done to reduce the effect of outlier measurements that made it into the optimization problem.
-   * It is always better to remove outliers before they make it into the optimization problem, but no method is perfect.
-   * Using robust loss functions can significantly improve the results and stability of the solution in the presence
-   * of outlier measurements.
-   *
-   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
-   * delete the loss function when it is done. Additionally, Fuse promises that the Constraint object will outlive any
-   * generated loss functions (i.e. the Ceres objects will be destroyed before the Constraint objects). This guarantee
-   * may allow optimizations for the creation of the loss function objects.
-   *
-   * @return A base pointer to an instance of a derived ceres::LostFunction.
+   * @return A base shared pointer to an instance of a derived Loss.
    */
-  virtual ceres::LossFunction* lossFunction() const
+  Loss::SharedPtr loss() const
   {
-    return nullptr;
+    return loss_;
+  }
+
+  /**
+   * @brief Set the constraint loss function
+   *
+   * @param[in] loss - The loss function
+   */
+  void loss(Loss::SharedPtr loss)
+  {
+    loss_ = std::move(loss);
+  }
+
+  /**
+   * @brief Read-only access to the Ceres loss function.
+   *
+   * @return A base pointer to an instance of a derived ceres::LossFunction.
+   */
+  ceres::LossFunction* lossFunction() const
+  {
+    return loss_ ? loss_->lossFunction() : nullptr;
   }
 
   /**
@@ -356,6 +363,7 @@ private:
   std::string source_;  //!< The name of the sensor or motion model that generated this constraint
   UUID uuid_;  //!< The unique ID associated with this constraint
   std::vector<UUID> variables_;  //!< The ordered set of variables involved with this constraint
+  std::shared_ptr<Loss> loss_{ nullptr };  //!< The loss function
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -376,6 +384,7 @@ private:
     archive & source_;
     archive & uuid_;
     archive & variables_;
+    archive & loss_;
   }
 };
 

@@ -63,6 +63,12 @@ void MarginalConstraint::print(std::ostream& stream) const
            << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
   }
   stream << "  b:\n" << b().format(indent) << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
 ceres::CostFunction* MarginalConstraint::costFunction() const

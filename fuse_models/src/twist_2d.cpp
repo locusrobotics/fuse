@@ -95,6 +95,8 @@ void Twist2D::process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr&
     name(),
     device_id_,
     *msg,
+    params_.linear_loss,
+    params_.angular_loss,
     params_.target_frame,
     params_.linear_indices,
     params_.angular_indices,

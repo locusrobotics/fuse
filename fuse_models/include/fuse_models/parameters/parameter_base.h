@@ -34,6 +34,7 @@
 #ifndef FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 #define FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 
+#include <fuse_core/loss_loader.h>
 #include <fuse_models/common/sensor_config.h>
 
 #include <ros/node_handle.h>
@@ -91,6 +92,22 @@ inline std::vector<size_t> loadSensorConfig(const ros::NodeHandle& nh, const std
   }
 
   return {};
+}
+
+inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, const std::string& name)
+{
+  if (!nh.hasParam(name))
+  {
+    return {};
+  }
+
+  std::string loss_type;
+  getParamRequired(nh, name + "/type", loss_type);
+
+  auto loss = fuse_core::createUniqueLoss(loss_type);
+  loss->initialize(nh.resolveName(name));
+
+  return loss;
 }
 
 }  // namespace parameters

@@ -38,6 +38,7 @@
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/loss.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -251,6 +252,7 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose - The PoseWithCovarianceStamped message from which we will extract the pose data
+ * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -260,6 +262,7 @@ inline bool processAbsolutePoseWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose,
+  const fuse_core::Loss::SharedPtr& loss,
   const std::string& target_frame,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
@@ -327,6 +330,8 @@ inline bool processAbsolutePoseWithCovariance(
     position_indices,
     orientation_indices);
 
+  constraint->loss(loss);
+
   transaction.addVariable(position);
   transaction.addVariable(orientation);
   transaction.addConstraint(constraint);
@@ -350,6 +355,7 @@ inline bool processAbsolutePoseWithCovariance(
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The first (and temporally later) PoseWithCovarianceStamped message
+ * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -358,6 +364,7 @@ inline bool processDifferentialPoseWithCovariance(
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose1,
   const geometry_msgs::PoseWithCovarianceStamped& pose2,
+  const fuse_core::Loss::SharedPtr& loss,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
   fuse_core::Transaction& transaction)
@@ -466,6 +473,8 @@ inline bool processDifferentialPoseWithCovariance(
     position_indices,
     orientation_indices);
 
+  constraint->loss(loss);
+
   transaction.addVariable(position1);
   transaction.addVariable(orientation1);
   transaction.addVariable(position2);
@@ -487,6 +496,8 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] twist - The TwistWithCovarianceStamped message from which we will extract the twist data
+ * @param[in] linear_velocity_loss - The loss function for the 2D linear velocity constraint generated
+ * @param[in] angular_velocity_loss - The loss function for the 2D angular velocity constraint generated
  * @param[in] target_frame - The frame ID into which the twist data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -496,6 +507,8 @@ inline bool processTwistWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::TwistWithCovarianceStamped& twist,
+  const fuse_core::Loss::SharedPtr& linear_velocity_loss,
+  const fuse_core::Loss::SharedPtr& angular_velocity_loss,
   const std::string& target_frame,
   const std::vector<size_t>& linear_indices,
   const std::vector<size_t>& angular_indices,
@@ -554,6 +567,8 @@ inline bool processTwistWithCovariance(
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
       source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
 
+    linear_vel_constraint->loss(linear_velocity_loss);
+
     transaction.addVariable(velocity_linear);
     transaction.addConstraint(linear_vel_constraint);
     constraints_added = true;
@@ -576,6 +591,8 @@ inline bool processTwistWithCovariance(
 
     auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
       source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
+
+    angular_vel_constraint->loss(angular_velocity_loss);
 
     transaction.addVariable(velocity_angular);
     transaction.addConstraint(angular_vel_constraint);
@@ -600,6 +617,7 @@ inline bool processTwistWithCovariance(
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] acceleration - The AccelWithCovarianceStamped message from which we will extract the acceleration data
+ * @param[in] loss - The loss function for the 2D linear acceleration constraint generated
  * @param[in] target_frame - The frame ID into which the acceleration data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -609,6 +627,7 @@ inline bool processAccelWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
   const geometry_msgs::AccelWithCovarianceStamped& acceleration,
+  const fuse_core::Loss::SharedPtr& loss,
   const std::string& target_frame,
   const std::vector<size_t>& indices,
   const tf2_ros::Buffer& tf_buffer,
@@ -660,6 +679,8 @@ inline bool processAccelWithCovariance(
     accel_mean_partial,
     accel_covariance_partial,
     indices);
+
+  linear_accel_constraint->loss(loss);
 
   transaction.addVariable(acceleration_linear);
   transaction.addConstraint(linear_accel_constraint);

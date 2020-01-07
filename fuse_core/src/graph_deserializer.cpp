@@ -58,6 +58,7 @@ void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::SerializedGraph& m
 GraphDeserializer::GraphDeserializer() :
   variable_loader_("fuse_core", "fuse_core::Variable"),
   constraint_loader_("fuse_core", "fuse_core::Constraint"),
+  loss_loader_("fuse_core", "fuse_core::Loss"),
   graph_loader_("fuse_core", "fuse_core::Graph")
 {
   // Load all known plugin libraries
@@ -70,6 +71,10 @@ GraphDeserializer::GraphDeserializer() :
   for (const auto& class_name : constraint_loader_.getDeclaredClasses())
   {
     constraint_loader_.loadLibraryForClass(class_name);
+  }
+  for (const auto& class_name : loss_loader_.getDeclaredClasses())
+  {
+    loss_loader_.loadLibraryForClass(class_name);
   }
 }
 

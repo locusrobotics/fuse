@@ -6,6 +6,7 @@ set(build_depends
   fuse_constraints
   fuse_core
   fuse_graphs
+  fuse_variables
   pluginlib
   roscpp
   std_srvs

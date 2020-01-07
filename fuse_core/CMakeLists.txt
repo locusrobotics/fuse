@@ -44,6 +44,7 @@ add_library(${PROJECT_NAME}
   src/constraint.cpp
   src/graph.cpp
   src/graph_deserializer.cpp
+  src/loss.cpp
   src/serialization.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
@@ -271,6 +272,31 @@ if(CATKIN_ENABLE_TESTING)
     ${PROJECT_NAME}
   )
   set_target_properties(test_local_parameterization
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Loss tests
+  catkin_add_gtest(test_loss
+    test/test_loss.cpp
+  )
+  add_dependencies(test_loss
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_loss
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_loss
+    ${PROJECT_NAME}
+  )
+  set_target_properties(test_loss
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
