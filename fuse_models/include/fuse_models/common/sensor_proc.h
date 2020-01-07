@@ -59,6 +59,8 @@
 #include <tf2_2d/tf2_2d.h>
 #include <tf2_2d/transform.h>
 
+#include <Eigen/Eigenvalues>
+
 #include <boost/range/join.hpp>
 
 #include <algorithm>
@@ -182,6 +184,34 @@ inline void populatePartialMeasurement(
 }
 
 /**
+ * @brief Method to validate partial measurements, that checks for finite values and covariance properties
+ *
+ * @param[in] mean_partial - The partial measurement mean we want to validate
+ * @param[in] covariance_partial - The partial measurement covariance we want to validate
+ */
+inline void validatePartialMeasurement(
+  const fuse_core::VectorXd& mean_partial,
+  const fuse_core::MatrixXd& covariance_partial)
+{
+  if (!mean_partial.allFinite())
+  {
+    throw std::runtime_error("Invalid partial mean " + fuse_core::to_string(mean_partial));
+  }
+
+  if (!covariance_partial.isApprox(covariance_partial.transpose()))
+  {
+    throw std::runtime_error("Non-symmetric partial covariance matrix " + fuse_core::to_string(covariance_partial));
+  }
+
+  Eigen::SelfAdjointEigenSolver<fuse_core::MatrixXd> solver(covariance_partial);
+  if (solver.eigenvalues().minCoeff() <= 0.0)
+  {
+    throw std::runtime_error("Non-positive-definite partial covariance matrix " +
+                             fuse_core::to_string(covariance_partial));
+  }
+}
+
+/**
  * @brief Transforms a ROS geometry message from its frame to the frame of the output message
  *
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
@@ -285,6 +315,7 @@ inline bool processAbsolutePoseWithCovariance(
   const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
 
   populatePartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
+  validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -421,6 +452,7 @@ inline bool processDifferentialPoseWithCovariance(
     indices,
     pose_relative_mean_partial,
     pose_relative_covariance_partial);
+  validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial);
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
@@ -517,6 +549,7 @@ inline bool processTwistWithCovariance(
       linear_indices,
       linear_vel_mean_partial,
       linear_vel_covariance_partial);
+    validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
       source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
@@ -538,6 +571,8 @@ inline bool processTwistWithCovariance(
 
     fuse_core::Matrix1d angular_vel_covariance;
     angular_vel_covariance << transformed_message.twist.covariance[35];
+
+    validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
 
     auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
       source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
@@ -616,6 +651,7 @@ inline bool processAccelWithCovariance(
   fuse_core::MatrixXd accel_covariance_partial(accel_mean_partial.rows(), accel_mean_partial.rows());
 
   populatePartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
+  validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
