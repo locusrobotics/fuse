@@ -145,7 +145,7 @@ inline std::vector<size_t> mergeIndices(
   const std::vector<size_t>& rhs_indices,
   const size_t rhs_offset = 0u)
 {
-  auto merged_indices = boost::copy_range<std::vector<size_t>>(boost::join(lhs_indices, rhs_indices));
+  auto merged_indices = boost::copy_range<std::vector<size_t>>(boost::range::join(lhs_indices, rhs_indices));
 
   const auto rhs_it = merged_indices.begin() + lhs_indices.size();
   std::transform(
