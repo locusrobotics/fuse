@@ -77,11 +77,38 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
+      getParamRequired(nh, "twist_target_frame", twist_target_frame);
+
       if (!differential)
       {
         getParamRequired(nh, "pose_target_frame", pose_target_frame);
       }
-      getParamRequired(nh, "twist_target_frame", twist_target_frame);
+      else
+      {
+        nh.getParam("independent", independent);
+
+        if (!independent)
+        {
+          std::vector<double> minimum_pose_relative_covariance_diagonal(3, 0.0);
+          nh.param("minimum_pose_relative_covariance_diagonal", minimum_pose_relative_covariance_diagonal,
+                   minimum_pose_relative_covariance_diagonal);
+
+          if (minimum_pose_relative_covariance_diagonal.size() != 3)
+          {
+            throw std::runtime_error("Minimum pose relative covariance diagonal must be of length 3!");
+          }
+
+          if (std::any_of(minimum_pose_relative_covariance_diagonal.begin(),
+                          minimum_pose_relative_covariance_diagonal.end(),
+                          [](const auto& v) { return v < 0.0; }))  // NOLINT(whitespace/braces)
+          {
+            throw std::runtime_error("All minimum pose relative covariance diagonal entries must be positive!");
+          }
+
+          minimum_pose_relative_covariance =
+              fuse_core::Vector3d(minimum_pose_relative_covariance_diagonal.data()).asDiagonal();
+        }
+      }
 
       pose_loss = loadLossConfig(nh, "pose_loss");
       linear_velocity_loss = loadLossConfig(nh, "linear_velocity_loss");
@@ -90,6 +117,8 @@ struct Odometry2DParams : public ParameterBase
 
     bool differential { false };
     bool disable_checks { false };
+    bool independent { true };
+    fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     int queue_size { 10 };
     std::string topic {};
     std::string pose_target_frame {};

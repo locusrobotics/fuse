@@ -123,6 +123,8 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
         device_id_,
         *previous_pose_,
         *pose,
+        params_.independent,
+        params_.minimum_pose_relative_covariance,
         params_.pose_loss,
         {},
         params_.orientation_indices,
