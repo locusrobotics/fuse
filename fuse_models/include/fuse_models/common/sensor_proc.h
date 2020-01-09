@@ -189,19 +189,22 @@ inline void populatePartialMeasurement(
  *
  * @param[in] mean_partial - The partial measurement mean we want to validate
  * @param[in] covariance_partial - The partial measurement covariance we want to validate
+ * @param[in] precision - The precision to validate the partial measurements covariance is symmetric
  */
 inline void validatePartialMeasurement(
   const fuse_core::VectorXd& mean_partial,
-  const fuse_core::MatrixXd& covariance_partial)
+  const fuse_core::MatrixXd& covariance_partial,
+  const double precision = Eigen::NumTraits<double>::dummy_precision())
 {
   if (!mean_partial.allFinite())
   {
     throw std::runtime_error("Invalid partial mean " + fuse_core::to_string(mean_partial));
   }
 
-  if (!covariance_partial.isApprox(covariance_partial.transpose()))
+  if (!covariance_partial.isApprox(covariance_partial.transpose(), precision))
   {
-    throw std::runtime_error("Non-symmetric partial covariance matrix " + fuse_core::to_string(covariance_partial));
+    throw std::runtime_error("Non-symmetric partial covariance matrix " +
+                             fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 
   Eigen::SelfAdjointEigenSolver<fuse_core::MatrixXd> solver(covariance_partial);
