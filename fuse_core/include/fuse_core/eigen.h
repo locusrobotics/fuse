@@ -70,9 +70,9 @@ template <typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
 using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor>;
 
 template <typename Derived>
-std::string to_string(const Eigen::DenseBase<Derived>& m)
+std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 4)
 {
-  static const Eigen::IOFormat pretty(4, 0, ", ", "\n", "[", "]");
+  static const Eigen::IOFormat pretty(precision, 0, ", ", "\n", "[", "]");
 
   std::ostringstream oss;
   oss << m.format(pretty) << '\n';
