@@ -33,6 +33,7 @@
  */
 #include <fuse_models/odometry_2d_publisher.h>
 #include <fuse_models/unicycle_2d_predict.h>
+#include <fuse_models/common/sensor_proc.h>
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/eigen.h>
@@ -330,7 +331,15 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
       const Eigen::Matrix<double, 6, 6> J = jacobian.topLeftCorner<6, 6>();
       covariance = J * covariance * J.transpose();
-      covariance.noalias() += dt * params_.process_noise_covariance.topLeftCorner<6, 6>();
+
+      auto process_noise_covariance = params_.process_noise_covariance;
+      if (params_.scale_process_noise)
+      {
+        common::scaleProcessNoiseCovariance(process_noise_covariance, velocity_linear,
+                                            odom_output_.twist.twist.angular.z, params_.velocity_norm_min);
+      }
+
+      covariance.noalias() += dt * process_noise_covariance.topLeftCorner<6, 6>();
 
       odom_output_.pose.covariance[0] = covariance(0, 0);
       odom_output_.pose.covariance[1] = covariance(0, 1);
