@@ -203,14 +203,14 @@ inline void validatePartialMeasurement(
 
   if (!covariance_partial.isApprox(covariance_partial.transpose(), precision))
   {
-    throw std::runtime_error("Non-symmetric partial covariance matrix " +
+    throw std::runtime_error("Non-symmetric partial covariance matrix\n" +
                              fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 
   Eigen::SelfAdjointEigenSolver<fuse_core::MatrixXd> solver(covariance_partial);
   if (solver.eigenvalues().minCoeff() <= 0.0)
   {
-    throw std::runtime_error("Non-positive-definite partial covariance matrix " +
+    throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
                              fuse_core::to_string(covariance_partial));
   }
 }
@@ -321,7 +321,16 @@ inline bool processAbsolutePoseWithCovariance(
   const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
 
   populatePartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
-  validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
+
+  try
+  {
+    validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
+  }
+  catch (const std::runtime_error& ex)
+  {
+    ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial absolute pose measurement from '" << source
+                                                                                       << "' source: " << ex.what());
+  }
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -462,7 +471,16 @@ inline bool processDifferentialPoseWithCovariance(
     indices,
     pose_relative_mean_partial,
     pose_relative_covariance_partial);
-  validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial);
+
+  try
+  {
+    validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial, 1e-6);
+  }
+  catch (const std::runtime_error& ex)
+  {
+    ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial differential pose measurement from '"
+                                        << source << "' source: " << ex.what());
+  }
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
@@ -565,7 +583,16 @@ inline bool processTwistWithCovariance(
       linear_indices,
       linear_vel_mean_partial,
       linear_vel_covariance_partial);
-    validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
+
+    try
+    {
+      validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial linear velocity measurement from '"
+                                          << source << "' source: " << ex.what());
+    }
 
     auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
       source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
@@ -590,7 +617,15 @@ inline bool processTwistWithCovariance(
     fuse_core::Matrix1d angular_vel_covariance;
     angular_vel_covariance << transformed_message.twist.covariance[35];
 
-    validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
+    try
+    {
+      validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial angular velocity measurement from '"
+                                          << source << "' source: " << ex.what());
+    }
 
     auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
       source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
@@ -673,7 +708,16 @@ inline bool processAccelWithCovariance(
   fuse_core::MatrixXd accel_covariance_partial(accel_mean_partial.rows(), accel_mean_partial.rows());
 
   populatePartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
-  validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
+
+  try
+  {
+    validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
+  }
+  catch (const std::runtime_error& ex)
+  {
+    ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial linear acceleration measurement from '"
+                                        << source << "' source: " << ex.what());
+  }
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
