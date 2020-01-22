@@ -68,6 +68,8 @@ UuidOrdering computeEliminationOrder(
   // In order to compute A and p efficiently, we first construct a VariableConstraints object
   // We will construct sequential indices for the variables and constraints while we populate the VariableConstraints
   // object.
+  // For orphan variables, i.e. variables with no constraints, p[c] == p[c+1], which still satisfies CCOLAMD specs:
+  // https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/master/CCOLAMD/Source/ccolamd.c#L174
   auto variable_order = UuidOrdering();
   auto constraint_order = UuidOrdering();
   auto variable_constraints = VariableConstraints();
@@ -76,14 +78,23 @@ UuidOrdering computeEliminationOrder(
     // Get all connected constraints to this variable
     const auto constraints = graph.getConnectedConstraints(variable_uuid);
 
-    // Add each constraint to the VariableConstraints object
-    // New constraint and variable indices are automatically generated
-    for (const auto& constraint : constraints)
+    // If the variable is orphan (it has no constraints), add it to the VariableConstraints object without constraints
+    // New variable index is automatically generated
+    if (boost::empty(constraints))
     {
-      unsigned int constraint_index = constraint_order[constraint.uuid()];
-      for (const auto& constraint_variable_uuid : constraint.variables())
+      variable_constraints.insert(variable_order[variable_uuid]);
+    }
+    else
+    {
+      // Add each constraint to the VariableConstraints object
+      // New constraint and variable indices are automatically generated
+      for (const auto& constraint : constraints)
       {
-        variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
+        unsigned int constraint_index = constraint_order[constraint.uuid()];
+        for (const auto& constraint_variable_uuid : constraint.variables())
+        {
+          variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
+        }
       }
     }
   }
@@ -114,7 +125,7 @@ UuidOrdering computeEliminationOrder(
   for (const auto& variable_uuid : marginalized_variables)
   {
     // Reassign the marginalized variables to group0
-    variable_groups[variable_order[variable_uuid]] = 0;
+    variable_groups[variable_order.at(variable_uuid)] = 0;
   }
 
   // Create some additional CCOLAMD required structures
