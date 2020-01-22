@@ -98,7 +98,7 @@ public:
    * Accessing a variable id that is not part of this container results in undefined behavior
    */
   template <typename OutputIterator>
-  void getConstraints(const unsigned int variable_id, OutputIterator&& result) const;
+  OutputIterator getConstraints(const unsigned int variable_id, OutputIterator result) const;
 
 private:
   using ConstraintCollection = std::unordered_set<unsigned int>;
@@ -117,10 +117,10 @@ void VariableConstraints::insert(const unsigned int constraint, VariableIndexIte
 }
 
 template<class OutputIterator>
-void VariableConstraints::getConstraints(const unsigned int variable_id, OutputIterator&& result) const
+OutputIterator VariableConstraints::getConstraints(const unsigned int variable_id, OutputIterator result) const
 {
   const auto& constraints = variable_constraints_[variable_id];
-  result = std::copy(std::begin(constraints), std::end(constraints), result);
+  return std::copy(std::begin(constraints), std::end(constraints), result);
 }
 
 }  // namespace fuse_constraints
