@@ -114,10 +114,10 @@ TEST(VariableConstraints, GetConstraints)
   auto actual3_iter = actual3.begin();
   actual3_iter = vars.getConstraints(3u, actual3_iter);
 
-  EXPECT_EQ(expected0.size(), std::distance(actual0.begin(), actual0_iter));
-  EXPECT_EQ(expected1.size(), std::distance(actual1.begin(), actual1_iter));
-  EXPECT_EQ(expected2.size(), std::distance(actual2.begin(), actual2_iter));
-  EXPECT_EQ(expected3.size(), std::distance(actual3.begin(), actual3_iter));
+  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected0.size()), std::distance(actual0.begin(), actual0_iter));
+  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected1.size()), std::distance(actual1.begin(), actual1_iter));
+  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected2.size()), std::distance(actual2.begin(), actual2_iter));
+  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected3.size()), std::distance(actual3.begin(), actual3_iter));
 }
 
 int main(int argc, char **argv)
