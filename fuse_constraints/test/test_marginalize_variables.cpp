@@ -175,8 +175,8 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   auto expected = fuse_constraints::UuidOrdering();
   expected.push_back(x1->uuid());
   expected.push_back(x2->uuid());
-  expected.push_back(x3->uuid());
   expected.push_back(l1->uuid());
+  expected.push_back(x3->uuid());
 
   // Check
   ASSERT_EQ(expected.size(), actual.size());
