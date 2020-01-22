@@ -182,7 +182,8 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < expected.size(); ++i)
   {
-    EXPECT_EQ(expected.at(i), actual.at(i));
+    SCOPED_TRACE(i);
+    EXPECT_EQ(fuse_core::uuid::to_string(expected.at(i)), fuse_core::uuid::to_string(actual.at(i)));
   }
 }
 
