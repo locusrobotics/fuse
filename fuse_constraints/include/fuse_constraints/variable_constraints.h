@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iterator>
+#include <iostream>
 #include <unordered_set>
 #include <vector>
 
@@ -100,6 +101,13 @@ public:
   template <typename OutputIterator>
   void getConstraints(const unsigned int variable_id, OutputIterator result) const;
 
+  /**
+   * @brief Print a human-readable description of the variable constraints to the provided stream.
+   *
+   * @param[out] stream The stream to write to. Defaults to stdout.
+   */
+  void print(std::ostream& stream = std::cout) const;
+
 private:
   using ConstraintCollection = std::unordered_set<unsigned int>;
   using ConstraintsByVariable = std::vector<ConstraintCollection>;
@@ -122,6 +130,11 @@ void VariableConstraints::getConstraints(const unsigned int variable_id, OutputI
   const auto& constraints = variable_constraints_[variable_id];
   std::copy(std::begin(constraints), std::end(constraints), result);
 }
+
+/**
+ * Stream operator for printing VariableConstraints objects.
+ */
+std::ostream& operator <<(std::ostream& stream, const VariableConstraints& variable_constraints);
 
 }  // namespace fuse_constraints
 
