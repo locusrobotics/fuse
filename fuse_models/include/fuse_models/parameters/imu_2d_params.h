@@ -72,6 +72,7 @@ struct Imu2DParams : public ParameterBase
       orientation_indices = loadSensorConfig<fuse_variables::Orientation2DStamped>(nh, "orientation_dimensions");
 
       nh.getParam("differential", differential);
+      nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       nh.getParam("remove_gravitational_acceleration", remove_gravitational_acceleration);
       nh.getParam("gravitational_acceleration", gravitational_acceleration);
@@ -98,6 +99,7 @@ struct Imu2DParams : public ParameterBase
     }
 
     bool differential { false };
+    bool disable_checks { false };
     bool remove_gravitational_acceleration { false };
     int queue_size { 10 };
     double gravitational_acceleration { 9.80665 };

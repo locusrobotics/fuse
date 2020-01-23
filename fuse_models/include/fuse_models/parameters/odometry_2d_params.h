@@ -74,6 +74,7 @@ struct Odometry2DParams : public ParameterBase
         loadSensorConfig<fuse_variables::VelocityAngular2DStamped>(nh, "angular_velocity_dimensions");
 
       nh.getParam("differential", differential);
+      nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       if (!differential)
@@ -88,6 +89,7 @@ struct Odometry2DParams : public ParameterBase
     }
 
     bool differential { false };
+    bool disable_checks { false };
     int queue_size { 10 };
     std::string topic {};
     std::string pose_target_frame {};
