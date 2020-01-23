@@ -67,6 +67,7 @@ struct Twist2DParams : public ParameterBase
       linear_indices = loadSensorConfig<fuse_variables::VelocityLinear2DStamped>(nh, "linear_dimensions");
       angular_indices = loadSensorConfig<fuse_variables::VelocityAngular2DStamped>(nh, "angular_dimensions");
 
+      nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       getParamRequired(nh, "target_frame", target_frame);
@@ -75,6 +76,7 @@ struct Twist2DParams : public ParameterBase
       angular_loss = loadLossConfig(nh, "angular_loss");
     }
 
+    bool disable_checks { false };
     int queue_size { 10 };
     std::string topic {};
     std::string target_frame {};

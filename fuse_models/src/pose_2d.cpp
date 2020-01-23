@@ -91,6 +91,8 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg->header.stamp);
 
+  const bool validate = !params_.disable_checks;
+
   if (params_.differential)
   {
     if (previous_pose_msg_)
@@ -103,6 +105,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
         params_.loss,
         params_.position_indices,
         params_.orientation_indices,
+        validate,
         *transaction);
     }
 
@@ -119,6 +122,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
       params_.position_indices,
       params_.orientation_indices,
       tf_buffer_,
+      validate,
       *transaction);
   }
 
