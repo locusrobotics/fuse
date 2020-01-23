@@ -134,7 +134,7 @@ public:
 
   bool publish_tf { true };
   bool predict_to_current_time { false };
-  bool predict_with_acceleration { true };
+  bool predict_with_acceleration { false };
   double publish_frequency { 10.0 };
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   ros::Duration tf_cache_time { 10.0 };
