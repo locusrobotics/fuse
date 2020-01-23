@@ -211,7 +211,8 @@ inline void validatePartialMeasurement(
   if (solver.eigenvalues().minCoeff() <= 0.0)
   {
     throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
-                             fuse_core::to_string(covariance_partial));
+                             fuse_core::to_string(covariance_partial, Eigen::FullPrecision) + "\n with eigenvalues\n" +
+                             fuse_core::to_string(solver.eigenvalues(), Eigen::FullPrecision));
   }
 }
 
