@@ -99,7 +99,7 @@ public:
    * Accessing a variable id that is not part of this container results in undefined behavior
    */
   template <typename OutputIterator>
-  void getConstraints(const unsigned int variable_id, OutputIterator result) const;
+  OutputIterator getConstraints(const unsigned int variable_id, OutputIterator result) const;
 
   /**
    * @brief Print a human-readable description of the variable constraints to the provided stream.
@@ -125,10 +125,10 @@ void VariableConstraints::insert(const unsigned int constraint, VariableIndexIte
 }
 
 template<class OutputIterator>
-void VariableConstraints::getConstraints(const unsigned int variable_id, OutputIterator result) const
+OutputIterator VariableConstraints::getConstraints(const unsigned int variable_id, OutputIterator result) const
 {
   const auto& constraints = variable_constraints_[variable_id];
-  std::copy(std::begin(constraints), std::end(constraints), result);
+  return std::copy(std::begin(constraints), std::end(constraints), result);
 }
 
 /**
