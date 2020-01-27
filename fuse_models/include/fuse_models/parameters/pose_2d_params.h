@@ -68,6 +68,7 @@ struct Pose2DParams : public ParameterBase
       orientation_indices = loadSensorConfig<fuse_variables::Orientation2DStamped>(nh, "orientation_dimensions");
 
       nh.getParam("differential", differential);
+      nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       getParamRequired(nh, "target_frame", target_frame);
@@ -76,6 +77,7 @@ struct Pose2DParams : public ParameterBase
     }
 
     bool differential { false };
+    bool disable_checks { false };
     int queue_size { 10 };
     std::string topic {};
     std::string target_frame {};

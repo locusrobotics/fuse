@@ -103,6 +103,8 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
   pose->header = msg->header;
   pose->pose = msg->pose;
 
+  const bool validate = !params_.disable_checks;
+
   if (params_.differential)
   {
     if (previous_pose_)
@@ -115,6 +117,7 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
         params_.pose_loss,
         params_.position_indices,
         params_.orientation_indices,
+        validate,
         *transaction);
     }
 
@@ -131,6 +134,7 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
       params_.position_indices,
       params_.orientation_indices,
       tf_buffer_,
+      validate,
       *transaction);
   }
 
@@ -150,6 +154,7 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
     params_.linear_velocity_indices,
     params_.angular_velocity_indices,
     tf_buffer_,
+    validate,
     *transaction);
 
   // Send the transaction object to the plugin's parent
