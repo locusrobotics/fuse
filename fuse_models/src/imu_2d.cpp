@@ -112,6 +112,8 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   pose->pose.covariance[34] = msg->orientation_covariance[7];
   pose->pose.covariance[35] = msg->orientation_covariance[8];
 
+  const bool validate = !params_.disable_checks;
+
   if (params_.differential)
   {
     if (previous_pose_)
@@ -124,6 +126,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
         params_.pose_loss,
         {},
         params_.orientation_indices,
+        validate,
         *transaction);
     }
 
@@ -140,6 +143,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
       {},
       params_.orientation_indices,
       tf_buffer_,
+      validate,
       *transaction);
   }
 
@@ -167,6 +171,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     {},
     params_.angular_velocity_indices,
     tf_buffer_,
+    validate,
     *transaction);
 
   // Handle the acceleration data
@@ -206,6 +211,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     params_.acceleration_target_frame,
     params_.linear_acceleration_indices,
     tf_buffer_,
+    validate,
     *transaction);
 
   // Send the transaction object to the plugin's parent
