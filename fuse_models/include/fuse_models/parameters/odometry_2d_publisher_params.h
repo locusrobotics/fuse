@@ -92,6 +92,9 @@ public:
 
     process_noise_covariance = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
+    nh.param("scale_process_noise", scale_process_noise, scale_process_noise);
+    nh.param("velocity_norm_min", velocity_norm_min, velocity_norm_min);
+
     double tf_cache_time_double = tf_cache_time.toSec();
     nh.getParam("tf_cache_time", tf_cache_time_double);
     tf_cache_time.fromSec(tf_cache_time_double);
@@ -137,6 +140,8 @@ public:
   bool predict_with_acceleration { false };
   double publish_frequency { 10.0 };
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
+  bool scale_process_noise{ false };
+  double velocity_norm_min{ 1e-3 };
   ros::Duration tf_cache_time { 10.0 };
   ros::Duration tf_timeout { 0.1 };
   int queue_size { 1 };
