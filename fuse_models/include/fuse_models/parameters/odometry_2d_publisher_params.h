@@ -73,6 +73,7 @@ public:
   {
     nh.getParam("publish_tf", publish_tf);
     nh.getParam("predict_to_current_time", predict_to_current_time);
+    nh.getParam("predict_with_acceleration", predict_with_acceleration);
     nh.getParam("publish_frequency", publish_frequency);
 
     std::vector<double> process_noise_diagonal(8, 0.0);
@@ -126,12 +127,14 @@ public:
     }
 
     nh.getParam("topic", topic);
+    nh.getParam("acceleration_topic", acceleration_topic);
 
     fuse_core::loadCovarianceOptionsFromROS(ros::NodeHandle(nh, "covariance_options"), covariance_options);
   }
 
   bool publish_tf { true };
   bool predict_to_current_time { false };
+  bool predict_with_acceleration { false };
   double publish_frequency { 10.0 };
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   ros::Duration tf_cache_time { 10.0 };
@@ -143,6 +146,7 @@ public:
   std::string base_link_output_frame_id { base_link_frame_id };
   std::string world_frame_id { odom_frame_id };
   std::string topic { "odometry/filtered" };
+  std::string acceleration_topic { "acceleration/filtered" };
   ceres::Covariance::Options covariance_options;
 };
 
