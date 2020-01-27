@@ -365,7 +365,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
       covariance.block<2, 3>(6, 3).setZero();
 
       covariance = jacobian * covariance * jacobian.transpose();
-      
+
       auto process_noise_covariance = params_.process_noise_covariance;
       if (params_.scale_process_noise)
       {
