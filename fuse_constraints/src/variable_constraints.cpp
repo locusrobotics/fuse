@@ -78,4 +78,25 @@ void VariableConstraints::insert(const unsigned int constraint, std::initializer
   return insert(constraint, variable_list.begin(), variable_list.end());
 }
 
+void VariableConstraints::print(std::ostream& stream) const
+{
+  for (size_t variable = 0; variable < variable_constraints_.size(); ++variable)
+  {
+    stream << variable << ": [";
+
+    for (const auto& constraint : variable_constraints_[variable])
+    {
+      stream << constraint << ", ";
+    }
+
+    stream << "]\n";
+  }
+}
+
+std::ostream& operator <<(std::ostream& stream, const VariableConstraints& variable_constraints)
+{
+  variable_constraints.print(stream);
+  return stream;
+}
+
 }  // namespace fuse_constraints
