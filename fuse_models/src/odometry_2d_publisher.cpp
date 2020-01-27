@@ -372,7 +372,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
         common::scaleProcessNoiseCovariance(process_noise_covariance, velocity_linear,
                                             odom_output_.twist.twist.angular.z, params_.velocity_norm_min);
       }
-      
+
       covariance.noalias() += dt * process_noise_covariance;
 
       odom_output_.pose.covariance[0] = covariance(0, 0);
