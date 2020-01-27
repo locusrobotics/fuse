@@ -103,7 +103,7 @@ UuidOrdering computeEliminationOrder(
   ++p_iter;
   for (unsigned int variable_index = 0u; variable_index < variable_order.size(); ++variable_index)
   {
-    variable_constraints.getConstraints(variable_index, A_iter);
+    A_iter = variable_constraints.getConstraints(variable_index, A_iter);
     *p_iter = std::distance(A.begin(), A_iter);
     ++p_iter;
   }

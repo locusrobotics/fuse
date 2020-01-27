@@ -43,6 +43,7 @@
 #include <fuse_core/variable.h>
 #include <fuse_publishers/stamped_variable_synchronizer.h>
 
+#include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <tf2_ros/buffer.h>
@@ -142,7 +143,10 @@ protected:
    * @param[out] orientation_uuid The UUID of the orientation variable that gets extracted from the graph
    * @param[out] velocity_linear_uuid The UUID of the linear velocity variable that gets extracted from the graph
    * @param[out] velocity_angular_uuid The UUID of the angular velocity variable that gets extracted from the graph
-   * @param[out] state All of the fuse variable values get packed into this structure
+   * @param[out] acceleration_linear_uuid The UUID of the linear acceleration variable that gets extracted from the
+   *                                      graph
+   * @param[out] odometry All of the fuse pose and velocity variable values get packed into this structure
+   * @param[out] acceleration All of the fuse acceleration variable values get packed into this structure
    * @return true if the checks pass, false otherwise
    */
   bool getState(
@@ -153,7 +157,9 @@ protected:
     fuse_core::UUID& orientation_uuid,
     fuse_core::UUID& velocity_linear_uuid,
     fuse_core::UUID& velocity_angular_uuid,
-    nav_msgs::Odometry& state);
+    fuse_core::UUID& acceleration_linear_uuid,
+    nav_msgs::Odometry& odometry,
+    geometry_msgs::AccelWithCovarianceStamped& acceleration);
 
   /**
    * @brief Timer callback method for the filtered state publication and tf broadcasting
@@ -179,11 +185,15 @@ protected:
 
   nav_msgs::Odometry odom_output_;
 
+  geometry_msgs::AccelWithCovarianceStamped acceleration_output_;
+
   Synchronizer synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
   ros::Publisher odom_pub_;
+
+  ros::Publisher acceleration_pub_;
 
   tf2_ros::TransformBroadcaster tf_broadcaster_;
 

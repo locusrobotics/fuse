@@ -97,6 +97,7 @@ void Acceleration2D::process(const geometry_msgs::AccelWithCovarianceStamped::Co
     params_.target_frame,
     params_.indices,
     tf_buffer_,
+    !params_.disable_checks,
     *transaction);
 
   // Send the transaction object to the plugin's parent

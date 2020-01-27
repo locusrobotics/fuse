@@ -189,26 +189,30 @@ inline void populatePartialMeasurement(
  *
  * @param[in] mean_partial - The partial measurement mean we want to validate
  * @param[in] covariance_partial - The partial measurement covariance we want to validate
+ * @param[in] precision - The precision to validate the partial measurements covariance is symmetric
  */
 inline void validatePartialMeasurement(
   const fuse_core::VectorXd& mean_partial,
-  const fuse_core::MatrixXd& covariance_partial)
+  const fuse_core::MatrixXd& covariance_partial,
+  const double precision = Eigen::NumTraits<double>::dummy_precision())
 {
   if (!mean_partial.allFinite())
   {
     throw std::runtime_error("Invalid partial mean " + fuse_core::to_string(mean_partial));
   }
 
-  if (!covariance_partial.isApprox(covariance_partial.transpose()))
+  if (!covariance_partial.isApprox(covariance_partial.transpose(), precision))
   {
-    throw std::runtime_error("Non-symmetric partial covariance matrix " + fuse_core::to_string(covariance_partial));
+    throw std::runtime_error("Non-symmetric partial covariance matrix\n" +
+                             fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 
   Eigen::SelfAdjointEigenSolver<fuse_core::MatrixXd> solver(covariance_partial);
   if (solver.eigenvalues().minCoeff() <= 0.0)
   {
-    throw std::runtime_error("Non-positive-definite partial covariance matrix " +
-                             fuse_core::to_string(covariance_partial));
+    throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
+                             fuse_core::to_string(covariance_partial, Eigen::FullPrecision) + "\n with eigenvalues\n" +
+                             fuse_core::to_string(solver.eigenvalues(), Eigen::FullPrecision));
   }
 }
 
@@ -255,6 +259,7 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
  * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -267,6 +272,7 @@ inline bool processAbsolutePoseWithCovariance(
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
   const tf2_ros::Buffer& tf_buffer,
+  const bool validate,
   fuse_core::Transaction& transaction)
 {
   if (position_indices.empty() && orientation_indices.empty())
@@ -318,7 +324,20 @@ inline bool processAbsolutePoseWithCovariance(
   const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
 
   populatePartialMeasurement(pose_mean, pose_covariance, indices, pose_mean_partial, pose_covariance_partial);
-  validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
+
+  if (validate)
+  {
+    try
+    {
+      validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial absolute pose measurement from '" << source
+                                                                                         << "' source: " << ex.what());
+      return false;
+    }
+  }
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -356,6 +375,7 @@ inline bool processAbsolutePoseWithCovariance(
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The first (and temporally later) PoseWithCovarianceStamped message
  * @param[in] loss - The loss function for the 2D pose constraint generated
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -367,6 +387,7 @@ inline bool processDifferentialPoseWithCovariance(
   const fuse_core::Loss::SharedPtr& loss,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
+  const bool validate,
   fuse_core::Transaction& transaction)
 {
   if (position_indices.empty() && orientation_indices.empty())
@@ -459,7 +480,20 @@ inline bool processDifferentialPoseWithCovariance(
     indices,
     pose_relative_mean_partial,
     pose_relative_covariance_partial);
-  validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial);
+
+  if (validate)
+  {
+    try
+    {
+      validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial, 1e-6);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial differential pose measurement from '"
+                                          << source << "' source: " << ex.what());
+      return false;
+    }
+  }
 
   // Create a relative pose constraint. We assume the pose measurements are independent.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
@@ -500,6 +534,7 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] angular_velocity_loss - The loss function for the 2D angular velocity constraint generated
  * @param[in] target_frame - The frame ID into which the twist data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -513,6 +548,7 @@ inline bool processTwistWithCovariance(
   const std::vector<size_t>& linear_indices,
   const std::vector<size_t>& angular_indices,
   const tf2_ros::Buffer& tf_buffer,
+  const bool validate,
   fuse_core::Transaction& transaction)
 {
   // Make sure we actually have work to do
@@ -562,16 +598,34 @@ inline bool processTwistWithCovariance(
       linear_indices,
       linear_vel_mean_partial,
       linear_vel_covariance_partial);
-    validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
 
-    auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
-      source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
+    bool add_constraint = true;
 
-    linear_vel_constraint->loss(linear_velocity_loss);
+    if (validate)
+    {
+      try
+      {
+        validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
+      }
+      catch (const std::runtime_error& ex)
+      {
+        ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial linear velocity measurement from '"
+                                            << source << "' source: " << ex.what());
+        add_constraint = false;
+      }
+    }
 
-    transaction.addVariable(velocity_linear);
-    transaction.addConstraint(linear_vel_constraint);
-    constraints_added = true;
+    if (add_constraint)
+    {
+      auto linear_vel_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
+        source, *velocity_linear, linear_vel_mean_partial, linear_vel_covariance_partial, linear_indices);
+
+      linear_vel_constraint->loss(linear_velocity_loss);
+
+      transaction.addVariable(velocity_linear);
+      transaction.addConstraint(linear_vel_constraint);
+      constraints_added = true;
+    }
   }
 
   if (!angular_indices.empty())
@@ -587,16 +641,33 @@ inline bool processTwistWithCovariance(
     fuse_core::Matrix1d angular_vel_covariance;
     angular_vel_covariance << transformed_message.twist.covariance[35];
 
-    validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
+    bool add_constraint = true;
 
-    auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
-      source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
+    if (validate)
+    {
+      try
+      {
+        validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
+      }
+      catch (const std::runtime_error& ex)
+      {
+        ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial angular velocity measurement from '"
+                                            << source << "' source: " << ex.what());
+        add_constraint = false;
+      }
+    }
 
-    angular_vel_constraint->loss(angular_velocity_loss);
+    if (add_constraint)
+    {
+      auto angular_vel_constraint = fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
+        source, *velocity_angular, angular_vel_vector, angular_vel_covariance, angular_indices);
 
-    transaction.addVariable(velocity_angular);
-    transaction.addConstraint(angular_vel_constraint);
-    constraints_added = true;
+      angular_vel_constraint->loss(angular_velocity_loss);
+
+      transaction.addVariable(velocity_angular);
+      transaction.addConstraint(angular_vel_constraint);
+      constraints_added = true;
+    }
   }
 
   if (constraints_added)
@@ -620,6 +691,7 @@ inline bool processTwistWithCovariance(
  * @param[in] loss - The loss function for the 2D linear acceleration constraint generated
  * @param[in] target_frame - The frame ID into which the acceleration data will be transformed before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -631,6 +703,7 @@ inline bool processAccelWithCovariance(
   const std::string& target_frame,
   const std::vector<size_t>& indices,
   const tf2_ros::Buffer& tf_buffer,
+  const bool validate,
   fuse_core::Transaction& transaction)
 {
   // Make sure we actually have work to do
@@ -670,7 +743,20 @@ inline bool processAccelWithCovariance(
   fuse_core::MatrixXd accel_covariance_partial(accel_mean_partial.rows(), accel_mean_partial.rows());
 
   populatePartialMeasurement(accel_mean, accel_covariance, indices, accel_mean_partial, accel_covariance_partial);
-  validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
+
+  if (validate)
+  {
+    try
+    {
+      validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial linear acceleration measurement from '"
+                                          << source << "' source: " << ex.what());
+      return false;
+    }
+  }
 
   // Create the constraint
   auto linear_accel_constraint = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(

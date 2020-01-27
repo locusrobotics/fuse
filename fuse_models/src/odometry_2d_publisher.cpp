@@ -39,6 +39,7 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/uuid.h>
 
+#include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <pluginlib/class_list_macros.h>
 #include <tf2_2d/tf2_2d.h>
@@ -79,6 +80,8 @@ void Odometry2DPublisher::onInit()
   }
 
   odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
+  acceleration_pub_ = node_handle_.advertise<geometry_msgs::AccelWithCovarianceStamped>(
+      ros::names::resolve(params_.acceleration_topic), params_.queue_size);
 
   publish_timer_ = node_handle_.createTimer(
     ros::Duration(1.0 / params_.publish_frequency),
@@ -106,6 +109,7 @@ void Odometry2DPublisher::notifyCallback(
   fuse_core::UUID orientation_uuid;
   fuse_core::UUID velocity_linear_uuid;
   fuse_core::UUID velocity_angular_uuid;
+  fuse_core::UUID acceleration_linear_uuid;
 
   if (!getState(
          *graph,
@@ -115,7 +119,9 @@ void Odometry2DPublisher::notifyCallback(
          orientation_uuid,
          velocity_linear_uuid,
          velocity_angular_uuid,
-         odom_output_))
+         acceleration_linear_uuid,
+         odom_output_,
+         acceleration_output_))
   {
     return;
   }
@@ -124,8 +130,11 @@ void Odometry2DPublisher::notifyCallback(
   odom_output_.header.stamp = latest_stamp_;
   odom_output_.child_frame_id = params_.base_link_output_frame_id;
 
+  acceleration_output_.header.frame_id = params_.base_link_output_frame_id;
+  acceleration_output_.header.stamp = latest_stamp_;
+
   // Don't waste CPU computing the covariance if nobody is listening
-  if (odom_pub_.getNumSubscribers() > 0)
+  if (odom_pub_.getNumSubscribers() > 0 || acceleration_pub_.getNumSubscribers() > 0)
   {
     try
     {
@@ -136,6 +145,7 @@ void Odometry2DPublisher::notifyCallback(
       covariance_requests.emplace_back(velocity_linear_uuid, velocity_linear_uuid);
       covariance_requests.emplace_back(velocity_linear_uuid, velocity_angular_uuid);
       covariance_requests.emplace_back(velocity_angular_uuid, velocity_angular_uuid);
+      covariance_requests.emplace_back(acceleration_linear_uuid, acceleration_linear_uuid);
 
       std::vector<std::vector<double>> covariance_matrices;
       graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options);
@@ -160,6 +170,11 @@ void Odometry2DPublisher::notifyCallback(
       odom_output_.twist.covariance[31] = covariance_matrices[4][1];
       odom_output_.twist.covariance[35] = covariance_matrices[5][0];
 
+      acceleration_output_.accel.covariance[0] = covariance_matrices[6][0];
+      acceleration_output_.accel.covariance[1] = covariance_matrices[6][1];
+      acceleration_output_.accel.covariance[6] = covariance_matrices[6][2];
+      acceleration_output_.accel.covariance[7] = covariance_matrices[6][3];
+
       latest_covariance_stamp_ = latest_stamp_;
     }
     catch (const std::exception& e)
@@ -168,6 +183,7 @@ void Odometry2DPublisher::notifyCallback(
                       "The covariance will be set to zero.\n" << e.what());
       std::fill(odom_output_.pose.covariance.begin(), odom_output_.pose.covariance.end(), 0.0);
       std::fill(odom_output_.twist.covariance.begin(), odom_output_.twist.covariance.end(), 0.0);
+      std::fill(acceleration_output_.accel.covariance.begin(), acceleration_output_.accel.covariance.end(), 0.0);
     }
   }
 }
@@ -177,6 +193,7 @@ void Odometry2DPublisher::onStart()
   synchronizer_ = Synchronizer(device_id_);
   latest_stamp_ = latest_covariance_stamp_ = Synchronizer::TIME_ZERO;
   odom_output_ = nav_msgs::Odometry();
+  acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
   publish_timer_.start();
 }
 
@@ -193,7 +210,9 @@ bool Odometry2DPublisher::getState(
   fuse_core::UUID& orientation_uuid,
   fuse_core::UUID& velocity_linear_uuid,
   fuse_core::UUID& velocity_angular_uuid,
-  nav_msgs::Odometry& state)
+  fuse_core::UUID& acceleration_linear_uuid,
+  nav_msgs::Odometry& odometry,
+  geometry_msgs::AccelWithCovarianceStamped& acceleration)
 {
   try
   {
@@ -213,16 +232,27 @@ bool Odometry2DPublisher::getState(
     auto velocity_angular_variable = dynamic_cast<const fuse_variables::VelocityAngular2DStamped&>(
       graph.getVariable(velocity_angular_uuid));
 
-    state.pose.pose.position.x = position_variable.x();
-    state.pose.pose.position.y = position_variable.y();
-    state.pose.pose.position.z = 0.0;
-    state.pose.pose.orientation = tf2::toMsg(tf2_2d::Rotation(orientation_variable.yaw()));
-    state.twist.twist.linear.x = velocity_linear_variable.x();
-    state.twist.twist.linear.y = velocity_linear_variable.y();
-    state.twist.twist.linear.z = 0.0;
-    state.twist.twist.angular.x = 0.0;
-    state.twist.twist.angular.y = 0.0;
-    state.twist.twist.angular.z = velocity_angular_variable.yaw();
+    acceleration_linear_uuid = fuse_variables::AccelerationLinear2DStamped(stamp, device_id).uuid();
+    auto acceleration_linear_variable = dynamic_cast<const fuse_variables::AccelerationLinear2DStamped&>(
+      graph.getVariable(acceleration_linear_uuid));
+
+    odometry.pose.pose.position.x = position_variable.x();
+    odometry.pose.pose.position.y = position_variable.y();
+    odometry.pose.pose.position.z = 0.0;
+    odometry.pose.pose.orientation = tf2::toMsg(tf2_2d::Rotation(orientation_variable.yaw()));
+    odometry.twist.twist.linear.x = velocity_linear_variable.x();
+    odometry.twist.twist.linear.y = velocity_linear_variable.y();
+    odometry.twist.twist.linear.z = 0.0;
+    odometry.twist.twist.angular.x = 0.0;
+    odometry.twist.twist.angular.y = 0.0;
+    odometry.twist.twist.angular.z = velocity_angular_variable.yaw();
+
+    acceleration.accel.accel.linear.x = acceleration_linear_variable.x();
+    acceleration.accel.accel.linear.y = acceleration_linear_variable.y();
+    acceleration.accel.accel.linear.z = 0.0;
+    acceleration.accel.accel.angular.x = 0.0;
+    acceleration.accel.accel.angular.y = 0.0;
+    acceleration.accel.accel.angular.z = 0.0;
   }
   catch (const std::exception& e)
   {
@@ -259,21 +289,24 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
     fuse_core::Matrix8d jacobian;
 
-    tf2_2d::Vector2 unused_acc;
+    tf2_2d::Vector2 acceleration_linear;
+    if (params_.predict_with_acceleration)
+    {
+      tf2::fromMsg(acceleration_output_.accel.accel.linear, acceleration_linear);
+    }
+
     double yaw_vel;
 
     predict(
       pose,
       velocity_linear,
       odom_output_.twist.twist.angular.z,
-      // TODO(efernandez) we should use the actual acceleration, both here and in the else, even if we don't care of
-      // the resulting acceleration, because it also affects other components
-      unused_acc,
+      acceleration_linear,
       dt,
       pose,
       velocity_linear,
       yaw_vel,
-      unused_acc,
+      acceleration_linear,
       jacobian);
 
     odom_output_.pose.pose.position.x = pose.getX();
@@ -284,13 +317,20 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
     odom_output_.twist.twist.linear.y = velocity_linear.y();
     odom_output_.twist.twist.angular.z = yaw_vel;
 
+    if (params_.predict_with_acceleration)
+    {
+      acceleration_output_.accel.accel.linear.x = acceleration_linear.x();
+      acceleration_output_.accel.accel.linear.y = acceleration_linear.y();
+    }
+
     odom_output_.header.stamp = event.current_real;
+    acceleration_output_.header.stamp = event.current_real;
 
     // Either the last covariance computation was skipped because there was no subscriber,
     // or it failed
     if (latest_covariance_stamp_ == latest_stamp_)
     {
-      Eigen::Matrix<double, 6, 6> covariance;
+      fuse_core::Matrix8d covariance;
       covariance(0, 0) = odom_output_.pose.covariance[0];
       covariance(0, 1) = odom_output_.pose.covariance[1];
       covariance(0, 2) = odom_output_.pose.covariance[5];
@@ -311,22 +351,29 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
       covariance(5, 4) = odom_output_.twist.covariance[31];
       covariance(5, 5) = odom_output_.twist.covariance[35];
 
-      // TODO(efernandez) for now we set the top right and bottom left corners to zero, but we could cache them in
-      // another attribute when we retrieve the covariance from the ceres problem
-      covariance.topRightCorner<3, 3>().setZero();
-      covariance.bottomLeftCorner<3, 3>().setZero();
+      covariance(6, 6) = acceleration_output_.accel.covariance[0];
+      covariance(6, 7) = acceleration_output_.accel.covariance[1];
+      covariance(7, 6) = acceleration_output_.accel.covariance[6];
+      covariance(7, 7) = acceleration_output_.accel.covariance[7];
 
-      const Eigen::Matrix<double, 6, 6> J = jacobian.topLeftCorner<6, 6>();
-      covariance = J * covariance * J.transpose();
+      // TODO(efernandez) for now we set to zero the out-of-diagonal blocks with the correlations between pose, twist
+      // and acceleration, but we could cache them in another attribute when we retrieve the covariance from the ceres
+      // problem
+      covariance.topRightCorner<3, 5>().setZero();
+      covariance.bottomLeftCorner<5, 3>().setZero();
+      covariance.block<3, 2>(3, 6).setZero();
+      covariance.block<2, 3>(6, 3).setZero();
 
+      covariance = jacobian * covariance * jacobian.transpose();
+      
       auto process_noise_covariance = params_.process_noise_covariance;
       if (params_.scale_process_noise)
       {
         common::scaleProcessNoiseCovariance(process_noise_covariance, velocity_linear,
                                             odom_output_.twist.twist.angular.z, params_.velocity_norm_min);
       }
-
-      covariance.noalias() += dt * process_noise_covariance.topLeftCorner<6, 6>();
+      
+      covariance.noalias() += dt * process_noise_covariance;
 
       odom_output_.pose.covariance[0] = covariance(0, 0);
       odom_output_.pose.covariance[1] = covariance(0, 1);
@@ -347,10 +394,16 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
       odom_output_.twist.covariance[30] = covariance(5, 3);
       odom_output_.twist.covariance[31] = covariance(5, 4);
       odom_output_.twist.covariance[35] = covariance(5, 5);
+
+      acceleration_output_.accel.covariance[0] = covariance(6, 6);
+      acceleration_output_.accel.covariance[1] = covariance(6, 7);
+      acceleration_output_.accel.covariance[6] = covariance(7, 6);
+      acceleration_output_.accel.covariance[7] = covariance(7, 7);
     }
   }
 
   odom_pub_.publish(odom_output_);
+  acceleration_pub_.publish(acceleration_output_);
 
   if (params_.publish_tf)
   {

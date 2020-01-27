@@ -65,6 +65,7 @@ struct Acceleration2DParams : public ParameterBase
     {
       indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
 
+      nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       getParamRequired(nh, "topic", topic);
       getParamRequired(nh, "target_frame", target_frame);
@@ -72,6 +73,7 @@ struct Acceleration2DParams : public ParameterBase
       loss = loadLossConfig(nh, "loss");
     }
 
+    bool disable_checks { false };
     int queue_size { 10 };
     std::string topic {};
     std::string target_frame {};
