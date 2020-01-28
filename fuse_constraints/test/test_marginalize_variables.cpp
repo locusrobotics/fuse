@@ -69,6 +69,11 @@ public:
     data_{}
   {}
 
+  explicit GenericVariable(const fuse_core::UUID& uuid) :
+    fuse_core::Variable(uuid),
+    data_{}
+  {}
+
   size_t size() const override { return 1; }
 
   const double* data() const override { return &data_; }
@@ -184,6 +189,76 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   {
     SCOPED_TRACE(i);
     EXPECT_EQ(fuse_core::uuid::to_string(expected.at(i)), fuse_core::uuid::to_string(actual.at(i)));
+  }
+}
+
+TEST(MarginalizeVariables, ComputeEliminationOrderWithOrphanVariables)
+{
+  // Create a graph
+  auto x1 = GenericVariable::make_shared();
+  auto x2 = GenericVariable::make_shared();
+  auto x3 = GenericVariable::make_shared();
+  auto l1 = GenericVariable::make_shared();
+  auto l2 = GenericVariable::make_shared();
+  auto c1 = GenericConstraint::make_shared(x1->uuid());
+  auto c2 = GenericConstraint::make_shared(x1->uuid(), x2->uuid());
+  auto c3 = GenericConstraint::make_shared(x2->uuid(), x3->uuid());
+  auto c4 = GenericConstraint::make_shared(x1->uuid(), l1->uuid());
+  auto c5 = GenericConstraint::make_shared(x2->uuid(), l1->uuid());
+  auto c6 = GenericConstraint::make_shared(x3->uuid(), l2->uuid());
+  auto graph = fuse_graphs::HashGraph();
+  graph.addVariable(x1);
+  graph.addVariable(x2);
+  graph.addVariable(x3);
+  graph.addVariable(l1);
+  graph.addVariable(l2);
+  graph.addConstraint(c1);
+  graph.addConstraint(c2);
+  graph.addConstraint(c3);
+  graph.addConstraint(c4);
+  graph.addConstraint(c5);
+  graph.addConstraint(c6);
+
+  // Add orphan variables (with explicit UUID so it's easier to identify them if any of the checks fail)
+  // With 1 or 2 orphan variables computeEliminationOrder throws an std::runtime_error exception because CCOLAMD fails
+  // With 3 or more orphan variables computeEliminationOrder crashes with `free(): invalid next size (fast)`
+  auto o1 = GenericVariable::make_shared(fuse_core::uuid::from_string("b726fbef-4015-4dc8-b4dd-cb57d4439c74"));
+  graph.addVariable(o1);
+
+  // Define the set of variables to be marginalized
+  auto to_be_marginalized = std::vector<fuse_core::UUID>{ x2->uuid(), x1->uuid(), o1->uuid() };
+
+  // Compute the ordering
+  fuse_constraints::UuidOrdering actual;
+  ASSERT_NO_THROW(actual = fuse_constraints::computeEliminationOrder(to_be_marginalized, graph));
+
+  // Define the expected order
+  auto expected = fuse_constraints::UuidOrdering();
+  expected.push_back(x1->uuid());
+  expected.push_back(x2->uuid());
+  expected.push_back(o1->uuid());
+  expected.push_back(l1->uuid());
+  expected.push_back(x3->uuid());
+
+  // Check
+  ASSERT_EQ(expected.size(), actual.size());
+  for (size_t i = 0; i < expected.size(); ++i)
+  {
+    SCOPED_TRACE(i);
+    EXPECT_EQ(fuse_core::uuid::to_string(expected.at(i)), fuse_core::uuid::to_string(actual.at(i)));
+  }
+
+  // Check all marginalized variables are in the elimination order
+  // This check is equivalent to the assert in marginalizeVariables
+  for (const auto& variable_uuid : to_be_marginalized)
+  {
+    SCOPED_TRACE(fuse_core::uuid::to_string(variable_uuid));
+
+    EXPECT_TRUE(actual.exists(variable_uuid));
+    if (actual.exists(variable_uuid))
+    {
+      EXPECT_GT(to_be_marginalized.size(), actual.at(variable_uuid));
+    }
   }
 }
 

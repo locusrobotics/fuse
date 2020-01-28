@@ -78,6 +78,15 @@ void VariableConstraints::insert(const unsigned int constraint, std::initializer
   return insert(constraint, variable_list.begin(), variable_list.end());
 }
 
+void VariableConstraints::insert(const unsigned int variable)
+{
+  if (variable >= variable_constraints_.size())
+  {
+    // This automatically create a new variable entry with an empty ConstraintCollection
+    variable_constraints_.resize(variable + 1);
+  }
+}
+
 void VariableConstraints::print(std::ostream& stream) const
 {
   for (size_t variable = 0; variable < variable_constraints_.size(); ++variable)

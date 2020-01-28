@@ -94,6 +94,11 @@ public:
   void insert(const unsigned int constraint, VariableIndexIterator first, VariableIndexIterator last);
 
   /**
+   * @brief Add a single orphan variable, i.e. a variable without constraints
+   */
+  void insert(const unsigned int variable);
+
+  /**
    * @brief Insert all of the constraints connected to the requested variable into the provided container
    *
    * Accessing a variable id that is not part of this container results in undefined behavior
