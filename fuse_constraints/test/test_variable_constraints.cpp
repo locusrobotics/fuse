@@ -120,6 +120,18 @@ TEST(VariableConstraints, GetConstraints)
   EXPECT_EQ(static_cast<std::ptrdiff_t>(expected3.size()), std::distance(actual3.begin(), actual3_iter));
 }
 
+TEST(VariableConstraints, InsertOrphanVariable)
+{
+  auto vars = VariableConstraints();
+
+  vars.insert(0u);
+
+  std::vector<size_t> actual;
+  vars.getConstraints(0u, std::back_inserter(actual));
+
+  EXPECT_TRUE(actual.empty());
+}
+
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
