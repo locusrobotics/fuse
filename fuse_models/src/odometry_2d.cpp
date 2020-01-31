@@ -103,24 +103,47 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
   pose->header = msg->header;
   pose->pose = msg->pose;
 
+  geometry_msgs::TwistWithCovarianceStamped twist;
+  twist.header = msg->header;
+  twist.header.frame_id = msg->child_frame_id;
+  twist.twist = msg->twist;
+
   const bool validate = !params_.disable_checks;
 
   if (params_.differential)
   {
     if (previous_pose_)
     {
-      common::processDifferentialPoseWithCovariance(
-        name(),
-        device_id_,
-        *previous_pose_,
-        *pose,
-        params_.independent,
-        params_.minimum_pose_relative_covariance,
-        params_.pose_loss,
-        params_.position_indices,
-        params_.orientation_indices,
-        validate,
-        *transaction);
+      if (params_.use_twist_covariance)
+      {
+        common::processDifferentialPoseWithTwistCovariance(
+          name(),
+          device_id_,
+          *previous_pose_,
+          *pose,
+          twist,
+          params_.minimum_pose_relative_covariance,
+          params_.pose_loss,
+          params_.position_indices,
+          params_.orientation_indices,
+          validate,
+          *transaction);
+      }
+      else
+      {
+        common::processDifferentialPoseWithCovariance(
+          name(),
+          device_id_,
+          *previous_pose_,
+          *pose,
+          params_.independent,
+          params_.minimum_pose_relative_covariance,
+          params_.pose_loss,
+          params_.position_indices,
+          params_.orientation_indices,
+          validate,
+          *transaction);
+      }
     }
 
     previous_pose_ = pose;
@@ -141,11 +164,6 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
   }
 
   // Handle the twist data
-  geometry_msgs::TwistWithCovarianceStamped twist;
-  twist.header = msg->header;
-  twist.header.frame_id = msg->child_frame_id;
-  twist.twist = msg->twist;
-
   common::processTwistWithCovariance(
     name(),
     device_id_,
