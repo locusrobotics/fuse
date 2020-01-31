@@ -89,6 +89,8 @@ struct Odometry2DParams : public ParameterBase
 
         if (!independent)
         {
+          nh.getParam("use_twist_covariance", use_twist_covariance);
+
           std::vector<double> minimum_pose_relative_covariance_diagonal(3, 0.0);
           nh.param("minimum_pose_relative_covariance_diagonal", minimum_pose_relative_covariance_diagonal,
                    minimum_pose_relative_covariance_diagonal);
@@ -118,6 +120,7 @@ struct Odometry2DParams : public ParameterBase
     bool differential { false };
     bool disable_checks { false };
     bool independent { true };
+    bool use_twist_covariance { true };
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     int queue_size { 10 };
     std::string topic {};
