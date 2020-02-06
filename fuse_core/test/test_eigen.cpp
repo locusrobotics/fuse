@@ -71,28 +71,31 @@ TEST(Eigen, isSymmetric)
   // EXPECT_FALSE(fuse_core::isSymmetric(non_square_matrix));
 }
 
-TEST(Eigen, isPSD)
+TEST(Eigen, isPositiveDefinite)
 {
   const auto random_matrix = fuse_core::Matrix3d::Random().eval();
 
-  // A PSD matrix:
+  // A Positive Definite matrix:
   const auto symmetric_matrix = (0.5 * (random_matrix + random_matrix.transpose())).eval();
   const auto psd_matrix = (symmetric_matrix + 3 * fuse_core::Matrix3d::Identity()).eval();
 
-  EXPECT_TRUE(fuse_core::isPSD(psd_matrix)) << "Matrix\n" << psd_matrix << "\n expected to be PSD.";
+  EXPECT_TRUE(fuse_core::isPositiveDefinite(psd_matrix)) << "Matrix\n"
+                                                         << psd_matrix << "\n expected to be Positive Definite.";
 
-  // A non-PSD matrix:
+  // A non Positive Definite matrix:
   auto non_psd_matrix = psd_matrix;
   non_psd_matrix(0, 0) *= -1.0;
 
-  EXPECT_FALSE(fuse_core::isPSD(non_psd_matrix)) << "Matrix\n" << non_psd_matrix << "\n expected to not be PSD.";
+  EXPECT_FALSE(fuse_core::isPositiveDefinite(non_psd_matrix))
+      << "Matrix\n"
+      << non_psd_matrix << "\n expected to not be Positive Definite.";
 
-  // fuse_core::isPSD is not defined for non-square matrices. The following will simply fail to compile because it is
-  // allowed, as intended:
+  // fuse_core::isPositiveDefinite is not defined for non-square matrices. The following will simply fail to compile
+  // because it is allowed, as intended:
   //
   // const auto non_square_matrix = fuse_core::Matrix<double, 2, 3>::Random().eval();
   //
-  // EXPECT_FALSE(fuse_core::isPSD(non_square_matrix));
+  // EXPECT_FALSE(fuse_core::isPositiveDefinite(non_square_matrix));
 }
 
 int main(int argc, char **argv)

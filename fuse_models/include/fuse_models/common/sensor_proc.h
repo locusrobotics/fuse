@@ -205,7 +205,7 @@ inline void validatePartialMeasurement(
                              fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 
-  if (!fuse_core::isPSD(covariance_partial))
+  if (!fuse_core::isPositiveDefinite(covariance_partial))
   {
     throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
                              fuse_core::to_string(covariance_partial, Eigen::FullPrecision));

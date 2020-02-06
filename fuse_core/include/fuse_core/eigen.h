@@ -103,7 +103,7 @@ bool isSymmetric(const Eigen::DenseBase<Derived>& m,
  * @return True if the matrix m is PD; False, otherwise.
  */
 template <typename Derived>
-bool isPSD(const Eigen::DenseBase<Derived>& m)
+bool isPositiveDefinite(const Eigen::DenseBase<Derived>& m)
 {
   Eigen::SelfAdjointEigenSolver<Derived> solver(m);
   return solver.eigenvalues().minCoeff() > 0.0;

@@ -210,7 +210,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
     throw std::invalid_argument("Attempting to set the pose with a non-symmetric position covariance matri\n " +
                                 fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
-  if (!fuse_core::isPSD(position_cov))
+  if (!fuse_core::isPositiveDefinite(position_cov))
   {
     throw std::invalid_argument("Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
                                 fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
