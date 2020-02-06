@@ -93,7 +93,15 @@ bool isSymmetric(const Eigen::DenseBase<Derived>& m,
                  const typename Eigen::DenseBase<Derived>::RealScalar precision =
                      Eigen::NumTraits<typename Eigen::DenseBase<Derived>::Scalar>::dummy_precision())
 {
-  return m.isApprox(m.transpose(), precision);
+  // We do not use `isApprox`:
+  //
+  // return m.isApprox(m.transpose(), precision);
+  //
+  // because it does not play well when `m` is close to zero.
+  //
+  // See: https://eigen.tuxfamily.org/dox/classEigen_1_1DenseBase.html#ae8443357b808cd393be1b51974213f9c
+  const auto& derived = m.derived();
+  return (derived - derived.transpose()).cwiseAbs().maxCoeff() < precision;
 }
 
 /**
