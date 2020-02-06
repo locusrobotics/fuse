@@ -368,12 +368,19 @@ inline bool processAbsolutePoseWithCovariance(
  * pose_relative = pose_absolute1^-1 * pose_absolute2
  *
  * Additionally, the covariance of each pose message is rotated into the robot's base frame at the time of
- * pose_absolute1. They are then added in the constraint. This assumes independence between the pose measurements.
+ * pose_absolute1. They are then added in the constraint if the pose measurements are independent.
+ * Otherwise, if the pose measurements are dependent, the covariance of pose_absolute1 is substracted from the
+ * covariance of pose_absolute2. A small minimum relative covariance is added to avoid getting a zero or
+ * ill-conditioned covariance. This could happen if both covariance matrices are the same or very similar, e.g. when
+ * pose_absolute1 == pose_absolute2, it's possible that the covariance is the same for both poses.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The first (and temporally later) PoseWithCovarianceStamped message
+ * @param[in] independent - Whether the pose measurements are indepent or not
+ * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always added to the
+ *                                               resulting pose relative covariance
  * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -384,6 +391,8 @@ inline bool processDifferentialPoseWithCovariance(
   const fuse_core::UUID& device_id,
   const geometry_msgs::PoseWithCovarianceStamped& pose1,
   const geometry_msgs::PoseWithCovarianceStamped& pose2,
+  const bool independent,
+  const fuse_core::Matrix3d& minimum_pose_relative_covariance,
   const fuse_core::Loss::SharedPtr& loss,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
@@ -427,19 +436,6 @@ inline bool processDifferentialPoseWithCovariance(
     sy * x_diff + cy * y_diff,
     (pose2_2d.rotation() - pose1_2d.rotation()).getAngle();
 
-  // Compute Jacobians so we can rotate the covariance
-  fuse_core::Matrix3d j_pose1;
-  j_pose1 <<
-    -cy,  sy,  sy * x_diff + cy * y_diff,
-    -sy, -cy, -cy * x_diff + sy * y_diff,
-      0,   0,                         -1;
-
-  fuse_core::Matrix3d j_pose2;
-  j_pose2 <<
-     cy, -sy,  0,
-     sy,  cy,  0,
-      0,   0,  1;
-
   // Create the covariance components for the constraint
   fuse_core::Matrix3d cov1;
   cov1 <<
@@ -465,7 +461,197 @@ inline bool processDifferentialPoseWithCovariance(
     pose2.pose.covariance[31],
     pose2.pose.covariance[35];
 
-  auto pose_relative_covariance = j_pose1 * cov1 * j_pose1.transpose() + j_pose2 * cov2 * j_pose2.transpose();
+  fuse_core::Matrix3d pose_relative_covariance;
+  if (independent)
+  {
+    // Compute Jacobians so we can rotate the covariance
+    fuse_core::Matrix3d j_pose1;
+    j_pose1 <<
+      -cy,  sy,  sy * x_diff + cy * y_diff,
+      -sy, -cy, -cy * x_diff + sy * y_diff,
+        0,   0,                         -1;
+
+    fuse_core::Matrix3d j_pose2;
+    j_pose2 <<
+       cy, -sy,  0,
+       sy,  cy,  0,
+        0,   0,  1;
+
+    pose_relative_covariance = j_pose1 * cov1 * j_pose1.transpose() + j_pose2 * cov2 * j_pose2.transpose();
+  }
+  else
+  {
+    // For dependent pose measurements p1 and p2, we assume they're computed as:
+    //
+    // p2 = p1 * p12    [1]
+    //
+    // where p12 is the relative pose between p1 and p2, which is computed here as:
+    //
+    // p12 = p1^-1 * p2
+    //
+    // Note that the twist t12 is computed as:
+    //
+    // t12 = p12 / dt
+    //
+    // where dt = t2 - t1, for t1 and t2 being the p1 and p2 timestamps, respectively.
+    //
+    // The covariance propagation of p2 = p1 * p12 is:
+    //
+    // C2 = J_p1 * C1 * J_p1^T + J_p12 * C12 * J_p12^T
+    //
+    // where C1, C2, C12 are the covariance matrices of p1, p2 and dp, respectively, and J_p1 and J_p12 are the
+    // jacobians of the equation wrt p1 and p12, respectively.
+    //
+    // Therefore, the covariance C12 of the relative pose p12 is:
+    //
+    // C12 = J_p12^-1 * (C2 - J_p1 * C1 * J_p1^T) * J_p12^-T    [2]
+    //
+    //
+    //
+    // In SE(2) the poses are represented by:
+    //
+    //     (R | t)
+    // p = (-----)
+    //     (0 | 1)
+    //
+    // where R is the rotation matrix for the yaw angle:
+    //
+    //     (cos(yaw) -sin(yaw))
+    // R = (sin(yaw)  cos(yaw))
+    //
+    // and t is the translation:
+    //
+    //     (x)
+    // t = (y)
+    //
+    // The pose composition/multiplication in SE(2) is defined as follows:
+    //
+    //           (R1 | t1)   (R2 | t2)   (R1 * R2 | R1 * t2 + t1)
+    // p1 * p2 = (-------) * (-------) = (----------------------)
+    //           ( 0 |  1)   ( 0 |  1)   (      0 |            1)
+    //
+    // which gives the following equations for each component:
+    //
+    // x = x2 * cos(yaw1) - y2 * sin(yaw1) + x1
+    // y = x2 * sin(yaw1) + y2 * cos(yaw1) + y1
+    // yaw = yaw1 + yaw2
+    //
+    // Since the covariance matrices are defined following that same order for the SE(2) components:
+    //
+    //     (xx   xy   xyaw  )
+    // C = (yx   yy   yyaw  )
+    //     (yawx yawy yawyaw)
+    //
+    // the jacobians must be defined following the same order.
+    //
+    // The jacobian wrt p1 is:
+    //
+    //        (1 0 | -sin(yaw1) * x2 - cos(yaw1) * y2)
+    // J_p1 = (0 1 |  cos(yaw1) * x2 - sin(yaw1) * y2)
+    //        (0 0 |                                1)
+    //
+    // The jacobian wrt p2 is:
+    //
+    //        (R1 | 0)   (cos(yaw1) -sin(yaw1) 0)
+    // J_p2 = (------) = (sin(yaw1)  cos(yaw1) 0)
+    //        ( 0 | 1)   (        0          0 1)
+    //
+    //
+    //
+    // Therefore, for the the covariance propagation of [1] we would get the following jacobians:
+    //
+    //        (1 0 | -sin(yaw1) * x12 - cos(yaw1) * y12)
+    // J_p1 = (0 1 |  cos(yaw1) * x12 - sin(yaw1) * y12)
+    //        (0 0 |                                  1)
+    //
+    //         (R1 | 0)   (cos(yaw1) -sin(yaw1) 0)
+    // J_p12 = (------) = (sin(yaw1)  cos(yaw1) 0)
+    //         ( 0 | 1)   (        0          0 1)
+    //
+    //
+    //
+    // At this point we could go one step further since p12 = t12 * dt and include the jacobian of this additional
+    // equation:
+    //
+    // J_t12 = dt * Id
+    //
+    // where Id is a 3x3 identity matrix.
+    //
+    // However, that would give us the covariance of the twist t12, and here we simply need the one of the relative
+    // pose p12.
+    //
+    //
+    //
+    // Finally, since we need the inverse of the jacobian J_p12, we can use the inverse directly:
+    //
+    //            ( cos(yaw1) sin(yaw1) 0)
+    // J_p12^-1 = (-sin(yaw1) cos(yaw1) 0)
+    //            (         0         0 1)
+    //
+    //
+    //
+    // In the implementation below we use:
+    //
+    // sy = sin(-yaw1)
+    // cy = cos(-yaw1)
+    //
+    // which are defined before.
+    //
+    // Therefore, the jacobians end up with the following expressions:
+    //
+    //        (1 0 | sin(-yaw1) * x12 - cos(-yaw1) * y12)
+    // J_p1 = (0 1 | cos(-yaw1) * x12 + sin(-yaw1) * y12)
+    //        (0 0 |                                   1)
+    //
+    //            (cos(-yaw1) -sin(-yaw1) 0)
+    // J_p12^-1 = (sin(-yaw1)  cos(-yaw1) 0)
+    //            (         0           0 1)
+    //
+    //
+    //
+    // Note that the covariance propagation expression derived here for dependent pose measurements gives more accurate
+    // results than simply changing the sign in the expression for independent pose measurements, which would be:
+    //
+    // C12 = J_p2 * C2 * J_p2^T - J_p1 * C1 * J_p1^T
+    //
+    // where J_p1 and J_p2 are the jacobians for p12 = p1^-1 * p2 (we're abusing the notation here):
+    //
+    //        (-cos(-yaw1),  sin(-yaw1),  sin(-yaw1) * x12 + cos(-yaw1) * y12)
+    // J_p1 = (-sin(-yaw1), -cos(-yaw1), -cos(-yaw1) * x12 + sin(-yaw1) * y12)
+    //        (          0,           0,                                   -1)
+    //
+    //        (R1 | 0)   (cos(yaw1) -sin(yaw1) 0)
+    // J_p2 = (------) = (sin(yaw1)  cos(yaw1) 0)
+    //        ( 0 | 1)   (        0          0 1)
+    //
+    // which are the j_pose1 and j_pose2 jacobians used above for the covariance propagation expresion for independent
+    // pose measurements.
+    //
+    // This seems to be the approach adviced in https://github.com/cra-ros-pkg/robot_localization/issues/356, but after
+    // comparing the resulting relative pose covariance C12 and the twist covariance, we can conclude that the approach
+    // proposed here is the only one that allow us to get results that match.
+    //
+    // The relative pose covariance C12 and the twist covariance T12 can be compared with:
+    //
+    // T12 = J_t12 * C12 * J_t12^T
+    //
+    //
+    //
+    // In some cases the difference between the C1 and C2 covariance matrices is very small and it could yield to an
+    // ill-conditioned C12 covariance. For that reason a minimum covariance is added to [2].
+    fuse_core::Matrix3d j_pose1;
+    j_pose1 << 1, 0, sy * pose_relative_mean(0) - cy * pose_relative_mean(1),
+               0, 1, cy * pose_relative_mean(0) + sy * pose_relative_mean(1),
+               0, 0, 1;
+
+    fuse_core::Matrix3d j_pose12_inv;
+    j_pose12_inv << cy, -sy, 0,
+                    sy,  cy, 0,
+                     0,   0, 1;
+
+    pose_relative_covariance = j_pose12_inv * (cov2 - j_pose1 * cov1 * j_pose1.transpose()) * j_pose12_inv.transpose() +
+                               minimum_pose_relative_covariance;
+  }
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd pose_relative_mean_partial(position_indices.size() + orientation_indices.size());
@@ -495,7 +681,7 @@ inline bool processDifferentialPoseWithCovariance(
     }
   }
 
-  // Create a relative pose constraint. We assume the pose measurements are independent.
+  // Create a relative pose constraint.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
     source,
     *position1,
