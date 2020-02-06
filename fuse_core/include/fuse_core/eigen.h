@@ -70,6 +70,17 @@ using Matrix9d = Eigen::Matrix<double, 9, 9, Eigen::RowMajor>;
 template <typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
 using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor>;
 
+/**
+ * @brief Serialize a matrix into an std::string using this format:
+ *
+ * [1, 2, 3]
+ * [4, 5, 6]
+ * [7, 8, 9]
+ *
+ * @param[in] m - The matrix to serialize into an std::string.
+ * @param[in] precision - The precision to print the matrix elements with.
+ * @return An std::string with the matrix serialized into it.
+ */
 template <typename Derived>
 std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 4)
 {
