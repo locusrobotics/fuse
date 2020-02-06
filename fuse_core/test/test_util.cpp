@@ -39,7 +39,7 @@
 #include <numeric>
 #include <string>
 
-TEST(Util, GetCovarianceMatrixDiagonalParam)
+TEST(Util, GetCovarianceDiagonalParam)
 {
   // Build expected covariance matrix:
   constexpr int Size = 3;
@@ -64,7 +64,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
     try
     {
       const auto covariance =
-          fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance);
+          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -88,7 +88,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
     try
     {
       const auto covariance =
-          fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance);
+          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -109,7 +109,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
 
     ASSERT_TRUE(node_handle.hasParam(parameter_name));
 
-    EXPECT_THROW(fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance),
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
                  std::invalid_argument);
   }
 
@@ -119,7 +119,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
 
     ASSERT_TRUE(node_handle.hasParam(parameter_name));
 
-    EXPECT_THROW(fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance),
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
                  std::invalid_argument);
   }
 
@@ -129,7 +129,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
 
     ASSERT_TRUE(node_handle.hasParam(parameter_name));
 
-    EXPECT_THROW(fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance),
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
                  std::invalid_argument);
   }
 
@@ -143,7 +143,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
     try
     {
       const auto covariance =
-          fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance);
+          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -168,7 +168,7 @@ TEST(Util, GetCovarianceMatrixDiagonalParam)
     try
     {
       const auto covariance =
-          fuse_core::getCovarianceMatrixDiagonalParam<Size>(node_handle, parameter_name, default_variance);
+          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());

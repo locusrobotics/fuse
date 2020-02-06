@@ -195,9 +195,9 @@ T getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parame
  * @return The loaded (or default) covariance matrix, generated from the diagonal vector
  */
 template <int Size, typename Scalar = double>
-fuse_core::Matrix<Scalar, Size, Size> getCovarianceMatrixDiagonalParam(const ros::NodeHandle& node_handle,
-                                                                       const std::string& parameter_name,
-                                                                       Scalar default_value)
+fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::NodeHandle& node_handle,
+                                                                 const std::string& parameter_name,
+                                                                 Scalar default_value)
 {
   using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
 

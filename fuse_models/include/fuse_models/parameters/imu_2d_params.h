@@ -86,7 +86,7 @@ struct Imu2DParams : public ParameterBase
         if (!independent)
         {
           minimum_pose_relative_covariance =
-              fuse_core::getCovarianceMatrixDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
+              fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
         }
       }
 

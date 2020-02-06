@@ -93,7 +93,7 @@ struct Odometry2DParams : public ParameterBase
           nh.getParam("use_twist_covariance", use_twist_covariance);
 
           minimum_pose_relative_covariance =
-              fuse_core::getCovarianceMatrixDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
+              fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
         }
       }
 

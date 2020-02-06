@@ -77,7 +77,7 @@ public:
     nh.getParam("predict_with_acceleration", predict_with_acceleration);
     nh.getParam("publish_frequency", publish_frequency);
 
-    process_noise_covariance = fuse_core::getCovarianceMatrixDiagonalParam<8>(nh, "process_noise_diagonal", 0.0);
+    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(nh, "process_noise_diagonal", 0.0);
     nh.param("scale_process_noise", scale_process_noise, scale_process_noise);
     nh.param("velocity_norm_min", velocity_norm_min, velocity_norm_min);
 
