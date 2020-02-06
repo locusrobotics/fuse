@@ -35,6 +35,7 @@
 #define FUSE_CORE_EIGEN_H
 
 #include <Eigen/Core>
+#include <Eigen/Eigenvalues>
 
 #include <sstream>
 #include <string>
@@ -77,6 +78,21 @@ std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 
   std::ostringstream oss;
   oss << m.format(pretty) << '\n';
   return oss.str();
+}
+
+template <typename Derived>
+bool isSymmetric(const Eigen::DenseBase<Derived>& m,
+                 const typename Eigen::DenseBase<Derived>::RealScalar precision =
+                     Eigen::NumTraits<typename Eigen::DenseBase<Derived>::Scalar>::dummy_precision())
+{
+  return m.isApprox(m.transpose(), precision);
+}
+
+template <typename Derived>
+bool isPSD(const Eigen::DenseBase<Derived>& m)
+{
+  Eigen::SelfAdjointEigenSolver<Derived> solver(m);
+  return solver.eigenvalues().minCoeff() > 0.0;
 }
 
 }  // namespace fuse_core
