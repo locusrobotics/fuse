@@ -43,6 +43,7 @@
 #include <rviz/ogre_helpers/axes.h>
 #include <rviz/ogre_helpers/billboard_line.h>
 #include <rviz/ogre_helpers/movable_text.h>
+#include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <OgreQuaternion.h>
@@ -72,6 +73,12 @@ RelativePose2DStampedConstraintVisual::RelativePose2DStampedConstraintVisual(
   error_line_->setMaxPointsPerLine(2);
   error_line_->setNumLines(1);
 
+  // Create constraint loss error line:
+  loss_error_line_node_ = root_node_->createChildSceneNode();
+  loss_error_line_ = std::make_shared<BillboardLine>(scene_manager_, loss_error_line_node_);
+  loss_error_line_->setMaxPointsPerLine(2);
+  loss_error_line_->setNumLines(1);
+
   // Create constraint relative pose axes:
   relative_pose_axes_node_ = root_node_->createChildSceneNode();
   relative_pose_axes_ = std::make_shared<rviz::Axes>(scene_manager_, relative_pose_axes_node_, 10.0, 1.0);
@@ -97,6 +104,7 @@ RelativePose2DStampedConstraintVisual::~RelativePose2DStampedConstraintVisual()
   delete text_;
   scene_manager_->destroySceneNode(relative_pose_line_node_->getName());
   scene_manager_->destroySceneNode(error_line_node_->getName());
+  scene_manager_->destroySceneNode(loss_error_line_node_->getName());
   scene_manager_->destroySceneNode(relative_pose_axes_node_->getName());
   scene_manager_->destroySceneNode(text_node_->getName());
   scene_manager_->destroySceneNode(root_node_->getName());
@@ -137,6 +145,63 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
   error_line_->addPoint(absolute_position_ogre);
   error_line_->addPoint(toOgre(pose2.getOrigin()));
 
+  // Update constraint loss error line:
+  loss_error_line_->clear();
+
+  auto loss_function = constraint.lossFunction();
+  if (loss_function)
+  {
+    // Evaluate cost function without loss:
+    const double position1[] = { pose1.getOrigin().getX(), pose1.getOrigin().getY() };
+    const double yaw1[] = { tf2::getYaw(pose1.getRotation()) };
+    const double position2[] = { pose2.getOrigin().getX(), pose2.getOrigin().getY() };
+    const double yaw2[] = { tf2::getYaw(pose2.getRotation()) };
+
+    const double* parameters[] = { position1, yaw1, position2, yaw2 };
+
+    auto cost_function = constraint.costFunction();
+
+    fuse_core::VectorXd residuals(cost_function->num_residuals());
+
+    cost_function->Evaluate(parameters, residuals.data(), nullptr);
+    delete cost_function;
+
+    // The cost without the loss would be:
+    //
+    // cost = 0.5 * squared_norm
+    //
+    // See https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L159
+    const auto squared_norm = residuals.squaredNorm();
+
+    // Evaluate the loss as in:
+    // https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L164
+    //
+    // The cost with the loss would be:
+    //
+    // loss_cost = 0.5 * rho[0]
+    //
+    // See https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L165
+    double rho[3];
+    loss_function->Evaluate(squared_norm, rho);
+    delete loss_function;
+
+    // Interpolate between the constraint's absolute position and its second variable position by the quotient between
+    // the cost with and without loss:
+    //
+    //              loss_cost      0.5 * rho[0]         rho[0]
+    // loss_scale = --------- = ------------------ = ------------
+    //                cost      0.5 * squared_norm   squared_norm
+    //
+    // Remember that in principle `rho[0] <= squared_norm`, with `rho[0] == squared_norm` for the inlier region, and
+    // `rho[0] < squared_norm` for the outlier region:
+    const auto loss_scale = squared_norm == 0.0 ? 0.0 : rho[0] / squared_norm;
+
+    const auto loss_position = absolute_pose.getOrigin().lerp(pose2.getOrigin(), loss_scale);
+
+    loss_error_line_->addPoint(absolute_position_ogre);
+    loss_error_line_->addPoint(toOgre(loss_position));
+  }
+
   // Update constraint relative pose axes:
   relative_pose_axes_->setPosition(absolute_position_ogre);
   relative_pose_axes_->setOrientation(toOgre(absolute_pose.getRotation()));
@@ -149,6 +214,7 @@ void RelativePose2DStampedConstraintVisual::setUserData(const Ogre::Any& data)
 {
   relative_pose_line_->setUserData(data);
   error_line_->setUserData(data);
+  loss_error_line_->setUserData(data);
   relative_pose_axes_->setUserData(data);
   covariance_->setUserData(data);
 }
@@ -163,6 +229,11 @@ void RelativePose2DStampedConstraintVisual::setErrorLineWidth(const float line_w
   error_line_->setLineWidth(line_width);
 }
 
+void RelativePose2DStampedConstraintVisual::setLossErrorLineWidth(const float line_width)
+{
+  loss_error_line_->setLineWidth(line_width);
+}
+
 void RelativePose2DStampedConstraintVisual::setRelativePoseLineColor(const float r, const float g, const float b,
                                                                      const float a)
 {
@@ -173,6 +244,12 @@ void RelativePose2DStampedConstraintVisual::setErrorLineColor(const float r, con
                                                               const float a)
 {
   error_line_->setColor(r, g, b, a);
+}
+
+void RelativePose2DStampedConstraintVisual::setLossErrorLineColor(const float r, const float g, const float b,
+                                                                  const float a)
+{
+  loss_error_line_->setColor(r, g, b, a);
 }
 
 void RelativePose2DStampedConstraintVisual::setRelativePoseAxesAlpha(const float alpha)
@@ -208,6 +285,7 @@ void RelativePose2DStampedConstraintVisual::setVisible(const bool visible)
 {
   relative_pose_line_node_->setVisible(visible);
   error_line_node_->setVisible(visible);
+  loss_error_line_node_->setVisible(visible);
   relative_pose_axes_node_->setVisible(visible);
 }
 

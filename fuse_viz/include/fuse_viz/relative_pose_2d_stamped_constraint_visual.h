@@ -140,9 +140,13 @@ public:
 
   void setErrorLineWidth(const float line_width);
 
+  void setLossErrorLineWidth(const float line_width);
+
   void setRelativePoseLineColor(const float r, const float g, const float b, const float a);
 
   void setErrorLineColor(const float r, const float g, const float b, const float a);
+
+  void setLossErrorLineColor(const float r, const float g, const float b, const float a);
 
   void setRelativePoseAxesAlpha(const float alpha);
 
@@ -188,11 +192,13 @@ private:
   Ogre::SceneNode* root_node_;
   Ogre::SceneNode* relative_pose_line_node_;
   Ogre::SceneNode* error_line_node_;
+  Ogre::SceneNode* loss_error_line_node_;
   Ogre::SceneNode* relative_pose_axes_node_;
   Ogre::SceneNode* text_node_;
 
   std::shared_ptr<BillboardLine> relative_pose_line_;
   std::shared_ptr<BillboardLine> error_line_;
+  std::shared_ptr<BillboardLine> loss_error_line_;
   std::shared_ptr<Axes> relative_pose_axes_;
   MovableText* text_;
   CovarianceVisualPtr covariance_;

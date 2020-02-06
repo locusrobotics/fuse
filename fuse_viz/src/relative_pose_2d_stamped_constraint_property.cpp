@@ -88,6 +88,17 @@ RelativePose2DStampedConstraintProperty::RelativePose2DStampedConstraintProperty
                                                  SLOT(updateErrorLineWidth()));
   error_line_width_property_->setMin(0.0);
 
+  loss_error_line_alpha_property_ =
+      new FloatProperty("Loss Error Line Alpha", 0.75, "Alpha of constraint error line scaled by loss cost.", this,
+                        SLOT(updateLossErrorLineAlpha()));
+  loss_error_line_alpha_property_->setMin(0.0);
+  loss_error_line_alpha_property_->setMax(1.0);
+
+  loss_error_line_width_property_ =
+      new FloatProperty("Loss Error Line Width", 0.5, "Line width of constraint error line scaled by loss cost.", this,
+                        SLOT(updateLossErrorLineWidth()));
+  loss_error_line_width_property_->setMin(0.0);
+
   show_text_property_ =
       new BoolProperty("Show Text", false, "Show constraint source, type and UUID.", this, SLOT(updateShowText()));
 
@@ -130,6 +141,8 @@ RelativePose2DStampedConstraintProperty::VisualPtr RelativePose2DStampedConstrai
   updateColor(visual);
   updateErrorLineAlpha(visual);
   updateErrorLineWidth(visual);
+  updateLossErrorLineAlpha(visual);
+  updateLossErrorLineWidth(visual);
   updateRelativePoseAxesAlpha(visual);
   updateRelativePoseAxesScale(visual);
   updateRelativePoseLineAlpha(visual);
@@ -187,6 +200,22 @@ void RelativePose2DStampedConstraintProperty::updateErrorLineWidth()
   for (auto& entry : constraints_)
   {
     updateErrorLineWidth(entry.second);
+  }
+}
+
+void RelativePose2DStampedConstraintProperty::updateLossErrorLineAlpha()
+{
+  for (auto& entry : constraints_)
+  {
+    updateLossErrorLineAlpha(entry.second);
+  }
+}
+
+void RelativePose2DStampedConstraintProperty::updateLossErrorLineWidth()
+{
+  for (auto& entry : constraints_)
+  {
+    updateLossErrorLineWidth(entry.second);
   }
 }
 
@@ -257,6 +286,19 @@ void RelativePose2DStampedConstraintProperty::updateErrorLineAlpha(const VisualP
 void RelativePose2DStampedConstraintProperty::updateErrorLineWidth(const VisualPtr& constraint)
 {
   constraint->setErrorLineWidth(error_line_width_property_->getFloat());
+}
+
+void RelativePose2DStampedConstraintProperty::updateLossErrorLineAlpha(const VisualPtr& constraint)
+{
+  const auto color = color_property_->getColor();
+
+  constraint->setLossErrorLineColor(color.redF(), color.greenF(), color.blueF(),
+                                    loss_error_line_alpha_property_->getFloat());
+}
+
+void RelativePose2DStampedConstraintProperty::updateLossErrorLineWidth(const VisualPtr& constraint)
+{
+  constraint->setLossErrorLineWidth(loss_error_line_width_property_->getFloat());
 }
 
 void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesAlpha(const VisualPtr& constraint)

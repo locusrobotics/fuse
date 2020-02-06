@@ -106,6 +106,8 @@ private Q_SLOTS:
   void updateColor();
   void updateErrorLineAlpha();
   void updateErrorLineWidth();
+  void updateLossErrorLineAlpha();
+  void updateLossErrorLineWidth();
   void updateRelativePoseAxesAlpha();
   void updateRelativePoseAxesScale();
   void updateRelativePoseLineAlpha();
@@ -117,6 +119,8 @@ private:
   void updateColor(const VisualPtr& constraint);
   void updateErrorLineAlpha(const VisualPtr& constraint);
   void updateErrorLineWidth(const VisualPtr& constraint);
+  void updateLossErrorLineAlpha(const VisualPtr& constraint);
+  void updateLossErrorLineWidth(const VisualPtr& constraint);
   void updateRelativePoseAxesAlpha(const VisualPtr& constraint);
   void updateRelativePoseAxesScale(const VisualPtr& constraint);
   void updateRelativePoseLineAlpha(const VisualPtr& constraint);
@@ -136,6 +140,8 @@ private:
   FloatProperty* relative_pose_line_width_property_;
   FloatProperty* error_line_alpha_property_;
   FloatProperty* error_line_width_property_;
+  FloatProperty* loss_error_line_alpha_property_;
+  FloatProperty* loss_error_line_width_property_;
   MappedCovarianceProperty* covariance_property_;
 };
 
