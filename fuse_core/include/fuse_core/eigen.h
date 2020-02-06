@@ -80,6 +80,14 @@ std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 
   return oss.str();
 }
 
+/**
+ * @brief Check if a matrix is symmetric.
+ *
+ * @param[in] m - Square matrix to check symmetry on
+ * @param[in] precision - Precision used to compared the matrix m with its transpose, which is the property used to
+ *                        check for symmetry.
+ * @return True if the matrix m is symmetric; False, otherwise.
+ */
 template <typename Derived>
 bool isSymmetric(const Eigen::DenseBase<Derived>& m,
                  const typename Eigen::DenseBase<Derived>::RealScalar precision =
@@ -88,6 +96,12 @@ bool isSymmetric(const Eigen::DenseBase<Derived>& m,
   return m.isApprox(m.transpose(), precision);
 }
 
+/**
+ * @brief Check if a matrix is Positive Definite (PD), i.e. all eigenvalues are `> 0.0`.
+ *
+ * @param[in] m - Square matrix to check PD-ness on.
+ * @return True if the matrix m is PD; False, otherwise.
+ */
 template <typename Derived>
 bool isPSD(const Eigen::DenseBase<Derived>& m)
 {
