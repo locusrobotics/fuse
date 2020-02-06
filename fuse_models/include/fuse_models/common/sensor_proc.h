@@ -707,6 +707,188 @@ inline bool processDifferentialPoseWithCovariance(
 }
 
 /**
+ * @brief Extracts relative 2D pose data from a PoseWithCovarianceStamped and adds that data to a fuse Transaction
+ *
+ * This method computes the delta between two poses and creates the required fuse variables and constraints, and then
+ * adds them to the given \p transaction. Only 2D data is used. The pose delta is calculated as
+ *
+ * pose_relative = pose_absolute1^-1 * pose_absolute2
+ *
+ * Additionally, the twist covariance of the last message is used to compute the relative pose covariance using the time
+ * difference between the pose_absolute2 and pose_absolute1 time stamps. This assumes the pose measurements are
+ * dependent. A small minimum relative covariance is added to avoid getting a zero or ill-conditioned covariance. This
+ * could happen if the twist covariance is very small, e.g. when the twist is zero.
+ *
+ * @param[in] source - The name of the sensor or motion model that generated this constraint
+ * @param[in] device_id - The UUID of the machine
+ * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
+ * @param[in] pose2 - The first (and temporally later) PoseWithCovarianceStamped message
+ * @param[in] twist - The first (and temporally later) TwistWithCovarianceStamped message
+ * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always added to the
+ *                                               resulting pose relative covariance
+ * @param[in] loss - The loss function for the 2D pose constraint generated
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
+ * @param[out] transaction - The generated variables and constraints are added to this transaction
+ * @return true if any constraints were added, false otherwise
+ */
+inline bool processDifferentialPoseWithTwistCovariance(
+  const std::string& source,
+  const fuse_core::UUID& device_id,
+  const geometry_msgs::PoseWithCovarianceStamped& pose1,
+  const geometry_msgs::PoseWithCovarianceStamped& pose2,
+  const geometry_msgs::TwistWithCovarianceStamped& twist,
+  const fuse_core::Matrix3d& minimum_pose_relative_covariance,
+  const fuse_core::Loss::SharedPtr& loss,
+  const std::vector<size_t>& position_indices,
+  const std::vector<size_t>& orientation_indices,
+  const bool validate,
+  fuse_core::Transaction& transaction)
+{
+  if (position_indices.empty() && orientation_indices.empty())
+  {
+    return false;
+  }
+
+  // Convert the poses into tf2_2d transforms
+  tf2_2d::Transform pose1_2d;
+  tf2::fromMsg(pose1.pose.pose, pose1_2d);
+
+  tf2_2d::Transform pose2_2d;
+  tf2::fromMsg(pose2.pose.pose, pose2_2d);
+
+  // Create the pose variables
+  auto position1 = fuse_variables::Position2DStamped::make_shared(pose1.header.stamp, device_id);
+  auto orientation1 =
+    fuse_variables::Orientation2DStamped::make_shared(pose1.header.stamp, device_id);
+  position1->x() = pose1_2d.x();
+  position1->y() = pose1_2d.y();
+  orientation1->yaw() = pose1_2d.yaw();
+
+  auto position2 = fuse_variables::Position2DStamped::make_shared(pose2.header.stamp, device_id);
+  auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(pose2.header.stamp, device_id);
+  position2->x() = pose2_2d.x();
+  position2->y() = pose2_2d.y();
+  orientation2->yaw() = pose2_2d.yaw();
+
+  // Create the delta for the constraint
+  const auto delta = pose1_2d.inverseTimes(pose2_2d);
+  fuse_core::Vector3d pose_relative_mean;
+  pose_relative_mean << delta.x(), delta.y(), delta.yaw();
+
+  // Create the covariance components for the constraint
+  fuse_core::Matrix3d cov;
+  cov <<
+    twist.twist.covariance[0],
+    twist.twist.covariance[1],
+    twist.twist.covariance[5],
+    twist.twist.covariance[6],
+    twist.twist.covariance[7],
+    twist.twist.covariance[11],
+    twist.twist.covariance[30],
+    twist.twist.covariance[31],
+    twist.twist.covariance[35];
+
+  fuse_core::Matrix3d pose_relative_covariance;
+  // For dependent pose measurements p1 and p2, we assume they're computed as:
+  //
+  // p2 = p1 * p12    [1]
+  //
+  // where p12 is the relative pose between p1 and p2, which is computed here as:
+  //
+  // p12 = p1^-1 * p2
+  //
+  // Note that the twist t12 is computed as:
+  //
+  // t12 = p12 / dt
+  //
+  // where dt = t2 - t1, for t1 and t2 being the p1 and p2 timestamps, respectively.
+  //
+  // Therefore, the relative pose p12 is computed as follows given the twist t12:
+  //
+  // p12 = t12 * dt
+  //
+  // The covariance propagation of this equation is:
+  //
+  // C12 = J_t12 * T12 * J_t12^T    [2]
+  //
+  // where T12 is the twist covariance and J_t12 is the jacobian of the equation wrt to t12.
+  //
+  // The jacobian wrt t12 is:
+  //
+  // J_t12 = dt * Id
+  //
+  // where Id is a 3x3 Identity matrix.
+  //
+  // In some cases the twist covariance T12 is very small and it could yield to an ill-conditioned C12 covariance. For
+  // that reason a minimum covariance is added to [2].
+  const auto dt = (pose2.header.stamp - pose1.header.stamp).toSec();
+
+  if (dt < 1e-6)
+  {
+    ROS_ERROR_STREAM_THROTTLE(10.0, "Very small time difference " << dt << "s from '" << source << "' source.");
+    return false;
+  }
+
+  fuse_core::Matrix3d j_twist;
+  j_twist.setIdentity();
+  j_twist *= dt;
+
+  pose_relative_covariance = j_twist * cov * j_twist.transpose() + minimum_pose_relative_covariance;
+
+  // Build the sub-vector and sub-matrices based on the requested indices
+  fuse_core::VectorXd pose_relative_mean_partial(position_indices.size() + orientation_indices.size());
+  fuse_core::MatrixXd pose_relative_covariance_partial(pose_relative_mean_partial.rows(),
+                                                       pose_relative_mean_partial.rows());
+
+  const auto indices = mergeIndices(position_indices, orientation_indices, position1->size());
+
+  populatePartialMeasurement(
+    pose_relative_mean,
+    pose_relative_covariance,
+    indices,
+    pose_relative_mean_partial,
+    pose_relative_covariance_partial);
+
+  if (validate)
+  {
+    try
+    {
+      validatePartialMeasurement(pose_relative_mean_partial, pose_relative_covariance_partial, 1e-6);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM("Invalid partial differential pose measurement using the twist covariance from '"
+                                          << source << "' source: " << ex.what());
+      return false;
+    }
+  }
+
+  // Create a relative pose constraint. We assume the pose measurements are independent.
+  auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
+    source,
+    *position1,
+    *orientation1,
+    *position2,
+    *orientation2,
+    pose_relative_mean_partial,
+    pose_relative_covariance_partial,
+    position_indices,
+    orientation_indices);
+
+  constraint->loss(loss);
+
+  transaction.addVariable(position1);
+  transaction.addVariable(orientation1);
+  transaction.addVariable(position2);
+  transaction.addVariable(orientation2);
+  transaction.addConstraint(constraint);
+  transaction.addInvolvedStamp(pose1.header.stamp);
+  transaction.addInvolvedStamp(pose2.header.stamp);
+
+  return true;
+}
+
+/**
  * @brief Extracts velocity data from a TwistWithCovarianceStamped and adds that data to a fuse Transaction
  *
  * This method effectively adds two variables (2D linear velocity and 2D angular velocity) and their respective
