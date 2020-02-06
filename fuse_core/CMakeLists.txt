@@ -377,6 +377,31 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Util tests
+  add_rostest_gtest(test_util
+    test/util.test
+    test/test_util.cpp
+  )
+  add_dependencies(test_util
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_util
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_util
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_util
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # UUID tests
   catkin_add_gtest(test_uuid
     test/test_uuid.cpp
