@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/loss.h>
+#include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <ros/node_handle.h>
@@ -79,24 +80,8 @@ struct Pose2DParams : public ParameterBase
 
         if (!independent)
         {
-          std::vector<double> minimum_pose_relative_covariance_diagonal(3, 0.0);
-          nh.param("minimum_pose_relative_covariance_diagonal", minimum_pose_relative_covariance_diagonal,
-                   minimum_pose_relative_covariance_diagonal);
-
-          if (minimum_pose_relative_covariance_diagonal.size() != 3)
-          {
-            throw std::runtime_error("Minimum pose relative covariance diagonal must be of length 3!");
-          }
-
-          if (std::any_of(minimum_pose_relative_covariance_diagonal.begin(),
-                          minimum_pose_relative_covariance_diagonal.end(),
-                          [](const auto& v) { return v < 0.0; }))  // NOLINT(whitespace/braces)
-          {
-            throw std::runtime_error("All minimum pose relative covariance diagonal entries must be positive!");
-          }
-
           minimum_pose_relative_covariance =
-              fuse_core::Vector3d(minimum_pose_relative_covariance_diagonal.data()).asDiagonal();
+              fuse_core::getCovarianceMatrixDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
         }
       }
 
