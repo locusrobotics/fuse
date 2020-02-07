@@ -35,6 +35,7 @@
 #define FUSE_CORE_EIGEN_H
 
 #include <Eigen/Core>
+#include <Eigen/Eigenvalues>
 
 #include <sstream>
 #include <string>
@@ -69,6 +70,17 @@ using Matrix9d = Eigen::Matrix<double, 9, 9, Eigen::RowMajor>;
 template <typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
 using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor>;
 
+/**
+ * @brief Serialize a matrix into an std::string using this format:
+ *
+ * [1, 2, 3]
+ * [4, 5, 6]
+ * [7, 8, 9]
+ *
+ * @param[in] m - The matrix to serialize into an std::string.
+ * @param[in] precision - The precision to print the matrix elements with.
+ * @return An std::string with the matrix serialized into it.
+ */
 template <typename Derived>
 std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 4)
 {
@@ -77,6 +89,43 @@ std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 
   std::ostringstream oss;
   oss << m.format(pretty) << '\n';
   return oss.str();
+}
+
+/**
+ * @brief Check if a matrix is symmetric.
+ *
+ * @param[in] m - Square matrix to check symmetry on
+ * @param[in] precision - Precision used to compared the matrix m with its transpose, which is the property used to
+ *                        check for symmetry.
+ * @return True if the matrix m is symmetric; False, otherwise.
+ */
+template <typename Derived>
+bool isSymmetric(const Eigen::DenseBase<Derived>& m,
+                 const typename Eigen::DenseBase<Derived>::RealScalar precision =
+                     Eigen::NumTraits<typename Eigen::DenseBase<Derived>::Scalar>::dummy_precision())
+{
+  // We do not use `isApprox`:
+  //
+  // return m.isApprox(m.transpose(), precision);
+  //
+  // because it does not play well when `m` is close to zero.
+  //
+  // See: https://eigen.tuxfamily.org/dox/classEigen_1_1DenseBase.html#ae8443357b808cd393be1b51974213f9c
+  const auto& derived = m.derived();
+  return (derived - derived.transpose()).cwiseAbs().maxCoeff() < precision;
+}
+
+/**
+ * @brief Check if a matrix is Positive Definite (PD), i.e. all eigenvalues are `> 0.0`.
+ *
+ * @param[in] m - Square matrix to check PD-ness on.
+ * @return True if the matrix m is PD; False, otherwise.
+ */
+template <typename Derived>
+bool isPositiveDefinite(const Eigen::DenseBase<Derived>& m)
+{
+  Eigen::SelfAdjointEigenSolver<Derived> solver(m);
+  return solver.eigenvalues().minCoeff() > 0.0;
 }
 
 }  // namespace fuse_core

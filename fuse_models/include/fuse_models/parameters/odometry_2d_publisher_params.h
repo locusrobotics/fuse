@@ -38,6 +38,7 @@
 
 #include <fuse_core/ceres_options.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/util.h>
 
 #include <ros/console.h>
 #include <ros/node_handle.h>
@@ -76,22 +77,7 @@ public:
     nh.getParam("predict_with_acceleration", predict_with_acceleration);
     nh.getParam("publish_frequency", publish_frequency);
 
-    std::vector<double> process_noise_diagonal(8, 0.0);
-    nh.param("process_noise_diagonal", process_noise_diagonal, process_noise_diagonal);
-
-    if (process_noise_diagonal.size() != 8)
-    {
-      throw std::runtime_error("Process noise diagonal must be of length 8!");
-    }
-
-    if (std::any_of(process_noise_diagonal.begin(), process_noise_diagonal.end(),
-                    [](const auto& v) { return v < 0.0; }))  // NOLINT(whitespace/braces)
-    {
-      throw std::runtime_error("All process noise diagonal entries must be positive!");
-    }
-
-    process_noise_covariance = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
-
+    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(nh, "process_noise_diagonal", 0.0);
     nh.param("scale_process_noise", scale_process_noise, scale_process_noise);
     nh.param("velocity_norm_min", velocity_norm_min, velocity_norm_min);
 

@@ -261,6 +261,31 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Eigen tests
+  catkin_add_gtest(test_eigen
+    test/test_eigen.cpp
+  )
+  add_dependencies(test_eigen
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_eigen
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_eigen
+    ${PROJECT_NAME}
+  )
+  set_target_properties(test_eigen
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # Local Parameterization tests
   catkin_add_gtest(test_local_parameterization
     test/test_local_parameterization.cpp
@@ -373,6 +398,31 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
   set_target_properties(test_transaction
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Util tests
+  add_rostest_gtest(test_util
+    test/util.test
+    test/test_util.cpp
+  )
+  add_dependencies(test_util
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_util
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_util
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_util
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES

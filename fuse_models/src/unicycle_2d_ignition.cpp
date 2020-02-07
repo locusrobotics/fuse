@@ -57,7 +57,6 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
 
 #include <exception>
 #include <stdexcept>
@@ -206,25 +205,22 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
   auto position_cov = fuse_core::Matrix2d();
   position_cov << pose.pose.covariance[0], pose.pose.covariance[1],
                   pose.pose.covariance[6], pose.pose.covariance[7];
-  if (!position_cov.isApprox(position_cov.transpose()))
+  if (!fuse_core::isSymmetric(position_cov))
   {
-    throw std::invalid_argument("Attempting to set the pose with a non-symmetric position covariance matrix [" +
-                                std::to_string(position_cov(0)) + ", " + std::to_string(position_cov(1)) + " ; " +
-                                std::to_string(position_cov(2)) + ", " + std::to_string(position_cov(3)) + "].");
+    throw std::invalid_argument("Attempting to set the pose with a non-symmetric position covariance matri\n " +
+                                fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
-  Eigen::SelfAdjointEigenSolver<fuse_core::Matrix2d> solver(position_cov);
-  if (solver.eigenvalues().minCoeff() <= 0.0)
+  if (!fuse_core::isPositiveDefinite(position_cov))
   {
-    throw std::invalid_argument("Attempting to set the pose with a non-positive-definite position covariance matrix [" +
-                                std::to_string(position_cov(0)) + ", " + std::to_string(position_cov(1)) + " ; " +
-                                std::to_string(position_cov(2)) + ", " + std::to_string(position_cov(3)) + "].");
+    throw std::invalid_argument("Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
+                                fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
   auto orientation_cov = fuse_core::Matrix1d();
   orientation_cov << pose.pose.covariance[35];
   if (orientation_cov(0) <= 0.0)
   {
     throw std::invalid_argument("Attempting to set the pose with a non-positive-definite orientation covariance "
-                                "matrix [" + std::to_string(orientation_cov(0)) + "].");
+                                "matrix " + fuse_core::to_string(orientation_cov) + ".");
   }
 
   // Tell the optimizer to reset before providing the initial state

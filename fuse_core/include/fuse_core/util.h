@@ -37,11 +37,14 @@
 #include <ros/console.h>
 #include <ros/node_handle.h>
 
+#include <fuse_core/eigen.h>
+
 #include <ceres/jet.h>
 #include <Eigen/Core>
 
 #include <cmath>
 #include <string>
+#include <vector>
 
 
 namespace fuse_core
@@ -176,6 +179,45 @@ T getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parame
     value = default_value;
   }
   return value;
+}
+
+/**
+ * @brief Helper function that loads a covariance matrix diagonal vector from the parameter server and checks the size
+ * and the values are invalid, i.e. they are positive.
+ *
+ * @tparam Scalar - A scalar type, defaults to double
+ * @tparam Size - An int size that specifies the expected size of the covariance matrix (rows and columns)
+ *
+ * @param[in] node_handle - The node handle used to load the parameter
+ * @param[in] parameter_name - The parameter name to load
+ * @param[in] default_value - A default value to use for all the diagonal elements if the provided parameter name does
+ *                            not exist
+ * @return The loaded (or default) covariance matrix, generated from the diagonal vector
+ */
+template <int Size, typename Scalar = double>
+fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::NodeHandle& node_handle,
+                                                                 const std::string& parameter_name,
+                                                                 Scalar default_value)
+{
+  using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
+
+  std::vector<Scalar> diagonal(Size, default_value);
+  node_handle.param(parameter_name, diagonal, diagonal);
+
+  const auto diagonal_size = diagonal.size();
+  if (diagonal_size != Size)
+  {
+    throw std::invalid_argument("Invalid size of " + std::to_string(diagonal_size) + ", expected " +
+                                std::to_string(Size));
+  }
+
+  if (std::any_of(diagonal.begin(), diagonal.end(),
+                  [](const auto& value) { return value < Scalar(0); }))  // NOLINT(whitespace/braces)
+  {
+    throw std::invalid_argument("Invalid negative diagonal values in " + fuse_core::to_string(Vector(diagonal.data())));
+  }
+
+  return Vector(diagonal.data()).asDiagonal();
 }
 
 }  // namespace fuse_core

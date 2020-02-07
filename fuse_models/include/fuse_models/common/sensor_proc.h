@@ -60,8 +60,6 @@
 #include <tf2_2d/tf2_2d.h>
 #include <tf2_2d/transform.h>
 
-#include <Eigen/Eigenvalues>
-
 #include <boost/range/join.hpp>
 
 #include <algorithm>
@@ -201,18 +199,16 @@ inline void validatePartialMeasurement(
     throw std::runtime_error("Invalid partial mean " + fuse_core::to_string(mean_partial));
   }
 
-  if (!covariance_partial.isApprox(covariance_partial.transpose(), precision))
+  if (!fuse_core::isSymmetric(covariance_partial, precision))
   {
     throw std::runtime_error("Non-symmetric partial covariance matrix\n" +
                              fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 
-  Eigen::SelfAdjointEigenSolver<fuse_core::MatrixXd> solver(covariance_partial);
-  if (solver.eigenvalues().minCoeff() <= 0.0)
+  if (!fuse_core::isPositiveDefinite(covariance_partial))
   {
     throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
-                             fuse_core::to_string(covariance_partial, Eigen::FullPrecision) + "\n with eigenvalues\n" +
-                             fuse_core::to_string(solver.eigenvalues(), Eigen::FullPrecision));
+                             fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 }
 
