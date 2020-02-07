@@ -491,7 +491,7 @@ inline bool processDifferentialPoseWithCovariance(
     //
     // Note that the twist t12 is computed as:
     //
-    // t12 = p12 * dt
+    // t12 = p12 / dt
     //
     // where dt = t2 - t1, for t1 and t2 being the p1 and p2 timestamps, respectively.
     //
@@ -681,7 +681,7 @@ inline bool processDifferentialPoseWithCovariance(
     }
   }
 
-  // Create a relative pose constraint. We assume the pose measurements are independent.
+  // Create a relative pose constraint.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
     source,
     *position1,
@@ -771,15 +771,9 @@ inline bool processDifferentialPoseWithTwistCovariance(
   orientation2->yaw() = pose2_2d.yaw();
 
   // Create the delta for the constraint
-  const double sy = ::sin(-pose1_2d.yaw());
-  const double cy = ::cos(-pose1_2d.yaw());
-  double x_diff = pose2_2d.x() - pose1_2d.x();
-  double y_diff = pose2_2d.y() - pose1_2d.y();
+  const auto delta = pose1_2d.inverseTimes(pose2_2d);
   fuse_core::Vector3d pose_relative_mean;
-  pose_relative_mean <<
-    cy * x_diff - sy * y_diff,
-    sy * x_diff + cy * y_diff,
-    (pose2_2d.rotation() - pose1_2d.rotation()).getAngle();
+  pose_relative_mean << delta.x(), delta.y(), delta.yaw();
 
   // Create the covariance components for the constraint
   fuse_core::Matrix3d cov;
