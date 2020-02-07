@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <rosparam file="$(find fuse_core)/test/util.yaml" command="load"/>
+
+  <test test-name="Util" pkg="fuse_core" type="test_util" />
+</launch>

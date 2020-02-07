@@ -238,6 +238,11 @@ if(CATKIN_ENABLE_TESTING)
         ${catkin_LIBRARIES}
         ${CERES_LIBRARIES}
       )
+      set_target_properties(benchmark_unicycle_2d_state_cost_function
+        PROPERTIES
+          CXX_STANDARD 14
+          CXX_STANDARD_REQUIRED YES
+      )
     endif()
   endif()
 endif()
