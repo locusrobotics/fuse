@@ -89,6 +89,15 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
 
+  find_package(Qt5 REQUIRED COMPONENTS
+    Core
+    Widgets)
+
+  # Find Qwt using FindQwt.cmake copied from:
+  # https://gitlab.kitware.com/cmake/community/-/wikis/contrib/modules/FindQwt
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  find_package(Qwt REQUIRED)
+
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
@@ -141,6 +150,41 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
+
+# Qwt Loss Plot Tests
+  catkin_add_gtest(test_qwt_loss_plot
+    test/test_qwt_loss_plot.cpp
+  )
+  add_dependencies(test_qwt_loss_plot
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_qwt_loss_plot
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${Qt5Core_INCLUDE_DIRS}
+      ${Qt5Widgets_INCLUDE_DIRS}
+      ${QWT_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_qwt_loss_plot
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+    ${Qt5Core_LIBRARIES}
+    ${Qt5Widgets_LIBRARIES}
+    ${QWT_LIBRARIES}
+  )
+  set_target_properties(test_qwt_loss_plot
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  option(BUILD_WITH_INTERACTIVE_TESTS "Build with interactive tests" OFF)
+  if(BUILD_WITH_INTERACTIVE_TESTS )
+    target_compile_definitions(test_qwt_loss_plot PUBLIC INTERACTIVE_TESTS)
+  endif()
 
   # Scaled Loss Tests
   catkin_add_gtest(test_scaled_loss

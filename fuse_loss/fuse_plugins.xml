@@ -8,6 +8,37 @@
 
   In the notation used here, `rho(s)` takes the squared residuals `s` as an input, not the residuals `r`, as in Ceres
   solver.
+
+  For least squares problems where there are no outliers and standard squared loss is expected, it is not necessary to
+  create use a loss function.
+
+  For least squares problems where the optimization may encounter input terms that contain outliers, i.e. completely
+  bogus measurements, it is important to use a loss function that reduces their associated penalty cost.
+
+  Using a robust loss function, the cost for large residuals is reduced. This leads to outlier terms getting
+  downweighted so they do not overly influence the final solution of the problem.
+
+  Unfortunately, there is no principled way to select a robust loss function. It is encouraged to start with a
+  non-robust cost, then only experiment with robust loss functions if standard squared loss does not work.
+
+  See http://ceres-solver.org/nnls_modeling.html#lossfunction and
+  https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/loss_function.h for more information. Indeed,
+  the last paragraphs above have been either copied or adapted from there in order to give some basic guidelines.
+
+  Depending on how much the outliers are downweighted, the loss functions can be more or less aggressive. The more
+  aggressive ones would give a lower cost after applying the loss function. Therefore, we can order the loss functions
+  according to this criterion, starting from the Trivial loss, which is equivalent to the standard squared loss, i.e. no
+  loss (aka non-robust cost):
+
+    Trivial >= Huber >= SoftLOne >= Fair >= Cauchy >= DCS >= Arctan >= GemanMcClure >= Welsch >= Tukey
+
+  The Tolerant loss is more like the TrivialLoss, expect for the deadband for residuals with low cost. This is the only
+  loss function that downweights the residuals with small cost, as opossed to all other loss functions, that downweight
+  the residuals with large cost.
+
+  The test_qwt_loss_plot generates a set of plots that show how the \rho, influence (\phi) and weight functions look
+  like for all the loss functions. The order used to compared them above is based on the weight function, and it is
+  orientative. It is always better to look at the weight function directly.
   -->
   <class type="fuse_loss::ArctanLoss" base_class_type="fuse_core::Loss">
     <description>
