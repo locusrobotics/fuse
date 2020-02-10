@@ -218,8 +218,8 @@ void FixedLagSmoother::optimizationLoop()
       auto optimization_complete = ros::Time::now();
       if (optimization_complete > optimization_deadline)
       {
-        ROS_WARN_STREAM("Optimization exceeded the configured duration by " <<
-                        (optimization_complete - optimization_deadline) << "s");
+        ROS_WARN_STREAM_THROTTLE(10.0, "Optimization exceeded the configured duration by "
+                                           << (optimization_complete - optimization_deadline) << "s");
       }
     }
     // Clear the request flag now that this optimization cycle is complete
