@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2020, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,59 +31,62 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
+#ifndef FUSE_CORE_PARAMETER_H
+#define FUSE_CORE_PARAMETER_H
 
-#include <fuse_core/loss.h>
-#include <fuse_core/parameter.h>
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_models/parameters/parameter_base.h>
+#include <fuse_core/loss_loader.h>
 
 #include <ros/node_handle.h>
 
+#include <stdexcept>
 #include <string>
-#include <vector>
 
 
-namespace fuse_models
-{
-
-namespace parameters
+namespace fuse_core
 {
 
 /**
- * @brief Defines the set of parameters required by the Acceleration2D class
+ * @brief Utility method for handling required ROS params
+ *
+ * @param[in] nh - The ROS node handle with which to load parameters
+ * @param[in] key - The ROS parameter key for the required parameter
+ * @param[out] value - The ROS parameter value for the \p key
+ * @throws std::runtime_error if the parameter does not exist
  */
-struct Acceleration2DParams : public ParameterBase
+template <typename T>
+void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)
 {
-  public:
-    /**
-     * @brief Method for loading parameter values from ROS.
-     *
-     * @param[in] nh - The ROS node handle with which to load parameters
-     */
-    void loadFromROS(const ros::NodeHandle& nh) final
-    {
-      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
+  if (!nh.getParam(key, value))
+  {
+    const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
+    ROS_FATAL_STREAM(error);
+    throw std::runtime_error(error);
+  }
+}
 
-      nh.getParam("disable_checks", disable_checks);
-      nh.getParam("queue_size", queue_size);
-      fuse_core::getParamRequired(nh, "topic", topic);
-      fuse_core::getParamRequired(nh, "target_frame", target_frame);
+/**
+ * @brief Utility method to load a loss configuration
+ *
+ * @param[in] nh - The ROS node handle with which to load parameters
+ * @param[in] name - The ROS parameter name for the loss configuration parameter
+ * @return Loss function or nullptr if the parameter does not exist
+ */
+inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, const std::string& name)
+{
+  if (!nh.hasParam(name))
+  {
+    return {};
+  }
 
-      loss = fuse_core::loadLossConfig(nh, "loss");
-    }
+  std::string loss_type;
+  getParamRequired(nh, name + "/type", loss_type);
 
-    bool disable_checks { false };
-    int queue_size { 10 };
-    std::string topic {};
-    std::string target_frame {};
-    std::vector<size_t> indices;
-    fuse_core::Loss::SharedPtr loss;
-};
+  auto loss = fuse_core::createUniqueLoss(loss_type);
+  loss->initialize(nh.resolveName(name));
 
-}  // namespace parameters
+  return loss;
+}
 
-}  // namespace fuse_models
+}  // namespace fuse_core
 
-#endif  // FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
+#endif  // FUSE_CORE_PARAMETER_H

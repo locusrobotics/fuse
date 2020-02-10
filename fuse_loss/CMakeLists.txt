@@ -31,12 +31,13 @@ catkin_package(
 add_compile_options(-Wall -Werror)
 
 add_library(${PROJECT_NAME}
-  src/trivial_loss.cpp
-  src/huber_loss.cpp
-  src/softlone_loss.cpp
-  src/cauchy_loss.cpp
   src/arctan_loss.cpp
+  src/cauchy_loss.cpp
+  src/huber_loss.cpp
+  src/scaled_loss.cpp
+  src/softlone_loss.cpp
   src/tolerant_loss.cpp
+  src/trivial_loss.cpp
   src/tukey_loss.cpp
 )
 target_include_directories(${PROJECT_NAME}
@@ -106,6 +107,30 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
   set_target_properties(test_huber_loss
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Scaled Loss Tests
+  catkin_add_gtest(test_scaled_loss
+    test/test_scaled_loss.cpp
+  )
+  add_dependencies(test_scaled_loss
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_scaled_loss
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_scaled_loss
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_scaled_loss
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES

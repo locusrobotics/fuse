@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/loss.h>
+#include <fuse_core/parameter.h>
 #include <ros/node_handle.h>
 
 #include <algorithm>
@@ -111,7 +112,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         initial_state.swap(state_vector);
       }
 
-      loss = loadLossConfig(nh, "loss");
+      loss = fuse_core::loadLossConfig(nh, "loss");
     }
 
 
