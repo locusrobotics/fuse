@@ -140,6 +140,8 @@ public:
 
   void setErrorLineWidth(const float line_width);
 
+  void setLossMinBrightness(const float min_brightness);
+
   void setRelativePoseLineColor(const float r, const float g, const float b, const float a);
 
   void setErrorLineColor(const float r, const float g, const float b, const float a);
@@ -198,6 +200,10 @@ private:
   CovarianceVisualPtr covariance_;
   std::string source_;
 
+  float loss_scale_{ -1.0 };
+  float min_brightness_{ 0.0 };
+  Ogre::ColourValue error_line_color_;
+
   bool visible_;
 
 private:
@@ -207,6 +213,8 @@ private:
   void setColor(float r, float g, float b, float a) override{};
   const Ogre::Vector3& getPosition() override;
   const Ogre::Quaternion& getOrientation() override;
+
+  Ogre::ColourValue computeLossErrorLineColor(const Ogre::ColourValue& color, const float loss_scale);
 
   // Make RelativePose2DStampedConstraintProperty friend class so it create RelativePose2DStampedConstraintVisual
   // objects
