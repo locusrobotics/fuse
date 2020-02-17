@@ -11,8 +11,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>roslint</build_depend>
-
   <depend>boost</depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
