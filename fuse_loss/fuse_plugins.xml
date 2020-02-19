@@ -1,42 +1,14 @@
 <library path="lib/libfuse_loss">
-  <class type="fuse_loss::TrivialLoss" base_class_type="fuse_core::Loss">
-    <description>
-    This corresponds to no robustification. It is not normally necessary to use this, as setting not loss function
-    accomplishes the same thing.
+  <!--
+  Loss functions are M-estimators that take the squared norm of a residual block 'r' and try to reduce the effect of
+  outliers by replacing the squared residuals 's = r^2' used in the standard Least-Squares problem by another function
+  of the squared residuals `rho(s)`.
 
-    f(s) = s
-    </description>
-  </class>
-  <class type="fuse_loss::HuberLoss" base_class_type="fuse_core::Loss">
-    <description>
-    Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
+  For this reason loss functions are also known as robustifiers.
 
-    f(s) = 2 * a * sqrt(s) - b  if s > b   // outlier region
-         = s                    otherwise  // inlier region
-
-    where b = a^2.
-    </description>
-  </class>
-  <class type="fuse_loss::SoftLOneLoss" base_class_type="fuse_core::Loss">
-    <description>
-    Soft L1 loss function with scaling parameter 'a', that is similar to Huber but smooth, defined as follows for the
-    residual 's':
-
-    f(s) = 2 * b * (sqrt(1 + s * c) - 1)
-
-    where b = a^2 and c = 1 / b.
-    </description>
-  </class>
-  <class type="fuse_loss::CauchyLoss" base_class_type="fuse_core::Loss">
-    <description>
-    Loss function inspired by the Cauchy distribution, with scaling parameter 'a', defined as follows for the residual
-    's':
-
-    f(s) = b * log(1 + s * c)
-
-    where b = a^2 and c = 1 / b.
-    </description>
-  </class>
+  In the notation used here, `rho(s)` takes the squared residuals `s` as an input, not the residuals `r`, as in Ceres
+  solver.
+  -->
   <class type="fuse_loss::ArctanLoss" base_class_type="fuse_core::Loss">
     <description>
     Loss function that is capped beyond a certain level using the arc-tangent function, with scaling parameter 'a' that
@@ -44,7 +16,51 @@
     like TrivialLoss, and for values much larger than 'a' the value asymptotically approaches the constant value of
     'a * PI / 2'. It is defined as follows for the residual 's':
 
-    f(s) = a * atan2(s, a)
+    rho(s) = a * atan2(s, a)
+    </description>
+  </class>
+  <class type="fuse_loss::CauchyLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Loss function inspired by the Cauchy distribution, with scaling parameter 'a', defined as follows for the residual
+    's':
+
+    rho(s) = b * log(1 + s * c)
+
+    where b = a^2 and c = 1 / b.
+    </description>
+  </class>
+  <class type="fuse_loss::HuberLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    rho(s) = 2 * a * sqrt(s) - b  if s > b   // outlier region
+           = s                    otherwise  // inlier region
+
+    where b = a^2.
+    </description>
+  </class>
+  <class type="fuse_loss::ScaledLoss" base_class_type="fuse_core::Loss">
+    <description>
+      The other basic loss function has to do with length scalingi, i.e. they affect the space in which 's' is measured.
+      Sometimes you want to simply scale the output value of the robustifier.
+
+      If '\hat{rho}' is the wrapped robustifier, then this simply outputs:
+
+      rho(s) = a * \hat{rho(s)}
+
+      If '\hat{rho}' is not given, it is set as NULL and is treated as the Trivial loss function, iso we get:
+
+      rho(s) = a * s
+    </description>
+  </class>
+  <class type="fuse_loss::SoftLOneLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Soft L1 loss function with scaling parameter 'a', that is similar to Huber but smooth, defined as follows for the
+    residual 's':
+
+    rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
+
+    where b = a^2 and c = 1 / b.
     </description>
   </class>
   <class type="fuse_loss::TolerantLoss" base_class_type="fuse_core::Loss">
@@ -55,9 +71,17 @@
     Both 'a' and 'b' must be reater than zero, and typically 'b' will be set to a fraction of 'a'. It is defined as
     follows for the residual 's':
 
-    f(s) = b * log(1 + exp((s - a) / b)) - c0
+    rho(s) = b * log(1 + exp((s - a) / b)) - c0
 
     where c0 = b * log(1 + exp(-a / b)).
+    </description>
+  </class>
+  <class type="fuse_loss::TrivialLoss" base_class_type="fuse_core::Loss">
+    <description>
+    This corresponds to no robustification. It is not normally necessary to use this, as setting not loss function
+    accomplishes the same thing.
+
+    rho(s) = s
     </description>
   </class>
   <class type="fuse_loss::TukeyLoss" base_class_type="fuse_core::Loss">
@@ -65,8 +89,8 @@
     Tukey biweight loss function which aggressively attempts to suppress large errors, with scaling parameter 'a',
     defined as follows for the residual 's':
 
-    f(s) = a^2 / 6                    if s > a^2  // inlier region
-         = a^2 / 6 * (1 - (1 - s / a^2)^3)  otherwise   // outlier region
+    rho(s) = a^2 / 6                          if s > a^2  // inlier region
+           = a^2 / 6 * (1 - (1 - s / a^2)^3)  otherwise   // outlier region
     </description>
   </class>
 </library>
