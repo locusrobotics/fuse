@@ -75,12 +75,12 @@ TransactionDeserializer::TransactionDeserializer() :
   }
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction::ConstPtr& msg)
+fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction::ConstPtr& msg) const
 {
   return deserialize(*msg);
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction& msg)
+fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction& msg) const
 {
   // The Transaction object is not a plugin and has no derived types. That makes it much easier to use.
   auto transaction = fuse_core::Transaction();
