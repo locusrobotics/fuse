@@ -29,6 +29,30 @@
     where b = a^2 and c = 1 / b.
     </description>
   </class>
+  <class type="fuse_loss::DCSLoss" base_class_type="fuse_core::Loss">
+    <description>
+    DCS (Dynamic Covariance Scaling) loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    rho(s) = s * 2 * a / (a + s)  if s > a   // outlier region
+           = s                    otherwise  // inlier region
+    </description>
+  </class>
+  <class type="fuse_loss::FairLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Fair loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    rho(s) = 2 * b * (r/a - log(1 + r/a))
+
+    where b = a^2 and r = sqrt(s).
+    </description>
+  </class>
+  <class type="fuse_loss::GemanMcClureLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Geman-McClure loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    rho(s) = s * a / (a + s)
+    </description>
+  </class>
   <class type="fuse_loss::HuberLoss" base_class_type="fuse_core::Loss">
     <description>
     Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
@@ -91,6 +115,15 @@
 
     rho(s) = a^2 / 6                          if s > a^2  // inlier region
            = a^2 / 6 * (1 - (1 - s / a^2)^3)  otherwise   // outlier region
+    </description>
+  </class>
+  <class type="fuse_loss::WelschLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Welsch loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    rho(s) = b * (1 - exp(-s/b))
+
+    where b = a^2.
     </description>
   </class>
 </library>

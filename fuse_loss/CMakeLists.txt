@@ -33,12 +33,17 @@ add_compile_options(-Wall -Werror)
 add_library(${PROJECT_NAME}
   src/arctan_loss.cpp
   src/cauchy_loss.cpp
+  src/dcs_loss.cpp
+  src/fair_loss.cpp
+  src/geman_mcclure_loss.cpp
   src/huber_loss.cpp
+  src/loss_function.cpp
   src/scaled_loss.cpp
   src/softlone_loss.cpp
   src/tolerant_loss.cpp
   src/trivial_loss.cpp
   src/tukey_loss.cpp
+  src/welsch_loss.cpp
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -87,6 +92,30 @@ if(CATKIN_ENABLE_TESTING)
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
   roslint_add_test()
+
+  # Loss function Tests
+  catkin_add_gtest(test_loss_function
+    test/test_loss_function.cpp
+  )
+  add_dependencies(test_loss_function
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_loss_function
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_loss_function
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_loss_function
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Huber Loss Tests
   catkin_add_gtest(test_huber_loss
