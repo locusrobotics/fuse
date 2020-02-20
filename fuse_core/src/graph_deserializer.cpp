@@ -78,12 +78,12 @@ GraphDeserializer::GraphDeserializer() :
   }
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg)
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg) const
 {
   return deserialize(*msg);
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::SerializedGraph& msg)
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::SerializedGraph& msg) const
 {
   // Create a Graph object using pluginlib. This will throw if the plugin name is not found.
   // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return
