@@ -73,7 +73,7 @@ public:
    * @param[IN]  msg  The SerializedTransaction message to be deserialized
    * @return          A fuse Transaction object
    */
-  fuse_core::Transaction deserialize(const fuse_msgs::SerializedTransaction::ConstPtr& msg);
+  fuse_core::Transaction deserialize(const fuse_msgs::SerializedTransaction::ConstPtr& msg) const;
 
   /**
    * @brief Deserialize a SerializedTransaction message into a fuse Transaction object.
@@ -84,7 +84,7 @@ public:
    * @param[IN]  msg  The SerializedTransaction message to be deserialized
    * @return          A fuse Transaction object
    */
-  fuse_core::Transaction deserialize(const fuse_msgs::SerializedTransaction& msg);
+  fuse_core::Transaction deserialize(const fuse_msgs::SerializedTransaction& msg) const;
 
 private:
   pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;      //!< Pluginlib class loader for Variable types
