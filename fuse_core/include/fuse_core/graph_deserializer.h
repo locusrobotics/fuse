@@ -73,7 +73,7 @@ public:
    * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
    */
-  fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg);
+  fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg) const;
 
   /**
    * @brief Deserialize a SerializedGraph message into a fuse Graph object.
@@ -84,13 +84,15 @@ public:
    * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
    */
-  fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph& msg);
+  fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::SerializedGraph& msg) const;
 
 private:
   pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;      //!< Pluginlib class loader for Variable types
   pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader for Constraint types
   pluginlib::ClassLoader<fuse_core::Loss> loss_loader_;              //!< Pluginlib class loader for Loss types
-  pluginlib::ClassLoader<fuse_core::Graph> graph_loader_;            //!< Pluginlib class loader for Graph types
+  // TODO(efernandez) Try to make pluginlib::ClassLoader<T>::createUnmanagedInstance() method const, so we can remove
+  // the mutable modifier here and still have the deserialize methods const
+  mutable pluginlib::ClassLoader<fuse_core::Graph> graph_loader_;    //!< Pluginlib class loader for Graph types
 };
 
 }  // namespace fuse_core
