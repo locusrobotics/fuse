@@ -70,7 +70,7 @@ void SerializedPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr transaction,
   fuse_core::Graph::ConstSharedPtr graph)
 {
-  auto stamp = ros::Time::now();
+  const auto& stamp = transaction->stamp();
   if (graph_publisher_.getNumSubscribers() > 0)
   {
     fuse_msgs::SerializedGraph msg;
