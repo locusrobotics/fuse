@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/loss.h>
+#include <fuse_core/parameter.h>
 #include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -71,8 +72,8 @@ struct Pose2DParams : public ParameterBase
       nh.getParam("differential", differential);
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
-      getParamRequired(nh, "topic", topic);
-      getParamRequired(nh, "target_frame", target_frame);
+      fuse_core::getParamRequired(nh, "topic", topic);
+      fuse_core::getParamRequired(nh, "target_frame", target_frame);
 
       if (differential)
       {
@@ -85,7 +86,7 @@ struct Pose2DParams : public ParameterBase
         }
       }
 
-      loss = loadLossConfig(nh, "loss");
+      loss = fuse_core::loadLossConfig(nh, "loss");
     }
 
     bool differential { false };

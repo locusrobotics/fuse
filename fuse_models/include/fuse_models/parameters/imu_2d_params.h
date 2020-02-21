@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/loss.h>
+#include <fuse_core/parameter.h>
 #include <fuse_core/util.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -77,7 +78,7 @@ struct Imu2DParams : public ParameterBase
       nh.getParam("queue_size", queue_size);
       nh.getParam("remove_gravitational_acceleration", remove_gravitational_acceleration);
       nh.getParam("gravitational_acceleration", gravitational_acceleration);
-      getParamRequired(nh, "topic", topic);
+      fuse_core::getParamRequired(nh, "topic", topic);
 
       if (differential)
       {
@@ -92,22 +93,22 @@ struct Imu2DParams : public ParameterBase
 
       if (!linear_acceleration_indices.empty())
       {
-        getParamRequired(nh, "acceleration_target_frame", acceleration_target_frame);
+        fuse_core::getParamRequired(nh, "acceleration_target_frame", acceleration_target_frame);
       }
 
       if (!orientation_indices.empty())
       {
-        getParamRequired(nh, "orientation_target_frame", orientation_target_frame);
+        fuse_core::getParamRequired(nh, "orientation_target_frame", orientation_target_frame);
       }
 
       if (!angular_velocity_indices.empty())
       {
-        getParamRequired(nh, "twist_target_frame", twist_target_frame);
+        fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
       }
 
-      pose_loss = loadLossConfig(nh, "pose_loss");
-      angular_velocity_loss = loadLossConfig(nh, "angular_velocity_loss");
-      linear_acceleration_loss = loadLossConfig(nh, "linear_acceleration_loss");
+      pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
+      angular_velocity_loss = fuse_core::loadLossConfig(nh, "angular_velocity_loss");
+      linear_acceleration_loss = fuse_core::loadLossConfig(nh, "linear_acceleration_loss");
     }
 
     bool differential { false };

@@ -34,7 +34,6 @@
 #ifndef FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 #define FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 
-#include <fuse_core/loss_loader.h>
 #include <fuse_models/common/sensor_config.h>
 
 #include <ros/node_handle.h>
@@ -64,24 +63,14 @@ struct ParameterBase
 };
 
 /**
- * @brief Utility method for handling required ROS params
+ * @brief Utility method to load a sensor configuration, i.e. the dimension indices
+ *
+ * @tparam T - The variable type the dimension indices belong to
  *
  * @param[in] nh - The ROS node handle with which to load parameters
- * @param[in] key - The ROS parameter key for the required parameter
- * @param[out] value - The ROS parameter value for the \p key
- * @throws std::runtime_error if the parameter does not exist
+ * @param[in] name - The ROS parameter name for the sensor configuration parameter
+ * @return A vector with the dimension indices, that would be empty if the parameter does not exist
  */
-template <typename T>
-void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)
-{
-  if (!nh.getParam(key, value))
-  {
-    const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
-    ROS_FATAL_STREAM(error);
-    throw std::runtime_error(error);
-  }
-}
-
 template <typename T>
 inline std::vector<size_t> loadSensorConfig(const ros::NodeHandle& nh, const std::string& name)
 {
@@ -92,22 +81,6 @@ inline std::vector<size_t> loadSensorConfig(const ros::NodeHandle& nh, const std
   }
 
   return {};
-}
-
-inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, const std::string& name)
-{
-  if (!nh.hasParam(name))
-  {
-    return {};
-  }
-
-  std::string loss_type;
-  getParamRequired(nh, name + "/type", loss_type);
-
-  auto loss = fuse_core::createUniqueLoss(loss_type);
-  loss->initialize(nh.resolveName(name));
-
-  return loss;
 }
 
 }  // namespace parameters

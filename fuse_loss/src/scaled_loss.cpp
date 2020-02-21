@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2020, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,59 +31,51 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
+#include <fuse_loss/scaled_loss.h>
 
-#include <fuse_core/loss.h>
 #include <fuse_core/parameter.h>
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_models/parameters/parameter_base.h>
-
+#include <pluginlib/class_list_macros.h>
 #include <ros/node_handle.h>
 
+#include <boost/serialization/export.hpp>
+
+#include <ostream>
 #include <string>
-#include <vector>
 
 
-namespace fuse_models
+namespace fuse_loss
 {
 
-namespace parameters
+ScaledLoss::ScaledLoss(const double a, const std::shared_ptr<fuse_core::Loss>& loss) : a_(a), loss_(loss)
 {
+}
 
-/**
- * @brief Defines the set of parameters required by the Acceleration2D class
- */
-struct Acceleration2DParams : public ParameterBase
+void ScaledLoss::initialize(const std::string& name)
 {
-  public:
-    /**
-     * @brief Method for loading parameter values from ROS.
-     *
-     * @param[in] nh - The ROS node handle with which to load parameters
-     */
-    void loadFromROS(const ros::NodeHandle& nh) final
-    {
-      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
+  ros::NodeHandle private_node_handle(name);
 
-      nh.getParam("disable_checks", disable_checks);
-      nh.getParam("queue_size", queue_size);
-      fuse_core::getParamRequired(nh, "topic", topic);
-      fuse_core::getParamRequired(nh, "target_frame", target_frame);
+  private_node_handle.param("a", a_, a_);
 
-      loss = fuse_core::loadLossConfig(nh, "loss");
-    }
+  loss_ = fuse_core::loadLossConfig(private_node_handle, "loss");
+}
 
-    bool disable_checks { false };
-    int queue_size { 10 };
-    std::string topic {};
-    std::string target_frame {};
-    std::vector<size_t> indices;
-    fuse_core::Loss::SharedPtr loss;
-};
+void ScaledLoss::print(std::ostream& stream) const
+{
+  stream << type() << "\n"
+         << "  a: " << a_ << "\n";
 
-}  // namespace parameters
+  if (loss_)
+  {
+    stream << "  loss: " << loss_ << "\n";
+  }
+}
 
-}  // namespace fuse_models
+ceres::LossFunction* ScaledLoss::lossFunction() const
+{
+  return new ceres::ScaledLoss(loss_ ? loss_->lossFunction() : nullptr, a_, Ownership);
+}
 
-#endif  // FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
+}  // namespace fuse_loss
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::ScaledLoss);
+PLUGINLIB_EXPORT_CLASS(fuse_loss::ScaledLoss, fuse_core::Loss);

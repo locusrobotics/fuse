@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/loss.h>
+#include <fuse_core/parameter.h>
 #include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -77,12 +78,12 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("differential", differential);
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
-      getParamRequired(nh, "topic", topic);
-      getParamRequired(nh, "twist_target_frame", twist_target_frame);
+      fuse_core::getParamRequired(nh, "topic", topic);
+      fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
 
       if (!differential)
       {
-        getParamRequired(nh, "pose_target_frame", pose_target_frame);
+        fuse_core::getParamRequired(nh, "pose_target_frame", pose_target_frame);
       }
       else
       {
@@ -97,9 +98,9 @@ struct Odometry2DParams : public ParameterBase
         }
       }
 
-      pose_loss = loadLossConfig(nh, "pose_loss");
-      linear_velocity_loss = loadLossConfig(nh, "linear_velocity_loss");
-      angular_velocity_loss = loadLossConfig(nh, "angular_velocity_loss");
+      pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
+      linear_velocity_loss = fuse_core::loadLossConfig(nh, "linear_velocity_loss");
+      angular_velocity_loss = fuse_core::loadLossConfig(nh, "angular_velocity_loss");
     }
 
     bool differential { false };
