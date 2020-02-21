@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <test test-name="Optimizer" pkg="fuse_optimizers" type="test_optimizer">
+    <rosparam file="$(find fuse_optimizers)/test/common_robot_config.yaml" command="load"/>
+    <rosparam file="$(find fuse_optimizers)/test/robot_with_imu_config.yaml" command="load"/>
+    <rosparam file="$(find fuse_optimizers)/test/noisy_motion_model_config.yaml" command="load"/>
+    <rosparam file="$(find fuse_optimizers)/test/serialized_publisher_config.yaml" command="load"/>
+  </test>
+</launch>

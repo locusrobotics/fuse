@@ -1,0 +1,7 @@
+motion_models:
+  noisy_unicycle_2d:
+    type: fuse_models::Unicycle2D
+
+
+noisy_unicycle_2d:
+  process_noise_diagonal: [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1]

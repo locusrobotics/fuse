@@ -153,4 +153,27 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
+
+  # Optimizer Tests
+  add_rostest_gtest(test_optimizer
+    test/optimizer.test
+    test/test_optimizer.cpp
+  )
+  add_dependencies(test_optimizer
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_optimizer
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_optimizer
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_optimizer
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 endif()
