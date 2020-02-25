@@ -88,14 +88,10 @@ struct Odometry2DParams : public ParameterBase
       else
       {
         nh.getParam("independent", independent);
+        nh.getParam("use_twist_covariance", use_twist_covariance);
 
-        if (!independent)
-        {
-          nh.getParam("use_twist_covariance", use_twist_covariance);
-
-          minimum_pose_relative_covariance =
-              fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
-        }
+        minimum_pose_relative_covariance =
+            fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
       }
 
       pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
