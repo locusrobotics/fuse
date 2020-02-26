@@ -129,14 +129,6 @@ TEST(LossFunction, GemanMcClureLoss)
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(1.3), 1.792);
 }
 
-TEST(LossFunction, PseudoHuberLoss)
-{
-  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(0.7), 0.357);
-  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(0.7), 1.792);
-  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(1.3), 0.357);
-  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(1.3), 1.792);
-}
-
 TEST(LossFunction, WelschLoss)
 {
   AssertLossFunctionIsValid(ceres::WelschLoss(0.7), 0.357);

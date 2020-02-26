@@ -38,7 +38,6 @@ add_library(${PROJECT_NAME}
   src/geman_mcclure_loss.cpp
   src/huber_loss.cpp
   src/loss_function.cpp
-  src/pseudo_huber_loss.cpp
   src/scaled_loss.cpp
   src/softlone_loss.cpp
   src/tolerant_loss.cpp
