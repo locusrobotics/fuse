@@ -230,7 +230,7 @@ private:
 // Welsch, similar to Tukey loss, it tries to reduce the effect of large errors, but it does not suppress outliers as
 // Tukey might do.
 //
-// The terms is computed as:
+// The term is computed as:
 //
 //   rho(s) = b * (1 - exp(-s/b))
 //
