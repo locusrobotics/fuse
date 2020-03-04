@@ -33,8 +33,20 @@
     <description>
     DCS (Dynamic Covariance Scaling) loss function with scaling parameter 'a', defined as follows for the residual 's':
 
-    rho(s) = s * 2 * a / (a + s)  if s > a   // outlier region
-           = s                    otherwise  // inlier region
+    rho(s) = a * (3 * s - a) / (a + s)  if s > a   // outlier region
+           = s                          otherwise  // inlier region
+
+    which weight function:
+
+    rho'(s) = min { 1, (2 * a / (a + s))^2 }
+
+    as described in Eq. 5.19 and 5.20 in:
+
+      http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (p. 89)
+
+    that is equal to the square of the scaling factor in Eq. 15 in the original paper:
+
+      http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p.3)
     </description>
   </class>
   <class type="fuse_loss::FairLoss" base_class_type="fuse_core::Loss">
@@ -50,7 +62,9 @@
     <description>
     Geman-McClure loss function with scaling parameter 'a', defined as follows for the residual 's':
 
-    rho(s) = s * a / (a + s)
+    rho(s) = s * b / (b + s)
+
+    where b = a^2.
     </description>
   </class>
   <class type="fuse_loss::HuberLoss" base_class_type="fuse_core::Loss">
@@ -63,18 +77,29 @@
     where b = a^2.
     </description>
   </class>
+  <class type="fuse_loss::PseudoHuberLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Pseudo-Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
+
+    rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
+
+    where b = a^2 and c = 1 / b.
+
+    This is a smooth approximation of the Huber loss function.
+    </description>
+  </class>
   <class type="fuse_loss::ScaledLoss" base_class_type="fuse_core::Loss">
     <description>
-      The other basic loss function has to do with length scalingi, i.e. they affect the space in which 's' is measured.
-      Sometimes you want to simply scale the output value of the robustifier.
+    The other basic loss function has to do with length scaling, i.e. they affect the space in which 's' is measured.
+    Sometimes you want to simply scale the output value of the robustifier.
 
-      If '\hat{rho}' is the wrapped robustifier, then this simply outputs:
+    If '\hat{rho}' is the wrapped robustifier, then this simply outputs:
 
-      rho(s) = a * \hat{rho(s)}
+    rho(s) = a * \hat{rho(s)}
 
-      If '\hat{rho}' is not given, it is set as NULL and is treated as the Trivial loss function, iso we get:
+    If '\hat{rho}' is not given, it is set as NULL and is treated as the Trivial loss function, so we get:
 
-      rho(s) = a * s
+    rho(s) = a * s
     </description>
   </class>
   <class type="fuse_loss::SoftLOneLoss" base_class_type="fuse_core::Loss">
@@ -92,7 +117,7 @@
     Loss function that maps to approximately zero cost in a range around the origin, and reverts to linear in error
     (quadratic in cost) beyond this range. The tolerance parameter 'a' sets the nominal point at which the transition
     occurs, and the transition size parameter 'b' sets the nominal distance over which most of the transition occurs.
-    Both 'a' and 'b' must be reater than zero, and typically 'b' will be set to a fraction of 'a'. It is defined as
+    Both 'a' and 'b' must be greater than zero, and typically 'b' will be set to a fraction of 'a'. It is defined as
     follows for the residual 's':
 
     rho(s) = b * log(1 + exp((s - a) / b)) - c0
@@ -102,7 +127,7 @@
   </class>
   <class type="fuse_loss::TrivialLoss" base_class_type="fuse_core::Loss">
     <description>
-    This corresponds to no robustification. It is not normally necessary to use this, as setting not loss function
+    This corresponds to no robustification. It is not normally necessary to use this, as not not setting a loss function
     accomplishes the same thing.
 
     rho(s) = s

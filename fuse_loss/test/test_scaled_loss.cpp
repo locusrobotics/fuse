@@ -65,6 +65,7 @@ TEST(ScaledLoss, Constructor)
     fuse_loss::ScaledLoss scaled_loss(a, loss);
     EXPECT_EQ(a, scaled_loss.a());
     EXPECT_NE(nullptr, scaled_loss.loss());
+    EXPECT_EQ(loss.get(), scaled_loss.loss().get());
   }
 }
 

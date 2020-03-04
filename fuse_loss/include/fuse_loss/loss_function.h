@@ -58,39 +58,88 @@
 // * cost w/o loss: https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L159
 // * cost w/  loss: https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L165
 //
-// Note that according to this, it looks like the following loss functions are incorrectly implemented in Ceres:
-// * Tukey: It must be multiplied by 2, so instead of dividing by 6 it should divide by 3. See:
+// Note that according to this, it looks like the Tukey loss function is incorrectly implemented in Ceres because it
+// must be multiplied by 2, so instead of dividing by 6 it should divide by 3. See:
 //
-//            https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/loss_function.h#L281-L282
+//   https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/loss_function.h#L281-L282
 //
-//          There is an easy workaround for this: combine TukeyLoss with ScaledLoss, using a scaled factor of 2.
+// There is an easy workaround for this: combine TukeyLoss with ScaledLoss, using a scaled factor of 2.
 //
-// * Huber: It is actually a Pseudo-Huber loss function, which is smoother than the original Huber one in table #1 from
-//          http://www.audentia-gestion.fr/research.microsoft/ZhangIVC-97-01.pdf (p. 24).
+// There is also a PR with a patch already sent to Ceres:
 //
-//          It also does not look to match the Pseudo-Huber variation suggested in:
-//
-//            http://en.wikipedia.org/wiki/Huber_Loss_Function
-//
-//          which is referenced in:
-//
-//            https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/loss_function.h#L173
+//   https://ceres-solver-review.googlesource.com/c/ceres-solver/+/16700
 namespace ceres
 {
 
-// Dynamic Covariance Scaling (DCS), equivalent to the Geman-McClure with the tuning constant 'a', but scaled by 2.0.
+// Dynamic Covariance Scaling (DCS), equivalent to Switchable Constraints and similar to the Geman-McClure with the
+// tuning constant 'a'.
 //
 // The term is computed as:
 //
-//   rho(s) = s * 2 * a / (a + s)    for s <  a
-//   rho(s) = s                      for s >= a
+//   rho(s) = a * (3 * s  - a) / (a + s)    for s >  a
+//   rho(s) = s                             for s <= a
 //
-// See http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p. 3), where 's' is multiplied by the factor:
+// which gives the weight function:
 //
-//   min(1, 2 * a / (a + s))
+//   rho'(s) = min { 1, (2 * a / (a + s))^2 }
 //
-// The g2o implementation seems to use the squared of that factor:
-// https://github.com/RainerKuemmerle/g2o/blob/master/g2o/core/robust_kernel_impl.cpp#L167
+// as described in Eq. 5.19 and 5.20 in:
+//
+//   http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (p. 89)
+//
+// that is equal to the square of the scaling factor in Eq. 15 in the original paper:
+//
+//   http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p.3)
+//
+// which is also reproduced in Eq. 5.15 in:
+//
+//   http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (pp. 85-88)
+//
+// The M-estimator rho(s) equivalent to DCS is obtained from Eq. 5.18 and 5.19 by integration, giving the expression in
+// Eq. 5.20. This way we obtain a valid robust kernel, i.e. one that has positive definite weight function rho'(s) >= 0,
+// that can be used in an Iteratively Reweighted Least Squares (IRLS) problem. For more details, see:
+//
+//   http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (p. 89)
+//
+// The relation with the Geman-McClure loss function is explained in:
+//
+//   http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (pp. 90-91)
+//
+// The DCS rho(s) equation is equivalent to a scaled and translated generalized Geman-McClure for s > a (outlier region)
+// with a_GemanMcClure = sqrt(a_DCS), as shown in Eq. 5.28. With the rho(s) = 2 * \rho(sqrt(s)) notation, where s = r^2
+// (r = x in the thesis), we have:
+//
+//   rho_DCS(s) = 4 * rho_GemanMcClure(s) - a
+//
+// The implementation in GTSAM has the same weight function rho'(s) we use here:
+//
+//   https://github.com/borglab/gtsam/blob/09b0f03542bfbec5cca62645a60c5d1d4f8f/gtsam/linear/LossFunctions.cpp#L348-L357
+//
+// But its residual rho(r) is not defined as the integral of rho'(r):
+//
+//   https://github.com/borglab/gtsam/blob/09b0f03542bfbec5cca62645a60c5d1d4f8f/gtsam/linear/LossFunctions.cpp#L359-L367
+//
+// Similarly, the implementation in g2o also has the same weight function rho'(s) we use here:
+//
+//   https://github.com/RainerKuemmerle/g2o/blob/fcba4eaca6f20d9a5792404cc8ef303aeb/g2o/core/robust_kernel_impl.cpp#L168
+//
+// But its residual rho(s) is also not defined as the integral of rho'(s):
+//
+//   https://github.com/RainerKuemmerle/g2o/blob/fcba4eaca6f20d9a5792404cc8ef303aeb/g2o/core/robust_kernel_impl.cpp#L167
+//
+// Indeed, the 1st and 2nd derivatives rho'(s) and rho''(s) in g2o seem to consider the scaling factor a constant, but
+// that is not correct. However, if they had computed the correct derivatives for the rho(s) function they use, then
+// rho'(s) would not be positive definite, which is required for robust non-linear least squares problems. This is
+// indeed enforced in the corrector in:
+//
+//   https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+//
+// which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
+//
+//   https://hal.inria.fr/inria-00548290/document
+//
+// and it requires that rho'(s) >=0 because it is used to compute sqrt(rho'(s)) in the equations that correct the
+// residuals and jacobian.
 //
 // At s = 0: rho = [0, 1, 0].
 class DCSLoss : public ceres::LossFunction
@@ -138,34 +187,78 @@ private:
 //
 //   rho(s) = s / (1 + s)
 //
-// according to table #1 from http://www.audentia-gestion.fr/research.microsoft/ZhangIVC-97-01.pdf (p. 24).
+// according to table #1 from http://www.audentia-gestion.fr/research.microsoft/ZhangIVC-97-01.pdf (p. 24) and Eq. 5.23
+// in:
+//
+//   http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (pp. 89-90)
+//
+// where the original Geman-McClure is presented in Eq. 5.21 and the generalized Geman-McClure is defined introducing
+// the parametr 'a'. It also shows how it is adapted to be a positive definite function.
 //
 // Remember that in Ceres the implementation of rho(s) must be multiplied by 2 because the cost is set as:
 //
 //   cost = 0.5 * rho(s)
 //
-// Here we also consider a tuning constant 'a', so we actually have:
+// Here we also consider a tuning constant 'a' that scales the residual 'r' doing:
 //
-//   rho(s) = s * a / (a + s)
+//   \hat{r} = r / a
+//
+// where s = r^2, so we actually have:
+//
+//   rho(s) = s * b / (b + s)
+//
+// where b = a^2.
+//
+// This is equivalent to the implementation in GTSAM:
+//
+//   https://github.com/borglab/gtsam/blob/57da7b31d07a233421d9419b85e6f90bacf0/gtsam/linear/LossFunctions.cpp#L314-L325
 //
 // At s = 0: rho = [0, 1, -2].
 class GemanMcClureLoss : public ceres::LossFunction
 {
 public:
-  explicit GemanMcClureLoss(const double a) : a_(a)
+  explicit GemanMcClureLoss(const double a) : b_(a * a)
   {
   }
 
   void Evaluate(double, double*) const override;
 
 private:
-  const double a_;
+  const double b_;
+};
+
+// Pseudo-Huber, which can be used as a smooth approximation of the Huber loss function. It ensures that derivatives are
+// continuous for all degrees.
+//
+// The term is compute as:
+//
+//   rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
+//
+// where b = a^2 and c = 1 / b.
+//
+// This is the most common form of a smooth Huber loss function approximation, which has been taken from:
+//
+//   https://en.wikipedia.org/wiki/Huber_loss#Pseudo-Huber_loss_function
+//
+// At s = 0: rho = [0, 1, -0.5 * c]
+class PseudoHuberLoss : public ceres::LossFunction
+{
+public:
+  explicit PseudoHuberLoss(const double a) : b_(a * a), c_(1.0 / b_)
+  {
+  }
+
+  void Evaluate(double, double*) const override;
+
+private:
+  const double b_;
+  const double c_;
 };
 
 // Welsch, similar to Tukey loss, it tries to reduce the effect of large errors, but it does not suppress outliers as
 // Tukey might do.
 //
-// The terms i computed as:
+// The terms is computed as:
 //
 //   rho(s) = b * (1 - exp(-s/b))
 //

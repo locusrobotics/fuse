@@ -40,6 +40,19 @@
 // https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/loss_function_test.cc
 //
 // so we can test the loss functions implemented here.
+//
+//
+// The main changes introduced in this version are:
+//
+// * Check rho'(s) >= 0, which is required by the corrector in:
+//
+//     https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+//
+//   which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
+//
+//     https://hal.inria.fr/inria-00548290/document
+//
+// * Minor coding style changes.
 namespace
 {
 
@@ -55,6 +68,18 @@ void AssertLossFunctionIsValid(const ceres::LossFunction& loss, double s)
   // Evaluate rho(s), rho'(s) and rho''(s).
   double rho[3];
   loss.Evaluate(s, rho);
+
+  // The corrector in:
+  //
+  //   https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+  //
+  // which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
+  //
+  //   https://hal.inria.fr/inria-00548290/document
+  //
+  // requires that rho'(s) >=0 because it is used to compute sqrt(rho'(s)) in the equations that correct the residuals
+  // and jacobian.
+  ASSERT_GE(rho[1], 0);
 
   // Use symmetric finite differencing to estimate rho'(s) and
   // rho''(s).
@@ -102,6 +127,14 @@ TEST(LossFunction, GemanMcClureLoss)
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(0.7), 1.792);
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(1.3), 0.357);
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(1.3), 1.792);
+}
+
+TEST(LossFunction, PseudoHuberLoss)
+{
+  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(0.7), 0.357);
+  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(0.7), 1.792);
+  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(1.3), 0.357);
+  AssertLossFunctionIsValid(ceres::PseudoHuberLoss(1.3), 1.792);
 }
 
 TEST(LossFunction, WelschLoss)

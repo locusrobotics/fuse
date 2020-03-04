@@ -48,7 +48,7 @@ namespace fuse_loss
 {
 
 /**
- * @brief The Fai loss function.
+ * @brief The Fair loss function.
  *
  * This class encapsulates the ceres::FairLoss class, adding the ability to serialize it and load it
  * dynamically.

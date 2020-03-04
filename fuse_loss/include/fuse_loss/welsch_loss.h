@@ -48,7 +48,7 @@ namespace fuse_loss
 {
 
 /**
- * @brief The Fai loss function.
+ * @brief The Welsch loss function.
  *
  * This class encapsulates the ceres::WelschLoss class, adding the ability to serialize it and load it
  * dynamically.

@@ -31,75 +31,44 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_loss/pseudo_huber_loss.h>
 #include <fuse_loss/loss_function.h>
 
-#include <cmath>
-#include <limits>
+#include <pluginlib/class_list_macros.h>
+#include <ros/node_handle.h>
+
+#include <boost/serialization/export.hpp>
+
+#include <ostream>
+#include <string>
 
 
-namespace ceres
+namespace fuse_loss
 {
 
-void DCSLoss::Evaluate(double s, double rho[3]) const
+PseudoHuberLoss::PseudoHuberLoss(const double a) : a_(a)
 {
-  if (s > a_)
-  {
-    // Outlier region
-    const double inv = 1.0 / (a_ + s);
-    const double scale = 2.0 * a_ * inv;
-
-    rho[0] = a_ * (3.0 * s - a_) * inv;
-    rho[1] = scale * scale;
-    rho[2] = -2.0 * inv * rho[1];
-  }
-  else
-  {
-    // Inlier region
-    rho[0] = s;
-    rho[1] = 1.0;
-    rho[2] = 0.0;
-  }
 }
 
-void FairLoss::Evaluate(double s, double rho[3]) const
+void PseudoHuberLoss::initialize(const std::string& name)
 {
-  const double r = std::sqrt(s);
-  const double ra = r / a_;
-  const double sum = 1.0 + ra;
+  ros::NodeHandle private_node_handle(name);
 
-  rho[0] = 2.0 * b_ * (ra - std::log(sum));
-  rho[1] = 1.0 / sum;
-  rho[2] = r == 0.0 ? std::numeric_limits<double>::lowest() : -0.5 / (a_ * r * sum * sum);
+  private_node_handle.param("a", a_, a_);
 }
 
-void GemanMcClureLoss::Evaluate(double s, double rho[3]) const
+void PseudoHuberLoss::print(std::ostream& stream) const
 {
-  const double sum = b_ + s;
-  const double inv = 1.0 / sum;
-  const double scale = b_ * inv;
-
-  rho[0] = s * scale;
-  rho[1] = scale * scale;
-  rho[2] = -2.0 * inv * rho[1];
+  stream << type() << "\n"
+         << "  a: " << a_ << "\n";
 }
 
-void PseudoHuberLoss::Evaluate(double s, double rho[3]) const
+ceres::LossFunction* PseudoHuberLoss::lossFunction() const
 {
-  const double sum = 1.0 + s * c_;
-  const double sqrt = std::sqrt(sum);
-
-  rho[0] = 2.0 * b_ * (sqrt - 1.0);
-  rho[1] = 1.0 / sqrt;
-  rho[2] = -0.5 * c_ * rho[1] / sum;
+  return new ceres::PseudoHuberLoss(a_);
 }
 
-void WelschLoss::Evaluate(double s, double rho[3]) const
-{
-  const double exp = std::exp(s * c_);
+}  // namespace fuse_loss
 
-  rho[0] = b_ * (1 - exp);
-  rho[1] = exp;
-  rho[2] = c_ * exp;
-}
-
-}  // namespace ceres
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::PseudoHuberLoss);
+PLUGINLIB_EXPORT_CLASS(fuse_loss::PseudoHuberLoss, fuse_core::Loss);

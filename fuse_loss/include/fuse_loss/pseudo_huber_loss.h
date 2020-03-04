@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_SCALED_LOSS_H
-#define FUSE_LOSS_SCALED_LOSS_H
+#ifndef FUSE_LOSS_PSEUDO_HUBER_LOSS_H
+#define FUSE_LOSS_PSEUDO_HUBER_LOSS_H
 
 #include <fuse_core/loss.h>
 
@@ -48,29 +48,37 @@ namespace fuse_loss
 {
 
 /**
- * @brief The ScaledLoss loss function.
+ * @brief The PseudoHuberLoss loss function.
  *
- * This class encapsulates the ceres::ScaledLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::PseudoHuberLoss class, adding the ability to serialize it and load it
+ * dynamically.
  *
- * See the Ceres documentation for more details: http://ceres-solver.org/nnls_modeling.html#lossfunction
+ * The Pseudo-Huber loss is not provided by the Ceres solver, so it is implemented here, based on:
+ *
+ *   https://en.wikipedia.org/wiki/Huber_loss#Pseudo-Huber_loss_function
+ *
+ * and:
+ *
+ *   https://github.com/RainerKuemmerle/g2o/blob/master/g2o/core/robust_kernel_impl.h#L83-L98
+ *
+ * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class ScaledLoss : public fuse_core::Loss
+class PseudoHuberLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ScaledLoss);
+  FUSE_LOSS_DEFINITIONS(PseudoHuberLoss);
 
   /**
    * @brief Constructor
    *
-   * @param[in] a ScaledLoss parameter 'a'. See Ceres documentation for more details.
-   * @param[in] loss The loss function to scale. Its output is scaled/multiplied by 'a'.
+   * @param[in] a PseudoHuberLoss parameter 'a'.
    */
-  explicit ScaledLoss(const double a = 1.0, const std::shared_ptr<fuse_core::Loss>& loss = nullptr);
+  explicit PseudoHuberLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~ScaledLoss() override = default;
+  ~PseudoHuberLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -89,7 +97,7 @@ public:
   void print(std::ostream& stream = std::cout) const override;
 
   /**
-   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
+   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
    *
    * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
    * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
@@ -111,16 +119,6 @@ public:
   }
 
   /**
-   * @brief Parameter 'loss' accessor.
-   *
-   * @return Parameter 'loss'.
-   */
-  std::shared_ptr<fuse_core::Loss> loss() const
-  {
-    return loss_;
-  }
-
-  /**
    * @brief Parameter 'a' mutator.
    *
    * @param[in] a Parameter 'a'.
@@ -130,19 +128,8 @@ public:
     a_ = a;
   }
 
-  /**
-   * @brief Parameter 'loss' mutator.
-   *
-   * @param[in] loss Parameter 'loss'.
-   */
-  void loss(const std::shared_ptr<fuse_core::Loss>& loss)
-  {
-    loss_ = loss;
-  }
-
 private:
-  double a_{ 1.0 };  //<! ScaledLoss parameter 'a'. See Ceres documentation for more details
-  std::shared_ptr<fuse_core::Loss> loss_{ nullptr };  //!< The loss function to scale
+  double a_{ 1.0 };  //<! PseudoHuberLoss parameter 'a'. See Ceres documentation for more details
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -158,12 +145,11 @@ private:
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
     archive & a_;
-    archive & loss_;
   }
 };
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::ScaledLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::PseudoHuberLoss);
 
-#endif  // FUSE_LOSS_SCALED_LOSS_H
+#endif  // FUSE_LOSS_PSEUDO_HUBER_LOSS_H

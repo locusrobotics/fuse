@@ -68,7 +68,7 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
  * @brief Utility method to load a loss configuration
  *
  * @param[in] nh - The ROS node handle with which to load parameters
- * @param[in] key - The ROS parameter name for the loss configuration parameter
+ * @param[in] name - The ROS parameter name for the loss configuration parameter
  * @return Loss function or nullptr if the parameter does not exist
  */
 inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, const std::string& name)
