@@ -243,11 +243,14 @@ public:
     plot_.insertLegend(&legend_);
   }
 
+  static std::string getName(const std::string& type)
+  {
+    return type.substr(11, type.size() - 15);
+  }
+
   void plotRho(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    const auto loss_type = loss->type();
-
-    QwtPlotCurve* curve = new QwtPlotCurve(loss_type.substr(11, loss_type.size() - 15).c_str());
+    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
 
     curve->setSamples(residuals_, QVector<double>::fromStdVector(loss_evaluator_.rho(loss->lossFunction())));
 
@@ -259,9 +262,7 @@ public:
 
   void plotInfluence(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    const auto loss_type = loss->type();
-
-    QwtPlotCurve* curve = new QwtPlotCurve(loss_type.substr(11, loss_type.size() - 15).c_str());
+    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
 
     curve->setSamples(residuals_, QVector<double>::fromStdVector(loss_evaluator_.influence(loss->lossFunction())));
 
@@ -273,9 +274,7 @@ public:
 
   void plotWeight(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    const auto loss_type = loss->type();
-
-    QwtPlotCurve* curve = new QwtPlotCurve(loss_type.substr(11, loss_type.size() - 15).c_str());
+    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
 
     curve->setSamples(residuals_, QVector<double>::fromStdVector(loss_evaluator_.weight(loss->lossFunction())));
 
@@ -287,9 +286,7 @@ public:
 
   void plotSecondDerivative(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    const auto loss_type = loss->type();
-
-    QwtPlotCurve* curve = new QwtPlotCurve(loss_type.substr(11, loss_type.size() - 15).c_str());
+    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
 
     curve->setSamples(residuals_,
                       QVector<double>::fromStdVector(loss_evaluator_.secondDerivative(loss->lossFunction())));
