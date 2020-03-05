@@ -12,10 +12,14 @@
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
+
   <depend>libceres-dev</depend>
   <depend>fuse_core</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+
+  <test_depend>qtbase5-dev</test_depend>
+  <test_depend>libqwt-qt5-dev</test_depend>
   <test_depend>roslint</test_depend>
 
   <export>
