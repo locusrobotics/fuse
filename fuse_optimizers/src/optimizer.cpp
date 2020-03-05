@@ -46,10 +46,37 @@
 #include <numeric>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 
 namespace fuse_optimizers
 {
+
+/**
+ * @brief Plugin name and type configuration, as received from the parameter server
+ *
+ * The entire configuration itself is also stored, so additional optional parameters can be retrieved, e.g. the
+ * 'motion_models' parameter for the SensorModel plugins
+ */
+struct PluginConfig
+{
+  /**
+   * @brief Constructor. This allows to use emplace_back(name, type, config) instead of push_back({name, type, config}),
+   * that generates roslint whitespace/braces errors
+   *
+   * @param[in] name   The plugin name
+   * @param[in] type   The plugin type
+   * @param[in] config The entire configuration, that might have additiona optional parameters
+   */
+  PluginConfig(const std::string& name, const std::string& type, const XmlRpc::XmlRpcValue& config)
+    : name(name), type(type), config(config)
+  {
+  }
+
+  std::string name;            //!< Plugin name
+  std::string type;            //!< Plugin type
+  XmlRpc::XmlRpcValue config;  //!< The entire configuration, that might have additional optional parameters
+};
 
 Optimizer::Optimizer(
   fuse_core::Graph::UniquePtr graph,
@@ -102,62 +129,57 @@ void Optimizer::loadMotionModels()
   // Validate the parameter server values
   XmlRpc::XmlRpcValue motion_models;
   private_node_handle_.getParam("motion_models", motion_models);
+  std::vector<PluginConfig> motion_model_configs;
   if (motion_models.getType() == XmlRpc::XmlRpcValue::TypeArray)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
     for (int32_t motion_model_index = 0; motion_model_index < motion_models.size(); ++motion_model_index)
     {
       // Validate the parameter server values
-      if ( (motion_models[motion_model_index].getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!motion_models[motion_model_index].hasMember("name"))
-        || (!motion_models[motion_model_index].hasMember("type")))
+      const auto& motion_model = motion_models[motion_model_index];
+      if ( (motion_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        || (!motion_model.hasMember("name"))
+        || (!motion_model.hasMember("type")))
       {
         throw std::invalid_argument("The 'motion_models' parameter should be a list of the form: "
                                     "-{name: string, type: string}");
       }
-    }
-    for (int32_t motion_model_index = 0; motion_model_index < motion_models.size(); ++motion_model_index)
-    {
-      // Get the setting we need from the parameter server
-      std::string motion_model_name = static_cast<std::string>(motion_models[motion_model_index]["name"]);
-      std::string motion_model_type = static_cast<std::string>(motion_models[motion_model_index]["type"]);
-      // Create a motion model object using pluginlib. This will throw if the plugin name is not found.
-      auto motion_model = motion_model_loader_.createUniqueInstance(motion_model_type);
-      // Initialize the publisher
-      motion_model->initialize(motion_model_name);
-      // Store the publisher in a member variable for use later
-      motion_models_.emplace(motion_model_name, std::move(motion_model));
+
+      motion_model_configs.emplace_back(static_cast<std::string>(motion_model["name"]),
+                                        static_cast<std::string>(motion_model["type"]), motion_model);
     }
   }
   else if (motion_models.getType() == XmlRpc::XmlRpcValue::TypeStruct)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& motion_model_entry : motion_models)
+    for (const auto& motion_model : motion_models)
     {
-      if ( (motion_model_entry.second.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!motion_model_entry.second.hasMember("type")))
+      const auto& motion_model_config = motion_model.second;
+      if ( (motion_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        || (!motion_model_config.hasMember("type")))
       {
         throw std::invalid_argument("The 'motion_models' parameter should be a struct of the form: "
                                     "{string: {type: string}}");
       }
-    }
-    for (const auto& motion_model_entry : motion_models)
-    {
-      // Get the setting we need from the parameter server
-      std::string motion_model_name = static_cast<std::string>(motion_model_entry.first);
-      std::string motion_model_type = static_cast<std::string>(motion_model_entry.second["type"]);
-      // Create a motion model object using pluginlib. This will throw if the plugin name is not found.
-      auto motion_model = motion_model_loader_.createUniqueInstance(motion_model_type);
-      // Initialize the publisher
-      motion_model->initialize(motion_model_name);
-      // Store the publisher in a member variable for use later
-      motion_models_.emplace(motion_model_name, std::move(motion_model));
+
+      motion_model_configs.emplace_back(static_cast<std::string>(motion_model.first),
+                                        static_cast<std::string>(motion_model_config["type"]), motion_model_config);
     }
   }
   else
   {
     throw std::invalid_argument("The 'motion_models' parameter should be a list of the form: "
                                 "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
+  }
+
+  for (const auto& config : motion_model_configs)
+  {
+    // Create a motion model object using pluginlib. This will throw if the plugin name is not found.
+    auto motion_model = motion_model_loader_.createUniqueInstance(config.type);
+    // Initialize the publisher
+    motion_model->initialize(config.name);
+    // Store the publisher in a member variable for use later
+    motion_models_.emplace(config.name, std::move(motion_model));
   }
 
   diagnostic_updater_.force_update();
@@ -173,95 +195,42 @@ void Optimizer::loadSensorModels()
   // Validate the parameter server values
   XmlRpc::XmlRpcValue sensor_models;
   private_node_handle_.getParam("sensor_models", sensor_models);
+  std::vector<PluginConfig> sensor_model_configs;
   if (sensor_models.getType() == XmlRpc::XmlRpcValue::TypeArray)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
     for (int32_t sensor_model_index = 0; sensor_model_index < sensor_models.size(); ++sensor_model_index)
     {
       // Validate the parameter server values
-      if ( (sensor_models[sensor_model_index].getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!sensor_models[sensor_model_index].hasMember("name"))
-        || (!sensor_models[sensor_model_index].hasMember("type")))
+      const auto& sensor_model = sensor_models[sensor_model_index];
+      if ( (sensor_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        || (!sensor_model.hasMember("name"))
+        || (!sensor_model.hasMember("type")))
       {
         throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
                                     "-{name: string, type: string, motion_models: [name1, name2, ...]}");
       }
-    }
-    for (int32_t sensor_model_index = 0; sensor_model_index < sensor_models.size(); ++sensor_model_index)
-    {
-      // Get the setting we need from the parameter server
-      std::string sensor_name = static_cast<std::string>(sensor_models[sensor_model_index]["name"]);
-      std::string sensor_type = static_cast<std::string>(sensor_models[sensor_model_index]["type"]);
-      // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
-      auto sensor_model = sensor_model_loader_.createUniqueInstance(sensor_type);
-      // Initialize the sensor
-      sensor_model->initialize(
-        sensor_name,
-        std::bind(&Optimizer::injectCallback, this, sensor_name, std::placeholders::_1));
-      // Store the sensor in a member variable for use later
-      sensor_models_.emplace(sensor_name, std::move(sensor_model));
-      // Parse out the list of associated motion models, if any
-      if ( (sensor_models[sensor_model_index].hasMember("motion_models"))
-        && (sensor_models[sensor_model_index]["motion_models"].getType() == XmlRpc::XmlRpcValue::TypeArray))
-      {
-        XmlRpc::XmlRpcValue motion_model_list = sensor_models[sensor_model_index]["motion_models"];
-        for (int32_t motion_model_index = 0; motion_model_index < motion_model_list.size(); ++motion_model_index)
-        {
-          std::string motion_model_name = static_cast<std::string>(motion_model_list[motion_model_index]);
-          associated_motion_models_[sensor_name].push_back(motion_model_name);
-          if (motion_models_.find(motion_model_name) == motion_models_.end())
-          {
-            ROS_WARN_STREAM("Sensor model '" << sensor_name << "' is configured to use motion model '" <<
-                            motion_model_name << "', but no motion model with that name currently exists. This is " <<
-                            "likely a configuration error.");
-          }
-        }
-      }
+
+      sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model["name"]),
+                                        static_cast<std::string>(sensor_model["type"]), sensor_model);
     }
   }
   else if (sensor_models.getType() == XmlRpc::XmlRpcValue::TypeStruct)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& sensor_model_entry : sensor_models)
+    for (const auto& sensor_model : sensor_models)
     {
       // Validate the parameter server values
-      if ( (sensor_model_entry.second.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!sensor_model_entry.second.hasMember("type")))
+      const auto& sensor_model_config = sensor_model.second;
+      if ( (sensor_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        || (!sensor_model_config.hasMember("type")))
       {
         throw std::invalid_argument("The 'sensor_models' parameter should be a struct of the form: "
                                     "{string: {type: string, motion_models: [name1, name2, ...]}}");
       }
-    }
-    for (const auto& sensor_model_entry : sensor_models)
-    {
-      // Get the setting we need from the parameter server
-      std::string sensor_name = static_cast<std::string>(sensor_model_entry.first);
-      std::string sensor_type = static_cast<std::string>(sensor_model_entry.second["type"]);
-      // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
-      auto sensor_model = sensor_model_loader_.createUniqueInstance(sensor_type);
-      // Initialize the sensor
-      sensor_model->initialize(
-        sensor_name,
-        std::bind(&Optimizer::injectCallback, this, sensor_name, std::placeholders::_1));
-      // Store the sensor in a member variable for use later
-      sensor_models_.emplace(sensor_name, std::move(sensor_model));
-      // Parse out the list of associated motion models, if any
-      if ( (sensor_model_entry.second.hasMember("motion_models"))
-        && (sensor_model_entry.second["motion_models"].getType() == XmlRpc::XmlRpcValue::TypeArray))
-      {
-        XmlRpc::XmlRpcValue motion_model_list = sensor_model_entry.second["motion_models"];
-        for (int32_t motion_model_index = 0; motion_model_index < motion_model_list.size(); ++motion_model_index)
-        {
-          std::string motion_model_name = static_cast<std::string>(motion_model_list[motion_model_index]);
-          associated_motion_models_[sensor_name].push_back(motion_model_name);
-          if (motion_models_.find(motion_model_name) == motion_models_.end())
-          {
-            ROS_WARN_STREAM("Sensor model '" << sensor_name << "' is configured to use motion model '" <<
-                            motion_model_name << "', but no motion model with that name currently exists. This is " <<
-                            "likely a configuration error.");
-          }
-        }
-      }
+
+      sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model.first),
+                                        static_cast<std::string>(sensor_model_config["type"]), sensor_model_config);
     }
   }
   else
@@ -270,6 +239,36 @@ void Optimizer::loadSensorModels()
                                 "-{name: string, type: string, motion_models: [name1, name2, ...]} "
                                 "or a struct of the form: "
                                 "{string: {type: string, motion_models: [name1, name2, ...]}}");
+  }
+
+  for (const auto& config : sensor_model_configs)
+  {
+    // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
+    auto sensor_model = sensor_model_loader_.createUniqueInstance(config.type);
+    // Initialize the sensor
+    sensor_model->initialize(
+      config.name,
+      std::bind(&Optimizer::injectCallback, this, config.name, std::placeholders::_1));
+    // Store the sensor in a member variable for use later
+    sensor_models_.emplace(config.name, std::move(sensor_model));
+
+    // Parse out the list of associated motion models, if any
+    if ( (config.config.hasMember("motion_models"))
+      && (config.config["motion_models"].getType() == XmlRpc::XmlRpcValue::TypeArray))
+    {
+      XmlRpc::XmlRpcValue motion_model_list = config.config["motion_models"];
+      for (int32_t motion_model_index = 0; motion_model_index < motion_model_list.size(); ++motion_model_index)
+      {
+        const auto motion_model_name = static_cast<std::string>(motion_model_list[motion_model_index]);
+        associated_motion_models_[config.name].push_back(motion_model_name);
+        if (motion_models_.find(motion_model_name) == motion_models_.end())
+        {
+          ROS_WARN_STREAM("Sensor model '" << config.name << "' is configured to use motion model '" <<
+                          motion_model_name << "', but no motion model with that name currently exists. This is " <<
+                          "likely a configuration error.");
+        }
+      }
+    }
   }
 
   diagnostic_updater_.force_update();
@@ -285,63 +284,58 @@ void Optimizer::loadPublishers()
   // Validate the parameter server values
   XmlRpc::XmlRpcValue publishers;
   private_node_handle_.getParam("publishers", publishers);
+  std::vector<PluginConfig> publisher_configs;
   if (publishers.getType() == XmlRpc::XmlRpcValue::TypeArray)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
     for (int32_t publisher_index = 0; publisher_index < publishers.size(); ++publisher_index)
     {
       // Validate the parameter server values
-      if ( (publishers[publisher_index].getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!publishers[publisher_index].hasMember("name"))
-        || (!publishers[publisher_index].hasMember("type")))
+      const auto& publisher = publishers[publisher_index];
+      if ( (publisher.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        || (!publisher.hasMember("name"))
+        || (!publisher.hasMember("type")))
       {
         throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
                                     "-{name: string, type: string}");
       }
-    }
-    for (int32_t publisher_index = 0; publisher_index < publishers.size(); ++publisher_index)
-    {
-      // Get the setting we need from the parameter server
-      std::string publisher_name = static_cast<std::string>(publishers[publisher_index]["name"]);
-      std::string publisher_type = static_cast<std::string>(publishers[publisher_index]["type"]);
-      // Create a Publisher object using pluginlib. This will throw if the plugin name is not found.
-      auto publisher = publisher_loader_.createUniqueInstance(publisher_type);
-      // Initialize the publisher
-      publisher->initialize(publisher_name);
-      // Store the publisher in a member variable for use later
-      publishers_.emplace(publisher_name, std::move(publisher));
+
+      publisher_configs.emplace_back(static_cast<std::string>(publisher["name"]),
+                                     static_cast<std::string>(publisher["type"]), publisher);
     }
   }
   else if (publishers.getType() == XmlRpc::XmlRpcValue::TypeStruct)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& publisher_entry : publishers)
+    for (const auto& publisher : publishers)
     {
       // Validate the parameter server values
-      if ( (publisher_entry.second.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!publisher_entry.second.hasMember("type")))
+      const auto& publisher_config = publisher.second;
+      if ( (publisher_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
+        || (!publisher_config.hasMember("type")))
       {
         throw std::invalid_argument("The 'publishers' parameter should be a struct of the form: "
                                     "{string: {type: string}}");
       }
-    }
-    for (const auto& publisher_entry : publishers)
-    {
-      // Get the setting we need from the parameter server
-      std::string publisher_name = static_cast<std::string>(publisher_entry.first);
-      std::string publisher_type = static_cast<std::string>(publisher_entry.second["type"]);
-      // Create a Publisher object using pluginlib. This will throw if the plugin name is not found.
-      auto publisher = publisher_loader_.createUniqueInstance(publisher_type);
-      // Initialize the publisher
-      publisher->initialize(publisher_name);
-      // Store the publisher in a member variable for use later
-      publishers_.emplace(publisher_name, std::move(publisher));
+
+      publisher_configs.emplace_back(static_cast<std::string>(publisher.first),
+                                     static_cast<std::string>(publisher_config["type"]), publisher_config);
     }
   }
   else
   {
     throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
                                 "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
+  }
+
+  for (const auto& config : publisher_configs)
+  {
+    // Create a Publisher object using pluginlib. This will throw if the plugin name is not found.
+    auto publisher = publisher_loader_.createUniqueInstance(config.type);
+    // Initialize the publisher
+    publisher->initialize(config.name);
+    // Store the publisher in a member variable for use later
+    publishers_.emplace(config.name, std::move(publisher));
   }
 
   diagnostic_updater_.force_update();
