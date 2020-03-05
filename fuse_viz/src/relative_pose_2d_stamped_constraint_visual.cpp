@@ -51,9 +51,21 @@
 #include <OgreSceneNode.h>
 
 #include <algorithm>
+#include <string>
 
 namespace rviz
 {
+
+/**
+ * @brief Generate a constraint name of the form: source@type::uuid
+ *
+ * @param[in] constraint A constraint
+ * @return The constraint name of the form: source@type::uuid
+ */
+std::string constraint_name(const fuse_constraints::RelativePose2DStampedConstraint& constraint)
+{
+  return constraint.source() + '@' + constraint.type() + "::" + fuse_core::uuid::to_string(constraint.uuid());
+}
 
 RelativePose2DStampedConstraintVisual::RelativePose2DStampedConstraintVisual(
     Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
@@ -80,7 +92,7 @@ RelativePose2DStampedConstraintVisual::RelativePose2DStampedConstraintVisual(
   relative_pose_axes_ = std::make_shared<rviz::Axes>(scene_manager_, relative_pose_axes_node_, 10.0, 1.0);
 
   // Draw text:
-  const auto caption = source_ + "@" + constraint.type() + "::" + fuse_core::uuid::to_string(constraint.uuid());
+  const auto caption = constraint_name(constraint);
   text_ = new MovableText(caption);
   text_->setCaption(caption);
   text_->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
@@ -178,6 +190,17 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
     loss_function->Evaluate(squared_norm, rho);
     delete loss_function;
 
+    if (rho[0] > squared_norm)
+    {
+      ROS_WARN_STREAM_THROTTLE(10.0, "Detected invalid loss value of "
+                                         << rho[0] << " greater than squared residual of " << squared_norm
+                                         << " for constraint " << constraint_name(constraint) << " with loss type "
+                                         << constraint.loss()->type()
+                                         << ". Loss value clamped to the squared residual.");
+
+      rho[0] = squared_norm;
+    }
+
     // Interpolate between the constraint's absolute position and its second variable position by the quotient between
     // the cost with and without loss:
     //
@@ -187,7 +210,7 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
     //
     // Remember that in principle `rho[0] <= squared_norm`, with `rho[0] == squared_norm` for the inlier region, and
     // `rho[0] < squared_norm` for the outlier region:
-    loss_scale_ = squared_norm == 0.0 ? 0.0 : rho[0] / squared_norm;
+    loss_scale_ = squared_norm == 0.0 ? 1.0 : rho[0] / squared_norm;
 
     // Compute error line color with the loss function impact:
     const auto loss_error_line_color = computeLossErrorLineColor(error_line_color_, loss_scale_);
