@@ -31,8 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_optimizers/optimizer.h>
 #include <fuse_graphs/hash_graph.h>
+#include <test/example_optimizer.h>
+#include <test/common.h>
 
 #include <gtest/gtest.h>
 
@@ -42,119 +43,10 @@
 #include <vector>
 
 
-/**
- * @brief Dummy optimizer that exposes the motion and sensor models, and the publishers, so we can check the expected
- * ones are loaded.
- */
-class DummyOptimizer : public fuse_optimizers::Optimizer
-{
-public:
-  SMART_PTR_DEFINITIONS(DummyOptimizer);
-
-  DummyOptimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
-                 const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"))
-    : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
-  {
-  }
-
-  const MotionModels& getMotionModels() const
-  {
-    return motion_models_;
-  }
-
-  const SensorModels& getSensorModels() const
-  {
-    return sensor_models_;
-  }
-
-  const Publishers& getPublishers() const
-  {
-    return publishers_;
-  }
-
-  void transactionCallback(
-      const std::string& sensor_name,
-      fuse_core::Transaction::SharedPtr transaction) override
-  {
-  }
-};
-
-/**
- * @brief Helper function to print the elements of std::vector<T> objects
- *
- * @param[in, out] os An output stream
- * @param[in] v A vector to print into the stream
- * @return The output stream with the vector printed into it
- */
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
-{
-  os << '[';
-
-  if (!v.empty())
-  {
-    std::copy(v.begin(), v.end() - 1, std::ostream_iterator<T>(os, ", "));
-    os << v.back();
-  }
-
-  os << ']';
-
-  return os;
-}
-
-/**
- * @brief Helper function to print the keys of std::unordered_map<K, V> objects
- *
- * @param[in, out] os An output stream
- * @param[in] m An unordered map with the keys to print into the stream
- * @return The output stream with the vector printed into it
- */
-template <typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const std::unordered_map<K, V>& m)
-{
-  os << '[';
-
-  for (const auto& entry : m)
-  {
-    os << entry.first << ", ";
-  }
-
-  os << ']';
-
-  return os;
-}
-
-/**
- * @brief Helper function to compute the symmetric difference between a sorted std::vector<std::string> and the keys of
- * an std::unordered_map<std::string, T>
- *
- * @param[in] lhs A sorted vector of strings
- * @param[in] rhs An unordered map of key strings
- * @return A vector with the symmetric difference strings
- */
-template <typename T>
-std::vector<std::string> set_symmetric_difference(const std::vector<std::string>& lhs,
-                                                  const std::unordered_map<std::string, T>& rhs)
-{
-  // Retrieve the keys:
-  std::vector<std::string> rhs_keys;
-  std::transform(rhs.begin(), rhs.end(), std::back_inserter(rhs_keys),
-                 [](const auto& pair) { return pair.first; });  // NOLINT(whitespace/braces)
-
-  // Sort the keys so we can use std::set_symmetric_difference:
-  std::sort(rhs_keys.begin(), rhs_keys.end());
-
-  // Compute the symmetric difference:
-  std::vector<std::string> diff;
-  std::set_symmetric_difference(lhs.begin(), lhs.end(), rhs_keys.begin(), rhs_keys.end(), std::back_inserter(diff));
-
-  return diff;
-}
-
 TEST(Optimizer, Constructor)
 {
-  // Create dummy optimizer:
-  DummyOptimizer optimizer(fuse_graphs::HashGraph::make_unique());
+  // Create optimizer:
+  ExampleOptimizer optimizer(fuse_graphs::HashGraph::make_unique());
 
   // Check the motion and sensor models, and publishers were loaded:
   const auto& motion_models = optimizer.getMotionModels();

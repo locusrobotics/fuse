@@ -166,6 +166,7 @@ if(CATKIN_ENABLE_TESTING)
     PRIVATE
       include
       ${catkin_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
   )
   target_link_libraries(test_optimizer
     ${PROJECT_NAME}
