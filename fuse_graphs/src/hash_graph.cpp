@@ -422,6 +422,15 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
   return summary;
 }
 
+bool HashGraph::evaluate(double* cost, std::vector<double>* residuals, std::vector<double>* gradient,
+                         const ceres::Problem::EvaluateOptions& options) const
+{
+  ceres::Problem problem(problem_options_);
+  createProblem(problem);
+
+  return problem.Evaluate(options, cost, residuals, gradient, nullptr);
+}
+
 void HashGraph::print(std::ostream& stream) const
 {
   stream << "HashGraph\n"

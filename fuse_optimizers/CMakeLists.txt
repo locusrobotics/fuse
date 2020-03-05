@@ -167,6 +167,7 @@ if(CATKIN_ENABLE_TESTING)
     PRIVATE
       include
       ${catkin_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
   )
   target_link_libraries(test_optimizer
     ${PROJECT_NAME}
@@ -177,4 +178,6 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
+
+  add_rostest(test/optimizer.test ARGS config:=list DEPENDENCIES test_optimizer)
 endif()

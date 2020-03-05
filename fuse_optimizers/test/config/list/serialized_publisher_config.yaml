@@ -1,0 +1,6 @@
+publishers:
+  - name: serialized_publisher
+    type: fuse_publishers::SerializedPublisher
+  # From common_robot_config.yaml:
+  - name: odometry_publisher
+    type: fuse_models::Odometry2DPublisher

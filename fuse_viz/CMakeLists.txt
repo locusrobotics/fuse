@@ -19,7 +19,14 @@ find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
-set(QT_LIBRARIES Qt5::Widgets)
+set(QT_INCLUDE_DIRS
+  ${Qt5Core_INCLUDE_DIRS}
+  ${Qt5Widgets_INCLUDE_DIRS}
+)
+set(QT_LIBRARIES
+  ${Qt5Core_LIBRARIES}
+  ${Qt5Widgets_LIBRARIES}
+)
 
 add_definitions(-DQT_NO_KEYWORDS)
 
@@ -69,6 +76,7 @@ target_include_directories(${PROJECT_NAME}
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
+    ${QT_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}

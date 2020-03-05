@@ -1,0 +1,10 @@
+motion_models:
+  - name: noisy_unicycle_2d
+    type: fuse_models::Unicycle2D
+  # From common_robot_config.yaml:
+  - name: unicycle_2d
+    type: fuse_models::Unicycle2D
+
+
+noisy_unicycle_2d:
+  process_noise_diagonal: [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1]
