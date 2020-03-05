@@ -248,53 +248,36 @@ public:
     return type.substr(11, type.size() - 15);
   }
 
-  void plotRho(const std::shared_ptr<fuse_core::Loss>& loss)
+  QwtPlotCurve* createCurve(const std::string& name, const std::vector<double>& values)
   {
-    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
+    QwtPlotCurve* curve = new QwtPlotCurve(name.c_str());
 
-    curve->setSamples(residuals_, QVector<double>::fromStdVector(loss_evaluator_.rho(loss->lossFunction())));
+    curve->setSamples(residuals_, QVector<double>::fromStdVector(values));
 
     curve->setPen(colormap_[curves_.size()]);
     curve->attach(&plot_);
 
-    curves_.push_back(curve);
+    return curve;
+  }
+
+  void plotRho(const std::shared_ptr<fuse_core::Loss>& loss)
+  {
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.rho(loss->lossFunction())));
   }
 
   void plotInfluence(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
-
-    curve->setSamples(residuals_, QVector<double>::fromStdVector(loss_evaluator_.influence(loss->lossFunction())));
-
-    curve->setPen(colormap_[curves_.size()]);
-    curve->attach(&plot_);
-
-    curves_.push_back(curve);
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.influence(loss->lossFunction())));
   }
 
   void plotWeight(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
-
-    curve->setSamples(residuals_, QVector<double>::fromStdVector(loss_evaluator_.weight(loss->lossFunction())));
-
-    curve->setPen(colormap_[curves_.size()]);
-    curve->attach(&plot_);
-
-    curves_.push_back(curve);
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.weight(loss->lossFunction())));
   }
 
   void plotSecondDerivative(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    QwtPlotCurve* curve = new QwtPlotCurve(getName(loss->type()).c_str());
-
-    curve->setSamples(residuals_,
-                      QVector<double>::fromStdVector(loss_evaluator_.secondDerivative(loss->lossFunction())));
-
-    curve->setPen(colormap_[curves_.size()]);
-    curve->attach(&plot_);
-
-    curves_.push_back(curve);
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.secondDerivative(loss->lossFunction())));
   }
 
   void save(const std::string& filename)
