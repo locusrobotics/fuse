@@ -176,4 +176,6 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
+
+  add_rostest(test/optimizer.test ARGS config:=list DEPENDENCIES test_optimizer)
 endif()
