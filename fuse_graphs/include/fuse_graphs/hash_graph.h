@@ -309,6 +309,29 @@ public:
   ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) override;
 
   /**
+   * @brief Evalute the values of the current set of variables, given the current set of constraints.
+   *
+   * The values in the graph do not change after the call.
+   *
+   * If any of the output arguments is nullptr, it will not be evaluated. This mimics the ceres::Problem::Evaluate
+   * method API. Here all output arguments default to nullptr except for the cost.
+   *
+   * TODO(efernandez) support jacobian output argument
+   * The jacobian output argument is not exposed at the moment because its type is a CRSMatrix, that probably needs to
+   * be converted to another type.
+   *
+   * @param[out] cost      The cost of the entire problem represented by the graph.
+   * @param[out] residuals The residuals of all constraints.
+   * @param[out] gradient  The gradient for all constraints evaluated at the values of the current set of variables.
+   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls various aspects of the
+   *                       problem evaluation.
+   *                       See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#401
+   * @return True if the problem evaluation was successful; False, otherwise.
+   */
+  bool evaluate(double* cost, std::vector<double>* residuals = nullptr, std::vector<double>* gradient = nullptr,
+                const ceres::Problem::EvaluateOptions& options = ceres::Problem::EvaluateOptions()) const override;
+
+  /**
    * @brief Print a human-readable description of the graph to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
