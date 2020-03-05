@@ -227,38 +227,10 @@ private:
   const double b_;
 };
 
-// Pseudo-Huber, which can be used as a smooth approximation of the Huber loss function. It ensures that derivatives are
-// continuous for all degrees.
-//
-// The term is compute as:
-//
-//   rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
-//
-// where b = a^2 and c = 1 / b.
-//
-// This is the most common form of a smooth Huber loss function approximation, which has been taken from:
-//
-//   https://en.wikipedia.org/wiki/Huber_loss#Pseudo-Huber_loss_function
-//
-// At s = 0: rho = [0, 1, -0.5 * c]
-class PseudoHuberLoss : public ceres::LossFunction
-{
-public:
-  explicit PseudoHuberLoss(const double a) : b_(a * a), c_(1.0 / b_)
-  {
-  }
-
-  void Evaluate(double, double*) const override;
-
-private:
-  const double b_;
-  const double c_;
-};
-
 // Welsch, similar to Tukey loss, it tries to reduce the effect of large errors, but it does not suppress outliers as
 // Tukey might do.
 //
-// The terms is computed as:
+// The term is computed as:
 //
 //   rho(s) = b * (1 - exp(-s/b))
 //

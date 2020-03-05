@@ -83,16 +83,6 @@ void GemanMcClureLoss::Evaluate(double s, double rho[3]) const
   rho[2] = -2.0 * inv * rho[1];
 }
 
-void PseudoHuberLoss::Evaluate(double s, double rho[3]) const
-{
-  const double sum = 1.0 + s * c_;
-  const double sqrt = std::sqrt(sum);
-
-  rho[0] = 2.0 * b_ * (sqrt - 1.0);
-  rho[1] = 1.0 / sqrt;
-  rho[2] = -0.5 * c_ * rho[1] / sum;
-}
-
 void WelschLoss::Evaluate(double s, double rho[3]) const
 {
   const double exp = std::exp(s * c_);

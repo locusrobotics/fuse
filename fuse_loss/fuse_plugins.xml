@@ -77,17 +77,6 @@
     where b = a^2.
     </description>
   </class>
-  <class type="fuse_loss::PseudoHuberLoss" base_class_type="fuse_core::Loss">
-    <description>
-    Pseudo-Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
-
-    rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
-
-    where b = a^2 and c = 1 / b.
-
-    This is a smooth approximation of the Huber loss function.
-    </description>
-  </class>
   <class type="fuse_loss::ScaledLoss" base_class_type="fuse_core::Loss">
     <description>
     The other basic loss function has to do with length scaling, i.e. they affect the space in which 's' is measured.
@@ -110,6 +99,8 @@
     rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
 
     where b = a^2 and c = 1 / b.
+
+    This is call Pseudo-Huber in: https://en.wikipedia.org/wiki/Huber_loss#Pseudo-Huber_loss_function
     </description>
   </class>
   <class type="fuse_loss::TolerantLoss" base_class_type="fuse_core::Loss">
