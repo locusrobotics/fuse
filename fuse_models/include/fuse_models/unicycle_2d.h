@@ -101,6 +101,8 @@ protected:
     tf2_2d::Vector2 velocity_linear;       //!< Body-frame linear velocity
     double velocity_yaw;                  //!< Body-frame yaw velocity
     tf2_2d::Vector2 acceleration_linear;  //!< Body-frame linear acceleration
+
+    void print(std::ostream& stream = std::cout) const;
   };
   using StateHistory = std::map<ros::Time, StateHistoryElement>;
   /**

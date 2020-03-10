@@ -73,6 +73,19 @@ Unicycle2D::Unicycle2D() :
 {
 }
 
+void Unicycle2D::StateHistoryElement::print(std::ostream& stream) const
+{
+  stream << "  position uuid: " << position_uuid << "\n"
+         << "  yaw uuid: " << yaw_uuid << "\n"
+         << "  velocity linear uuid: " << vel_linear_uuid << "\n"
+         << "  velocity yaw uuid: " << vel_yaw_uuid << "\n"
+         << "  acceleration linear uuid: " << acc_linear_uuid << "\n"
+         << "  pose: " << pose << "\n"
+         << "  velocity linear: " << velocity_linear << "\n"
+         << "  velocity yaw: " << velocity_yaw << "\n"
+         << "  acceleration linear: " << acceleration_linear << "\n";
+}
+
 bool Unicycle2D::applyCallback(fuse_core::Transaction& transaction)
 {
   // Use the timestamp manager to generate just the required motion model segments. The timestamp manager, in turn,
