@@ -103,6 +103,7 @@ protected:
     tf2_2d::Vector2 acceleration_linear;  //!< Body-frame linear acceleration
   };
   using StateHistory = std::map<ros::Time, StateHistoryElement>;
+
   /**
    * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
    * @param[in]  stamps      The set of timestamps that should be connected by motion model constraints
