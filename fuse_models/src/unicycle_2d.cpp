@@ -73,6 +73,16 @@ Unicycle2D::Unicycle2D() :
 {
 }
 
+void Unicycle2D::print(std::ostream& stream) const
+{
+  stream << "state history:\n";
+  for (const auto& state : state_history_)
+  {
+    stream << "- stamp: " << state.first << "\n";
+    state.second.print(stream);
+  }
+}
+
 void Unicycle2D::StateHistoryElement::print(std::ostream& stream) const
 {
   stream << "  position uuid: " << position_uuid << "\n"
@@ -363,6 +373,12 @@ void Unicycle2D::updateStateHistoryEstimates(
         current_state.acceleration_linear);
     }
   }
+}
+
+std::ostream& operator<<(std::ostream& stream, const Unicycle2D& unicycle_2d)
+{
+  unicycle_2d.print(stream);
+  return stream;
 }
 
 }  // namespace fuse_models
