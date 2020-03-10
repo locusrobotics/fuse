@@ -256,7 +256,7 @@ bool Odometry2DPublisher::getState(
   }
   catch (const std::exception& e)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a state at time " << stamp << ". Error" << e.what());
+    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a state at time " << stamp << ". Error: " << e.what());
     return false;
   }
   catch (...)
