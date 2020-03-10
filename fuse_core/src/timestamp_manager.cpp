@@ -156,6 +156,11 @@ void TimestampManager::query(
     // Insert the last timestamp into the motion model history, but with no constraints. The last entry in the motion
     // model history will always contain no constraints.
     motion_model_history_.emplace(last_stamp, MotionModelSegment());
+
+    // Call the motion model generator so it inserts the last timestamp into its state history.
+    std::vector<Constraint::SharedPtr> constraints;
+    std::vector<Variable::SharedPtr> variables;
+    generator_(last_stamp, last_stamp, constraints, variables);
   }
   // Purge any old entries from the motion model history
   purgeHistory();
