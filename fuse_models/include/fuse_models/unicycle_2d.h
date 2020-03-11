@@ -99,7 +99,7 @@ protected:
     fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated orientation variable
     tf2_2d::Transform pose;               //!< Map-frame pose
     tf2_2d::Vector2 velocity_linear;       //!< Body-frame linear velocity
-    double velocity_yaw;                  //!< Body-frame yaw velocity
+    double velocity_yaw{ 0.0 };           //!< Body-frame yaw velocity
     tf2_2d::Vector2 acceleration_linear;  //!< Body-frame linear acceleration
   };
   using StateHistory = std::map<ros::Time, StateHistoryElement>;

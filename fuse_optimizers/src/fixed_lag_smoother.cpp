@@ -87,7 +87,8 @@ FixedLagSmoother::FixedLagSmoother(
     optimization_request_(false),
     optimization_running_(true),
     start_time_(ros::TIME_MAX),
-    started_(false)
+    started_(false),
+    ignited_(false)
 {
   params_.loadFromROS(private_node_handle);
 
@@ -263,12 +264,58 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
 
   // We need to get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
-  // Use the most recent transaction time as the current time
-  auto current_time = ros::Time(0, 0);
-  if (!pending_transactions_.empty())
+
+  if (pending_transactions_.empty())
   {
-    current_time = pending_transactions_.front().stamp();
+    return;
   }
+
+  // Use the most recent transaction time as the current time
+  const auto current_time = pending_transactions_.front().stamp();
+
+  // If we just started because an ignition sensor transaction was received, we try to process it individually. This is
+  // important because we need to update the graph with the ignition sensor transaction in order to get the motion
+  // models notified of the initial state. The motion models will typically maintain a state history in order to create
+  // motion model constraints with the optimized variables from the updated graph. If we do not process the ignition
+  // sensor transaction individually, the motion model constraints created for the other queued transactions will not be
+  // able to use any optimized variables from the graph because it is not been optimized yet, and they will have to use
+  // a default zero state instead. This can easily lead to local minima because the variables in the graph are not
+  // initialized properly, i.e. they do not take the ignition sensor transaction into account.
+  if (ignited_)
+  {
+    // The ignition sensor transaction is assumed to be at the end of the queue, because it must be the oldest one.
+    // If there is more than one ignition sensor transaction in the queue, it is always the oldest one that started
+    // things up.
+    ignited_ = false;
+
+    const auto transaction_rbegin = pending_transactions_.rbegin();
+    const auto& element = *transaction_rbegin;
+    if (!std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), element.sensor_name))
+    {
+      // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
+      // transaction, but we do not enforce it is processed individually.
+      ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << " from sensor " <<
+                       element.sensor_name << " is not an ignition sensor transaction. " <<
+                       "This transaction will not be processed individually.");
+    }
+    else if (applyMotionModels(element.sensor_name, *element.transaction))
+    {
+      // Processing was successful. Add the results to the final transaction, delete this one, and return, so the
+      // transaction from the ignition sensor is processed individually.
+      transaction.merge(*element.transaction, true);
+      erase(pending_transactions_, transaction_rbegin);
+      return;
+    }
+    else
+    {
+      // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
+      // trying again next time, so we ignore this transaction.
+      ROS_ERROR_STREAM("The queued ignition transaction with timestamp " << element.stamp() << " from sensor " <<
+                       element.sensor_name << " could not be processed. Ignoring this transaction.");
+      erase(pending_transactions_, transaction_rbegin);
+    }
+  }
+
   // Attempt to process each pending transaction
   auto sensor_blacklist = std::vector<std::string>();
   auto transaction_riter = pending_transactions_.rbegin();
@@ -316,6 +363,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   stopPlugins();
   // Reset the optimizer state
   started_ = false;
+  ignited_ = false;
   start_time_ = ros::TIME_MAX;
   optimization_request_ = false;
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
@@ -378,6 +426,7 @@ void FixedLagSmoother::transactionCallback(
       if (std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), sensor_name))
       {
         started_ = true;
+        ignited_ = true;
         start_time_ = transaction_time;
       }
       // And purge out old transactions
