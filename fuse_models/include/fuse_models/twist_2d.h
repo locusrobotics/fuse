@@ -35,6 +35,7 @@
 #define FUSE_MODELS_TWIST_2D_H
 
 #include <fuse_models/parameters/twist_2d_params.h>
+#include <fuse_models/common/throttled_callback.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -109,6 +110,9 @@ protected:
   tf2_ros::TransformListener tf_listener_;
 
   ros::Subscriber subscriber_;
+
+  using TwistThrottledCallback = common::ThrottledCallback<geometry_msgs::TwistWithCovarianceStamped>;
+  TwistThrottledCallback throttled_callback_;
 };
 
 }  // namespace fuse_models

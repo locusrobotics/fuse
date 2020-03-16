@@ -53,7 +53,8 @@ namespace fuse_models
 Odometry2D::Odometry2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
-  tf_listener_(tf_buffer_)
+  tf_listener_(tf_buffer_),
+  throttled_callback_(std::move(std::bind(&Odometry2D::process, this, std::placeholders::_1)))
 {
 }
 
@@ -63,6 +64,8 @@ void Odometry2D::onInit()
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
 
   params_.loadFromROS(private_node_handle_);
+
+  throttled_callback_.setThrottlePeriod(params_.throttle_period);
 
   if (params_.position_indices.empty() &&
       params_.orientation_indices.empty() &&
@@ -82,8 +85,8 @@ void Odometry2D::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ =
-      node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Odometry2D::process, this);
+    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size,
+                                         &OdometryThrottledCallback::callback, &throttled_callback_);
   }
 }
 
