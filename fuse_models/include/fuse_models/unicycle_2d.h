@@ -86,6 +86,8 @@ public:
    */
   ~Unicycle2D() = default;
 
+  void print(std::ostream& stream = std::cout) const;
+
 protected:
   /**
    * @brief Structure used to maintain a history of "good" pose estimates
@@ -101,8 +103,11 @@ protected:
     tf2_2d::Vector2 velocity_linear;       //!< Body-frame linear velocity
     double velocity_yaw{ 0.0 };           //!< Body-frame yaw velocity
     tf2_2d::Vector2 acceleration_linear;  //!< Body-frame linear acceleration
+
+    void print(std::ostream& stream = std::cout) const;
   };
   using StateHistory = std::map<ros::Time, StateHistoryElement>;
+
   /**
    * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
    * @param[in]  stamps      The set of timestamps that should be connected by motion model constraints
@@ -168,6 +173,8 @@ protected:
                                                    //!< process noise covariance
   StateHistory state_history_;                     //!< History of optimized graph pose estimates
 };
+
+std::ostream& operator<<(std::ostream& stream, const Unicycle2D& unicycle_2d);
 
 }  // namespace fuse_models
 
