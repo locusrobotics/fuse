@@ -183,14 +183,17 @@ if(CATKIN_ENABLE_TESTING)
     test_unicycle_2d_state_cost_function
     test/test_unicycle_2d_state_cost_function.cpp
   )
-  if(TARGET test_unicycle_2d_state_cost_function)
-    target_link_libraries(
-      test_unicycle_2d_state_cost_function
-      ${PROJECT_NAME}
-      ${catkin_LIBRARIES}
-      ${CERES_LIBRARIES}
-    )
-  endif()
+  target_link_libraries(
+    test_unicycle_2d_state_cost_function
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_unicycle_2d_state_cost_function
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 
   # Ignition tests
   add_rostest_gtest(
