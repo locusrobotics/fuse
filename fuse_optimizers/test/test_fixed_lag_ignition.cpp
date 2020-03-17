@@ -45,7 +45,6 @@ TEST(FixedLagIgnition, SetInitialState)
   auto pose_publisher = node_handle.advertise<geometry_msgs::PoseWithCovarianceStamped>("/pose", 1);
 
   // Wait for the optimizer to be ready
-  ASSERT_TRUE(ros::service::waitForService("/fixed_lag/reset", ros::Duration(1.0)));
   ASSERT_TRUE(ros::service::waitForService("/fixed_lag/set_pose", ros::Duration(1.0)));
 
   // Set the initial pose to something near zero
@@ -64,9 +63,12 @@ TEST(FixedLagIgnition, SetInitialState)
   req.pose.pose.covariance[35] = 1.0;
   fuse_models::SetPose::Response res;
   ros::service::call("/fixed_lag/set_pose", req, res);
+  ASSERT_TRUE(res.success);
 
-  // I need to wait for the subscriber to be ready. I don't know of a better way.
-  // There is no ros::topic::waitForSubscriber() method.
+  // The 'set_pose' service call triggers all of the sensors to resubscribe to their topics.
+  // I need to wait for those subscribers to be ready before sending them sensor data.
+  // I'd love a ros::topic::waitForSubscriber() method, but that doesn't exist.
+  // I'm not sure what else to do, other than "wait a bit".
   ros::Duration(0.5).sleep();
 
   // Publish a relative pose
@@ -101,7 +103,7 @@ TEST(FixedLagIgnition, SetInitialState)
   pose_publisher.publish(pose_msg2);
 
   // Wait for the optimizer to publish the first pose
-  auto odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", ros::Duration(1.0));
+  auto odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", ros::Duration(1.5));
   ASSERT_TRUE(static_cast<bool>(odom_msg));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
