@@ -129,6 +129,8 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
+  find_package(geometry_msgs REQUIRED)
+  find_package(nav_msgs REQUIRED)
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
@@ -179,4 +181,29 @@ if(CATKIN_ENABLE_TESTING)
   )
 
   add_rostest(test/optimizer.test ARGS config:=list DEPENDENCIES test_optimizer)
+
+  # Fixed-lag Ignition test
+  add_rostest_gtest(test_fixed_lag_ignition
+    test/fixed_lag_ignition.test
+    test/test_fixed_lag_ignition.cpp
+  )
+  target_include_directories(test_fixed_lag_ignition
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${geometry_msgs_INCLUDE_DIRS}
+      ${nav_msgs_INCLUDE_DIRS}
+      ${rostest_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_fixed_lag_ignition
+    ${catkin_LIBRARIES}
+    ${geometry_msgs_LIBRARIES}
+    ${nav_msgs_LIBRARIES}
+    ${rostest_LIBRARIES}
+  )
+  set_target_properties(test_fixed_lag_ignition
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 endif()

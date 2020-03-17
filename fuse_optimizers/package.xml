@@ -23,6 +23,8 @@
   <depend>roscpp</depend>
   <depend>std_srvs</depend>
   <test_depend>fuse_models</test_depend>
+  <test_depend>geometry_msgs</test_depend>
+  <test_depend>nav_msgs</test_depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
 
