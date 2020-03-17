@@ -197,6 +197,12 @@ void FixedLagSmoother::optimizationLoop()
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
       processQueue(*new_transaction);
+      // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
+      // transactions queue.
+      if (new_transaction->empty())
+      {
+        continue;
+      }
       // Prepare for selecting the marginal variables
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle

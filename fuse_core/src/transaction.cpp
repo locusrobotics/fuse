@@ -39,6 +39,7 @@
 #include <ros/time.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/empty.hpp>
 
 #include <algorithm>
 #include <ostream>
@@ -125,6 +126,12 @@ Transaction::const_variable_range Transaction::addedVariables() const
   return const_variable_range(
     boost::make_transform_iterator(added_variables_.cbegin(), to_variable_ref),
     boost::make_transform_iterator(added_variables_.cend(), to_variable_ref));
+}
+
+bool Transaction::empty() const
+{
+  return boost::empty(added_variables_) && boost::empty(removed_variables_) && boost::empty(added_constraints_) &&
+         boost::empty(removed_constraints_);
 }
 
 void Transaction::addVariable(Variable::SharedPtr variable, bool overwrite)

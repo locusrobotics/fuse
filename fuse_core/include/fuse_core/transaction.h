@@ -150,6 +150,13 @@ public:
   const_uuid_range removedVariables() const { return removed_variables_; }
 
   /**
+   * @brief Check if the transaction is empty, i.e. it has no added or removed constraints or variables
+   *
+   * @return  True if the transaction is empty, false otherwise
+   */
+  bool empty() const;
+
+  /**
    * @brief Add a timestamp to the "involved stamps" collection
    *
    * Duplicate timestamps will be ignored, so adding a stamp multiple times will have no effect.
