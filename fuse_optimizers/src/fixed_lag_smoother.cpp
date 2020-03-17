@@ -290,21 +290,48 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
                        element.sensor_name << " is not an ignition sensor transaction. " <<
                        "This transaction will not be processed individually.");
     }
-    else if (applyMotionModels(element.sensor_name, *element.transaction))
-    {
-      // Processing was successful. Add the results to the final transaction, delete this one, and return, so the
-      // transaction from the ignition sensor is processed individually.
-      transaction.merge(*element.transaction, true);
-      erase(pending_transactions_, transaction_rbegin);
-      return;
-    }
     else
     {
-      // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
-      // trying again next time, so we ignore this transaction.
-      ROS_ERROR_STREAM("The queued ignition transaction with timestamp " << element.stamp() << " from sensor " <<
-                       element.sensor_name << " could not be processed. Ignoring this transaction.");
-      erase(pending_transactions_, transaction_rbegin);
+      if (applyMotionModels(element.sensor_name, *element.transaction))
+      {
+        // Processing was successful. Add the results to the final transaction, delete this one, and return, so the
+        // transaction from the ignition sensor is processed individually.
+        transaction.merge(*element.transaction, true);
+        erase(pending_transactions_, transaction_rbegin);
+      }
+      else
+      {
+        // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
+        // trying again next time, so we ignore this transaction.
+        ROS_ERROR_STREAM("The queued ignition transaction with timestamp " << element.stamp() << " from sensor " <<
+                         element.sensor_name << " could not be processed. Ignoring this ignition transaction.");
+
+        // Remove the ignition transaction that just failed and purge all transactions after it. But if we find another
+        // ignition transaction, we schedule it to be processed in the next optimization cycle.
+        erase(pending_transactions_, transaction_rbegin);
+
+        const auto pending_ignition_transaction_iter =
+            std::find_if(pending_transactions_.rbegin(), pending_transactions_.rend(),
+                         [this](const auto& element) {  // NOLINT(whitespace/braces)
+                           return std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(),
+                                                     element.sensor_name);
+                         });  // NOLINT(whitespace/braces)
+        if (pending_ignition_transaction_iter == pending_transactions_.rend())
+        {
+          // There is no other ignition transaction pending. We simply roll back to not started state and all other
+          // pending transactions will be handled later in the transaction callback, as usual.
+          started_ = false;
+        }
+        else
+        {
+          // Erase all transactions before the other ignition transaction pending. This other ignition transaction will
+          // be processed in the next optimization cycle.
+          pending_transactions_.erase(pending_ignition_transaction_iter.base(), pending_transactions_.rbegin().base());
+          ignited_ = true;
+        }
+      }
+
+      return;
     }
   }
 
