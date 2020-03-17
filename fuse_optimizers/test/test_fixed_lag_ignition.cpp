@@ -68,13 +68,13 @@ TEST(FixedLagIgnition, SetInitialState)
   // The 'set_pose' service call triggers all of the sensors to resubscribe to their topics.
   // I need to wait for those subscribers to be ready before sending them sensor data.
   ros::Time timeout = ros::Time::now() + ros::Duration(1.0);
-  while ((pose_publisher.getNumSubscribers() == 0u) &&
+  while ((pose_publisher.getNumSubscribers() < 1u) &&
          (ros::Time::now() < timeout))
   {
     std::cout << "waiting..." << std::endl;
     ros::Duration(0.1).sleep();
   }
-  ASSERT_GT(pose_publisher.getNumSubscribers(), 0u);
+  ASSERT_GE(pose_publisher.getNumSubscribers(), 1u);
 
   // Publish a relative pose
   auto pose_msg1 = geometry_msgs::PoseWithCovarianceStamped();
