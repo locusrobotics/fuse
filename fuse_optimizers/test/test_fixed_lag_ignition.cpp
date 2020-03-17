@@ -102,7 +102,7 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // Wait for the optimizer to publish the first pose
   auto odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", ros::Duration(1.0));
-  ASSERT_TRUE(odom_msg);
+  ASSERT_TRUE(static_cast<bool>(odom_msg));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call state, give or
