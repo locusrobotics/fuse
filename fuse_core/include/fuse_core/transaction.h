@@ -150,7 +150,8 @@ public:
   const_uuid_range removedVariables() const { return removed_variables_; }
 
   /**
-   * @brief Check if the transaction is empty, i.e. it has no added or removed constraints or variables
+   * @brief Check if the transaction is empty, i.e. it has no added or removed constraints or variables, and no involved
+   * stamps
    *
    * @return  True if the transaction is empty, false otherwise
    */

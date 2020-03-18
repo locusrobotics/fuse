@@ -130,8 +130,8 @@ Transaction::const_variable_range Transaction::addedVariables() const
 
 bool Transaction::empty() const
 {
-  return boost::empty(added_variables_) && boost::empty(removed_variables_) && boost::empty(added_constraints_) &&
-         boost::empty(removed_constraints_);
+  return boost::empty(added_variables_) && boost::empty(removed_variables_) &&
+         boost::empty(added_constraints_) && boost::empty(removed_constraints_) && involved_stamps_.empty();
 }
 
 void Transaction::addVariable(Variable::SharedPtr variable, bool overwrite)
