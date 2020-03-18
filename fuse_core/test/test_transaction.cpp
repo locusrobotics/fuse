@@ -288,6 +288,68 @@ bool testRemovedVariables(const UuidRange& expected, const Transaction& transact
   return true;
 }
 
+TEST(Transaction, Empty)
+{
+  // The default constructed transaction must be empty
+  {
+    Transaction transaction;
+
+    EXPECT_TRUE(transaction.empty());
+  }
+
+  // A transaction with added constraints cannot be empty
+  {
+    const auto variable_uuid = fuse_core::uuid::generate();
+    const auto constraint =
+        ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });  // NOLINT
+
+    Transaction transaction;
+    transaction.addConstraint(constraint);
+
+    EXPECT_FALSE(transaction.empty());
+  }
+
+  // A transaction with removed constraints cannot be empty
+  {
+    const auto constraint_uuid = fuse_core::uuid::generate();
+
+    Transaction transaction;
+    transaction.removeConstraint(constraint_uuid);
+
+    EXPECT_FALSE(transaction.empty());
+  }
+
+  // A transaction with added variables cannot be empty
+  {
+    const auto variable = ExampleVariable::make_shared();
+
+    Transaction transaction;
+    transaction.addVariable(variable);
+
+    EXPECT_FALSE(transaction.empty());
+  }
+
+  // A transaction with removed variables cannot be empty
+  {
+    const auto variable_uuid = fuse_core::uuid::generate();
+
+    Transaction transaction;
+    transaction.removeVariable(variable_uuid);
+
+    EXPECT_FALSE(transaction.empty());
+  }
+
+  // A transaction with involved stamps cannot be empty
+  {
+    const ros::Time involved_stamp(12345, 6789);
+
+    Transaction transaction;
+    transaction.addInvolvedStamp(involved_stamp);
+
+    EXPECT_FALSE(transaction.empty());
+  }
+}
+
 TEST(Transaction, AddConstraint)
 {
   // Add a single constraint and verify it exists in the added constraints

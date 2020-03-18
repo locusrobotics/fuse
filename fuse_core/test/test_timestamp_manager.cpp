@@ -112,9 +112,12 @@ TEST_F(TimestampManagerTestFixture, Empty)
   EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
 
   // Verify the expected queries were performed
-  ASSERT_EQ(1ul, generated_time_spans.size());
+  // And additional time span is generated for the last stamp as beginning and ending stamp
+  ASSERT_EQ(2ul, generated_time_spans.size());
   EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].first);
   EXPECT_EQ(ros::Time(20, 0), generated_time_spans[0].second);
+  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[1].first);
+  EXPECT_EQ(generated_time_spans[1].first, generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, Exceptions)
@@ -420,9 +423,12 @@ TEST_F(TimestampManagerTestFixture, AfterEndAligned)
   EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
-  ASSERT_EQ(1ul, generated_time_spans.size());
+  // And additional time span is generated for the last stamp as beginning and ending stamp
+  ASSERT_EQ(2ul, generated_time_spans.size());
   EXPECT_EQ(ros::Time(40, 0), generated_time_spans[0].first);
   EXPECT_EQ(ros::Time(45, 0), generated_time_spans[0].second);
+  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[1].first);
+  EXPECT_EQ(generated_time_spans[1].first, generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
@@ -455,11 +461,14 @@ TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
   EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
-  ASSERT_EQ(2ul, generated_time_spans.size());
+  // And additional time span is generated for the last stamp as beginning and ending stamp
+  ASSERT_EQ(3ul, generated_time_spans.size());
   EXPECT_EQ(ros::Time(40, 0), generated_time_spans[0].first);
   EXPECT_EQ(ros::Time(42, 0), generated_time_spans[0].second);
   EXPECT_EQ(ros::Time(42, 0), generated_time_spans[1].first);
   EXPECT_EQ(ros::Time(45, 0), generated_time_spans[1].second);
+  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[2].first);
+  EXPECT_EQ(generated_time_spans[2].first, generated_time_spans[2].second);
 }
 
 TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
@@ -492,13 +501,16 @@ TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
   EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
-  ASSERT_EQ(3ul, generated_time_spans.size());
+  // And additional time span is generated for the last stamp as beginning and ending stamp
+  ASSERT_EQ(4ul, generated_time_spans.size());
   EXPECT_EQ(ros::Time(30, 0), generated_time_spans[0].first);
   EXPECT_EQ(ros::Time(35, 0), generated_time_spans[0].second);
   EXPECT_EQ(ros::Time(35, 0), generated_time_spans[1].first);
   EXPECT_EQ(ros::Time(40, 0), generated_time_spans[1].second);
   EXPECT_EQ(ros::Time(40, 0), generated_time_spans[2].first);
   EXPECT_EQ(ros::Time(45, 0), generated_time_spans[2].second);
+  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[3].first);
+  EXPECT_EQ(generated_time_spans[3].first, generated_time_spans[3].second);
 }
 
 TEST_F(TimestampManagerTestFixture, MultiSegment)
@@ -530,7 +542,7 @@ TEST_F(TimestampManagerTestFixture, MultiSegment)
   ASSERT_EQ(0ul, generated_time_spans.size());
 }
 
-TEST_F(TimestampManagerTestFixture, MultiSegmentBeforBeginning)
+TEST_F(TimestampManagerTestFixture, MultiSegmentBeforeBeginning)
 {
   // Test:
   // Existing: |------111111112222222233333333-------> t
@@ -591,9 +603,12 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastEnd)
   EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
-  ASSERT_EQ(1ul, generated_time_spans.size());
+  // And additional time span is generated for the last stamp as beginning and ending stamp
+  ASSERT_EQ(2ul, generated_time_spans.size());
   EXPECT_EQ(ros::Time(40, 0), generated_time_spans[0].first);
   EXPECT_EQ(ros::Time(45, 0), generated_time_spans[0].second);
+  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[1].first);
+  EXPECT_EQ(generated_time_spans[1].first, generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
@@ -626,11 +641,14 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
   EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
-  ASSERT_EQ(2ul, generated_time_spans.size());
+  // And additional time span is generated for the last stamp as beginning and ending stamp
+  ASSERT_EQ(3ul, generated_time_spans.size());
   EXPECT_EQ(ros::Time(5, 0), generated_time_spans[0].first);
   EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].second);
   EXPECT_EQ(ros::Time(40, 0), generated_time_spans[1].first);
   EXPECT_EQ(ros::Time(45, 0), generated_time_spans[1].second);
+  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[2].first);
+  EXPECT_EQ(generated_time_spans[2].first, generated_time_spans[2].second);
 }
 
 TEST_F(TimestampManagerTestFixture, SplitBeginning)
