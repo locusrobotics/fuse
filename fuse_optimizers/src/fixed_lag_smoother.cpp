@@ -337,6 +337,8 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
         }
       }
 
+      // There are no more pending transactions to process in this optimization cycle, or they should be processed in
+      // the next one.
       return;
     }
   }
