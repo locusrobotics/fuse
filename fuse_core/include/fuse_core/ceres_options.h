@@ -34,6 +34,8 @@
 #ifndef FUSE_CORE_CERES_OPTIONS_H
 #define FUSE_CORE_CERES_OPTIONS_H
 
+#include <fuse_core/ceres_macros.h>
+
 #include <ros/console.h>
 #include <ros/node_handle.h>
 
@@ -75,13 +77,6 @@
 #define CERES_OPTION_STRING_DEFINITIONS(Option) \
   CERES_OPTION_TO_STRING_DEFINITION(Option) \
   CERES_OPTION_FROM_STRING_DEFINITION(Option)
-
-/**
- * Check for at least Ceres Solver version x.y.z, where: x = major, y = minor and z = revision.
- */
-#define CERES_VERSION_AT_LEAST(x, y, z) (CERES_VERSION_MAJOR > x || (CERES_VERSION_MAJOR    >= x && \
-                                        (CERES_VERSION_MINOR > y || (CERES_VERSION_MINOR    >= y && \
-                                                                     CERES_VERSION_REVISION >= z))))
 
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
 /**
