@@ -38,6 +38,7 @@
 #include <fuse_core/uuid.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/empty.hpp>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <suitesparse/ccolamd.h>
