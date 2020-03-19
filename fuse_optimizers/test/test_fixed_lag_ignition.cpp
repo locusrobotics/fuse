@@ -41,13 +41,17 @@
 
 TEST(FixedLagIgnition, SetInitialState)
 {
+  // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
+  ASSERT_TRUE(ros::Time::waitForValid(ros::WallDuration(1.0)));
+
   auto node_handle = ros::NodeHandle();
-  auto pose_publisher = node_handle.advertise<geometry_msgs::PoseWithCovarianceStamped>("/pose", 1);
+  auto relative_pose_publisher = node_handle.advertise<geometry_msgs::PoseWithCovarianceStamped>("/relative_pose", 1);
 
   // Wait for the optimizer to be ready
   ASSERT_TRUE(ros::service::waitForService("/fixed_lag/set_pose", ros::Duration(1.0)));
+  ASSERT_TRUE(ros::service::waitForService("/fixed_lag/reset", ros::Duration(1.0)));
 
-  // Set the initial pose to something near zero
+  // Set the initial pose to something far away from zero
   fuse_models::SetPose::Request req;
   req.pose.header.frame_id = "map";
   req.pose.header.stamp = ros::Time(1, 0);
@@ -56,8 +60,8 @@ TEST(FixedLagIgnition, SetInitialState)
   req.pose.pose.pose.position.z = 0.0;
   req.pose.pose.pose.orientation.x = 0.0;
   req.pose.pose.pose.orientation.y = 0.0;
-  req.pose.pose.pose.orientation.z = 0.0;
-  req.pose.pose.pose.orientation.w = 1.0;
+  req.pose.pose.pose.orientation.z = 0.8660;
+  req.pose.pose.pose.orientation.w = 0.5000;
   req.pose.pose.covariance[0] = 1.0;
   req.pose.pose.covariance[7] = 1.0;
   req.pose.pose.covariance[35] = 1.0;
@@ -67,30 +71,29 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // The 'set_pose' service call triggers all of the sensors to resubscribe to their topics.
   // I need to wait for those subscribers to be ready before sending them sensor data.
-  ros::Time timeout = ros::Time::now() + ros::Duration(1.0);
-  while ((pose_publisher.getNumSubscribers() < 1u) &&
-         (ros::Time::now() < timeout))
+  ros::WallTime subscriber_timeout = ros::WallTime::now() + ros::WallDuration(1.0);
+  while ((relative_pose_publisher.getNumSubscribers() < 1u) &&
+         (ros::WallTime::now() < subscriber_timeout))
   {
-    std::cout << "waiting..." << std::endl;
-    ros::Duration(0.1).sleep();
+    ros::WallDuration(0.01).sleep();
   }
-  ASSERT_GE(pose_publisher.getNumSubscribers(), 1u);
+  ASSERT_GE(relative_pose_publisher.getNumSubscribers(), 1u);
 
   // Publish a relative pose
   auto pose_msg1 = geometry_msgs::PoseWithCovarianceStamped();
   pose_msg1.header.stamp = ros::Time(2, 0);
   pose_msg1.header.frame_id = "base_link";
-  pose_msg1.pose.pose.position.x = 0.0;
-  pose_msg1.pose.pose.position.y = 0.0;
+  pose_msg1.pose.pose.position.x = 5.0;
+  pose_msg1.pose.pose.position.y = 6.0;
   pose_msg1.pose.pose.position.z = 0.0;
   pose_msg1.pose.pose.orientation.x = 0.0;
   pose_msg1.pose.pose.orientation.y = 0.0;
-  pose_msg1.pose.pose.orientation.z = 0.0;
-  pose_msg1.pose.pose.orientation.w = 0.0;
+  pose_msg1.pose.pose.orientation.z = 0.900;
+  pose_msg1.pose.pose.orientation.w = 0.436;
   pose_msg1.pose.covariance[0] = 1.0;
   pose_msg1.pose.covariance[7] = 1.0;
   pose_msg1.pose.covariance[35] = 1.0;
-  pose_publisher.publish(pose_msg1);
+  relative_pose_publisher.publish(pose_msg1);
 
   auto pose_msg2 = geometry_msgs::PoseWithCovarianceStamped();
   pose_msg2.header.stamp = ros::Time(3, 0);
@@ -105,17 +108,26 @@ TEST(FixedLagIgnition, SetInitialState)
   pose_msg2.pose.covariance[0] = 1.0;
   pose_msg2.pose.covariance[7] = 1.0;
   pose_msg2.pose.covariance[35] = 1.0;
-  pose_publisher.publish(pose_msg2);
+  relative_pose_publisher.publish(pose_msg2);
 
-  // Wait for the optimizer to publish the first pose
-  auto odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", ros::Duration(1.5));
+  // Wait for the optimizer to process all queued transactions
+  ros::Time result_timeout = ros::Time::now() + ros::Duration(3.0);
+  auto odom_msg = nav_msgs::Odometry::ConstPtr();
+  while ((!odom_msg || odom_msg->header.stamp != ros::Time(3, 0)) &&
+         (ros::Time::now() < result_timeout))
+  {
+    odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", ros::Duration(1.0));
+  }
   ASSERT_TRUE(static_cast<bool>(odom_msg));
+  ASSERT_EQ(odom_msg->header.stamp, ros::Time(3, 0));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call state, give or
   // take the motion model forward prediction.
   EXPECT_NEAR(100.1, odom_msg->pose.pose.position.x, 0.10);
   EXPECT_NEAR(100.2, odom_msg->pose.pose.position.y, 0.10);
+  EXPECT_NEAR(0.8660, odom_msg->pose.pose.orientation.z, 0.10);
+  EXPECT_NEAR(0.5000, odom_msg->pose.pose.orientation.w, 0.10);
 }
 
 int main(int argc, char** argv)
