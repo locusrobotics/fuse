@@ -235,13 +235,25 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
       auto& source_color = source_color_map_[constraint_source];
       source_color.setHSB(hue, 1.0, 1.0);
 
-      constraint_source_properties_[constraint_source] =
-          new RelativePose2DStampedConstraintProperty(QString::fromStdString(constraint_source), true,
-                                                      QString::fromStdString(constraint_source + " fuse_constraints::"
-                                                                                                 "RelativePose2DStamped"
-                                                                                                 "Constraint "
-                                                                                                 "constraint."),
-                                                      show_constraints_property_, SLOT(queueRender()), this);
+      // Insert constraint sorted alphabetically:
+      const auto description = constraint_source + ' ' + constraint.type() + " constraint.";
+
+      const auto constraint_source_property = new RelativePose2DStampedConstraintProperty(
+          QString::fromStdString(constraint_source), true, QString::fromStdString(description), nullptr,
+          SLOT(queueRender()), this);
+
+      const auto result = constraint_source_properties_.insert(
+          { constraint_source, constraint_source_property });  // NOLINT(whitespace/braces)
+
+      if (!result.second)
+      {
+        delete constraint_source_property;
+
+        throw std::runtime_error("Failed to insert " + description);
+      }
+
+      show_constraints_property_->addChild(constraint_source_property,
+                                          std::distance(constraint_source_properties_.begin(), result.first));
 
       if (constraint_source_configs_.find(constraint_source) == constraint_source_configs_.end())
       {

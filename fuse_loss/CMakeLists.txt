@@ -150,6 +150,30 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Tukey Loss Tests
+  catkin_add_gtest(test_tukey_loss
+    test/test_tukey_loss.cpp
+  )
+  add_dependencies(test_tukey_loss
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_tukey_loss
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_tukey_loss
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_tukey_loss
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # Qwt Loss Plot Tests
   option(BUILD_WITH_PLOT_TESTS "Build with plot tests. These test might fail to run in headless systems." OFF)
   if(BUILD_WITH_PLOT_TESTS)

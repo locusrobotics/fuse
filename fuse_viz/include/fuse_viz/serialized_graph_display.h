@@ -43,6 +43,7 @@
 #include <rviz/message_filter_display.h>
 #endif  // Q_MOC_RUN
 
+#include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -97,7 +98,7 @@ private:
       std::unordered_map<fuse_core::UUID, std::shared_ptr<RelativePose2DStampedConstraintVisual>,
                          fuse_core::uuid::hash>;
   using ColorBySourceMap = std::unordered_map<std::string, Ogre::ColourValue>;
-  using ConstraintPropertyBySourceMap = std::unordered_map<std::string, RelativePose2DStampedConstraintProperty*>;
+  using ConstraintPropertyBySourceMap = std::map<std::string, RelativePose2DStampedConstraintProperty*>;
   using ConfigBySourceMap = std::unordered_map<std::string, Config>;
 
   void clear();

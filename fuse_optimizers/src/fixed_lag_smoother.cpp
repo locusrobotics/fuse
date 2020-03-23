@@ -295,7 +295,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
     ignited_ = false;
 
     const auto transaction_rbegin = pending_transactions_.rbegin();
-    const auto& element = *transaction_rbegin;
+    auto& element = *transaction_rbegin;
     if (!std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), element.sensor_name))
     {
       // We just started, but the oldest transaction is not from an ignition sensor. We will still process the

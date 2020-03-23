@@ -57,17 +57,6 @@
 // without loss:
 // * cost w/o loss: https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L159
 // * cost w/  loss: https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L165
-//
-// Note that according to this, it looks like the Tukey loss function is incorrectly implemented in Ceres because it
-// must be multiplied by 2, so instead of dividing by 6 it should divide by 3. See:
-//
-//   https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/loss_function.h#L281-L282
-//
-// There is an easy workaround for this: combine TukeyLoss with ScaledLoss, using a scaled factor of 2.
-//
-// There is also a PR with a patch already sent to Ceres:
-//
-//   https://ceres-solver-review.googlesource.com/c/ceres-solver/+/16700
 namespace ceres
 {
 

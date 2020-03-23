@@ -7,7 +7,14 @@
   For this reason loss functions are also known as robustifiers.
 
   In the notation used here, `rho(s)` takes the squared residuals `s` as an input, not the residuals `r`, as in Ceres
-  solver.
+  solver. More precisely, `s` is the squared norm of the residuals:
+
+    s = ||residuals||^2
+
+  but for simplicity we refer to it as the squared residual.
+
+  Similarly, the `rho(s)` equations are multiplied by `2` because the convention in Ceres solver is that the
+  contribution of a term to the cost function is given by `1/2 rho(s)`.
 
   For least squares problems where there are no outliers and standard squared loss is expected, it is not necessary to
   create use a loss function.
@@ -45,15 +52,15 @@
     Loss function that is capped beyond a certain level using the arc-tangent function, with scaling parameter 'a' that
     determines the level where falloff occurs. For costs much smaller than 'a', the loss function is linear and behaves
     like TrivialLoss, and for values much larger than 'a' the value asymptotically approaches the constant value of
-    'a * PI / 2'. It is defined as follows for the residual 's':
+    'a * PI / 2'. It is defined as follows for the squared residual 's':
 
     rho(s) = a * atan2(s, a)
     </description>
   </class>
   <class type="fuse_loss::CauchyLoss" base_class_type="fuse_core::Loss">
     <description>
-    Loss function inspired by the Cauchy distribution, with scaling parameter 'a', defined as follows for the residual
-    's':
+    Loss function inspired by the Cauchy distribution, with scaling parameter 'a', defined as follows for the squared
+    residual 's':
 
     rho(s) = b * log(1 + s * c)
 
@@ -62,7 +69,8 @@
   </class>
   <class type="fuse_loss::DCSLoss" base_class_type="fuse_core::Loss">
     <description>
-    DCS (Dynamic Covariance Scaling) loss function with scaling parameter 'a', defined as follows for the residual 's':
+    DCS (Dynamic Covariance Scaling) loss function with scaling parameter 'a', defined as follows for the squared
+    residual 's':
 
     rho(s) = a * (3 * s - a) / (a + s)  if s > a   // outlier region
            = s                          otherwise  // inlier region
@@ -82,7 +90,7 @@
   </class>
   <class type="fuse_loss::FairLoss" base_class_type="fuse_core::Loss">
     <description>
-    Fair loss function with scaling parameter 'a', defined as follows for the residual 's':
+    Fair loss function with scaling parameter 'a', defined as follows for the squared residual 's':
 
     rho(s) = 2 * b * (r/a - log(1 + r/a))
 
@@ -91,7 +99,7 @@
   </class>
   <class type="fuse_loss::GemanMcClureLoss" base_class_type="fuse_core::Loss">
     <description>
-    Geman-McClure loss function with scaling parameter 'a', defined as follows for the residual 's':
+    Geman-McClure loss function with scaling parameter 'a', defined as follows for the squared residual 's':
 
     rho(s) = s * b / (b + s)
 
@@ -100,7 +108,7 @@
   </class>
   <class type="fuse_loss::HuberLoss" base_class_type="fuse_core::Loss">
     <description>
-    Huber loss function with scaling parameter 'a', defined as follows for the residual 's':
+    Huber loss function with scaling parameter 'a', defined as follows for the squared residual 's':
 
     rho(s) = 2 * a * sqrt(s) - b  if s > b   // outlier region
            = s                    otherwise  // inlier region
@@ -125,7 +133,7 @@
   <class type="fuse_loss::SoftLOneLoss" base_class_type="fuse_core::Loss">
     <description>
     Soft L1 loss function with scaling parameter 'a', that is similar to Huber but smooth, defined as follows for the
-    residual 's':
+    squared residual 's':
 
     rho(s) = 2 * b * (sqrt(1 + s * c) - 1)
 
@@ -140,7 +148,7 @@
     (quadratic in cost) beyond this range. The tolerance parameter 'a' sets the nominal point at which the transition
     occurs, and the transition size parameter 'b' sets the nominal distance over which most of the transition occurs.
     Both 'a' and 'b' must be greater than zero, and typically 'b' will be set to a fraction of 'a'. It is defined as
-    follows for the residual 's':
+    follows for the squared residual 's':
 
     rho(s) = b * log(1 + exp((s - a) / b)) - c0
 
@@ -158,7 +166,7 @@
   <class type="fuse_loss::TukeyLoss" base_class_type="fuse_core::Loss">
     <description>
     Tukey biweight loss function which aggressively attempts to suppress large errors, with scaling parameter 'a',
-    defined as follows for the residual 's':
+    defined as follows for the squared residual 's':
 
     rho(s) = a^2 / 6                          if s > a^2  // inlier region
            = a^2 / 6 * (1 - (1 - s / a^2)^3)  otherwise   // outlier region
@@ -166,7 +174,7 @@
   </class>
   <class type="fuse_loss::WelschLoss" base_class_type="fuse_core::Loss">
     <description>
-    Welsch loss function with scaling parameter 'a', defined as follows for the residual 's':
+    Welsch loss function with scaling parameter 'a', defined as follows for the squared residual 's':
 
     rho(s) = b * (1 - exp(-s/b))
 
