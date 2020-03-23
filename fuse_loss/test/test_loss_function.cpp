@@ -35,6 +35,8 @@
 
 #include <gtest/gtest.h>
 
+#include <limits>
+
 // The following function has been copied and adapted from:
 //
 // https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/loss_function_test.cc
@@ -111,6 +113,12 @@ TEST(LossFunction, DCSLoss)
   AssertLossFunctionIsValid(ceres::DCSLoss(0.7), 1.792);
   AssertLossFunctionIsValid(ceres::DCSLoss(1.3), 0.357);
   AssertLossFunctionIsValid(ceres::DCSLoss(1.3), 1.792);
+  // Check that at s = 0: rho = [0, 1, 0].
+  double rho[3];
+  ceres::DCSLoss(0.7).Evaluate(0.0, rho);
+  ASSERT_NEAR(rho[0], 0.0, 1e-6);
+  ASSERT_NEAR(rho[1], 1.0, 1e-6);
+  ASSERT_NEAR(rho[2], 0.0, 1e-6);
 }
 
 TEST(LossFunction, FairLoss)
@@ -119,6 +127,12 @@ TEST(LossFunction, FairLoss)
   AssertLossFunctionIsValid(ceres::FairLoss(0.7), 1.792);
   AssertLossFunctionIsValid(ceres::FairLoss(1.3), 0.357);
   AssertLossFunctionIsValid(ceres::FairLoss(1.3), 1.792);
+  // Check that at s = 0: rho = [0, 1, -Inf].
+  double rho[3];
+  ceres::FairLoss(0.7).Evaluate(0.0, rho);
+  ASSERT_NEAR(rho[0], 0.0, 1e-6);
+  ASSERT_NEAR(rho[1], 1.0, 1e-6);
+  ASSERT_LT(rho[2], -std::numeric_limits<double>::lowest());
 }
 
 TEST(LossFunction, GemanMcClureLoss)
@@ -127,6 +141,14 @@ TEST(LossFunction, GemanMcClureLoss)
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(0.7), 1.792);
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(1.3), 0.357);
   AssertLossFunctionIsValid(ceres::GemanMcClureLoss(1.3), 1.792);
+  // Check that at s = 0: rho = [0, 1, -2/b].
+  const double a = 0.7;
+
+  double rho[3];
+  ceres::GemanMcClureLoss(a).Evaluate(0.0, rho);
+  ASSERT_NEAR(rho[0], 0.0, 1e-6);
+  ASSERT_NEAR(rho[1], 1.0, 1e-6);
+  ASSERT_NEAR(rho[2], -2.0 / (a * a), 1e-6);
 }
 
 TEST(LossFunction, WelschLoss)
@@ -135,6 +157,14 @@ TEST(LossFunction, WelschLoss)
   AssertLossFunctionIsValid(ceres::WelschLoss(0.7), 1.792);
   AssertLossFunctionIsValid(ceres::WelschLoss(1.3), 0.357);
   AssertLossFunctionIsValid(ceres::WelschLoss(1.3), 1.792);
+  // Check that at s = 0: rho = [0, 1, -1/b].
+  const double a = 0.7;
+
+  double rho[3];
+  ceres::WelschLoss(a).Evaluate(0.0, rho);
+  ASSERT_NEAR(rho[0], 0.0, 1e-6);
+  ASSERT_NEAR(rho[1], 1.0, 1e-6);
+  ASSERT_NEAR(rho[2], -1 / (a * a), 1e-6);
 }
 
 int main(int argc, char** argv)
