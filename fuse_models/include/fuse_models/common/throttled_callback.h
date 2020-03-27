@@ -67,7 +67,8 @@ public:
    *                            nullptr
    * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
    */
-  ThrottledCallback(Callback keep_callback = nullptr, Callback drop_callback = nullptr,
+  ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
+                    Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
                     const ros::Duration& throttle_period = ros::Duration(0.0))
     : keep_callback_(keep_callback), drop_callback_(drop_callback), throttle_period_(throttle_period)
   {
