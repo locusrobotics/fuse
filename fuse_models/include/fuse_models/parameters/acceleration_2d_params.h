@@ -70,7 +70,7 @@ struct Acceleration2DParams : public ParameterBase
       nh.getParam("queue_size", queue_size);
 
       double throttle_period_double = throttle_period.toSec();
-      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double);
+      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
       throttle_period.fromSec(throttle_period_double);
 
       fuse_core::getParamRequired(nh, "topic", topic);

@@ -164,18 +164,20 @@ Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
  * @param[in] node_handle - The node handle used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in] default_value - A default value to use if the provided parameter name does not exist
+ * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  * @return The loaded (or default) value
  */
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value || std::is_floating_point<T>::value>::type* = nullptr>
-T getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T default_value)
+T getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T default_value,
+                   const bool strict = true)
 {
   T value;
   node_handle.param(parameter_name, value, default_value);
-  if (value <= 0)
+  if (value < 0 || (strict && value == 0))
   {
-    ROS_WARN_STREAM("The requested " << parameter_name << " is <= 0. Using the default value (" <<
-                    default_value << ") instead.");
+    ROS_WARN_STREAM("The requested " << parameter_name << " is <" << (strict ? "=" : "") <<
+                    " 0. Using the default value (" << default_value << ") instead.");
     value = default_value;
   }
   return value;
