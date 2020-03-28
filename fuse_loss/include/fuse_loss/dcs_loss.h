@@ -124,7 +124,7 @@ public:
   }
 
 private:
-  double a_{ 1.0 };  //<! DCSLoss parameter 'a'
+  double a_{ 1.0 };  //!< DCSLoss parameter 'a'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

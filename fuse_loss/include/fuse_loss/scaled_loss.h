@@ -141,7 +141,7 @@ public:
   }
 
 private:
-  double a_{ 1.0 };  //<! ScaledLoss parameter 'a'. See Ceres documentation for more details
+  double a_{ 1.0 };  //!< ScaledLoss parameter 'a'. See Ceres documentation for more details
   std::shared_ptr<fuse_core::Loss> loss_{ nullptr };  //!< The loss function to scale
 
   // Allow Boost Serialization access to private methods
