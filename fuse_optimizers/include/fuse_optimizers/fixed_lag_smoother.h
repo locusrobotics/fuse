@@ -75,12 +75,6 @@ namespace fuse_optimizers
  *
  * Parameters:
  *  - lag_duration (float, default: 5.0) The duration of the smoothing window in seconds
- *  - ignition_sensors (string list, default: "") The optimization will wait until a transaction is received from one
- *                                                of these sensors. This is useful, for example, for providing an
- *                                                initial guess of the robot's position and orientation. Any
- *                                                transactions received before the ignition transaction will be deleted.
- *                                                Leaving the \p ignition_sensors list empty will cause the optimization
- *                                                to start immediately.
  *  - motion_models (struct array) The set of motion model plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this motion model)
