@@ -132,6 +132,23 @@ public:
    */
   virtual void stop() {}
 
+  /**
+   * @brief Get whether this sensor model should be used as an ignition sensor or not
+   *
+   * The optimization will wait until a transaction is received from an ignition sensor. This is useful, for example,
+   * for providing an initial guess of the robot's position and orientation. Any transactions received before the
+   * ignition transaction will be deleted. If there is no ignition sensor, the optimization will start immediately.
+   *
+   * The sensor models default to not being ignition sensors. This can be overriden by ignition sensors, that could
+   * optionally be used as such or not at runtime based on a user given parameter.
+   *
+   * @return True if this sensor model should be used as an ignition sensor, false otherwise
+   */
+  virtual bool ignition() const
+  {
+    return false;
+  }
+
 protected:
   /**
    * @brief Default Constructor

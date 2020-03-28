@@ -80,6 +80,7 @@ void Unicycle2DIgnition::onInit()
 {
   // Read settings from the parameter sever
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  private_node_handle_.getParam("ignition", ignition_);
 
   params_.loadFromROS(private_node_handle_);
 

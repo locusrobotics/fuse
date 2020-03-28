@@ -56,13 +56,6 @@ struct FixedLagSmootherParams
 {
 public:
   /**
-   * @brief The set of sensors whose transactions will trigger the optimizer thread to start running
-   *
-   * This is designed to keep the system idle until the origin constraint has been received.
-   */
-  std::vector<std::string> ignition_sensors;
-
-  /**
    * @brief The duration of the smoothing window in seconds
    */
   ros::Duration lag_duration { 5.0 };
@@ -102,9 +95,6 @@ public:
   void loadFromROS(const ros::NodeHandle& nh)
   {
     // Read settings from the parameter server
-    nh.getParam("ignition_sensors", ignition_sensors);
-    std::sort(ignition_sensors.begin(), ignition_sensors.end());
-
     auto lag_duration_sec = fuse_core::getPositiveParam(nh, "lag_duration", lag_duration.toSec());
     lag_duration.fromSec(lag_duration_sec);
 

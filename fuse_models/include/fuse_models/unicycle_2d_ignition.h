@@ -114,6 +114,22 @@ public:
   void stop() override;
 
   /**
+   * @brief Get whether this sensor model should be used as an ignition sensor or not
+   *
+   * The optimization will wait until a transaction is received from an ignition sensor. This is useful, for example,
+   * for providing an initial guess of the robot's position and orientation. Any transactions received before the
+   * ignition transaction will be deleted. If there is no ignition sensor, the optimization will start immediately.
+   *
+   * By default this sensor model is an ignition sensor, but the user can disable that at runtime with a ROS parameter.
+   *
+   * @return True if this sensor model should be used as an ignition sensor, false otherwise
+   */
+  bool ignition() const override
+  {
+    return ignition_;
+  }
+
+  /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
   void subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
@@ -161,6 +177,8 @@ protected:
   bool initial_transaction_sent_;  //!< Flag indicating an initial transaction has been sent already
 
   fuse_core::UUID device_id_;  //!< The UUID of this device
+
+  bool ignition_{ true };  //!< Whether to use this sensor model as an ignition sensor or not
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
