@@ -61,9 +61,12 @@ void SerializedPublisher::onInit()
   // Configure the publisher
   private_node_handle_.getParam("frame_id", frame_id_);
 
+  bool latch = true;
+  private_node_handle_.getParam("latch", latch);
+
   // Advertise the topics
-  graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1);
-  transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1);
+  graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1, latch);
+  transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1, latch);
 }
 
 void SerializedPublisher::notifyCallback(
