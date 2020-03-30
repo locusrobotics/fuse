@@ -76,6 +76,11 @@ struct Imu2DParams : public ParameterBase
       nh.getParam("differential", differential);
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
+
+      double throttle_period_double = throttle_period.toSec();
+      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
+      throttle_period.fromSec(throttle_period_double);
+
       nh.getParam("remove_gravitational_acceleration", remove_gravitational_acceleration);
       nh.getParam("gravitational_acceleration", gravitational_acceleration);
       fuse_core::getParamRequired(nh, "topic", topic);
@@ -117,6 +122,7 @@ struct Imu2DParams : public ParameterBase
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     bool remove_gravitational_acceleration { false };
     int queue_size { 10 };
+    ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
     double gravitational_acceleration { 9.80665 };
     std::string acceleration_target_frame {};
     std::string orientation_target_frame {};

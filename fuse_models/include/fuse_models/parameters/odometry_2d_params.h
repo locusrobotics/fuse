@@ -78,6 +78,11 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("differential", differential);
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
+
+      double throttle_period_double = throttle_period.toSec();
+      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
+      throttle_period.fromSec(throttle_period_double);
+
       fuse_core::getParamRequired(nh, "topic", topic);
       fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
 
@@ -105,6 +110,7 @@ struct Odometry2DParams : public ParameterBase
     bool use_twist_covariance { true };
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     int queue_size { 10 };
+    ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
     std::string topic {};
     std::string pose_target_frame {};
     std::string twist_target_frame {};
