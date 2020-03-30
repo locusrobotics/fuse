@@ -59,17 +59,6 @@ BatchOptimizer::BatchOptimizer(
 {
   params_.loadFromROS(private_node_handle);
 
-  // Warn about possible configuration errors
-  // TODO(swilliams) Move this warning to the Parameter loadFromROS() method once all parameters are loaded there.
-  for (const auto& sensor_model_name : params_.ignition_sensors)
-  {
-    if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
-    {
-      ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
-                      "model with that name currently exists. This is likely a configuration error.");
-    }
-  }
-
   // Configure a timer to trigger optimizations
   optimize_timer_ = node_handle_.createTimer(
     ros::Duration(params_.optimization_period),
@@ -221,7 +210,7 @@ void BatchOptimizer::transactionCallback(
   if (!started_)
   {
     // Check if this transaction "starts" the system
-    if (std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), sensor_name))
+    if (sensor_models_.at(sensor_name)->ignition())
     {
       started_ = true;
       start_time_ = transaction_time;

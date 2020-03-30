@@ -141,8 +141,8 @@ public:
   }
 
 private:
-  double a_{ 1.0 };  //<! TolerantLoss parameter 'a'. See Ceres documentation for more details
-  double b_{ 0.1 };  //<! TolerantLoss parameter 'b'. See Ceres documentation for more details
+  double a_{ 1.0 };  //!< TolerantLoss parameter 'a'. See Ceres documentation for more details
+  double b_{ 0.1 };  //!< TolerantLoss parameter 'b'. See Ceres documentation for more details
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

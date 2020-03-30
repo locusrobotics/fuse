@@ -225,14 +225,14 @@ private:
   Ogre::SceneNode* orientation_root_node_;
   Ogre::SceneNode* orientation_offset_node_[kNumOriShapes];
 
-  rviz::Shape* position_shape_;                    ///< Ellipse used for the position covariance
-  rviz::Shape* orientation_shape_[kNumOriShapes];  ///< Cylinders used for the orientation covariance
+  rviz::Shape* position_shape_;                    //!< Ellipse used for the position covariance
+  rviz::Shape* orientation_shape_[kNumOriShapes];  //!< Cylinders used for the orientation covariance
 
   bool local_rotation_;
 
   bool pose_2d_;
 
-  bool orientation_visible_;  ///< If the orientation component is visible.
+  bool orientation_visible_;  //!< If the orientation component is visible.
 
   Ogre::Vector3 current_ori_scale_[kNumOriShapes];
   float current_ori_scale_factor_;
