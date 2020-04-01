@@ -79,9 +79,13 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       fuse_core::getParamRequired(nh, "topic", topic);
-      fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
 
-      if (!differential)
+      if (!linear_velocity_indices.empty() || !angular_velocity_indices.empty())
+      {
+        fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
+      }
+
+      if (!differential && (!position_indices.empty() || !orientation_indices.empty()))
       {
         fuse_core::getParamRequired(nh, "pose_target_frame", pose_target_frame);
       }
