@@ -129,6 +129,7 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
+  find_package(fuse_models REQUIRED)
   find_package(geometry_msgs REQUIRED)
   find_package(nav_msgs REQUIRED)
 
@@ -191,12 +192,14 @@ if(CATKIN_ENABLE_TESTING)
     PRIVATE
       include
       ${catkin_INCLUDE_DIRS}
+      ${fuse_models_INCLUDE_DIRS}
       ${geometry_msgs_INCLUDE_DIRS}
       ${nav_msgs_INCLUDE_DIRS}
       ${rostest_INCLUDE_DIRS}
   )
   target_link_libraries(test_fixed_lag_ignition
     ${catkin_LIBRARIES}
+    ${fuse_models_LIBRARIES}
     ${geometry_msgs_LIBRARIES}
     ${nav_msgs_LIBRARIES}
     ${rostest_LIBRARIES}
