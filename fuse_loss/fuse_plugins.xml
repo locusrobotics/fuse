@@ -67,6 +67,16 @@
     where b = a^2 and c = 1 / b.
     </description>
   </class>
+  <class type="fuse_loss::ComposedLoss" base_class_type="fuse_core::Loss">
+    <description>
+    Composition of two loss functions. The error is the result of first evaluating 'g' followed by 'f' to yeild the
+    composition 'f(g(s))' for the squared residual 's':
+
+    rho(s) = f_rho(g_rho(s))
+
+    If either the 'f' or 'g' loss functions are not given, the Trivial loss is used by default.
+    </description>
+  </class>
   <class type="fuse_loss::DCSLoss" base_class_type="fuse_core::Loss">
     <description>
     DCS (Dynamic Covariance Scaling) loss function with scaling parameter 'a', defined as follows for the squared
