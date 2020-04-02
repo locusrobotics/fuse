@@ -135,7 +135,11 @@ public:
     const auto now = ros::Time::now();
     if (!last_called_time_.isValid() || now - last_called_time_ > throttle_period_)
     {
-      keep_callback_(message);
+      if (keep_callback_)
+      {
+        keep_callback_(message);
+      }
+
       last_called_time_ = now;
     }
     else if (drop_callback_)
