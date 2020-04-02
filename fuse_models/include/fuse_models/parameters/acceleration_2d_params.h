@@ -69,9 +69,7 @@ struct Acceleration2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
 
-      double throttle_period_double = throttle_period.toSec();
-      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
-      throttle_period.fromSec(throttle_period_double);
+      throttle_period.fromSec(fuse_core::getPositiveParam(nh, "throttle_period", throttle_period.toSec(), false));
 
       fuse_core::getParamRequired(nh, "topic", topic);
       fuse_core::getParamRequired(nh, "target_frame", target_frame);
