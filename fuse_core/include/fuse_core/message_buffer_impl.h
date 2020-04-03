@@ -137,14 +137,32 @@ void MessageBuffer<Message>::purgeHistory()
   {
     return;
   }
-  // Continue to remove the first entry from the buffer until we:
-  // (a) are left with only two entries, OR
-  // (b) the time delta between the beginning and end is within the buffer_length_
+
+  // Compute the expiration time carefully, as ROS can't handle negative times
   const ros::Time& ending_stamp = buffer_.back().first;
-  while ((buffer_.size() > 2)
-      && ((ending_stamp - buffer_.front().first) > buffer_length_))
+  ros::Time expiration_time;
+  if (ending_stamp.toSec() < buffer_length_.toSec())
   {
-    buffer_.pop_front();
+    expiration_time = ros::Time(0);
+  }
+  else
+  {
+    expiration_time = ending_stamp - buffer_length_;
+  }
+  // Remove buffer elements before the expiration time.
+  // Be careful to ensure that:
+  //  - at least two entries remains at all times
+  //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
+  auto is_greater = [](const ros::Time& stamp, const typename Buffer::value_type& element) -> bool
+  {
+    return (element.first > stamp);
+  };
+  auto expiration_iter = std::upper_bound(buffer_.begin(), buffer_.end(), expiration_time, is_greater);
+  if (expiration_iter != buffer_.begin())
+  {
+    // expiration_iter points to the first element > expiration_time.
+    // Back up one entry, to a point that is <= expiration_time
+    buffer_.erase(buffer_.begin(), std::prev(expiration_iter));
   }
 }
 

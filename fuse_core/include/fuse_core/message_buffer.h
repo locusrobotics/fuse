@@ -162,6 +162,9 @@ protected:
 
   /**
    * @brief Remove any motion model segments that are older than \p buffer_length_
+   *
+   * The span of the buffer will be *at least* the requested buffer length, but it may be longer depending on the
+   * specific stamps of received messages.
    */
   void purgeHistory();
 };
