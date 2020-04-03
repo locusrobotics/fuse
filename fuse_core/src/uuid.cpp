@@ -91,12 +91,17 @@ UUID generate()
   static std::uniform_int_distribution<uint64_t> distibution;
   static std::mutex distribution_mutex;
 
-  UUID u;
+  uint64_t random1;
+  uint64_t random2;
   {
     std::lock_guard<std::mutex> lock(distribution_mutex);
-    *reinterpret_cast<uint64_t*>(u.data) = generator();
-    *reinterpret_cast<uint64_t*>(u.data + 4) = generator();
+    random1 = generator();
+    random2 = generator();
   }
+
+  UUID u;
+  std::memcpy(u.data, &random1, 8);
+  std::memcpy(u.data + 8, &random2, 8);
 
   // set variant
   // must be 0b10xxxxxx
