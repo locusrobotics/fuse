@@ -316,12 +316,16 @@ void Unicycle2D::updateStateHistoryEstimates(
     expiration_time = state_history.rbegin()->first - buffer_length;
   }
 
-  auto current_iter = state_history.begin();
-
-  // always keep at least one entry in the buffer
-  while (state_history.size() > 1 && current_iter->first < expiration_time)
+  // Remove state history elements before the expiration time.
+  // Be careful to ensure that:
+  //  - at least one entry remains at all times
+  //  - the history covers *at least* until the expiration time. Longer is acceptable.
+  auto expiration_iter = state_history.upper_bound(expiration_time);
+  if (expiration_iter != state_history.begin())
   {
-    current_iter = state_history.erase(current_iter);
+    // expiration_iter points to the first element > expiration_time.
+    // Back up one entry, to a point that is <= expiration_time
+    state_history.erase(state_history.begin(), std::prev(expiration_iter));
   }
 
   // Update the states in the state history with information from the graph
