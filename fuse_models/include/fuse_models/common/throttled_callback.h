@@ -156,8 +156,13 @@ public:
    */
   void callback(const MessageConstPtr& message)
   {
+    // Keep the callback if:
+    //
+    // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
+    // (b) The throttle period is zero, so we should always keep the callbacks
+    // (c) The elpased time between now and the last called time is greater than the throttle period
     const ros::Time now = use_wall_time_ ? ros::Time(ros::WallTime::now().toSec()) : ros::Time::now();
-    if (!last_called_time_.isValid() || now - last_called_time_ > throttle_period_)
+    if (!last_called_time_.isValid() || throttle_period_.isZero() || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
