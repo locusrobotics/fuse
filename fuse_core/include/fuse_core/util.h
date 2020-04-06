@@ -37,14 +37,10 @@
 #include <ros/console.h>
 #include <ros/node_handle.h>
 
-#include <fuse_core/eigen.h>
-
 #include <ceres/jet.h>
 #include <Eigen/Core>
 
 #include <cmath>
-#include <string>
-#include <vector>
 
 
 namespace fuse_core
@@ -112,9 +108,9 @@ static inline T getYaw(const T w, const T x, const T y, const T z)
 }
 
 /**
- * @brief Wrap a 2D angle to the standard (-Pi, +Pi] range.
+ * @brief Wrap a 2D angle to the standard [-Pi, +Pi) range.
  *
- * @param[in/out] angle Input angle to be wrapped to the (-Pi, +Pi] range. Angle is updated by this function.
+ * @param[in/out] angle Input angle to be wrapped to the [-Pi, +Pi) range. Angle is updated by this function.
  */
 template <typename T>
 void wrapAngle2D(T& angle)
@@ -155,69 +151,6 @@ Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
   Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotation;
   rotation << cos_angle, -sin_angle, sin_angle, cos_angle;
   return rotation;
-}
-
-
-/**
- * @brief Helper function that loads strictly positive integral or floating point values from the parameter server
- *
- * @param[in] node_handle - The node handle used to load the parameter
- * @param[in] parameter_name - The parameter name to load
- * @param[in] default_value - A default value to use if the provided parameter name does not exist
- * @return The loaded (or default) value
- */
-template <typename T,
-          typename std::enable_if<std::is_integral<T>::value || std::is_floating_point<T>::value>::type* = nullptr>
-T getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T default_value)
-{
-  T value;
-  node_handle.param(parameter_name, value, default_value);
-  if (value <= 0)
-  {
-    ROS_WARN_STREAM("The requested " << parameter_name << " is <= 0. Using the default value (" <<
-                    default_value << ") instead.");
-    value = default_value;
-  }
-  return value;
-}
-
-/**
- * @brief Helper function that loads a covariance matrix diagonal vector from the parameter server and checks the size
- * and the values are invalid, i.e. they are positive.
- *
- * @tparam Scalar - A scalar type, defaults to double
- * @tparam Size - An int size that specifies the expected size of the covariance matrix (rows and columns)
- *
- * @param[in] node_handle - The node handle used to load the parameter
- * @param[in] parameter_name - The parameter name to load
- * @param[in] default_value - A default value to use for all the diagonal elements if the provided parameter name does
- *                            not exist
- * @return The loaded (or default) covariance matrix, generated from the diagonal vector
- */
-template <int Size, typename Scalar = double>
-fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::NodeHandle& node_handle,
-                                                                 const std::string& parameter_name,
-                                                                 Scalar default_value)
-{
-  using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
-
-  std::vector<Scalar> diagonal(Size, default_value);
-  node_handle.param(parameter_name, diagonal, diagonal);
-
-  const auto diagonal_size = diagonal.size();
-  if (diagonal_size != Size)
-  {
-    throw std::invalid_argument("Invalid size of " + std::to_string(diagonal_size) + ", expected " +
-                                std::to_string(Size));
-  }
-
-  if (std::any_of(diagonal.begin(), diagonal.end(),
-                  [](const auto& value) { return value < Scalar(0); }))  // NOLINT(whitespace/braces)
-  {
-    throw std::invalid_argument("Invalid negative diagonal values in " + fuse_core::to_string(Vector(diagonal.data())));
-  }
-
-  return Vector(diagonal.data()).asDiagonal();
 }
 
 }  // namespace fuse_core

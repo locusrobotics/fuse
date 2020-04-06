@@ -38,7 +38,6 @@
 
 #include <fuse_core/loss.h>
 #include <fuse_core/parameter.h>
-#include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <ros/node_handle.h>

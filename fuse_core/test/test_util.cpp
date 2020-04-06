@@ -39,160 +39,41 @@
 #include <numeric>
 #include <string>
 
-TEST(Util, GetCovarianceDiagonalParam)
+TEST(Util, wrapAngle2D)
 {
-  // Build expected covariance matrix:
-  constexpr int Size = 3;
-  constexpr double variance = 1.0e-3;
-  constexpr double default_variance = 0.0;
-
-  fuse_core::Matrix3d expected_covariance = fuse_core::Matrix3d::Identity();
-  expected_covariance *= variance;
-
-  fuse_core::Matrix3d default_covariance = fuse_core::Matrix3d::Identity();
-  default_covariance *= default_variance;
-
-  // Load covariance matrix diagonal from the parameter server:
-  ros::NodeHandle node_handle;
-
-  // A covariance diagonal with the expected size and valid should be the same as the expected one:
+  // Wrap angle already in [-Pi, +Pi) range
   {
-    const std::string parameter_name{ "covariance_diagonal" };
-
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
-
-    try
-    {
-      const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
-
-      EXPECT_EQ(Size, covariance.rows());
-      EXPECT_EQ(Size, covariance.cols());
-
-      EXPECT_EQ(expected_covariance.rows() * expected_covariance.cols(),
-                expected_covariance.cwiseEqual(covariance).count())
-          << "Expected\n" << expected_covariance << "\nActual\n" << covariance;
-    }
-    catch (const std::exception& ex)
-    {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
-    }
+    const double angle = 0.5;
+    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
   }
 
-  // If the parameter does not exist we should get the default covariance:
+  // Wrap angle equal to +Pi
   {
-    const std::string parameter_name{ "non_existent_parameter" };
-
-    ASSERT_FALSE(node_handle.hasParam(parameter_name));
-
-    try
-    {
-      const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
-
-      EXPECT_EQ(Size, covariance.rows());
-      EXPECT_EQ(Size, covariance.cols());
-
-      EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
-                default_covariance.cwiseEqual(covariance).count())
-          << "Expected\n" << default_covariance << "\nActual\n" << covariance;
-    }
-    catch (const std::exception& ex)
-    {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
-    }
+    const double angle = M_PI;
+    EXPECT_EQ(-angle, fuse_core::wrapAngle2D(angle));
   }
 
-  // A covariance diagonal with negative values should throw std::invalid_argument:
+  // Wrap angle equal to -Pi
   {
-    const std::string parameter_name{ "covariance_diagonal_with_negative_values" };
-
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
-
-    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
-                 std::invalid_argument);
+    const double angle = -M_PI;
+    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
   }
 
-  // A covariance diagonal with size 2, smaller than expected, should throw std::invalid_argument:
+  // Wrap angle greater than +Pi
   {
-    const std::string parameter_name{ "covariance_diagonal_with_size_2" };
-
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
-
-    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
-                 std::invalid_argument);
+    const double angle = 0.5;
+    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle + 3.0 * 2.0 * M_PI));
   }
 
-  // A covariance diagonal with size 4, larger than expected, should throw std::invalid_argument:
+  // Wrap angle smaller than -Pi
   {
-    const std::string parameter_name{ "covariance_diagonal_with_size_4" };
-
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
-
-    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
-                 std::invalid_argument);
-  }
-
-  // A covariance diagonal with invalid element type does not throw, but nothing it is loaded, so we should get the
-  // default covariance:
-  {
-    const std::string parameter_name{ "covariance_diagonal_with_strings" };
-
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
-
-    try
-    {
-      const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
-
-      EXPECT_EQ(Size, covariance.rows());
-      EXPECT_EQ(Size, covariance.cols());
-
-      EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
-                default_covariance.cwiseEqual(covariance).count())
-          << "Expected\n" << default_covariance << "\nActual\n" << covariance;
-    }
-    catch (const std::exception& ex)
-    {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
-    }
-  }
-
-  // A covariance diagonal with invalid element type does not throw, but nothing it is loaded, so we should get the
-  // default covariance:
-  {
-    const std::string parameter_name{ "covariance_diagonal_with_string" };
-
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
-
-    try
-    {
-      const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
-
-      EXPECT_EQ(Size, covariance.rows());
-      EXPECT_EQ(Size, covariance.cols());
-
-      EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
-                default_covariance.cwiseEqual(covariance).count())
-          << "Expected\n" << default_covariance << "\nActual\n" << covariance;
-    }
-    catch (const std::exception& ex)
-    {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
-    }
+    const double angle = 0.5;
+    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle - 3.0 * 2.0 * M_PI));
   }
 }
 
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "util_test");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
+  return RUN_ALL_TESTS();
 }

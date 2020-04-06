@@ -38,7 +38,7 @@
 
 #include <fuse_core/ceres_options.h>
 #include <fuse_core/eigen.h>
-#include <fuse_core/util.h>
+#include <fuse_core/parameter.h>
 
 #include <ros/console.h>
 #include <ros/node_handle.h>
