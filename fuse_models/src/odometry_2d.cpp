@@ -54,7 +54,7 @@ Odometry2D::Odometry2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   tf_listener_(tf_buffer_),
-  throttled_callback_(std::move(std::bind(&Odometry2D::process, this, std::placeholders::_1)))
+  throttled_callback_(std::bind(&Odometry2D::process, this, std::placeholders::_1))
 {
 }
 
