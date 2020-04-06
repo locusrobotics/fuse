@@ -41,7 +41,7 @@
 
 TEST(Util, wrapAngle2D)
 {
-  // Wrap angle already in (-Pi, +Pi] range
+  // Wrap angle already in [-Pi, +Pi) range
   {
     const double angle = 0.5;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
@@ -50,7 +50,7 @@ TEST(Util, wrapAngle2D)
   // Wrap angle equal to +Pi
   {
     const double angle = M_PI;
-    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
+    EXPECT_EQ(-angle, fuse_core::wrapAngle2D(angle));
   }
 
   // Wrap angle equal to -Pi
