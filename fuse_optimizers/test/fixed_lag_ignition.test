@@ -17,6 +17,7 @@
         unicycle_ignition_sensor:
           type: fuse_models::Unicycle2DIgnition
           motion_models: [unicycle_motion_model]
+          ignition: true
         pose_sensor:
           type: fuse_models::Pose2D
           motion_models: [unicycle_motion_model]
