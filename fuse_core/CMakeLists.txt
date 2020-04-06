@@ -402,9 +402,33 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Parameter tests
+  add_rostest_gtest(test_parameter
+    test/parameter.test
+    test/test_parameter.cpp
+  )
+  add_dependencies(test_parameter
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_parameter
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${EIGEN3_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_parameter
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_parameter
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # Util tests
-  add_rostest_gtest(test_util
-    test/util.test
+  catkin_add_gtest(test_util
     test/test_util.cpp
   )
   add_dependencies(test_util

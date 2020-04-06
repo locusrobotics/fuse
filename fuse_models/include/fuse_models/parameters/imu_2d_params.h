@@ -38,7 +38,6 @@
 
 #include <fuse_core/loss.h>
 #include <fuse_core/parameter.h>
-#include <fuse_core/util.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>

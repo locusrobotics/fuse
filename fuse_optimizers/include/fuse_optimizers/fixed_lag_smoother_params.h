@@ -35,7 +35,7 @@
 #define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
 
 #include <fuse_core/ceres_options.h>
-#include <fuse_core/util.h>
+#include <fuse_core/parameter.h>
 #include <ros/duration.h>
 #include <ros/node_handle.h>
 
@@ -105,26 +105,27 @@ public:
     nh.getParam("ignition_sensors", ignition_sensors);
     std::sort(ignition_sensors.begin(), ignition_sensors.end());
 
-    auto lag_duration_sec = fuse_core::getPositiveParam(nh, "lag_duration", lag_duration.toSec());
+    double lag_duration_sec{ lag_duration.toSec() };
+    fuse_core::getPositiveParam(nh, "lag_duration", lag_duration_sec);
     lag_duration.fromSec(lag_duration_sec);
 
     if (nh.hasParam("optimization_frequency"))
     {
-      auto optimization_frequency =
-        fuse_core::getPositiveParam(nh, "optimization_frequency", 1.0 / optimization_period.toSec());
+      double optimization_frequency{ 1.0 / optimization_period.toSec() };
+      fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
       optimization_period.fromSec(1.0 / optimization_frequency);
     }
     else
     {
-      auto optimization_period_sec =
-        fuse_core::getPositiveParam(nh, "optimization_period", optimization_period.toSec());
+      double optimization_period_sec{ optimization_period.toSec() };
+      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period_sec);
       optimization_period.fromSec(optimization_period_sec);
     }
 
     nh.getParam("reset_service", reset_service);
 
-    auto transaction_timeout_sec =
-      fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout.toSec());
+    double transaction_timeout_sec{ transaction_timeout.toSec() };
+    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout_sec);
     transaction_timeout.fromSec(transaction_timeout_sec);
 
     fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
