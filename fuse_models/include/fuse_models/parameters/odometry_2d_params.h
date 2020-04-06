@@ -81,6 +81,7 @@ struct Odometry2DParams : public ParameterBase
       double throttle_period_double = throttle_period.toSec();
       fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
       throttle_period.fromSec(throttle_period_double);
+      nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
 
       fuse_core::getParamRequired(nh, "topic", topic);
 
@@ -114,6 +115,7 @@ struct Odometry2DParams : public ParameterBase
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     int queue_size { 10 };
     ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
+    bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     std::string topic {};
     std::string pose_target_frame {};
     std::string twist_target_frame {};

@@ -66,6 +66,7 @@ void Odometry2D::onInit()
   params_.loadFromROS(private_node_handle_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
+  throttled_callback_.setUseWallTime(params_.throttle_use_wall_time);
 
   if (params_.position_indices.empty() &&
       params_.orientation_indices.empty() &&
