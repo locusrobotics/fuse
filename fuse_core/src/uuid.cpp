@@ -40,9 +40,9 @@
 
 #include <algorithm>
 #include <array>
+#include <mutex>
 #include <random>
 #include <string>
-
 
 
 namespace fuse_core
@@ -88,22 +88,20 @@ UUID generate()
 {
   static std::random_device rd;
   static std::mt19937 generator(rd());
-  static std::uniform_int_distribution<uint32_t> distibution;
+  static std::uniform_int_distribution<uint64_t> distibution;
+  static std::mutex distribution_mutex;
+
+  uint64_t random1;
+  uint64_t random2;
+  {
+    std::lock_guard<std::mutex> lock(distribution_mutex);
+    random1 = generator();
+    random2 = generator();
+  }
 
   UUID u;
-
-  int i = 0;
-  auto random_value = distibution(generator);
-  for (UUID::iterator it = u.begin(); it != u.end(); ++it, ++i)
-  {
-    if (i == sizeof(random_value))
-    {
-      random_value = generator();
-      i = 0;
-    }
-    // static_cast gets rid of warnings of converting unsigned long to boost::uint8_t
-    *it = static_cast<UUID::value_type>((random_value >> (i*8)) & 0xFF);
-  }
+  std::memcpy(u.data, &random1, 8);
+  std::memcpy(u.data + 8, &random2, 8);
 
   // set variant
   // must be 0b10xxxxxx
