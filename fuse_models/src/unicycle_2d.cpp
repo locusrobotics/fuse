@@ -304,17 +304,10 @@ void Unicycle2D::updateStateHistoryEstimates(
     return;
   }
 
-  ros::Time expiration_time;
-
-  // ROS can't handle negative times
-  if (state_history.rbegin()->first.toSec() < buffer_length.toSec())
-  {
-    expiration_time = ros::Time(0);
-  }
-  else
-  {
-    expiration_time = state_history.rbegin()->first - buffer_length;
-  }
+  // Compute the expiration time carefully, as ROS can't handle negative times
+  const auto& ending_stamp = state_history.rbegin()->first;
+  auto expiration_time =
+      ending_stamp.toSec() > buffer_length.toSec() ? ending_stamp - buffer_length : ros::Time(0, 0);
 
   // Remove state history elements before the expiration time.
   // Be careful to ensure that:

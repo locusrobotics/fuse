@@ -96,7 +96,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   }
   // Find the entry that is strictly greater than the requested beginning stamp. If the extended range flag is true,
   // we will then back up one entry.
-  auto upper_bound_comparison = [](const ros::Time& stamp, const typename Buffer::value_type& element) -> bool
+  auto upper_bound_comparison = [](const auto& stamp, const auto& element) -> bool
   {
     return (element.first > stamp);
   };
@@ -107,7 +107,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   }
   // Find the entry that is greater than or equal to the ending stamp. If the extended range flag is false, we will
   // back up one entry.
-  auto lower_bound_comparison = [](const typename Buffer::value_type& element, const ros::Time& stamp) -> bool
+  auto lower_bound_comparison = [](const auto& element, const auto& stamp) -> bool
   {
     return (element.first < stamp);
   };
@@ -139,21 +139,14 @@ void MessageBuffer<Message>::purgeHistory()
   }
 
   // Compute the expiration time carefully, as ROS can't handle negative times
-  const ros::Time& ending_stamp = buffer_.back().first;
-  ros::Time expiration_time;
-  if (ending_stamp.toSec() < buffer_length_.toSec())
-  {
-    expiration_time = ros::Time(0);
-  }
-  else
-  {
-    expiration_time = ending_stamp - buffer_length_;
-  }
+  const auto& ending_stamp = buffer_.back().first;
+  auto expiration_time =
+      ending_stamp.toSec() > buffer_length_.toSec() ? ending_stamp - buffer_length_ : ros::Time(0, 0);
   // Remove buffer elements before the expiration time.
   // Be careful to ensure that:
   //  - at least two entries remains at all times
   //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
-  auto is_greater = [](const ros::Time& stamp, const typename Buffer::value_type& element) -> bool
+  auto is_greater = [](const auto& stamp, const auto& element) -> bool
   {
     return (element.first > stamp);
   };
