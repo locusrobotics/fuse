@@ -86,34 +86,16 @@ namespace uuid
 // DEALINGS IN THE SOFTWARE.
 UUID generate()
 {
-  static std::random_device rd;
-  static std::mt19937_64 generator(rd());
-  static std::uniform_int_distribution<uint64_t> distibution;
-  static std::mutex distribution_mutex;
+  static boost::uuids::random_generator generator;
+  static std::mutex generator_mutex;
 
-  uint64_t random1;
-  uint64_t random2;
+  UUID uuid;
   {
-    std::lock_guard<std::mutex> lock(distribution_mutex);
-    random1 = distibution(generator);
-    random2 = distibution(generator);
+    std::lock_guard<std::mutex> lock(generator_mutex);
+    uuid = generator();
   }
 
-  UUID u;
-  std::memcpy(u.data, &random1, 8);
-  std::memcpy(u.data + 8, &random2, 8);
-
-  // set variant
-  // must be 0b10xxxxxx
-  *(u.begin() + 8) &= 0xBF;
-  *(u.begin() + 8) |= 0x80;
-
-  // set version
-  // must be 0b0100xxxx
-  *(u.begin() + 6) &= 0x4F;  // 0b01001111
-  *(u.begin() + 6) |= 0x40;  // 0b01000000
-
-  return u;
+  return uuid;
 }
 
 UUID generate(const std::string& namespace_string, const ros::Time& stamp)
