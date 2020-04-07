@@ -87,7 +87,7 @@ namespace uuid
 UUID generate()
 {
   static std::random_device rd;
-  static std::mt19937 generator(rd());
+  static std::mt19937_64 generator(rd());
   static std::uniform_int_distribution<uint64_t> distibution;
   static std::mutex distribution_mutex;
 
@@ -95,8 +95,8 @@ UUID generate()
   uint64_t random2;
   {
     std::lock_guard<std::mutex> lock(distribution_mutex);
-    random1 = generator();
-    random2 = generator();
+    random1 = distibution(generator);
+    random2 = distibution(generator);
   }
 
   UUID u;
