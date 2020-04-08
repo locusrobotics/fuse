@@ -66,7 +66,7 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
 }
 
 /**
- * @brief Helper function that loads strictly positive integral or floating point values from the parameter server
+ * @brief Helper function that loads positive integral or floating point values from the parameter server
  *
  * @param[in] node_handle - The node handle used to load the parameter
  * @param[in] parameter_name - The parameter name to load
