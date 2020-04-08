@@ -96,7 +96,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   }
   // Find the entry that is strictly greater than the requested beginning stamp. If the extended range flag is true,
   // we will then back up one entry.
-  auto upper_bound_comparison = [](const ros::Time& stamp, const typename Buffer::value_type& element) -> bool
+  auto upper_bound_comparison = [](const auto& stamp, const auto& element) -> bool
   {
     return (element.first > stamp);
   };
@@ -107,7 +107,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   }
   // Find the entry that is greater than or equal to the ending stamp. If the extended range flag is false, we will
   // back up one entry.
-  auto lower_bound_comparison = [](const typename Buffer::value_type& element, const ros::Time& stamp) -> bool
+  auto lower_bound_comparison = [](const auto& element, const auto& stamp) -> bool
   {
     return (element.first < stamp);
   };
@@ -137,14 +137,25 @@ void MessageBuffer<Message>::purgeHistory()
   {
     return;
   }
-  // Continue to remove the first entry from the buffer until we:
-  // (a) are left with only two entries, OR
-  // (b) the time delta between the beginning and end is within the buffer_length_
-  const ros::Time& ending_stamp = buffer_.back().first;
-  while ((buffer_.size() > 2)
-      && ((ending_stamp - buffer_.front().first) > buffer_length_))
+
+  // Compute the expiration time carefully, as ROS can't handle negative times
+  const auto& ending_stamp = buffer_.back().first;
+  auto expiration_time =
+      ending_stamp.toSec() > buffer_length_.toSec() ? ending_stamp - buffer_length_ : ros::Time(0, 0);
+  // Remove buffer elements before the expiration time.
+  // Be careful to ensure that:
+  //  - at least two entries remains at all times
+  //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
+  auto is_greater = [](const auto& stamp, const auto& element) -> bool
   {
-    buffer_.pop_front();
+    return (element.first > stamp);
+  };
+  auto expiration_iter = std::upper_bound(buffer_.begin(), buffer_.end(), expiration_time, is_greater);
+  if (expiration_iter != buffer_.begin())
+  {
+    // expiration_iter points to the first element > expiration_time.
+    // Back up one entry, to a point that is <= expiration_time
+    buffer_.erase(buffer_.begin(), std::prev(expiration_iter));
   }
 }
 

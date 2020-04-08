@@ -161,9 +161,9 @@ TEST_F(MessageBufferTestFixture, Purge)
     EXPECT_EQ(ros::Time(40, 0), *stamps_range_iter);
   }
 
-  // Add a new entry that is slightly in the future. Verify the oldest entry is removed.
+  // Add a new entry in the future. Verify the oldest entry is removed.
   {
-    buffer.insert(ros::Time(40, 1), 5);
+    buffer.insert(ros::Time(50, 0), 5);
     auto stamps_range = buffer.stamps();
     ASSERT_EQ(4, std::distance(stamps_range.begin(), stamps_range.end()));
     auto stamps_range_iter = stamps_range.begin();
@@ -173,7 +173,7 @@ TEST_F(MessageBufferTestFixture, Purge)
     ++stamps_range_iter;
     EXPECT_EQ(ros::Time(40, 0), *stamps_range_iter);
     ++stamps_range_iter;
-    EXPECT_EQ(ros::Time(40, 1), *stamps_range_iter);
+    EXPECT_EQ(ros::Time(50, 0), *stamps_range_iter);
   }
 
   // Add a longer entry. This should cause multiple entries to get purged.
@@ -184,7 +184,7 @@ TEST_F(MessageBufferTestFixture, Purge)
     auto stamps_range_iter = stamps_range.begin();
     EXPECT_EQ(ros::Time(40, 0), *stamps_range_iter);
     ++stamps_range_iter;
-    EXPECT_EQ(ros::Time(40, 1), *stamps_range_iter);
+    EXPECT_EQ(ros::Time(50, 0), *stamps_range_iter);
     ++stamps_range_iter;
     EXPECT_EQ(ros::Time(70, 0), *stamps_range_iter);
   }

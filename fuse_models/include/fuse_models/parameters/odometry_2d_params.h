@@ -38,7 +38,6 @@
 
 #include <fuse_core/loss.h>
 #include <fuse_core/parameter.h>
-#include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
@@ -79,12 +78,19 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
 
-      throttle_period.fromSec(fuse_core::getPositiveParam(nh, "throttle_period", throttle_period.toSec(), false));
+      double throttle_period_double = throttle_period.toSec();
+      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
+      throttle_period.fromSec(throttle_period_double);
+      nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
 
       fuse_core::getParamRequired(nh, "topic", topic);
-      fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
 
-      if (!differential)
+      if (!linear_velocity_indices.empty() || !angular_velocity_indices.empty())
+      {
+        fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
+      }
+
+      if (!differential && (!position_indices.empty() || !orientation_indices.empty()))
       {
         fuse_core::getParamRequired(nh, "pose_target_frame", pose_target_frame);
       }
@@ -109,6 +115,7 @@ struct Odometry2DParams : public ParameterBase
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     int queue_size { 10 };
     ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
+    bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     std::string topic {};
     std::string pose_target_frame {};
     std::string twist_target_frame {};

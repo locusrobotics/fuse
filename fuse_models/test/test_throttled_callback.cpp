@@ -88,9 +88,9 @@ public:
   }
 
 private:
-  ros::NodeHandle node_handle_;  //<! The node handle
-  ros::Publisher publisher_;     //<! The publisher
-  double frequency_{ 10.0 };     //<! The publish rate frequency
+  ros::NodeHandle node_handle_;  //!< The node handle
+  ros::Publisher publisher_;     //!< The publisher
+  double frequency_{ 10.0 };     //!< The publish rate frequency
 };
 
 /**
@@ -167,15 +167,15 @@ private:
     ++dropped_messages_;
   }
 
-  ros::NodeHandle node_handle_;  //<! The node handle
-  ros::Subscriber subscriber_;   //<! The subscriber
+  ros::NodeHandle node_handle_;  //!< The node handle
+  ros::Subscriber subscriber_;   //!< The subscriber
 
   using PointThrottledCallback = fuse_models::common::ThrottledCallback<geometry_msgs::Point>;
-  PointThrottledCallback throttled_callback_;  //<! The throttled callback
+  PointThrottledCallback throttled_callback_;  //!< The throttled callback
 
-  size_t kept_messages_{ 0 };                         //<! Messages kept
-  size_t dropped_messages_{ 0 };                      //<! Messages dropped
-  geometry_msgs::Point::ConstPtr last_kept_message_;  //<! The last message kept
+  size_t kept_messages_{ 0 };                         //!< Messages kept
+  size_t dropped_messages_{ 0 };                      //!< Messages dropped
+  geometry_msgs::Point::ConstPtr last_kept_message_;  //!< The last message kept
 };
 
 

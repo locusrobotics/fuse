@@ -859,7 +859,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
     }
   }
 
-  // Create a relative pose constraint. We assume the pose measurements are independent.
+  // Create a relative pose constraint.
   auto constraint = fuse_constraints::RelativePose2DStampedConstraint::make_shared(
     source,
     *position1,

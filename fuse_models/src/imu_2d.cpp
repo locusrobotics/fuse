@@ -57,7 +57,7 @@ Imu2D::Imu2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   tf_listener_(tf_buffer_),
-  throttled_callback_(std::move(std::bind(&Imu2D::process, this, std::placeholders::_1)))
+  throttled_callback_(std::bind(&Imu2D::process, this, std::placeholders::_1))
 {
 }
 
@@ -69,6 +69,7 @@ void Imu2D::onInit()
   params_.loadFromROS(private_node_handle_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
+  throttled_callback_.setUseWallTime(params_.throttle_use_wall_time);
 
   if (params_.orientation_indices.empty() &&
       params_.linear_acceleration_indices.empty() &&

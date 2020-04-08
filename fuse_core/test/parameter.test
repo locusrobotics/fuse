@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <rosparam file="$(find fuse_core)/test/parameter.yaml" command="load"/>
+
+  <test test-name="Parameter" pkg="fuse_core" type="test_parameter" />
+</launch>

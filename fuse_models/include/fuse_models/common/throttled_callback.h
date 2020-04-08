@@ -66,11 +66,15 @@ public:
    * @param[in] drop_callback   The callback to call when the message is dropped because of the throttling. Defaults to
    *                            nullptr
    * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
+   * @param[in] use_wall_time   Whether to use ros::WallTime or not. Defaults to false
    */
   ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
                     Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
-                    const ros::Duration& throttle_period = ros::Duration(0.0))
-    : keep_callback_(keep_callback), drop_callback_(drop_callback), throttle_period_(throttle_period)
+                    const ros::Duration& throttle_period = ros::Duration(0.0), const bool use_wall_time = false)
+    : keep_callback_(keep_callback)
+    , drop_callback_(drop_callback)
+    , throttle_period_(throttle_period)
+    , use_wall_time_(use_wall_time)
   {
   }
 
@@ -85,6 +89,16 @@ public:
   }
 
   /**
+   * @brief Use wall time flag getter
+   *
+   * @return True if using ros::WallTime, false otherwise
+   */
+  bool getUseWallTime() const
+  {
+    return use_wall_time_;
+  }
+
+  /**
    * @brief Throttle period setter
    *
    * @param[in] throttle_period The new throttle period duration in seconds to use
@@ -92,6 +106,16 @@ public:
   void setThrottlePeriod(const ros::Duration& throttle_period)
   {
     throttle_period_ = throttle_period;
+  }
+
+  /**
+   * @brief Use wall time flag setter
+   *
+   * @param[in] use_wall_time Whether to use ros::WallTime or not
+   */
+  void setUseWallTime(const bool use_wall_time)
+  {
+    use_wall_time_ = use_wall_time;
   }
 
   /**
@@ -132,8 +156,13 @@ public:
    */
   void callback(const MessageConstPtr& message)
   {
-    const auto now = ros::Time::now();
-    if (!last_called_time_.isValid() || now - last_called_time_ > throttle_period_)
+    // Keep the callback if:
+    //
+    // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
+    // (b) The throttle period is zero, so we should always keep the callbacks
+    // (c) The elpased time between now and the last called time is greater than the throttle period
+    const ros::Time now = use_wall_time_ ? ros::Time(ros::WallTime::now().toSec()) : ros::Time::now();
+    if (!last_called_time_.isValid() || throttle_period_.isZero() || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
@@ -152,6 +181,7 @@ private:
   Callback keep_callback_;         //!< The callback to call when the message is kept, i.e. not dropped
   Callback drop_callback_;         //!< The callback to call when the message is dropped because of throttling
   ros::Duration throttle_period_;  //!< The throttling period duration in seconds
+  bool use_wall_time_;             //<! The flag to indicate whether to use ros::WallTime or not
 
   ros::Time last_called_time_;  //!< The last time the keep callback was called
 };

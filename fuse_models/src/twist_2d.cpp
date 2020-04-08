@@ -52,7 +52,7 @@ Twist2D::Twist2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   tf_listener_(tf_buffer_),
-  throttled_callback_(std::move(std::bind(&Twist2D::process, this, std::placeholders::_1)))
+  throttled_callback_(std::bind(&Twist2D::process, this, std::placeholders::_1))
 {
 }
 
@@ -64,6 +64,7 @@ void Twist2D::onInit()
   params_.loadFromROS(private_node_handle_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
+  throttled_callback_.setUseWallTime(params_.throttle_use_wall_time);
 
   if (params_.linear_indices.empty() &&
       params_.angular_indices.empty())

@@ -15,3 +15,12 @@ covariance_diagonal_with_strings: ["NaN", "NaN", "NaN"]
 
 # Covariance diagonal with invalid type:
 covariance_diagonal_with_string: "NaN"
+
+# Positive parameter:
+positive_parameter: 3.0
+
+# Negative parameter:
+negative_parameter: -3.0
+
+# Zero parameter:
+zero_parameter: 0.0

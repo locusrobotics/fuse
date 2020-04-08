@@ -37,9 +37,12 @@
 #include <gtest/gtest.h>
 
 #include <string>
-
+#include <thread>
+#include <unordered_set>
+#include <vector>
 
 using fuse_core::UUID;
+using UUIDs = std::vector<fuse_core::UUID>;
 
 
 TEST(UUID, Generate)
@@ -143,6 +146,59 @@ TEST(UUID, Generate)
     ASSERT_NE(id1, id3);
     ASSERT_NE(id1, id4);
     ASSERT_NE(id1, id5);
+  }
+}
+
+void generateUUIDs(UUIDs& uuids)
+{
+  constexpr size_t uuid_count = 100000;
+  uuids.reserve(uuid_count);
+  for (size_t i = 0; i < uuid_count; ++i)
+  {
+    auto uuid = fuse_core::uuid::generate();
+    uuids.push_back(uuid);
+  }
+}
+
+TEST(UUID, CollisionSingleThread)
+{
+  // Create many UUIDs
+  UUIDs raw_uuids;
+  generateUUIDs(raw_uuids);
+
+  // Check for duplicates
+  std::unordered_set<fuse_core::UUID> unique_uuids;
+  for (const auto& uuid : raw_uuids)
+  {
+    ASSERT_TRUE(unique_uuids.find(uuid) == unique_uuids.end()) << "UUIDs before duplicate " << unique_uuids.size();
+    unique_uuids.insert(uuid);
+  }
+}
+
+TEST(UUID, CollisionManyThreads)
+{
+  // Create many UUIDs in several threads
+  constexpr size_t thread_count = 12;
+  std::vector<UUIDs> raw_uuids(thread_count);
+  std::vector<std::thread> threads(thread_count);
+  for (size_t i = 0; i < threads.size(); ++i)
+  {
+    threads[i] = std::thread(generateUUIDs, std::ref(raw_uuids[i]));
+  }
+  for (size_t i = 0; i < threads.size(); ++i)
+  {
+    threads[i].join();
+  }
+
+  // Check for duplicates
+  std::unordered_set<fuse_core::UUID> unique_uuids;
+  for (size_t i = 0; i < raw_uuids.size(); ++i)
+  {
+    for (const auto& uuid : raw_uuids[i])
+    {
+      ASSERT_TRUE(unique_uuids.find(uuid) == unique_uuids.end()) << "UUIDs before duplicate " << unique_uuids.size();
+      unique_uuids.insert(uuid);
+    }
   }
 }
 

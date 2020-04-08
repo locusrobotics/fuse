@@ -33,6 +33,7 @@ add_compile_options(-Wall -Werror)
 add_library(${PROJECT_NAME}
   src/arctan_loss.cpp
   src/cauchy_loss.cpp
+  src/composed_loss.cpp
   src/dcs_loss.cpp
   src/fair_loss.cpp
   src/geman_mcclure_loss.cpp
@@ -121,6 +122,30 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
   set_target_properties(test_loss_function
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Composed Loss Tests
+  catkin_add_gtest(test_composed_loss
+    test/test_composed_loss.cpp
+  )
+  add_dependencies(test_composed_loss
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_composed_loss
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_composed_loss
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_composed_loss
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES

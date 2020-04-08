@@ -31,49 +31,58 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/util.h>
-#include <ros/ros.h>
+#include <fuse_loss/composed_loss.h>
+#include <fuse_loss/trivial_loss.h>
 
-#include <gtest/gtest.h>
+#include <fuse_core/parameter.h>
+#include <pluginlib/class_list_macros.h>
+#include <ros/node_handle.h>
 
-#include <numeric>
+#include <boost/serialization/export.hpp>
+
+#include <ostream>
 #include <string>
 
-TEST(Util, wrapAngle2D)
+
+namespace fuse_loss
 {
-  // Wrap angle already in [-Pi, +Pi) range
+
+ComposedLoss::ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss,
+                           const std::shared_ptr<fuse_core::Loss>& g_loss)
+  : f_loss_(f_loss), g_loss_(g_loss)
+{
+}
+
+void ComposedLoss::initialize(const std::string& name)
+{
+  ros::NodeHandle private_node_handle(name);
+
+  f_loss_ = fuse_core::loadLossConfig(private_node_handle, "f_loss");
+  g_loss_ = fuse_core::loadLossConfig(private_node_handle, "g_loss");
+}
+
+void ComposedLoss::print(std::ostream& stream) const
+{
+  stream << type() << "\n";
+
+  if (f_loss_)
   {
-    const double angle = 0.5;
-    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
+    stream << "  f_loss: " << f_loss_ << "\n";
   }
 
-  // Wrap angle equal to +Pi
+  if (g_loss_)
   {
-    const double angle = M_PI;
-    EXPECT_EQ(-angle, fuse_core::wrapAngle2D(angle));
-  }
-
-  // Wrap angle equal to -Pi
-  {
-    const double angle = -M_PI;
-    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
-  }
-
-  // Wrap angle greater than +Pi
-  {
-    const double angle = 0.5;
-    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle + 3.0 * 2.0 * M_PI));
-  }
-
-  // Wrap angle smaller than -Pi
-  {
-    const double angle = 0.5;
-    EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle - 3.0 * 2.0 * M_PI));
+    stream << "  g_loss: " << g_loss_ << "\n";
   }
 }
 
-int main(int argc, char** argv)
+ceres::LossFunction* ComposedLoss::lossFunction() const
 {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  return new ceres::ComposedLoss(f_loss_ ? f_loss_->lossFunction() : TrivialLoss().lossFunction(), Ownership,
+                                 g_loss_ ? g_loss_->lossFunction() : TrivialLoss().lossFunction(), Ownership);
 }
+
+}  // namespace fuse_loss
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::ComposedLoss);
+PLUGINLIB_EXPORT_CLASS(fuse_loss::ComposedLoss, fuse_core::Loss);

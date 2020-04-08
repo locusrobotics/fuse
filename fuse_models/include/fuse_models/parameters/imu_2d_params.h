@@ -38,7 +38,6 @@
 
 #include <fuse_core/loss.h>
 #include <fuse_core/parameter.h>
-#include <fuse_core/util.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
@@ -77,7 +76,10 @@ struct Imu2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
 
-      throttle_period.fromSec(fuse_core::getPositiveParam(nh, "throttle_period", throttle_period.toSec(), false));
+      double throttle_period_double = throttle_period.toSec();
+      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
+      throttle_period.fromSec(throttle_period_double);
+      nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
 
       nh.getParam("remove_gravitational_acceleration", remove_gravitational_acceleration);
       nh.getParam("gravitational_acceleration", gravitational_acceleration);
@@ -121,6 +123,7 @@ struct Imu2DParams : public ParameterBase
     bool remove_gravitational_acceleration { false };
     int queue_size { 10 };
     ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
+    bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     double gravitational_acceleration { 9.80665 };
     std::string acceleration_target_frame {};
     std::string orientation_target_frame {};
