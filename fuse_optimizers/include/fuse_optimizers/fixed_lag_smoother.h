@@ -189,7 +189,12 @@ protected:
    *
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
    */
-  virtual void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+  void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+
+  /**
+   * @brief Compute the oldest timestamp that is part of the configured lag window
+   */
+  ros::Time computeLagExpirationTime() const;
 
   /**
    * @brief Compute the set of variables that should be marginalized from the graph
@@ -197,9 +202,10 @@ protected:
    * This will be called after \p preprocessMarginalization() and after the graph has been updated with the any
    * previous marginal transactions and new transactions.
    *
+   * @param[in] lag_expiration The oldest timestamp that should remain in the graph
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
-  virtual std::vector<fuse_core::UUID> computeVariablesToMarginalize();
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const ros::Time& lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -210,7 +216,7 @@ protected:
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
    *                                 variables.
    */
-  virtual void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
+  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
@@ -238,8 +244,9 @@ protected:
    * deleted from the pending queue and a warning will be displayed.
    *
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
+   * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
-  void processQueue(fuse_core::Transaction& transaction);
+  void processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration);
 
   /**
    * @brief Service callback that resets the optimizer to its original state

@@ -138,17 +138,19 @@ void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& n
   timestamp_tracking_.addNewTransaction(new_transaction);
 }
 
-std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
+ros::Time FixedLagSmoother::computeLagExpirationTime() const
 {
-  auto current_stamp = timestamp_tracking_.currentStamp();
-  auto lag_stamp = ros::Time(0, 0);
-  if (current_stamp > ros::Time(0, 0) + params_.lag_duration)
-  {
-    lag_stamp = current_stamp - params_.lag_duration;
-  }
-  auto old_variables = std::vector<fuse_core::UUID>();
-  timestamp_tracking_.query(lag_stamp, std::back_inserter(old_variables));
-  return old_variables;
+  // Find the most recent variable timestamp
+  auto now = timestamp_tracking_.currentStamp();
+  // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
+  return (ros::Time(0, 0) + params_.lag_duration > now) ? ros::Time(0, 0) : now - params_.lag_duration;
+}
+
+std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const ros::Time& lag_expiration)
+{
+  auto marginalize_variable_uuids = std::vector<fuse_core::UUID>();
+  timestamp_tracking_.query(lag_expiration, std::back_inserter(marginalize_variable_uuids));
+  return marginalize_variable_uuids;
 }
 
 void FixedLagSmoother::postprocessMarginalization(const fuse_core::Transaction& marginal_transaction)
@@ -163,6 +165,7 @@ void FixedLagSmoother::optimizationLoop()
     return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
   };
   // Optimize constraints until told to exit
+  auto lag_expiration = ros::Time(0, 0);
   while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
@@ -186,7 +189,7 @@ void FixedLagSmoother::optimizationLoop()
       //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
-      processQueue(*new_transaction);
+      processQueue(*new_transaction, lag_expiration);
       // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
       // transactions queue.
       if (new_transaction->empty())
@@ -204,9 +207,10 @@ void FixedLagSmoother::optimizationLoop()
       // Optimization is complete. Notify all the things about the graph changes.
       notify(std::move(new_transaction), graph_->clone());
       // Compute a transaction that marginalizes out those variables.
+      lag_expiration = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
         ros::this_node::getName(),
-        computeVariablesToMarginalize(),
+        computeVariablesToMarginalize(lag_expiration),
         *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
@@ -248,7 +252,7 @@ void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
   }
 }
 
-void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
+void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration)
 {
   // We need to get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
@@ -338,7 +342,20 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
   while (transaction_riter != pending_transactions_.rend())
   {
     auto& element = *transaction_riter;
-    if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
+    auto min_stamp = element.stamp();
+    if (!element.transaction->involvedStamps().empty() && *element.transaction->involvedStamps().begin() < min_stamp)
+    {
+      min_stamp = *element.transaction->involvedStamps().begin();
+    }
+    if (min_stamp < lag_expiration)
+    {
+      ROS_DEBUG_STREAM("The current lag expiration time is " << lag_expiration << ". The queued transaction with "
+                       "timestamp " << element.stamp() << " from sensor " << element.sensor_name << " has a minimum "
+                       "involved timestamp of " << min_stamp << ", which is " << (lag_expiration - min_stamp) <<
+                       " seconds too old. Ignoring this transaction.");
+      transaction_riter = erase(pending_transactions_, transaction_riter);
+    }
+    else if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
     {
       // We should not process transactions from this sensor
       ++transaction_riter;
