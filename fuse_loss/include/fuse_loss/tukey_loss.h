@@ -120,7 +120,7 @@ public:
   }
 
 private:
-  double a_{ 1.0 };  //<! TukeyLoss parameter 'a'. See Ceres documentation for more details
+  double a_{ 1.0 };  //!< TukeyLoss parameter 'a'. See Ceres documentation for more details
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

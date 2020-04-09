@@ -243,6 +243,9 @@ void Optimizer::loadSensorModels()
 
   for (const auto& config : sensor_model_configs)
   {
+    // Check whether this is an ignition sensor model or not
+    const bool ignition = config.config.hasMember("ignition") ? static_cast<bool>(config.config["ignition"]) : false;
+
     // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
     auto sensor_model = sensor_model_loader_.createUniqueInstance(config.type);
     // Initialize the sensor
@@ -250,7 +253,8 @@ void Optimizer::loadSensorModels()
       config.name,
       std::bind(&Optimizer::injectCallback, this, config.name, std::placeholders::_1));
     // Store the sensor in a member variable for use later
-    sensor_models_.emplace(config.name, std::move(sensor_model));
+    sensor_models_.emplace(config.name,
+                           SensorModelInfo{ std::move(sensor_model), ignition });  // NOLINT(whitespace/braces)
 
     // Parse out the list of associated motion models, if any
     if ( (config.config.hasMember("motion_models"))
@@ -378,7 +382,7 @@ void Optimizer::notify(
   {
     try
     {
-      name__sensor_model.second->graphCallback(graph);
+      name__sensor_model.second.model->graphCallback(graph);
     }
     catch (const std::exception& e)
     {
@@ -441,7 +445,7 @@ void Optimizer::startPlugins()
   }
   for (const auto& name_plugin : sensor_models_)
   {
-    name_plugin.second->start();
+    name_plugin.second.model->start();
   }
   for (const auto& name_plugin : publishers_)
   {
@@ -459,7 +463,7 @@ void Optimizer::stopPlugins()
   }
   for (const auto& name_plugin : sensor_models_)
   {
-    name_plugin.second->stop();
+    name_plugin.second.model->stop();
   }
   for (const auto& name_plugin : motion_models_)
   {

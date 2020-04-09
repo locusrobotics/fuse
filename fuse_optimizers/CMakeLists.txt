@@ -188,6 +188,9 @@ if(CATKIN_ENABLE_TESTING)
     test/fixed_lag_ignition.test
     test/test_fixed_lag_ignition.cpp
   )
+  add_dependencies(test_fixed_lag_ignition
+    fixed_lag_smoother_node
+  )
   target_include_directories(test_fixed_lag_ignition
     PRIVATE
       include

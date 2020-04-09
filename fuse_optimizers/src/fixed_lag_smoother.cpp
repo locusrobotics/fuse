@@ -90,17 +90,6 @@ FixedLagSmoother::FixedLagSmoother(
 {
   params_.loadFromROS(private_node_handle);
 
-  // Warn about possible configuration errors
-  // TODO(swilliams) Move this warning to the Parameter loadFromROS() method once all parameters are loaded there.
-  for (const auto& sensor_model_name : params_.ignition_sensors)
-  {
-    if (sensor_models_.find(sensor_model_name) == sensor_models_.end())
-    {
-      ROS_WARN_STREAM("Sensor '" << sensor_model_name << "' is configured as an ignition sensor, but no sensor "
-                      "model with that name currently exists. This is likely a configuration error.");
-    }
-  }
-
   // Test for auto-start
   autostart();
 
@@ -134,7 +123,8 @@ FixedLagSmoother::~FixedLagSmoother()
 
 void FixedLagSmoother::autostart()
 {
-  if (params_.ignition_sensors.empty())
+  if (std::none_of(sensor_models_.begin(), sensor_models_.end(),
+                   [](const auto& element) { return element.second.ignition; }))  // NOLINT(whitespace/braces)
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
@@ -288,7 +278,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
 
     const auto transaction_rbegin = pending_transactions_.rbegin();
     auto& element = *transaction_rbegin;
-    if (!std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), element.sensor_name))
+    if (!sensor_models_.at(element.sensor_name).ignition)
     {
       // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
       // transaction, but we do not enforce it is processed individually.
@@ -319,8 +309,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
         const auto pending_ignition_transaction_iter =
             std::find_if(pending_transactions_.rbegin(), pending_transactions_.rend(),
                          [this](const auto& element) {  // NOLINT(whitespace/braces)
-                           return std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(),
-                                                     element.sensor_name);
+                           return sensor_models_.at(element.sensor_name).ignition;
                          });  // NOLINT(whitespace/braces)
         if (pending_ignition_transaction_iter == pending_transactions_.rend())
         {
@@ -450,7 +439,7 @@ void FixedLagSmoother::transactionCallback(
     if (!started_)
     {
       // ...check if we should
-      if (std::binary_search(params_.ignition_sensors.begin(), params_.ignition_sensors.end(), sensor_name))
+      if (sensor_models_.at(sensor_name).ignition)
       {
         started_ = true;
         ignited_ = true;

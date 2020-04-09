@@ -172,7 +172,7 @@ public:
   SMART_PTR_ALIASES_ONLY(Loss);
 
   static constexpr ceres::Ownership Ownership =
-      ceres::Ownership::TAKE_OWNERSHIP;  //<! The ownership of the ceres::LossFunction* returned by lossFunction()
+      ceres::Ownership::TAKE_OWNERSHIP;  //!< The ownership of the ceres::LossFunction* returned by lossFunction()
 
   /**
    * @brief Default constructor

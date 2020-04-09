@@ -56,13 +56,6 @@ struct BatchOptimizerParams
 {
 public:
   /**
-   * @brief The set of sensors whose transactions will trigger the optimizer thread to start running
-   *
-   * This is designed to keep the system idle until the origin constraint has been received.
-   */
-  std::vector<std::string> ignition_sensors;
-
-  /**
    * @brief The target duration for optimization cycles
    *
    * If an optimization takes longer than expected, an optimization cycle may be skipped. The optimization period
@@ -92,9 +85,6 @@ public:
   void loadFromROS(const ros::NodeHandle& nh)
   {
     // Read settings from the parameter server
-    nh.getParam("ignition_sensors", ignition_sensors);
-    std::sort(ignition_sensors.begin(), ignition_sensors.end());
-
     if (nh.hasParam("optimization_frequency"))
     {
       double optimization_frequency{ 1.0 / optimization_period.toSec() };

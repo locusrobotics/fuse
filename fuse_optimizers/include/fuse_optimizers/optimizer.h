@@ -120,7 +120,27 @@ protected:
   using PublisherUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::Publisher>;
   using Publishers = std::unordered_map<std::string, PublisherUniquePtr>;
   using SensorModelUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::SensorModel>;
-  using SensorModels = std::unordered_map<std::string, SensorModelUniquePtr>;
+
+  /**
+   * @brief A struct to hold the sensor model and whether it is an ignition one or not
+   */
+  struct SensorModelInfo
+  {
+    /**
+     * @brief Constructor
+     *
+     * @param[in] model The sensor model
+     * @param[in] ignition Whether this sensor model is an ignition one or not
+     */
+    SensorModelInfo(SensorModelUniquePtr model, const bool ignition) : model(std::move(model)), ignition(ignition)
+    {
+    }
+
+    SensorModelUniquePtr model;  //!< The sensor model
+    bool ignition;               //!< Whether this sensor model is an ignition one or not
+  };
+
+  using SensorModels = std::unordered_map<std::string, SensorModelInfo>;
 
   // Some internal book-keeping data structures
   using MotionModelGroup = std::vector<std::string>;  //!< A set of motion model names
