@@ -210,7 +210,7 @@ void BatchOptimizer::transactionCallback(
   if (!started_)
   {
     // Check if this transaction "starts" the system
-    if (sensor_models_.at(sensor_name)->ignition())
+    if (sensor_models_.at(sensor_name).ignition)
     {
       started_ = true;
       start_time_ = transaction_time;
