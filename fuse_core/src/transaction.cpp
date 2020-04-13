@@ -48,6 +48,30 @@
 namespace fuse_core
 {
 
+const ros::Time& Transaction::minStamp() const
+{
+  if (involved_stamps_.empty())
+  {
+    return stamp_;
+  }
+  else
+  {
+    return std::min(*involved_stamps_.begin(), stamp_);
+  }
+}
+
+const ros::Time& Transaction::maxStamp() const
+{
+  if (involved_stamps_.empty())
+  {
+    return stamp_;
+  }
+  else
+  {
+    return std::max(*involved_stamps_.rbegin(), stamp_);
+  }
+}
+
 void Transaction::addInvolvedStamp(const ros::Time& stamp)
 {
   involved_stamps_.insert(stamp);

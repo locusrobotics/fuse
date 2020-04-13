@@ -334,7 +334,10 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   }
 
   // Use the most recent transaction time as the current time
-  const auto current_time = pending_transactions_.front().stamp();
+  const auto current_time =
+      std::max_element(pending_transactions_.begin(), pending_transactions_.end(),
+                       [](const auto& lhs, const auto& rhs) { return lhs.maxStamp() < rhs.maxStamp(); })
+          ->maxStamp();
 
   // Attempt to process each pending transaction
   auto sensor_blacklist = std::vector<std::string>();
@@ -342,11 +345,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   while (transaction_riter != pending_transactions_.rend())
   {
     auto& element = *transaction_riter;
-    auto min_stamp = element.stamp();
-    if (!element.transaction->involvedStamps().empty() && *element.transaction->involvedStamps().begin() < min_stamp)
-    {
-      min_stamp = *element.transaction->involvedStamps().begin();
-    }
+    const auto& min_stamp = element.minStamp();
     if (min_stamp < lag_expiration)
     {
       ROS_DEBUG_STREAM("The current lag expiration time is " << lag_expiration << ". The queued transaction with "
@@ -370,14 +369,14 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     {
       // The motion model processing failed.
       // Check the transaction timeout to determine if it should be removed or skipped.
-      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
+      if (min_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
         ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp() <<
-                          " from sensor " << element.sensor_name << " could not be processed after " <<
-                          (current_time - element.transaction->stamp()) << " seconds, which is greater " <<
-                          "than the 'transaction_timeout' value of " << params_.transaction_timeout <<
-                          ". Ignoring this transaction.");
+                         " and minimum involved timestamp " << min_stamp << " from sensor " << element.sensor_name <<
+                         " could not be processed after " << (current_time - min_stamp) << " seconds, which is " <<
+                         "greater than the 'transaction_timeout' value of " << params_.transaction_timeout <<
+                         ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -427,7 +426,7 @@ void FixedLagSmoother::transactionCallback(
   fuse_core::Transaction::SharedPtr transaction)
 {
   // If this transaction occurs before the start time, just ignore it
-  auto transaction_time = transaction->stamp();
+  const auto& transaction_time = transaction->minStamp();
   if (started_ && transaction_time < start_time_)
   {
     ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
@@ -443,12 +442,12 @@ void FixedLagSmoother::transactionCallback(
     // The pending set is arranged "smallest stamp last" to making popping off the back more efficient
     auto comparator = [](const ros::Time& value, const TransactionQueueElement& element)
     {
-      return value >= element.stamp();
+      return value >= element.minStamp();
     };
     auto position = std::upper_bound(
       pending_transactions_.begin(),
       pending_transactions_.end(),
-      transaction->stamp(),
+      transaction->minStamp(),
       comparator);
     pending_transactions_.insert(position, {sensor_name, std::move(transaction)});  // NOLINT
 
@@ -466,7 +465,10 @@ void FixedLagSmoother::transactionCallback(
       //  - Either we just started and we want to purge out anything before the start time
       //  - Or we want to limit the pending size while waiting for an ignition sensor
       auto purge_time = ros::Time(0, 0);
-      auto last_pending_time = pending_transactions_.front().stamp();
+      const auto last_pending_time =
+          std::max_element(pending_transactions_.begin(), pending_transactions_.end(),
+                           [](const auto& lhs, const auto& rhs) { return lhs.maxStamp() < rhs.maxStamp(); })
+              ->maxStamp();
       if (started_)
       {
         purge_time = start_time_;
@@ -475,7 +477,7 @@ void FixedLagSmoother::transactionCallback(
       {
         purge_time = last_pending_time - params_.transaction_timeout;
       }
-      while (!pending_transactions_.empty() && pending_transactions_.back().stamp() < purge_time)
+      while (!pending_transactions_.empty() && pending_transactions_.back().minStamp() < purge_time)
       {
         pending_transactions_.pop_back();
       }
