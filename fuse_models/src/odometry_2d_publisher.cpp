@@ -195,6 +195,7 @@ void Odometry2DPublisher::onStart()
   odom_output_ = nav_msgs::Odometry();
   acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
   publish_timer_.start();
+  delayed_throttle_filter_.reset();
 }
 
 void Odometry2DPublisher::onStop()
@@ -272,7 +273,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 {
   if (latest_stamp_ == Synchronizer::TIME_ZERO)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "No valid state data yet. Delaying tf broadcast.");
+    ROS_WARN_STREAM_FILTER(&delayed_throttle_filter_, "No valid state data yet. Delaying tf broadcast.");
     return;
   }
 

@@ -37,6 +37,7 @@
 #include <fuse_models/parameters/odometry_2d_publisher_params.h>
 
 #include <fuse_core/async_publisher.h>
+#include <fuse_core/console.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -198,6 +199,9 @@ protected:
   tf2_ros::TransformBroadcaster tf_broadcaster_;
 
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
+
+  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{ 10.0 };  //!< A ros::console filter to print delayed
+                                                                      //!< throttle messages, that can be reset on start
 
   ros::Timer publish_timer_;
 };
