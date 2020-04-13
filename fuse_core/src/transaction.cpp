@@ -211,6 +211,7 @@ void Transaction::merge(const Transaction& other, bool overwrite)
 
 void Transaction::print(std::ostream& stream) const
 {
+  stream << "Stamp: " << stamp_ << "\n";
   stream << "Involved Timestamps:\n";
   for (const auto& involved_stamp : involved_stamps_)
   {
