@@ -165,7 +165,6 @@ void FixedLagSmoother::optimizationLoop()
     return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
   };
   // Optimize constraints until told to exit
-  auto lag_expiration = ros::Time(0, 0);
   while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
@@ -189,7 +188,7 @@ void FixedLagSmoother::optimizationLoop()
       //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
-      processQueue(*new_transaction, lag_expiration);
+      processQueue(*new_transaction, lag_expiration_);
       // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
       // transactions queue.
       if (new_transaction->empty())
@@ -207,10 +206,10 @@ void FixedLagSmoother::optimizationLoop()
       // Optimization is complete. Notify all the things about the graph changes.
       notify(std::move(new_transaction), graph_->clone());
       // Compute a transaction that marginalizes out those variables.
-      lag_expiration = computeLagExpirationTime();
+      lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
         ros::this_node::getName(),
-        computeVariablesToMarginalize(lag_expiration),
+        computeVariablesToMarginalize(lag_expiration_),
         *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
@@ -413,6 +412,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
     graph_->clear();
     marginal_transaction_ = fuse_core::Transaction();
     timestamp_tracking_.clear();
+    lag_expiration_ = ros::Time(0, 0);
   }
   // Tell all the plugins to start
   startPlugins();

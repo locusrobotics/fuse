@@ -150,6 +150,7 @@ protected:
    */
   using TransactionQueue = std::vector<TransactionQueueElement>;
 
+  ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
   fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
   std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
