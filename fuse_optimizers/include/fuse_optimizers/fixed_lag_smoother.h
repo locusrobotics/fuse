@@ -165,9 +165,9 @@ protected:
                                            //!< and processed by the optimization thread.
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
-  bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
-  bool ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor and it is queued
-                  //!< but not processed yet
+  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
+  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
+                               //!< and it is queued but not processed yet
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
 
   // Ordering ROS objects with callbacks last
