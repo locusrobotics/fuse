@@ -784,7 +784,6 @@ inline bool processDifferentialPoseWithTwistCovariance(
     twist.twist.covariance[31],
     twist.twist.covariance[35];
 
-  fuse_core::Matrix3d pose_relative_covariance;
   // For dependent pose measurements p1 and p2, we assume they're computed as:
   //
   // p2 = p1 * p12    [1]
@@ -829,7 +828,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
   j_twist.setIdentity();
   j_twist *= dt;
 
-  pose_relative_covariance = j_twist * cov * j_twist.transpose() + minimum_pose_relative_covariance;
+  fuse_core::Matrix3d pose_relative_covariance = j_twist * cov * j_twist.transpose() + minimum_pose_relative_covariance;
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd pose_relative_mean_partial(position_indices.size() + orientation_indices.size());
