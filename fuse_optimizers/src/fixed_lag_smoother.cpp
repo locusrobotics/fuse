@@ -143,7 +143,7 @@ ros::Time FixedLagSmoother::computeLagExpirationTime() const
   // Find the most recent variable timestamp
   auto now = timestamp_tracking_.currentStamp();
   // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
-  return (ros::Time(0, 0) + params_.lag_duration > now) ? ros::Time(0, 0) : now - params_.lag_duration;
+  return (ros::Time(0, 0) + params_.lag_duration < now) ? now - params_.lag_duration : ros::Time(0, 0);
 }
 
 std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const ros::Time& lag_expiration)
