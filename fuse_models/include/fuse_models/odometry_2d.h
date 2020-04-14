@@ -123,7 +123,7 @@ protected:
 
   ParameterType params_;
 
-  geometry_msgs::PoseWithCovarianceStamped::Ptr previous_pose_;
+  std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;
 
   tf2_ros::Buffer tf_buffer_;
 
