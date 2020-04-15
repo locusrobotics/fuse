@@ -37,11 +37,6 @@
 #include <ros/console.h>
 #include <ros/time.h>
 
-// Define the helper macro ROSCONSOLE_THROTTLE_CHECK if it is not defined in the ros/console.h version available.
-// This macro was introduced in https://github.com/ros/rosconsole/pull/12 and released in rosconsole version 1.13.8.
-#ifndef ROSCONSOLE_THROTTLE_CHECK
-#define ROSCONSOLE_THROTTLE_CHECK(now, last, period) (ROS_UNLIKELY(last + period <= now) || ROS_UNLIKELY(now < last))
-#endif
 
 namespace fuse_core
 {
