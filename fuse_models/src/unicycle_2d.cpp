@@ -63,8 +63,6 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2D, fuse_core::MotionModel)
 namespace fuse_models
 {
 
-static constexpr double EPSILON = 1.0e-9;  //!< "Small" value used to check if state variables are effectively zero
-
 Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
   buffer_length_(ros::DURATION_MAX),
