@@ -105,6 +105,13 @@ protected:
     tf2_2d::Vector2 acceleration_linear;  //!< Body-frame linear acceleration
 
     void print(std::ostream& stream = std::cout) const;
+
+    /**
+     * @brief Validate the state components: pose, linear velocity, yaw velocity and linear acceleration.
+     *
+     * This validates the state components are finite. It throws an exception if any validation check fails.
+     */
+    void validate() const;
   };
   using StateHistory = std::map<ros::Time, StateHistoryElement>;
 
@@ -163,6 +170,19 @@ protected:
     StateHistory& state_history,
     const ros::Duration& buffer_length);
 
+  /**
+   * @brief Validate the motion model state #1, state #2 and process noise covariance
+   *
+   * This validates the motion model states and process noise covariance are valid. It throws an exception if any
+   * validation check fails.
+   *
+   * @param[in] state1                   The first/oldest state
+   * @param[in] state2                   The second/newest state
+   * @param[in] process_noise_covariance The process noise covariance, after it is scaled and multiplied by dt
+   */
+  static void validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
+                                  const fuse_core::Matrix8d& process_noise_covariance);
+
   ros::Duration buffer_length_;                    //!< The length of the state history
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
   fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
@@ -171,7 +191,9 @@ protected:
                                                    //!< of the current state twist
   double velocity_norm_min_{ 1e-3 };               //!< The minimum velocity/twist norm allowed when scaling the
                                                    //!< process noise covariance
-  StateHistory state_history_;                     //!< History of optimized graph pose estimates
+  bool disable_checks_{ false };  //!< Whether to disable the validation checks for the current and predicted state,
+                                  //!< including the process noise covariance after it is scaled and multiplied by dt
+  StateHistory state_history_;    //!< History of optimized graph pose estimates
 };
 
 std::ostream& operator<<(std::ostream& stream, const Unicycle2D& unicycle_2d);
