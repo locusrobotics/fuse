@@ -201,7 +201,21 @@ void Unicycle2D::generateMotionModel(
     state1 = base_state;
   }
 
+  // If dt is zero, we only need to update the state history:
   const double dt = (ending_stamp - beginning_stamp).toSec();
+
+  if (dt == 0.0)
+  {
+    state1.position_uuid = fuse_variables::Position2DStamped(beginning_stamp, device_id_).uuid();
+    state1.yaw_uuid = fuse_variables::Orientation2DStamped(beginning_stamp, device_id_).uuid();
+    state1.vel_linear_uuid = fuse_variables::VelocityLinear2DStamped(beginning_stamp, device_id_).uuid();
+    state1.vel_yaw_uuid = fuse_variables::VelocityAngular2DStamped(beginning_stamp, device_id_).uuid();
+    state1.acc_linear_uuid = fuse_variables::AccelerationLinear2DStamped(beginning_stamp, device_id_).uuid();
+
+    state_history_.emplace(beginning_stamp, std::move(state1));
+
+    return;
+  }
 
   // Now predict to get an initial guess for the state at the ending stamp
   StateHistoryElement state2;
