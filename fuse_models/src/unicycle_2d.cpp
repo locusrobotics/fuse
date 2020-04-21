@@ -159,6 +159,8 @@ void Unicycle2D::generateMotionModel(
   std::vector<fuse_core::Constraint::SharedPtr>& constraints,
   std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
+  assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history_.empty()));
+
   StateHistoryElement base_state;
   ros::Time base_time;
 
