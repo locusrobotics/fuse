@@ -179,7 +179,6 @@ void Unicycle2D::generateMotionModel(
   }
 
   StateHistoryElement state1;
-  StateHistoryElement state2;
 
   // If the nearest state we had was before the beginning stamp, we need to project that state to the beginning stamp
   if (base_time != beginning_stamp)
@@ -203,6 +202,7 @@ void Unicycle2D::generateMotionModel(
   const double dt = (ending_stamp - beginning_stamp).toSec();
 
   // Now predict to get an initial guess for the state at the ending stamp
+  StateHistoryElement state2;
   predict(
     state1.pose,
     state1.velocity_linear,
