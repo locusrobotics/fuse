@@ -117,6 +117,30 @@ TEST_F(TimestampManagerTestFixture, Empty)
   EXPECT_EQ(ros::Time(20, 0), generated_time_spans[0].second);
 }
 
+TEST_F(TimestampManagerTestFixture, EmptySingleStamp)
+{
+  // Test:
+  // Existing: |-------------------------------------> t
+  // Adding:   |------*------------------------------> t
+  // Expected: |------*------------------------------> t
+
+  // Perform a single query
+  fuse_core::Transaction transaction;
+  transaction.addInvolvedStamp(ros::Time(10, 0));
+  manager.query(transaction);
+
+  // Verify the manager contains the timestamps
+  auto stamp_range = manager.stamps();
+  ASSERT_EQ(1, std::distance(stamp_range.begin(), stamp_range.end()));
+  auto stamp_range_iter = stamp_range.begin();
+  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+
+  // Verify the expected queries were performed
+  ASSERT_EQ(1ul, generated_time_spans.size());
+  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].first);
+  EXPECT_EQ(generated_time_spans[0].first, generated_time_spans[0].second);
+}
+
 TEST_F(TimestampManagerTestFixture, Exceptions)
 {
   // Set a finite buffer length and populate it with some queries
