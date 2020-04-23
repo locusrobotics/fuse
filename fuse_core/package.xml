@@ -17,6 +17,7 @@
   <depend>fuse_msgs</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend version_gte="1.13.8">rosconsole</depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
 </package>
