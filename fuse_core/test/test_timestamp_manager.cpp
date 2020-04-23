@@ -554,7 +554,7 @@ TEST_F(TimestampManagerTestFixture, MultiSegment)
   ASSERT_EQ(0ul, generated_time_spans.size());
 }
 
-TEST_F(TimestampManagerTestFixture, MultiSegmentBeforBeginning)
+TEST_F(TimestampManagerTestFixture, MultiSegmentBeforeBeginning)
 {
   // Test:
   // Existing: |------111111112222222233333333-------> t
