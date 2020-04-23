@@ -101,10 +101,17 @@ void AsyncMotionModel::start()
 
 void AsyncMotionModel::stop()
 {
-  auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStop, this));
-  auto result = callback->getFuture();
-  callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
-  result.wait();
+  if (ros::ok())
+  {
+    auto callback = boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStop, this));
+    auto result = callback->getFuture();
+    callback_queue_.addCallback(callback, reinterpret_cast<uint64_t>(this));
+    result.wait();
+  }
+  else
+  {
+    onStop();
+  }
 }
 
 }  // namespace fuse_core
