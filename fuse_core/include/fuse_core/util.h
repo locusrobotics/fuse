@@ -78,7 +78,7 @@ static inline T getPitch(const T w, const T x, const T y, const T z)
  * @param[in] x The quaternion x-axis component
  * @param[in] y The quaternion x-axis component
  * @param[in] z The quaternion x-axis component
- * @return      The quaternion's Euler pitch angle component
+ * @return      The quaternion's Euler roll angle component
  */
 template <typename T>
 static inline T getRoll(const T w, const T x, const T y, const T z)
@@ -96,7 +96,7 @@ static inline T getRoll(const T w, const T x, const T y, const T z)
  * @param[in] x The quaternion x-axis component
  * @param[in] y The quaternion x-axis component
  * @param[in] z The quaternion x-axis component
- * @return      The quaternion's Euler pitch angle component
+ * @return      The quaternion's Euler yaw angle component
  */
 template <typename T>
 static inline T getYaw(const T w, const T x, const T y, const T z)
