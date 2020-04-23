@@ -96,6 +96,7 @@ void AsyncPublisher::stop()
   }
   else
   {
+    spinner_.stop();
     onStop();
   }
 }

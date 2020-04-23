@@ -102,6 +102,7 @@ void AsyncSensorModel::stop()
   }
   else
   {
+    spinner_.stop();
     onStop();
   }
 }

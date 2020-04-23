@@ -110,6 +110,7 @@ void AsyncMotionModel::stop()
   }
   else
   {
+    spinner_.stop();
     onStop();
   }
 }
