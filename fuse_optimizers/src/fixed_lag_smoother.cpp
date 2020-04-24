@@ -82,11 +82,11 @@ FixedLagSmoother::FixedLagSmoother(
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
+    start_time_(ros::TIME_MAX),
+    ignited_(false),
     optimization_request_(false),
     optimization_running_(true),
-    start_time_(ros::TIME_MAX),
-    started_(false),
-    ignited_(false)
+    started_(false)
 {
   params_.loadFromROS(private_node_handle);
 

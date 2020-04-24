@@ -150,26 +150,36 @@ protected:
    */
   using TransactionQueue = std::vector<TransactionQueueElement>;
 
-  ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
-  fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
-  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
-  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
-  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
-  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
-                                                    //!< until a new optimization is requested by the main thread
-  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
+  // Read-only after construction
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
   ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
+  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction (* only used in callback thread)
+
+  // Inherently thread-safe
+  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
+                               //!< and it is queued but not processed yet
+  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
+  std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
+  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
+
+  // Guarded by pending_transactions_mutex_
+  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
-  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
-  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
-  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
-                               //!< and it is queued but not processed yet
+
+  // Guarded by optimization_mutex_
+  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
+  // fuse_core::Graph* graph_ member from the base class
+  ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
+  fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
+
+  // Guarded by optimization_requested_mutex_
+  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
+  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
+  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
+                                                    //!< until a new optimization is requested by the main thread
 
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
