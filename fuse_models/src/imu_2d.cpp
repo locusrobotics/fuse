@@ -117,24 +117,55 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   pose->pose.covariance[34] = msg->orientation_covariance[7];
   pose->pose.covariance[35] = msg->orientation_covariance[8];
 
+  geometry_msgs::TwistWithCovarianceStamped twist;
+  twist.header = msg->header;
+  twist.twist.twist.angular = msg->angular_velocity;
+  twist.twist.covariance[21] = msg->angular_velocity_covariance[0];
+  twist.twist.covariance[22] = msg->angular_velocity_covariance[1];
+  twist.twist.covariance[23] = msg->angular_velocity_covariance[2];
+  twist.twist.covariance[27] = msg->angular_velocity_covariance[3];
+  twist.twist.covariance[28] = msg->angular_velocity_covariance[4];
+  twist.twist.covariance[29] = msg->angular_velocity_covariance[5];
+  twist.twist.covariance[33] = msg->angular_velocity_covariance[6];
+  twist.twist.covariance[34] = msg->angular_velocity_covariance[7];
+  twist.twist.covariance[35] = msg->angular_velocity_covariance[8];
+
   const bool validate = !params_.disable_checks;
 
   if (params_.differential)
   {
     if (previous_pose_)
     {
-      common::processDifferentialPoseWithCovariance(
-        name(),
-        device_id_,
-        *previous_pose_,
-        *pose,
-        params_.independent,
-        params_.minimum_pose_relative_covariance,
-        params_.pose_loss,
-        {},
-        params_.orientation_indices,
-        validate,
-        *transaction);
+      if (params_.use_twist_covariance)
+      {
+        common::processDifferentialPoseWithTwistCovariance(
+          name(),
+          device_id_,
+          *previous_pose_,
+          *pose,
+          twist,
+          params_.minimum_pose_relative_covariance,
+          params_.pose_loss,
+          {},
+          params_.orientation_indices,
+          validate,
+          *transaction);
+      }
+      else
+      {
+        common::processDifferentialPoseWithCovariance(
+          name(),
+          device_id_,
+          *previous_pose_,
+          *pose,
+          params_.independent,
+          params_.minimum_pose_relative_covariance,
+          params_.pose_loss,
+          {},
+          params_.orientation_indices,
+          validate,
+          *transaction);
+      }
     }
 
     previous_pose_ = std::move(pose);
@@ -155,19 +186,6 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   }
 
   // Handle the twist data (only include indices for angular velocity)
-  geometry_msgs::TwistWithCovarianceStamped twist;
-  twist.header = msg->header;
-  twist.twist.twist.angular = msg->angular_velocity;
-  twist.twist.covariance[21] = msg->angular_velocity_covariance[0];
-  twist.twist.covariance[22] = msg->angular_velocity_covariance[1];
-  twist.twist.covariance[23] = msg->angular_velocity_covariance[2];
-  twist.twist.covariance[27] = msg->angular_velocity_covariance[3];
-  twist.twist.covariance[28] = msg->angular_velocity_covariance[4];
-  twist.twist.covariance[29] = msg->angular_velocity_covariance[5];
-  twist.twist.covariance[33] = msg->angular_velocity_covariance[6];
-  twist.twist.covariance[34] = msg->angular_velocity_covariance[7];
-  twist.twist.covariance[35] = msg->angular_velocity_covariance[8];
-
   common::processTwistWithCovariance(
     name(),
     device_id_,

@@ -88,12 +88,10 @@ struct Imu2DParams : public ParameterBase
       if (differential)
       {
         nh.getParam("independent", independent);
+        nh.getParam("use_twist_covariance", use_twist_covariance);
 
-        if (!independent)
-        {
-          minimum_pose_relative_covariance =
-              fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
-        }
+        minimum_pose_relative_covariance =
+            fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
       }
 
       if (!linear_acceleration_indices.empty())
@@ -119,6 +117,7 @@ struct Imu2DParams : public ParameterBase
     bool differential { false };
     bool disable_checks { false };
     bool independent { true };
+    bool use_twist_covariance { true };
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
     bool remove_gravitational_acceleration { false };
     int queue_size { 10 };
