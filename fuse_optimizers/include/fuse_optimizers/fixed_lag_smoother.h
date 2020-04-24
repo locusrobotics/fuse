@@ -136,6 +136,8 @@ protected:
     fuse_core::Transaction::SharedPtr transaction;
 
     const ros::Time& stamp() const { return transaction->stamp(); }
+    const ros::Time& minStamp() const { return transaction->minStamp(); }
+    const ros::Time& maxStamp() const { return transaction->maxStamp(); }
   };
 
   /**

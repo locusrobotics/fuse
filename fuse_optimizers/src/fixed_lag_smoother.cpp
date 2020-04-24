@@ -341,11 +341,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   while (transaction_riter != pending_transactions_.rend())
   {
     auto& element = *transaction_riter;
-    auto min_stamp = element.stamp();
-    if (!element.transaction->involvedStamps().empty() && *element.transaction->involvedStamps().begin() < min_stamp)
-    {
-      min_stamp = *element.transaction->involvedStamps().begin();
-    }
+    const auto& min_stamp = element.minStamp();
     if (min_stamp < lag_expiration)
     {
       ROS_DEBUG_STREAM("The current lag expiration time is " << lag_expiration << ". The queued transaction with "
@@ -369,14 +365,15 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     {
       // The motion model processing failed.
       // Check the transaction timeout to determine if it should be removed or skipped.
-      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
+      const auto& max_stamp = element.maxStamp();
+      if (max_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp() <<
-                          " from sensor " << element.sensor_name << " could not be processed after " <<
-                          (current_time - element.transaction->stamp()) << " seconds, which is greater " <<
-                          "than the 'transaction_timeout' value of " << params_.transaction_timeout <<
-                          ". Ignoring this transaction.");
+        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << "and maximum "
+                          "involved stamp of " << max_stamp << " from sensor " << element.sensor_name <<
+                          " could not be processed after " << (current_time - max_stamp) << " seconds, "
+                          "which is greater than the 'transaction_timeout' value of " <<
+                          params_.transaction_timeout << ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -428,12 +425,12 @@ void FixedLagSmoother::transactionCallback(
 {
   // If this transaction occurs before the start time, just ignore it
   auto start_time = getStartTime();
-  auto transaction_time = transaction->stamp();
-  if (started_ && transaction_time < start_time)
+  const auto& min_time = transaction->minStamp();
+  if (started_ && min_time < start_time)
   {
     ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
-                     "  start_time: " << start_time << ", transaction time: " << transaction_time <<
-                     ", difference: " << (start_time - transaction_time) << "s");
+                     "  start_time: " << start_time << ", minimum involved stamp: " << min_time <<
+                     ", difference: " << (start_time - min_time) << "s");
     return;
   }
   {
@@ -461,8 +458,8 @@ void FixedLagSmoother::transactionCallback(
       {
         started_ = true;
         ignited_ = true;
-        start_time = transaction_time;
-        setStartTime(transaction_time);
+        start_time = min_time;
+        setStartTime(min_time);
       }
       // And purge out old transactions
       //  - Either we just started and we want to purge out anything before the start time
@@ -477,7 +474,7 @@ void FixedLagSmoother::transactionCallback(
       {
         purge_time = last_pending_time - params_.transaction_timeout;
       }
-      while (!pending_transactions_.empty() && pending_transactions_.back().stamp() < purge_time)
+      while (!pending_transactions_.empty() && pending_transactions_.back().minStamp() < purge_time)
       {
         pending_transactions_.pop_back();
       }
