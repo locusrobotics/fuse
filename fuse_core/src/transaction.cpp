@@ -48,6 +48,30 @@
 namespace fuse_core
 {
 
+const ros::Time& Transaction::minStamp() const
+{
+  if (involved_stamps_.empty())
+  {
+    return stamp_;
+  }
+  else
+  {
+    return std::min(*involved_stamps_.begin(), stamp_);
+  }
+}
+
+const ros::Time& Transaction::maxStamp() const
+{
+  if (involved_stamps_.empty())
+  {
+    return stamp_;
+  }
+  else
+  {
+    return std::max(*involved_stamps_.rbegin(), stamp_);
+  }
+}
+
 void Transaction::addInvolvedStamp(const ros::Time& stamp)
 {
   involved_stamps_.insert(stamp);
@@ -211,6 +235,7 @@ void Transaction::merge(const Transaction& other, bool overwrite)
 
 void Transaction::print(std::ostream& stream) const
 {
+  stream << "Stamp: " << stamp_ << "\n";
   stream << "Involved Timestamps:\n";
   for (const auto& involved_stamp : involved_stamps_)
   {
