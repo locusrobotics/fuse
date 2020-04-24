@@ -60,10 +60,59 @@
 // Register this motion model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2D, fuse_core::MotionModel)
 
-namespace fuse_models
+namespace std
 {
 
-static constexpr double EPSILON = 1.0e-9;  //!< "Small" value used to check if state variables are effectively zero
+inline bool isfinite(const tf2_2d::Vector2& vector)
+{
+  return std::isfinite(vector.x()) && std::isfinite(vector.y());
+}
+
+inline bool isfinite(const tf2_2d::Transform& transform)
+{
+  return std::isfinite(transform.x()) && std::isfinite(transform.y()) && std::isfinite(transform.yaw());
+}
+
+std::string to_string(const tf2_2d::Vector2& vector)
+{
+  std::ostringstream oss;
+  oss << vector;
+  return oss.str();
+}
+
+std::string to_string(const tf2_2d::Transform& transform)
+{
+  std::ostringstream oss;
+  oss << transform;
+  return oss.str();
+}
+
+}  // namespace std
+
+namespace fuse_core
+{
+
+template <typename Derived>
+inline void validateCovariance(const Eigen::DenseBase<Derived>& covariance,
+                               const double precision = Eigen::NumTraits<double>::dummy_precision())
+{
+  if (!fuse_core::isSymmetric(covariance, precision))
+  {
+    throw std::runtime_error("Non-symmetric partial covariance matrix\n" +
+                             fuse_core::to_string(covariance, Eigen::FullPrecision));
+  }
+
+  if (!fuse_core::isPositiveDefinite(covariance))
+  {
+    throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
+                             fuse_core::to_string(covariance, Eigen::FullPrecision));
+  }
+}
+
+}  // namespace fuse_core
+
+namespace fuse_models
+{
 
 Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
@@ -94,6 +143,29 @@ void Unicycle2D::StateHistoryElement::print(std::ostream& stream) const
          << "  velocity linear: " << velocity_linear << "\n"
          << "  velocity yaw: " << velocity_yaw << "\n"
          << "  acceleration linear: " << acceleration_linear << "\n";
+}
+
+void Unicycle2D::StateHistoryElement::validate() const
+{
+  if (!std::isfinite(pose))
+  {
+    throw std::runtime_error("Invalid pose " + std::to_string(pose));
+  }
+
+  if (!std::isfinite(velocity_linear))
+  {
+    throw std::runtime_error("Invalid linear velocity " + std::to_string(velocity_linear));
+  }
+
+  if (!std::isfinite(velocity_yaw))
+  {
+    throw std::runtime_error("Invalid yaw velocity " + std::to_string(velocity_yaw));
+  }
+
+  if (!std::isfinite(acceleration_linear))
+  {
+    throw std::runtime_error("Invalid linear acceleration " + std::to_string(acceleration_linear));
+  }
 }
 
 bool Unicycle2D::applyCallback(fuse_core::Transaction& transaction)
@@ -132,6 +204,8 @@ void Unicycle2D::onInit()
 
   private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
   private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
+
+  private_node_handle_.param("disable_checks", disable_checks_, disable_checks_);
 
   double buffer_length = 3.0;
   private_node_handle_.param("buffer_length", buffer_length, buffer_length);
@@ -265,6 +339,22 @@ void Unicycle2D::generateMotionModel(
                                         velocity_norm_min_);
   }
 
+  // Validate
+  process_noise_covariance *= dt;
+
+  if (!disable_checks_)
+  {
+    try
+    {
+      validateMotionModel(state1, state2, process_noise_covariance);
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid '" << name_ << "' motion model: " << ex.what());
+      return;
+    }
+  }
+
   // Create the constraints for this motion model segment
   auto constraint = fuse_models::Unicycle2DStateKinematicConstraint::make_shared(
     name(),
@@ -278,7 +368,7 @@ void Unicycle2D::generateMotionModel(
     *velocity_linear2,
     *velocity_yaw2,
     *acceleration_linear2,
-    process_noise_covariance * dt);
+    process_noise_covariance);
 
   // Update the output variables
   constraints.push_back(constraint);
@@ -369,6 +459,37 @@ void Unicycle2D::updateStateHistoryEstimates(
         current_state.velocity_yaw,
         current_state.acceleration_linear);
     }
+  }
+}
+
+void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
+                                     const fuse_core::Matrix8d& process_noise_covariance)
+{
+  try
+  {
+    state1.validate();
+  }
+  catch (const std::runtime_error& ex)
+  {
+    throw std::runtime_error("Invalid state #1: " + std::string(ex.what()));
+  }
+
+  try
+  {
+    state2.validate();
+  }
+  catch (const std::runtime_error& ex)
+  {
+    throw std::runtime_error("Invalid state #2: " + std::string(ex.what()));
+  }
+
+  try
+  {
+    fuse_core::validateCovariance(process_noise_covariance);
+  }
+  catch (const std::runtime_error& ex)
+  {
+    throw std::runtime_error("Invalid process noise covariance: " + std::string(ex.what()));
   }
 }
 
