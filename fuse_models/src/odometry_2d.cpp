@@ -103,7 +103,7 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
   transaction->stamp(msg->header.stamp);
 
   // Handle the pose data
-  auto pose = boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>();
+  auto pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
   pose->header = msg->header;
   pose->pose = msg->pose;
 
@@ -150,7 +150,7 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
       }
     }
 
-    previous_pose_ = pose;
+    previous_pose_ = std::move(pose);
   }
   else
   {
