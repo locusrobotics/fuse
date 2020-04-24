@@ -82,7 +82,6 @@ FixedLagSmoother::FixedLagSmoother(
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    start_time_(ros::TIME_MAX),
     ignited_(false),
     optimization_request_(false),
     optimization_running_(true),
@@ -128,7 +127,7 @@ void FixedLagSmoother::autostart()
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
-    start_time_ = ros::Time(0, 0);
+    setStartTime(ros::Time(0, 0));
     ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
@@ -141,9 +140,10 @@ void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& n
 ros::Time FixedLagSmoother::computeLagExpirationTime() const
 {
   // Find the most recent variable timestamp
+  auto start_time = getStartTime();
   auto now = timestamp_tracking_.currentStamp();
   // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
-  return (ros::Time(0, 0) + params_.lag_duration < now) ? now - params_.lag_duration : ros::Time(0, 0);
+  return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
 }
 
 std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const ros::Time& lag_expiration)
@@ -394,10 +394,10 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
+  optimization_request_ = false;
   started_ = false;
   ignited_ = false;
-  start_time_ = ros::TIME_MAX;
-  optimization_request_ = false;
+  setStartTime(ros::Time(0, 0));
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
@@ -427,12 +427,13 @@ void FixedLagSmoother::transactionCallback(
   fuse_core::Transaction::SharedPtr transaction)
 {
   // If this transaction occurs before the start time, just ignore it
+  auto start_time = getStartTime();
   auto transaction_time = transaction->stamp();
-  if (started_ && transaction_time < start_time_)
+  if (started_ && transaction_time < start_time)
   {
     ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
-                     "  start_time: " << start_time_ << ", transaction time: " << transaction_time <<
-                     ", difference: " << (start_time_ - transaction_time) << "s");
+                     "  start_time: " << start_time << ", transaction time: " << transaction_time <<
+                     ", difference: " << (start_time - transaction_time) << "s");
     return;
   }
   {
@@ -460,7 +461,8 @@ void FixedLagSmoother::transactionCallback(
       {
         started_ = true;
         ignited_ = true;
-        start_time_ = transaction_time;
+        start_time = transaction_time;
+        setStartTime(transaction_time);
       }
       // And purge out old transactions
       //  - Either we just started and we want to purge out anything before the start time
@@ -469,7 +471,7 @@ void FixedLagSmoother::transactionCallback(
       auto last_pending_time = pending_transactions_.front().stamp();
       if (started_)
       {
-        purge_time = start_time_;
+        purge_time = start_time;
       }
       else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // ros::Time doesn't allow negatives
       {

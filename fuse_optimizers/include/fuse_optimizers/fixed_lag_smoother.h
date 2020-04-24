@@ -153,7 +153,6 @@ protected:
   // Read-only after construction
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
   ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction (* only used in callback thread)
 
   // Inherently thread-safe
   std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
@@ -180,6 +179,10 @@ protected:
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
+
+  // Guarded by start_time_mutex_
+  mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
+  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
@@ -263,6 +266,24 @@ protected:
    * @brief Service callback that resets the optimizer to its original state
    */
   bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+
+  /**
+   * @brief Thread-safe read-only access to the optimizer start time
+   */
+  ros::Time getStartTime() const
+  {
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+    return start_time_;
+  }
+
+  /**
+   * @brief Thread-safe write access to the optimizer start time
+   */
+  void setStartTime(const ros::Time& start_time)
+  {
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+    start_time_ = start_time;
+  }
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction
