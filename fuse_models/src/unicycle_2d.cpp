@@ -233,6 +233,8 @@ void Unicycle2D::generateMotionModel(
   std::vector<fuse_core::Constraint::SharedPtr>& constraints,
   std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
+  assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history_.empty()));
+
   StateHistoryElement base_state;
   ros::Time base_time;
 
@@ -253,7 +255,6 @@ void Unicycle2D::generateMotionModel(
   }
 
   StateHistoryElement state1;
-  StateHistoryElement state2;
 
   // If the nearest state we had was before the beginning stamp, we need to project that state to the beginning stamp
   if (base_time != beginning_stamp)
@@ -274,9 +275,24 @@ void Unicycle2D::generateMotionModel(
     state1 = base_state;
   }
 
+  // If dt is zero, we only need to update the state history:
   const double dt = (ending_stamp - beginning_stamp).toSec();
 
+  if (dt == 0.0)
+  {
+    state1.position_uuid = fuse_variables::Position2DStamped(beginning_stamp, device_id_).uuid();
+    state1.yaw_uuid = fuse_variables::Orientation2DStamped(beginning_stamp, device_id_).uuid();
+    state1.vel_linear_uuid = fuse_variables::VelocityLinear2DStamped(beginning_stamp, device_id_).uuid();
+    state1.vel_yaw_uuid = fuse_variables::VelocityAngular2DStamped(beginning_stamp, device_id_).uuid();
+    state1.acc_linear_uuid = fuse_variables::AccelerationLinear2DStamped(beginning_stamp, device_id_).uuid();
+
+    state_history_.emplace(beginning_stamp, std::move(state1));
+
+    return;
+  }
+
   // Now predict to get an initial guess for the state at the ending stamp
+  StateHistoryElement state2;
   predict(
     state1.pose,
     state1.velocity_linear,
