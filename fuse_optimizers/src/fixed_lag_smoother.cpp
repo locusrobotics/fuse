@@ -261,9 +261,6 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     return;
   }
 
-  // Use the most recent transaction time as the current time
-  const auto current_time = pending_transactions_.front().stamp();
-
   // If we just started because an ignition sensor transaction was received, we try to process it individually. This is
   // important because we need to update the graph with the ignition sensor transaction in order to get the motion
   // models notified of the initial state. The motion models will typically maintain a state history in order to create
@@ -335,6 +332,9 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     }
   }
 
+  // Use the most recent transaction time as the current time
+  const auto current_time = pending_transactions_.front().stamp();
+
   // Attempt to process each pending transaction
   auto sensor_blacklist = std::vector<std::string>();
   auto transaction_riter = pending_transactions_.rbegin();
@@ -369,7 +369,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
       if (max_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << "and maximum "
+        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << " and maximum "
                           "involved stamp of " << max_stamp << " from sensor " << element.sensor_name <<
                           " could not be processed after " << (current_time - max_stamp) << " seconds, "
                           "which is greater than the 'transaction_timeout' value of " <<
