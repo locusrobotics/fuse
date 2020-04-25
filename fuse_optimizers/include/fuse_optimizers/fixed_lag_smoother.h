@@ -136,6 +136,8 @@ protected:
     fuse_core::Transaction::SharedPtr transaction;
 
     const ros::Time& stamp() const { return transaction->stamp(); }
+    const ros::Time& minStamp() const { return transaction->minStamp(); }
+    const ros::Time& maxStamp() const { return transaction->maxStamp(); }
   };
 
   /**
@@ -150,25 +152,39 @@ protected:
    */
   using TransactionQueue = std::vector<TransactionQueueElement>;
 
-  fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
-  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
-  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
-  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
-  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
-                                                    //!< until a new optimization is requested by the main thread
-  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
+  // Read-only after construction
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
   ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
+
+  // Inherently thread-safe
+  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
+                               //!< and it is queued but not processed yet
+  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
+  std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
+  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
+
+  // Guarded by pending_transactions_mutex_
+  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
-  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
-  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
-  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
-                               //!< and it is queued but not processed yet
+
+  // Guarded by optimization_mutex_
+  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
+  // fuse_core::Graph* graph_ member from the base class
+  ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
+  fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
+
+  // Guarded by optimization_requested_mutex_
+  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
+  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
+  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
+                                                    //!< until a new optimization is requested by the main thread
+
+  // Guarded by start_time_mutex_
+  mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
+  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
@@ -189,7 +205,12 @@ protected:
    *
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
    */
-  virtual void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+  void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+
+  /**
+   * @brief Compute the oldest timestamp that is part of the configured lag window
+   */
+  ros::Time computeLagExpirationTime() const;
 
   /**
    * @brief Compute the set of variables that should be marginalized from the graph
@@ -197,9 +218,10 @@ protected:
    * This will be called after \p preprocessMarginalization() and after the graph has been updated with the any
    * previous marginal transactions and new transactions.
    *
+   * @param[in] lag_expiration The oldest timestamp that should remain in the graph
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
-  virtual std::vector<fuse_core::UUID> computeVariablesToMarginalize();
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const ros::Time& lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -210,7 +232,7 @@ protected:
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
    *                                 variables.
    */
-  virtual void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
+  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
@@ -238,13 +260,32 @@ protected:
    * deleted from the pending queue and a warning will be displayed.
    *
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
+   * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
-  void processQueue(fuse_core::Transaction& transaction);
+  void processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration);
 
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
   bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+
+  /**
+   * @brief Thread-safe read-only access to the optimizer start time
+   */
+  ros::Time getStartTime() const
+  {
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+    return start_time_;
+  }
+
+  /**
+   * @brief Thread-safe write access to the optimizer start time
+   */
+  void setStartTime(const ros::Time& start_time)
+  {
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+    start_time_ = start_time;
+  }
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction

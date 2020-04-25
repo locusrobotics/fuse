@@ -122,6 +122,22 @@ public:
   const_stamp_range involvedStamps() const { return involved_stamps_; }
 
   /**
+   * @brief Read-only access to the minimum (oldest), timestamp among the transaction's stamp and all involved
+   * timestamps, if any
+   *
+   * @return The minimum (oldest) timestamp.
+   */
+  const ros::Time& minStamp() const;
+
+  /**
+   * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all involved
+   * timestamps, if any
+   *
+   * @return The maximum (newest) timestamp.
+   */
+  const ros::Time& maxStamp() const;
+
+  /**
    * @brief Read-only access to the added constraints
    *
    * @return  An iterator range containing all added constraints
