@@ -84,11 +84,10 @@ FixedLagSmoother::FixedLagSmoother(
   const ros::NodeHandle& node_handle,
   const ros::NodeHandle& private_node_handle) :
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
+    ignited_(false),
     optimization_request_(false),
     optimization_running_(true),
-    start_time_(ros::TIME_MAX),
-    started_(false),
-    ignited_(false)
+    started_(false)
 {
   params_.loadFromROS(private_node_handle);
 
@@ -130,7 +129,7 @@ void FixedLagSmoother::autostart()
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
-    start_time_ = ros::Time(0, 0);
+    setStartTime(ros::Time(0, 0));
     ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
@@ -140,17 +139,20 @@ void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& n
   timestamp_tracking_.addNewTransaction(new_transaction);
 }
 
-std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
+ros::Time FixedLagSmoother::computeLagExpirationTime() const
 {
-  auto current_stamp = timestamp_tracking_.currentStamp();
-  auto lag_stamp = ros::Time(0, 0);
-  if (current_stamp > ros::Time(0, 0) + params_.lag_duration)
-  {
-    lag_stamp = current_stamp - params_.lag_duration;
-  }
-  auto old_variables = std::vector<fuse_core::UUID>();
-  timestamp_tracking_.query(lag_stamp, std::back_inserter(old_variables));
-  return old_variables;
+  // Find the most recent variable timestamp
+  auto start_time = getStartTime();
+  auto now = timestamp_tracking_.currentStamp();
+  // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
+  return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
+}
+
+std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const ros::Time& lag_expiration)
+{
+  auto marginalize_variable_uuids = std::vector<fuse_core::UUID>();
+  timestamp_tracking_.query(lag_expiration, std::back_inserter(marginalize_variable_uuids));
+  return marginalize_variable_uuids;
 }
 
 void FixedLagSmoother::postprocessMarginalization(const fuse_core::Transaction& marginal_transaction)
@@ -192,7 +194,7 @@ void FixedLagSmoother::optimizationLoop()
       //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
-      processQueue(*new_transaction);
+      processQueue(*new_transaction, lag_expiration_);
       // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
       // transactions queue.
       if (new_transaction->empty())
@@ -210,9 +212,10 @@ void FixedLagSmoother::optimizationLoop()
       // Optimization is complete. Notify all the things about the graph changes.
       notify(std::move(new_transaction), graph_->clone());
       // Compute a transaction that marginalizes out those variables.
+      lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
         ros::this_node::getName(),
-        computeVariablesToMarginalize(),
+        computeVariablesToMarginalize(lag_expiration_),
         *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
@@ -254,7 +257,7 @@ void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
   }
 }
 
-void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
+void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration)
 {
   TRACE_PRETTY_FUNCTION();
 
@@ -265,9 +268,6 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
   {
     return;
   }
-
-  // Use the most recent transaction time as the current time
-  const auto current_time = pending_transactions_.front().stamp();
 
   // If we just started because an ignition sensor transaction was received, we try to process it individually. This is
   // important because we need to update the graph with the ignition sensor transaction in order to get the motion
@@ -340,13 +340,25 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
     }
   }
 
+  // Use the most recent transaction time as the current time
+  const auto current_time = pending_transactions_.front().stamp();
+
   // Attempt to process each pending transaction
   auto sensor_blacklist = std::vector<std::string>();
   auto transaction_riter = pending_transactions_.rbegin();
   while (transaction_riter != pending_transactions_.rend())
   {
     auto& element = *transaction_riter;
-    if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
+    const auto& min_stamp = element.minStamp();
+    if (min_stamp < lag_expiration)
+    {
+      ROS_DEBUG_STREAM("The current lag expiration time is " << lag_expiration << ". The queued transaction with "
+                       "timestamp " << element.stamp() << " from sensor " << element.sensor_name << " has a minimum "
+                       "involved timestamp of " << min_stamp << ", which is " << (lag_expiration - min_stamp) <<
+                       " seconds too old. Ignoring this transaction.");
+      transaction_riter = erase(pending_transactions_, transaction_riter);
+    }
+    else if (std::find(sensor_blacklist.begin(), sensor_blacklist.end(), element.sensor_name) != sensor_blacklist.end())
     {
       // We should not process transactions from this sensor
       ++transaction_riter;
@@ -361,14 +373,15 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction)
     {
       // The motion model processing failed.
       // Check the transaction timeout to determine if it should be removed or skipped.
-      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
+      const auto& max_stamp = element.maxStamp();
+      if (max_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp() <<
-                          " from sensor " << element.sensor_name << " could not be processed after " <<
-                          (current_time - element.transaction->stamp()) << " seconds, which is greater " <<
-                          "than the 'transaction_timeout' value of " << params_.transaction_timeout <<
-                          ". Ignoring this transaction.");
+        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << " and maximum "
+                          "involved stamp of " << max_stamp << " from sensor " << element.sensor_name <<
+                          " could not be processed after " << (current_time - max_stamp) << " seconds, "
+                          "which is greater than the 'transaction_timeout' value of " <<
+                          params_.transaction_timeout << ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -386,10 +399,10 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
+  optimization_request_ = false;
   started_ = false;
   ignited_ = false;
-  start_time_ = ros::TIME_MAX;
-  optimization_request_ = false;
+  setStartTime(ros::Time(0, 0));
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
@@ -404,6 +417,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
     graph_->clear();
     marginal_transaction_ = fuse_core::Transaction();
     timestamp_tracking_.clear();
+    lag_expiration_ = ros::Time(0, 0);
   }
   // Tell all the plugins to start
   startPlugins();
@@ -418,12 +432,13 @@ void FixedLagSmoother::transactionCallback(
   fuse_core::Transaction::SharedPtr transaction)
 {
   // If this transaction occurs before the start time, just ignore it
-  auto transaction_time = transaction->stamp();
-  if (started_ && transaction_time < start_time_)
+  auto start_time = getStartTime();
+  const auto& min_time = transaction->minStamp();
+  if (started_ && min_time < start_time)
   {
     ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
-                     "  start_time: " << start_time_ << ", transaction time: " << transaction_time <<
-                     ", difference: " << (start_time_ - transaction_time) << "s");
+                     "  start_time: " << start_time << ", minimum involved stamp: " << min_time <<
+                     ", difference: " << (start_time - min_time) << "s");
     return;
   }
   {
@@ -451,7 +466,8 @@ void FixedLagSmoother::transactionCallback(
       {
         started_ = true;
         ignited_ = true;
-        start_time_ = transaction_time;
+        start_time = min_time;
+        setStartTime(min_time);
       }
       // And purge out old transactions
       //  - Either we just started and we want to purge out anything before the start time
@@ -460,13 +476,13 @@ void FixedLagSmoother::transactionCallback(
       auto last_pending_time = pending_transactions_.front().stamp();
       if (started_)
       {
-        purge_time = start_time_;
+        purge_time = start_time;
       }
       else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // ros::Time doesn't allow negatives
       {
         purge_time = last_pending_time - params_.transaction_timeout;
       }
-      while (!pending_transactions_.empty() && pending_transactions_.back().stamp() < purge_time)
+      while (!pending_transactions_.empty() && pending_transactions_.back().minStamp() < purge_time)
       {
         pending_transactions_.pop_back();
       }
