@@ -250,6 +250,7 @@ bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
   {
     constraints_by_variable_uuid_.erase(cross_reference_iter);
   }
+  variables_on_hold_.erase(variable_uuid);
   return true;
 }
 
