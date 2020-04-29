@@ -289,6 +289,11 @@ void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_con
   }
 }
 
+bool HashGraph::isVariableOnHold(const fuse_core::UUID& variable_uuid) const
+{
+  return variables_on_hold_.find(variable_uuid) != variables_on_hold_.end();
+}
+
 void HashGraph::getCovariance(
   const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>& covariance_requests,
   std::vector<std::vector<double>>& covariance_matrices,
