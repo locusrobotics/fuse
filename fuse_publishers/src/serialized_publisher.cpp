@@ -61,7 +61,7 @@ void SerializedPublisher::onInit()
   // Configure the publisher
   private_node_handle_.getParam("frame_id", frame_id_);
 
-  bool latch = true;
+  bool latch = false;
   private_node_handle_.getParam("latch", latch);
 
   // Advertise the topics
