@@ -51,7 +51,9 @@
 #include <OgreSceneNode.h>
 
 #include <algorithm>
+#include <memory>
 #include <string>
+
 
 namespace rviz
 {

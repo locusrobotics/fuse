@@ -39,6 +39,8 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <memory>
+
 TEST(TukeyLoss, Constructor)
 {
   // Create a default loss

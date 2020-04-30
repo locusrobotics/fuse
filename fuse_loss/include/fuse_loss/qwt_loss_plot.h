@@ -35,7 +35,6 @@
 #ifndef FUSE_LOSS_QWT_LOSS_PLOT_H
 #define FUSE_LOSS_QWT_LOSS_PLOT_H
 
-
 #include <qwt_legend.h>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
@@ -46,9 +45,9 @@
 #include <qwt_plot_zoomer.h>
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
-
 
 namespace fuse_loss
 {

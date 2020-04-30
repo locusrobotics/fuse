@@ -45,6 +45,7 @@
 #include <sensor_msgs/Imu.h>
 
 #include <memory>
+#include <utility>
 
 
 // Register this sensor model with ROS as a plugin.
