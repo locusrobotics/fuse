@@ -75,7 +75,7 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  */
 template <typename T,
-          typename std::enable_if<std::is_integral<T>::value || std::is_floating_point<T>::value>::type* = nullptr>
+          typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
 void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T& default_value,
                       const bool strict = true)
 {

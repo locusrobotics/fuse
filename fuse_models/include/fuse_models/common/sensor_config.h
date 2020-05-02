@@ -79,7 +79,7 @@ inline void throwDimensionError(const std::string& dimension)
  * @throws runtime_error if the dimension name is invalid
  */
 template <typename T>
-typename std::enable_if<is_linear_2d<T>::value, size_t>::type toIndex(const std::string& dimension)
+std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(const std::string& dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "x") return static_cast<size_t>(T::X);
@@ -100,7 +100,7 @@ typename std::enable_if<is_linear_2d<T>::value, size_t>::type toIndex(const std:
  * @throws runtime_error if the dimension name is invalid
  */
 template <typename T>
-typename std::enable_if<is_angular_2d<T>::value, size_t>::type toIndex(const std::string& dimension)
+std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string& dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "yaw" || lower_dim == "z") return static_cast<size_t>(fuse_variables::Orientation2DStamped::YAW);
