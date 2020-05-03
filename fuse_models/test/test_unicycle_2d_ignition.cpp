@@ -46,6 +46,7 @@
 #include <functional>
 #include <future>
 #include <string>
+#include <utility>
 #include <vector>
 
 using fuse_constraints::AbsolutePosition2DStampedConstraint;

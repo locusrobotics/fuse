@@ -47,6 +47,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <memory>
 #include <mutex>
 #include <string>
 #include <utility>

@@ -40,6 +40,9 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include<memory>
+
+
 TEST(ScaledLoss, Constructor)
 {
   // Create a default loss
