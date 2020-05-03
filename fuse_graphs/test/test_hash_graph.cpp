@@ -716,6 +716,12 @@ TEST(HashGraph, HoldVariable)
   // Variable1 should not have changed from its original value
   EXPECT_NEAR(1.0, variable1->data()[0], 1.0e-7);
   EXPECT_NEAR(-3.0, variable2->data()[0], 1.0e-7);
+
+  // Remove variable1, that is on hold.
+  // We need to remove constraint1 before because it uses variable1
+  EXPECT_TRUE(graph.removeConstraint(constraint1->uuid()));
+  EXPECT_TRUE(graph.removeVariable(variable1->uuid()));
+  EXPECT_FALSE(graph.isVariableOnHold(variable1->uuid()));
 }
 
 TEST(HashGraph, GetCovariance)

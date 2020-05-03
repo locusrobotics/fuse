@@ -250,6 +250,7 @@ bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
   {
     constraints_by_variable_uuid_.erase(cross_reference_iter);
   }
+  variables_on_hold_.erase(variable_uuid);
   return true;
 }
 
@@ -287,6 +288,11 @@ void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_con
   {
     variables_on_hold_.erase(variable_uuid);
   }
+}
+
+bool HashGraph::isVariableOnHold(const fuse_core::UUID& variable_uuid) const
+{
+  return variables_on_hold_.find(variable_uuid) != variables_on_hold_.end();
 }
 
 void HashGraph::getCovariance(
