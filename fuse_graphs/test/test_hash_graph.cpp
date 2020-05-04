@@ -49,98 +49,110 @@
 #include <utility>
 #include <vector>
 
-
 /**
- * @brief Static variable to hold the last unit test error description
+ * @brief Test fixture for the HashGraph
+ *
+ * This test fixture provides methods to compare variables and constraints, and allows to retrieve the last failure
+ * description, if any.
  */
-static std::string failure_description;
-
-/**
- * @brief Compare all the properties of two Variable objects
- * @return True if all the properties match, false otherwise
- */
-bool compareVariables(const fuse_core::Variable& expected, const fuse_core::Variable& actual)
+class HashGraphTestFixture : public ::testing::Test
 {
-  failure_description = "";
-  bool variables_equal = true;
-  if (expected.type() != actual.type())
+public:
+  /**
+   * @brief Compare all the properties of two Variable objects
+   *
+   * @param[in] expected - The expected variable
+   * @param[in] actual - The actual variable
+   * @return True if all the properties match, false otherwise
+   */
+  bool compareVariables(const fuse_core::Variable& expected, const fuse_core::Variable& actual)
   {
-    variables_equal = false;
-    failure_description += "The variables have different types.\n"
-      "  expected type is '" + expected.type() + "'\n"
-      "    actual type is '" + actual.type() + "'\n";
-  }
-  if (expected.size() != actual.size())
-  {
-    variables_equal = false;
-    failure_description += "The variables have different sizes.\n"
-      "  expected size is '" + std::to_string(expected.size()) + "'\n"
-      "    actual size is '" + std::to_string(actual.size()) + "'\n";
-  }
-  if (expected.uuid() != actual.uuid())
-  {
-    variables_equal = false;
-    failure_description += "The variables have different UUIDs.\n"
-      "  expected UUID is '" + fuse_core::uuid::to_string(expected.uuid()) + "'\n"
-      "    actual UUID is '" + fuse_core::uuid::to_string(actual.uuid()) + "'\n";
-  }
-  for (size_t i = 0; i < expected.size(); ++i)
-  {
-    if (expected.data()[i] != actual.data()[i])
+    failure_description = "";
+    bool variables_equal = true;
+    if (expected.type() != actual.type())
     {
       variables_equal = false;
-      failure_description += "The variables have different values.\n"
-        "  expected data(" + std::to_string(i) + ") is '" + std::to_string(expected.data()[i]) + "'\n"
-        "    actual data(" + std::to_string(i) + ") is '" + std::to_string(actual.data()[i]) + "'\n";
+      failure_description += "The variables have different types.\n"
+        "  expected type is '" + expected.type() + "'\n"
+        "    actual type is '" + actual.type() + "'\n";
     }
+    if (expected.size() != actual.size())
+    {
+      variables_equal = false;
+      failure_description += "The variables have different sizes.\n"
+        "  expected size is '" + std::to_string(expected.size()) + "'\n"
+        "    actual size is '" + std::to_string(actual.size()) + "'\n";
+    }
+    if (expected.uuid() != actual.uuid())
+    {
+      variables_equal = false;
+      failure_description += "The variables have different UUIDs.\n"
+        "  expected UUID is '" + fuse_core::uuid::to_string(expected.uuid()) + "'\n"
+        "    actual UUID is '" + fuse_core::uuid::to_string(actual.uuid()) + "'\n";
+    }
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+      if (expected.data()[i] != actual.data()[i])
+      {
+        variables_equal = false;
+        failure_description += "The variables have different values.\n"
+          "  expected data(" + std::to_string(i) + ") is '" + std::to_string(expected.data()[i]) + "'\n"
+          "    actual data(" + std::to_string(i) + ") is '" + std::to_string(actual.data()[i]) + "'\n";
+      }
+    }
+    return variables_equal;
   }
-  return variables_equal;
-}
 
-/**
- * @brief Compare all the properties of two Constraint objects
- * @return True if all the properties match, false otherwise
- */
-bool compareConstraints(const fuse_core::Constraint& expected, const fuse_core::Constraint& actual)
-{
-  failure_description = "";
-  bool constraints_equal = true;
-  if (expected.type() != actual.type())
+  /**
+   * @brief Compare all the properties of two Constraint objects
+   *
+   * @param[in] expected - The expected constraint
+   * @param[in] actual - The actual constraint
+   * @return True if all the properties match, false otherwise
+   */
+  bool compareConstraints(const fuse_core::Constraint& expected, const fuse_core::Constraint& actual)
   {
-    constraints_equal = false;
-    failure_description += "The constraints have different types.\n"
-      "  expected type is '" + expected.type() + "'\n"
-      "    actual type is '" + actual.type() + "'\n";
-  }
-  if (expected.uuid() != actual.uuid())
-  {
-    constraints_equal = false;
-    failure_description += "The constraints have different UUIDs.\n"
-      "  expected UUID is '" + fuse_core::uuid::to_string(expected.uuid()) + "'\n"
-      "    actual UUID is '" + fuse_core::uuid::to_string(actual.uuid()) + "'\n";
-  }
-  if (expected.variables().size() != actual.variables().size())
-  {
-    constraints_equal = false;
-    failure_description += "The constraints involve a different number of variables.\n"
-      "  expected variable count is '" + std::to_string(expected.variables().size()) + "'\n"
-      "    actual variable count is '" + std::to_string(actual.variables().size()) + "'\n";
-  }
-  for (size_t i = 0; i < expected.variables().size(); ++i)
-  {
-    if (expected.variables().at(i) != actual.variables().at(i))
+    failure_description = "";
+    bool constraints_equal = true;
+    if (expected.type() != actual.type())
     {
       constraints_equal = false;
-      std::string i_str = std::to_string(i);
-      failure_description += "The constraints involve different variable UUIDs.\n"
-        "  expected variables(" + i_str + ") is '" + fuse_core::uuid::to_string(expected.variables()[i]) + "'\n"
-        "    actual variables(" + i_str + ") is '" + fuse_core::uuid::to_string(actual.variables()[i]) + "'\n";
+      failure_description += "The constraints have different types.\n"
+        "  expected type is '" + expected.type() + "'\n"
+        "    actual type is '" + actual.type() + "'\n";
     }
+    if (expected.uuid() != actual.uuid())
+    {
+      constraints_equal = false;
+      failure_description += "The constraints have different UUIDs.\n"
+        "  expected UUID is '" + fuse_core::uuid::to_string(expected.uuid()) + "'\n"
+        "    actual UUID is '" + fuse_core::uuid::to_string(actual.uuid()) + "'\n";
+    }
+    if (expected.variables().size() != actual.variables().size())
+    {
+      constraints_equal = false;
+      failure_description += "The constraints involve a different number of variables.\n"
+        "  expected variable count is '" + std::to_string(expected.variables().size()) + "'\n"
+        "    actual variable count is '" + std::to_string(actual.variables().size()) + "'\n";
+    }
+    for (size_t i = 0; i < expected.variables().size(); ++i)
+    {
+      if (expected.variables().at(i) != actual.variables().at(i))
+      {
+        constraints_equal = false;
+        std::string i_str = std::to_string(i);
+        failure_description += "The constraints involve different variable UUIDs.\n"
+          "  expected variables(" + i_str + ") is '" + fuse_core::uuid::to_string(expected.variables()[i]) + "'\n"
+          "    actual variables(" + i_str + ") is '" + fuse_core::uuid::to_string(actual.variables()[i]) + "'\n";
+      }
+    }
+    return constraints_equal;
   }
-  return constraints_equal;
-}
 
-TEST(HashGraph, AddVariable)
+  std::string failure_description { "" };  //!< The last failure description. Empty if no failure happened
+};
+
+TEST_F(HashGraphTestFixture, AddVariable)
 {
   // Test adding variables to the graph
   // Also tests the variableExists() function
@@ -184,7 +196,7 @@ TEST(HashGraph, AddVariable)
   EXPECT_TRUE(graph.variableExists(variable3->uuid()));
 }
 
-TEST(HashGraph, RemoveVariable)
+TEST_F(HashGraphTestFixture, RemoveVariable)
 {
   // Test removing variables from the graph
 
@@ -246,7 +258,7 @@ TEST(HashGraph, RemoveVariable)
   EXPECT_TRUE(graph.variableExists(variable2->uuid()));
 }
 
-TEST(HashGraph, GetVariable)
+TEST_F(HashGraphTestFixture, GetVariable)
 {
   // Test accessing a single variables from the graph
 
@@ -270,7 +282,7 @@ TEST(HashGraph, GetVariable)
   EXPECT_TRUE(compareVariables(*variable2, actual2)) << failure_description;
 }
 
-TEST(HashGraph, GetVariables)
+TEST_F(HashGraphTestFixture, GetVariables)
 {
   // Test accessing the variables collection from the graph
 
@@ -317,7 +329,7 @@ TEST(HashGraph, GetVariables)
   }
 }
 
-TEST(HashGraph, GetConnectedVariables)
+TEST_F(HashGraphTestFixture, GetConnectedVariables)
 {
   // Test accessing the variables connected to a specific constraint
 
@@ -381,7 +393,7 @@ TEST(HashGraph, GetConnectedVariables)
   }
 }
 
-TEST(HashGraph, AddConstraint)
+TEST_F(HashGraphTestFixture, AddConstraint)
 {
   // Test adding constraints to the graph
   // Also tests the constraintExists() function
@@ -440,7 +452,7 @@ TEST(HashGraph, AddConstraint)
   EXPECT_THROW(graph.addConstraint(constraint4), std::logic_error);
 }
 
-TEST(HashGraph, RemoveConstraint)
+TEST_F(HashGraphTestFixture, RemoveConstraint)
 {
   // Test removing constraints from the graph
 
@@ -485,7 +497,7 @@ TEST(HashGraph, RemoveConstraint)
   EXPECT_FALSE(graph.removeConstraint(constraint1->uuid()));
 }
 
-TEST(HashGraph, GetConstraint)
+TEST_F(HashGraphTestFixture, GetConstraint)
 {
   // Test accessing the constraints in the graph
 
@@ -516,7 +528,7 @@ TEST(HashGraph, GetConstraint)
   EXPECT_TRUE(compareConstraints(*constraint2, actual2)) << failure_description;
 }
 
-TEST(HashGraph, GetConstraints)
+TEST_F(HashGraphTestFixture, GetConstraints)
 {
   // Test accessing the constraints in the graph
 
@@ -567,7 +579,7 @@ TEST(HashGraph, GetConstraints)
   }
 }
 
-TEST(HashGraph, GetConnectedConstraints)
+TEST_F(HashGraphTestFixture, GetConnectedConstraints)
 {
   // Test accessing the constraints connected to a specific variable
 
@@ -644,7 +656,7 @@ TEST(HashGraph, GetConnectedConstraints)
   }
 }
 
-TEST(HashGraph, Optimize)
+TEST_F(HashGraphTestFixture, Optimize)
 {
   // Test optimizing a set of variables/constraints
 
@@ -681,7 +693,7 @@ TEST(HashGraph, Optimize)
   EXPECT_NEAR(-3.0, variable2->data()[0], 1.0e-7);
 }
 
-TEST(HashGraph, HoldVariable)
+TEST_F(HashGraphTestFixture, HoldVariable)
 {
   // Test placing a variable on hold. The value of the variable should remain constant even after the optimization
 
@@ -716,9 +728,15 @@ TEST(HashGraph, HoldVariable)
   // Variable1 should not have changed from its original value
   EXPECT_NEAR(1.0, variable1->data()[0], 1.0e-7);
   EXPECT_NEAR(-3.0, variable2->data()[0], 1.0e-7);
+
+  // Remove variable1, that is on hold.
+  // We need to remove constraint1 before because it uses variable1
+  EXPECT_TRUE(graph.removeConstraint(constraint1->uuid()));
+  EXPECT_TRUE(graph.removeVariable(variable1->uuid()));
+  EXPECT_FALSE(graph.isVariableOnHold(variable1->uuid()));
 }
 
-TEST(HashGraph, GetCovariance)
+TEST_F(HashGraphTestFixture, GetCovariance)
 {
   // Create variables that match the Ceres unit test
   auto x = ExampleVariable::make_shared(2);
@@ -826,7 +844,7 @@ TEST(HashGraph, GetCovariance)
   }
 }
 
-TEST(HashGraph, Copy)
+TEST_F(HashGraphTestFixture, Copy)
 {
     // Create the graph
   fuse_graphs::HashGraph graph;
@@ -908,7 +926,7 @@ TEST(HashGraph, Copy)
   }
 }
 
-TEST(HashGraph, Serialization)
+TEST_F(HashGraphTestFixture, Serialization)
 {
   // Create the graph
   fuse_graphs::HashGraph expected;

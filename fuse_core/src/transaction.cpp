@@ -43,6 +43,7 @@
 
 #include <algorithm>
 #include <ostream>
+#include <utility>
 
 
 namespace fuse_core

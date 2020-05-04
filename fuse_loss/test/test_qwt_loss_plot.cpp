@@ -49,6 +49,7 @@
 
 #include <QApplication>
 
+#include <memory>
 #include <vector>
 
 

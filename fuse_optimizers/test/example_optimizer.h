@@ -37,6 +37,7 @@
 #include <fuse_optimizers/optimizer.h>
 
 #include <string>
+#include <utility>
 
 
 /**

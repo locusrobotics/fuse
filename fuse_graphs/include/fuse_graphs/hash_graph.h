@@ -267,6 +267,14 @@ public:
   void holdVariable(const fuse_core::UUID& variable_uuid, bool hold_constant = true) override;
 
   /**
+   * @brief Check whether a variable is on hold or not
+   *
+   * @param[in] variable_uuid The variable to test
+   * @return True if the variable is on hold, false otherwise
+   */
+  bool isVariableOnHold(const fuse_core::UUID& variable_uuid) const override;
+
+  /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
    *
    * To compute the marginal variance of a single variable, simply supply the same variable UUID for both members of

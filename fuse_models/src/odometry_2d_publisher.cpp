@@ -49,6 +49,7 @@
 
 #include <cpr_scalopus/common.h>
 
+#include <memory>
 #include <mutex>
 #include <string>
 #include <utility>
