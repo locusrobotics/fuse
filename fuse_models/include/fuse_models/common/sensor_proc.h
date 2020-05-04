@@ -224,7 +224,8 @@ template <typename T>
 bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& output)
 {
   geometry_msgs::TransformStamped trans;
-  if (tf_buffer.canTransform(output.header.frame_id, input.header.frame_id, input.header.stamp))
+  std::string error_msg;
+  if (tf_buffer.canTransform(output.header.frame_id, input.header.frame_id, input.header.stamp, &error_msg))
   {
     try
     {
@@ -236,6 +237,12 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
         output.header.frame_id << ". Error was " << ex.what());
       return false;
     }
+  }
+  else
+  {
+    ROS_WARN_STREAM("Could not transform message from " << input.header.frame_id << " to " <<
+      output.header.frame_id << ". Error before lookup was " << error_msg);
+    return false;
   }
 
   tf2::doTransform(input, output, trans);
