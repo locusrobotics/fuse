@@ -932,7 +932,7 @@ inline bool processTwistWithCovariance(
 
   if (!transformMessage(tf_buffer, twist, transformed_message))
   {
-    ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << twist.header.stamp);
+    ROS_ERROR_STREAM("Cannot create constraint from twist message with stamp " << twist.header.stamp);
     return false;
   }
 
