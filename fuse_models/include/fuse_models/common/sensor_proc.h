@@ -223,30 +223,19 @@ inline void validatePartialMeasurement(
 template <typename T>
 bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& output)
 {
-  geometry_msgs::TransformStamped trans;
-  std::string error_msg;
-  if (tf_buffer.canTransform(output.header.frame_id, input.header.frame_id, input.header.stamp, &error_msg))
+  try
   {
-    try
-    {
-      trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
-    }
-    catch (const tf2::TransformException& ex)
-    {
-      ROS_WARN_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
-        output.header.frame_id << ". Error was " << ex.what());
-      return false;
-    }
+    const auto trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
+    tf2::doTransform(input, output, trans);
+    return true;
   }
-  else
+  catch (const tf2::TransformException& ex)
   {
-    ROS_WARN_STREAM("Could not transform message from " << input.header.frame_id << " to " <<
-      output.header.frame_id << ". Error before lookup was " << error_msg);
-    return false;
+    ROS_WARN_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
+      output.header.frame_id << ". Error was " << ex.what());
   }
 
-  tf2::doTransform(input, output, trans);
-  return true;
+  return false;
 }
 
 /**
