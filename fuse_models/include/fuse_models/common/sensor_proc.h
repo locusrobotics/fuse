@@ -223,23 +223,19 @@ inline void validatePartialMeasurement(
 template <typename T>
 bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& output)
 {
-  geometry_msgs::TransformStamped trans;
-  if (tf_buffer.canTransform(output.header.frame_id, input.header.frame_id, input.header.stamp))
+  try
   {
-    try
-    {
-      trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
-    }
-    catch (const tf2::TransformException& ex)
-    {
-      ROS_WARN_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
-        output.header.frame_id << ". Error was " << ex.what());
-      return false;
-    }
+    const auto trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
+    tf2::doTransform(input, output, trans);
+    return true;
+  }
+  catch (const tf2::TransformException& ex)
+  {
+    ROS_WARN_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
+      output.header.frame_id << ". Error was " << ex.what());
   }
 
-  tf2::doTransform(input, output, trans);
-  return true;
+  return false;
 }
 
 /**
@@ -925,7 +921,7 @@ inline bool processTwistWithCovariance(
 
   if (!transformMessage(tf_buffer, twist, transformed_message))
   {
-    ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << twist.header.stamp);
+    ROS_ERROR_STREAM("Cannot create constraint from twist message with stamp " << twist.header.stamp);
     return false;
   }
 
