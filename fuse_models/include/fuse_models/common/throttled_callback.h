@@ -169,7 +169,14 @@ public:
         keep_callback_(message);
       }
 
-      last_called_time_ += throttle_period_;
+      if (last_called_time_.isValid())
+      {
+        last_called_time_ += throttle_period_;
+      }
+      else
+      {
+        last_called_time_ = now;
+      }
     }
     else if (drop_callback_)
     {
