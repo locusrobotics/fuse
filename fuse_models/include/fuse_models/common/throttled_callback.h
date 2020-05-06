@@ -169,7 +169,7 @@ public:
         keep_callback_(message);
       }
 
-      last_called_time_ = now;
+      last_called_time_ += throttle_period_;
     }
     else if (drop_callback_)
     {
