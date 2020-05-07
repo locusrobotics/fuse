@@ -162,14 +162,21 @@ public:
     // (b) The throttle period is zero, so we should always keep the callbacks
     // (c) The elpased time between now and the last called time is greater than the throttle period
     const ros::Time now = use_wall_time_ ? ros::Time(ros::WallTime::now().toSec()) : ros::Time::now();
-    if (!last_called_time_.isValid() || throttle_period_.isZero() || now - last_called_time_ > throttle_period_)
+    if (last_called_time_.isZero() || throttle_period_.isZero() || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
         keep_callback_(message);
       }
 
-      last_called_time_ = now;
+      if (last_called_time_.isZero())
+      {
+        last_called_time_ = now;
+      }
+      else
+      {
+        last_called_time_ += throttle_period_;
+      }
     }
     else if (drop_callback_)
     {
