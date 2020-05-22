@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>fuse_models</name>
   <version>0.2.0</version>
   <description>fuse plugins that implement various kinematic and sensor models</description>
@@ -35,25 +38,19 @@
 
   <exec_depend>message_runtime</exec_depend>
 
-  <!-- The official rosdep doesn't have an entry for Google's benchmark deb:
-       https://github.com/ros/rosdistro/blob/master/rosdep/base.yaml
+  <!-- The official rosdep has an entry for Google's benchmark deb
+       (https://github.com/ros/rosdistro/blob/2cbcebdedcc1e827501acfecaf2386cd33f26809/rosdep/base.yaml#L232-L239)
+       since https://github.com/ros/rosdistro/pull/23163 got merged.
 
        There's an official deb named libbenchmark-dev available since Ubuntu Bionic:
        https://packages.ubuntu.com/bionic/libbenchmark-dev
 
-       ROS Melodic officially supports Ubuntu Bionic:
+       And ROS Melodic is the first $ROS_DISTRO that officially supports Ubuntu Bionic:
        https://www.ros.org/reps/rep-0003.html
 
-       This could be uncommented if we add a benchmark entry like this to the official rosdep:
-
-       benchmark:
-         ubuntu:
-           bionic: [libbenchmark-dev]
-
-       There is PR requesting that still under review:
-       https://github.com/ros/rosdistro/pull/23163
+       For this reason we conditionally test_depend on benchmark only if the $ROS_DISTRO is ROS Melodic or newer.
   -->
-  <!--<test_depend>benchmark</test_depend>-->
+  <test_depend condition="$ROS_DISTRO >= melodic">benchmark</test_depend>
   <test_depend>rostest</test_depend>
 
   <export>
