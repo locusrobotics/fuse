@@ -7,6 +7,7 @@ find_package(
     fuse_constraints
     fuse_core
     fuse_graphs
+    fuse_msgs
     fuse_publishers
     fuse_variables
     geometry_msgs
@@ -50,6 +51,7 @@ catkin_package(
     fuse_constraints
     fuse_core
     fuse_graphs
+    fuse_msgs
     fuse_publishers
     fuse_variables
     geometry_msgs
@@ -84,6 +86,7 @@ add_library(${PROJECT_NAME}
   src/odometry_2d.cpp
   src/odometry_2d_publisher.cpp
   src/pose_2d.cpp
+  src/transaction.cpp
   src/twist_2d.cpp
   src/unicycle_2d.cpp
   src/unicycle_2d_ignition.cpp
