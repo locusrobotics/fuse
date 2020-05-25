@@ -185,28 +185,28 @@ public:
         jacobian.applyOnTheLeft(-A_);
       }
 
-      // Update jacobian wrt pyaw1
+      // Update jacobian wrt yaw1
       if (jacobians[1])
       {
         Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[1]);
         jacobian.applyOnTheLeft(-A_);
       }
 
-      // Update jacobian wrt pvel_linear1
+      // Update jacobian wrt vel_linear1
       if (jacobians[2])
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
         jacobian.applyOnTheLeft(-A_);
       }
 
-      // Update jacobian wrt pvel_yaw1
+      // Update jacobian wrt vel_yaw1
       if (jacobians[3])
       {
         Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[3]);
         jacobian.applyOnTheLeft(-A_);
       }
 
-      // Update jacobian wrt pacc_linear1
+      // Update jacobian wrt acc_linear1
       if (jacobians[4])
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
