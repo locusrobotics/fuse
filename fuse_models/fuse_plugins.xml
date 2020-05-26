@@ -44,11 +44,6 @@
     another node
     </description>
   </class>
-  <class type="fuse_models::twist_2d::Model" base_class_type="fuse_core::SensorModel">
-    <description>
-    An adapter-type sensor that produces absolute velocity constraints from information published by another node
-    </description>
-  </class>
   <class type="fuse_models::Twist2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces absolute velocity constraints from information published by another node
@@ -59,5 +54,4 @@
     A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
     </description>
   </class>
-  
 </library>
