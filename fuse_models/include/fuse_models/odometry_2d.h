@@ -62,7 +62,7 @@ namespace fuse_models
  *   2. Creates 2D velocity variables and constraints.
  *
  * This sensor really just separates out the pose and twist components of the message, and processes them just like the
- * pose_2d::Odometry2D and twist_2d::Odometry2D classes.
+ * Pose2D and Twist2D classes.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
