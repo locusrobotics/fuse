@@ -96,9 +96,9 @@ protected:
   {
     fuse_core::UUID position_uuid;        //!< The uuid of the associated position variable
     fuse_core::UUID yaw_uuid;             //!< The uuid of the associated orientation variable
-    fuse_core::UUID vel_linear_uuid;      //!< The uuid of the associated orientation variable
-    fuse_core::UUID vel_yaw_uuid;         //!< The uuid of the associated orientation variable
-    fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated orientation variable
+    fuse_core::UUID vel_linear_uuid;      //!< The uuid of the associated linear velocity variable
+    fuse_core::UUID vel_yaw_uuid;         //!< The uuid of the associated angular velocity variable
+    fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated linear acceleration variable
     tf2_2d::Transform pose;               //!< Map-frame pose
     tf2_2d::Vector2 velocity_linear;      //!< Body-frame linear velocity
     double velocity_yaw{ 0.0 };           //!< Body-frame yaw velocity
