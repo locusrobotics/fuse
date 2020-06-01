@@ -91,8 +91,8 @@ static void ExpectCostFunctionsAreEqual(const ceres::CostFunction& cost_function
     num_parameters += parameter_block_sizes[i];
   }
 
-  EXPECT_TRUE(cost_function.Evaluate(parameter_blocks.get(), residuals.get(), NULL));
-  EXPECT_TRUE(actual_cost_function.Evaluate(parameter_blocks.get(), actual_residuals.get(), NULL));
+  EXPECT_TRUE(cost_function.Evaluate(parameter_blocks.get(), residuals.get(), nullptr));
+  EXPECT_TRUE(actual_cost_function.Evaluate(parameter_blocks.get(), actual_residuals.get(), nullptr));
   for (size_t i = 0; i < num_residuals; ++i)
   {
     EXPECT_NEAR(residuals[i], actual_residuals[i], tolerance) << "residual id: " << i;
