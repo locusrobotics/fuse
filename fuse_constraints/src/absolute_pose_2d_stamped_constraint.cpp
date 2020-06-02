@@ -33,7 +33,7 @@
  */
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
 
-#include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
+#include <fuse_constraints/normal_prior_pose_2d.h>
 #include <pluginlib/class_list_macros.h>
 
 #include <boost/serialization/export.hpp>
@@ -123,8 +123,7 @@ void AbsolutePose2DStampedConstraint::print(std::ostream& stream) const
 
 ceres::CostFunction* AbsolutePose2DStampedConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<NormalPriorPose2DCostFunctor, ceres::DYNAMIC, 2, 1>(
-    new NormalPriorPose2DCostFunctor(sqrt_information_, mean_), sqrt_information_.rows());
+  return new NormalPriorPose2D(sqrt_information_, mean_);
 }
 
 }  // namespace fuse_constraints
