@@ -37,6 +37,7 @@
 #include <ros/console.h>
 #include <ros/time.h>
 
+#define ROSCONSOLE_THROTTLE_CHECK(now, last, period) (ROS_UNLIKELY(last + period <= now) || ROS_UNLIKELY(now < last))
 
 namespace fuse_core
 {

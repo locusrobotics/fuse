@@ -89,15 +89,6 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
 
-  find_package(Qt5 REQUIRED COMPONENTS
-    Core
-    Widgets)
-
-  # Find Qwt using FindQwt.cmake copied from:
-  # https://gitlab.kitware.com/cmake/community/-/wikis/contrib/modules/FindQwt
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-  find_package(Qwt REQUIRED)
-
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
   roslint_cpp()
@@ -202,6 +193,15 @@ if(CATKIN_ENABLE_TESTING)
   # Qwt Loss Plot Tests
   option(BUILD_WITH_PLOT_TESTS "Build with plot tests. These test might fail to run in headless systems." OFF)
   if(BUILD_WITH_PLOT_TESTS)
+    find_package(Qt5 REQUIRED COMPONENTS
+      Core
+      Widgets)
+
+    # Find Qwt using FindQwt.cmake copied from:
+    # https://gitlab.kitware.com/cmake/community/-/wikis/contrib/modules/FindQwt
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    find_package(Qwt REQUIRED)
+
     catkin_add_gtest(test_qwt_loss_plot
       test/test_qwt_loss_plot.cpp
     )

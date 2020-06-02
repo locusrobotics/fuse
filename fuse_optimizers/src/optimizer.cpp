@@ -137,7 +137,7 @@ void Optimizer::loadMotionModels()
     for (int32_t motion_model_index = 0; motion_model_index < motion_models.size(); ++motion_model_index)
     {
       // Validate the parameter server values
-      const auto& motion_model = motion_models[motion_model_index];
+      auto& motion_model = motion_models[motion_model_index];
       if ( (motion_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!motion_model.hasMember("name"))
         || (!motion_model.hasMember("type")))
@@ -153,9 +153,9 @@ void Optimizer::loadMotionModels()
   else if (motion_models.getType() == XmlRpc::XmlRpcValue::TypeStruct)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& motion_model : motion_models)
+    for (auto& motion_model : motion_models)
     {
-      const auto& motion_model_config = motion_model.second;
+      auto& motion_model_config = motion_model.second;
       if ( (motion_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!motion_model_config.hasMember("type")))
       {
@@ -203,7 +203,7 @@ void Optimizer::loadSensorModels()
     for (int32_t sensor_model_index = 0; sensor_model_index < sensor_models.size(); ++sensor_model_index)
     {
       // Validate the parameter server values
-      const auto& sensor_model = sensor_models[sensor_model_index];
+      auto& sensor_model = sensor_models[sensor_model_index];
       if ( (sensor_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!sensor_model.hasMember("name"))
         || (!sensor_model.hasMember("type")))
@@ -219,10 +219,10 @@ void Optimizer::loadSensorModels()
   else if (sensor_models.getType() == XmlRpc::XmlRpcValue::TypeStruct)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& sensor_model : sensor_models)
+    for (auto& sensor_model : sensor_models)
     {
       // Validate the parameter server values
-      const auto& sensor_model_config = sensor_model.second;
+      auto& sensor_model_config = sensor_model.second;
       if ( (sensor_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!sensor_model_config.hasMember("type")))
       {
@@ -242,7 +242,7 @@ void Optimizer::loadSensorModels()
                                 "{string: {type: string, motion_models: [name1, name2, ...]}}");
   }
 
-  for (const auto& config : sensor_model_configs)
+  for (auto& config : sensor_model_configs)
   {
     // Check whether this is an ignition sensor model or not
     const bool ignition = config.config.hasMember("ignition") ? static_cast<bool>(config.config["ignition"]) : false;
@@ -296,7 +296,7 @@ void Optimizer::loadPublishers()
     for (int32_t publisher_index = 0; publisher_index < publishers.size(); ++publisher_index)
     {
       // Validate the parameter server values
-      const auto& publisher = publishers[publisher_index];
+      auto& publisher = publishers[publisher_index];
       if ( (publisher.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!publisher.hasMember("name"))
         || (!publisher.hasMember("type")))
@@ -312,10 +312,10 @@ void Optimizer::loadPublishers()
   else if (publishers.getType() == XmlRpc::XmlRpcValue::TypeStruct)
   {
     // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& publisher : publishers)
+    for (auto& publisher : publishers)
     {
       // Validate the parameter server values
-      const auto& publisher_config = publisher.second;
+      auto& publisher_config = publisher.second;
       if ( (publisher_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!publisher_config.hasMember("type")))
       {
