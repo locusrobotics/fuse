@@ -55,7 +55,7 @@ bool NormalPriorOrientation2D::Evaluate(
   // The wrap function handles the 2_pi wrap around issue with rotations
   double angle_diff = fuse_core::wrapAngle2D(parameters[0][0] - b_);
   residuals[0] = A_ * angle_diff;
-  if ((jacobians != NULL) && (jacobians[0] != NULL))
+  if ((jacobians != nullptr) && (jacobians[0] != nullptr))
   {
     jacobians[0][0] = A_;
   }

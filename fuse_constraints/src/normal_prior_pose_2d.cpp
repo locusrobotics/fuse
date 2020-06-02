@@ -64,16 +64,16 @@ bool NormalPriorPose2D::Evaluate(
   Eigen::Map<fuse_core::VectorXd> residuals_vector(residuals, num_residuals());
   residuals_vector = A_ * full_residuals_vector;
 
-  if (jacobians != NULL)
+  if (jacobians != nullptr)
   {
     // Jacobian wrt position
-    if (jacobians[0] != NULL)
+    if (jacobians[0] != nullptr)
     {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 2) = A_.leftCols<2>();
     }
 
     // Jacobian wrt orientation
-    if (jacobians[1] != NULL)
+    if (jacobians[1] != nullptr)
     {
       Eigen::Map<fuse_core::VectorXd>(jacobians[1], num_residuals()) = A_.col(2);
     }
