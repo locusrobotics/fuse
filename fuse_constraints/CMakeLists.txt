@@ -49,6 +49,7 @@ add_library(${PROJECT_NAME}
   src/marginalize_variables.cpp
   src/normal_delta.cpp
   src/normal_delta_orientation_2d.cpp
+  src/normal_delta_pose_2d.cpp
   src/normal_prior_orientation_2d.cpp
   src/normal_prior_pose_2d.cpp
   src/relative_constraint.cpp
@@ -283,6 +284,30 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Normal Delta Pose 2D Tests
+  catkin_add_gtest(test_normal_delta_pose_2d
+    test/test_normal_delta_pose_2d.cpp
+  )
+  add_dependencies(test_normal_delta_pose_2d
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_normal_delta_pose_2d
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+  target_link_libraries(test_normal_delta_pose_2d
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_normal_delta_pose_2d
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # Normal Prior Pose 2D Tests
   catkin_add_gtest(test_normal_prior_pose_2d
     test/test_normal_prior_pose_2d.cpp
@@ -295,6 +320,7 @@ if(CATKIN_ENABLE_TESTING)
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
   )
   target_link_libraries(test_normal_prior_pose_2d
     ${PROJECT_NAME}
@@ -418,6 +444,26 @@ if(CATKIN_ENABLE_TESTING)
   find_package(benchmark QUIET)
 
   if(benchmark_FOUND)
+    # Normal Delta Pose 2D benchmark
+    add_executable(benchmark_normal_delta_pose_2d
+      benchmark/benchmark_normal_delta_pose_2d.cpp
+    )
+    if(TARGET benchmark_normal_delta_pose_2d)
+      target_link_libraries(
+        benchmark_normal_delta_pose_2d
+        benchmark
+        ${PROJECT_NAME}
+        ${catkin_LIBRARIES}
+        ${CERES_LIBRARIES}
+      )
+      set_target_properties(benchmark_normal_delta_pose_2d
+        PROPERTIES
+          CXX_STANDARD 14
+          CXX_STANDARD_REQUIRED YES
+      )
+    endif()
+
+    # Normal Prior Pose 2D benchmark
     add_executable(benchmark_normal_prior_pose_2d
       benchmark/benchmark_normal_prior_pose_2d.cpp
     )

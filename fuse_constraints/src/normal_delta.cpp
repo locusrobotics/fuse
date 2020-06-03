@@ -61,13 +61,13 @@ bool NormalDelta::Evaluate(
   Eigen::Map<const fuse_core::VectorXd> x1(parameters[1], parameter_block_sizes()[1]);
   Eigen::Map<fuse_core::VectorXd> r(residuals, num_residuals());
   r = A_ * (x1 - x0 - b_);
-  if (jacobians != NULL)
+  if (jacobians != nullptr)
   {
-    if (jacobians[0] != NULL)
+    if (jacobians[0] != nullptr)
     {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), parameter_block_sizes()[0]) = -A_;
     }
-    if (jacobians[1] != NULL)
+    if (jacobians[1] != nullptr)
     {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), parameter_block_sizes()[1]) = A_;
     }

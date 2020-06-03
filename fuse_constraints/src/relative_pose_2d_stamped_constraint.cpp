@@ -33,7 +33,7 @@
  */
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 
-#include <fuse_constraints/normal_delta_pose_2d_cost_functor.h>
+#include <fuse_constraints/normal_delta_pose_2d.h>
 #include <pluginlib/class_list_macros.h>
 
 #include <boost/serialization/export.hpp>
@@ -129,8 +129,7 @@ void RelativePose2DStampedConstraint::print(std::ostream& stream) const
 
 ceres::CostFunction* RelativePose2DStampedConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<NormalDeltaPose2DCostFunctor, ceres::DYNAMIC, 2, 1, 2, 1>(
-    new NormalDeltaPose2DCostFunctor(sqrt_information_, delta_), sqrt_information_.rows());
+  return new NormalDeltaPose2D(sqrt_information_, delta_);
 }
 
 }  // namespace fuse_constraints
