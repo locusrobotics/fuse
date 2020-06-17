@@ -32,6 +32,7 @@ add_service_files(
   DIRECTORY
     srv
   FILES
+    SetGraph.srv
     SetPose.srv
     SetPoseDeprecated.srv
 )
@@ -39,6 +40,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
     geometry_msgs
+    fuse_msgs
     std_msgs
 )
 
@@ -82,6 +84,7 @@ add_compile_options(-Wall -Werror)
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   src/acceleration_2d.cpp
+  src/graph_ignition.cpp
   src/imu_2d.cpp
   src/odometry_2d.cpp
   src/odometry_2d_publisher.cpp
@@ -198,7 +201,33 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
-  # Ignition tests
+  # Graph Ignition tests
+  add_rostest_gtest(
+    test_graph_ignition
+    test/graph_ignition.test
+    test/test_graph_ignition.cpp
+  )
+  add_dependencies(test_graph_ignition
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_graph_ignition
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+  target_link_libraries(test_graph_ignition
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_graph_ignition
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Unicycle2D Ignition tests
   add_rostest_gtest(
     test_unicycle_2d_ignition
     test/unicycle_2d_ignition.test
