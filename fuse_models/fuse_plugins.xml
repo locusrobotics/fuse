@@ -26,6 +26,14 @@
     another node
     </description>
   </class>
+  <class type="fuse_models::GraphIgnition" base_class_type="fuse_core::SensorModel">
+    <description>
+    An ignition sensor designed to be used to reset the optimizer graph to an input graph. This is useful for debugging
+    purposes because it allows to play back the recorded transactions from a previous run starting from the same graph,
+    so we obtain the same intermediate graphs and publishers' outputs. This is specially useful when we cannot record
+    all the graph messages because that would take too much bandwidth or disk, so the recorded graph must be throttled.
+    </description>
+  </class>
   <class type="fuse_models::Imu2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces orientation (relative or absolute), angular velocity, and linear
@@ -42,6 +50,12 @@
     <description>
     An adapter-type sensor that produces absolute or relative pose constraints from information published by
     another node
+    </description>
+  </class>
+  <class type="fuse_models::Transaction" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces transactions with the same added and removed constraints from an input
+    transaction. This is useful for debugging purposes because it allows to play back the recorded transactions.
     </description>
   </class>
   <class type="fuse_models::Twist2D" base_class_type="fuse_core::SensorModel">

@@ -1,0 +1,4 @@
+fuse_msgs/SerializedGraph graph
+---
+bool success
+string message
