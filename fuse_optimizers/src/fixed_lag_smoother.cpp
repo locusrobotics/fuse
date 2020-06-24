@@ -433,12 +433,12 @@ void FixedLagSmoother::transactionCallback(
 {
   // If this transaction occurs before the start time, just ignore it
   auto start_time = getStartTime();
-  const auto& min_time = transaction->minStamp();
-  if (started_ && min_time < start_time)
+  const auto max_time = transaction->maxStamp();
+  if (started_ && max_time < start_time)
   {
     ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
-                     "  start_time: " << start_time << ", minimum involved stamp: " << min_time <<
-                     ", difference: " << (start_time - min_time) << "s");
+                     "  start_time: " << start_time << ", maximum involved stamp: " << max_time <<
+                     ", difference: " << (start_time - max_time) << "s");
     return;
   }
   {
@@ -456,7 +456,7 @@ void FixedLagSmoother::transactionCallback(
       pending_transactions_.end(),
       transaction->stamp(),
       comparator);
-    pending_transactions_.insert(position, {sensor_name, std::move(transaction)});  // NOLINT
+    position = pending_transactions_.insert(position, {sensor_name, std::move(transaction)});  // NOLINT
 
     // If we haven't "started" yet..
     if (!started_)
@@ -466,25 +466,38 @@ void FixedLagSmoother::transactionCallback(
       {
         started_ = true;
         ignited_ = true;
-        start_time = min_time;
-        setStartTime(min_time);
+        start_time = position->minStamp();
+        setStartTime(start_time);
+
+        // And purge out old transactions
+        //  - Either before or exactly at the start time
+        //  - Or with a minimum time before the minimum time of this ignition sensor transaction
+        //
+        // TODO(efernandez) Do '&min_time = std::as_const(start_ime)' when C++17 is supported and we can use
+        //                  std::as_const: https://en.cppreference.com/w/cpp/utility/as_const
+        pending_transactions_.erase(
+            std::remove_if(pending_transactions_.begin(), pending_transactions_.end(),
+                           [&sensor_name, max_time,
+                            &min_time = start_time](const auto& transaction) {  // NOLINT(whitespace/braces)
+                             return transaction.sensor_name != sensor_name &&
+                                    (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
+                           }),  // NOLINT(whitespace/braces)
+            pending_transactions_.end());
       }
-      // And purge out old transactions
-      //  - Either we just started and we want to purge out anything before the start time
-      //  - Or we want to limit the pending size while waiting for an ignition sensor
-      auto purge_time = ros::Time(0, 0);
-      auto last_pending_time = pending_transactions_.front().stamp();
-      if (started_)
+      else
       {
-        purge_time = start_time;
-      }
-      else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // ros::Time doesn't allow negatives
-      {
-        purge_time = last_pending_time - params_.transaction_timeout;
-      }
-      while (!pending_transactions_.empty() && pending_transactions_.back().minStamp() < purge_time)
-      {
-        pending_transactions_.pop_back();
+        // And purge out old transactions to limit the pending size while waiting for an ignition sensor
+        auto purge_time = ros::Time(0, 0);
+        auto last_pending_time = pending_transactions_.front().stamp();
+        if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // ros::Time doesn't allow negatives
+        {
+          purge_time = last_pending_time - params_.transaction_timeout;
+        }
+
+        while (!pending_transactions_.empty() && pending_transactions_.back().maxStamp() < purge_time)
+        {
+          pending_transactions_.pop_back();
+        }
       }
     }
   }
