@@ -974,6 +974,51 @@ TEST_F(HashGraphTestFixture, Serialization)
   }
 }
 
+TEST_F(HashGraphTestFixture, GetConstraintCosts)
+{
+  // Test the getConstraintCosts method by adding a few variables and constraints to the graph
+  // @todo(swilliams) Implement a more thorough test of the getConstraintCosts() method. Only single-variable
+  //                  constraints are used, and no loss functions are configured here.
+
+  // Create the graph
+  fuse_graphs::HashGraph graph;
+
+  // Add a few variables
+  auto variable1 = ExampleVariable::make_shared();
+  variable1->data()[0] = 1.0;
+  graph.addVariable(variable1);
+
+  auto variable2 = ExampleVariable::make_shared();
+  variable2->data()[0] = 2.5;
+  graph.addVariable(variable2);
+
+  // Create two different constraints
+  auto constraint1 = ExampleConstraint::make_shared("test", variable1->uuid());
+  graph.addConstraint(constraint1);
+
+  auto constraint2 = ExampleConstraint::make_shared("test", variable2->uuid());
+  graph.addConstraint(constraint2);
+
+  // Adding constraints in reverse order to test the output order
+  auto constraint_uuids = std::vector<fuse_core::UUID>();
+  constraint_uuids.push_back(constraint2->uuid());
+  constraint_uuids.push_back(constraint1->uuid());
+
+  auto costs = std::vector<fuse_core::Graph::ConstraintCost>();
+  graph.getConstraintCosts(constraint_uuids.begin(), constraint_uuids.end(), std::back_inserter(costs));
+
+  ASSERT_EQ(costs.size(), 2u);
+  EXPECT_NEAR(costs[0].cost, 2.5, 1.0e-5);
+  EXPECT_NEAR(costs[0].loss, 2.5, 1.0e-5);
+  ASSERT_EQ(costs[0].residuals.size(), 1u);
+  EXPECT_NEAR(costs[0].residuals[0], 2.5, 1.0e-5);
+
+  EXPECT_NEAR(costs[1].cost, 1.0, 1.0e-5);
+  EXPECT_NEAR(costs[1].loss, 1.0, 1.0e-5);
+  ASSERT_EQ(costs[1].residuals.size(), 1u);
+  EXPECT_NEAR(costs[1].residuals[0], 1.0, 1.0e-5);
+}
+
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);

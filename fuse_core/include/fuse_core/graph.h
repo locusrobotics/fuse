@@ -49,6 +49,8 @@
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 
+#include <memory>
+#include <numeric>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -388,6 +390,31 @@ public:
                         const ceres::Problem::EvaluateOptions& options = ceres::Problem::EvaluateOptions()) const = 0;
 
   /**
+   * @brief Structure containing the cost and residual information for a single constraint.
+   */
+  struct ConstraintCost
+  {
+    double cost {};  //!< The pre-loss-function cost of the constraint, computed as the norm of the residuals
+    double loss {};  //!< The final cost of the constraint after any loss functions have been applied
+    std::vector<double> residuals;  //!< The individual residuals for the constraint
+  };
+
+  /**
+   * @brief Compute the residual information for a collection of constraints
+   *
+   * If any of the requested constraints does not exist, an exception will be thrown.
+   *
+   * @param[in]  first   An iterator pointing to the first UUID of the desired constraints
+   * @param[in]  last    An iterator pointing to one passed the last UUID of the desired constraints
+   * @param[out] output  An output iterator capable of assignment to a ConstraintCost object
+   */
+  template <class UuidForwardIterator, class OutputIterator>
+  void getConstraintCosts(
+    UuidForwardIterator first,
+    UuidForwardIterator last,
+    OutputIterator output);
+
+  /**
    * @brief Print a human-readable description of the graph to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
@@ -466,6 +493,54 @@ private:
  * Stream operator for printing Graph objects.
  */
 std::ostream& operator <<(std::ostream& stream, const Graph& graph);
+
+
+template <class UuidForwardIterator, class OutputIterator>
+void Graph::getConstraintCosts(
+  UuidForwardIterator first,
+  UuidForwardIterator last,
+  OutputIterator output)
+{
+  // @todo(swilliams) When I eventually refactor the Graph class to implement more of the requirements in the base
+  //                  class, it should be possible to make better use of the Problem object and avoid creating and
+  //                  deleting the cost and loss functions.
+  while (first != last)
+  {
+    // Get the next requested constraint
+    const auto& constraint = getConstraint(*first);
+    // Collect all of the involved variables
+    auto parameter_blocks = std::vector<const double*>();
+    parameter_blocks.reserve(constraint.variables().size());
+    for (auto variable_uuid : constraint.variables())
+    {
+      const auto& variable = getVariable(variable_uuid);
+      parameter_blocks.push_back(variable.data());
+    }
+    // Compute the residuals for this constraint using the cost function
+    auto cost_function = std::unique_ptr<ceres::CostFunction>(constraint.costFunction());
+    auto cost = ConstraintCost();
+    cost.residuals.resize(cost_function->num_residuals());
+    cost_function->Evaluate(parameter_blocks.data(), cost.residuals.data(), nullptr);
+    // Compute the combined cost
+    cost.cost =
+      std::sqrt(std::inner_product(cost.residuals.begin(), cost.residuals.end(), cost.residuals.begin(), 0.0));
+    // Apply the loss function, if one is configured
+    auto loss_function = std::unique_ptr<ceres::LossFunction>(constraint.lossFunction());
+    if (loss_function)
+    {
+      double loss_result[3];  // The Loss function returns the loss-adjusted cost plus the first and second derivative
+      loss_function->Evaluate(cost.cost, loss_result);
+      cost.loss = loss_result[0];
+    }
+    else
+    {
+      cost.loss = cost.cost;
+    }
+    // Add the final cost to the output
+    *output++ = std::move(cost);
+    ++first;
+  }
+}
 
 }  // namespace fuse_core
 
