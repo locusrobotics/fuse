@@ -52,6 +52,7 @@
 #include <tf2_ros/transform_listener.h>
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace fuse_models
@@ -204,6 +205,16 @@ protected:
                                                                       //!< throttle messages, that can be reset on start
 
   ros::Timer publish_timer_;
+
+  ros::NodeHandle publish_timer_node_handle_;        //!< A dedicated node handle for the publish timer, so it can use
+                                                     //!< its own callback queue
+  ros::AsyncSpinner publish_timer_spinner_;          //!< A dedicated async spinner for the publish timer that manages
+                                                     //!< its callback queue with a dedicated thread
+  ros::CallbackQueue publish_timer_callback_queue_;  //!< A dedicated callback queue for the publish timer
+
+  std::mutex mutex_;  //!< A mutex to protect the access to the attributes used concurrently by the notifyCallback and
+                      //!< publishTimerCallback methods:
+                      //!< latest_stamp_, latest_covariance_stamp_, odom_output_ and acceleration_output_
 };
 
 }  // namespace fuse_models
