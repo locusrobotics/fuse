@@ -52,6 +52,7 @@
 
 #include <chrono>
 #include <future>
+#include <utility>
 #include <string>
 
 /**
@@ -70,7 +71,7 @@ void transactionCallback(fuse_core::Transaction::SharedPtr transaction)
 /**
  * @brief Static variable to hold the last unit test error description
  */
-static std::string failure_description;
+static std::string failure_description;  // NOLINT(runtime/string)
 
 /**
  * @brief Compare all the properties of two Variable objects
