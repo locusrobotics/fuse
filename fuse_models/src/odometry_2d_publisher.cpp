@@ -309,6 +309,9 @@ bool Odometry2DPublisher::getState(
 
 void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 {
+  TRACE_THREAD_NAME(name_ + " Publisher");
+  TRACE_PRETTY_FUNCTION();
+
   ros::Time latest_stamp;
   ros::Time latest_covariance_stamp;
   nav_msgs::Odometry odom_output;
@@ -471,6 +474,8 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
     {
       try
       {
+        TRACE_SCOPE_RAII("TF Transform");
+
         auto base_to_odom = tf_buffer_->lookupTransform(
           params_.base_link_frame_id,
           params_.odom_frame_id,
