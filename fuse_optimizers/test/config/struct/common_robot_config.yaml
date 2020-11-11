@@ -28,9 +28,13 @@ unicycle_2d_ignition:
 wheel_odometry:
   topic: odom
   differential: true
+  position_dimensions: ['x', 'y']
+  orientation_dimensions: ['yaw']
   twist_target_frame: base_link
 
 laser_localization:
   topic: pose
+  position_dimensions: ['x', 'y']
+  orientation_dimensions: ['yaw']
   pose_target_frame: map
   twist_target_frame: base_link
