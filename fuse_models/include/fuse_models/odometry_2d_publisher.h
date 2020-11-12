@@ -206,11 +206,11 @@ protected:
 
   ros::Timer publish_timer_;
 
+  ros::CallbackQueue publish_timer_callback_queue_;  //!< A dedicated callback queue for the publish timer
   ros::NodeHandle publish_timer_node_handle_;        //!< A dedicated node handle for the publish timer, so it can use
                                                      //!< its own callback queue
   ros::AsyncSpinner publish_timer_spinner_;          //!< A dedicated async spinner for the publish timer that manages
                                                      //!< its callback queue with a dedicated thread
-  ros::CallbackQueue publish_timer_callback_queue_;  //!< A dedicated callback queue for the publish timer
 
   std::mutex mutex_;  //!< A mutex to protect the access to the attributes used concurrently by the notifyCallback and
                       //!< publishTimerCallback methods:
