@@ -195,7 +195,7 @@ void Odometry2DPublisher::notifyCallback(
     }
     catch (const std::exception& e)
     {
-      ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp_ << ". "
+      ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp << ". "
                       "The covariance will be set to zero.\n" << e.what());
       std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
       std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
