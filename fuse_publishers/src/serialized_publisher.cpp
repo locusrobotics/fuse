@@ -36,6 +36,7 @@
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/graph_deserializer.h>
+#include <fuse_core/parameter.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/transaction_deserializer.h>
 #include <fuse_msgs/SerializedGraph.h>
@@ -52,7 +53,9 @@ namespace fuse_publishers
 
 SerializedPublisher::SerializedPublisher() :
   fuse_core::AsyncPublisher(1),
-  frame_id_("map")
+  frame_id_("map"),
+  graph_publisher_throttled_callback_(
+      std::bind(&SerializedPublisher::graphPublisherCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
 }
 
@@ -63,6 +66,17 @@ void SerializedPublisher::onInit()
 
   bool latch = false;
   private_node_handle_.getParam("latch", latch);
+
+  ros::Duration graph_throttle_period { 0.0 };
+  double graph_throttle_period_double = graph_throttle_period.toSec();
+  fuse_core::getPositiveParam(private_node_handle_, "graph_throttle_period", graph_throttle_period_double, false);
+  graph_throttle_period.fromSec(graph_throttle_period_double);
+
+  bool graph_throttle_use_wall_time { false };
+  private_node_handle_.getParam("graph_throttle_use_wall_time", graph_throttle_use_wall_time);
+
+  graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
+  graph_publisher_throttled_callback_.setUseWallTime(graph_throttle_use_wall_time);
 
   // Advertise the topics
   graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1, latch);
@@ -76,11 +90,7 @@ void SerializedPublisher::notifyCallback(
   const auto& stamp = transaction->stamp();
   if (graph_publisher_.getNumSubscribers() > 0)
   {
-    fuse_msgs::SerializedGraph msg;
-    msg.header.stamp = stamp;
-    msg.header.frame_id = frame_id_;
-    fuse_core::serializeGraph(*graph, msg);
-    graph_publisher_.publish(msg);
+    graph_publisher_throttled_callback_(graph, stamp);
   }
 
   if (transaction_publisher_.getNumSubscribers() > 0)
@@ -91,6 +101,15 @@ void SerializedPublisher::notifyCallback(
     fuse_core::serializeTransaction(*transaction, msg);
     transaction_publisher_.publish(msg);
   }
+}
+
+void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const ros::Time& stamp) const
+{
+  fuse_msgs::SerializedGraph msg;
+  msg.header.stamp = stamp;
+  msg.header.frame_id = frame_id_;
+  fuse_core::serializeGraph(*graph, msg);
+  graph_publisher_.publish(msg);
 }
 
 }  // namespace fuse_publishers
