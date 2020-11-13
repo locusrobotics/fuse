@@ -122,7 +122,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using PoseThrottledCallback = fuse_core::ThrottledCallback<geometry_msgs::PoseWithCovarianceStamped>;
+  using PoseThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::PoseWithCovarianceStamped>;
   PoseThrottledCallback throttled_callback_;
 };
 

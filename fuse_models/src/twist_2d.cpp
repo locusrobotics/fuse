@@ -79,8 +79,8 @@ void Twist2D::onStart()
   if (!params_.linear_indices.empty() ||
       !params_.angular_indices.empty())
   {
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size,
-                                         &TwistThrottledCallback::callback, &throttled_callback_);
+    subscriber_ = node_handle_.subscribe<geometry_msgs::TwistWithCovarianceStamped>(ros::names::resolve(params_.topic),
+        params_.queue_size, &TwistThrottledCallback::callback, &throttled_callback_);
   }
 }
 

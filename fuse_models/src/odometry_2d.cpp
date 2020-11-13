@@ -89,8 +89,8 @@ void Odometry2D::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size,
-                                         &OdometryThrottledCallback::callback, &throttled_callback_);
+    subscriber_ = node_handle_.subscribe<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size,
+        &OdometryThrottledCallback::callback, &throttled_callback_);
   }
 }
 

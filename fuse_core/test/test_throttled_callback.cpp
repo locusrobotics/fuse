@@ -112,7 +112,8 @@ public:
     : throttled_callback_(std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
                           std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1), throttle_period)
   {
-    subscriber_ = node_handle_.subscribe("point", 10, &PointThrottledCallback::callback, &throttled_callback_);
+    subscriber_ = node_handle_.subscribe<geometry_msgs::Point>(
+        "point", 10, &PointThrottledCallback::callback, &throttled_callback_);
   }
 
   /**
@@ -170,7 +171,7 @@ private:
   ros::NodeHandle node_handle_;  //!< The node handle
   ros::Subscriber subscriber_;   //!< The subscriber
 
-  using PointThrottledCallback = fuse_core::ThrottledCallback<geometry_msgs::Point>;
+  using PointThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::Point>;
   PointThrottledCallback throttled_callback_;  //!< The throttled callback
 
   size_t kept_messages_{ 0 };                         //!< Messages kept

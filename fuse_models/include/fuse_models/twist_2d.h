@@ -111,7 +111,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using TwistThrottledCallback = fuse_core::ThrottledCallback<geometry_msgs::TwistWithCovarianceStamped>;
+  using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::TwistWithCovarianceStamped>;
   TwistThrottledCallback throttled_callback_;
 };
 

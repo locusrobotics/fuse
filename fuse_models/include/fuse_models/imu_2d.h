@@ -137,7 +137,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using ImuThrottledCallback = fuse_core::ThrottledCallback<sensor_msgs::Imu>;
+  using ImuThrottledCallback = fuse_core::ThrottledMessageCallback<sensor_msgs::Imu>;
   ImuThrottledCallback throttled_callback_;
 };
 

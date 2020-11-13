@@ -133,7 +133,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using OdometryThrottledCallback = fuse_core::ThrottledCallback<nav_msgs::Odometry>;
+  using OdometryThrottledCallback = fuse_core::ThrottledMessageCallback<nav_msgs::Odometry>;
   OdometryThrottledCallback throttled_callback_;
 };
 

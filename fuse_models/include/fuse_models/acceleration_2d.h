@@ -117,7 +117,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using AccelerationThrottledCallback = fuse_core::ThrottledCallback<geometry_msgs::AccelWithCovarianceStamped>;
+  using AccelerationThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::AccelWithCovarianceStamped>;
   AccelerationThrottledCallback throttled_callback_;
 };
 
