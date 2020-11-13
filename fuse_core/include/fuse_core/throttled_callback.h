@@ -31,18 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_COMMON_THROTTLED_CALLBACK_H
-#define FUSE_MODELS_COMMON_THROTTLED_CALLBACK_H
+#ifndef FUSE_CORE_THROTTLED_CALLBACK_H
+#define FUSE_CORE_THROTTLED_CALLBACK_H
 
 #include <ros/subscriber.h>
 
 #include <functional>
 
 
-namespace fuse_models
-{
-
-namespace common
+namespace fuse_core
 {
 
 /**
@@ -197,4 +194,4 @@ private:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_COMMON_THROTTLED_CALLBACK_H
+#endif  // FUSE_CORE_THROTTLED_CALLBACK_H

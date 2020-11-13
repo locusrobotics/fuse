@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/throttled_callback.h>
+#include <fuse_core/throttled_callback.h>
 #include <geometry_msgs/Point.h>
 #include <ros/ros.h>
 
@@ -94,8 +94,8 @@ private:
 };
 
 /**
- * @brief A dummy point sensor model that uses a fuse_models::common::ThrottledCallback<geometry_msgs::Point> with a
- * keep and drop callback.
+ * @brief A dummy point sensor model that uses a fuse_core::ThrottledMessageCallback<geometry_msgs::Point> with a keep
+ * and drop callback.
  *
  * The callbacks simply count the number of times they are called, for testing purposes. The keep callback also caches
  * the last message received, also for testing purposes.
@@ -170,7 +170,7 @@ private:
   ros::NodeHandle node_handle_;  //!< The node handle
   ros::Subscriber subscriber_;   //!< The subscriber
 
-  using PointThrottledCallback = fuse_models::common::ThrottledCallback<geometry_msgs::Point>;
+  using PointThrottledCallback = fuse_core::ThrottledCallback<geometry_msgs::Point>;
   PointThrottledCallback throttled_callback_;  //!< The throttled callback
 
   size_t kept_messages_{ 0 };                         //!< Messages kept

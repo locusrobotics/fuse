@@ -35,7 +35,7 @@
 #define FUSE_MODELS_ODOMETRY_2D_H
 
 #include <fuse_models/parameters/odometry_2d_params.h>
-#include <fuse_models/common/throttled_callback.h>
+#include <fuse_core/throttled_callback.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -133,7 +133,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using OdometryThrottledCallback = common::ThrottledCallback<nav_msgs::Odometry>;
+  using OdometryThrottledCallback = fuse_core::ThrottledCallback<nav_msgs::Odometry>;
   OdometryThrottledCallback throttled_callback_;
 };
 
