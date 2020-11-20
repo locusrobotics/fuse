@@ -73,6 +73,7 @@ public:
   void loadFromROS(const ros::NodeHandle& nh) final
   {
     nh.getParam("publish_tf", publish_tf);
+    nh.getParam("invert_tf", invert_tf);
     nh.getParam("predict_to_current_time", predict_to_current_time);
     nh.getParam("predict_with_acceleration", predict_with_acceleration);
     nh.getParam("publish_frequency", publish_frequency);
@@ -121,7 +122,11 @@ public:
     fuse_core::loadCovarianceOptionsFromROS(ros::NodeHandle(nh, "covariance_options"), covariance_options);
   }
 
-  bool publish_tf { true };
+  bool publish_tf { true };  //!< Whether to publish/broadcast the TF transform or not
+  bool invert_tf{ false };   //!< Whether to broadcast the inverse of the TF transform or not. When the inverse is
+                             //!< broadcasted, the transform is inverted and the header.frame_id and child_frame_id are
+                             //!< swapped, i.e. the odometry output header.frame_id is set to the
+                             //!< base_link_output_frame_id and the child_frame_id to the world_frame_id
   bool predict_to_current_time { false };
   bool predict_with_acceleration { false };
   double publish_frequency { 10.0 };

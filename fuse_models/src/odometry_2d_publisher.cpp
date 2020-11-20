@@ -47,6 +47,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <algorithm>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -75,7 +76,7 @@ void Odometry2DPublisher::onInit()
 
   params_.loadFromROS(private_node_handle_);
 
-  if (params_.world_frame_id == params_.map_frame_id)
+  if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
   {
     tf_buffer_ = std::make_unique<tf2_ros::Buffer>(params_.tf_cache_time);
     tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, node_handle_);
@@ -446,15 +447,25 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
   if (params_.publish_tf)
   {
+    auto frame_id = odom_output.header.frame_id;
+    auto child_frame_id = odom_output.child_frame_id;
+
+    if (params_.invert_tf)
+    {
+      pose = pose.inverse();
+      std::swap(frame_id, child_frame_id);
+    }
+
     geometry_msgs::TransformStamped trans;
-    trans.header = odom_output.header;
-    trans.child_frame_id = odom_output.child_frame_id;
+    trans.header.stamp = odom_output.header.stamp;
+    trans.header.frame_id = frame_id;
+    trans.child_frame_id = child_frame_id;
     trans.transform.translation.x = pose.getX();
     trans.transform.translation.y = pose.getY();
     trans.transform.translation.z = odom_output.pose.pose.position.z;
     trans.transform.rotation = tf2::toMsg(pose.getRotation());
 
-    if (params_.world_frame_id == params_.map_frame_id)
+    if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
     {
       try
       {
