@@ -244,7 +244,7 @@ if(CATKIN_ENABLE_TESTING)
   )
 
   # Other tests
-  catkin_add_gtest(
+  catkin_add_gmock(
     test_sensor_proc
     test/test_sensor_proc.cpp
   )
