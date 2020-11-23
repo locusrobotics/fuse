@@ -186,6 +186,8 @@ protected:
 
   ros::Time latest_covariance_stamp_;
 
+  bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
+
   nav_msgs::Odometry odom_output_;
 
   geometry_msgs::AccelWithCovarianceStamped acceleration_output_;
