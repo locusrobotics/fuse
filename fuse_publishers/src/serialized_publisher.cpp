@@ -67,12 +67,10 @@ void SerializedPublisher::onInit()
   bool latch = false;
   private_node_handle_.getParam("latch", latch);
 
-  ros::Duration graph_throttle_period { 0.0 };
-  double graph_throttle_period_double = graph_throttle_period.toSec();
-  fuse_core::getPositiveParam(private_node_handle_, "graph_throttle_period", graph_throttle_period_double, false);
-  graph_throttle_period.fromSec(graph_throttle_period_double);
+  ros::Duration graph_throttle_period{ 0.0 };
+  fuse_core::getPositiveParam(private_node_handle_, "graph_throttle_period", graph_throttle_period, false);
 
-  bool graph_throttle_use_wall_time { false };
+  bool graph_throttle_use_wall_time{ false };
   private_node_handle_.getParam("graph_throttle_use_wall_time", graph_throttle_use_wall_time);
 
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
