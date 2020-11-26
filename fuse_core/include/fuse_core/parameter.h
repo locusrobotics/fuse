@@ -93,6 +93,23 @@ void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& par
 }
 
 /**
+ * @brief Helper function that loads positive duration values from the parameter server
+ *
+ * @param[in] node_handle - The node handle used to load the parameter
+ * @param[in] parameter_name - The parameter name to load
+ * @param[in, out] default_value - A default value to use if the provided parameter name does not exist. As output it
+ *                                 has the loaded (or default) value
+ * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
+ */
+inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name,
+                             ros::Duration& default_value, const bool strict = true)
+{
+  double default_value_sec = default_value.toSec();
+  getPositiveParam(node_handle, parameter_name, default_value_sec, strict);
+  default_value.fromSec(default_value_sec);
+}
+
+/**
  * @brief Helper function that loads a covariance matrix diagonal vector from the parameter server and checks the size
  * and the values are invalid, i.e. they are positive.
  *
