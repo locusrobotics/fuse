@@ -70,6 +70,7 @@ struct Twist2DParams : public ParameterBase
 
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
+      nh.getParam("tcp_no_delay", tcp_no_delay);
 
       double throttle_period_double = throttle_period.toSec();
       fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
@@ -85,6 +86,11 @@ struct Twist2DParams : public ParameterBase
 
     bool disable_checks { false };
     int queue_size { 10 };
+    bool tcp_no_delay { false };  //!< Whether to use TCP_NODELAY, i.e. disable Nagle's algorithm, in the subscriber
+                                  //!< socket or not. TCP_NODELAY forces a socket to send the data in its buffer,
+                                  //!< whatever the packet size. This reduces delay at the cost of network congestion,
+                                  //!< specially if the payload of a packet is smaller than the TCP header data. This is
+                                  //!< true for small ROS messages like geometry_msgs::AccelWithCovarianceStamped
     ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
     bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     std::string topic {};

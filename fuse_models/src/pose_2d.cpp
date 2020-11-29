@@ -80,7 +80,8 @@ void Pose2D::onStart()
       !params_.orientation_indices.empty())
   {
     subscriber_ = node_handle_.subscribe<geometry_msgs::PoseWithCovarianceStamped>(
-        ros::names::resolve(params_.topic), params_.queue_size, &PoseThrottledCallback::callback, &throttled_callback_);
+        ros::names::resolve(params_.topic), params_.queue_size, &PoseThrottledCallback::callback, &throttled_callback_,
+        ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
 }
 
