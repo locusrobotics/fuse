@@ -31,40 +31,34 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_COMMON_THROTTLED_CALLBACK_H
-#define FUSE_MODELS_COMMON_THROTTLED_CALLBACK_H
+#ifndef FUSE_CORE_THROTTLED_CALLBACK_H
+#define FUSE_CORE_THROTTLED_CALLBACK_H
 
 #include <ros/subscriber.h>
 
 #include <functional>
+#include <utility>
 
 
-namespace fuse_models
-{
-
-namespace common
+namespace fuse_core
 {
 
 /**
- * @brief A throttled callback that encapsulates the logic to throttle a message callback so it is only called after a
- * given period in seconds (or more). The dropped messages can optionally be received in a dropped callback, that could
- * be used to count the number of messages dropped.
+ * @brief A throttled callback that encapsulates the logic to throttle a callback so it is only called after a given
+ * period in seconds (or more). The dropped calls can optionally be received in a dropped callback, that could be used
+ * to count the number of calls dropped.
  *
- * @tparam M The message the callback receives
+ * @tparam Callback The std::function callback
  */
-template <class M>
+template <class Callback>
 class ThrottledCallback
 {
 public:
-  using MessageConstPtr = typename M::ConstPtr;
-  using Callback = std::function<void(const MessageConstPtr&)>;
-
   /**
    * @brief Constructor
    *
-   * @param[in] keep_callback   The callback to call when the message is kept, i.e. not dropped. Defaults to nullptr
-   * @param[in] drop_callback   The callback to call when the message is dropped because of the throttling. Defaults to
-   *                            nullptr
+   * @param[in] keep_callback   The callback to call when kept, i.e. not dropped. Defaults to nullptr
+   * @param[in] drop_callback   The callback to call when dropped because of the throttling. Defaults to nullptr
    * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
    * @param[in] use_wall_time   Whether to use ros::WallTime or not. Defaults to false
    */
@@ -149,12 +143,13 @@ public:
   }
 
   /**
-   * @brief Message callback that throttles the calls to the keep callback provided. When the message is dropped because
+   * @brief Callback that throttles the calls to the keep callback provided. When dropped because
    * of throttling, the drop callback is called instead.
    *
-   * @param[in] message The input message
+   * @param[in] args The input arguments
    */
-  void callback(const MessageConstPtr& message)
+  template <class... Args>
+  void callback(Args&&... args)
   {
     // Keep the callback if:
     //
@@ -166,7 +161,7 @@ public:
     {
       if (keep_callback_)
       {
-        keep_callback_(message);
+        keep_callback_(std::forward<Args>(args)...);
       }
 
       if (last_called_time_.isZero())
@@ -180,21 +175,38 @@ public:
     }
     else if (drop_callback_)
     {
-      drop_callback_(message);
+      drop_callback_(std::forward<Args>(args)...);
     }
   }
 
+  /**
+   * @brief Operator() that simply calls the callback() method forwarding the input arguments
+   *
+   * @param[in] args The input arguments
+   */
+  template <class... Args>
+  void operator()(Args&&... args)
+  {
+    callback(std::forward<Args>(args)...);
+  }
+
 private:
-  Callback keep_callback_;         //!< The callback to call when the message is kept, i.e. not dropped
-  Callback drop_callback_;         //!< The callback to call when the message is dropped because of throttling
+  Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
+  Callback drop_callback_;         //!< The callback to call when dropped because of throttling
   ros::Duration throttle_period_;  //!< The throttling period duration in seconds
   bool use_wall_time_;             //<! The flag to indicate whether to use ros::WallTime or not
 
   ros::Time last_called_time_;  //!< The last time the keep callback was called
 };
 
-}  // namespace common
+/**
+ * @brief Throttled callback for ROS messages
+ *
+ * @tparam M The ROS message type, which should have the M::ConstPtr nested type
+ */
+template <class M>
+using ThrottledMessageCallback = ThrottledCallback<std::function<void(const typename M::ConstPtr&)>>;
 
-}  // namespace fuse_models
+}  // namespace fuse_core
 
-#endif  // FUSE_MODELS_COMMON_THROTTLED_CALLBACK_H
+#endif  // FUSE_CORE_THROTTLED_CALLBACK_H

@@ -95,9 +95,7 @@ public:
   void loadFromROS(const ros::NodeHandle& nh)
   {
     // Read settings from the parameter server
-    double lag_duration_sec{ lag_duration.toSec() };
-    fuse_core::getPositiveParam(nh, "lag_duration", lag_duration_sec);
-    lag_duration.fromSec(lag_duration_sec);
+    fuse_core::getPositiveParam(nh, "lag_duration", lag_duration);
 
     if (nh.hasParam("optimization_frequency"))
     {
@@ -107,16 +105,12 @@ public:
     }
     else
     {
-      double optimization_period_sec{ optimization_period.toSec() };
-      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period_sec);
-      optimization_period.fromSec(optimization_period_sec);
+      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
     }
 
     nh.getParam("reset_service", reset_service);
 
-    double transaction_timeout_sec{ transaction_timeout.toSec() };
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout_sec);
-    transaction_timeout.fromSec(transaction_timeout_sec);
+    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
 
     fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
   }
