@@ -84,13 +84,8 @@ public:
 
     fuse_core::getPositiveParam(nh, "covariance_throttle_period", covariance_throttle_period, false);
 
-    double tf_cache_time_double = tf_cache_time.toSec();
-    nh.getParam("tf_cache_time", tf_cache_time_double);
-    tf_cache_time.fromSec(tf_cache_time_double);
-
-    double tf_timeout_double = tf_timeout.toSec();
-    nh.getParam("tf_timeout", tf_timeout_double);
-    tf_timeout.fromSec(tf_timeout_double);
+    fuse_core::getPositiveParam(nh, "tf_cache_time", tf_cache_time, false);
+    fuse_core::getPositiveParam(nh, "tf_timeout", tf_timeout, false);
 
     nh.getParam("queue_size", queue_size);
 
