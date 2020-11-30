@@ -61,7 +61,7 @@ namespace fuse_models
 /**
  * @class Odometry2DPublisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
  * state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
- * VelocityAngular2DStamped).
+ * VelocityAngular2DStamped, AccelerationLinear2DStamped).
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
@@ -175,7 +175,8 @@ protected:
   using Synchronizer = fuse_publishers::StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
                                                                     fuse_variables::Position2DStamped,
                                                                     fuse_variables::VelocityLinear2DStamped,
-                                                                    fuse_variables::VelocityAngular2DStamped>;
+                                                                    fuse_variables::VelocityAngular2DStamped,
+                                                                    fuse_variables::AccelerationLinear2DStamped>;
 
   fuse_core::UUID device_id_;  //!< The UUID of this device
 

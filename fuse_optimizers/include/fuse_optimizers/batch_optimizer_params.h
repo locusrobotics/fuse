@@ -93,14 +93,10 @@ public:
     }
     else
     {
-      double optimization_period_sec{ optimization_period.toSec() };
-      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period_sec);
-      optimization_period.fromSec(optimization_period_sec);
+      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
     }
 
-    double transaction_timeout_sec{ transaction_timeout.toSec() };
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout_sec);
-    transaction_timeout.fromSec(transaction_timeout_sec);
+    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
 
     fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
   }

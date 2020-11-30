@@ -35,7 +35,7 @@
 #define FUSE_MODELS_IMU_2D_H
 
 #include <fuse_models/parameters/imu_2d_params.h>
-#include <fuse_models/common/throttled_callback.h>
+#include <fuse_core/throttled_callback.h>
 
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/uuid.h>
@@ -137,7 +137,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using ImuThrottledCallback = common::ThrottledCallback<sensor_msgs::Imu>;
+  using ImuThrottledCallback = fuse_core::ThrottledMessageCallback<sensor_msgs::Imu>;
   ImuThrottledCallback throttled_callback_;
 };
 

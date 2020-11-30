@@ -88,8 +88,8 @@ void Imu2D::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size,
-                                         &ImuThrottledCallback::callback, &throttled_callback_);
+    subscriber_ = node_handle_.subscribe<sensor_msgs::Imu>(ros::names::resolve(params_.topic), params_.queue_size,
+        &ImuThrottledCallback::callback, &throttled_callback_);
   }
 }
 

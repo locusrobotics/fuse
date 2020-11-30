@@ -246,7 +246,7 @@ if(CATKIN_ENABLE_TESTING)
   )
 
   # Other tests
-  catkin_add_gtest(
+  catkin_add_gmock(
     test_sensor_proc
     test/test_sensor_proc.cpp
   )
@@ -255,21 +255,6 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
   set_target_properties(test_sensor_proc
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  add_rostest_gtest(
-    test_throttled_callback
-    test/throttled_callback.test
-    test/test_throttled_callback.cpp
-  )
-  target_link_libraries(test_throttled_callback
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_throttled_callback
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
