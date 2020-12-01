@@ -202,9 +202,22 @@ void FixedLagSmoother::optimizationLoop()
       // Update the graph
       graph_->update(*new_transaction);
       // Optimize the entire graph
-      graph_->optimize(params_.solver_options);
+      summary_ = graph_->optimize(params_.solver_options);
+
       // Optimization is complete. Notify all the things about the graph changes.
+      const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
+
+      // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
+      if (!summary_.IsSolutionUsable())
+      {
+        ROS_FATAL_STREAM("Optimization failed after updating the graph with the transaction with timestamp "
+                         << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
+        ROS_INFO_STREAM(summary_.FullReport());
+        ros::requestShutdown();
+        break;
+      }
+
       // Compute a transaction that marginalizes out those variables.
       lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
@@ -495,19 +508,105 @@ void FixedLagSmoother::transactionCallback(
   }
 }
 
+/**
+ * @brief Make a diagnostic_msgs::DiagnosticStatus message filling in the level and message
+ *
+ * @param[in] level   The diagnostic status level
+ * @param[in] message The diagnostic status message
+ */
+diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const std::string& message)
+{
+  diagnostic_msgs::DiagnosticStatus status;
+
+  status.level = level;
+  status.message = message;
+
+  return status;
+}
+
+/**
+ * @brief Helper function to generate the diagnostic status for each optimization termination type
+ *
+ * The termination type -> diagnostic status mapping is as follows:
+ *
+ * - CONVERGENCE, USER_SUCCESS -> OK
+ * - NO_CONVERGENCE            -> WARN
+ * - FAILURE, USER_FAILURE     -> ERROR (default)
+ *
+ * @param[in] termination_type The optimization termination type
+ * @return The diagnostic status with the level and message corresponding to the optimization termination type
+ */
+diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type)
+{
+  switch (termination_type)
+  {
+    case ceres::TerminationType::CONVERGENCE:
+    case ceres::TerminationType::USER_SUCCESS:
+      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
+    case ceres::TerminationType::NO_CONVERGENCE:
+      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converged");
+    default:
+      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+  }
+}
+
 void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
 {
   Optimizer::setDiagnostics(status);
 
-  if (status.level == diagnostic_msgs::DiagnosticStatus::OK)
-  {
-    status.message = "FixedLagSmoother " + status.message;
-  }
+  // Load std::atomic<bool> flag that indicates whether the optimizer has started or not
+  const bool started = started_;
 
-  status.add("Started", started_);
+  status.add("Started", started);
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
     status.add("Pending Transactions", pending_transactions_.size());
+  }
+
+  if (started)
+  {
+    // Add some optimization summary report fields to the diagnostics status if the optimizer has started
+    auto summary = decltype(summary_)();
+    {
+      const std::unique_lock<std::mutex> lock(optimization_mutex_, std::try_to_lock);
+      if (lock)
+      {
+        summary = summary_;
+      }
+      else
+      {
+        status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimization running");
+      }
+    }
+
+    if (summary.total_time_in_seconds >= 0.0)  // This is -1 for the default-constructed summary object
+    {
+      status.add("Optimization Termination Type", ceres::TerminationTypeToString(summary.termination_type));
+      status.add("Optimization Total Time [s]", summary.total_time_in_seconds);
+      status.add("Optimization Iterations", summary.iterations.size());
+      status.add("Initial Cost", summary.initial_cost);
+      status.add("Final Cost", summary.final_cost);
+
+      status.mergeSummary(terminationTypeToDiagnosticStatus(summary.termination_type));
+    }
+
+    // Add time since the last optimization request time. This is useful to detect if no transactions are received for
+    // too long
+    auto optimization_deadline = decltype(optimization_deadline_)();
+    {
+      const std::unique_lock<std::mutex> lock(optimization_requested_mutex_, std::try_to_lock);
+      if (lock)
+      {
+        optimization_deadline = optimization_deadline_;
+      }
+    }
+
+    if (!optimization_deadline.isZero())  // This is zero for the default-constructed optimization_deadline object
+    {
+      const auto optimization_request_time = optimization_deadline - params_.optimization_period;
+      const auto time_since_last_optimization_request = ros::Time::now() - optimization_request_time;
+      status.add("Time Since Last Optimization Request [s]", time_since_last_optimization_request.toSec());
+    }
   }
 }
 
