@@ -205,7 +205,19 @@ void FixedLagSmoother::optimizationLoop()
       summary_ = graph_->optimize(params_.solver_options);
 
       // Optimization is complete. Notify all the things about the graph changes.
+      const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
+
+      // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
+      if (!summary_.IsSolutionUsable())
+      {
+        ROS_FATAL_STREAM("Optimization failed after updating the graph with the transaction with timestamp "
+                         << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
+        ROS_INFO_STREAM(summary_.FullReport());
+        ros::requestShutdown();
+        break;
+      }
+
       // Compute a transaction that marginalizes out those variables.
       lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
