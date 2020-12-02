@@ -157,58 +157,78 @@ void Odometry2DPublisher::notifyCallback(
 
   // Don't waste CPU computing the covariance if nobody is listening
   ros::Time latest_covariance_stamp = latest_covariance_stamp_;
+  bool latest_covariance_valid = latest_covariance_valid_;
   if (odom_pub_.getNumSubscribers() > 0 || acceleration_pub_.getNumSubscribers() > 0)
   {
-    try
+    // Throttle covariance computation
+    if (params_.covariance_throttle_period.isZero() ||
+       latest_stamp - latest_covariance_stamp > params_.covariance_throttle_period)
     {
-      std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> covariance_requests;
-      covariance_requests.emplace_back(position_uuid, position_uuid);
-      covariance_requests.emplace_back(position_uuid, orientation_uuid);
-      covariance_requests.emplace_back(orientation_uuid, orientation_uuid);
-      covariance_requests.emplace_back(velocity_linear_uuid, velocity_linear_uuid);
-      covariance_requests.emplace_back(velocity_linear_uuid, velocity_angular_uuid);
-      covariance_requests.emplace_back(velocity_angular_uuid, velocity_angular_uuid);
-      covariance_requests.emplace_back(acceleration_linear_uuid, acceleration_linear_uuid);
-
-      std::vector<std::vector<double>> covariance_matrices;
-      graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options);
-
-      odom_output.pose.covariance[0] = covariance_matrices[0][0];
-      odom_output.pose.covariance[1] = covariance_matrices[0][1];
-      odom_output.pose.covariance[5] = covariance_matrices[1][0];
-      odom_output.pose.covariance[6] = covariance_matrices[0][2];
-      odom_output.pose.covariance[7] = covariance_matrices[0][3];
-      odom_output.pose.covariance[11] = covariance_matrices[1][1];
-      odom_output.pose.covariance[30] = covariance_matrices[1][0];
-      odom_output.pose.covariance[31] = covariance_matrices[1][1];
-      odom_output.pose.covariance[35] = covariance_matrices[2][0];
-
-      odom_output.twist.covariance[0] = covariance_matrices[3][0];
-      odom_output.twist.covariance[1] = covariance_matrices[3][1];
-      odom_output.twist.covariance[5] = covariance_matrices[4][0];
-      odom_output.twist.covariance[6] = covariance_matrices[3][2];
-      odom_output.twist.covariance[7] = covariance_matrices[3][3];
-      odom_output.twist.covariance[11] = covariance_matrices[4][1];
-      odom_output.twist.covariance[30] = covariance_matrices[4][0];
-      odom_output.twist.covariance[31] = covariance_matrices[4][1];
-      odom_output.twist.covariance[35] = covariance_matrices[5][0];
-
-      acceleration_output.accel.covariance[0] = covariance_matrices[6][0];
-      acceleration_output.accel.covariance[1] = covariance_matrices[6][1];
-      acceleration_output.accel.covariance[6] = covariance_matrices[6][2];
-      acceleration_output.accel.covariance[7] = covariance_matrices[6][3];
-
       latest_covariance_stamp = latest_stamp;
-    }
-    catch (const std::exception& e)
-    {
-      TRACE_MARK_EVENT_THREAD("Error computing covariance.");
 
-      ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp << ". "
-                      "The covariance will be set to zero.\n" << e.what());
-      std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
-      std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
-      std::fill(acceleration_output.accel.covariance.begin(), acceleration_output.accel.covariance.end(), 0.0);
+      try
+      {
+        std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> covariance_requests;
+        covariance_requests.emplace_back(position_uuid, position_uuid);
+        covariance_requests.emplace_back(position_uuid, orientation_uuid);
+        covariance_requests.emplace_back(orientation_uuid, orientation_uuid);
+        covariance_requests.emplace_back(velocity_linear_uuid, velocity_linear_uuid);
+        covariance_requests.emplace_back(velocity_linear_uuid, velocity_angular_uuid);
+        covariance_requests.emplace_back(velocity_angular_uuid, velocity_angular_uuid);
+        covariance_requests.emplace_back(acceleration_linear_uuid, acceleration_linear_uuid);
+
+        std::vector<std::vector<double>> covariance_matrices;
+        graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options);
+
+        odom_output.pose.covariance[0] = covariance_matrices[0][0];
+        odom_output.pose.covariance[1] = covariance_matrices[0][1];
+        odom_output.pose.covariance[5] = covariance_matrices[1][0];
+        odom_output.pose.covariance[6] = covariance_matrices[0][2];
+        odom_output.pose.covariance[7] = covariance_matrices[0][3];
+        odom_output.pose.covariance[11] = covariance_matrices[1][1];
+        odom_output.pose.covariance[30] = covariance_matrices[1][0];
+        odom_output.pose.covariance[31] = covariance_matrices[1][1];
+        odom_output.pose.covariance[35] = covariance_matrices[2][0];
+
+        odom_output.twist.covariance[0] = covariance_matrices[3][0];
+        odom_output.twist.covariance[1] = covariance_matrices[3][1];
+        odom_output.twist.covariance[5] = covariance_matrices[4][0];
+        odom_output.twist.covariance[6] = covariance_matrices[3][2];
+        odom_output.twist.covariance[7] = covariance_matrices[3][3];
+        odom_output.twist.covariance[11] = covariance_matrices[4][1];
+        odom_output.twist.covariance[30] = covariance_matrices[4][0];
+        odom_output.twist.covariance[31] = covariance_matrices[4][1];
+        odom_output.twist.covariance[35] = covariance_matrices[5][0];
+
+        acceleration_output.accel.covariance[0] = covariance_matrices[6][0];
+        acceleration_output.accel.covariance[1] = covariance_matrices[6][1];
+        acceleration_output.accel.covariance[6] = covariance_matrices[6][2];
+        acceleration_output.accel.covariance[7] = covariance_matrices[6][3];
+
+        latest_covariance_valid = true;
+      }
+      catch (const std::exception& e)
+      {
+        TRACE_MARK_EVENT_THREAD("Error computing covariance.");
+
+        ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp << ". "
+                        "The covariance will be set to zero.\n" << e.what());
+        std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
+        std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
+        std::fill(acceleration_output.accel.covariance.begin(), acceleration_output.accel.covariance.end(), 0.0);
+
+        latest_covariance_valid = false;
+      }
+    }
+    else
+    {
+      // This covariance computation cycle has been skipped, so simply take the last covariance computed
+      //
+      // We do not propagate the latest covariance forward because it would grow unbounded being very different from
+      // the actual covariance we would have computed if not throttling.
+      odom_output.pose.covariance = odom_output_.pose.covariance;
+      odom_output.twist.covariance = odom_output_.twist.covariance;
+      acceleration_output.accel.covariance = acceleration_output_.accel.covariance;
     }
   }
 
@@ -217,6 +237,7 @@ void Odometry2DPublisher::notifyCallback(
 
     latest_stamp_ = latest_stamp;
     latest_covariance_stamp_ = latest_covariance_stamp;
+    latest_covariance_valid_ = latest_covariance_valid;
     odom_output_ = odom_output;
     acceleration_output_ = acceleration_output;
   }
@@ -229,6 +250,7 @@ void Odometry2DPublisher::onStart()
 
   synchronizer_ = Synchronizer(device_id_);
   latest_stamp_ = latest_covariance_stamp_ = Synchronizer::TIME_ZERO;
+  latest_covariance_valid_ = false;
   odom_output_ = nav_msgs::Odometry();
   acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
   publish_timer_.start();
@@ -315,6 +337,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
   ros::Time latest_stamp;
   ros::Time latest_covariance_stamp;
+  bool latest_covariance_valid;
   nav_msgs::Odometry odom_output;
   geometry_msgs::AccelWithCovarianceStamped acceleration_output;
   {
@@ -322,6 +345,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
     latest_stamp = latest_stamp_;
     latest_covariance_stamp = latest_covariance_stamp_;
+    latest_covariance_valid = latest_covariance_valid_;
     odom_output = odom_output_;
     acceleration_output = acceleration_output_;
   }
@@ -384,7 +408,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
     // Either the last covariance computation was skipped because there was no subscriber,
     // or it failed
-    if (latest_covariance_stamp == latest_stamp)
+    if (latest_covariance_valid)
     {
       fuse_core::Matrix8d covariance;
       covariance(0, 0) = odom_output.pose.covariance[0];

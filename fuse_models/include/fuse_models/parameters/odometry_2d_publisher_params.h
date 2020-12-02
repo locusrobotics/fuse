@@ -82,6 +82,8 @@ public:
     nh.param("scale_process_noise", scale_process_noise, scale_process_noise);
     nh.param("velocity_norm_min", velocity_norm_min, velocity_norm_min);
 
+    fuse_core::getPositiveParam(nh, "covariance_throttle_period", covariance_throttle_period, false);
+
     double tf_cache_time_double = tf_cache_time.toSec();
     nh.getParam("tf_cache_time", tf_cache_time_double);
     tf_cache_time.fromSec(tf_cache_time_double);
@@ -133,6 +135,8 @@ public:
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   bool scale_process_noise{ false };
   double velocity_norm_min{ 1e-3 };
+  ros::Duration covariance_throttle_period { 0.0 };  //!< The throttle period duration in seconds to compute the
+                                                     //!< covariance
   ros::Duration tf_cache_time { 10.0 };
   ros::Duration tf_timeout { 0.1 };
   int queue_size { 1 };

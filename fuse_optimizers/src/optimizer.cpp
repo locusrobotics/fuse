@@ -101,7 +101,7 @@ Optimizer::Optimizer(
       private_node_handle_.createTimer(ros::Duration(diagnostic_updater_timer_period_),
                                        boost::bind(&diagnostic_updater::Updater::update, &diagnostic_updater_));
 
-  diagnostic_updater_.add("Optimizer", this, &Optimizer::setDiagnostics);
+  diagnostic_updater_.add(private_node_handle_.getNamespace(), this, &Optimizer::setDiagnostics);
   diagnostic_updater_.setHardwareID("fuse");
 
   // Wait for a valid time before loading any of the plugins
@@ -490,7 +490,7 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat
     return;
   }
 
-  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimizer");
+  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
 
   auto print_key = [](const std::string& result, const auto& entry) { return result + entry.first + ' '; };
 
