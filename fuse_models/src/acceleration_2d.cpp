@@ -77,8 +77,9 @@ void Acceleration2D::onStart()
 {
   if (!params_.indices.empty())
   {
-    subscriber_ = node_handle_.subscribe<geometry_msgs::AccelWithCovarianceStamped>(ros::names::resolve(params_.topic),
-        params_.queue_size, &AccelerationThrottledCallback::callback, &throttled_callback_);
+    subscriber_ = node_handle_.subscribe<geometry_msgs::AccelWithCovarianceStamped>(
+        ros::names::resolve(params_.topic), params_.queue_size, &AccelerationThrottledCallback::callback,
+        &throttled_callback_, ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
 }
 
