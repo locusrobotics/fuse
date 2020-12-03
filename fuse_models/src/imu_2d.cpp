@@ -89,7 +89,8 @@ void Imu2D::onStart()
   {
     previous_pose_.reset();
     subscriber_ = node_handle_.subscribe<sensor_msgs::Imu>(ros::names::resolve(params_.topic), params_.queue_size,
-        &ImuThrottledCallback::callback, &throttled_callback_);
+                                                           &ImuThrottledCallback::callback, &throttled_callback_,
+                                                           ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
 }
 

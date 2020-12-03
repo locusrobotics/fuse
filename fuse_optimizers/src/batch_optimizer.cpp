@@ -178,10 +178,7 @@ void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& /*event*/)
   // Check if there is any pending information to be applied to the graph.
   {
     std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
-    optimization_request_ = !combined_transaction_->addedConstraints().empty() ||
-                            !combined_transaction_->removedConstraints().empty() ||
-                            !combined_transaction_->addedVariables().empty() ||
-                            !combined_transaction_->removedVariables().empty();
+    optimization_request_ = !combined_transaction_->empty();
   }
   // If there is some pending work, trigger the next optimization cycle.
   // If the optimizer has not completed the previous optimization cycle, then it

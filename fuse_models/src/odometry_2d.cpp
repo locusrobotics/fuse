@@ -90,7 +90,8 @@ void Odometry2D::onStart()
   {
     previous_pose_.reset();
     subscriber_ = node_handle_.subscribe<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size,
-        &OdometryThrottledCallback::callback, &throttled_callback_);
+                                                             &OdometryThrottledCallback::callback, &throttled_callback_,
+                                                             ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
 }
 
