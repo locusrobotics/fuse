@@ -112,4 +112,31 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
+
+  # Benchmarks
+  find_package(benchmark QUIET)
+
+  if(benchmark_FOUND)
+    # Create Problem benchmark
+    add_executable(benchmark_create_problem
+      benchmark/benchmark_create_problem.cpp
+    )
+    target_include_directories(benchmark_create_problem
+      PRIVATE
+        include
+        ${Boost_INCLUDE_DIRS}
+        ${catkin_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    target_link_libraries(benchmark_create_problem
+      benchmark
+      ${PROJECT_NAME}
+      ${catkin_LIBRARIES}
+    )
+    set_target_properties(benchmark_create_problem
+      PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+    )
+  endif()
 endif()

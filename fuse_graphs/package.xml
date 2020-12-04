@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>fuse_graphs</name>
   <version>0.4.0</version>
   <description>
@@ -15,6 +18,7 @@
   <depend>fuse_core</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <test_depend condition="$ROS_DISTRO >= melodic">benchmark</test_depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
 
