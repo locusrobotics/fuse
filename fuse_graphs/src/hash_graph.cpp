@@ -464,11 +464,12 @@ void HashGraph::createProblem(ceres::Problem& problem) const
     }
   }
   // Add the constraints
+  std::vector<double*> parameter_blocks;
   for (auto& uuid__constraint : constraints_)
   {
     fuse_core::Constraint& constraint = *(uuid__constraint.second);
     // We need the memory address of each variable value referenced by this constraint
-    std::vector<double*> parameter_blocks;
+    parameter_blocks.clear();
     parameter_blocks.reserve(constraint.variables().size());
     for (const auto& uuid : constraint.variables())
     {
