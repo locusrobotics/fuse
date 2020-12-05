@@ -72,9 +72,7 @@ struct Twist2DParams : public ParameterBase
       nh.getParam("queue_size", queue_size);
       nh.getParam("tcp_no_delay", tcp_no_delay);
 
-      double throttle_period_double = throttle_period.toSec();
-      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period_double, false);
-      throttle_period.fromSec(throttle_period_double);
+      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period, false);
       nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
 
       fuse_core::getParamRequired(nh, "topic", topic);
