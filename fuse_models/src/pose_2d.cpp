@@ -41,6 +41,9 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
+#include <memory>
+#include <utility>
+
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Pose2D, fuse_core::SensorModel)
