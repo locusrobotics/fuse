@@ -273,12 +273,19 @@ inline bool processAbsolutePoseWithCovariance(
   }
 
   geometry_msgs::PoseWithCovarianceStamped transformed_message;
-  transformed_message.header.frame_id = target_frame;
-
-  if (!transformMessage(tf_buffer, pose, transformed_message))
+  if (target_frame.empty())
   {
-    ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << pose.header.stamp);
-    return false;
+    transformed_message = pose;
+  }
+  else
+  {
+    transformed_message.header.frame_id = target_frame;
+
+    if (!transformMessage(tf_buffer, pose, transformed_message))
+    {
+      ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << pose.header.stamp);
+      return false;
+    }
   }
 
   // Convert the pose into tf2_2d transform
@@ -917,12 +924,19 @@ inline bool processTwistWithCovariance(
   }
 
   geometry_msgs::TwistWithCovarianceStamped transformed_message;
-  transformed_message.header.frame_id = target_frame;
-
-  if (!transformMessage(tf_buffer, twist, transformed_message))
+  if (target_frame.empty())
   {
-    ROS_ERROR_STREAM("Cannot create constraint from twist message with stamp " << twist.header.stamp);
-    return false;
+    transformed_message = twist;
+  }
+  else
+  {
+    transformed_message.header.frame_id = target_frame;
+
+    if (!transformMessage(tf_buffer, twist, transformed_message))
+    {
+      ROS_ERROR_STREAM("Cannot create constraint from twist message with stamp " << twist.header.stamp);
+      return false;
+    }
   }
 
   bool constraints_added = false;
@@ -1072,12 +1086,19 @@ inline bool processAccelWithCovariance(
   }
 
   geometry_msgs::AccelWithCovarianceStamped transformed_message;
-  transformed_message.header.frame_id = target_frame;
-
-  if (!transformMessage(tf_buffer, acceleration, transformed_message))
+  if (target_frame.empty())
   {
-    ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << acceleration.header.stamp);
-    return false;
+    transformed_message = acceleration;
+  }
+  else
+  {
+    transformed_message.header.frame_id = target_frame;
+
+    if (!transformMessage(tf_buffer, acceleration, transformed_message))
+    {
+      ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << acceleration.header.stamp);
+      return false;
+    }
   }
 
   // Create the acceleration variables

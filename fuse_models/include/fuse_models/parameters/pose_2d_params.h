@@ -77,7 +77,7 @@ struct Pose2DParams : public ParameterBase
       nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
 
       fuse_core::getParamRequired(nh, "topic", topic);
-      fuse_core::getParamRequired(nh, "target_frame", target_frame);
+      nh.getParam("target_frame", target_frame);
 
       if (differential)
       {

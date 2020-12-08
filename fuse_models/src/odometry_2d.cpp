@@ -121,7 +121,8 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
   if (params_.differential)
   {
     auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
-    transformed_pose->header.frame_id = params_.pose_target_frame;
+    transformed_pose->header.frame_id =
+        params_.pose_target_frame.empty() ? pose->header.frame_id : params_.pose_target_frame;
 
     if (!common::transformMessage(tf_buffer_, *pose, *transformed_pose))
     {
@@ -135,7 +136,8 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
         if (params_.use_twist_covariance)
         {
           geometry_msgs::TwistWithCovarianceStamped transformed_twist;
-          transformed_twist.header.frame_id = params_.twist_target_frame;
+          transformed_twist.header.frame_id =
+              params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 
           if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
           {
