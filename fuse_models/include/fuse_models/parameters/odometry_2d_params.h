@@ -89,11 +89,12 @@ struct Odometry2DParams : public ParameterBase
         fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
       }
 
-      if (!differential && (!position_indices.empty() || !orientation_indices.empty()))
+      if (!position_indices.empty() || !orientation_indices.empty())
       {
         fuse_core::getParamRequired(nh, "pose_target_frame", pose_target_frame);
       }
-      else
+
+      if (differential)
       {
         nh.getParam("independent", independent);
         nh.getParam("use_twist_covariance", use_twist_covariance);
