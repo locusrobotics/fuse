@@ -100,23 +100,34 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
 
   if (params_.differential)
   {
-    if (previous_pose_msg_)
-    {
-      common::processDifferentialPoseWithCovariance(
-        name(),
-        device_id_,
-        *previous_pose_msg_,
-        *msg,
-        params_.independent,
-        params_.minimum_pose_relative_covariance,
-        params_.loss,
-        params_.position_indices,
-        params_.orientation_indices,
-        validate,
-        *transaction);
-    }
+    auto transformed_msg = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+    transformed_msg->header.frame_id = params_.target_frame;
 
-    previous_pose_msg_ = msg;
+    if (!common::transformMessage(tf_buffer_, *msg, *transformed_msg))
+    {
+      ROS_ERROR_STREAM("Cannot transform pose message with stamp " << msg->header.stamp << " to target frame "
+                                                                   << params_.target_frame);
+    }
+    else
+    {
+      if (previous_pose_msg_)
+      {
+        common::processDifferentialPoseWithCovariance(
+          name(),
+          device_id_,
+          *previous_pose_msg_,
+          *transformed_msg,
+          params_.independent,
+          params_.minimum_pose_relative_covariance,
+          params_.loss,
+          params_.position_indices,
+          params_.orientation_indices,
+          validate,
+          *transaction);
+      }
+
+      previous_pose_msg_ = std::move(transformed_msg);
+    }
   }
   else
   {
