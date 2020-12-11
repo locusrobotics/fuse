@@ -120,41 +120,63 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
 
   if (params_.differential)
   {
-    if (previous_pose_)
-    {
-      if (params_.use_twist_covariance)
-      {
-        common::processDifferentialPoseWithTwistCovariance(
-          name(),
-          device_id_,
-          *previous_pose_,
-          *pose,
-          twist,
-          params_.minimum_pose_relative_covariance,
-          params_.pose_loss,
-          params_.position_indices,
-          params_.orientation_indices,
-          validate,
-          *transaction);
-      }
-      else
-      {
-        common::processDifferentialPoseWithCovariance(
-          name(),
-          device_id_,
-          *previous_pose_,
-          *pose,
-          params_.independent,
-          params_.minimum_pose_relative_covariance,
-          params_.pose_loss,
-          params_.position_indices,
-          params_.orientation_indices,
-          validate,
-          *transaction);
-      }
-    }
+    auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+    transformed_pose->header.frame_id = params_.pose_target_frame;
 
-    previous_pose_ = std::move(pose);
+    if (!common::transformMessage(tf_buffer_, *pose, *transformed_pose))
+    {
+      ROS_ERROR_STREAM("Cannot transform pose message with stamp " << pose->header.stamp << " to pose target frame "
+                                                                   << params_.pose_target_frame);
+    }
+    else
+    {
+      if (previous_pose_)
+      {
+        if (params_.use_twist_covariance)
+        {
+          geometry_msgs::TwistWithCovarianceStamped transformed_twist;
+          transformed_twist.header.frame_id = params_.twist_target_frame;
+
+          if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
+          {
+            ROS_ERROR_STREAM("Cannot transform twist message with stamp "
+                             << twist.header.stamp << " to twist target frame " << params_.twist_target_frame);
+          }
+          else
+          {
+            common::processDifferentialPoseWithTwistCovariance(
+              name(),
+              device_id_,
+              *previous_pose_,
+              *transformed_pose,
+              transformed_twist,
+              params_.minimum_pose_relative_covariance,
+              params_.pose_loss,
+              params_.position_indices,
+              params_.orientation_indices,
+              validate,
+              *transaction);
+          }
+        }
+        else
+        {
+          common::processDifferentialPoseWithCovariance(
+            name(),
+            device_id_,
+            *previous_pose_,
+            *transformed_pose,
+            params_.independent,
+            params_.minimum_pose_relative_covariance,
+            params_.pose_loss,
+            params_.position_indices,
+            params_.orientation_indices,
+            validate,
+            *transaction);
+        }
+      }
+
+      previous_pose_ = std::move(transformed_pose);
+    }
   }
   else
   {
