@@ -165,8 +165,8 @@ void Odometry2D::processDifferential(const geometry_msgs::PoseWithCovarianceStam
 
   if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
   {
-    ROS_ERROR_STREAM("Cannot transform pose message with stamp " << pose.header.stamp << " to pose target frame "
-                                                                 << params_.pose_target_frame);
+    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp "
+                                      << pose.header.stamp << " to pose target frame " << params_.pose_target_frame);
     return;
   }
 
@@ -184,8 +184,9 @@ void Odometry2D::processDifferential(const geometry_msgs::PoseWithCovarianceStam
 
     if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
     {
-      ROS_ERROR_STREAM("Cannot transform twist message with stamp "
-                       << twist.header.stamp << " to twist target frame " << params_.twist_target_frame);
+      ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform twist message with stamp " << twist.header.stamp
+                                                                                 << " to twist target frame "
+                                                                                 << params_.twist_target_frame);
     }
     else
     {

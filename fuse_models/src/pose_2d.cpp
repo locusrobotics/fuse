@@ -132,8 +132,8 @@ void Pose2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped&
 
   if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
   {
-    ROS_ERROR_STREAM("Cannot transform pose message with stamp " << pose.header.stamp << " to target frame "
-                                                                 << params_.target_frame);
+    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp "
+                                      << pose.header.stamp << " to target frame " << params_.target_frame);
     return;
   }
 
