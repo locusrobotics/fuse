@@ -84,15 +84,8 @@ struct Odometry2DParams : public ParameterBase
 
       fuse_core::getParamRequired(nh, "topic", topic);
 
-      if (!linear_velocity_indices.empty() || !angular_velocity_indices.empty())
-      {
-        fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
-      }
-
-      if (!position_indices.empty() || !orientation_indices.empty())
-      {
-        fuse_core::getParamRequired(nh, "pose_target_frame", pose_target_frame);
-      }
+      nh.getParam("twist_target_frame", twist_target_frame);
+      nh.getParam("pose_target_frame", pose_target_frame);
 
       if (differential)
       {

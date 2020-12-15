@@ -104,7 +104,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
   if (params_.differential)
   {
     auto transformed_msg = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
-    transformed_msg->header.frame_id = params_.target_frame;
+    transformed_msg->header.frame_id = params_.target_frame.empty() ? msg->header.frame_id : params_.target_frame;
 
     if (!common::transformMessage(tf_buffer_, *msg, *transformed_msg))
     {
