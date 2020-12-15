@@ -93,20 +93,9 @@ struct Imu2DParams : public ParameterBase
             fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
       }
 
-      if (!linear_acceleration_indices.empty())
-      {
-        fuse_core::getParamRequired(nh, "acceleration_target_frame", acceleration_target_frame);
-      }
-
-      if (!orientation_indices.empty())
-      {
-        fuse_core::getParamRequired(nh, "orientation_target_frame", orientation_target_frame);
-      }
-
-      if (!angular_velocity_indices.empty())
-      {
-        fuse_core::getParamRequired(nh, "twist_target_frame", twist_target_frame);
-      }
+      nh.getParam("acceleration_target_frame", acceleration_target_frame);
+      nh.getParam("orientation_target_frame", orientation_target_frame);
+      nh.getParam("twist_target_frame", twist_target_frame);
 
       pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
       angular_velocity_loss = fuse_core::loadLossConfig(nh, "angular_velocity_loss");

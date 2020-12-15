@@ -11,4 +11,3 @@ sensor_models:
 imu:
   topic: imu
   angular_velocity_dimensions: ['yaw']
-  twist_target_frame: base_link

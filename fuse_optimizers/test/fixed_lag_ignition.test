@@ -38,7 +38,6 @@
       pose_sensor:
         differential: true
         topic: relative_pose
-        target_frame: base_link
         position_dimensions: ['x', 'y']
         orientation_dimensions: ['yaw']
 
