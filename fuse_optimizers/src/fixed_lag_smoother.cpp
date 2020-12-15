@@ -544,7 +544,7 @@ diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres:
     case ceres::TerminationType::USER_SUCCESS:
       return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
     case ceres::TerminationType::NO_CONVERGENCE:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converged");
+      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
     default:
       return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
   }
