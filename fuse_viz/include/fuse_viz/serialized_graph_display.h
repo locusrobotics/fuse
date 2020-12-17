@@ -41,20 +41,15 @@
 #include <fuse_msgs/SerializedGraph.h>
 
 #include <rviz/message_filter_display.h>
+
+#include <OgreColourValue.h>
+#include <OgreSceneNode.h>
 #endif  // Q_MOC_RUN
 
 #include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-namespace Ogre
-{
-
-class SceneNode;
-class ColourValue;
-
-}  // namespace Ogre
 
 namespace rviz
 {
