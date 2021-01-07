@@ -112,6 +112,16 @@ protected:
    */
   void onStop() override;
 
+  /**
+   * @brief Process a pose message in differential mode
+   *
+   * @param[in] pose - The pose message to process in differential mode
+   * @param[in] validate - Whether to validate the pose or not
+   * @param[out] transaction - The generated variables and constraints are added to this transaction
+   */
+  void processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose, const bool validate,
+                           fuse_core::Transaction& transaction);
+
   ParameterType params_;
 
   geometry_msgs::PoseWithCovarianceStamped::ConstPtr previous_pose_msg_;
