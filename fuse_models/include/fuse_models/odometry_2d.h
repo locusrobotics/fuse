@@ -123,6 +123,18 @@ protected:
    */
   void onStop() override;
 
+  /**
+   * @brief Process a pose message in differential mode
+   *
+   * @param[in] pose - The pose message to process in differential mode
+   * @param[in] twist - The twist message used in case the twist covariance is used in differential mode
+   * @param[in] validate - Whether to validate the pose and twist coavriance or not
+   * @param[out] transaction - The generated variables and constraints are added to this transaction
+   */
+  void processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose,
+                           const geometry_msgs::TwistWithCovarianceStamped& twist, const bool validate,
+                           fuse_core::Transaction& transaction);
+
   ParameterType params_;
 
   std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;

@@ -103,34 +103,7 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
 
   if (params_.differential)
   {
-    auto transformed_msg = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
-    transformed_msg->header.frame_id = params_.target_frame.empty() ? msg->header.frame_id : params_.target_frame;
-
-    if (!common::transformMessage(tf_buffer_, *msg, *transformed_msg))
-    {
-      ROS_ERROR_STREAM("Cannot transform pose message with stamp " << msg->header.stamp << " to target frame "
-                                                                   << params_.target_frame);
-    }
-    else
-    {
-      if (previous_pose_msg_)
-      {
-        common::processDifferentialPoseWithCovariance(
-          name(),
-          device_id_,
-          *previous_pose_msg_,
-          *transformed_msg,
-          params_.independent,
-          params_.minimum_pose_relative_covariance,
-          params_.loss,
-          params_.position_indices,
-          params_.orientation_indices,
-          validate,
-          *transaction);
-      }
-
-      previous_pose_msg_ = std::move(transformed_msg);
-    }
+    processDifferential(*msg, validate, *transaction);
   }
   else
   {
@@ -149,6 +122,38 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
 
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
+}
+
+void Pose2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose, const bool validate,
+                                 fuse_core::Transaction& transaction)
+{
+  auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+  transformed_pose->header.frame_id = params_.target_frame.empty() ? pose.header.frame_id : params_.target_frame;
+
+  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
+  {
+    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp "
+                                      << pose.header.stamp << " to target frame " << params_.target_frame);
+    return;
+  }
+
+  if (previous_pose_msg_)
+  {
+    common::processDifferentialPoseWithCovariance(
+      name(),
+      device_id_,
+      *previous_pose_msg_,
+      *transformed_pose,
+      params_.independent,
+      params_.minimum_pose_relative_covariance,
+      params_.loss,
+      params_.position_indices,
+      params_.orientation_indices,
+      validate,
+      transaction);
+  }
+
+  previous_pose_msg_ = std::move(transformed_pose);
 }
 
 }  // namespace fuse_models
