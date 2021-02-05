@@ -725,6 +725,8 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] twist - The second (and temporally later) TwistWithCovarianceStamped message
  * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always added to the
  *                                               resulting pose relative covariance
+ * @param[in] minimum_twist_covariance - The minimum twist covariance that was added to the twist covariance and must be
+ *                                       substracted from it before computing the pose relative covariance from it
  * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
@@ -737,6 +739,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
   const geometry_msgs::PoseWithCovarianceStamped& pose2,
   const geometry_msgs::TwistWithCovarianceStamped& twist,
   const fuse_core::Matrix3d& minimum_pose_relative_covariance,
+  const fuse_core::Matrix3d& minimum_twist_covariance,
   const fuse_core::Loss::SharedPtr& loss,
   const std::vector<size_t>& position_indices,
   const std::vector<size_t>& orientation_indices,
@@ -819,6 +822,9 @@ inline bool processDifferentialPoseWithTwistCovariance(
   //
   // In some cases the twist covariance T12 is very small and it could yield to an ill-conditioned C12 covariance. For
   // that reason a minimum covariance is added to [2].
+  //
+  // It is also common that for the same reason, the twist covariance T12 has already been added a minimum covariacne to
+  // it, so we have to remove it before using it.
   const auto dt = (pose2.header.stamp - pose1.header.stamp).toSec();
 
   if (dt < 1e-6)
@@ -831,7 +837,8 @@ inline bool processDifferentialPoseWithTwistCovariance(
   j_twist.setIdentity();
   j_twist *= dt;
 
-  fuse_core::Matrix3d pose_relative_covariance = j_twist * cov * j_twist.transpose() + minimum_pose_relative_covariance;
+  fuse_core::Matrix3d pose_relative_covariance =
+      j_twist * (cov - minimum_twist_covariance) * j_twist.transpose() + minimum_pose_relative_covariance;
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd pose_relative_mean_partial(position_indices.size() + orientation_indices.size());

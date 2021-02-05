@@ -197,6 +197,7 @@ void Odometry2D::processDifferential(const geometry_msgs::PoseWithCovarianceStam
         *transformed_pose,
         transformed_twist,
         params_.minimum_pose_relative_covariance,
+        params_.minimum_twist_covariance,
         params_.pose_loss,
         params_.position_indices,
         params_.orientation_indices,
