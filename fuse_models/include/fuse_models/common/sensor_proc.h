@@ -218,14 +218,27 @@ inline void validatePartialMeasurement(
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
  * @param[in] input - The message to transform. Source frame and stamp are dictated by its header.
  * @param[in,out] output - The transformed message. Target frame is dictated by its header.
+ * @param [in] timeout - Optional. The maximum time to wait for a transform to become available.
  * @return true if the transform succeeded, false otherwise
  */
 template <typename T>
-bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& output)
+bool transformMessage(
+  const tf2_ros::Buffer& tf_buffer,
+  const T& input,
+  T& output,
+  const ros::Duration& tf_timeout = ros::Duration(0, 0))
 {
   try
   {
-    const auto trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
+    auto trans = geometry_msgs::TransformStamped();
+    if (tf_timeout.isZero())
+    {
+      trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
+    }
+    else
+    {
+      trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp, tf_timeout);
+    }
     tf2::doTransform(input, output, trans);
     return true;
   }
@@ -265,7 +278,8 @@ inline bool processAbsolutePoseWithCovariance(
   const std::vector<size_t>& orientation_indices,
   const tf2_ros::Buffer& tf_buffer,
   const bool validate,
-  fuse_core::Transaction& transaction)
+  fuse_core::Transaction& transaction,
+  const ros::Duration& tf_timeout = ros::Duration(0, 0))
 {
   if (position_indices.empty() && orientation_indices.empty())
   {
@@ -281,9 +295,9 @@ inline bool processAbsolutePoseWithCovariance(
   {
     transformed_message.header.frame_id = target_frame;
 
-    if (!transformMessage(tf_buffer, pose, transformed_message))
+    if (!transformMessage(tf_buffer, pose, transformed_message, tf_timeout))
     {
-      ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << pose.header.stamp);
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Cannot create constraint from pose message with stamp " << pose.header.stamp);
       return false;
     }
   }
@@ -855,7 +869,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
     }
     catch (const std::runtime_error& ex)
     {
-      ROS_ERROR_STREAM("Invalid partial differential pose measurement using the twist covariance from '"
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid partial differential pose measurement using the twist covariance from '"
                                           << source << "' source: " << ex.what());
       return false;
     }
@@ -915,7 +929,8 @@ inline bool processTwistWithCovariance(
   const std::vector<size_t>& angular_indices,
   const tf2_ros::Buffer& tf_buffer,
   const bool validate,
-  fuse_core::Transaction& transaction)
+  fuse_core::Transaction& transaction,
+  const ros::Duration& tf_timeout = ros::Duration(0, 0))
 {
   // Make sure we actually have work to do
   if (linear_indices.empty() && angular_indices.empty())
@@ -932,9 +947,9 @@ inline bool processTwistWithCovariance(
   {
     transformed_message.header.frame_id = target_frame;
 
-    if (!transformMessage(tf_buffer, twist, transformed_message))
+    if (!transformMessage(tf_buffer, twist, transformed_message, tf_timeout))
     {
-      ROS_ERROR_STREAM("Cannot create constraint from twist message with stamp " << twist.header.stamp);
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Cannot create constraint from twist message with stamp " << twist.header.stamp);
       return false;
     }
   }
@@ -1077,7 +1092,8 @@ inline bool processAccelWithCovariance(
   const std::vector<size_t>& indices,
   const tf2_ros::Buffer& tf_buffer,
   const bool validate,
-  fuse_core::Transaction& transaction)
+  fuse_core::Transaction& transaction,
+  const ros::Duration& tf_timeout = ros::Duration(0, 0))
 {
   // Make sure we actually have work to do
   if (indices.empty())
@@ -1094,9 +1110,11 @@ inline bool processAccelWithCovariance(
   {
     transformed_message.header.frame_id = target_frame;
 
-    if (!transformMessage(tf_buffer, acceleration, transformed_message))
+    if (!transformMessage(tf_buffer, acceleration, transformed_message, tf_timeout))
     {
-      ROS_ERROR_STREAM("Cannot create constraint from pose message with stamp " << acceleration.header.stamp);
+      ROS_ERROR_STREAM_THROTTLE(
+        10.0,
+        "Cannot create constraint from pose message with stamp " << acceleration.header.stamp);
       return false;
     }
   }

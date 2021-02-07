@@ -71,6 +71,7 @@ struct Twist2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       nh.getParam("tcp_no_delay", tcp_no_delay);
+      fuse_core::getPositiveParam(nh, "tf_timeout", tf_timeout, false);
 
       fuse_core::getPositiveParam(nh, "throttle_period", throttle_period, false);
       nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
@@ -89,6 +90,7 @@ struct Twist2DParams : public ParameterBase
                                   //!< whatever the packet size. This reduces delay at the cost of network congestion,
                                   //!< specially if the payload of a packet is smaller than the TCP header data. This is
                                   //!< true for small ROS messages like geometry_msgs::AccelWithCovarianceStamped
+    ros::Duration tf_timeout { 0.0 };  //!< The maximum time to wait for a transform to become available
     ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
     bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     std::string topic {};
