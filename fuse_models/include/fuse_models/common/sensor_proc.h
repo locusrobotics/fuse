@@ -823,8 +823,8 @@ inline bool processDifferentialPoseWithTwistCovariance(
   // In some cases the twist covariance T12 is very small and it could yield to an ill-conditioned C12 covariance. For
   // that reason a minimum covariance is added to [2].
   //
-  // It is also common that for the same reason, the twist covariance T12 has already been added a minimum covariacne to
-  // it, so we have to remove it before using it.
+  // It is also common that for the same reason, the twist covariance T12 already has a minimum covariance added to
+  // it by the publisher, so we have to remove it before using it.
   const auto dt = (pose2.header.stamp - pose1.header.stamp).toSec();
 
   if (dt < 1e-6)
