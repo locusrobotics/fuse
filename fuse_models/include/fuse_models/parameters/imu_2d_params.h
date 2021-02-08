@@ -91,8 +91,8 @@ struct Imu2DParams : public ParameterBase
 
         minimum_pose_relative_covariance =
             fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
-        minimum_twist_covariance =
-            fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_twist_covariance_diagonal", 0.0);
+        twist_covariance_offset =
+            fuse_core::getCovarianceDiagonalParam<3>(nh, "twist_covariance_offset_diagonal", 0.0);
       }
 
       nh.getParam("acceleration_target_frame", acceleration_target_frame);
@@ -109,7 +109,8 @@ struct Imu2DParams : public ParameterBase
     bool independent { true };
     bool use_twist_covariance { true };
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
-    fuse_core::Matrix3d minimum_twist_covariance;          //!< Minimum twist covariance matrix
+    fuse_core::Matrix3d twist_covariance_offset;  //!< Offset already added to the twist covariance matrix, that will be
+                                                  //!< substracted in order to recover the raw values
     bool remove_gravitational_acceleration { false };
     int queue_size { 10 };
     bool tcp_no_delay { false };  //!< Whether to use TCP_NODELAY, i.e. disable Nagle's algorithm, in the subscriber
