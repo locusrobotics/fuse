@@ -1114,7 +1114,7 @@ inline bool processAccelWithCovariance(
     {
       ROS_ERROR_STREAM_THROTTLE(
         10.0,
-        "Cannot create constraint from pose message with stamp " << acceleration.header.stamp);
+        "Cannot create constraint from acceleration message with stamp " << acceleration.header.stamp);
       return false;
     }
   }
