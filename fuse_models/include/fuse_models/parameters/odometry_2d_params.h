@@ -78,6 +78,7 @@ struct Odometry2DParams : public ParameterBase
       nh.getParam("disable_checks", disable_checks);
       nh.getParam("queue_size", queue_size);
       nh.getParam("tcp_no_delay", tcp_no_delay);
+      fuse_core::getPositiveParam(nh, "tf_timeout", tf_timeout, false);
 
       fuse_core::getPositiveParam(nh, "throttle_period", throttle_period, false);
       nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
@@ -94,6 +95,8 @@ struct Odometry2DParams : public ParameterBase
 
         minimum_pose_relative_covariance =
             fuse_core::getCovarianceDiagonalParam<3>(nh, "minimum_pose_relative_covariance_diagonal", 0.0);
+        twist_covariance_offset =
+            fuse_core::getCovarianceDiagonalParam<3>(nh, "twist_covariance_offset_diagonal", 0.0);
       }
 
       pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
@@ -106,12 +109,15 @@ struct Odometry2DParams : public ParameterBase
     bool independent { true };
     bool use_twist_covariance { true };
     fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
+    fuse_core::Matrix3d twist_covariance_offset;  //!< Offset already added to the twist covariance matrix, that will be
+                                                  //!< substracted in order to recover the raw values
     int queue_size { 10 };
     bool tcp_no_delay { false };  //!< Whether to use TCP_NODELAY, i.e. disable Nagle's algorithm, in the subscriber
                                   //!< socket or not. TCP_NODELAY forces a socket to send the data in its buffer,
                                   //!< whatever the packet size. This reduces delay at the cost of network congestion,
                                   //!< specially if the payload of a packet is smaller than the TCP header data. This is
                                   //!< true for small ROS messages like geometry_msgs::AccelWithCovarianceStamped
+    ros::Duration tf_timeout { 0.0 };  //!< The maximum time to wait for a transform to become available
     ros::Duration throttle_period { 0.0 };  //!< The throttle period duration in seconds
     bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     std::string topic {};

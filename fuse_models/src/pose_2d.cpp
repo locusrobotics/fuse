@@ -117,7 +117,8 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
       params_.orientation_indices,
       tf_buffer_,
       validate,
-      *transaction);
+      *transaction,
+      params_.tf_timeout);
   }
 
   // Send the transaction object to the plugin's parent

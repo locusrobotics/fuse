@@ -134,7 +134,8 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
       params_.orientation_indices,
       tf_buffer_,
       validate,
-      *transaction);
+      *transaction,
+      params_.tf_timeout);
   }
 
   // Handle the twist data
@@ -149,7 +150,8 @@ void Odometry2D::process(const nav_msgs::Odometry::ConstPtr& msg)
     params_.angular_velocity_indices,
     tf_buffer_,
     validate,
-    *transaction);
+    *transaction,
+    params_.tf_timeout);
 
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
@@ -197,6 +199,7 @@ void Odometry2D::processDifferential(const geometry_msgs::PoseWithCovarianceStam
         *transformed_pose,
         transformed_twist,
         params_.minimum_pose_relative_covariance,
+        params_.twist_covariance_offset,
         params_.pose_loss,
         params_.position_indices,
         params_.orientation_indices,

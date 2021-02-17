@@ -107,7 +107,8 @@ void Twist2D::process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr&
     params_.angular_indices,
     tf_buffer_,
     !params_.disable_checks,
-    *transaction);
+    *transaction,
+    params_.tf_timeout);
 
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
