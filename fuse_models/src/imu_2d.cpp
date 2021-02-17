@@ -150,7 +150,8 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
       params_.orientation_indices,
       tf_buffer_,
       validate,
-      *transaction);
+      *transaction,
+      params_.tf_timeout);
   }
 
   // Handle the twist data (only include indices for angular velocity)
@@ -165,7 +166,8 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     params_.angular_velocity_indices,
     tf_buffer_,
     validate,
-    *transaction);
+    *transaction,
+    params_.tf_timeout);
 
   // Handle the acceleration data
   geometry_msgs::AccelWithCovarianceStamped accel;
@@ -205,7 +207,8 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     params_.linear_acceleration_indices,
     tf_buffer_,
     validate,
-    *transaction);
+    *transaction,
+    params_.tf_timeout);
 
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
