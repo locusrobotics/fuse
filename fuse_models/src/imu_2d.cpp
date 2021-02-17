@@ -257,6 +257,7 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
         *transformed_pose,
         twist,
         params_.minimum_pose_relative_covariance,
+        params_.twist_covariance_offset,
         params_.pose_loss,
         {},
         params_.orientation_indices,
