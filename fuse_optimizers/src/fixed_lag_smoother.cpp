@@ -45,6 +45,7 @@
 #include <algorithm>
 #include <iterator>
 #include <mutex>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -206,7 +207,24 @@ void FixedLagSmoother::optimizationLoop()
       // Combine the new transactions with any marginal transaction from the end of the last cycle
       new_transaction->merge(marginal_transaction_);
       // Update the graph
-      graph_->update(*new_transaction);
+      try
+      {
+        graph_->update(*new_transaction);
+      }
+      catch (const std::exception& ex)
+      {
+        std::ostringstream oss;
+        oss << "Graph:\n";
+        graph_->print(oss);
+        oss << "\nTransaction:\n";
+        new_transaction->print(oss);
+
+        ROS_FATAL_STREAM("Failed to update graph with transaction: " << ex.what()
+                                                                     << "\nLeaving optimization loop and requesting "
+                                                                        "node shutdown...\n" << oss.str());
+        ros::requestShutdown();
+        break;
+      }
       // Optimize the entire graph
       summary_ = graph_->optimize(params_.solver_options);
 
