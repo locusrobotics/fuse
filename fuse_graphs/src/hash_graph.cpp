@@ -127,7 +127,7 @@ bool HashGraph::addConstraint(fuse_core::Constraint::SharedPtr constraint)
     if (!variableExists(variable_uuid))
     {
       throw std::logic_error("Attempting to add a constraint (" + fuse_core::uuid::to_string(constraint->uuid()) +
-                             ") that uses an unknown variable (" + fuse_core::uuid::to_string(variable_uuid) + ")");
+                             ") that uses an unknown variable (" + fuse_core::uuid::to_string(variable_uuid) + ").");
     }
   }
   // Add the constraint to the list of known constraints
@@ -242,7 +242,7 @@ bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
   {
     throw std::logic_error("Attempting to remove a variable (" + fuse_core::uuid::to_string(variable_uuid)
       + ") that is used by existing constraints (" + fuse_core::uuid::to_string(cross_reference_iter->second.front())
-      + " plus " + std::to_string(cross_reference_iter->second.size() - 1) + " others)");
+      + " plus " + std::to_string(cross_reference_iter->second.size() - 1) + " others).");
   }
   // Remove the variable from all containers
   variables_.erase(variables_iter);  // Does not throw
