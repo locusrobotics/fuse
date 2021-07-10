@@ -101,7 +101,7 @@ There's a lot to unpack here, so we'll look at one section at a time.
 
 In this section, we specify the `optimization_frequency`, which is the how often we run our solver and produce a state estimate.
 
-We also specify the `transaction_timeout`, which is <desription>.
+We also specify the `transaction_timeout`, which specifies how long we wait for motion models to be generated when adding constraints to the graph. If this time is exceeded, the constraints are not added to the graph.
 
 The `lag_duration` parameter specifies how much our state estimate lags behind the current time. This ensures that all measurements have been received before we produce a state estimate for a given time.
 
