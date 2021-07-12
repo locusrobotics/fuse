@@ -5,19 +5,22 @@ Tutorial: Getting Started
 
 In this tutorial, we will show users how to configure `fuse` to combine sensor data from multiple sensors and produce a state estimate.
 
-To start, you'll need a launch file and a yaml configuration file. We'll create both:
+To start, you'll need a launch file, a yaml configuration file, and the supporting bag file and rviz display for this tutorial:
 
 .. code-block:: bash
 
   mkdir ~/fuse_tutorials
   cd ~/fuse_tutorials
+  wget https://locus-ros-public.s3.amazonaws.com/fuse_tutorial_data.tar.xz
+  md5sum fuse_tutorial_data.tar.xz # Should return ef82dceb57ed83dd597cf4973f31a175
+  tar -xf fuse_tutorial_data.tar.xz && rm fuse_tutorial_data.tar.xz
   touch fuse_simple_tutorial.launch
   touch fuse_simple_tutorial.yaml
 
 Launch File
 ***********
 
-The core state estimation node in fuse is known as the `fixed_lag_smoother_node`. We'll begin by adding it to our `fuse_simple_tutorial.launch` file:
+The core state estimation node in fuse is known as the `fixed_lag_smoother_node`. We'll begin by adding it to our `fuse_simple_tutorial.launch` file, along with the `rosbag play` and `rviz` nodes:
 
 .. code-block:: xml
 
@@ -27,12 +30,16 @@ The core state estimation node in fuse is known as the `fixed_lag_smoother_node`
     <node name="state_estimator" pkg="fuse_optimizers" type="fixed_lag_smoother_node">
       <rosparam command="load" file="$(env HOME)/fuse_tutorials/fuse_simple_tutorial.yaml"/>
     </node>
+
+    <node name="bag_play" pkg="rosbag" type="play" args="$(env HOME)/fuse_tutorials/turtlebot3.bag --clock -d 3"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/fuse_tutorials/fuse_tutorials.rviz"/>
   </launch>
 
 Basic Configuration
 *******************
 
-Our initial configuration will simply fuse a single wheel odometry sensor. Note that this example will not produce any output. We'll cover that later in the tutorial. Open up `fuse_simple_tutorial.yaml` and paste this into it:
+Our initial configuration will simply fuse a single wheel odometry sensor. Open up `fuse_simple_tutorial.yaml` and paste this into it:
 
 .. code-block:: yaml
 
@@ -41,9 +48,6 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Note 
   transaction_timeout: 0.01
   lag_duration: 0.5
 
-  solver_options:
-    max_num_iterations: 5
-
   motion_models:
     unicycle_motion_model:
       type: fuse_models::Unicycle2D
@@ -51,7 +55,6 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Note 
   unicycle_motion_model:
     #                         x      y      yaw    vx     vy     vyaw   ax   ay
     process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
-    scale_process_noise: true
 
   sensor_models:
     initial_localization_sensor:
@@ -96,16 +99,12 @@ There's a lot to unpack here, so we'll look at one section at a time.
   transaction_timeout: 0.01
   lag_duration: 0.5
 
-  solver_options:
-    max_num_iterations: 5
 
-In this section, we specify the `optimization_frequency`, which is the how often we run our solver and produce a state estimate.
+In this section, we specify the `optimization_frequency`, which is the how often we run our solver and produce a state estimate (technically, it is the frequency with which all variables in the graph are updated).
 
 We also specify the `transaction_timeout`, which specifies how long we wait for motion models to be generated when adding constraints to the graph. If this time is exceeded, the constraints are not added to the graph.
 
-The `lag_duration` parameter specifies how much our state estimate lags behind the current time. This ensures that all measurements have been received before we produce a state estimate for a given time.
-
-Finally, the `solver_options` allow us to specify how the Ceres solver behaves. Here, we give the solver a maximum of five iterations to converge. Increasing this value would permit the solver to use more iterations to converge, which could result in greater computational expense.
+The `lag_duration` parameter specifies the length of the smoothing window. Variables added to the fixed-lag smoother will stay in the graph for at least `lag_duration` seconds. After that time, old variables are removed/marginalized out.
 
 .. code-block:: yaml
 
@@ -116,13 +115,12 @@ Finally, the `solver_options` allow us to specify how the Ceres solver behaves. 
   unicycle_motion_model:
     #                         x      y      yaw    vx     vy     vyaw   ax   ay
     process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
-    scale_process_noise: true
 
 This section specifies the motion (kinematic) model that we will use in this problem. As our robot is a differential-drive bot, we use a 2D unicycle model. Note that `fuse` supports multiple motion models to be used, but most applications will only require one.
 
 The motion model will be used to add constraints to the graph between sensor measurements. The model we have specified is of type `fuse_models::Unicycle2D`, which is a plugin with its own parameters. Those parameters are specified in the next block.
 
-The `process_noise_diagonal` specifies the error growth for each of our state variables when we apply the kinematic model. This is equivalent to the process noise covariance you might see in an EKF application. Here, we just specify the diagonals for that matrix. Additionally, the process noise can be scaled depending on how much motion was actually measured. This prevents the state estimate covariance from growing when, for example, the robot is stationary.
+The `process_noise_diagonal` specifies the error growth for each of our state variables when we apply the kinematic model. This is equivalent to the process noise covariance you might see in an EKF application. Here, we just specify the diagonals for that matrix.
 
 .. code-block:: yaml
 
@@ -150,12 +148,12 @@ The `process_noise_diagonal` specifies the error growth for each of our state va
 In this section, we specify two sensor models.
 
 The first is an "ignition" model of type `fuse_models::Unicycle2DIgnition`. It is responsible for adding a constraint to our graph for the robot's initial pose.
-  - The `publish_on_startup` parameter will cause it to add a constraint to the graph and soon as it initializes
+  - The `publish_on_startup` parameter will cause it to add a constraint to the graph as soon as it initializes
   - The `initial_state` and `initial_sigma` provide the starting state and covariance diagonal values
 
 The second sensor model is of type `fuse_models::Odometry2D`. This particular sensor model takes in ROS `nav_msgs/Odometry` messages and creates graph constraints from them.
   - The `topic` parameter is the ROS topic on which to listen for ROS `nav_msgs/Odometry` messages.
-  - The `twist_target_frame` is the frame into which we want to transform the twist (velocity) data in the incoming message. In this case, we want to transform it into the *base_link* frame.
+  - The `twist_target_frame` is the frame into which we want to transform the twist (velocity) data in the incoming message. In this case, we want to transform it into the *base_footprint* frame.
   - The `fuse_models::Odometry2D` model allows users to specify which dimensions should be fused into the state estimate. In this case, we are fusing `x` velocity, `y` velocity, and `yaw` velocity.
 
 .. code-block:: yaml
@@ -179,6 +177,16 @@ Here, we configure the plugin that will publish our state estimate. The `fuse_pu
 - The `*_frame_id` parameters specify the various coordinate frame IDs that will be used when publishing the `nav_msgs/Odometry` message.
 - The `publish_tf` parameter can be used to enable or disable publishing the transform for use by `tf2`.
 
+Try running the launch file:
+
+.. code-block:: bash
+
+  cd ~/fuse_tutorials
+  roslaunch fuse_simple_tutorial.launch
+
+
+You should see the state estimate output. The covariance display for the output `odom_filtered` topic is not enabled by default.
+
 Adding a Second Sensor
 **********************
 
@@ -191,9 +199,6 @@ The example so far fuses only a single odometry source, which isn't especially u
   transaction_timeout: 0.01
   lag_duration: 0.5
 
-  solver_options:
-    max_num_iterations: 5
-
   motion_models:
     unicycle_motion_model:
       type: fuse_models::Unicycle2D
@@ -201,7 +206,6 @@ The example so far fuses only a single odometry source, which isn't especially u
   unicycle_motion_model:
     #                         x      y      yaw    vx     vy     vyaw   ax   ay
     process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
-    scale_process_noise: true
 
   sensor_models:
     initial_localization_sensor:
@@ -248,6 +252,13 @@ The example so far fuses only a single odometry source, which isn't especially u
 
 Note that we have added an `imu_sensor` section to `sensor_models`, and then specified the parameters for that new model.
 
-- The `topic` specifies the topic on which to listen for the IMU data.
+- The `topic` specifies the topic on which to listen for the `sensor_msgs/IMU` IMU data.
 - As with the odometry model, we can specify which state dimensions we want to fuse from this sensor. In this case, we want to fuse yaw velocity.
 - Also in keeping with the odometry model, we specify a `twist_target_frame` into which the incoming data must be transformed before being fused.
+
+Now running the launch file again:
+
+.. code-block:: bash
+
+  cd ~/fuse_tutorials
+  roslaunch fuse_simple_tutorial.launch
