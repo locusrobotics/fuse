@@ -12,6 +12,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>qtbase5-dev</build_depend>
+
   <depend>eigen</depend>
   <depend>fuse_constraints</depend>
   <depend>fuse_core</depend>

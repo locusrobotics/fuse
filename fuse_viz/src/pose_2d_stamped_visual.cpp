@@ -113,7 +113,13 @@ void Pose2DStampedVisual::setSphereColor(const float r, const float g, const flo
 
 void Pose2DStampedVisual::setAxesAlpha(const float alpha)
 {
-  axes_->updateAlpha(alpha);
+  static const auto& default_x_color_ = axes_->getDefaultXColor();
+  static const auto& default_y_color_ = axes_->getDefaultYColor();
+  static const auto& default_z_color_ = axes_->getDefaultZColor();
+
+  axes_->setXColor(Ogre::ColourValue( default_x_color_.r, default_x_color_.g, default_x_color_.b, alpha ));  // NOLINT
+  axes_->setYColor(Ogre::ColourValue( default_y_color_.r, default_y_color_.g, default_y_color_.b, alpha ));  // NOLINT
+  axes_->setZColor(Ogre::ColourValue( default_z_color_.r, default_z_color_.g, default_z_color_.b, alpha ));  // NOLINT
 }
 
 void Pose2DStampedVisual::setScale(const Ogre::Vector3& scale)
