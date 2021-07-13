@@ -2,8 +2,8 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Removed the explicit '-std=c++14' compile flag (`#119 <https://github.com/locusrobotics/fuse/issues/119>`_)
   * Removed the explicit '-std=c++14' compile flag
   * Changed the CXX_STANDARD setting to be per-target instead of global

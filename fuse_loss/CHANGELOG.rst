@@ -2,8 +2,8 @@
 Changelog for package fuse_loss
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Changelogs
 * Fix roslint 0.12.0 (`#186 <https://github.com/locusrobotics/fuse/issues/186>`_)
   * Fix roslint 0.12.0 include_what_you_use warnings

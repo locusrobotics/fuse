@@ -2,8 +2,8 @@
 Changelog for package fuse_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Getting versions in sync
 * Substract minimum twist covariance from twist covariance (`#222 <https://github.com/locusrobotics/fuse/issues/222>`_)
   * Substract min twist cov from twist cov

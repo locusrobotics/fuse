@@ -2,8 +2,8 @@
 Changelog for package fuse
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Add support for sphinx documentation (`#228 <https://github.com/locusrobotics/fuse/issues/228>`_)
   * Adding tutorial for basic configuration
 * Add fuse_viz pkg with rviz SerializedGraph display (`#99 <https://github.com/locusrobotics/fuse/issues/99>`_)

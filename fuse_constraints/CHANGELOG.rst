@@ -2,8 +2,8 @@
 Changelog for package fuse_constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Use analytic relative pose 2d cost function (`#193 <https://github.com/locusrobotics/fuse/issues/193>`_)
   * Use analytic relative pose 2d cost function
   * Add analytic `NormalDeltaPose2D` cost function

@@ -2,8 +2,8 @@
 Changelog for package fuse_publishers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Fixing license
 * Support throttling serialized graph publisher (`#204 <https://github.com/locusrobotics/fuse/issues/204>`_)
   * Change sensor proc from gtest to gmock target

@@ -2,8 +2,8 @@
 Changelog for package fuse_graphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Improve logs on graph update exception thrown (`#227 <https://github.com/locusrobotics/fuse/issues/227>`_)
   * Catch graph update exceptions and log fatal msg
   When the graph update method throws an exception the node crashes and

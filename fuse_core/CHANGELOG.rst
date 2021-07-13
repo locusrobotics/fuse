@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Support throttling serialized graph publisher (`#204 <https://github.com/locusrobotics/fuse/issues/204>`_)
   * Change sensor proc from gtest to gmock target
   * Move ThrottledCallback to fuse_core

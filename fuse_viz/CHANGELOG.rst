@@ -2,8 +2,8 @@
 Changelog for package fuse_viz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Changelogs
 * Adding QT5 dependency in package.xml (`#229 <https://github.com/locusrobotics/fuse/issues/229>`_)
   * Adding QT5 dependency in package.xml

@@ -2,8 +2,8 @@
 Changelog for package fuse_doc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-07-13)
+------------------
 * Changelogs
 * Add support for sphinx documentation (`#228 <https://github.com/locusrobotics/fuse/issues/228>`_)
   * Adding tutorial for basic configuration
