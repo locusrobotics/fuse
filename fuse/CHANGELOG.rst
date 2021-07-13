@@ -2,6 +2,15 @@
 Changelog for package fuse
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add support for sphinx documentation (`#228 <https://github.com/locusrobotics/fuse/issues/228>`_)
+  * Adding tutorial for basic configuration
+* Add fuse_viz pkg with rviz SerializedGraph display (`#99 <https://github.com/locusrobotics/fuse/issues/99>`_)
+* [RST-2340] Add serialization support to fuse (`#98 <https://github.com/locusrobotics/fuse/issues/98>`_)
+* Renaming package to fuse_models
+* Contributors: Enrique Fernandez Perdomo, Stephen Williams, Tom Moore
+
 0.4.0 (2019-07-12)
 ------------------
 

@@ -4,6 +4,10 @@ Changelog for package fuse_msgs
 
 Forthcoming
 -----------
+* Changelogs
+* [RST-2340] Add serialization support to fuse (`#98 <https://github.com/locusrobotics/fuse/issues/98>`_)
+* Contributors: Stephen Williams, Tom Moore
+
 * [RST-2340] Add serialization support to fuse (`#98 <https://github.com/locusrobotics/fuse/issues/98>`_)
 * Contributors: Stephen Williams
 

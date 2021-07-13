@@ -4,6 +4,11 @@ Changelog for package fuse_doc
 
 Forthcoming
 -----------
+* Changelogs
+* Add support for sphinx documentation (`#228 <https://github.com/locusrobotics/fuse/issues/228>`_)
+  * Adding tutorial for basic configuration
+* Contributors: Tom Moore
+
 * Add support for sphinx documentation (`#228 <https://github.com/locusrobotics/fuse/issues/228>`_)
   * Adding tutorial for basic configuration
 * Contributors: Tom Moore
