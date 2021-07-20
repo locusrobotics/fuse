@@ -2,6 +2,13 @@
 Changelog for package fuse_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
+  * Adding roslint dependency to fuse_viz
+  * Silence CMP0048 warnings
+* Contributors: Tom Moore
+
 0.4.1 (2021-07-13)
 ------------------
 * Getting versions in sync

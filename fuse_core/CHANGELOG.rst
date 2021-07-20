@@ -2,6 +2,13 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
+  * Adding roslint dependency to fuse_viz
+  * Silence CMP0048 warnings
+* Contributors: Tom Moore
+
 0.4.1 (2021-07-13)
 ------------------
 * Support throttling serialized graph publisher (`#204 <https://github.com/locusrobotics/fuse/issues/204>`_)
