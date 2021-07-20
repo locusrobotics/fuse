@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>fuse_doc</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>
     The fuse_doc package provides documentation and examples for the fuse package.
   </description>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_optimizers</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>
     The fuse_optimizers package provides a set of optimizer implementations. An optimizer is the object responsible
     for coordinating the sensors and motion model inputs, computing the optimal state values, and providing access to

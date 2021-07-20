@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_msgs</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>
     The fuse_msgs package contains messages capable of holding serialized fuse objects
   </description>

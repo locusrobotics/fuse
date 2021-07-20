@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_variables</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>
     The fuse_variables package provides a set of commonly used variable types, such as 2D and 3D positions,
     orientations, velocities, and accelerations.

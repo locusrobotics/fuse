@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_core</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>
     The fuse_core package provides the base class interfaces for the various fuse components. Concrete implementations of these
     interfaces are provided in other packages.

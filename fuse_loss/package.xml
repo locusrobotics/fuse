@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_loss</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>
     The fuse_loss package provides a set of commonly used loss functions, such as the basic ones provided by Ceres.
   </description>
