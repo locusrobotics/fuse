@@ -23,6 +23,8 @@
   <depend>rviz</depend>
   <depend>tf2_geometry_msgs</depend>
 
+  <test_depend>roslint</test_depend>
+
   <export>
     <rviz plugin="${prefix}/rviz_plugins.xml"/>
   </export>
