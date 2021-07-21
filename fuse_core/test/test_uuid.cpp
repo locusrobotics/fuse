@@ -147,6 +147,21 @@ TEST(UUID, Generate)
     ASSERT_NE(id1, id4);
     ASSERT_NE(id1, id5);
   }
+  // Generate a UUID from a namespace, and a uint64_t
+  {
+    std::string name1 = "McLaughlin";
+    std::string name2 = "Aero";
+    uint64_t user_id1 = 0;
+    uint64_t user_id2 = 1;
+
+    UUID id1 = fuse_core::uuid::generate(name1, user_id1);
+    UUID id2 = fuse_core::uuid::generate(name1, user_id1);
+    UUID id3 = fuse_core::uuid::generate(name2, user_id1);
+    UUID id4 = fuse_core::uuid::generate(name1, user_id2);
+    ASSERT_EQ(id1, id2);
+    ASSERT_NE(id1, id3);
+    ASSERT_NE(id1, id4);
+  }
 }
 
 void generateUUIDs(UUIDs& uuids)
