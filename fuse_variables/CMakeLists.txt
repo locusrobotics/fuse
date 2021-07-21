@@ -36,6 +36,7 @@ add_library(${PROJECT_NAME}
   src/acceleration_linear_3d_stamped.cpp
   src/orientation_2d_stamped.cpp
   src/orientation_3d_stamped.cpp
+  src/point_3d_landmark.cpp
   src/position_2d_stamped.cpp
   src/position_3d_stamped.cpp
   src/stamped.cpp
