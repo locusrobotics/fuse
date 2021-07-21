@@ -75,11 +75,11 @@ public:
   size_t size() const override { return data_.size(); }
 
   /**
-   * @brief Construct a position variable given a landmarks id
+   * @brief Construct a point 3D variable given a landmarks id
    *
    * @param[in] landmark_id  The id associated to a landmark
    */
-  explicit Point3DLandmark(uint64_t landmark_id);
+  explicit Point3DLandmark(const uint64_t& landmark_id);
 
   /**
    * @brief read only access to data
@@ -151,6 +151,7 @@ private:
   template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */) {
     archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive & id_;
   }
 };
 

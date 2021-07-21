@@ -336,6 +336,30 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Point 3D landmark tests
+  catkin_add_gtest(test_point_3d_landmark
+    test/test_point_3d_landmark.cpp
+  )
+  add_dependencies(test_point_3d_landmark
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_point_3d_landmark
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_point_3d_landmark
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_point_3d_landmark
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # Velocity Angular 2D Stamped Tests
   catkin_add_gtest(test_velocity_angular_2d_stamped
     test/test_velocity_angular_2d_stamped.cpp
