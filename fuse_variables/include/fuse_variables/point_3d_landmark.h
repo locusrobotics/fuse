@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2021, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,8 @@
 
 #include <ostream>
 
-namespace fuse_variables {
+namespace fuse_variables
+{
 
 /**
  * @brief Variable representing a 3D point landmark that exists across time.
@@ -55,7 +56,8 @@ namespace fuse_variables {
  * input database id. As such, the database id cannot be altered after
  * construction.
  */
-class Point3DLandmark : public FixedSizeVariable<3> {
+class Point3DLandmark : public FixedSizeVariable<3>
+{
 public:
   FUSE_VARIABLE_DEFINITIONS(Point3DLandmark);
 
@@ -149,14 +151,15 @@ private:
    * Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */) {
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
     archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
     archive & id_;
   }
 };
 
-} // namespace fuse_variables
+}  // namespace fuse_variables
 
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Point3DLandmark);
 
-#endif // FUSE_VARIABLES_POSITION_3D_H
+#endif  // FUSE_VARIABLES_POINT_3D_LANDMARK_H

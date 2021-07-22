@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2021, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -42,15 +42,16 @@
 
 #include <string>
 
-namespace fuse_variables 
+namespace fuse_variables
 {
 
 Point3DLandmark::Point3DLandmark(const uint64_t& landmark_id)
-    : FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)), id_(landmark_id) 
+    : FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)), id_(landmark_id)
 {
 }
 
-void Point3DLandmark::print(std::ostream& stream) const {
+void Point3DLandmark::print(std::ostream& stream) const
+{
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
          << "  size: " << size() << "\n"
@@ -61,7 +62,7 @@ void Point3DLandmark::print(std::ostream& stream) const {
          << "  - z: " << z() << "\n";
 }
 
-} // namespace fuse_variables
+}  // namespace fuse_variables
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Point3DLandmark);
 PLUGINLIB_EXPORT_CLASS(fuse_variables::Point3DLandmark, fuse_core::Variable);

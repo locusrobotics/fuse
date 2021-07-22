@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2021, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,6 @@ TEST(Point3DLandmark, UUID)
     Point3DLandmark variable2(1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
-
 }
 
 struct CostFunctor
