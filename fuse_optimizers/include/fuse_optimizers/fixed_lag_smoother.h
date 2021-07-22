@@ -159,7 +159,6 @@ protected:
   // Inherently thread-safe
   std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
                                //!< and it is queued but not processed yet
-  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
   std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
   std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
 
@@ -180,6 +179,7 @@ protected:
   // Guarded by optimization_requested_mutex_
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
+  bool optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
 
