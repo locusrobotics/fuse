@@ -244,7 +244,7 @@ bool transformMessage(
   }
   catch (const tf2::TransformException& ex)
   {
-    ROS_WARN_STREAM_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
+    ROS_WARN_STREAM_DELAYED_THROTTLE(5.0, "Could not transform message from " << input.header.frame_id << " to " <<
       output.header.frame_id << ". Error was " << ex.what());
   }
 
@@ -297,7 +297,9 @@ inline bool processAbsolutePoseWithCovariance(
 
     if (!transformMessage(tf_buffer, pose, transformed_message, tf_timeout))
     {
-      ROS_ERROR_STREAM_THROTTLE(10.0, "Cannot create constraint from pose message with stamp " << pose.header.stamp);
+      ROS_WARN_STREAM_DELAYED_THROTTLE(
+        10.0,
+        "Failed to transform pose message with stamp " << pose.header.stamp << ". Cannot create constraint.");
       return false;
     }
   }
@@ -956,7 +958,9 @@ inline bool processTwistWithCovariance(
 
     if (!transformMessage(tf_buffer, twist, transformed_message, tf_timeout))
     {
-      ROS_ERROR_STREAM_THROTTLE(10.0, "Cannot create constraint from twist message with stamp " << twist.header.stamp);
+      ROS_WARN_STREAM_DELAYED_THROTTLE(
+        10.0,
+        "Failed to transform twist message with stamp " << twist.header.stamp << ". Cannot create constraint.");
       return false;
     }
   }
@@ -1119,9 +1123,10 @@ inline bool processAccelWithCovariance(
 
     if (!transformMessage(tf_buffer, acceleration, transformed_message, tf_timeout))
     {
-      ROS_ERROR_STREAM_THROTTLE(
+      ROS_WARN_STREAM_DELAYED_THROTTLE(
         10.0,
-        "Cannot create constraint from acceleration message with stamp " << acceleration.header.stamp);
+        "Failed to transform acceleration message with stamp " << acceleration.header.stamp
+                                                               << ". Cannot create constraint.");
       return false;
     }
   }
