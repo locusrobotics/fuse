@@ -170,13 +170,13 @@ namespace uuid
   UUID generate(const std::string& namespace_string, const ros::Time& stamp, const UUID& id);
 
     /**
-   * @brief Generate a UUID from a namespace string, a uint64_t, and an additional id
+   * @brief Generate a UUID from a namespace string and a user provided id
    *
-   * Every unique timestamp and id pair will generate a unique UUID
+   * Every unique user id will generate a unique UUID
    *
    * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
    * @param[in] user_id          A uint64_t user generated id
-   * @return                     A repeatable UUID specific to the provided namespace and timestamp
+   * @return                     A repeatable UUID specific to the provided namespace and user id
    */
   UUID generate(const std::string& namespace_string, const uint64_t& user_id);
 }  // namespace uuid
