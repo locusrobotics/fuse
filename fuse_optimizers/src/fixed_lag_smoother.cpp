@@ -84,9 +84,9 @@ FixedLagSmoother::FixedLagSmoother(
   const ros::NodeHandle& private_node_handle) :
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
     ignited_(false),
-    optimization_request_(false),
     optimization_running_(true),
-    started_(false)
+    started_(false),
+    optimization_request_(false)
 {
   params_.loadFromROS(private_node_handle);
 
@@ -173,6 +173,7 @@ void FixedLagSmoother::optimizationLoop()
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
       optimization_requested_.wait(lock, exit_wait_condition);
+      optimization_request_ = false;
       optimization_deadline = optimization_deadline_;
     }
     // If a shutdown is requested, exit now.
@@ -253,8 +254,6 @@ void FixedLagSmoother::optimizationLoop()
                                            << (optimization_complete - optimization_deadline) << "s");
       }
     }
-    // Clear the request flag now that this optimization cycle is complete
-    optimization_request_ = false;
   }
 }
 
@@ -268,14 +267,16 @@ void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
   // If there is some pending work, trigger the next optimization cycle.
   // If the optimizer has not completed the previous optimization cycle, then it
   // will not be waiting on the condition variable signal, so nothing will happen.
+  auto optimization_request = false;
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-    optimization_request_ = !pending_transactions_.empty();
+    optimization_request = !pending_transactions_.empty();
   }
-  if (optimization_request_)
+  if (optimization_request)
   {
     {
       std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+      optimization_request_ = true;
       optimization_deadline_ = event.current_expected + params_.optimization_period;
     }
     optimization_requested_.notify_one();
@@ -422,7 +423,10 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
-  optimization_request_ = false;
+  {
+    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    optimization_request_ = false;
+  }
   started_ = false;
   ignited_ = false;
   setStartTime(ros::Time(0, 0));
