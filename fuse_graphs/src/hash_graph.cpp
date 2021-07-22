@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -477,6 +478,20 @@ void HashGraph::createProblem(ceres::Problem& problem) const
       variable.data(),
       variable.size(),
       variable.localParameterization());
+    // Handle optimization bounds
+    for (size_t index = 0; index < variable.size(); ++index)
+    {
+      auto lower_bound = variable.lowerBound(index);
+      if (lower_bound > std::numeric_limits<double>::lowest())
+      {
+        problem.SetParameterLowerBound(variable.data(), index, lower_bound);
+      }
+      auto upper_bound = variable.upperBound(index);
+      if (upper_bound < std::numeric_limits<double>::max())
+      {
+        problem.SetParameterUpperBound(variable.data(), index, upper_bound);
+      }
+    }
     // Handle variables that are held constant
     if (variables_on_hold_.find(variable.uuid()) != variables_on_hold_.end())
     {
