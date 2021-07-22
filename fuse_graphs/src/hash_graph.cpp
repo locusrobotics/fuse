@@ -420,6 +420,26 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
   return summary;
 }
 
+ceres::Solver::Summary HashGraph::optimizeFor(
+  const ros::Duration& max_optimization_time,
+  const ceres::Solver::Options& options)
+{
+  auto start = ros::Time::now();
+  // Construct the ceres::Problem object from scratch
+  ceres::Problem problem(problem_options_);
+  createProblem(problem);
+  auto created_problem = ros::Time::now();
+  // Modify the options to enforce the maximum time
+  auto remaining = max_optimization_time - (created_problem - start);
+  auto time_constrained_options = options;
+  time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.toSec());
+  // Run the solver. This will update the variables in place.
+  ceres::Solver::Summary summary;
+  ceres::Solve(time_constrained_options, &problem, &summary);
+  // Return the optimization summary
+  return summary;
+}
+
 bool HashGraph::evaluate(double* cost, std::vector<double>* residuals, std::vector<double>* gradient,
                          const ceres::Problem::EvaluateOptions& options) const
 {

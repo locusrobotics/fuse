@@ -365,6 +365,22 @@ public:
   virtual ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
 
   /**
+   * @brief Optimize the values of the current set of variables, given the current set of constraints for a maximum
+   * amount of time.
+   *
+   * The \p max_optimization_time should be viewed as a "best effort" limit, and the actual optimization time may
+   * exceed this limit by a small amount. After the call, the values in the graph will be updated to the latest values.
+   *
+   * @param[in] max_optimization_time The maximum allowed duration of the optimization call
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of the optimizer.
+   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
+   * @return            A Ceres Solver Summary structure containing information about the optimization process
+   */
+  virtual ceres::Solver::Summary optimizeFor(
+    const ros::Duration& max_optimization_time,
+    const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
+
+  /**
    * @brief Evalute the values of the current set of variables, given the current set of constraints.
    *
    * The values in the graph do not change after the call.
