@@ -1,6 +1,9 @@
 /*
  * Software License Agreement (BSD License)
  *
+ *  Author:    Jake McLaughlin
+ *  Created:   07.22.2021
+ * 
  *  Copyright (c) 2021, Locus Robotics
  *  All rights reserved.
  *
