@@ -52,7 +52,7 @@ namespace fuse_variables
  * @brief Variable representing a 3D point landmark that exists across time.
  *
  * This is commonly used to represent locations of visual feature locations. The
- * UUID of this class is constant after construction and dependent on a use
+ * UUID of this class is constant after construction and dependent on a user
  * input database id. As such, the database id cannot be altered after
  * construction.
  */
