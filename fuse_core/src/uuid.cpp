@@ -98,9 +98,7 @@ UUID generate(const std::string& namespace_string, const ros::Time& stamp, const
 
 UUID generate(const std::string& namespace_string, const uint64_t& user_id)
 {
-  ros::Time id_as_time;
-  id_as_time.fromNSec(user_id);
-  return generate(namespace_string, id_as_time);
+  return generate(namespace_string, reinterpret_cast<const unsigned char*>(&user_id), sizeof(user_id));
 }
 
 }  // namespace uuid
