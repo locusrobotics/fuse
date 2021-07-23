@@ -96,6 +96,11 @@ UUID generate(const std::string& namespace_string, const ros::Time& stamp, const
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
+UUID generate(const std::string& namespace_string, const uint64_t& user_id)
+{
+  return generate(namespace_string, reinterpret_cast<const unsigned char*>(&user_id), sizeof(user_id));
+}
+
 }  // namespace uuid
 
 }  // namespace fuse_core
