@@ -282,49 +282,6 @@ TEST(VariableStampIndex, CurrentStamp)
   EXPECT_EQ(ros::Time(1, 0), index.currentStamp());
 }
 
-TEST(VariableStampIndex, At)
-{
-  // Create an empty index
-  auto index = fuse_optimizers::VariableStampIndex();
-
-  // Add an unstamped variable
-  auto x1 = UnstampedVariable::make_shared();
-  auto transaction1 = fuse_core::Transaction();
-  transaction1.addVariable(x1);
-  index.addNewTransaction(transaction1);
-
-  // Verify the x1 stamp is still 0
-  EXPECT_EQ(ros::Time(0, 0), index.at(x1->uuid()));
-
-  // Add a stamped variable
-  auto x2 = StampedVariable::make_shared(ros::Time(1, 0));
-  auto transaction2 = fuse_core::Transaction();
-  transaction2.addVariable(x2);
-  index.addNewTransaction(transaction2);
-
-  // Verify the x2 stamp is still Time(0, 0)
-  // and the x2 stamp is Time(1, 0)
-  EXPECT_EQ(ros::Time(0, 0), index.at(x1->uuid()));
-  EXPECT_EQ(ros::Time(1, 0), index.at(x2->uuid()));
-
-  // Add a constraint connecting x1 and x2
-  auto c1 = GenericConstraint::make_shared("test", x1->uuid(), x2->uuid());
-  auto transaction3 = fuse_core::Transaction();
-  transaction3.addConstraint(c1);
-  index.addNewTransaction(transaction3);
-
-  // Verify the x2 stamp is now Time(1, 0)
-  EXPECT_EQ(ros::Time(1, 0), index.at(x1->uuid()));
-
-  // Remove the constraint
-  auto transaction4 = fuse_core::Transaction();
-  transaction4.removeConstraint(c1->uuid());
-  index.addNewTransaction(transaction4);
-
-  // Verify the x2 stamp reverted back to Time(0, 0)
-  EXPECT_EQ(ros::Time(0, 0), index.at(x1->uuid()));
-}
-
 TEST(VariableStampIndex, Query)
 {
   // Create an empty index
@@ -356,12 +313,12 @@ TEST(VariableStampIndex, Query)
   transaction.addConstraint(c5);
   index.addNewTransaction(transaction);
 
-  auto expected1 = std::vector<fuse_core::UUID>{x1->uuid()};
+  auto expected1 = std::vector<fuse_core::UUID>{};
   auto actual1 = std::vector<fuse_core::UUID>();
   index.query(ros::Time(1, 500000), std::back_inserter(actual1));
   EXPECT_EQ(expected1, actual1);
 
-  auto expected2 = std::vector<fuse_core::UUID>{x1->uuid(), x2->uuid(), l1->uuid()};
+  auto expected2 = std::vector<fuse_core::UUID>{x1->uuid(), l1->uuid()};
   std::sort(expected2.begin(), expected2.end());
   auto actual2 = std::vector<fuse_core::UUID>();
   index.query(ros::Time(2, 500000), std::back_inserter(actual2));
@@ -410,8 +367,16 @@ TEST(VariableStampIndex, MarginalTransaction)
   marginal.addConstraint(m1);
   index.addMarginalTransaction(marginal);
 
-  EXPECT_EQ(ros::Time(2, 0), index.at(l1->uuid()));
-  EXPECT_THROW(index.at(x1->uuid()), std::out_of_range);
+  // The x1 variable should be removed
+  EXPECT_EQ(4u, index.size());
+
+  // And the marginal constraint x3->l1 should not affect future queries
+  auto expected = std::vector<fuse_core::UUID>{l1->uuid()};
+  std::sort(expected.begin(), expected.end());
+  auto actual = std::vector<fuse_core::UUID>();
+  index.query(ros::Time(2, 500000), std::back_inserter(actual));
+  std::sort(actual.begin(), actual.end());
+  EXPECT_EQ(expected, actual);
 }
 
 int main(int argc, char **argv)
