@@ -1,16 +1,15 @@
 .. _index:
 
-fuse wiki
-*********
-
-The fuse package brings a modern graph-based approach to ROS sensor fusion, providing a flexible and extensible solution to state estimation. fuse allows users to develop custom sensor and motion models, add additional state variables as needed for tracking visual landmarks or sensor calibration parameters, and control the length of the state history anywhere from just the most recent states to maintaining the full state history for SLAM-like applications.
-
-
 .. toctree::
    :hidden:
 
    getting_started
    CHANGELOG
+
+fuse wiki
+*********
+
+The fuse package brings a modern graph-based approach to ROS sensor fusion, providing a flexible and extensible solution to state estimation. fuse allows users to develop custom sensor and motion models, add additional state variables as needed for tracking visual landmarks or sensor calibration parameters, and control the length of the state history anywhere from just the most recent states to maintaining the full state history for SLAM-like applications.
 
 Features
 ========
