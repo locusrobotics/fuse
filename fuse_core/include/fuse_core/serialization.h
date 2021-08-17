@@ -158,65 +158,27 @@ void serialize(Archive& archive, ros::Time& stamp, const unsigned int /* version
 
 /**
  * @brief Serialize an Eigen Matrix using Boost Serialization
+ *
+ * https://stackoverflow.com/questions/54534047/eigen-matrix-boostserialization-c17/54535484#54535484
  */
-template<class Archive,
-         class S,
-         int Rows_,
-         int Cols_,
-         int Ops_,
-         int MaxRows_,
-         int MaxCols_>
-inline void save(
-  Archive& archive,
-  const Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& matrix,
-  const unsigned int /* version */)
-{
-  int rows = matrix.rows();
-  int cols = matrix.cols();
-
-  archive & rows;
-  archive & cols;
-  archive & boost::serialization::make_array(matrix.data(), rows * cols);
-}
-
-/**
- * @brief Deserialize an Eigen Matrix using Boost Serialization
- */
-template<class Archive,
-         class S,
-         int Rows_,
-         int Cols_,
-         int Ops_,
-         int MaxRows_,
-         int MaxCols_>
-inline void load(
-  Archive& archive,
-  Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& matrix,
-  const unsigned int /* version */)
-{
-  int rows, cols;
-  archive & rows;
-  archive & cols;
-  matrix.resize(rows, cols);
-  archive & boost::serialization::make_array(matrix.data(), rows * cols);
-}
-
-/**
- * @brief Indicate the Eigen Matrix serialization uses separate save() and load() methods
- */
-template<class Archive,
-         class S,
-         int Rows_,
-         int Cols_,
-         int Ops_,
-         int MaxRows_,
-         int MaxCols_>
+template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 inline void serialize(
   Archive& archive,
-  Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& matrix,
-  const unsigned int version)
+  Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>& matrix,
+  const unsigned int /* version */)
 {
-  split_free(archive, matrix, version);
+  Eigen::Index rows = matrix.rows();
+  Eigen::Index cols = matrix.cols();
+  archive & rows;
+  archive & cols;
+  if (rows != matrix.rows() || cols != matrix.cols())
+  {
+    matrix.resize(rows, cols);
+  }
+  if (matrix.size() != 0)
+  {
+    archive & boost::serialization::make_array(matrix.data(), rows * cols);
+  }
 }
 
 }  // namespace serialization
