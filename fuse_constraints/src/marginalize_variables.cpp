@@ -327,7 +327,11 @@ LinearTerm linearize(
                              "during the jacobian computation.");
   }
 
-  // Update the jacobians with the local parameterizations. And clear the jacobians is the variable is held constant.
+  // Update the jacobians with the local parameterizations. This potentially changes the size of the Jacobian block.
+  // The classic example is a quaternion parameter (4 components) only has 3 degrees of freedom. So the Jacobian will
+  // be transformed from 4 columns to 3 columns after the local parameterization is applied.
+  // We also check for variables that have been marked as constants. Since these variables cannot change value, their
+  // derivatives/Jacobians should be zero.
   for (size_t index = 0ul; index < variable_count; ++index)
   {
     const auto& variable_uuid = variable_uuids[index];
