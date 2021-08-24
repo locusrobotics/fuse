@@ -35,9 +35,9 @@
 #define FUSE_MODELS_POSE_2D_H
 
 #include <fuse_models/parameters/pose_2d_params.h>
-#include <fuse_models/common/throttled_callback.h>
 
 #include <fuse_core/async_sensor_model.h>
+#include <fuse_core/throttled_callback.h>
 #include <fuse_core/uuid.h>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
@@ -122,7 +122,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using PoseThrottledCallback = common::ThrottledCallback<geometry_msgs::PoseWithCovarianceStamped>;
+  using PoseThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::PoseWithCovarianceStamped>;
   PoseThrottledCallback throttled_callback_;
 };
 
