@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/point_3d_landmark.h>
+#include <fuse_variables/point_3d_fixed_landmark.h>
 
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
@@ -44,13 +44,13 @@
 
 namespace fuse_variables
 {
-Point3DLandmark::Point3DLandmark(const uint64_t& landmark_id) :
+Point3DFixedLandmark::Point3DFixedLandmark(const uint64_t& landmark_id) :
   FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)),
   id_(landmark_id)
 {
 }
 
-void Point3DLandmark::print(std::ostream& stream) const
+void Point3DFixedLandmark::print(std::ostream& stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
@@ -62,7 +62,12 @@ void Point3DLandmark::print(std::ostream& stream) const
          << "  - z: " << z() << "\n";
 }
 
+bool Point3DFixedLandmark::holdConstant() const
+{
+  return true;
+}
+
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Point3DLandmark);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::Point3DLandmark, fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Point3DFixedLandmark);
+PLUGINLIB_EXPORT_CLASS(fuse_variables::Point3DFixedLandmark, fuse_core::Variable);
