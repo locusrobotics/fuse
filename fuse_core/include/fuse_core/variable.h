@@ -317,6 +317,14 @@ public:
   }
 
   /**
+   * @brief Specifies if the value of the variable should not be changed during optimization
+   */
+  virtual bool holdConstant() const
+  {
+    return false;
+  }
+
+  /**
    * @brief Serialize this Variable into the provided binary archive
    *
    * This can/should be implemented as follows in all derived classes:

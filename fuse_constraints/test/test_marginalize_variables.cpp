@@ -142,6 +142,39 @@ private:
   }
 };
 
+class FixedOrientation3DStamped : public fuse_variables::Orientation3DStamped
+{
+public:
+  FUSE_VARIABLE_DEFINITIONS(FixedOrientation3DStamped);
+
+  FixedOrientation3DStamped() = default;
+
+  explicit FixedOrientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
+    Orientation3DStamped(stamp, device_id)
+  {
+  }
+
+  bool holdConstant() const override
+  {
+    return true;
+  }
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_variables::Orientation3DStamped>(*this);
+  }
+};
 
 TEST(MarginalizeVariables, ComputeEliminationOrder)
 {
@@ -384,22 +417,22 @@ TEST(MarginalizeVariables, MarginalizeNext)
 TEST(MarginalizeVariables, MarginalizeVariables)
 {
   // Create variables
-  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1, 0));
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1.0));
   x1->w() = 0.927362;
   x1->x() = 0.1;
   x1->y() = 0.2;
   x1->z() = 0.3;
-  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2, 0));
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2.0));
   x2->w() = 0.848625;
   x2->x() = 0.13798;
   x2->y() = 0.175959;
   x2->z() = 0.479411;
-  auto x3 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3, 0));
+  auto x3 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.0));
   x3->w() = 0.735597;
   x3->x() = 0.170384;
   x3->y() = 0.144808;
   x3->z() = 0.63945;
-  auto l1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.5, 0));
+  auto l1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.5));
   l1->w() = 0.803884;
   l1->x() = 0.304917;
   l1->y() = 0.268286;
@@ -534,6 +567,162 @@ TEST(MarginalizeVariables, MarginalizeVariables)
   for (size_t i = 0; i < expected_l1_cov.size(); ++i)
   {
     EXPECT_NEAR(expected_l1_cov[i], actual_l1_cov[i], 1.0e-5);
+  }
+}
+
+TEST(MarginalizeVariables, MarginalizeFixedVariables)
+{
+  // Create variables
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1.0));
+  x1->w() = 0.927362;
+  x1->x() = 0.1;
+  x1->y() = 0.2;
+  x1->z() = 0.3;
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2.0));
+  x2->w() = 0.848625;
+  x2->x() = 0.13798;
+  x2->y() = 0.175959;
+  x2->z() = 0.479411;
+  auto x3 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.0));
+  x3->w() = 0.735597;
+  x3->x() = 0.170384;
+  x3->y() = 0.144808;
+  x3->z() = 0.63945;
+  auto l1 = FixedOrientation3DStamped::make_shared(ros::Time(3.5));
+  l1->w() = 0.803884;
+  l1->x() = 0.304917;
+  l1->y() = 0.268286;
+  l1->z() = 0.434533;
+
+  // Create some constraints
+  fuse_core::Vector4d mean1;
+  mean1 << 0.92736185, 0.1, 0.2, 0.3;
+  fuse_core::Matrix3d cov1;
+  cov1 << 1.0, 0.0, 0.0,  0.0, 2.0, 0.0,  0.0, 0.0, 3.0;
+  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
+    "test", *x1, mean1, cov1);
+
+  // Note that this prior on the landmark is required. The covariance of the prior has no impact on the solution, as
+  // the value of the landmark will be held constant. However, due to assumptions made in the marginalization code, the
+  // landmark variable must be fully-constrained. Hopefully this requirement will be removed in a future version.
+  fuse_core::Vector4d mean2;
+  mean2 << 0.842614977, 0.2, 0.3, 0.4;
+  fuse_core::Matrix3d cov2;
+  cov2 << 3.0, 0.0, 0.0,  0.0, 3.1, 0.0,  0.0, 0.0, 3.2;
+  auto prior_l1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
+    "test", *l1, mean2, cov2);
+
+  fuse_core::Vector4d delta3;
+  delta3 << 0.979795897, 0.0, 0.0, 0.2;
+  fuse_core::Matrix3d cov3;
+  cov3 << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
+  auto relative_x1_x2 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
+    "test", *x1, *x2, delta3, cov3);
+
+  fuse_core::Vector4d delta4;
+  delta4 << 0.979795897, 0.0, 0.0, 0.2;
+  fuse_core::Matrix3d cov4;
+  cov4 << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
+  auto relative_x2_x3 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
+    "test", *x2, *x3, delta4, cov4);
+
+  fuse_core::Vector4d delta5;
+  delta5 << 0.979795897, 0.2, 0.0, 0.0;
+  fuse_core::Matrix3d cov5;
+  cov5 << 1.0, 0.0, 0.0,   0.0, 2.0, 0.0,   0.0, 0.0, 3.0;
+  auto relative_x1_l1 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
+    "test", *x1, *l1, delta5, cov5);
+
+  // Add to the graph
+  auto graph = fuse_graphs::HashGraph();
+  graph.addVariable(x1);
+  graph.addVariable(x2);
+  graph.addVariable(x3);
+  graph.addVariable(l1);
+  graph.addConstraint(prior_x1);
+  graph.addConstraint(prior_l1);
+  graph.addConstraint(relative_x1_x2);
+  graph.addConstraint(relative_x2_x3);
+  graph.addConstraint(relative_x1_l1);
+
+  // Run the solver
+  graph.optimize();
+
+  // Extract the optimal values and covariances
+  auto expected_x2 = x2->array();
+  auto expected_x3 = x3->array();
+
+  auto requests = std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>
+  {
+    {x2->uuid(), x2->uuid()}, {x3->uuid(), x3->uuid()}
+  };
+  auto expected_covariances = std::vector<std::vector<double>>();
+  graph.getCovariance(requests, expected_covariances);
+  const auto& expected_x2_cov = expected_covariances[0];
+  const auto& expected_x3_cov = expected_covariances[1];
+
+  // Marginalize out X1 and L1
+  auto transaction = fuse_constraints::marginalizeVariables("test", {x1->uuid(), l1->uuid()}, graph);  // NOLINT
+
+  // Verify the computed transaction
+  auto added_variables = transaction.addedVariables();
+  EXPECT_EQ(0u, std::distance(added_variables.begin(), added_variables.end()));
+
+  auto removed_variables_range = transaction.removedVariables();
+  auto removed_variables = std::set<fuse_core::UUID>(removed_variables_range.begin(), removed_variables_range.end());
+  EXPECT_EQ(2u, removed_variables.size());
+  EXPECT_TRUE(removed_variables.count(x1->uuid()));
+  EXPECT_TRUE(removed_variables.count(l1->uuid()));
+
+  auto added_constraints = transaction.addedConstraints();
+  EXPECT_EQ(1u, std::distance(added_constraints.begin(), added_constraints.end()));
+
+  auto removed_constraints_range = transaction.removedConstraints();
+  auto removed_constraints = std::set<fuse_core::UUID>(removed_constraints_range.begin(),
+                                                       removed_constraints_range.end());
+
+  EXPECT_EQ(4u, removed_constraints.size());
+  EXPECT_TRUE(removed_constraints.count(prior_x1->uuid()));
+  EXPECT_TRUE(removed_constraints.count(prior_l1->uuid()));
+  EXPECT_TRUE(removed_constraints.count(relative_x1_x2->uuid()));
+  EXPECT_TRUE(removed_constraints.count(relative_x1_l1->uuid()));
+
+  // Apply the transaction to the graph
+  graph.update(transaction);
+
+  // Re-optimize the graph
+  graph.optimize();
+
+  // Get the post-marginal variable values and covariances
+  auto actual_x2 = x2->array();
+  auto actual_x3 = x3->array();
+
+  auto actual_covariances = std::vector<std::vector<double>>();
+  graph.getCovariance(requests, actual_covariances);
+  const auto& actual_x2_cov = actual_covariances[0];
+  const auto& actual_x3_cov = actual_covariances[1];
+
+  // Compare. The post-marginal results should be identical to the pre-marginal results
+  ASSERT_EQ(expected_x2.size(), actual_x2.size());
+  for (size_t i = 0; i < expected_x2.size(); ++i)
+  {
+    EXPECT_NEAR(expected_x2[i], actual_x2[i], 1.0e-3);
+  }
+  ASSERT_EQ(expected_x2_cov.size(), actual_x2_cov.size());
+  for (size_t i = 0; i < expected_x2_cov.size(); ++i)
+  {
+    EXPECT_NEAR(expected_x2_cov[i], actual_x2_cov[i], 1.0e-3);
+  }
+
+  ASSERT_EQ(expected_x3.size(), actual_x3.size());
+  for (size_t i = 0; i < expected_x3.size(); ++i)
+  {
+    EXPECT_NEAR(expected_x3[i], actual_x3[i], 1.0e-3);
+  }
+  ASSERT_EQ(expected_x3_cov.size(), actual_x3_cov.size());
+  for (size_t i = 0; i < expected_x3_cov.size(); ++i)
+  {
+    EXPECT_NEAR(expected_x3_cov[i], actual_x3_cov[i], 1.0e-3);
   }
 }
 

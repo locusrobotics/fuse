@@ -225,6 +225,10 @@ bool HashGraph::addVariable(fuse_core::Variable::SharedPtr variable)
     return false;
   }
   variables_.emplace(variable->uuid(), variable);
+  if (variable->holdConstant())
+  {
+    variables_on_hold_.insert(variable->uuid());
+  }
   return true;
 }
 
