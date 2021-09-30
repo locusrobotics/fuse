@@ -1,0 +1,19 @@
+<library path="lib/libfuse_tutorials">
+  <class type="fuse_tutorials::RangeConstraint" base_class_type="fuse_tutorials::RangeConstraint">
+    <description>
+      Implements a range-only measurement constraint between the robot and a landmark. The main purpose is to
+      demonstrate how to write your own constraint classes.
+    </description>
+  </class>
+  <class type="fuse_tutorials::RangeSensorModel" base_class_type="fuse_core::SensorModel">
+    <description>
+      Implements a new sensor model that generates range constraints between the robot and landmarks. The main purpose
+      is to demonstrate how to write your own sensor model classes.
+    </description>
+  </class>
+  <class type="fuse_tutorials::BeaconPublisher" base_class_type="fuse_core::Publisher">
+    <description>
+      Publisher the current position of each beacon in a PointCloud2 message
+    </description>
+  </class>
+</library>

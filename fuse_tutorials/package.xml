@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>fuse_tutorials</name>
+  <version>0.4.2</version>
+  <description>
+    Package containing source code for the fuse tutorials
+  </description>
+
+  <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
+  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>fuse_constraints</build_depend>
+  <build_depend>fuse_core</build_depend>
+  <build_depend>fuse_variables</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_export_depend>fuse_constraints</build_export_depend>
+  <build_export_depend>fuse_core</build_export_depend>
+  <build_export_depend>fuse_variables</build_export_depend>
+  <build_export_depend>nav_msgs</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <exec_depend>fuse_constraints</exec_depend>
+  <exec_depend>fuse_core</exec_depend>
+  <exec_depend>fuse_models</exec_depend>
+  <exec_depend>fuse_optimizers</exec_depend>
+  <exec_depend>fuse_publishers</exec_depend>
+  <exec_depend>fuse_variables</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <test_depend>roslint</test_depend>
+
+  <export>
+    <fuse_core plugin="${prefix}/fuse_plugins.xml" />
+    <rosdoc config="rosdoc.yaml" />
+  </export>
+</package>
