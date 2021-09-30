@@ -36,6 +36,8 @@ add_library(${PROJECT_NAME}
   src/acceleration_linear_3d_stamped.cpp
   src/orientation_2d_stamped.cpp
   src/orientation_3d_stamped.cpp
+  src/point_2d_fixed_landmark.cpp
+  src/point_2d_landmark.cpp
   src/point_3d_fixed_landmark.cpp
   src/point_3d_landmark.cpp
   src/position_2d_stamped.cpp
@@ -289,49 +291,49 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
-  # Position 2D Stamped Tests
-  catkin_add_gtest(test_position_2d_stamped
-    test/test_position_2d_stamped.cpp
+  # Point 2D fixed landmark tests
+  catkin_add_gtest(test_point_2d_fixed_landmark
+    test/test_point_2d_fixed_landmark.cpp
   )
-  add_dependencies(test_position_2d_stamped
+  add_dependencies(test_point_2d_fixed_landmark
     ${catkin_EXPORTED_TARGETS}
   )
-  target_include_directories(test_position_2d_stamped
+  target_include_directories(test_point_2d_fixed_landmark
     PRIVATE
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
   )
-  target_link_libraries(test_position_2d_stamped
+  target_link_libraries(test_point_2d_fixed_landmark
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
-  set_target_properties(test_position_2d_stamped
+  set_target_properties(test_point_2d_fixed_landmark
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
 
-  # Position 3D stamped tests
-  catkin_add_gtest(test_position_3d_stamped
-    test/test_position_3d_stamped.cpp
+  # Point 2D landmark tests
+  catkin_add_gtest(test_point_2d_landmark
+    test/test_point_2d_landmark.cpp
   )
-  add_dependencies(test_position_3d_stamped
+  add_dependencies(test_point_2d_landmark
     ${catkin_EXPORTED_TARGETS}
   )
-  target_include_directories(test_position_3d_stamped
+  target_include_directories(test_point_2d_landmark
     PRIVATE
       include
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
   )
-  target_link_libraries(test_position_3d_stamped
+  target_link_libraries(test_point_2d_landmark
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${CERES_LIBRARIES}
   )
-  set_target_properties(test_position_3d_stamped
+  set_target_properties(test_point_2d_landmark
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
@@ -380,6 +382,54 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
   set_target_properties(test_point_3d_landmark
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Position 2D Stamped Tests
+  catkin_add_gtest(test_position_2d_stamped
+    test/test_position_2d_stamped.cpp
+  )
+  add_dependencies(test_position_2d_stamped
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_position_2d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_position_2d_stamped
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_position_2d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Position 3D stamped tests
+  catkin_add_gtest(test_position_3d_stamped
+    test/test_position_3d_stamped.cpp
+  )
+  add_dependencies(test_position_3d_stamped
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_position_3d_stamped
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_position_3d_stamped
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_position_3d_stamped
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
