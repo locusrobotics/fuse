@@ -58,4 +58,3 @@ odom_publisher:
 
 beacon_publisher:
   map_frame_id: map
-  
