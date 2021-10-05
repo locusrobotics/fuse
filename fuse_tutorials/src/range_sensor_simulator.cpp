@@ -91,7 +91,7 @@ std::vector<Beacon> createBeacons()
   {
     for (auto y = -SITE_WIDTH / 2; y <= SITE_WIDTH / 2; y += BEACON_SPACING)
     {
-      beacons.push_back({x, y});
+      beacons.push_back({x, y});  // NOLINT[whitespace/braces]
     }
   }
   return beacons;
@@ -109,7 +109,7 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
   auto noisy_beacons = std::vector<Beacon>();
   for (const auto& beacon : beacons)
   {
-    noisy_beacons.push_back({beacon.x + noise(generator), beacon.y + noise(generator)});
+    noisy_beacons.push_back({beacon.x + noise(generator), beacon.y + noise(generator)});  // NOLINT[whitespace/braces]
   }
   return noisy_beacons;
 }

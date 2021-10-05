@@ -138,10 +138,6 @@ public:
    */
   ceres::CostFunction* costFunction() const override;
 
-protected:
-  double sigma_ { 0.0 };  //!< The standard deviation of the range measurement
-  double z_ { 0.0 };  //!< The measured range to the landmark
-
 private:
   // Allow Boost Serialization access to private methods and members
   friend class boost::serialization::access;
@@ -166,6 +162,9 @@ private:
     archive& sigma_;
     archive& z_;
   }
+
+  double sigma_ { 0.0 };  //!< The standard deviation of the range measurement
+  double z_ { 0.0 };  //!< The measured range to the landmark
 };
 
 }  // namespace fuse_tutorials
