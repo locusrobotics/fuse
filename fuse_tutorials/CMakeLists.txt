@@ -4,6 +4,7 @@ project(fuse_tutorials)
 find_package(catkin REQUIRED COMPONENTS
   fuse_constraints
   fuse_core
+  fuse_models
   fuse_variables
   nav_msgs
   roscpp
@@ -16,7 +17,9 @@ catkin_package(
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
+    fuse_constraints
     fuse_core
+    fuse_models
     fuse_variables
     nav_msgs
     roscpp

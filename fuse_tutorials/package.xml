@@ -16,12 +16,14 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>fuse_constraints</build_depend>
   <build_depend>fuse_core</build_depend>
+  <build_depend>fuse_models</build_depend>
   <build_depend>fuse_variables</build_depend>
   <build_depend>nav_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_export_depend>fuse_constraints</build_export_depend>
   <build_export_depend>fuse_core</build_export_depend>
+  <build_export_depend>fuse_models</build_export_depend>
   <build_export_depend>fuse_variables</build_export_depend>
   <build_export_depend>nav_msgs</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
