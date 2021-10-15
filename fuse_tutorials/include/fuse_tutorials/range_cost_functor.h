@@ -61,7 +61,7 @@ namespace fuse_tutorials
  * http://ceres-solver.org/derivatives.html
  *
  * Our sensor measurement model involves two variables: the 2D position of the robot and the 2D position of the
- * landmark. The predicted measurement, generally denoted as z_hat, is imply the Euclidean distance between the
+ * landmark. The predicted measurement, generally denoted as z_hat, is simply the Euclidean distance between the
  * robot and the landmark:
  *   z_hat = sqrt( (x_robot - x_landmark)^2 + (y_robot - y_landmark)^2 )
  *

@@ -48,10 +48,10 @@ namespace fuse_tutorials
  * @brief Implements a fuse Publisher plugin to visualize the current position of each beacon
  *
  * The main purpose for this publisher is to demonstrate how to write your own publisher classes. In the fuse
- * framework, a "Publisher" class is provided provided with a copy of the graph after each optimization cycle. This
- * allows the publisher to extract optimized variable values and covariances from the graph, and then publish the
- * extracted information to ROS in a convenient format. This could be as simple as publishing the latest robot pose,
- * or as complicated as constructing a map from all optimized poses.
+ * framework, a "Publisher" class is provided with a copy of the graph after each optimization cycle. This allows
+ * the publisher to extract optimized variable values and covariances from the graph, and then publish the extracted
+ * information to ROS in a convenient format. This could be as simple as publishing the latest robot pose, or as
+ * complicated as constructing a map from all optimized poses.
  *
  * For the purposes of this tutorial, let's imagine that you have developed a new robotic sensor that is capable
  * of measuring the distance to some sort of beacon or landmark. The position of each beacon is known roughly ahead
@@ -68,13 +68,13 @@ namespace fuse_tutorials
  *    the Parameter Server is queried for configuration data.
  *  - start()
  *    Tells the publisher to prepare for publishing messages. This will be called once, before the optimizer starts
- *    processing its first graph. Additionally, if the optimizer is ever stopped, the start() method will be called be
+ *    processing its first graph. Additionally, if the optimizer is ever stopped, the start() method will be called
  *    again before the optimizer resumes graph processing. Initializing any state that tracks changes to the graph
  *    can be done here.
  *  - stop()
  *    Tells the fuse publisher that publishing should stop. Releasing memory and other cleanup can be done here.
  *  - notify()
- *    The optimizer provides the publisher with the latest set of optimized states in the for of a Graph object, as
+ *    The optimizer provides the publisher with the latest set of optimized states in the form of a Graph object, as
  *    well as the set of changes since the last notify() call in the form of a Transaction. This is where most of the
  *    Publisher's work will happen, extracting information from the graph and publishing messages to ROS.
  *

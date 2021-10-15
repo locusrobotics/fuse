@@ -148,7 +148,7 @@ private:
    * Implementing the serialize() function allows the derived Constraint object to be written to disk, and retrieved
    * again at a later date. In particular, the Graph classes make use of this feature, allowing a full graph to be
    * saved to disk and recalled later. This is extraordinarily useful in debugging and replaying. It is highly
-   * recommended that the serialize() method be implemented properly. And form most things, it is trivial to implement.
+   * recommended that the serialize() method be implemented properly. And for most things, it is trivial to implement.
    * See the Boost Serialization documentation for more details:
    * https://www.boost.org/doc/libs/1_77_0/libs/serialization/doc/index.html
    *

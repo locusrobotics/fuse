@@ -151,8 +151,8 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
     // If this is the very first measurement, add a prior position constraint on all of the beacons as well. This
     // captures the prior information we know from the database. It also fully constrains the beacon estimate within
     // the optimizer. Our beacon measurement is rank-deficient (one range measurement but two degrees of freedom).
-    // With adding this prior, the optimizer would be unable to solve the optimization problem. In the absence of
-    // prior database, the beacons could be tracked over multiple samples. Once the beacon has been observed with
+    // Without adding this prior, the optimizer would be unable to solve the optimization problem. In the absence of
+    // a prior database, the beacons could be tracked over multiple samples. Once the beacon has been observed with
     // enough parallax, then all measurements of that beacon could be added at once. Some type of delayed
     // initialization scheme is common in vision-based odometry and SLAM systems.
     if (!initialized_)
