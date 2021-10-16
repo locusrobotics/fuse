@@ -5,11 +5,11 @@
   
   <!-- Start rviz -->
   <node name="rviz" pkg="rviz" type="rviz" output="screen"
-        args="-d $(find fuse_tutorials)/config/range_sensor_simulator.rviz"/>
+        args="-d $(find fuse_tutorials)/config/range_sensor_tutorial.rviz"/>
 
   <!-- Start fuse fixed-lag smoother -->
   <node name="state_estimation" pkg="fuse_optimizers" type="fixed_lag_smoother_node" output="screen">
-    <rosparam command="load" file="$(find fuse_tutorials)/config/state_estimator.yaml"/>
+    <rosparam command="load" file="$(find fuse_tutorials)/config/range_sensor_tutorial.yaml"/>
   </node>
 
 </launch>

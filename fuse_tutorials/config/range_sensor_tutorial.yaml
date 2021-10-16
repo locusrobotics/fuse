@@ -1,11 +1,15 @@
 # Fixed-lag smoother configuration
-optimization_frequency: 10
-transaction_timeout: 0.1
-lag_duration: 1.0
+optimization_frequency: 20
+transaction_timeout: 0.01
+lag_duration: 0.5
 
 motion_models:
   unicycle_motion_model:
     type: fuse_models::Unicycle2D
+
+unicycle_motion_model:
+  #                         x      y      yaw    vx     vy     vyaw   ax   ay
+  process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
 
 sensor_models:
   initial_localization_sensor:
@@ -22,39 +26,34 @@ sensor_models:
     type: fuse_tutorials::RangeSensorModel
     motion_models: [unicycle_motion_model]
 
-publishers:
-  odom_publisher:
-    type: fuse_models::Odometry2DPublisher
-  beacon_publisher:
-    type: fuse_tutorials::BeaconPublisher
-
-unicycle_motion_model:
-  #                          x      y      yaw    vx     vy     vyaw   ax     ay
-  process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
-  buffer_length: 10.0
-
 initial_localization_sensor:
   publish_on_startup: false
 
 odometry_sensor:
-  topic: wheel_odom
+  topic: 'wheel_odom'
   linear_velocity_dimensions: ['x', 'y']
   angular_velocity_dimensions: ['yaw']
 
 imu_sensor:
-  topic: imu
+  topic: 'imu'
   angular_velocity_dimensions: ['yaw']
 
 range_sensor:
   {}
 
-odom_publisher:
-  topic: odom
-  base_link_frame_id: base_link
-  odom_frame_id: odom
-  map_frame_id: map
-  world_frame_id: map
+publishers:
+  filtered_publisher:
+    type: fuse_models::Odometry2DPublisher
+  beacon_publisher:
+    type: fuse_tutorials::BeaconPublisher
+
+filtered_publisher:
+  topic: 'odom_filtered'
+  base_link_frame_id: 'base_link'
+  odom_frame_id: 'odom'
+  map_frame_id: 'map'
+  world_frame_id: 'map'
   publish_tf: false
 
 beacon_publisher:
-  map_frame_id: map
+  map_frame_id: 'map'
