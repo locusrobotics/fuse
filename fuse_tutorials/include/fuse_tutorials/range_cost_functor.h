@@ -118,10 +118,22 @@ public:
     // Implement our mathematic measurement model:
     //   z_hat = sqrt( (x_robot - x_landmark)^2 + (y_robot - y_landmark)^2 )
     //   error = (z - z_hat) / sigma
+    // Unfortunately there is a problem when computing the derivatives. The derivative is undefined when the radicand
+    // is zero. To have a well-defined cost function, we implement an alternative cost equation for that case.
+    // Thankfully this does not cause any issues with Ceres Solver's auto-diff system.
+    // See http://ceres-solver.org/automatic_derivatives.html#pitfalls
     auto dx = robot_position[0] - landmark_position[0];
     auto dy = robot_position[1] - landmark_position[1];
-    auto z_hat = ceres::sqrt(dx * dx + dy * dy);
-    residuals[0] = (T(z_) - z_hat) / T(sigma_);
+    auto norm_sq = dx * dx + dy * dy;
+    if (norm_sq > 0.0)
+    {
+      auto z_hat = ceres::sqrt(norm_sq);
+      residuals[0] = (T(z_) - z_hat) / T(sigma_);
+    }
+    else
+    {
+      residuals[0] = T(z_) / T(sigma_);
+    }
     return true;
   }
 
