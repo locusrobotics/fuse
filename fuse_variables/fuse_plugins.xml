@@ -31,6 +31,28 @@
     hardware.
     </description>
   </class>
+  <class type="fuse_variables::Point2DLandmark" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D point landmark that exists across time.
+    </description>
+  </class>
+  <class type="fuse_variables::Point2DFixedLandmark" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 2D point landmark that exists across time. This version is assumed to be known perfectly,
+    and will not be updated during optimization.
+    </description>
+  </class>
+  <class type="fuse_variables::Point3DLandmark" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D point landmark that exists across time.
+    </description>
+  </class>
+  <class type="fuse_variables::Point3DFixedLandmark" base_class_type="fuse_core::Variable">
+    <description>
+    Variable representing a 3D point landmark that exists across time. This version is assumed to be known perfectly,
+    and will not be updated during optimization.
+    </description>
+  </class>
   <class type="fuse_variables::Position2DStamped" base_class_type="fuse_core::Variable">
     <description>
     Variable representing a 2D position (x, y) at a specific time, with a specific piece of hardware.
