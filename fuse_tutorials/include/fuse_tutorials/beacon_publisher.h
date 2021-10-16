@@ -54,10 +54,10 @@ namespace fuse_tutorials
  * complicated as constructing a map from all optimized poses.
  *
  * For the purposes of this tutorial, let's imagine that you have developed a new robotic sensor that is capable
- * of measuring the distance to some sort of beacon or landmark. The position of each beacon is known roughly ahead
- * of time, but the beacon positions will be refined as the robot collects data. We would like to extract the current
- * estimate for each beacon position and publish it for visualization in rviz. The easiest thing to display in rviz
- * that supports a collection of 2D points is a PointCloud2 message, so that is what this Publisher plugin will output.
+ * of measuring the distance to some sort of beacon. The position of each beacon is known roughly ahead of time, but
+ * the beacon positions will be refined as the robot collects data. We would like to extract the current estimate for
+ * each beacon position and publish it for visualization in rviz. The easiest thing to display in rviz that supports
+ * a collection of 2D points is a PointCloud2 message, so that is what this Publisher plugin will output.
  *
  * Each fuse Publisher is implemented as a plugin, which is loaded by the optimizer at runtime. This allows new
  * publisher classes to be implemented outside of the main fuse package, such as in this fuse_tutorials package. The

@@ -50,14 +50,13 @@
 namespace fuse_tutorials
 {
 /**
- * @brief Implements a range-only measurement constraint between the robot and a landmark.
+ * @brief Implements a range-only measurement constraint between the robot and a beacon.
  *
  * The main purpose for this constraint is to demonstrate how to write your own cost constraint classes.
  *
  * For the purposes of this tutorial, let's imagine that you have developed some new robotic sensor that is capable
- * of measuring the distance to some sort of beacon or landmark, but does not provide any information about the
- * bearing/heading to that landmark. None of the fuse packages provide such a sensor model, so you need to develop
- * one yourself.
+ * of measuring the distance to some sort of beacon, but does not provide any information about the bearing/heading
+ * to that beacon. None of the fuse packages provide such a sensor model, so you need to develop one yourself.
  *
  * The "sensor model" class provides an interface to ROS, allowing sensor messages to be received. The sensor model
  * class also acts as a "factory" (in a programming sense) that creates new sensor constraints for each received
@@ -86,11 +85,11 @@ public:
   RangeConstraint() = default;
 
   /**
-   * @brief Create a range-only constraint between the provided robot pose and 2D landmark
+   * @brief Create a range-only constraint between the provided robot position and the beacon position
    *
    * This is the constructor that will be used from within the RangeSensorModel. It accepts references to the variables
    * involved with this specific measurement -- the robot position at the time the measurement was sampled, and the
-   * beacon/landmark that was measured.
+   * beacon that was measured.
    *
    * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies, e.g., that you
    * don't want to measure any of the quantities in that variable.
@@ -103,14 +102,14 @@ public:
    *                     debugging or visualizing the system. If multiple sensors of the same type exist, being able to
    *                     disambiguate the constraints from sensor1 versus sensor2 is useful.
    * @param[in] robot_position - The 2D position of the robot at the time the measurement was sampled
-   * @param[in] landmark_position - The 2D position of the sampled landmark/beacon
-   * @param[in] z - The distance measured between the robot and landmark by our new sensor
+   * @param[in] beacon_position - The 2D position of the sampled beacon
+   * @param[in] z - The distance measured between the robot and beacon by our new sensor
    * @param[in] sigma - The uncertainty of measured distance
    */
   RangeConstraint(
     const std::string& source,
     const fuse_variables::Position2DStamped& robot_position,
-    const fuse_variables::Point2DLandmark& landmark_position,
+    const fuse_variables::Point2DLandmark& beacon_position,
     const double z,
     const double sigma);
 
@@ -164,7 +163,7 @@ private:
   }
 
   double sigma_ { 0.0 };  //!< The standard deviation of the range measurement
-  double z_ { 0.0 };  //!< The measured range to the landmark
+  double z_ { 0.0 };  //!< The measured range to the beacon
 };
 
 }  // namespace fuse_tutorials

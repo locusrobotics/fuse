@@ -45,17 +45,17 @@
 namespace fuse_tutorials
 {
 /**
- * @brief Implements a range-only sensor model that generates constraints between the robot and a landmark.
+ * @brief Implements a range-only sensor model that generates constraints between the robot and a beacon.
  *
  * The main purpose for this sensor model is to demonstrate how to write your own sensor model classes.
  *
  * For the purposes of this tutorial, let's imagine that you have developed a new robotic sensor that is capable
- * of measuring the distance to some sort of beacon or landmark, but does not provide any information about the
- * bearing/heading to that landmark. None of the fuse packages provide such a sensor model, so you need to develop
- * one yourself. Because I don't want to create a brand new message type for this tutorial, the driver for this new
- * sensor will be publishing sensor_msgs::PointCloud2 messages with the following fields defined:
- *  - "id", uint32, count 1, offset 0, The unique ID associated with that landmark
- *  - "range", float64, count 1, offset 4, The range, in meters, between the robot and the landmark
+ * of measuring the distance to some sort of beacon, but does not provide any information about the bearing/heading
+ * to that beacon. None of the fuse packages provide such a sensor model, so you need to develop one yourself.
+ * Because I don't want to create a brand new message type for this tutorial, the driver for this new sensor will be
+ * publishing sensor_msgs::PointCloud2 messages with the following fields defined:
+ *  - "id", uint32, count 1, offset 0, The unique ID associated with that beacon
+ *  - "range", float64, count 1, offset 4, The range, in meters, between the robot and the beacon
  *  - "sigma", float64, count 1, offset 12, The standard deviation of the range measurement, in meters
  *
  * The "sensor model" class provides an interface to ROS, allowing sensor messages to be received. The sensor model
@@ -134,7 +134,7 @@ public:
   /**
    * @brief Callback for range measurement messages
    *
-   * We will process all of the detected beacons/landmarks in the input message, generate one or more RangeConstraint
+   * We will process all of the detected beacons in the input message, generate one or more RangeConstraint
    * objects, and send all of the constraints to the optimizer at once packaged in a Transaction object.
    *
    * @param[in] msg - The range message to process

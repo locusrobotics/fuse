@@ -123,29 +123,27 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
   // automatically. The robot pose is the only stamped variable involved, so add that timestamp now as well.
   transaction->addInvolvedStamp(msg->header.stamp);
 
-  // Loop over the pointcloud, extracting the landmark ID, range, and measurement uncertainty for each detected beacon
+  // Loop over the pointcloud, extracting the beacon ID, range, and measurement uncertainty for each detected beacon
   sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(*msg, "id");
   sensor_msgs::PointCloud2ConstIterator<double> range_it(*msg, "range");
   sensor_msgs::PointCloud2ConstIterator<double> sigma_it(*msg, "sigma");
   for (; id_it != id_it.end(); ++id_it, ++range_it, ++sigma_it)
   {
-    // Each measure range will involve a different observed beacon/landmark. Construct a variable for this
+    // Each measure range will involve a different observed beacon. Construct a variable for this
     // measurement's beacon.
     auto beacon = beacon_db_[*id_it];
-    auto landmark_position = fuse_variables::Point2DLandmark::make_shared(*id_it);
-    landmark_position->x() = beacon.x;
-    landmark_position->y() = beacon.y;
+    auto beacon_position = fuse_variables::Point2DLandmark::make_shared(*id_it);
+    beacon_position->x() = beacon.x;
+    beacon_position->y() = beacon.y;
+    transaction->addVariable(beacon_position);
 
     // Now that we have the involved variables defined, create a constraint for this sensor measurement
     auto constraint = fuse_tutorials::RangeConstraint::make_shared(
       this->name(),
       *robot_position,
-      *landmark_position,
+      *beacon_position,
       *range_it,
       *sigma_it);
-
-    // And update the transaction
-    transaction->addVariable(landmark_position);
     transaction->addConstraint(constraint);
 
     // If this is the very first measurement, add a prior position constraint on all of the beacons as well. This
@@ -162,7 +160,7 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
       cov << beacon.sigma * beacon.sigma, 0.0, 0.0, beacon.sigma * beacon.sigma;
       auto prior = fuse_constraints::AbsoluteConstraint<fuse_variables::Point2DLandmark>::make_shared(
         this->name(),
-        *landmark_position,
+        *beacon_position,
         mean,
         cov);
       transaction->addConstraint(prior);

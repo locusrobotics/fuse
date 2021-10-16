@@ -49,15 +49,15 @@ namespace fuse_tutorials
 // variables are added to the list is important. Later, when Ceres Solver uses the CostFunction function to minimize
 // the total error, it will provide access to the variables *in the same order we provide them to the base class
 // constructor*. This means that the variable order defined in the RangeCostFunctor must match the variable order
-// provided to the base class Constraint constructor. In this case, robot position, then landmark position
-//   fuse_core::Constraint(source, { robot_position.uuid(), landmark_position.uuid() })
+// provided to the base class Constraint constructor. In this case, robot position, then the beacon position
+//   fuse_core::Constraint(source, { robot_position.uuid(), beacon_position.uuid() })
 RangeConstraint::RangeConstraint(
   const std::string& source,
   const fuse_variables::Position2DStamped& robot_position,
-  const fuse_variables::Point2DLandmark& landmark_position,
+  const fuse_variables::Point2DLandmark& beacon_position,
   const double z,
   const double sigma) :
-  fuse_core::Constraint(source, { robot_position.uuid(), landmark_position.uuid() }),  // NOLINT(whitespace/braces)
+  fuse_core::Constraint(source, { robot_position.uuid(), beacon_position.uuid() }),  // NOLINT(whitespace/braces)
   sigma_(sigma),
   z_(z)
 {
@@ -69,7 +69,7 @@ void RangeConstraint::print(std::ostream& stream) const
          << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  robot position variable: " << variables().at(0) << "\n"
-         << "  landmark position variable: " << variables().at(1) << "\n"
+         << "  beacon position variable: " << variables().at(1) << "\n"
          << "  range measurement: " << z_ << "\n"
          << "  range sigma: " << sigma_ << "\n";
 }
@@ -82,7 +82,7 @@ ceres::CostFunction* RangeConstraint::costFunction() const
   //   2nd: The size of the output residuals array of the cost functor. Our functor only computes a single distance
   //        error, so the size is 1.
   //   3rd: The size of the first involved variable. This the robot position (x, y), so the size is 2.
-  //   4th: The size of the second involved variable. This the landmark position (x, y), so the size is also 2.
+  //   4th: The size of the second involved variable. This the beacon position (x, y), so the size is also 2.
   // If there were additional involved variables, the size of each variable would appear here in order.
   return new ceres::AutoDiffCostFunction<RangeCostFunctor, 1, 2, 2>(new RangeCostFunctor(z_, sigma_));
 }

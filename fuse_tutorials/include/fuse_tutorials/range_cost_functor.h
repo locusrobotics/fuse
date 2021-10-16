@@ -39,7 +39,7 @@
 namespace fuse_tutorials
 {
 /**
- * @brief Implements a range-only measurement cost functor between the robot and a landmark.
+ * @brief Implements a range-only measurement cost functor between the robot and a beacon.
  *
  * The main purpose for this cost functor is to demonstrate how to write your own cost functor classes. In addition
  * to this tutorial, any tutorials or other resources relating to Google Ceres Solver cost functions are also
@@ -47,23 +47,22 @@ namespace fuse_tutorials
  * available here: http://ceres-solver.org/
  *
  * For the purposes of this tutorial, let's imagine that you have developed some new robotic sensor that is capable
- * of measuring the distance to some sort of beacon or landmark, but does not provide any information about the
- * bearing/heading to that landmark. None of the fuse packages provide such a sensor model, so you need to develop
- * one yourself.
+ * of measuring the distance to some sort of beacon, but does not provide any information about the bearing/heading
+ * to that beacon. None of the fuse packages provide such a sensor model, so you need to develop one yourself.
  *
  * The "sensor model" class provides an interface to ROS, allowing sensor messages to be received. The sensor model
  * class also acts as a "factory" (in a programming sense) that creates new sensor constraints for each received
  * sensor measurement. This file is part of the constraint implementation. It provides a functor that implements the
- * desired sensor mathematical model. This functior will be used with one of my favorite features of Ceres Solver,
+ * desired sensor mathematical model. This functor will be used with one of my favorite features of Ceres Solver,
  * automatic differentiation. Instead of deriving the Jacobians matrices ourselves, we will allow Ceres Solver to
  * discover them for us. Note that there is a computational cost to this, and implementing the Jacobians yourself will
  * likely be the most computationally efficient method. See more information about derivatives in Ceres Solver here:
  * http://ceres-solver.org/derivatives.html
  *
  * Our sensor measurement model involves two variables: the 2D position of the robot and the 2D position of the
- * landmark. The predicted measurement, generally denoted as z_hat, is simply the Euclidean distance between the
- * robot and the landmark:
- *   z_hat = sqrt( (x_robot - x_landmark)^2 + (y_robot - y_landmark)^2 )
+ * beacon. The predicted measurement, generally denoted as z_hat, is simply the Euclidean distance between the
+ * robot and the beacon:
+ *   z_hat = sqrt( (x_robot - x_beacon)^2 + (y_robot - y_beacon)^2 )
  *
  * The error for our cost function is the difference between real measurement, z, and the predicted measurement,
  * z_hat, normalized by the standard deviation of our sensors measurement error.
@@ -82,10 +81,10 @@ public:
    * @brief Constructor
    *
    * The cost functor needs to know the details of the sensor measurement in order to compute costs for the optimizer.
-   * In the case of our range-only sensor, this includes the measured range to the landmark and the measurement
+   * In the case of our range-only sensor, this includes the measured range to the beacon and the measurement
    * uncertainty.
    *
-   * @param[in] z The measured range to the landmark
+   * @param[in] z The measured range to the beacon
    * @param[in] sigma The standard deviation of the range measurement
    */
   RangeCostFunctor(const double z, const double sigma) : sigma_(sigma), z_(z) {}
@@ -93,7 +92,7 @@ public:
   /**
    * @brief Compute the costs using the provided stored measurement details and the provided variable values.
    *
-   * Ceres Solver will provide this functor with the current values of the robot position and landmark position.
+   * Ceres Solver will provide this functor with the current values of the robot position and beacon position.
    * The functor must then populate the "residuals" vector with the computed costs. You can simply assume the size of
    * all arrays are correct. See the costFunction() implementation of the RangeConstraint class for details on how the
    * sizes and order of the variable are defined.
@@ -107,23 +106,23 @@ public:
    *
    * @param[in] robot_position - An array of component values (x, y) from the Position2DStamped variable representing
    *                             the position of the robot in the global frame.
-   * @param[in] landmark_position - An array of component values (x, y) from the Point2DLandmark variable representing
-   *                                the position of the landmark in the global frame.
+   * @param[in] beacon_position - An array of component values (x, y) from the Point2DLandmark variable representing
+   *                              the position of the beacon in the global frame.
    * @param[out] residuals - An array of computed cost values. In this case, our residual array is only a single value.
    * @return True if the cost was computed successfully, false otherwise
    */
   template <typename T>
-  bool operator()(const T* const robot_position, const T* const landmark_position, T* residuals) const
+  bool operator()(const T* const robot_position, const T* const beacon_position, T* residuals) const
   {
     // Implement our mathematic measurement model:
-    //   z_hat = sqrt( (x_robot - x_landmark)^2 + (y_robot - y_landmark)^2 )
+    //   z_hat = sqrt( (x_robot - x_beacon)^2 + (y_robot - y_beacon)^2 )
     //   error = (z - z_hat) / sigma
     // Unfortunately there is a problem when computing the derivatives. The derivative is undefined when the radicand
     // is zero. To have a well-defined cost function, we implement an alternative cost equation for that case.
     // Thankfully this does not cause any issues with Ceres Solver's auto-diff system.
     // See http://ceres-solver.org/automatic_derivatives.html#pitfalls
-    auto dx = robot_position[0] - landmark_position[0];
-    auto dy = robot_position[1] - landmark_position[1];
+    auto dx = robot_position[0] - beacon_position[0];
+    auto dy = robot_position[1] - beacon_position[1];
     auto norm_sq = dx * dx + dy * dy;
     if (norm_sq > 0.0)
     {
@@ -139,7 +138,7 @@ public:
 
 private:
   double sigma_;  //!< The standard deviation of the range measurement
-  double z_;  //!< The measured range to the landmark
+  double z_;  //!< The measured range to the beacon
 };
 
 }  // namespace fuse_tutorials
