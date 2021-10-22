@@ -1,0 +1,112 @@
+Panels:
+- Class: rviz/Displays
+  Name: Displays
+  Property Tree Widget:
+    Expanded:
+    - /Odometry1/Covariance1/Position1
+    - /Odometry1/Covariance1/Orientation1
+  Tree Height: 675
+- Class: rviz/Selection
+  Name: Selection
+- Class: rviz/Tool Properties
+  Expanded:
+  - /2D Pose Estimate1
+  - /2D Nav Goal1
+  - /Publish Point1
+  Name: Tool Properties
+- Class: rviz/Views
+  Expanded:
+  - /Current View1
+  Name: Views
+- Class: rviz/Time
+  Name: Time
+- Class: rviz/Displays
+  Help Height: 70
+  Name: Displays
+  Property Tree Widget:
+    Expanded: null
+  Tree Height: 371
+- Class: rviz/Views
+  Expanded:
+  - /Current View1
+  Name: Views
+Visualization Manager:
+  Displays:
+  - Alpha: 0.5
+    Cell Size: 1
+    Class: rviz/Grid
+    Color: 160; 160; 164
+    Enabled: true
+    Line Style:
+      Line Width: 0.029999999329447746
+      Value: Lines
+    Name: Grid
+    Normal Cell Count: 0
+    Offset:
+      X: 0
+      Y: 0
+      Z: 0
+    Plane: XY
+    Plane Cell Count: 100
+    Reference Frame: <Fixed Frame>
+    Value: true
+  - Angle Tolerance: 0.05000000074505806
+    Class: rviz/Odometry
+    Covariance:
+      Orientation:
+        Alpha: 0.20000000298023224
+        Color: 64; 84; 191
+        Color Style: Unique
+        Frame: Local
+        Offset: 1
+        Scale: 1
+        Value: true
+      Position:
+        Alpha: 0.10000000149011612
+        Color: 138; 226; 52
+        Scale: 1
+        Value: true
+      Value: false
+    Enabled: true
+    Keep: 10000
+    Name: Odometry
+    Position Tolerance: 0.10000000149011612
+    Queue Size: 10
+    Shape:
+      Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Color: 255; 25; 0
+      Head Length: 0.07500000298023224
+      Head Radius: 0.02500000037252903
+      Shaft Length: 0.25
+      Shaft Radius: 0.012500000186264515
+      Value: Arrow
+    Topic: /odom_filtered
+    Unreliable: false
+    Value: true
+  Global Options:
+    Fixed Frame: odom
+  Tools:
+  - Class: rviz/Interact
+  - Class: rviz/MoveCamera
+  - Class: rviz/Select
+  - Class: rviz/FocusCamera
+  - Class: rviz/Measure
+  - Class: rviz/SetInitialPose
+  - Class: rviz/SetGoal
+  - Class: rviz/PublishPoint
+  Views:
+    Current:
+      Angle: 0
+      Class: rviz/TopDownOrtho
+      Scale: 168.0491180419922
+      X: 2
+      Y: 0
+    Saved: null
+Window Geometry:
+  Height: 1201
+  QMainWindow State: 000000ff00000000fd00000003000000000000015600000413fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000032e000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000100044006900730070006c006100790073000000031c00000134000000c900fffffffb0000000a005600690065007700730100000371000000df000000a400ffffff000000010000010f00000413fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d00000413000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000003000007340000003efc0100000002fb0000000800540069006d0065010000000000000734000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004c30000041300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Width: 1844
+  X: 72
+  Y: 27
