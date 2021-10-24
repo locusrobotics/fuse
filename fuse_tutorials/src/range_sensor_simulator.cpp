@@ -49,7 +49,7 @@ static constexpr double SITE_WIDTH = 100.0;  //!< The width/length of the test a
 static constexpr double BEACON_SPACING = 20.0;  //!< The distance between each range beacon
 static constexpr double BEACON_SIGMA = 4.0;  //!< Std dev used to create the database of noisy beacon positions
 static constexpr double ROBOT_PATH_RADIUS = 0.35 * SITE_WIDTH;  //!< The radius of the simulated robot's path
-static constexpr double ROBOT_VELOCITY = 10.0;  //!< The forward velocity of our simulated robot
+static constexpr double ROBOT_VELOCITY = 5.0;  //!< The forward velocity of our simulated robot
 static constexpr char BASELINK_FRAME[] = "base_link";  //!< The base_link frame id used when publishing sensor data
 static constexpr char ODOM_FRAME[] = "odom";  //!< The odom frame id used when publishing wheel odometry data
 static constexpr char MAP_FRAME[] = "map";  //!< The map frame id used when publishing ground truth data
@@ -57,6 +57,7 @@ static constexpr double IMU_SIGMA = 0.1;  //!< Std dev of simulated Imu measurem
 static constexpr double ODOM_VX_SIGMA = 0.5;  //!< Std dev of simulated Odometry linear velocity measurement noise
 static constexpr double ODOM_VYAW_SIGMA = 0.5;  //!< Std dev of simulated Odometry angular velocity measurement noise
 static constexpr double RANGE_SIGMA = 0.5;  //!< Std dev of simulated beacon range measurement noise
+static constexpr double RANGE_FOV = M_PI;  //!< Field of view (in radians) of the range sensor
 
 /**
  * @brief The position of a "range beacon"
@@ -79,6 +80,16 @@ struct Robot
   double vx;
   double vy;
   double vyaw;
+};
+
+/**
+ * @brief An individual range measurement to a beacon
+ */
+struct RangeMeasurement
+{
+  unsigned int id;
+  double range;
+  double sigma;
 };
 
 /**
@@ -285,6 +296,24 @@ sensor_msgs::PointCloud2::ConstPtr simulateRangeSensor(const Robot& robot, const
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, RANGE_SIGMA};
 
+  // Determine which beacons are observed and generate the simulated measurement
+  auto measurements = std::vector<RangeMeasurement>();
+  for (auto id = 0u; id < beacons.size(); ++id)
+  {
+    // Check if the beacon is inside the sensor's field of view
+    const auto& beacon = beacons.at(id);
+    auto dx = beacon.x - robot.x;
+    auto dy = beacon.y - robot.y;
+    auto heading = std::atan2(dy, dx);
+    auto relative_heading = fuse_core::wrapAngle2D(robot.yaw - heading);
+    if (std::abs(relative_heading) < 0.5 * RANGE_FOV)
+    {
+      // Compute the distance to each beacon
+      auto range = std::sqrt(dx * dx + dy * dy) + noise(generator);
+      measurements.push_back({id, range, RANGE_SIGMA});
+    }
+  }
+
   auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
@@ -294,23 +323,15 @@ sensor_msgs::PointCloud2::ConstPtr simulateRangeSensor(const Robot& robot, const
   modifier.setPointCloud2Fields(3, "id", 1, sensor_msgs::PointField::UINT32,
                                    "range", 1, sensor_msgs::PointField::FLOAT64,
                                    "sigma", 1, sensor_msgs::PointField::FLOAT64);
-
-  // Generate the simulated range to each known beacon
-  modifier.resize(beacons.size());
+  modifier.resize(measurements.size());
   sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
   sensor_msgs::PointCloud2Iterator<double> range_it(*msg, "range");
   sensor_msgs::PointCloud2Iterator<double> sigma_it(*msg, "sigma");
-  for (auto id = 0u; id < beacons.size(); ++id)
+  for (const auto& measurement : measurements)
   {
-    // Compute the distance to each beacon
-    const auto& beacon = beacons.at(id);
-    auto dx = robot.x - beacon.x;
-    auto dy = robot.y - beacon.y;
-    auto range = std::sqrt(dx * dx + dy * dy) + noise(generator);
-    // Insert the beacon measurement into the pointcloud
-    *id_it = id;
-    *range_it = range;
-    *sigma_it = RANGE_SIGMA;
+    *id_it = measurement.id;
+    *range_it = measurement.range;
+    *sigma_it = measurement.sigma;
     ++id_it; ++range_it; ++sigma_it;
   }
   return msg;
@@ -369,8 +390,10 @@ int main(int argc, char **argv)
   // Send the initial localization pose to the state estimator
   initializeStateEstimation(state);
 
+  ROS_INFO_STREAM("Robot initialized. Starting simulated motion.");
+
   // Simulate the robot traveling in a circular path
-  auto rate = ros::Rate(10.0);
+  auto rate = ros::Rate(5.0);
   while (ros::ok())
   {
     // Simulate the robot motion
