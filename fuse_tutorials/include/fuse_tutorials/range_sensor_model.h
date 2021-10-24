@@ -41,6 +41,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace fuse_tutorials
 {
@@ -168,9 +169,9 @@ protected:
     double sigma;
   };
 
+  std::unordered_set<unsigned int> active_beacons_;  //!< The set of beacons currently being tracked
   std::unordered_map<unsigned int, Beacon> beacon_db_;  //!< The estimated position of each beacon
   ros::Subscriber beacon_subscriber_;  //!< ROS subscriber for the database of prior beacon positions
-  bool initialized_ { false };  //!< Flag indicating the initial beacon positions have been processed
   ros::Subscriber subscriber_;  //!< ROS subscriber for the range sensor measurements
 };
 

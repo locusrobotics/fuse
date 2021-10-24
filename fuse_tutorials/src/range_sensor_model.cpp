@@ -74,10 +74,8 @@ void RangeSensorModel::onInit()
 
 void RangeSensorModel::onStart()
 {
-  // Ensure the "initialized" flag is false at the beginning. This is what triggers the beacon database information
-  // to be sent to the optimizer. This needs to happen once and only once for each run of the optimizer. By clearing
-  // that flag in onStart(), we ensure the database information will be processed after every optimizer reset.
-  initialized_ = false;
+  // Clear the set of active beacons before starting
+  active_beacons_.clear();
 
   // Subscribe to the ranges topic. Any received messages will be processed within the message callback function,
   // and the created constraints will be sent to the optimizer. By subscribing to the topic in onStart() and
@@ -104,6 +102,12 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
     return;
   }
 
+  // If there are no observed beacons, do nothing.
+  if (msg->width * msg->height == 0u)
+  {
+    return;
+  }
+
   // Create a transaction object. This is used to package all of the generated constraints from a given timestamp
   // into one update operation for the optimizer.
   auto transaction = fuse_core::Transaction::make_shared();
@@ -122,6 +126,12 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
   // Since not every variable is associated with a timestamp, I could not work out a way to populate this list
   // automatically. The robot pose is the only stamped variable involved, so add that timestamp now as well.
   transaction->addInvolvedStamp(msg->header.stamp);
+
+  // Implement a very simplistic form of beacon tracking. A beacon remains "active" only as long as it is continuously
+  // observed by the sensor. As soon as a single measurement does not include a beacon, it is removed from the active
+  // set. If that beacon is reobserved, it will be added to the active set again. But this will trigger adding the
+  // prior constraint on that beacon again. This works because this is a simulation.
+  std::unordered_set<unsigned int> observed_beacons;
 
   // Loop over the pointcloud, extracting the beacon ID, range, and measurement uncertainty for each detected beacon
   sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(*msg, "id");
@@ -146,14 +156,14 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
       *sigma_it);
     transaction->addConstraint(constraint);
 
-    // If this is the very first measurement, add a prior position constraint on all of the beacons as well. This
-    // captures the prior information we know from the database. It also fully constrains the beacon estimate within
-    // the optimizer. Our beacon measurement is rank-deficient (one range measurement but two degrees of freedom).
-    // Without adding this prior, the optimizer would be unable to solve the optimization problem. In the absence of
-    // a prior database, the beacons could be tracked over multiple samples. Once the beacon has been observed with
-    // enough parallax, then all measurements of that beacon could be added at once. Some type of delayed
-    // initialization scheme is common in vision-based odometry and SLAM systems.
-    if (!initialized_)
+    // If this is the very first measurement of this beacon, also add a prior position constraint. This captures the
+    // prior information we know from the database. It also fully constrains the beacon estimate within the optimizer.
+    // Our beacon measurement is rank-deficient (one range measurement but two degrees of freedom). Without adding this
+    // prior, the optimizer would be unable to solve the optimization problem. In the absence of a prior database, the
+    // beacons could be tracked over multiple samples. Once the beacon has been observed with enough parallax, then
+    // all measurements of that beacon could be added at once. Some type of delayed initialization scheme is common
+    // in vision-based odometry and SLAM systems.
+    if (active_beacons_.find(*id_it) == active_beacons_.end())
     {
       auto mean = fuse_core::Vector2d(beacon.x, beacon.y);
       auto cov = fuse_core::Matrix2d();
@@ -164,9 +174,14 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
         mean,
         cov);
       transaction->addConstraint(prior);
+      active_beacons_.insert(*id_it);
     }
+
+    observed_beacons.insert(*id_it);
   }
-  initialized_ = true;
+
+  // The observed set becomes the active set for the next message
+  active_beacons_ = std::move(observed_beacons);
 
   // Send the transaction object to the optimizer
   sendTransaction(transaction);

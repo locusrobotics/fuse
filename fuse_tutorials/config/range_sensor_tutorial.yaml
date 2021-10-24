@@ -1,7 +1,7 @@
 # Fixed-lag smoother configuration
-optimization_frequency: 20
+optimization_frequency: 2
 transaction_timeout: 0.01
-lag_duration: 0.5
+lag_duration: 5.0
 
 motion_models:
   unicycle_motion_model:
