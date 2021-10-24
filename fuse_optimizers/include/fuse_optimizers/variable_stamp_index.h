@@ -42,12 +42,9 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
-
 
 namespace fuse_optimizers
 {
-
 /**
  * @brief Object designed to track the timestamps associated with each variable
  *
@@ -74,18 +71,12 @@ public:
   /**
    * @brief Return true if no variables exist in the index
    */
-  bool empty() const
-  {
-    return stamped_index_.empty() && unstamped_index_.empty();
-  }
+  bool empty() const { return variables_.empty() && constraints_.empty(); }
 
   /**
    * @brief Returns the number of variables in the index
    */
-  size_t size() const
-  {
-    return stamped_index_.size() + unstamped_index_.size();
-  }
+  size_t size() const { return variables_.size(); }
 
   /**
    * @brief Clear all tracked state
@@ -93,20 +84,14 @@ public:
   void clear()
   {
     stamped_index_.clear();
-    unstamped_index_.clear();
+    variables_.clear();
+    constraints_.clear();
   }
 
   /**
    * @brief Returns the most recent timestamp associated with any variable
    */
   ros::Time currentStamp() const;
-
-  /**
-   * @brief Access the timestamp associated with a specific variable
-   *
-   * If the requested variable does not exist, an out_of_range exception will be thrown
-   */
-  ros::Time at(const fuse_core::UUID& variable) const;
 
   /**
    * @brief Update the index with the information from the added transactions
@@ -126,41 +111,70 @@ public:
   void addMarginalTransaction(const fuse_core::Transaction& transaction);
 
   /**
-   * @brief Add all variables with a timestamp less than the provided stamp to the output container
+   * @brief Add all variables that are not directly connected to a stamped variable with a timestamp greater than or
+   *        equal to the provided stamp
    *
-   * @param[in]  stamp  The reference timestamp. Only variables associated with timestamps less than this will be
-   *                    added to the output container
+   * @param[in]  stamp  The reference timestamp. Only variables not associated with timestamps greater than or equal to
+   *                    this will be added to the output container
    * @param[out] result An output iterator capable of receiving fuse_core::UUID objects
    */
   template <typename OutputUuidIterator>
   void query(const ros::Time& stamp, OutputUuidIterator result) const
   {
+    // First get all of the stamped variables greater than or equal to the input stamp
+    std::unordered_set<fuse_core::UUID> recent_variable_uuids;
     for (const auto& variable_stamp_pair : stamped_index_)
     {
-      if (variable_stamp_pair.second < stamp)
+      if (variable_stamp_pair.second >= stamp)
       {
-        *result = variable_stamp_pair.first;
-        ++result;
+        recent_variable_uuids.insert(variable_stamp_pair.first);
       }
     }
-    for (const auto& variable_constraints_pair : unstamped_index_)
+
+    // Now find all of the variables connected to the recent variables
+    std::unordered_set<fuse_core::UUID> connected_variable_uuids;
+    for (const auto& recent_variable_uuid : recent_variable_uuids)
     {
-      auto max_stamp = getMaxConstraintStamp(variable_constraints_pair.second);
-      if (max_stamp < stamp)
+      // Add the recent variable to ensure connected_variable_uuids is a superset of recent_variable_uuids
+      connected_variable_uuids.insert(recent_variable_uuid);
+
+      const auto variables_iter = variables_.find(recent_variable_uuid);
+      if (variables_iter != variables_.end())
       {
-        *result = variable_constraints_pair.first;
+        for (const auto& connected_constraint_uuid : variables_iter->second)
+        {
+          const auto constraints_iter = constraints_.find(connected_constraint_uuid);
+          if (constraints_iter != constraints_.end())
+          {
+            for (const auto& connected_variable_uuid : constraints_iter->second)
+            {
+              connected_variable_uuids.insert(connected_variable_uuid);
+            }
+          }
+        }
+      }
+    }
+
+    // Return the set of variables that are not connected
+    for (const auto& variable : variables_)
+    {
+      if (connected_variable_uuids.find(variable.first) == connected_variable_uuids.end())
+      {
+        *result = variable.first;
         ++result;
       }
     }
   }
 
 protected:
-  using StampedMap = std::unordered_map<fuse_core::UUID, ros::Time, fuse_core::uuid::hash>;
+  using StampedMap = std::unordered_map<fuse_core::UUID, ros::Time>;
   StampedMap stamped_index_;  //!< Container that holds the UUID->Stamp mapping for fuse_variables::Stamped variables
 
-  using ConstraintInfo = std::unordered_map<fuse_core::UUID, ros::Time, fuse_core::uuid::hash>;
-  using UnstampedMap = std::unordered_map<fuse_core::UUID, ConstraintInfo, fuse_core::uuid::hash>;
-  UnstampedMap unstamped_index_;  //!< Container holding the UnstampedUUID->{Constraints} mapping
+  using VariableToConstraintsMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;
+  VariableToConstraintsMap variables_;
+
+  using ConstraintToVariablesMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;
+  ConstraintToVariablesMap constraints_;
 
   /**
    * @brief Update this VariableStampIndex with the added constraints from the provided transaction
@@ -181,11 +195,6 @@ protected:
    * @brief Update this VariableStampIndex with the removed variables from the provided transaction
    */
   void applyRemovedVariables(const fuse_core::Transaction& transaction);
-
-  /**
-   * @brief Find the max stamp inside a ConstraintInfo object
-   */
-  ros::Time getMaxConstraintStamp(const ConstraintInfo& constraints) const;
 };
 
 }  // namespace fuse_optimizers
