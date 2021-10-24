@@ -31,11 +31,13 @@ initial_localization_sensor:
 
 odometry_sensor:
   topic: 'wheel_odom'
+  twist_target_frame: 'base_link'
   linear_velocity_dimensions: ['x', 'y']
   angular_velocity_dimensions: ['yaw']
 
 imu_sensor:
   topic: 'imu'
+  twist_target_frame: 'base_link'
   angular_velocity_dimensions: ['yaw']
 
 range_sensor:
