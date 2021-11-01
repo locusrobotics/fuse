@@ -1,39 +1,32 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(fuse_core)
 
-set(build_depends
-  fuse_msgs
-  pluginlib
-  roscpp
-)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Debug)
 
-find_package(catkin REQUIRED COMPONENTS
-  ${build_depends}
-)
-find_package(Boost REQUIRED COMPONENTS serialization)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Werror -Wextra -Wpedantic)
+endif()
+
+
+find_package(ament_cmake REQUIRED)
+find_package(fuse_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(roscpp REQUIRED)
+#find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(libglog REQUIRED)
-
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    ${build_depends}
-  DEPENDS
-    Boost
-    CERES
-    EIGEN3
-    GLOG
-)
+#find_package(PkgConfig REQUIRED)
+#pkg_check_modules(libglog REQUIRED)
 
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
 
 ## fuse_core library
 add_library(${PROJECT_NAME}

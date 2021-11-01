@@ -11,12 +11,12 @@
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
   <depend>fuse_msgs</depend>
-  <depend>pluginlib</depend>
-  <depend>roscpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>rclcpp</depend>
   <depend version_gte="1.13.8">rosconsole</depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
