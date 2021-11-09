@@ -34,8 +34,8 @@
 #ifndef FUSE_CORE_UTIL_H
 #define FUSE_CORE_UTIL_H
 
-#include <ros/console.h>
-#include <ros/node_handle.h>
+//#include <ros/console.h>
+//#include <ros/node_handle.h>
 
 #include <ceres/jet.h>
 #include <Eigen/Core>

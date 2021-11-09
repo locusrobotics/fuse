@@ -39,7 +39,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
-#include <ros/time.h>
+#include <rclcpp/time.hpp>
 
 #include <boost/range/any_range.hpp>
 #include <boost/serialization/access.hpp>
@@ -78,13 +78,13 @@ public:
   using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
 
   /**
-   * @brief A range of ros::Time objects
+   * @brief A range of rclcpp::Time objects
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const ros::Time&.
+   * member. When dereferenced, an iterator returns a const rclcpp::Time&.
    */
-  using const_stamp_range = boost::any_range<const ros::Time, boost::forward_traversal_tag>;
+  using const_stamp_range = boost::any_range<const rclcpp::Time, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of UUID objects
@@ -107,12 +107,12 @@ public:
   /**
    * @brief Read-only access to this transaction's timestamp
    */
-  const ros::Time& stamp() const { return stamp_; }
+  const rclcpp::Time& stamp() const { return stamp_; }
 
   /**
    * @brief Write access to this transaction's timestamp
    */
-  void stamp(const ros::Time& stamp) { stamp_ = stamp; }
+  void stamp(const rclcpp::Time& stamp) { stamp_ = stamp; }
 
   /**
    * @brief Read-only access to the set of timestamps involved in this transaction
@@ -127,7 +127,7 @@ public:
    *
    * @return The minimum (oldest) timestamp.
    */
-  const ros::Time& minStamp() const;
+  const rclcpp::Time& minStamp() const;
 
   /**
    * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all involved
@@ -135,7 +135,7 @@ public:
    *
    * @return The maximum (newest) timestamp.
    */
-  const ros::Time& maxStamp() const;
+  const rclcpp::Time& maxStamp() const;
 
   /**
    * @brief Read-only access to the added constraints
@@ -180,7 +180,7 @@ public:
    *
    * @param[in] stamp The timestamp to be added
    */
-  void addInvolvedStamp(const ros::Time& stamp);
+  void addInvolvedStamp(const rclcpp::Time& stamp);
 
   /**
    * @brief Add a constraint to this transaction
@@ -282,10 +282,10 @@ public:
   void deserialize(fuse_core::TextInputArchive& /* archive */);
 
 private:
-  ros::Time stamp_;  //!< The transaction message timestamp
+  rclcpp::Time stamp_;  //!< The transaction message timestamp
   std::vector<Constraint::SharedPtr> added_constraints_;  //!< The constraints to be added
   std::vector<Variable::SharedPtr> added_variables_;  //!< The variables to be added
-  std::set<ros::Time> involved_stamps_;  //!< The set of timestamps involved in this transaction
+  std::set<rclcpp::Time> involved_stamps_;  //!< The set of timestamps involved in this transaction
   std::vector<UUID> removed_constraints_;  //!< The constraint UUIDs to be removed
   std::vector<UUID> removed_variables_;  //!< The variable UUIDs to be removed
 

@@ -336,7 +336,7 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
   if (latest_stamp == Synchronizer::TIME_ZERO)
   {
-    ROS_WARN_STREAM_FILTER(&delayed_throttle_filter_, "No valid state data yet. Delaying tf broadcast.");
+    RCLCPP_WARN_STREAM_EXPRESSION(node->get_logger(), delayed_throttle_filter_.enabled(), "No valid state data yet. Delaying tf broadcast.");
     return;
   }
 

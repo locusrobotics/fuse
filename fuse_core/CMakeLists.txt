@@ -17,65 +17,69 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(fuse_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(roscpp REQUIRED)
-#find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+
+find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
-#find_package(PkgConfig REQUIRED)
 #pkg_check_modules(libglog REQUIRED)
 
+
+find_package(PkgConfig REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rcl_interfaces REQUIRED)
 ###########
 ## Build ##
 ###########
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
-  src/async_motion_model.cpp
-  src/async_publisher.cpp
-  src/async_sensor_model.cpp
-  src/ceres_options.cpp
+  #src/async_motion_model.cpp
+  #src/async_publisher.cpp
+  #src/async_sensor_model.cpp
+  #src/ceres_options.cpp
   src/constraint.cpp
   src/graph.cpp
   src/graph_deserializer.cpp
   src/loss.cpp
   src/serialization.cpp
   src/timestamp_manager.cpp
-  src/transaction.cpp
+  #src/transaction.cpp
   src/transaction_deserializer.cpp
   src/uuid.cpp
   src/variable.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${Boost_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-    ${GLOG_INCLUDE_DIRS}
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
+  ${Boost_INCLUDE_DIRS}
+  ${CERES_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${GLOG_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
   ${GLOG_LIBRARIES}
 )
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  rclcpp_components
+  fuse_msgs
+  rcl_interfaces
 )
+#rclcpp_components_register_nodes(${PROJECT_NAME} PLUGIN "${PROJECT_NAME}" EXECUTABLE ${PROJECT_NAME})
+
 
 # fuse_echo executable
 add_executable(fuse_echo
   src/fuse_echo.cpp
 )
-add_dependencies(fuse_echo
-  ${catkin_EXPORTED_TARGETS}
-)
+#add_dependencies(fuse_echo
+#  ${catkin_EXPORTED_TARGETS}
+#)
 target_include_directories(fuse_echo
   PUBLIC
     include
@@ -85,11 +89,6 @@ target_link_libraries(fuse_echo
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
-set_target_properties(fuse_echo
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-)
 
 #############
 ## Install ##
@@ -97,19 +96,19 @@ set_target_properties(fuse_echo
 
 install(
   TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(
   TARGETS fuse_echo
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  RUNTIME DESTINATION bin
 )
 
 install(
   DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DESTINATION include/
 )
 
 #############

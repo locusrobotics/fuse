@@ -36,7 +36,7 @@
 
 #include <fuse_core/uuid.h>
 
-#include <ros/time.h>
+#include <rclcpp/time.hpp>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -147,10 +147,10 @@ namespace serialization
 {
 
 /**
- * @brief Serialize a ros::Time variable using Boost Serialization
+ * @brief Serialize a rclcpp::Time variable using Boost Serialization
  */
 template<class Archive>
-void serialize(Archive& archive, ros::Time& stamp, const unsigned int /* version */)
+void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* version */)
 {
   archive & stamp.sec;
   archive & stamp.nsec;

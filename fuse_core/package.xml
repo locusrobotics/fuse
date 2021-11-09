@@ -14,9 +14,15 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
-  <depend>fuse_msgs</depend>
-  <depend>rclcpp_components</depend>
-  <depend>rclcpp</depend>
+  <depend>pluginlib</depend>
+
+  <build_depend>rclcpp</build_depend>
+  <build_depend>rclcpp_components</build_depend>
+  <build_depend>fuse_msgs</build_depend>
+  
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend>
+  
   <depend version_gte="1.13.8">rosconsole</depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>

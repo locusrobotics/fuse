@@ -33,16 +33,10 @@
  */
 #include <fuse_core/uuid.h>
 
-#include <ros/time.h>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include <algorithm>
 #include <array>
 #include <mutex>
 #include <random>
-#include <string>
 
 
 namespace fuse_core
@@ -65,7 +59,7 @@ UUID generate()
   return uuid;
 }
 
-UUID generate(const std::string& namespace_string, const ros::Time& stamp)
+UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
 {
   constexpr size_t buffer_size = sizeof(stamp.sec) + sizeof(stamp.nsec);
   std::array<unsigned char, buffer_size> buffer;
@@ -79,7 +73,7 @@ UUID generate(const std::string& namespace_string, const ros::Time& stamp)
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
-UUID generate(const std::string& namespace_string, const ros::Time& stamp, const UUID& id)
+UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id)
 {
   constexpr size_t buffer_size = sizeof(stamp.sec) + sizeof(stamp.nsec) + UUID::static_size();
   std::array<unsigned char, buffer_size> buffer;

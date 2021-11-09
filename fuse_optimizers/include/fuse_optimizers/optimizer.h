@@ -41,7 +41,7 @@
 #include <fuse_core/publisher.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
-#include <pluginlib/class_loader.h>
+#include <pluginlib/class_loader.hpp>
 #include <ros/ros.h>
 
 #include <string>

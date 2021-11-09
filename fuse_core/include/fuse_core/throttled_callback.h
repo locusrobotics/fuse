@@ -34,7 +34,7 @@
 #ifndef FUSE_CORE_THROTTLED_CALLBACK_H
 #define FUSE_CORE_THROTTLED_CALLBACK_H
 
-#include <ros/subscriber.h>
+//#include <ros/subscriber.h>
 
 #include <functional>
 #include <utility>
@@ -60,11 +60,12 @@ public:
    * @param[in] keep_callback   The callback to call when kept, i.e. not dropped. Defaults to nullptr
    * @param[in] drop_callback   The callback to call when dropped because of the throttling. Defaults to nullptr
    * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
-   * @param[in] use_wall_time   Whether to use ros::WallTime or not. Defaults to false
+   * @param[in] use_wall_time   Whether to use wall time or not. Defaults to false
    */
   ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
                     Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
-                    const ros::Duration& throttle_period = ros::Duration(0.0), const bool use_wall_time = false)
+                    const rclcpp::Duration& throttle_period = rclcpp::Duration(0,0),
+                    const bool use_wall_time = false)
     : keep_callback_(keep_callback)
     , drop_callback_(drop_callback)
     , throttle_period_(throttle_period)
@@ -77,7 +78,7 @@ public:
    *
    * @return The current throttle period duration in seconds being used
    */
-  const ros::Duration& getThrottlePeriod() const
+  const rclcpp::Duration& getThrottlePeriod() const
   {
     return throttle_period_;
   }
@@ -85,7 +86,7 @@ public:
   /**
    * @brief Use wall time flag getter
    *
-   * @return True if using ros::WallTime, false otherwise
+   * @return True if using wall time, false otherwise
    */
   bool getUseWallTime() const
   {
@@ -97,7 +98,7 @@ public:
    *
    * @param[in] throttle_period The new throttle period duration in seconds to use
    */
-  void setThrottlePeriod(const ros::Duration& throttle_period)
+  void setThrottlePeriod(const rclcpp::Duration& throttle_period)
   {
     throttle_period_ = throttle_period;
   }
@@ -105,7 +106,7 @@ public:
   /**
    * @brief Use wall time flag setter
    *
-   * @param[in] use_wall_time Whether to use ros::WallTime or not
+   * @param[in] use_wall_time Whether to use rclcpp::WallTime or not
    */
   void setUseWallTime(const bool use_wall_time)
   {
@@ -137,7 +138,7 @@ public:
    *
    * @return The last time the keep callback was called
    */
-  const ros::Time& getLastCalledTime() const
+  const rclcpp::Time& getLastCalledTime() const
   {
     return last_called_time_;
   }
@@ -156,15 +157,16 @@ public:
     // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
     // (b) The throttle period is zero, so we should always keep the callbacks
     // (c) The elpased time between now and the last called time is greater than the throttle period
-    const ros::Time now = use_wall_time_ ? ros::Time(ros::WallTime::now().toSec()) : ros::Time::now();
-    if (last_called_time_.isZero() || throttle_period_.isZero() || now - last_called_time_ > throttle_period_)
+    #warn "using a valid time value as a flag"
+    const rclcpp::Time now = use_wall_time_ ? rclcpp::Clock::Clock(RCL_SYSTEM_TIME).now() : node->now();
+    if ((last_called_time_.nanoseconds() == 0) || (throttle_period_.nanoseconds() == 0) || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
         keep_callback_(std::forward<Args>(args)...);
       }
 
-      if (last_called_time_.isZero())
+      if (last_called_time_.nanoseconds() == 0)
       {
         last_called_time_ = now;
       }
@@ -193,10 +195,10 @@ public:
 private:
   Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
   Callback drop_callback_;         //!< The callback to call when dropped because of throttling
-  ros::Duration throttle_period_;  //!< The throttling period duration in seconds
-  bool use_wall_time_;             //<! The flag to indicate whether to use ros::WallTime or not
+  rclcpp::Duration throttle_period_;  //!< The throttling period duration in seconds
+  bool use_wall_time_;             //<! The flag to indicate whether to use wall time or not
 
-  ros::Time last_called_time_;  //!< The last time the keep callback was called
+  rclcpp::Time last_called_time_;  //!< The last time the keep callback was called
 };
 
 /**

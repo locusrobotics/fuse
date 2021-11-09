@@ -34,7 +34,6 @@
 #include <fuse_core/graph_deserializer.h>
 
 #include <fuse_core/serialization.h>
-#include <fuse_msgs/SerializedGraph.h>
 
 #include <boost/iostreams/stream.hpp>
 
@@ -42,7 +41,7 @@
 namespace fuse_core
 {
 
-void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::SerializedGraph& msg)
+void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::msg::SerializedGraph& msg)
 {
   // Serialize the graph into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
@@ -78,12 +77,12 @@ GraphDeserializer::GraphDeserializer() :
   }
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::SerializedGraph::ConstPtr& msg) const
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg) const
 {
   return deserialize(*msg);
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::SerializedGraph& msg) const
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph& msg) const
 {
   // Create a Graph object using pluginlib. This will throw if the plugin name is not found.
   // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return

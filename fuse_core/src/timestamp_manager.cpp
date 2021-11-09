@@ -33,12 +33,6 @@
  */
 #include <fuse_core/timestamp_manager.h>
 
-#include <fuse_core/constraint.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
-#include <ros/duration.h>
-#include <ros/time.h>
-
 #include <boost/iterator/transform_iterator.hpp>
 
 #include <algorithm>
@@ -46,13 +40,12 @@
 #include <set>
 #include <stdexcept>
 #include <utility>
-#include <vector>
 
 
 namespace fuse_core
 {
 
-TimestampManager::TimestampManager(MotionModelFunction generator, const ros::Duration& buffer_length) :
+TimestampManager::TimestampManager(MotionModelFunction generator, const rclcpp::Duration& buffer_length) :
   generator_(generator),
   buffer_length_(buffer_length)
 {
@@ -70,7 +63,7 @@ void TimestampManager::query(
   }
   // Verify the query is within the buffer length
   if ( (!motion_model_history_.empty())
-    && (buffer_length_ != ros::DURATION_MAX)
+    && (buffer_length_ != rclcpp::Duration::max())
     && (stamps.front() < motion_model_history_.begin()->first)
     && (stamps.front() < (motion_model_history_.rbegin()->first - buffer_length_)))
   {
@@ -79,7 +72,7 @@ void TimestampManager::query(
   // Create a list of all the required timestamps involved in motion model segments that must be created
   // Add all of the existing timestamps between the first and last input stamp
   Transaction motion_model_transaction;
-  std::set<ros::Time> augmented_stamps(stamps.begin(), stamps.end());
+  std::set<rclcpp::Time> augmented_stamps(stamps.begin(), stamps.end());
   auto first_stamp = *augmented_stamps.begin();
   auto last_stamp = *augmented_stamps.rbegin();
   {
@@ -99,14 +92,14 @@ void TimestampManager::query(
     }
   }
   // Convert the sequence of stamps into stamp pairs that must be generated
-  std::vector<std::pair<ros::Time, ros::Time>> stamp_pairs;
+  std::vector<std::pair<rclcpp::Time, rclcpp::Time>> stamp_pairs;
   {
     for (auto previous_iter = augmented_stamps.begin(), current_iter = std::next(augmented_stamps.begin());
          current_iter != augmented_stamps.end();
          ++previous_iter, ++current_iter)
     {
-      const ros::Time& previous_stamp = *previous_iter;
-      const ros::Time& current_stamp = *current_iter;
+      const rclcpp::Time& previous_stamp = *previous_iter;
+      const rclcpp::Time& current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
       if ((history_iter != motion_model_history_.end()) &&
@@ -173,7 +166,7 @@ void TimestampManager::query(
 
 TimestampManager::const_stamp_range TimestampManager::stamps() const
 {
-  auto extract_stamp = +[](const MotionModelHistory::value_type& element) -> const ros::Time&
+  auto extract_stamp = +[](const MotionModelHistory::value_type& element) -> const rclcpp::Time&
   {
     return element.first;
   };
@@ -183,8 +176,8 @@ TimestampManager::const_stamp_range TimestampManager::stamps() const
 }
 
 void TimestampManager::addSegment(
-  const ros::Time& beginning_stamp,
-  const ros::Time& ending_stamp,
+  const rclcpp::Time& beginning_stamp,
+  const rclcpp::Time& ending_stamp,
   Transaction& transaction)
 {
   // Generate the set of constraints and variables to add
@@ -228,11 +221,11 @@ void TimestampManager::removeSegment(
 
 void TimestampManager::splitSegment(
     MotionModelHistory::iterator& iter,
-    const ros::Time& stamp,
+    const rclcpp::Time& stamp,
     Transaction& transaction)
 {
-  ros::Time removed_beginning_stamp = iter->second.beginning_stamp;
-  ros::Time removed_ending_stamp = iter->second.ending_stamp;
+  rclcpp::Time removed_beginning_stamp = iter->second.beginning_stamp;
+  rclcpp::Time removed_ending_stamp = iter->second.ending_stamp;
   // We need to remove the existing constraint.
   removeSegment(iter, transaction);
   // And add a new constraint from the beginning of the removed constraint to the provided stamp
@@ -244,9 +237,9 @@ void TimestampManager::splitSegment(
 void TimestampManager::purgeHistory()
 {
   // Purge any motion model segments that are more than buffer_length_ seconds older than the most recent entry
-  // A setting of ros::DURATION_MAX means "keep everything"
+  // A setting of rclcpp::Duration::max() means "keep everything"
   // And we want to keep at least one entry in motion model history, regardless of the stamps.
-  if ((buffer_length_ == ros::DURATION_MAX) || (motion_model_history_.size() <= 1))
+  if ((buffer_length_ == rclcpp::Duration::max()) || (motion_model_history_.size() <= 1))
   {
     return;
   }
@@ -254,7 +247,7 @@ void TimestampManager::purgeHistory()
   // (a) are left with only one entry, OR
   // (b) the time delta between the beginning and end is within the buffer_length_
   // We compare with the ending timestamp of each segment to be conservative
-  ros::Time ending_stamp = motion_model_history_.rbegin()->first;
+  rclcpp::Time ending_stamp = motion_model_history_.rbegin()->first;
   while ( (motion_model_history_.size() > 1)
       && ((ending_stamp - motion_model_history_.begin()->second.ending_stamp) > buffer_length_))
   {
