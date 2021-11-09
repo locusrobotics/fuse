@@ -10,7 +10,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Werror -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 
@@ -46,7 +46,7 @@ add_library(${PROJECT_NAME}
   src/loss.cpp
   src/serialization.cpp
   src/timestamp_manager.cpp
-  #src/transaction.cpp
+  src/transaction.cpp
   src/transaction_deserializer.cpp
   src/uuid.cpp
   src/variable.cpp
@@ -69,6 +69,7 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp_components
   fuse_msgs
   rcl_interfaces
+  pluginlib
 )
 #rclcpp_components_register_nodes(${PROJECT_NAME} PLUGIN "${PROJECT_NAME}" EXECUTABLE ${PROJECT_NAME})
 

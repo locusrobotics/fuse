@@ -48,6 +48,7 @@
 #include <initializer_list>
 #include <memory>
 #include <ostream>
+#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -193,7 +194,7 @@ namespace fuse_core
 class Constraint
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Constraint);
+  SMART_PTR_ALIASES_ONLY(Constraint)
 
   /**
    * @brief Default constructor

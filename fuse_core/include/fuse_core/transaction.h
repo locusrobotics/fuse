@@ -48,6 +48,7 @@
 #include <boost/serialization/vector.hpp>
 
 #include <ostream>
+#include <iostream>
 #include <set>
 #include <vector>
 
@@ -66,7 +67,7 @@ namespace fuse_core
 class Transaction
 {
 public:
-  SMART_PTR_DEFINITIONS(Transaction);
+  SMART_PTR_DEFINITIONS(Transaction)
 
   /**
    * @brief A range of Constraint::SharedPtr objects

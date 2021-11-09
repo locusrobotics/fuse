@@ -61,28 +61,45 @@ UUID generate()
 
 UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
 {
-  constexpr size_t buffer_size = sizeof(stamp.sec) + sizeof(stamp.nsec);
+  // replicate ros1 behaviour for now
+  #warning "deprecated time API"
+  rcl_time_point_value_t stamp_val = stamp.nanoseconds();
+  int32_t stamp_s = stamp_val / (rcl_time_point_value_t)1e9;
+  int32_t stamp_ns = stamp_val % (rcl_time_point_value_t)1e9;
+
+  constexpr size_t buffer_size = sizeof(stamp_s) + sizeof(stamp_ns);
   std::array<unsigned char, buffer_size> buffer;
   auto iter = buffer.begin();
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.sec),
-                   reinterpret_cast<const unsigned char*>(&stamp.sec) + sizeof(stamp.sec),
+
+  #warning "unsafe time packing"
+  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_s),
+                   reinterpret_cast<const unsigned char*>(&stamp_s) + sizeof(stamp_s),
                    iter);
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.nsec),
-                   reinterpret_cast<const unsigned char*>(&stamp.nsec) + sizeof(stamp.nsec),
+  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_ns),
+                   reinterpret_cast<const unsigned char*>(&stamp_ns) + sizeof(stamp_ns),
                    iter);
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
 UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id)
 {
-  constexpr size_t buffer_size = sizeof(stamp.sec) + sizeof(stamp.nsec) + UUID::static_size();
+  // replicate ros1 behaviour for now
+  #warning "deprecated time API"
+  rcl_time_point_value_t stamp_val = stamp.nanoseconds();
+  int32_t stamp_s = stamp_val / (rcl_time_point_value_t)1e9;
+  int32_t stamp_ns = stamp_val % (rcl_time_point_value_t)1e9;
+
+  constexpr size_t buffer_size = sizeof(stamp_s) + sizeof(stamp_ns) + UUID::static_size();
   std::array<unsigned char, buffer_size> buffer;
   auto iter = buffer.begin();
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.sec),
-                   reinterpret_cast<const unsigned char*>(&stamp.sec) + sizeof(stamp.sec),
+
+
+  #warning "unsafe time packing"
+  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_s),
+                   reinterpret_cast<const unsigned char*>(&stamp_s) + sizeof(stamp_s),
                    iter);
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp.nsec),
-                   reinterpret_cast<const unsigned char*>(&stamp.nsec) + sizeof(stamp.nsec),
+  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_ns),
+                   reinterpret_cast<const unsigned char*>(&stamp_ns) + sizeof(stamp_ns),
                    iter);
   iter = std::copy(id.begin(),
                    id.end(),

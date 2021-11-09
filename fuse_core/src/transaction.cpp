@@ -231,11 +231,11 @@ void Transaction::merge(const Transaction& other, bool overwrite)
 
 void Transaction::print(std::ostream& stream) const
 {
-  stream << "Stamp: " << stamp_ << "\n";
+  stream << "Stamp: " << stamp_.nanoseconds() << "\n";
   stream << "Involved Timestamps:\n";
   for (const auto& involved_stamp : involved_stamps_)
   {
-    stream << " - " << involved_stamp << "\n";
+    stream << " - " << involved_stamp.nanoseconds() << "\n";
   }
   stream << "Added Variables:\n";
   for (const auto& added_variable : added_variables_)

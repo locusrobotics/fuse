@@ -44,6 +44,7 @@
 
 #include <limits>
 #include <ostream>
+#include <iostream>
 #include <string>
 
 
@@ -188,7 +189,7 @@ namespace fuse_core
 class Variable
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Variable);
+  SMART_PTR_ALIASES_ONLY(Variable)
 
   /**
    * @brief Default constructor

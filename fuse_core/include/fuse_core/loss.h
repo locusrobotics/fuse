@@ -42,8 +42,8 @@
 #include <ceres/loss_function.h>
 
 #include <ostream>
+#include <iostream>
 #include <string>
-
 
 /**
  * @brief Implementation of the clone() member function for derived classes
@@ -169,7 +169,7 @@ namespace fuse_core
 class Loss
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Loss);
+  SMART_PTR_ALIASES_ONLY(Loss)
 
   static constexpr ceres::Ownership Ownership =
       ceres::Ownership::TAKE_OWNERSHIP;  //!< The ownership of the ceres::LossFunction* returned by lossFunction()

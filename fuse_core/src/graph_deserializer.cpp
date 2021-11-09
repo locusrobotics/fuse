@@ -77,7 +77,7 @@ GraphDeserializer::GraphDeserializer() :
   }
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg) const
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph::SharedPtr msg) const
 {
   return deserialize(*msg);
 }

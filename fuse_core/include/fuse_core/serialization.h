@@ -152,8 +152,9 @@ namespace serialization
 template<class Archive>
 void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* version */)
 {
-  archive & stamp.sec;
-  archive & stamp.nsec;
+  #warning "discarding clock source in serialisation"
+  rcl_time_point_value_t time_point = stamp.nanoseconds();
+  archive & time_point;
 }
 
 /**

@@ -31,13 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_msgs/SerializedGraph.h>
-#include <fuse_msgs/SerializedTransaction.h>
+#include <fuse_msgs/msg/serialized_graph.h>
+#include <fuse_msgs/msg/serialized_transaction.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/graph_deserializer.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/transaction_deserializer.h>
-//#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <rclcpp/clock.hpp>
 
 
@@ -54,15 +54,15 @@ public:
     Node("fuse_echo", options)
   {
     // Subscribe to the constraint topic
-    graph_subscriber_ = this->create_subscription(
+    graph_subscriber_ = this->create_subscription<fuse_msgs::msg::SerializedGraph>(
       "graph",
       rclcpp::QoS(100),
-      std::bind(&FuseEcho::graphCallback, this, std::placeholders::_1),
+      std::bind(&FuseEcho::graphCallback, this, std::placeholders::_1)
     );
-    transaction_subscriber_ = this->create_subscription(
+    transaction_subscriber_ = this->create_subscription<fuse_msgs::msg::SerializedTransaction>(
       "transaction",
       rclcpp::QoS(100),
-      std::bind(&FuseEcho::transactionCallback, this, std::placeholders::_1),
+      std::bind(&FuseEcho::transactionCallback, this, std::placeholders::_1)
     );
   }
 
@@ -72,7 +72,7 @@ private:
   rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_subscriber_;
   rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_subscriber_;
 
-  void graphCallback(const fuse_msgs::msg::SerializedGraph::SharedPtr& msg)
+  void graphCallback(const fuse_msgs::msg::SerializedGraph::SharedPtr msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "GRAPH:" << std::endl;
@@ -81,7 +81,7 @@ private:
     graph->print();
   }
 
-  void transactionCallback(const fuse_msgs::msg::SerializedTransaction::SharedPtr& msg)
+  void transactionCallback(const fuse_msgs::msg::SerializedTransaction::SharedPtr msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "TRANSACTION:" << std::endl;

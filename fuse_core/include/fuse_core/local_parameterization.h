@@ -57,7 +57,7 @@ namespace fuse_core
 class LocalParameterization : public ceres::LocalParameterization
 {
 public:
-  SMART_PTR_ALIASES_ONLY(LocalParameterization);
+  SMART_PTR_ALIASES_ONLY(LocalParameterization)
 
   /**
    * @brief Generalization of the subtraction operation
