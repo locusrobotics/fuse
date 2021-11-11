@@ -60,7 +60,7 @@ public:
    * @param[in] keep_callback   The callback to call when kept, i.e. not dropped. Defaults to nullptr
    * @param[in] drop_callback   The callback to call when dropped because of the throttling. Defaults to nullptr
    * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
-   * @param[in] use_wall_time   Whether to use wall time or not. Defaults to false
+   * @param[in] use_wall_time   Whether to use wall time or not. Defaults to false (not implemented)
    */
   ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
                     Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
@@ -87,7 +87,7 @@ public:
   /**
    * @brief Use wall time flag getter
    *
-   * @return True if using wall time, false otherwise
+   * @return True if using wall time, false otherwise (not implemented)
    */
   bool getUseWallTime() const
   {
@@ -107,7 +107,7 @@ public:
   /**
    * @brief Use wall time flag setter
    *
-   * @param[in] use_wall_time Whether to use wall time or node time
+   * @param[in] use_wall_time Whether to use wall time or node time (not implemented)
    */
   void setUseWallTime(const bool use_wall_time)
   {
@@ -139,7 +139,7 @@ public:
    *
    * @return The last time the keep callback was called
    */
-  const Time& getLastCalledTime() const
+  const std::chrono::time_point& getLastCalledTime() const
   {
     return last_called_time_;
   }
@@ -158,10 +158,10 @@ public:
     // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
     // (b) The throttle period is zero, so we should always keep the callbacks
     // (c) The elpased time between now and the last called time is greater than the throttle period
-    #warning "using a valid time value as a flag"
-    const Time now = use_wall_time_ ? Clock::now() : node->now();
-
-    if (reset || (throttle_period_ == Duration::zero()) || now - last_called_time_ > throttle_period_)
+    #warning "use_wall_time not implemented"
+    //const std::chrono::time_point now = use_wall_time_ ? std::chrono::system_clock::now() : node->now();
+    const auto now = std::chrono::system_clock::now();
+    if (reset || (throttle_period_ == std::chrono::duration::zero()) || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
@@ -198,10 +198,10 @@ private:
   bool reset;
   Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
   Callback drop_callback_;         //!< The callback to call when dropped because of throttling
-  Duration throttle_period_;  //!< The throttling period duration in seconds
+  std::chrono::nanoseconds throttle_period_;  //!< The throttling period duration in seconds
   bool use_wall_time_;             //<! The flag to indicate whether to use wall time or not
 
-  Time last_called_time_;  //!< The last time the keep callback was called
+  std::chrono::time_point<std::chrono::system_clock> last_called_time_;  //!< The last time the keep callback was called
 };
 
 /**

@@ -152,10 +152,10 @@ namespace uuid
    * Every unique timestamp will generate a unique UUID
    *
    * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
-   * @param[in] stamp            A fuse_core::Time timestamp
+   * @param[in] stamp            A fuse_core::TimeStamp timestamp
    * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
-  UUID generate(const std::string& namespace_string, const Time& stamp);
+  UUID generate(const std::string& namespace_string, const TimeStamp& stamp);
 
   /**
    * @brief Generate a UUID from a namespace string, a ros timestamp, and an additional id
@@ -163,11 +163,11 @@ namespace uuid
    * Every unique timestamp and id pair will generate a unique UUID
    *
    * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
-   * @param[in] stamp            A fuse_core::Time timestamp
+   * @param[in] stamp            A fuse_core::TimeStamp timestamp
    * @param[in] id               A UUID
    * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
-  UUID generate(const std::string& namespace_string, const Time& stamp, const UUID& id);
+  UUID generate(const std::string& namespace_string, const TimeStamp& stamp, const UUID& id);
 
     /**
    * @brief Generate a UUID from a namespace string and a user provided id

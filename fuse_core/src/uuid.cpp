@@ -59,7 +59,7 @@ UUID generate()
   return uuid;
 }
 
-UUID generate(const std::string& namespace_string, const Time& stamp)
+UUID generate(const std::string& namespace_string, const TimeStamp& stamp)
 {
   constexpr size_t buffer_size = sizeof(stamp);
   std::array<unsigned char, buffer_size> buffer;
@@ -72,7 +72,7 @@ UUID generate(const std::string& namespace_string, const Time& stamp)
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
-UUID generate(const std::string& namespace_string, const Time& stamp, const UUID& id)
+UUID generate(const std::string& namespace_string, const TimeStamp& stamp, const UUID& id)
 {
   constexpr size_t buffer_size = sizeof(stamp) + UUID::static_size();
   std::array<unsigned char, buffer_size> buffer;

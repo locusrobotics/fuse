@@ -44,7 +44,7 @@
 namespace fuse_core
 {
 
-const Time& Transaction::minStamp() const
+const TimeStamp& Transaction::minStamp() const
 {
   if (involved_stamps_.empty())
   {
@@ -56,7 +56,7 @@ const Time& Transaction::minStamp() const
   }
 }
 
-const Time& Transaction::maxStamp() const
+const TimeStamp& Transaction::maxStamp() const
 {
   if (involved_stamps_.empty())
   {
@@ -68,7 +68,7 @@ const Time& Transaction::maxStamp() const
   }
 }
 
-void Transaction::addInvolvedStamp(const Time& stamp)
+void Transaction::addInvolvedStamp(const TimeStamp& stamp)
 {
   involved_stamps_.insert(stamp);
 }

@@ -79,8 +79,8 @@ public:
    * @param[out] variables       One or more variables at both the \p beginning_stamp and \p ending_stamp. The
    *                             variables should include initial values for the optimizer.
    */
-  using MotionModelFunction = std::function<void(const Time& beginning_stamp,
-                                                 const Time& ending_stamp,
+  using MotionModelFunction = std::function<void(const TimeStamp& beginning_stamp,
+                                                 const TimeStamp& ending_stamp,
                                                  std::vector<Constraint::SharedPtr>& constraints,
                                                  std::vector<Variable::SharedPtr>& variables)>;
 
@@ -89,9 +89,9 @@ public:
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const fuse_core::Time&.
+   * member. When dereferenced, an iterator returns a const fuse_core::TimeStamp&.
    */
-  using const_stamp_range = boost::any_range<const Time, boost::forward_traversal_tag>;
+  using const_stamp_range = boost::any_range<const TimeStamp, boost::forward_traversal_tag>;
 
   /**
    * @brief Constructor that accepts the motion model generator as a std::function object, probably constructed using
@@ -115,8 +115,8 @@ public:
    *                          that are older than the buffer length, an exception will be thrown.
    */
   template<class T>
-  TimestampManager(void(T::*fp)(const Time& beginning_stamp,
-                                const Time& ending_stamp,
+  TimestampManager(void(T::*fp)(const TimeStamp& beginning_stamp,
+                                const TimeStamp& ending_stamp,
                                 std::vector<Constraint::SharedPtr>& constraints,
                                 std::vector<Variable::SharedPtr>& variables),
                    T* obj,
@@ -134,8 +134,8 @@ public:
    *                          that are older than the buffer length, an exception will be thrown.
    */
   template<class T>
-  TimestampManager(void(T::*fp)(const Time& beginning_stamp,
-                                const Time& ending_stamp,
+  TimestampManager(void(T::*fp)(const TimeStamp& beginning_stamp,
+                                const TimeStamp& ending_stamp,
                                 std::vector<Constraint::SharedPtr>& constraints,
                                 std::vector<Variable::SharedPtr>& variables) const,
                    T* obj,
@@ -199,16 +199,16 @@ protected:
    */
   struct MotionModelSegment
   {
-    Time beginning_stamp;
-    Time ending_stamp;
+    TimeStamp beginning_stamp;
+    TimeStamp ending_stamp;
     std::vector<Constraint::SharedPtr> constraints;
     std::vector<Variable::SharedPtr> variables;
 
     MotionModelSegment() = default;
 
     MotionModelSegment(
-      const Time& beginning_stamp,
-      const Time& ending_stamp,
+      const TimeStamp& beginning_stamp,
+      const TimeStamp& ending_stamp,
       const std::vector<Constraint::SharedPtr>& constraints,
       const std::vector<Variable::SharedPtr>& variables) :
         beginning_stamp(beginning_stamp),
@@ -225,7 +225,7 @@ protected:
    * The MotionModelHistory will always contain all represented timestamps; the very last entry will be the ending
    * time of the previous MotionModelSegment, and the very last entry will be an empty MotionModelSegment.
    */
-  using MotionModelHistory = std::map<Time, MotionModelSegment>;
+  using MotionModelHistory = std::map<TimeStamp, MotionModelSegment>;
 
   MotionModelFunction generator_;  //!< Users upplied function that generates motion model constraints
   Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
@@ -242,8 +242,8 @@ protected:
    * @param[out] transaction     A transaction object to be updated with the changes caused by addSegment
    */
   void addSegment(
-    const Time& beginning_stamp,
-    const Time& ending_stamp,
+    const TimeStamp& beginning_stamp,
+    const TimeStamp& ending_stamp,
     Transaction& transaction);
 
   /**
@@ -270,7 +270,7 @@ protected:
    */
   void splitSegment(
       MotionModelHistory::iterator& iter,
-      const Time& stamp,
+      const TimeStamp& stamp,
       Transaction& transaction);
 
   /**
@@ -280,8 +280,8 @@ protected:
 };
 
 template<class T>
-TimestampManager::TimestampManager(void(T::*fp)(const Time& beginning_stamp,
-                                                const Time& ending_stamp,
+TimestampManager::TimestampManager(void(T::*fp)(const TimeStamp& beginning_stamp,
+                                                const TimeStamp& ending_stamp,
                                                 std::vector<Constraint::SharedPtr>& constraints,
                                                 std::vector<Variable::SharedPtr>& variables),
                                    T* obj,
@@ -297,8 +297,8 @@ TimestampManager::TimestampManager(void(T::*fp)(const Time& beginning_stamp,
 }
 
 template<class T>
-TimestampManager::TimestampManager(void(T::*fp)(const Time& beginning_stamp,
-                                                const Time& ending_stamp,
+TimestampManager::TimestampManager(void(T::*fp)(const TimeStamp& beginning_stamp,
+                                                const TimeStamp& ending_stamp,
                                                 std::vector<Constraint::SharedPtr>& constraints,
                                                 std::vector<Variable::SharedPtr>& variables) const,
                                    T* obj,

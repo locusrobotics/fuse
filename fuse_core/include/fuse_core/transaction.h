@@ -79,13 +79,13 @@ public:
   using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
 
   /**
-   * @brief A range of fuse_core::Time objects
+   * @brief A range of fuse_core::TimeStamp objects
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const fuse_core::Time&.
+   * member. When dereferenced, an iterator returns a const fuse_core::TimeStamp&.
    */
-  using const_stamp_range = boost::any_range<const Time, boost::forward_traversal_tag>;
+  using const_stamp_range = boost::any_range<const TimeStamp, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of UUID objects
@@ -108,12 +108,12 @@ public:
   /**
    * @brief Read-only access to this transaction's timestamp
    */
-  const Time& stamp() const { return stamp_; }
+  const TimeStamp& stamp() const { return stamp_; }
 
   /**
    * @brief Write access to this transaction's timestamp
    */
-  void stamp(const Time& stamp) { stamp_ = stamp; }
+  void stamp(const TimeStamp& stamp) { stamp_ = stamp; }
 
   /**
    * @brief Read-only access to the set of timestamps involved in this transaction
@@ -128,7 +128,7 @@ public:
    *
    * @return The minimum (oldest) timestamp.
    */
-  const Time& minStamp() const;
+  const TimeStamp& minStamp() const;
 
   /**
    * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all involved
@@ -136,7 +136,7 @@ public:
    *
    * @return The maximum (newest) timestamp.
    */
-  const Time& maxStamp() const;
+  const TimeStamp& maxStamp() const;
 
   /**
    * @brief Read-only access to the added constraints
@@ -181,7 +181,7 @@ public:
    *
    * @param[in] stamp The timestamp to be added
    */
-  void addInvolvedStamp(const Time& stamp);
+  void addInvolvedStamp(const TimeStamp& stamp);
 
   /**
    * @brief Add a constraint to this transaction
@@ -283,10 +283,10 @@ public:
   void deserialize(fuse_core::TextInputArchive& /* archive */);
 
 private:
-  Time stamp_;  //!< The transaction message timestamp
+  TimeStamp stamp_;  //!< The transaction message timestamp
   std::vector<Constraint::SharedPtr> added_constraints_;  //!< The constraints to be added
   std::vector<Variable::SharedPtr> added_variables_;  //!< The variables to be added
-  std::set<Time> involved_stamps_;  //!< The set of timestamps involved in this transaction
+  std::set<TimeStamp> involved_stamps_;  //!< The set of timestamps involved in this transaction
   std::vector<UUID> removed_constraints_;  //!< The constraint UUIDs to be removed
   std::vector<UUID> removed_variables_;  //!< The variable UUIDs to be removed
 

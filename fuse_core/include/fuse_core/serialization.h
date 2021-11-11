@@ -147,10 +147,10 @@ namespace serialization
 {
 
 /**
- * @brief Serialize a fuse_core::Time variable using Boost Serialization
+ * @brief Serialize a fuse_core::TimeStamp variable using Boost Serialization
  */
 template<class Archive>
-void serialize(Archive& archive, fuse_core::Time& stamp, const unsigned int /* version */)
+void serialize(Archive& archive, fuse_core::TimeStamp& stamp, const unsigned int /* version */)
 {
   #warning "discarding clock source in serialisation"
   int64_t time_point = stamp.time_since_epoch().count();

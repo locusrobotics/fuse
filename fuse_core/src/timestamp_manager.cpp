@@ -72,7 +72,7 @@ void TimestampManager::query(
   // Create a list of all the required timestamps involved in motion model segments that must be created
   // Add all of the existing timestamps between the first and last input stamp
   Transaction motion_model_transaction;
-  std::set<Time> augmented_stamps(stamps.begin(), stamps.end());
+  std::set<TimeStamp> augmented_stamps(stamps.begin(), stamps.end());
   auto first_stamp = *augmented_stamps.begin();
   auto last_stamp = *augmented_stamps.rbegin();
   {
@@ -92,14 +92,14 @@ void TimestampManager::query(
     }
   }
   // Convert the sequence of stamps into stamp pairs that must be generated
-  std::vector<std::pair<Time, Time>> stamp_pairs;
+  std::vector<std::pair<TimeStamp, TimeStamp>> stamp_pairs;
   {
     for (auto previous_iter = augmented_stamps.begin(), current_iter = std::next(augmented_stamps.begin());
          current_iter != augmented_stamps.end();
          ++previous_iter, ++current_iter)
     {
-      const Time& previous_stamp = *previous_iter;
-      const Time& current_stamp = *current_iter;
+      const TimeStamp& previous_stamp = *previous_iter;
+      const TimeStamp& current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
       if ((history_iter != motion_model_history_.end()) &&
@@ -166,7 +166,7 @@ void TimestampManager::query(
 
 TimestampManager::const_stamp_range TimestampManager::stamps() const
 {
-  auto extract_stamp = +[](const MotionModelHistory::value_type& element) -> const Time&
+  auto extract_stamp = +[](const MotionModelHistory::value_type& element) -> const TimeStamp&
   {
     return element.first;
   };
@@ -176,8 +176,8 @@ TimestampManager::const_stamp_range TimestampManager::stamps() const
 }
 
 void TimestampManager::addSegment(
-  const Time& beginning_stamp,
-  const Time& ending_stamp,
+  const TimeStamp& beginning_stamp,
+  const TimeStamp& ending_stamp,
   Transaction& transaction)
 {
   // Generate the set of constraints and variables to add
@@ -221,11 +221,11 @@ void TimestampManager::removeSegment(
 
 void TimestampManager::splitSegment(
     MotionModelHistory::iterator& iter,
-    const Time& stamp,
+    const TimeStamp& stamp,
     Transaction& transaction)
 {
-  Time removed_beginning_stamp = iter->second.beginning_stamp;
-  Time removed_ending_stamp = iter->second.ending_stamp;
+  TimeStamp removed_beginning_stamp = iter->second.beginning_stamp;
+  TimeStamp removed_ending_stamp = iter->second.ending_stamp;
   // We need to remove the existing constraint.
   removeSegment(iter, transaction);
   // And add a new constraint from the beginning of the removed constraint to the provided stamp
@@ -247,7 +247,7 @@ void TimestampManager::purgeHistory()
   // (a) are left with only one entry, OR
   // (b) the time delta between the beginning and end is within the buffer_length_
   // We compare with the ending timestamp of each segment to be conservative
-  Time ending_stamp = motion_model_history_.rbegin()->first;
+  TimeStamp ending_stamp = motion_model_history_.rbegin()->first;
   while ( (motion_model_history_.size() > 1)
       && ((ending_stamp - motion_model_history_.begin()->second.ending_stamp) > buffer_length_))
   {

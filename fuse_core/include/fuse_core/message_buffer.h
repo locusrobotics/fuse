@@ -67,18 +67,18 @@ public:
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a std::pair<fuse_core::Time, MESSAGE>&.
+   * member. When dereferenced, an iterator returns a std::pair<fuse_core::TimeStamp, MESSAGE>&.
    */
-  using message_range = boost::any_range<const std::pair<Time, Message>, boost::forward_traversal_tag>;
+  using message_range = boost::any_range<const std::pair<TimeStamp, Message>, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of timestamps
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const fuse_core::Time&.
+   * member. When dereferenced, an iterator returns a const fuse_core::TimeStamp&.
    */
-  using stamp_range = boost::any_range<const Time, boost::forward_traversal_tag>;
+  using stamp_range = boost::any_range<const TimeStamp, boost::forward_traversal_tag>;
 
   /**
    * Constructor
@@ -117,7 +117,7 @@ public:
    * @param[in] stamp The stamp to assign to the message
    * @param[in] msg   A message
    */
-  void insert(const Time& stamp, const Message& msg);
+  void insert(const TimeStamp& stamp, const Message& msg);
 
   /**
    * @brief Query the buffer for the set of messages between two timestamps
@@ -135,7 +135,7 @@ public:
    *                            \p ending_stamp.
    * @return                    An iterator range containing all of the messages between the specified stamps.
    */
-  message_range query(const Time& beginning_stamp, const Time& ending_stamp, bool extended_range = true);
+  message_range query(const TimeStamp& beginning_stamp, const TimeStamp& ending_stamp, bool extended_range = true);
 
   /**
    * @brief Read-only access to the current set of timestamps
@@ -145,16 +145,16 @@ public:
   stamp_range stamps() const;
 
 protected:
-  using Buffer = std::deque<std::pair<Time, Message>>;
+  using Buffer = std::deque<std::pair<TimeStamp, Message>>;
   Buffer buffer_;  //!< The container of received messages, sorted by timestamp
   Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
                                  //!< will be removed from the motion model history
 
   /**
    * @brief Helper function used with boost::transform_iterators to convert the internal Buffer value type
-   * into a const fuse_core::Time& iterator compatible with stamp_range
+   * into a const fuse_core::TimeStamp& iterator compatible with stamp_range
    */
-  static const Time& extractStamp(const typename Buffer::value_type& element)
+  static const TimeStamp& extractStamp(const typename Buffer::value_type& element)
   {
     return element.first;
   }

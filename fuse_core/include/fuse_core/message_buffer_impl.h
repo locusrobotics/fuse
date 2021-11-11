@@ -54,7 +54,7 @@ MessageBuffer<Message>::MessageBuffer(const Duration& buffer_length) :
 }
 
 template<class Message>
-void MessageBuffer<Message>::insert(const Time& stamp, const Message& msg)
+void MessageBuffer<Message>::insert(const TimeStamp& stamp, const Message& msg)
 {
   buffer_.emplace_back(stamp, msg);
   purgeHistory();
@@ -62,8 +62,8 @@ void MessageBuffer<Message>::insert(const Time& stamp, const Message& msg)
 
 template<class Message>
 typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
-  const Time& beginning_stamp,
-  const Time& ending_stamp,
+  const TimeStamp& beginning_stamp,
+  const TimeStamp& ending_stamp,
   bool extended_range)
 {
   // Verify the query is valid
