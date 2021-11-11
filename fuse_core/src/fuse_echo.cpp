@@ -38,7 +38,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/transaction_deserializer.h>
 #include <rclcpp/rclcpp.hpp>
-#include <rclcpp/clock.hpp>
+#include <fuse_core/time.h>
 
 
 namespace fuse_core
@@ -76,7 +76,7 @@ private:
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "GRAPH:" << std::endl;
-    std::cout << "received at: " << rclcpp::Clock().now().seconds() << std::endl;
+    std::cout << "received at: " << Clock::now().time_since_epoch().count() << std::endl;
     auto graph = graph_deserializer_.deserialize(msg);
     graph->print();
   }
@@ -85,7 +85,7 @@ private:
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "TRANSACTION:" << std::endl;
-    std::cout << "received at: " << rclcpp::Clock().now().seconds() << std::endl;
+    std::cout << "received at: " << Clock::now().time_since_epoch().count() << std::endl;
     auto transaction = transaction_deserializer_.deserialize(msg);
     transaction.print();
   }

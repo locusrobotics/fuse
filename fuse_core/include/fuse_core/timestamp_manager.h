@@ -38,8 +38,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
-#include <rclcpp/duration.hpp>
-#include <rclcpp/time.hpp>
+#include <fuse_core/time.h>
 
 #include <boost/range/any_range.hpp>
 
@@ -80,8 +79,8 @@ public:
    * @param[out] variables       One or more variables at both the \p beginning_stamp and \p ending_stamp. The
    *                             variables should include initial values for the optimizer.
    */
-  using MotionModelFunction = std::function<void(const rclcpp::Time& beginning_stamp,
-                                                 const rclcpp::Time& ending_stamp,
+  using MotionModelFunction = std::function<void(const Time& beginning_stamp,
+                                                 const Time& ending_stamp,
                                                  std::vector<Constraint::SharedPtr>& constraints,
                                                  std::vector<Variable::SharedPtr>& variables)>;
 
@@ -90,9 +89,9 @@ public:
    *
    * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
    * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const rclcpp::Time&.
+   * member. When dereferenced, an iterator returns a const fuse_core::Time&.
    */
-  using const_stamp_range = boost::any_range<const rclcpp::Time, boost::forward_traversal_tag>;
+  using const_stamp_range = boost::any_range<const Time, boost::forward_traversal_tag>;
 
   /**
    * @brief Constructor that accepts the motion model generator as a std::function object, probably constructed using
@@ -102,7 +101,7 @@ public:
    * @param[in] buffer_length The length of the motion model history. If queries arrive involving timestamps
    *                          that are older than the buffer length, an exception will be thrown.
    */
-  explicit TimestampManager(MotionModelFunction generator, const rclcpp::Duration& buffer_length = rclcpp::Duration::max());
+  explicit TimestampManager(MotionModelFunction generator, const Duration& buffer_length = Duration::max());
 
   /**
    * @brief Constructor that accepts the motion model generator as a member function pointer and object pointer
@@ -116,12 +115,12 @@ public:
    *                          that are older than the buffer length, an exception will be thrown.
    */
   template<class T>
-  TimestampManager(void(T::*fp)(const rclcpp::Time& beginning_stamp,
-                                const rclcpp::Time& ending_stamp,
+  TimestampManager(void(T::*fp)(const Time& beginning_stamp,
+                                const Time& ending_stamp,
                                 std::vector<Constraint::SharedPtr>& constraints,
                                 std::vector<Variable::SharedPtr>& variables),
                    T* obj,
-                   const rclcpp::Duration& buffer_length = rclcpp::Duration::max());
+                   const Duration& buffer_length = Duration::max());
 
   /**
    * @brief Constructor that accepts the motion model generator as a const member function pointer and object pointer
@@ -135,12 +134,12 @@ public:
    *                          that are older than the buffer length, an exception will be thrown.
    */
   template<class T>
-  TimestampManager(void(T::*fp)(const rclcpp::Time& beginning_stamp,
-                                const rclcpp::Time& ending_stamp,
+  TimestampManager(void(T::*fp)(const Time& beginning_stamp,
+                                const Time& ending_stamp,
                                 std::vector<Constraint::SharedPtr>& constraints,
                                 std::vector<Variable::SharedPtr>& variables) const,
                    T* obj,
-                   const rclcpp::Duration& buffer_length = rclcpp::Duration::max());
+                   const Duration& buffer_length = Duration::max());
 
   /**
    * @brief Destructor
@@ -150,7 +149,7 @@ public:
   /**
    * @brief Read-only access to the buffer length
    */
-  const rclcpp::Duration& bufferLength() const
+  const Duration& bufferLength() const
   {
     return buffer_length_;
   }
@@ -158,7 +157,7 @@ public:
   /**
    * @brief Write access to the buffer length
    */
-  void bufferLength(const rclcpp::Duration& buffer_length)
+  void bufferLength(const Duration& buffer_length)
   {
     buffer_length_ = buffer_length;
   }
@@ -200,16 +199,16 @@ protected:
    */
   struct MotionModelSegment
   {
-    rclcpp::Time beginning_stamp;
-    rclcpp::Time ending_stamp;
+    Time beginning_stamp;
+    Time ending_stamp;
     std::vector<Constraint::SharedPtr> constraints;
     std::vector<Variable::SharedPtr> variables;
 
     MotionModelSegment() = default;
 
     MotionModelSegment(
-      const rclcpp::Time& beginning_stamp,
-      const rclcpp::Time& ending_stamp,
+      const Time& beginning_stamp,
+      const Time& ending_stamp,
       const std::vector<Constraint::SharedPtr>& constraints,
       const std::vector<Variable::SharedPtr>& variables) :
         beginning_stamp(beginning_stamp),
@@ -226,10 +225,10 @@ protected:
    * The MotionModelHistory will always contain all represented timestamps; the very last entry will be the ending
    * time of the previous MotionModelSegment, and the very last entry will be an empty MotionModelSegment.
    */
-  using MotionModelHistory = std::map<rclcpp::Time, MotionModelSegment>;
+  using MotionModelHistory = std::map<Time, MotionModelSegment>;
 
   MotionModelFunction generator_;  //!< Users upplied function that generates motion model constraints
-  rclcpp::Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
+  Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
                                  //!< will be removed from the motion model history
   MotionModelHistory motion_model_history_;  //!< Container that stores all previously generated motion models
 
@@ -243,8 +242,8 @@ protected:
    * @param[out] transaction     A transaction object to be updated with the changes caused by addSegment
    */
   void addSegment(
-    const rclcpp::Time& beginning_stamp,
-    const rclcpp::Time& ending_stamp,
+    const Time& beginning_stamp,
+    const Time& ending_stamp,
     Transaction& transaction);
 
   /**
@@ -271,7 +270,7 @@ protected:
    */
   void splitSegment(
       MotionModelHistory::iterator& iter,
-      const rclcpp::Time& stamp,
+      const Time& stamp,
       Transaction& transaction);
 
   /**
@@ -281,12 +280,12 @@ protected:
 };
 
 template<class T>
-TimestampManager::TimestampManager(void(T::*fp)(const rclcpp::Time& beginning_stamp,
-                                                const rclcpp::Time& ending_stamp,
+TimestampManager::TimestampManager(void(T::*fp)(const Time& beginning_stamp,
+                                                const Time& ending_stamp,
                                                 std::vector<Constraint::SharedPtr>& constraints,
                                                 std::vector<Variable::SharedPtr>& variables),
                                    T* obj,
-                                   const rclcpp::Duration& buffer_length) :
+                                   const Duration& buffer_length) :
   TimestampManager(std::bind(fp,
                              obj,
                              std::placeholders::_1,
@@ -298,12 +297,12 @@ TimestampManager::TimestampManager(void(T::*fp)(const rclcpp::Time& beginning_st
 }
 
 template<class T>
-TimestampManager::TimestampManager(void(T::*fp)(const rclcpp::Time& beginning_stamp,
-                                                const rclcpp::Time& ending_stamp,
+TimestampManager::TimestampManager(void(T::*fp)(const Time& beginning_stamp,
+                                                const Time& ending_stamp,
                                                 std::vector<Constraint::SharedPtr>& constraints,
                                                 std::vector<Variable::SharedPtr>& variables) const,
                                    T* obj,
-                                   const rclcpp::Duration& buffer_length) :
+                                   const Duration& buffer_length) :
   TimestampManager(std::bind(fp,
                              obj,
                              std::placeholders::_1,

@@ -44,7 +44,7 @@
 namespace fuse_core
 {
 
-const rclcpp::Time& Transaction::minStamp() const
+const Time& Transaction::minStamp() const
 {
   if (involved_stamps_.empty())
   {
@@ -56,7 +56,7 @@ const rclcpp::Time& Transaction::minStamp() const
   }
 }
 
-const rclcpp::Time& Transaction::maxStamp() const
+const Time& Transaction::maxStamp() const
 {
   if (involved_stamps_.empty())
   {
@@ -68,7 +68,7 @@ const rclcpp::Time& Transaction::maxStamp() const
   }
 }
 
-void Transaction::addInvolvedStamp(const rclcpp::Time& stamp)
+void Transaction::addInvolvedStamp(const Time& stamp)
 {
   involved_stamps_.insert(stamp);
 }
@@ -231,11 +231,11 @@ void Transaction::merge(const Transaction& other, bool overwrite)
 
 void Transaction::print(std::ostream& stream) const
 {
-  stream << "Stamp: " << stamp_.nanoseconds() << "\n";
+  stream << "Stamp: " << stamp_.time_since_epoch().count() << "\n";
   stream << "Involved Timestamps:\n";
   for (const auto& involved_stamp : involved_stamps_)
   {
-    stream << " - " << involved_stamp.nanoseconds() << "\n";
+    stream << " - " << involved_stamp.time_since_epoch().count() << "\n";
   }
   stream << "Added Variables:\n";
   for (const auto& added_variable : added_variables_)

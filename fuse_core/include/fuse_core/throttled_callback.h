@@ -64,9 +64,10 @@ public:
    */
   ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
                     Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
-                    const rclcpp::Duration& throttle_period = rclcpp::Duration(0,0),
+                    const Duration& throttle_period = Duration::zero(),
                     const bool use_wall_time = false)
-    : keep_callback_(keep_callback)
+    : reset(true)
+    , keep_callback_(keep_callback)
     , drop_callback_(drop_callback)
     , throttle_period_(throttle_period)
     , use_wall_time_(use_wall_time)
@@ -78,7 +79,7 @@ public:
    *
    * @return The current throttle period duration in seconds being used
    */
-  const rclcpp::Duration& getThrottlePeriod() const
+  const Duration& getThrottlePeriod() const
   {
     return throttle_period_;
   }
@@ -98,7 +99,7 @@ public:
    *
    * @param[in] throttle_period The new throttle period duration in seconds to use
    */
-  void setThrottlePeriod(const rclcpp::Duration& throttle_period)
+  void setThrottlePeriod(const Duration& throttle_period)
   {
     throttle_period_ = throttle_period;
   }
@@ -106,7 +107,7 @@ public:
   /**
    * @brief Use wall time flag setter
    *
-   * @param[in] use_wall_time Whether to use rclcpp::WallTime or not
+   * @param[in] use_wall_time Whether to use wall time or node time
    */
   void setUseWallTime(const bool use_wall_time)
   {
@@ -138,7 +139,7 @@ public:
    *
    * @return The last time the keep callback was called
    */
-  const rclcpp::Time& getLastCalledTime() const
+  const Time& getLastCalledTime() const
   {
     return last_called_time_;
   }
@@ -157,17 +158,18 @@ public:
     // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
     // (b) The throttle period is zero, so we should always keep the callbacks
     // (c) The elpased time between now and the last called time is greater than the throttle period
-    #warn "using a valid time value as a flag"
-    const rclcpp::Time now = use_wall_time_ ? rclcpp::Clock::Clock(RCL_SYSTEM_TIME).now() : node->now();
-    if ((last_called_time_.nanoseconds() == 0) || (throttle_period_.nanoseconds() == 0) || now - last_called_time_ > throttle_period_)
+    #warning "using a valid time value as a flag"
+    const Time now = use_wall_time_ ? Clock::now() : node->now();
+
+    if (reset || (throttle_period_ == Duration::zero()) || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
         keep_callback_(std::forward<Args>(args)...);
       }
-
-      if (last_called_time_.nanoseconds() == 0)
+      if (reset)
       {
+        reset = false;
         last_called_time_ = now;
       }
       else
@@ -193,12 +195,13 @@ public:
   }
 
 private:
+  bool reset;
   Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
   Callback drop_callback_;         //!< The callback to call when dropped because of throttling
-  rclcpp::Duration throttle_period_;  //!< The throttling period duration in seconds
+  Duration throttle_period_;  //!< The throttling period duration in seconds
   bool use_wall_time_;             //<! The flag to indicate whether to use wall time or not
 
-  rclcpp::Time last_called_time_;  //!< The last time the keep callback was called
+  Time last_called_time_;  //!< The last time the keep callback was called
 };
 
 /**

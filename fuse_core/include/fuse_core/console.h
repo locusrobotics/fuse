@@ -34,8 +34,7 @@
 #ifndef FUSE_CORE_CONSOLE_H
 #define FUSE_CORE_CONSOLE_H
 
-#include <rclcpp/clock.hpp>
-
+#include <chrono>
 
 namespace fuse_core
 {
@@ -50,9 +49,11 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] The throttle period in seconds
+   * @param[in] period The throttle period in seconds
    */
-  explicit DelayedThrottleFilter(const double period) : period_(period)
+  explicit DelayedThrottleFilter(const double period = 0) :
+  reset_(true),
+  period_(std::chrono::seconds<double>(period))
   {
   }
 
@@ -67,11 +68,11 @@ public:
    */
   bool isEnabled() override
   {
-    #warn "migrated from ros1, using default clock"
-    const auto now = rclcpp::Clock().now().seconds();
+    const auto now = std::chrono::system_clock::now();
 
-    if (last_hit_ < 0.0)
+    if (reset_)
     {
+      reset = false;
       last_hit_ = now;
       return true;
     }
@@ -90,12 +91,13 @@ public:
    */
   void reset()
   {
-    last_hit_ = -1.0;
+    reset_=true;
   }
 
 private:
-  double period_{ 0.0 };     //!< The throttle period in seconds
-  double last_hit_{ -1.0 };  //!< The last time in seconds the filter condition was hit, and the message was printed. A
+  bool reset_;
+  std::chrono::duration period_;     //!< The throttle period in seconds
+  std::chrono::time_point<std::chrono::system_clock> last_hit_;  //!< The last time in seconds the filter condition was hit, and the message was printed. A
                              //!< negative value means it has never been hit
 };
 

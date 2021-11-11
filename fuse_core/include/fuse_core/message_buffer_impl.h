@@ -34,8 +34,7 @@
 #ifndef FUSE_CORE_MESSAGE_BUFFER_IMPL_H
 #define FUSE_CORE_MESSAGE_BUFFER_IMPL_H
 
-#include <rclcpp/duration.hpp>
-#include <rclcpp/time.hpp>
+#include <fuse_core/time.h>
 
 #include <boost/iterator/transform_iterator.hpp>
 
@@ -49,13 +48,13 @@ namespace fuse_core
 {
 
 template<class Message>
-MessageBuffer<Message>::MessageBuffer(const rclcpp::Duration& buffer_length) :
+MessageBuffer<Message>::MessageBuffer(const Duration& buffer_length) :
   buffer_length_(buffer_length)
 {
 }
 
 template<class Message>
-void MessageBuffer<Message>::insert(const rclcpp::Time& stamp, const Message& msg)
+void MessageBuffer<Message>::insert(const Time& stamp, const Message& msg)
 {
   buffer_.emplace_back(stamp, msg);
   purgeHistory();
@@ -63,8 +62,8 @@ void MessageBuffer<Message>::insert(const rclcpp::Time& stamp, const Message& ms
 
 template<class Message>
 typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
-  const rclcpp::Time& beginning_stamp,
-  const rclcpp::Time& ending_stamp,
+  const Time& beginning_stamp,
+  const Time& ending_stamp,
   bool extended_range)
 {
   // Verify the query is valid
@@ -131,17 +130,16 @@ template<class Message>
 void MessageBuffer<Message>::purgeHistory()
 {
   // Purge any messages that are more than buffer_length_ seconds older than the most recent entry
-  // A setting of rclcpp::Duration::max() means "keep everything"
+  // A setting of fuse_core::Duration::max() means "keep everything"
   // And we want to keep at least two entries in buffer at all times, regardless of the stamps.
-  if ((buffer_length_ == rclcpp::Duration::max()) || (buffer_.size() <= 2))
+  if ((buffer_length_ == Duration::max()) || (buffer_.size() <= 2))
   {
     return;
   }
 
-  // Compute the expiration time carefully, as ROS can't handle negative times
+  // Compute the expiration time
   const auto& ending_stamp = buffer_.back().first;
-  auto expiration_time =
-      ending_stamp.toSec() > buffer_length_.toSec() ? ending_stamp - buffer_length_ : rclcpp::Time(0, 0);
+  auto expiration_time = ending_stamp - buffer_length_;
   // Remove buffer elements before the expiration time.
   // Be careful to ensure that:
   //  - at least two entries remains at all times
