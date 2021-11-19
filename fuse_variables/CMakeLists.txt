@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(fuse_variables)
 
 set(build_depends
@@ -36,6 +36,10 @@ add_library(${PROJECT_NAME}
   src/acceleration_linear_3d_stamped.cpp
   src/orientation_2d_stamped.cpp
   src/orientation_3d_stamped.cpp
+  src/point_2d_fixed_landmark.cpp
+  src/point_2d_landmark.cpp
+  src/point_3d_fixed_landmark.cpp
+  src/point_3d_landmark.cpp
   src/position_2d_stamped.cpp
   src/position_3d_stamped.cpp
   src/stamped.cpp
@@ -282,6 +286,102 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
   set_target_properties(test_orientation_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Point 2D fixed landmark tests
+  catkin_add_gtest(test_point_2d_fixed_landmark
+    test/test_point_2d_fixed_landmark.cpp
+  )
+  add_dependencies(test_point_2d_fixed_landmark
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_point_2d_fixed_landmark
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_point_2d_fixed_landmark
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_point_2d_fixed_landmark
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Point 2D landmark tests
+  catkin_add_gtest(test_point_2d_landmark
+    test/test_point_2d_landmark.cpp
+  )
+  add_dependencies(test_point_2d_landmark
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_point_2d_landmark
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_point_2d_landmark
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_point_2d_landmark
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Point 3D fixed landmark tests
+  catkin_add_gtest(test_point_3d_fixed_landmark
+    test/test_point_3d_fixed_landmark.cpp
+  )
+  add_dependencies(test_point_3d_fixed_landmark
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_point_3d_fixed_landmark
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_point_3d_fixed_landmark
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_point_3d_fixed_landmark
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Point 3D landmark tests
+  catkin_add_gtest(test_point_3d_landmark
+    test/test_point_3d_landmark.cpp
+  )
+  add_dependencies(test_point_3d_landmark
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_point_3d_landmark
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_point_3d_landmark
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_point_3d_landmark
     PROPERTIES
       CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES

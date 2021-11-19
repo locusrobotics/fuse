@@ -180,6 +180,12 @@ fuse_core::Transaction marginalizeVariables(
   const fuse_core::Graph& graph,
   const fuse_constraints::UuidOrdering& elimination_order)
 {
+  // TODO(swilliams) The method used to marginalize variables assumes that all variables are fully constrained.
+  //                 However, with the introduction of "variables held constant", it is possible to have a well-behaved
+  //                 system that is not fully-constrained. Ceres handles this issue by removing constant variables from
+  //                 the problem before the linearization and solve steps. A similar approach should be implemented
+  //                 here, but that will require a major refactor.
+
   assert(std::all_of(marginalized_variables.begin(),
                      marginalized_variables.end(),
                      [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid)
@@ -321,19 +327,34 @@ LinearTerm linearize(
                              "during the jacobian computation.");
   }
 
-  // Update the jacobians with the local parameterizations.
+  // Update the Jacobians with the local parameterizations. This potentially changes the size of the Jacobian block.
+  // The classic example is a quaternion parameter, which has 4 components but only 3 degrees of freedom. The Jacobian
+  // will be transformed from 4 columns to 3 columns after the local parameterization is applied.
+  // We also check for variables that have been marked as constants. Since these variables cannot change value, their
+  // derivatives/Jacobians should be zero.
   for (size_t index = 0ul; index < variable_count; ++index)
   {
     const auto& variable_uuid = variable_uuids[index];
     const auto& variable = graph.getVariable(variable_uuid);
     auto local_parameterization = variable.localParameterization();
-    if (local_parameterization)
+    auto& jacobian = result.A[index];
+    if (variable.holdConstant())
     {
-      auto& jacobian = result.A[index];
+      if (local_parameterization)
+      {
+        jacobian.resize(Eigen::NoChange, local_parameterization->LocalSize());
+      }
+      jacobian.setZero();
+    }
+    else if (local_parameterization)
+    {
       fuse_core::MatrixXd J(local_parameterization->GlobalSize(), local_parameterization->LocalSize());
       local_parameterization->ComputeJacobian(variable_values[index], J.data());
-      delete local_parameterization;
       jacobian *= J;
+    }
+    if (local_parameterization)
+    {
+      delete local_parameterization;
     }
   }
 
@@ -476,7 +497,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
     Ab.triangularView<Eigen::StrictlyLower>().setZero();  // Zero out the below-diagonal elements
   }
 
-  // Extract the marginal term from R (new stored in Ab)
+  // Extract the marginal term from R (now stored in Ab)
   // The first row block is the conditional term for the marginalized variable: P(x | y, z, ...)
   // The remaining rows are the marginal on the remaining variables: P(y, z, ...)
   auto min_row = column_offsets[1];

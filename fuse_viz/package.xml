@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_viz</name>
-  <version>0.4.0</version>
+  <version>0.4.2</version>
   <description>
     The fuse_viz package provides visualization tools for fuse.
   </description>
@@ -27,5 +27,6 @@
 
   <export>
     <rviz plugin="${prefix}/rviz_plugins.xml"/>
+    <rosdoc config="rosdoc.yaml" />
   </export>
 </package>

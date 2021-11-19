@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('tailor-meta@0.1.13')_
+@Library('tailor-meta@0.1.18')_
 tailorTestPipeline(
   // Name of job that generated this test definition.
   rosdistro_job: '/ci/rosdistro/master',
@@ -10,9 +10,9 @@ tailorTestPipeline(
   // Release label to pull test images from.
   release_label: 'hotdog',
   // OS distributions to test.
-  distributions: ['xenial', 'bionic'],
+  distributions: ['focal'],
   // Version of tailor_meta to build against
-  tailor_meta: '0.1.13',
+  tailor_meta: '0.1.18',
   // Master or release branch associated with this track
   source_branch: 'devel',
   // Docker registry where test image is stored

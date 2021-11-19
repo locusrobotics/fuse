@@ -42,6 +42,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 
+#include <limits>
 #include <ostream>
 #include <string>
 
@@ -314,6 +315,40 @@ public:
   virtual fuse_core::LocalParameterization* localParameterization() const
   {
     return nullptr;
+  }
+
+  /**
+   * @brief Specifies the lower bound value of each variable dimension
+   *
+   * Defaults to -max.
+   *
+   * @param[in] index The variable dimension of interest
+   * @return The lower bound for the requested variable dimension
+   */
+  virtual double lowerBound(size_t index) const
+  {
+    return std::numeric_limits<double>::lowest();
+  }
+
+  /**
+   * @brief Specifies the upper bound value of each variable dimension
+   *
+   * Defaults to +max.
+   *
+   * @param[in] index The variable dimension of interest
+   * @return The upper bound for the requested variable dimension
+   */
+  virtual double upperBound(size_t index) const
+  {
+    return std::numeric_limits<double>::max();
+  }
+
+  /**
+   * @brief Specifies if the value of the variable should not be changed during optimization
+   */
+  virtual bool holdConstant() const
+  {
+    return false;
   }
 
   /**

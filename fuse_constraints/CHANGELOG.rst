@@ -2,6 +2,76 @@
 Changelog for package fuse_constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.2 (2021-07-20)
+------------------
+* Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
+  * Adding roslint dependency to fuse_viz
+  * Silence CMP0048 warnings
+* Contributors: Tom Moore
+
+0.4.1 (2021-07-13)
+------------------
+* Use analytic relative pose 2d cost function (`#193 <https://github.com/locusrobotics/fuse/issues/193>`_)
+  * Use analytic relative pose 2d cost function
+  * Add analytic `NormalDeltaPose2D` cost function
+  * Use analytic `NormalDeltaPose2D` cost function in
+  `RelativePose2DStampedConstraint`
+  * Test `NormalDeltaPose2D` jacobians are correct, comparing against
+  `NormalDeltaPose2DCostFunctor` using automatic differentiation
+  * Benchmark `NormalDeltaPose2D` vs `NormalDeltaPose2DCostFunctor` using
+  automatic differentiation for 1, 2 and 3 residuals. The latency
+  speedup is approximately 1.35, 1.49 and 1.55, respectively.
+* Use analytic absolute pose 2d cost function (`#192 <https://github.com/locusrobotics/fuse/issues/192>`_)
+  * Add analytic `NormalPriorPose2D` cost function
+  * Use analytic `NormalPriorPose2D` cost function in
+  `AbsolutePose2DStampedConstraint`
+  * Test `NormalPriorPose2D` jacobians are correct, comparing against
+  `NormalPriorPose2DCostFunctor` using automatic differentiation
+  * Benchmark `NormalPriorPose2D` vs `NormalPriorPose2DCostFunctor` using
+  automatic differentiation for 1, 2 and 3 residuals. The latency
+  speedup is approximately 2.36, 2.76 and 3.44, respectively.
+* Fix roslint 0.12.0 (`#186 <https://github.com/locusrobotics/fuse/issues/186>`_)
+  * Fix roslint 0.12.0 include_what_you_use warnings
+  Mostly for:
+  * std::move -> #include <utility>
+  * std::make_shared and similar -> #include <memory>
+  * Remove static string variable not permitted by roslint 0.12.0, using a test fixture where needed.
+* Fix Unicycle2DIgnition set_pose (`#154 <https://github.com/locusrobotics/fuse/issues/154>`_)
+  * Initialize StateHistoryElement::velocity_yaw
+  * Process ignition transactions individually
+  * Call motion model generator with last stamp
+  * Skip optimization cycle if transaction is empty
+* Fix compute elimination order with orphan variables (`#136 <https://github.com/locusrobotics/fuse/issues/136>`_)
+  * Test computeEliminationOrder with orphan variables
+  * Fix computeEliminationOrder with orphan variables
+* Fix get constraints with lvalue iterator input (`#134 <https://github.com/locusrobotics/fuse/issues/134>`_)
+  * Change getConstraints signature to return iterator
+  * Update marginalize code to fix the previous usage error
+* Support printing VariableConstraints objects (`#132 <https://github.com/locusrobotics/fuse/issues/132>`_)
+* Add fuse_loss pkg with plugin-based loss functions (`#118 <https://github.com/locusrobotics/fuse/issues/118>`_)
+* Removed the explicit '-std=c++14' compile flag (`#119 <https://github.com/locusrobotics/fuse/issues/119>`_)
+  * Removed the explicit '-std=c++14' compile flag
+  * Changed the CXX_STANDARD setting to be per-target instead of global
+  * Added the CXX_STANDARD_REQUIRED setting to all targets
+* Revert "Fix build with ceres 2.0 with CMake < 3.8 (`#106 <https://github.com/locusrobotics/fuse/issues/106>`_)" (`#120 <https://github.com/locusrobotics/fuse/issues/120>`_)
+  This reverts commit 9933456ecc24ba9b649a8a2885be3f852306efee.
+* Wrap normal delta pose 2d orientation angle error (`#122 <https://github.com/locusrobotics/fuse/issues/122>`_)
+* fix compilation in Kinetic (`#112 <https://github.com/locusrobotics/fuse/issues/112>`_)
+* Support empty linear terms in marginalizeNext (`#111 <https://github.com/locusrobotics/fuse/issues/111>`_)
+  * Enforce constness
+  * Unshadow variable_uuid in inner for loop
+  * Support empty linear terms in marginalizeNext
+* Fix build with ceres 2.0 with CMake < 3.8 (`#106 <https://github.com/locusrobotics/fuse/issues/106>`_)
+  * Note that while the Ceres 2.0 build completes, there may still be some lingering issues.
+* [RST-1951] speed optimizations (`#100 <https://github.com/locusrobotics/fuse/issues/100>`_)
+  * Improved random UUID generator
+  * Minor Eigen assignment speed improvements
+* [RST-2427] Added a 'source' field to the constraints. This is an API-breaking change. (`#101 <https://github.com/locusrobotics/fuse/issues/101>`_)
+* [RST-2340] Add serialization support to fuse (`#98 <https://github.com/locusrobotics/fuse/issues/98>`_)
+* Fix -Wall -Wextra warnings in tests (`#80 <https://github.com/locusrobotics/fuse/issues/80>`_)
+* Fix -Wall -Wextra warnings (`#77 <https://github.com/locusrobotics/fuse/issues/77>`_)
+* Contributors: Davide Faconti, Enrique Fernandez Perdomo, Stephen Williams
+
 0.4.0 (2019-07-12)
 ------------------
 * Depend on libceres-dev instead of ceres-solver (`#71 <https://github.com/locusrobotics/fuse/issues/71>`_)

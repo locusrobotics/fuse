@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_publishers</name>
-  <version>0.4.0</version>
+  <version>0.4.2</version>
   <description>
     The fuse_publishers package provides a set of common publisher plugins.
   </description>
@@ -9,7 +9,7 @@
   <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
 
-  <license>Proprietary</license>
+  <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -30,5 +30,6 @@
 
   <export>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
+    <rosdoc config="rosdoc.yaml" />
   </export>
 </package>

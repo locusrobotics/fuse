@@ -2,6 +2,25 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.2 (2021-07-20)
+------------------
+* Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
+  * Adding roslint dependency to fuse_viz
+  * Silence CMP0048 warnings
+* Contributors: Tom Moore
+
+0.4.1 (2021-07-13)
+------------------
+* Removed the explicit '-std=c++14' compile flag (`#119 <https://github.com/locusrobotics/fuse/issues/119>`_)
+  * Removed the explicit '-std=c++14' compile flag
+  * Changed the CXX_STANDARD setting to be per-target instead of global
+  * Added the CXX_STANDARD_REQUIRED setting to all targets
+* fix compilation in Kinetic (`#112 <https://github.com/locusrobotics/fuse/issues/112>`_)
+* [RST-2340] Add serialization support to fuse (`#98 <https://github.com/locusrobotics/fuse/issues/98>`_)
+* Fix -Wall -Wextra warnings in tests (`#80 <https://github.com/locusrobotics/fuse/issues/80>`_)
+* Fix -Wall -Wextra warnings (`#77 <https://github.com/locusrobotics/fuse/issues/77>`_)
+* Contributors: Davide Faconti, Enrique Fernandez Perdomo, Stephen Williams
+
 0.4.0 (2019-07-12)
 ------------------
 * Depend on libceres-dev instead of ceres-solver (`#71 <https://github.com/locusrobotics/fuse/issues/71>`_)

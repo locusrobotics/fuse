@@ -43,6 +43,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -227,6 +228,10 @@ bool HashGraph::addVariable(fuse_core::Variable::SharedPtr variable)
     return false;
   }
   variables_.emplace(variable->uuid(), variable);
+  if (variable->holdConstant())
+  {
+    variables_on_hold_.insert(variable->uuid());
+  }
   return true;
 }
 
@@ -428,6 +433,26 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
   return summary;
 }
 
+ceres::Solver::Summary HashGraph::optimizeFor(
+  const ros::Duration& max_optimization_time,
+  const ceres::Solver::Options& options)
+{
+  auto start = ros::Time::now();
+  // Construct the ceres::Problem object from scratch
+  ceres::Problem problem(problem_options_);
+  createProblem(problem);
+  auto created_problem = ros::Time::now();
+  // Modify the options to enforce the maximum time
+  auto remaining = max_optimization_time - (created_problem - start);
+  auto time_constrained_options = options;
+  time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.toSec());
+  // Run the solver. This will update the variables in place.
+  ceres::Solver::Summary summary;
+  ceres::Solve(time_constrained_options, &problem, &summary);
+  // Return the optimization summary
+  return summary;
+}
+
 bool HashGraph::evaluate(double* cost, std::vector<double>* residuals, std::vector<double>* gradient,
                          const ceres::Problem::EvaluateOptions& options) const
 {
@@ -467,6 +492,20 @@ void HashGraph::createProblem(ceres::Problem& problem) const
       variable.data(),
       variable.size(),
       variable.localParameterization());
+    // Handle optimization bounds
+    for (size_t index = 0; index < variable.size(); ++index)
+    {
+      auto lower_bound = variable.lowerBound(index);
+      if (lower_bound > std::numeric_limits<double>::lowest())
+      {
+        problem.SetParameterLowerBound(variable.data(), index, lower_bound);
+      }
+      auto upper_bound = variable.upperBound(index);
+      if (upper_bound < std::numeric_limits<double>::max())
+      {
+        problem.SetParameterUpperBound(variable.data(), index, upper_bound);
+      }
+    }
     // Handle variables that are held constant
     if (variables_on_hold_.find(variable.uuid()) != variables_on_hold_.end())
     {
