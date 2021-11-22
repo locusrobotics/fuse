@@ -37,7 +37,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
-#include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/windowed_optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
@@ -102,99 +102,43 @@ namespace fuse_optimizers
  *                                               motion models to be generated. Once the timeout expires, that
  *                                               transaction will be deleted from the queue.
  */
-class FixedLagSmoother : public Optimizer
+class FixedLagSmoother : public WindowedOptimizer
 {
 public:
   SMART_PTR_DEFINITIONS(FixedLagSmoother);
   using ParameterType = FixedLagSmootherParams;
 
+  /// @todo(swilliams) I changed the constructor. This technically breaks API backwards compatibility. Think of a
+  /// better way to handle supplying the parameters.
   /**
    * @brief Constructor
    *
    * @param[in] graph               The derived graph object. This allows different graph implementations to be used
    *                                with the same optimizer code.
+   * @param[in] params              A structure containing all of the configuration parameters required by the
+   *                                fixed-lag smoother
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   FixedLagSmoother(
     fuse_core::Graph::UniquePtr graph,
+    const ParameterType& params,
     const ros::NodeHandle& node_handle = ros::NodeHandle(),
     const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
-  /**
-   * @brief Destructor
-   */
-  virtual ~FixedLagSmoother();
-
 protected:
-  /**
-   * Structure containing the information required to process a transaction after it was received.
-   */
-  struct TransactionQueueElement
-  {
-    std::string sensor_name;
-    fuse_core::Transaction::SharedPtr transaction;
-
-    const ros::Time& stamp() const { return transaction->stamp(); }
-    const ros::Time& minStamp() const { return transaction->minStamp(); }
-    const ros::Time& maxStamp() const { return transaction->maxStamp(); }
-  };
-
-  /**
-   * @brief Queue of Transaction objects, sorted by timestamp.
-   *
-   * Note: Because the queue size of the fixed-lag smoother is expected to be small, the sorted queue is implemented
-   * using a std::vector. The queue size must exceed several hundred entries before a std::set will outperform a
-   * sorted vector.
-   *
-   * Also, we sort the queue with the smallest stamp last. This allows us to clear the queue using the more
-   * efficient pop_back() operation.
-   */
-  using TransactionQueue = std::vector<TransactionQueueElement>;
-
   // Read-only after construction
-  std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
   ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
 
-  // Inherently thread-safe
-  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
-                               //!< and it is queued but not processed yet
-  std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be running
-  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
-
-  // Guarded by pending_transactions_mutex_
-  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
-  TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
-                                           //!< optimizer yet. Transactions are added by the main thread, and removed
-                                           //!< and processed by the optimization thread.
-
   // Guarded by optimization_mutex_
-  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
-  // fuse_core::Graph* graph_ member from the base class
+  /// @todo(swilliams) This should probably be guarded by its own mutex
   ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
-  fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
-  ceres::Solver::Summary summary_;  //!< Optimization summary, written by optimizationLoop and read by setDiagnostics
-
-  // Guarded by optimization_requested_mutex_
-  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
-  bool optimization_request_;  //!< Flag to trigger a new optimization
-  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
-                                                    //!< until a new optimization is requested by the main thread
-
-  // Guarded by start_time_mutex_
-  mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
-
-  // Ordering ROS objects with callbacks last
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
-  ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
-   * @brief Automatically start the smoother if no ignition sensors are specified
+   * @brief Compute the oldest timestamp that is part of the configured lag window
    */
-  void autostart();
+  ros::Time computeLagExpirationTime() const;
 
   /**
    * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
@@ -206,12 +150,7 @@ protected:
    *
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
    */
-  void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
-
-  /**
-   * @brief Compute the oldest timestamp that is part of the configured lag window
-   */
-  ros::Time computeLagExpirationTime() const;
+  void preprocessMarginalization(const fuse_core::Transaction& new_transaction) override;
 
   /**
    * @brief Compute the set of variables that should be marginalized from the graph
@@ -222,7 +161,7 @@ protected:
    * @param[in] lag_expiration The oldest timestamp that should remain in the graph
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
-  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const ros::Time& lag_expiration);
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize() override;
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -233,81 +172,12 @@ protected:
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
    *                                 variables.
    */
-  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
+  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction) override;
 
   /**
-   * @brief Function that optimizes all constraints, designed to be run in a separate thread.
-   *
-   * This function waits for an optimization or shutdown signal, then either calls optimize() or exits appropriately.
+   * @brief Perform any required operations whenever the optimizer is reset
    */
-  void optimizationLoop();
-
-  /**
-   * @brief Callback fired at a fixed frequency to trigger a new optimization cycle.
-   *
-   * This callback checks if a current optimization cycle is still running. If not, a new optimization cycle is started.
-   * If so, we simply wait for the next timer event to start another optimization cycle.
-   *
-   * @param event  The ROS timer event metadata
-   */
-  void optimizerTimerCallback(const ros::TimerEvent& event);
-
-  /**
-   * @brief Generate motion model constraints for pending transactions and combine them into a single transaction
-   *
-   * Transactions are processed sequentially based on timestamp. If motion models are successfully generated for a
-   * pending transactions, that transaction is merged into the combined transaction and removed from the pending
-   * queue. If motion models fail to generate after the configured transaction_timeout_, the transaction will be
-   * deleted from the pending queue and a warning will be displayed.
-   *
-   * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
-   * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
-   */
-  void processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration);
-
-  /**
-   * @brief Service callback that resets the optimizer to its original state
-   */
-  bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
-
-  /**
-   * @brief Thread-safe read-only access to the optimizer start time
-   */
-  ros::Time getStartTime() const
-  {
-    std::lock_guard<std::mutex> lock(start_time_mutex_);
-    return start_time_;
-  }
-
-  /**
-   * @brief Thread-safe write access to the optimizer start time
-   */
-  void setStartTime(const ros::Time& start_time)
-  {
-    std::lock_guard<std::mutex> lock(start_time_mutex_);
-    start_time_ = start_time;
-  }
-
-  /**
-   * @brief Callback fired every time the SensorModel plugin creates a new transaction
-   *
-   * This callback is responsible for ensuring all associated motion models are applied before any other processing
-   * takes place. See Optimizer::applyMotionModels() for a helper function that does just that.
-   *
-   * This implementation shares ownership of the transaction object.
-   *
-   * @param[in] name        The name of the sensor that produced the Transaction
-   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
-   */
-  void transactionCallback(
-    const std::string& sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) override;
-
-  /**
-   * @brief Update and publish diagnotics
-   * @param[in] status The diagnostic status
-   */
-  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status) override;
+  void onReset() override;
 };
 
 }  // namespace fuse_optimizers
