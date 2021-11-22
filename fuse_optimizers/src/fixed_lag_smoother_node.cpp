@@ -34,6 +34,7 @@
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_graphs/hash_graph_params.h>
 #include <fuse_optimizers/fixed_lag_smoother.h>
+#include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <ros/ros.h>
 
 
@@ -43,7 +44,9 @@ int main(int argc, char **argv)
   ros::NodeHandle private_node_handle("~");
   fuse_graphs::HashGraphParams hash_graph_params;
   hash_graph_params.loadFromROS(private_node_handle);
-  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params));
+  fuse_optimizers::FixedLagSmootherParams smoother_params;
+  smoother_params.loadFromROS(private_node_handle);
+  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params), smoother_params);
   ros::spin();
 
   return 0;
