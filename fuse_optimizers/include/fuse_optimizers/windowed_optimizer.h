@@ -36,8 +36,8 @@
 
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
-#include <fuse_optimizers/windowed_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/windowed_optimizer_params.h>
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
 
@@ -49,10 +49,8 @@
 #include <thread>
 #include <vector>
 
-
 namespace fuse_optimizers
 {
-
 /**
  * @brief The WindowedOptimizer acts as a base class for a variety of optimizers that maintain a small window of active
  * variables.
@@ -104,12 +102,6 @@ public:
   SMART_PTR_DEFINITIONS(WindowedOptimizer);
   using ParameterType = WindowedOptimizerParams;
 
-  /// @todo(swilliams) What is going to happen is the derived class will make a DerivedParameters from the
-  /// WindowedOptimizerParams base class. It will then pass the derived params object to the WindowedOptimizer, which
-  /// will keep a copy of just the WindowedOptimizerParams portion of the parameters. This means that the derived
-  /// class will have two copies of the parameters; changing values in the derived class's copy will have no effect on
-  /// the base class copy. This is not exactly expected behavior. We could keep a pointer to the derived class params
-  /// instead, though that looks a bit ugly. I'm open to other suggestions.
   /**
    * @brief Constructor
    *
@@ -121,7 +113,7 @@ public:
    */
   WindowedOptimizer(
     fuse_core::Graph::UniquePtr graph,
-    const ParameterType& params = ParameterType(),
+    const ParameterType::SharedPtr& params,
     const ros::NodeHandle& node_handle = ros::NodeHandle(),
     const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
@@ -158,7 +150,7 @@ protected:
 
   // Read-only after construction
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
+  ParameterType::SharedPtr params_;  //!< Configuration settings for this fixed-lag smoother
 
   // Inherently thread-safe
   std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an ignition sensor
@@ -201,6 +193,8 @@ protected:
    *
    * This method will be called before the graph has been updated.
    *
+   * This method is called inside the optimization thread.
+   *
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
    */
   virtual void preprocessMarginalization(const fuse_core::Transaction& new_transaction) = 0;
@@ -210,6 +204,8 @@ protected:
    *
    * This will be called after \p preprocessMarginalization() and after the graph has been updated with the any
    * previous marginal transactions and new transactions.
+   *
+   * This method is called inside the optimization thread.
    *
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
@@ -221,13 +217,33 @@ protected:
    * The transaction containing the actual changed to the graph is supplied. This will be called before the
    * transaction is actually applied to the graph.
    *
+   * This method is called inside the optimization thread.
+   *
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
    *                                 variables.
    */
   virtual void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction) = 0;
 
   /**
+   * @brief Determine if a new transaction should be applied to the graph
+   *
+   * Returns true if the transaction should be included, or false if it should be ignored
+   *
+   * This test is performed on a queued transaction before applying motions and adding it to the optimizer. This can
+   * be used to check if the new transaction is within the optimization window.
+   *
+   * This method is called inside the optimization thread.
+   *
+   * @param[in] sensor_name - The name of the sensor that produced the provided transaction
+   * @param[in] transaction - The transaction to be validated
+   */
+  virtual bool validateTransaction(const std::string& sensor_name, const fuse_core::Transaction& transaction) = 0;
+
+  /**
    * @brief Perform any required operations whenever the optimizer is reset
+   *
+   * This function is called in the main ROS callback thread, not in the optimization thread like the other virtual
+   * methods.
    */
   virtual void onReset() = 0;
 
@@ -299,9 +315,7 @@ protected:
    * @param[in] name        The name of the sensor that produced the Transaction
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
    */
-  void transactionCallback(
-    const std::string& sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) override;
+  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
    * @brief Update and publish diagnotics

@@ -46,16 +46,16 @@
 #include <string>
 #include <vector>
 
-
 namespace fuse_optimizers
 {
-
 /**
  * @brief Defines the set of parameters required by the fuse_optimizers::FixedLagSmoother class
  */
 struct FixedLagSmootherParams : public WindowedOptimizerParams
 {
 public:
+  SMART_PTR_DEFINITIONS(FixedLagSmootherParams);
+
   /**
    * @brief The duration of the smoothing window in seconds
    */
