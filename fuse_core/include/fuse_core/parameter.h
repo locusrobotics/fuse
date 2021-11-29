@@ -171,6 +171,54 @@ inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, cons
   return loss;
 }
 
+/**
+ * @brief Checks if a class has a loadFromROS method defined
+ */
+template <typename ParameterType>
+class has_load_from_ros
+{
+private:
+  template<typename T, T> struct helper;
+
+  template<typename T>
+  static std::true_type has_load_method(helper<void (T::*)(const ros::NodeHandle &), &T::loadFromROS>*);
+
+  template<typename T>
+  static std::false_type has_load_method(...);
+
+public:
+  static constexpr bool value = std::is_same<std::true_type, decltype(has_load_method<ParameterType>(nullptr))>::value;
+};
+
+/**
+ * @brief Template overload for parameter loading that takes a node handle. Calls a class loadFromROS method.
+ * @param[in] nh - The namespace from which to load the parameter
+ * @param[out] params - The parameter to fill with data from the ROS node handle
+ */
+template< typename ParameterType >
+void loadFromROS(const ros::NodeHandle &nh, ParameterType &params)
+{
+  static_assert(
+    has_load_from_ros<ParameterType>::value,
+    "loadFromROS() free function called on a type that does not implement the "
+    "loadFromROS(ros::NodeHandle ros_namespace, ParameterType params) method, nor implements a specialization of the "
+    "loadFromROS(ros_namespace) free function.");
+  params.loadFromROS(nh);
+}
+
+/**
+ * @brief Template overload for parameter loading that takes a node handle. Calls a class loadFromROS method.
+ * @param[in] nh - The ROS node handle with which to load the params
+ * @return The parameters, after being loaded from ROS
+ */
+template< typename ParameterType >
+ParameterType loadFromROS(const ros::NodeHandle &nh)
+{
+  ParameterType params;
+  params.loadFromROS(nh);
+  return params;
+}
+
 }  // namespace fuse_core
 
 #endif  // FUSE_CORE_PARAMETER_H

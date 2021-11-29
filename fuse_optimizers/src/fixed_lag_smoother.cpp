@@ -33,19 +33,18 @@
  */
 #include <fuse_optimizers/fixed_lag_smoother.h>
 
-#include <fuse_constraints/marginalize_variables.h>
 #include <fuse_core/graph.h>
+#include <fuse_core/parameter.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
-#include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
+#include <fuse_optimizers/windowed_optimizer.h>
+#include <ros/console.h>
+#include <ros/node_handle.h>
+#include <ros/time.h>
 
-#include <algorithm>
 #include <iterator>
 #include <mutex>
-#include <sstream>
 #include <string>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -54,41 +53,68 @@ namespace fuse_optimizers
 
   FixedLagSmoother::FixedLagSmoother(
       fuse_core::Graph::UniquePtr graph,
-      const ParameterType &params,
+      const ParameterType::SharedPtr &params,
       const ros::NodeHandle &node_handle,
-      const ros::NodeHandle &private_node_handle) : fuse_optimizers::WindowedOptimizer(std::move(graph), params, node_handle, private_node_handle)
+      const ros::NodeHandle &private_node_handle) : fuse_optimizers::WindowedOptimizer(std::move(graph), params, node_handle, private_node_handle),
+                                                    params_(params)
   {
   }
 
-  ros::Time FixedLagSmoother::computeLagExpirationTime() const
+  FixedLagSmoother::FixedLagSmoother(
+      fuse_core::Graph::UniquePtr graph,
+      const ros::NodeHandle &node_handle,
+      const ros::NodeHandle &private_node_handle) : FixedLagSmoother::FixedLagSmoother(std::move(graph),
+                                                                                       ParameterType::make_shared(fuse_core::loadFromROS<ParameterType>(private_node_handle)),
+                                                                                       node_handle,
+                                                                                       private_node_handle)
   {
-    // Find the most recent variable timestamp
-    auto start_time = getStartTime();
-    auto now = timestamp_tracking_.currentStamp();
-    // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
-    return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
   }
 
   void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction &new_transaction)
   {
+    std::lock_guard<std::mutex> lock(mutex_);
     timestamp_tracking_.addNewTransaction(new_transaction);
   }
 
   std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
   {
-    auto lag_expiration = computeLagExpirationTime();
+    // Find the most recent variable timestamp, then carefully subtract the lag duration.
+    // ROS Time objects do not handle negative values.
+    auto start_time = getStartTime();
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto now = timestamp_tracking_.currentStamp();
+    lag_expiration_ = (start_time + params_->lag_duration < now) ? now - params_->lag_duration : start_time;
     auto marginalize_variable_uuids = std::vector<fuse_core::UUID>();
-    timestamp_tracking_.query(lag_expiration, std::back_inserter(marginalize_variable_uuids));
+    timestamp_tracking_.query(lag_expiration_, std::back_inserter(marginalize_variable_uuids));
     return marginalize_variable_uuids;
   }
 
   void FixedLagSmoother::postprocessMarginalization(const fuse_core::Transaction &marginal_transaction)
   {
+    std::lock_guard<std::mutex> lock(mutex_);
     timestamp_tracking_.addMarginalTransaction(marginal_transaction);
+  }
+
+  bool FixedLagSmoother::validateTransaction(const std::string &sensor_name, const fuse_core::Transaction &transaction)
+  {
+    auto min_stamp = transaction.minStamp();
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (min_stamp < lag_expiration_)
+    {
+      ROS_DEBUG_STREAM(
+          "The current lag expiration time is "
+          << lag_expiration_ << ". The queued transaction with timestamp " << transaction.stamp() << " from sensor "
+          << sensor_name << " has a minimum involved timestamp of " << min_stamp << ", which is "
+          << (lag_expiration_ - min_stamp) << " seconds too old. Ignoring this transaction.");
+      return false;
+    }
+    return true;
   }
 
   void FixedLagSmoother::onReset()
   {
+    std::lock_guard<std::mutex> lock(mutex_);
     timestamp_tracking_.clear();
     lag_expiration_ = ros::Time(0, 0);
   }

@@ -41,20 +41,18 @@
 
 #include <ceres/solver.h>
 
-#include <algorithm>
 #include <string>
-#include <vector>
-
 
 namespace fuse_optimizers
 {
-
 /**
  * @brief Defines the set of parameters required by the fuse_optimizers::WindowedOptimizer base class
  */
 struct WindowedOptimizerParams
 {
 public:
+  SMART_PTR_DEFINITIONS(WindowedOptimizerParams);
+
   /**
    * @brief The target duration for optimization cycles
    *
@@ -70,17 +68,17 @@ public:
   std::string reset_service { "~reset" };
 
   /**
+   * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
+   */
+  ceres::Solver::Options solver_options;
+
+  /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
    *
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
   ros::Duration transaction_timeout { 0.1 };
-
-  /**
-   * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
-   */
-  ceres::Solver::Options solver_options;
 
   /**
    * @brief Method for loading parameter values from ROS.
@@ -92,7 +90,7 @@ public:
     // Read settings from the parameter server
     if (nh.hasParam("optimization_frequency"))
     {
-      double optimization_frequency{ 1.0 / optimization_period.toSec() };
+      double optimization_frequency { 1.0 / optimization_period.toSec() };
       fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
       optimization_period.fromSec(1.0 / optimization_frequency);
     }
@@ -100,12 +98,9 @@ public:
     {
       fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
     }
-
     nh.getParam("reset_service", reset_service);
-
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
-
     fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
+    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
   }
 };
 

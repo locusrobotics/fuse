@@ -36,24 +36,19 @@
 
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/uuid.h>
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
-#include <fuse_optimizers/windowed_optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
-#include <ros/ros.h>
-#include <std_srvs/Empty.h>
+#include <fuse_optimizers/windowed_optimizer.h>
+#include <ros/node_handle.h>
+#include <ros/time.h>
 
-#include <atomic>
-#include <condition_variable>
-#include <functional>
 #include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
-
 
 namespace fuse_optimizers
 {
-
 /**
  * @brief A fixed-lag smoother implementation that marginalizes out variables that are older than a defined lag time
  *
@@ -108,8 +103,6 @@ public:
   SMART_PTR_DEFINITIONS(FixedLagSmoother);
   using ParameterType = FixedLagSmootherParams;
 
-  /// @todo(swilliams) I changed the constructor. This technically breaks API backwards compatibility. Think of a
-  /// better way to handle supplying the parameters.
   /**
    * @brief Constructor
    *
@@ -122,23 +115,33 @@ public:
    */
   FixedLagSmoother(
     fuse_core::Graph::UniquePtr graph,
-    const ParameterType& params,
+    const ParameterType::SharedPtr& params,
+    const ros::NodeHandle& node_handle = ros::NodeHandle(),
+    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+
+  /**
+   * @brief Constructor
+   *
+   * The parameters will be loaded from the ROS parameter server using the private node handle
+   *
+   * @param[in] graph               The derived graph object. This allows different graph implementations to be used
+   *                                with the same optimizer code.
+   * @param[in] node_handle         A node handle in the global namespace
+   * @param[in] private_node_handle A node handle in the node's private namespace
+   */
+  explicit FixedLagSmoother(
+    fuse_core::Graph::UniquePtr graph,
     const ros::NodeHandle& node_handle = ros::NodeHandle(),
     const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
 protected:
   // Read-only after construction
-  ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
+  ParameterType::SharedPtr params_;  //!< Configuration settings for this fixed-lag smoother
 
-  // Guarded by optimization_mutex_
-  /// @todo(swilliams) This should probably be guarded by its own mutex
+  // Guarded by mutex_
+  std::mutex mutex_;  //!< Mutex held while the fixed-lag smoother variables are modified
   ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
-
-  /**
-   * @brief Compute the oldest timestamp that is part of the configured lag window
-   */
-  ros::Time computeLagExpirationTime() const;
 
   /**
    * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
@@ -173,6 +176,16 @@ protected:
    *                                 variables.
    */
   void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction) override;
+
+  /**
+   * @brief Determine if a new transaction should be applied to the graph
+   *
+   * Test if the transaction is within the defined lag window of the smoother.
+   *
+   * @param[in] sensor_name - The name of the sensor that produced the provided transaction
+   * @param[in] transaction - The transaction to be validated
+   */
+  bool validateTransaction(const std::string& sensor_name, const fuse_core::Transaction& transaction) override;
 
   /**
    * @brief Perform any required operations whenever the optimizer is reset
