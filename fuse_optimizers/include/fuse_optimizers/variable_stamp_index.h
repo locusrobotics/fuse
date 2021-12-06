@@ -79,6 +79,11 @@ public:
   size_t size() const { return variables_.size(); }
 
   /**
+   * @brief Returns the number of stamped robot states
+   */
+  size_t numStates() const { return unique_stamps_.size(); }
+
+  /**
    * @brief Clear all tracked state
    */
   void clear()
@@ -86,12 +91,23 @@ public:
     stamped_index_.clear();
     variables_.clear();
     constraints_.clear();
+    unique_stamps_.clear();
   }
 
   /**
    * @brief Returns the most recent timestamp associated with any variable
    */
   ros::Time currentStamp() const;
+
+  /**
+   * @brief Returns the oldest/first stamp 
+   */
+  ros::Time firstStamp() const;
+
+  /**
+   * @brief Returns the ith timestamp
+   */
+  ros::Time ithStamp(size_t idx) const;
 
   /**
    * @brief Update the index with the information from the added transactions
@@ -175,6 +191,8 @@ protected:
 
   using ConstraintToVariablesMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;
   ConstraintToVariablesMap constraints_;
+
+  std::set<ros::Time> unique_stamps_; //!< This hold all the unique stamps to track total number of robot "states"
 
   /**
    * @brief Update this VariableStampIndex with the added constraints from the provided transaction
