@@ -282,6 +282,102 @@ TEST(VariableStampIndex, CurrentStamp)
   EXPECT_EQ(ros::Time(1, 0), index.currentStamp());
 }
 
+TEST(VariableStampIndex, FirstStamp)
+{
+  // Create an empty index
+  auto index = fuse_optimizers::VariableStampIndex();
+
+  // Verify the current stamp is 0
+  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+
+  // Add an unstamped variable
+  auto x1 = UnstampedVariable::make_shared();
+  auto transaction1 = fuse_core::Transaction();
+  transaction1.addVariable(x1);
+  index.addNewTransaction(transaction1);
+
+  // Verify the current stamp is still 0
+  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+
+  // Add two stamped variables
+  auto x2 = StampedVariable::make_shared(ros::Time(1, 0));
+  auto transaction2 = fuse_core::Transaction();
+  transaction2.addVariable(x2);
+  index.addNewTransaction(transaction2);
+
+  auto x3 = StampedVariable::make_shared(ros::Time(2, 0));
+  auto transaction3 = fuse_core::Transaction();
+  transaction3.addVariable(x3);
+  index.addNewTransaction(transaction3);
+
+  // Verify the current stamp is now Time(1, 0)
+  EXPECT_EQ(ros::Time(1, 0), index.firstStamp());
+}
+
+TEST(VariableStampIndex, NumSates)
+{
+  // Create an empty index
+  auto index = fuse_optimizers::VariableStampIndex();
+
+  // Verify the current stamp is 0
+  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+
+  // Add an unstamped variable
+  auto x1 = UnstampedVariable::make_shared();
+  auto transaction1 = fuse_core::Transaction();
+  transaction1.addVariable(x1);
+  index.addNewTransaction(transaction1);
+
+  // Verify the current stamp is still 0
+  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+
+  // Add N stamped variables
+  int N = 10;
+
+  for(int i = 0; i < N; i++){
+    auto x = StampedVariable::make_shared(ros::Time(i, 0));
+    auto transaction = fuse_core::Transaction();
+    transaction.addVariable(x);
+    index.addNewTransaction(transaction);
+  }
+
+  // Verify the number of unique stamps
+  EXPECT_EQ((size_t)N, index.numStates());
+}
+
+
+TEST(VariableStampIndex, ithStamp)
+{
+  // Create an empty index
+  auto index = fuse_optimizers::VariableStampIndex();
+
+  // Verify the current stamp is 0
+  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+
+  // Add an unstamped variable
+  auto x1 = UnstampedVariable::make_shared();
+  auto transaction1 = fuse_core::Transaction();
+  transaction1.addVariable(x1);
+  index.addNewTransaction(transaction1);
+
+  // Verify the current stamp is still 0
+  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+
+  // Add N stamped variables
+  int N = 10;
+  for(int i = 0; i < N; i++){
+    auto x = StampedVariable::make_shared(ros::Time(i, 0));
+    auto transaction = fuse_core::Transaction();
+    transaction.addVariable(x);
+    index.addNewTransaction(transaction);
+  }
+
+  // Verify the stamps of the states using ithStamp function
+  for(int i = 0; i < N; i++){
+    EXPECT_EQ(ros::Time(i, 0), index.ithStamp((size_t)i));  
+  }
+}
+
 TEST(VariableStampIndex, Query)
 {
   // Create an empty index

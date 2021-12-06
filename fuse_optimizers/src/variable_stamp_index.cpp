@@ -47,19 +47,29 @@ namespace fuse_optimizers
 {
 ros::Time VariableStampIndex::currentStamp() const
 {
-  auto compare_stamps = [](const StampedMap::value_type& lhs, const StampedMap::value_type& rhs)
-  {
-    return lhs.second < rhs.second;
-  };
-  auto iter = std::max_element(stamped_index_.begin(), stamped_index_.end(), compare_stamps);
-  if (iter != stamped_index_.end())
-  {
-    return iter->second;
+  if(!unique_stamps_.empty()){
+    return *unique_stamps_.end();
   }
-  else
-  {
-    return ros::Time(0, 0);
+  return ros::Time(0, 0);
+}
+
+ros::Time VariableStampIndex::firstStamp() const
+{
+  if(!unique_stamps_.empty()){
+    return *unique_stamps_.begin();
   }
+  return ros::Time(0, 0);
+} 
+
+ros::Time VariableStampIndex::ithStamp(size_t idx) const{
+  if(idx < unique_stamps_.size()){
+    std::set<ros::Time>::iterator it = unique_stamps_.begin();
+    for(size_t i = 0; i < idx; i++){
+      it++;
+    }
+    return *(it);
+  }
+  return ros::Time(0, 0);
 }
 
 void VariableStampIndex::addNewTransaction(const fuse_core::Transaction& transaction)
@@ -99,6 +109,10 @@ void VariableStampIndex::applyAddedVariables(const fuse_core::Transaction& trans
     if (stamped_variable)
     {
       stamped_index_[variable.uuid()] = stamped_variable->stamp();
+      // add to unique stamps
+      if(unique_stamps_.find(stamped_variable->stamp()) == unique_stamps_.end()){
+        unique_stamps_.insert(stamped_variable->stamp());
+      }
     }
     variables_[variable.uuid()];  // Add an empty set of constraints
   }
@@ -120,6 +134,12 @@ void VariableStampIndex::applyRemovedVariables(const fuse_core::Transaction& tra
 {
   for (const auto& variable_uuid : transaction.removedVariables())
   {
+    // remove from unique stamps
+    auto stamp = stamped_index_[variable_uuid];
+    if(unique_stamps_.find(stamp) != unique_stamps_.end()){
+      unique_stamps_.erase(stamp);
+    }
+
     stamped_index_.erase(variable_uuid);
     variables_.erase(variable_uuid);
   }
