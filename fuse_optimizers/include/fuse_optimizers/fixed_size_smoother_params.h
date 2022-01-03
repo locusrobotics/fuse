@@ -59,7 +59,7 @@ public:
   /**
    * @brief The duration of the smoothing window in seconds
    */
-  size_t num_states {10};
+  int num_states {10};
 
   /**
    * @brief Method for loading parameter values from ROS.

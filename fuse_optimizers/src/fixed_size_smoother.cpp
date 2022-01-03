@@ -86,8 +86,8 @@ std::vector<fuse_core::UUID> FixedSizeSmoother::computeVariablesToMarginalize()
 
   // if the total number of states is greater than our optimization window, then find the new state
   // given we remove the first n states to bring the number of states back to our desired window size
-  if(timestamp_tracking_.numStates() > params_.num_states){
-    size_t num_states_to_marginalize = timestamp_tracking_.numStates() - params_.num_states;
+  if((int)timestamp_tracking_.numStates() > params_->num_states){
+    size_t num_states_to_marginalize = timestamp_tracking_.numStates() - params_->num_states;
     ros::Time new_start_time = timestamp_tracking_.ithStamp(num_states_to_marginalize - 1);
     timestamp_tracking_.query(new_start_time, std::back_inserter(marginalize_variable_uuids));
   }
@@ -122,7 +122,6 @@ void FixedSizeSmoother::onReset()
 {
   std::lock_guard<std::mutex> lock(mutex_);
   timestamp_tracking_.clear();
-  Size_expiration_ = ros::Time(0, 0);
 }
 
 }  // namespace fuse_optimizers

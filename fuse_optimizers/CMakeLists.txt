@@ -35,6 +35,7 @@ add_compile_options(-Wall -Werror)
 add_library(${PROJECT_NAME}
   src/batch_optimizer.cpp
   src/fixed_lag_smoother.cpp
+  src/fixed_size_smoother.cpp
   src/optimizer.cpp
   src/windowed_optimizer.cpp
   src/variable_stamp_index.cpp
