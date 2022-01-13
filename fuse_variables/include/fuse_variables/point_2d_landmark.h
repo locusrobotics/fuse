@@ -34,7 +34,7 @@
 #ifndef FUSE_VARIABLES_POINT_2D_LANDMARK_H
 #define FUSE_VARIABLES_POINT_2D_LANDMARK_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_variables/fixed_size_variable.h>
 

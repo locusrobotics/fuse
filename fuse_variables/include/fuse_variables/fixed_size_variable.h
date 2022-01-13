@@ -34,7 +34,7 @@
 #ifndef FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
 #define FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
@@ -62,7 +62,7 @@ template <size_t N>
 class FixedSizeVariable : public fuse_core::Variable
 {
 public:
-  SMART_PTR_ALIASES_ONLY(FixedSizeVariable<N>);
+  FUSE_SMART_PTR_ALIASES_ONLY(FixedSizeVariable<N>);
 
   /**
    * @brief A static version of the variable size

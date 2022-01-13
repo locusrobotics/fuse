@@ -35,7 +35,7 @@
 #define FUSE_MODELS_UNICYCLE_2D_IGNITION_H
 
 #include <fuse_core/async_sensor_model.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/uuid.h>
 #include <fuse_models/parameters/unicycle_2d_ignition_params.h>
 #include <fuse_models/SetPose.h>
@@ -78,7 +78,7 @@ namespace fuse_models
 class Unicycle2DIgnition : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Unicycle2DIgnition);
+  FUSE_SMART_PTR_DEFINITIONS(Unicycle2DIgnition);
   using ParameterType = parameters::Unicycle2DIgnitionParams;
 
   /**

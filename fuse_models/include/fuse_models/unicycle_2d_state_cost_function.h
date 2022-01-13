@@ -37,7 +37,7 @@
 #include <fuse_models/unicycle_2d_predict.h>
 
 #include <fuse_core/eigen.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
 #include <ceres/sized_cost_function.h>

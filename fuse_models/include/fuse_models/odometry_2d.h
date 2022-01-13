@@ -82,7 +82,7 @@ namespace fuse_models
 class Odometry2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Odometry2D);
+  FUSE_SMART_PTR_DEFINITIONS(Odometry2D);
   using ParameterType = parameters::Odometry2DParams;
 
   /**

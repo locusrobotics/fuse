@@ -34,7 +34,7 @@
 #ifndef FUSE_CORE_LOCAL_PARAMETERIZATION_H
 #define FUSE_CORE_LOCAL_PARAMETERIZATION_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 
 #include <boost/serialization/access.hpp>
@@ -57,7 +57,7 @@ namespace fuse_core
 class LocalParameterization : public ceres::LocalParameterization
 {
 public:
-  SMART_PTR_ALIASES_ONLY(LocalParameterization);
+  FUSE_SMART_PTR_ALIASES_ONLY(LocalParameterization);
 
   /**
    * @brief Generalization of the subtraction operation

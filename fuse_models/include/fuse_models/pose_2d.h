@@ -71,7 +71,7 @@ namespace fuse_models
 class Pose2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Pose2D);
+  FUSE_SMART_PTR_DEFINITIONS(Pose2D);
   using ParameterType = parameters::Pose2DParams;
 
   /**

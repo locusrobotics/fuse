@@ -63,7 +63,7 @@ namespace fuse_models
 class Transaction : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Transaction);
+  FUSE_SMART_PTR_DEFINITIONS(Transaction);
   using ParameterType = parameters::TransactionParams;
 
   /**

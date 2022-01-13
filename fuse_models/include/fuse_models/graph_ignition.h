@@ -71,7 +71,7 @@ namespace fuse_models
 class GraphIgnition : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(GraphIgnition);
+  FUSE_SMART_PTR_DEFINITIONS(GraphIgnition);
   using ParameterType = parameters::GraphIgnitionParams;
 
   /**

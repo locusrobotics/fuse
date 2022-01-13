@@ -34,7 +34,7 @@
 #ifndef FUSE_VARIABLES_STAMPED_H
 #define FUSE_VARIABLES_STAMPED_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <ros/node_handle.h>
@@ -57,7 +57,7 @@ namespace fuse_variables
 class Stamped
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Stamped);
+  FUSE_SMART_PTR_ALIASES_ONLY(Stamped);
 
   /**
    * @brief Default constructor

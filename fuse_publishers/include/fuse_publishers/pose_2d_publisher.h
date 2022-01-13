@@ -38,7 +38,7 @@
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -97,7 +97,7 @@ namespace fuse_publishers
 class Pose2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS(Pose2DPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(Pose2DPublisher);
 
   /**
    * @brief Constructor

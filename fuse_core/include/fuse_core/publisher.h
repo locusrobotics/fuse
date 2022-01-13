@@ -35,7 +35,7 @@
 #define FUSE_CORE_PUBLISHER_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 
 #include <string>
@@ -57,7 +57,7 @@ namespace fuse_core
 class Publisher
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Publisher);
+  FUSE_SMART_PTR_ALIASES_ONLY(Publisher);
 
   /**
    * @brief Constructor

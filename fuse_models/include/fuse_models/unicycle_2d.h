@@ -38,7 +38,7 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/timestamp_manager.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
@@ -72,7 +72,7 @@ namespace fuse_models
 class Unicycle2D : public fuse_core::AsyncMotionModel
 {
 public:
-  SMART_PTR_DEFINITIONS_WITH_EIGEN(Unicycle2D);
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Unicycle2D);
 
   /**
    * @brief Default constructor

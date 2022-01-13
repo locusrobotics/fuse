@@ -35,7 +35,7 @@
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_2D_COST_FUNCTOR_H
 
 #include <fuse_core/eigen.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
 #include <Eigen/Core>
