@@ -169,44 +169,29 @@ void WindowedOptimizer::optimizationLoop()
       {
         continue;
       }
+      // check if new transaction has added constraints to variables that are to be marginalized
+      std::vector<fuse_core::UUID> faulty_constraints;
+      for(auto& c: new_transaction->addedConstraints()){
+        for(auto var_uuid: c.variables()){
+          for (auto marginal_uuid : marginal_transaction_.removedVariables()) {
+            if (var_uuid == marginal_uuid) {
+              faulty_constraints.push_back(c.uuid());
+              break;
+            }
+          }
+        }
+      }
+      if(faulty_constraints.size() > 0){
+        ROS_WARN_STREAM("Removing invalid constraints.");
+        for(auto& faulty_constraint: faulty_constraints){
+          new_transaction->removeConstraint(faulty_constraint);
+        }
+      }
+
       // Prepare for selecting the marginal variables -- Delegated to derived classes
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle
       new_transaction->merge(marginal_transaction_);
-
-      // check for hanging constraints (constraints added to variables that are about to be marginalized)
-      auto new_marginal_transaction = fuse_core::Transaction::make_shared();
-      std::vector<fuse_core::UUID> variables_to_remarginalize;
-      for (auto &uuid : marginal_transaction_->removedVariables()) {
-        // get constraints that are to be removed in marginal transaction
-        auto to_remove_constraints = marginal_transaction_->getRemovedConstraints();
-        // get connected constraint to this variable
-        auto all_constraints = graph_->getConnectedConstraints(uuid);
-        // check if there is a constraint on this variable that isnt in the
-        // marginal transaction
-        for (auto &constraint : all_constraints) {
-          fuse_core::UUID constraint_uuid = constraint->uuid();
-          bool is_contained = false;
-          for (auto &to_remove : to_remove_constraints) {
-            if (constraint_uuid == to_remove) {
-              is_contained = true;
-              break;
-            }
-          }
-          if (!is_contained) {
-            variables_to_remarginalize.push_back(uuid);
-          }
-        }
-      }
-
-      // if some variables have hanging constraints then remarginalize them
-      if (variables_to_remarginalize.size() > 0) {
-        new_marginal_transaction = fuse_constraints::marginalizeVariables(
-            ros::this_node::getName(), variables_to_remarginalize, *graph_);
-        postprocessMarginalization(*new_marginal_transaction);
-        new_transaction->merge(new_marginal_transaction);
-      }
-
       // Update the graph
       try
       {
