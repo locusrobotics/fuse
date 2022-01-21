@@ -36,7 +36,7 @@
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 #include <ros/ros.h>
 
@@ -101,7 +101,7 @@ class BeaconPublisher : public fuse_core::AsyncPublisher
 public:
   // It is convenient to have some typedefs for various smart pointer types (shared, unique, etc.). A macro is provided
   // to make it easy to define these typedefs and ensures that the naming is consistent throughout all fuse packages.
-  SMART_PTR_DEFINITIONS(BeaconPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(BeaconPublisher);
 
   /**
    * @brief Default constructor

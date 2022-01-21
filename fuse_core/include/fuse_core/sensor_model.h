@@ -35,7 +35,7 @@
 #define FUSE_CORE_SENSOR_MODEL_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 
 #include <functional>
@@ -68,7 +68,7 @@ using TransactionCallback = std::function<void(Transaction::SharedPtr transactio
 class SensorModel
 {
 public:
-  SMART_PTR_ALIASES_ONLY(SensorModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(SensorModel);
 
   /**
    * @brief Destructor

@@ -35,7 +35,7 @@
 #define FUSE_CORE_GRAPH_H
 
 #include <fuse_core/constraint.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -130,7 +130,7 @@
 * @endcode
 */
 #define FUSE_GRAPH_DEFINITIONS(...) \
-  SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_GRAPH_TYPE_DEFINITION(__VA_ARGS__) \
   FUSE_GRAPH_SERIALIZE_DEFINITION(__VA_ARGS__)
 
@@ -149,7 +149,7 @@ namespace fuse_core
 class Graph
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Graph);
+  FUSE_SMART_PTR_ALIASES_ONLY(Graph);
 
   /**
    * @brief A range of fuse_ros::Constraint objects

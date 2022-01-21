@@ -35,7 +35,7 @@
 #define FUSE_CORE_TIMESTAMP_MANAGER_H
 
 #include <fuse_core/constraint.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
 #include <ros/duration.h>
@@ -65,7 +65,7 @@ namespace fuse_core
 class TimestampManager
 {
 public:
-  SMART_PTR_DEFINITIONS(TimestampManager);
+  FUSE_SMART_PTR_DEFINITIONS(TimestampManager);
 
   /**
    * @brief Function that generates motion model constraints between the requested timestamps

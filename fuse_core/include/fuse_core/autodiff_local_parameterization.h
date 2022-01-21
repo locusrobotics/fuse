@@ -36,7 +36,7 @@
 
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/ceres_options.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 
 #include <ceres/internal/autodiff.h>
 
@@ -77,7 +77,7 @@ template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLoc
 class AutoDiffLocalParameterization : public LocalParameterization
 {
 public:
-  SMART_PTR_DEFINITIONS(AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>);
+  FUSE_SMART_PTR_DEFINITIONS(AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>);
 
   /**
    * @brief Constructs new PlusFunctor and MinusFunctor instances

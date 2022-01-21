@@ -35,7 +35,7 @@
 #define FUSE_CORE_VARIABLE_H
 
 #include <fuse_core/local_parameterization.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
@@ -139,7 +139,7 @@
  * @endcode
  */
 #define FUSE_VARIABLE_DEFINITIONS(...) \
-  SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
   FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
   FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
@@ -159,7 +159,7 @@
  * @endcode
  */
 #define FUSE_VARIABLE_DEFINITIONS_WITH_EIGEN(...) \
-  SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
   FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
   FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
   FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
@@ -188,7 +188,7 @@ namespace fuse_core
 class Variable
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Variable);
+  FUSE_SMART_PTR_ALIASES_ONLY(Variable);
 
   /**
    * @brief Default constructor

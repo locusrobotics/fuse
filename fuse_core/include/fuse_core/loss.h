@@ -34,7 +34,7 @@
 #ifndef FUSE_CORE_LOSS_H
 #define FUSE_CORE_LOSS_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 
 #include <boost/serialization/access.hpp>
@@ -137,7 +137,7 @@
  * @endcode
  */
 #define FUSE_LOSS_DEFINITIONS(...) \
-  SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_LOSS_TYPE_DEFINITION(__VA_ARGS__) \
   FUSE_LOSS_CLONE_DEFINITION(__VA_ARGS__) \
   FUSE_LOSS_SERIALIZE_DEFINITION(__VA_ARGS__)
@@ -169,7 +169,7 @@ namespace fuse_core
 class Loss
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Loss);
+  FUSE_SMART_PTR_ALIASES_ONLY(Loss);
 
   static constexpr ceres::Ownership Ownership =
       ceres::Ownership::TAKE_OWNERSHIP;  //!< The ownership of the ceres::LossFunction* returned by lossFunction()

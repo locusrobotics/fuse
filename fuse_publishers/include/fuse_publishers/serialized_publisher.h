@@ -36,7 +36,7 @@
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/throttled_callback.h>
 #include <fuse_core/transaction.h>
 #include <ros/ros.h>
@@ -53,7 +53,7 @@ namespace fuse_publishers
 class SerializedPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS(SerializedPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(SerializedPublisher);
 
   /**
    * @brief Constructor
