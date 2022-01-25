@@ -78,33 +78,24 @@ namespace fuse_core
  *   }
  * };
  *
+ * auto callback_queue = std::make_shared<CallbackAdapter>(
+ *   rclcpp::contexts::default_context::get_global_default_context());
+ * node->get_node_waitables_interface()->add_waitable(callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
  * MyClass my_object;
  * std::vector<double> really_big_data(1000000);
  * auto callback = std::make_shared<CallbackWrapper<double> >(
  *   std::bind(&MyClass::processData, &my_object, std::ref(really_big_data)));
+ * callback_queue->add_callback(callback);
  * std::future<double> result = callback->getFuture();
- * node->get_node_waitables_interface()->add_waitable(callback, (rclcpp::CallbackGroup::SharedPtr) nullptr);
  * result.wait();
  * ROS_INFO_STREAM("The result is: " << result.get());
- * // XXX the shared pointer callback will be erased from the queue if it isn't held in scope under this class
- * // XXX If the callback waitable remains in scope after the future is delivered, it'll get run a second time.
- * // XXX a better fix would be implement a ros1 style callback queue in a ros2 waitable
- * // This waitable wrapper
  * @endcode
  */
 
 
-class CallbackAdapter : public rclcpp::Waitable
-{
-  // implement the API of the ros CallbackQueue such that it can be implemented in a ros2 CallbackGroup
-
-
-};
-
-
 
 template <typename T>
-class CallbackWrapper : public rclcpp::Waitable
+class CallbackWrapper 
 {
 public:
   using CallbackFunction = std::function<T(void)>;
@@ -117,9 +108,46 @@ public:
   explicit CallbackWrapper(CallbackFunction callback) :
     callback_(callback)
   {
-    // XXX expose the rclcpp::Context
-    std::shared_ptr<rclcpp::Context> context_ptr = 
-        rclcpp::contexts::default_context::get_global_default_context();
+  }
+
+  /**
+   * @brief Get a future<T> object that represents the function's return value
+   */
+  std::future<T> getFuture()
+  {
+    return promise_.get_future();
+  }
+
+  /**
+   * @brief Call this function. This is used by the callback queue.
+   */
+  void call() override
+  {
+    promise_.set_value(callback_());
+  }
+
+private:
+  CallbackFunction callback_;  //!< The function to execute within the
+  std::promise<T> promise_;  //!< Promise/Future used to return data after the callback is executed
+};
+
+// Specialization to handle 'void' return types
+// Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
+template <>
+inline void CallbackWrapper<void>::call()
+{
+  callback_();
+  promise_.set_value();
+}
+
+
+
+
+class CallbackAdapter : public rclcpp::Waitable
+{
+public:
+
+  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr){
 
     rcl_guard_condition_options_t guard_condition_options = 
         rcl_guard_condition_get_default_options();
@@ -135,13 +163,17 @@ public:
    */
   size_t get_number_of_ready_guard_conditions() { return 1;}
 
+
   /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
   bool is_ready(rcl_wait_set_t * wait_set) {
-    // XXX return callback_queue_.empty() == false;
-    return true;
+    (void) wait_set;
+    // std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    // a thread glitch isn't a disaster here and a mutex wouldn't stop it anyway
+    return !callback_queue_.empty();
   }
+
 
   /**
    * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and CallbackGroup::add_waitable()
@@ -152,45 +184,54 @@ public:
   {
     std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
     rcl_ret_t ret = rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL);
-
-    //trigger execution immediately
-    rcl_trigger_guard_condition(&gc_);
     return RCL_RET_OK == ret;
   }
 
-  /**
-   * @brief Get a future<T> object that represents the function's return value
-   */
-  std::future<T> getFuture()
-  {
-    return promise_.get_future();
+
+  // XXX check this against the threading model of the multi-threaded executor.
+  void execute(){
+    std::shared_ptr<CallbackWrapper> cb_wrapper = nullptr;
+    // fetch the callback ptr and release the lock without spending time in the callback
+    {
+      std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+      if(!callback_queue_.empty()){
+        cb_wrapper = callback_queue_.front();
+        callback_queue_.pop();
+      }
+    }
+    //the lock is released and the callback is no longer associated with the queue, run it.
+    if(cb_wrapper) {
+      cb_wrapper->call();
+    }
   }
 
-  /**
-   * @brief Call this function. This is used by the CallbackGroup.
-   */
-  void execute() override
-  {
-    promise_.set_value(callback_());
-    return Success;
+  void addCallback(const std::shared_ptr<CallbackWrapper> &callback){
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    callback_queue_.push(callback);
+    rcl_trigger_guard_condition(&gc_);
   }
+  void addCallback(std::shared_ptr<CallbackWrapper> && callback){
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    callback_queue_.push(std::move(callback));
+    rcl_trigger_guard_condition(&gc_);
+  }
+
+  void removeAllCallbacks(){
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    while(!callback_queue_.empty()){
+      callback_queue_.pop();
+    }
+  }
+
 
 private:
   std::recursive_mutex reentrant_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
-  CallbackFunction callback_;  //!< The function to execute within the CallbackGroup
-  std::promise<T> promise_;  //!< Promise/Future used to return data after the callback is executed
+  
+  std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  std::queue<std::shared_ptr<CallbackWrapper> > callback_queue_;
 };
 
-// Specialization to handle 'void' return types
-// Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
-template <>
-inline void CallbackWrapper<void>::execute()
-{
-  callback_();
-  promise_.set_value();
-  return Success;
-}
 
 }  // namespace fuse_core
 
