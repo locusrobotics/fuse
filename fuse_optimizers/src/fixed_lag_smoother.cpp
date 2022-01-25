@@ -79,14 +79,15 @@ namespace fuse_optimizers
 {
 
 FixedLagSmoother::FixedLagSmoother(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-    fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    ignited_(false),
-    optimization_running_(true),
-    started_(false),
-    optimization_request_(false)
+  rclcpp::NodeOptions options,
+  fuse_core::Graph::UniquePtr graph
+) :
+  Node("fixed_lag_smoother_node", options),
+  fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
+  ignited_(false),
+  optimization_running_(true),
+  started_(false),
+  optimization_request_(false)
 {
   params_.loadFromROS(private_node_handle);
 

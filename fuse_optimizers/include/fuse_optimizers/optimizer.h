@@ -90,7 +90,7 @@ namespace fuse_optimizers
  *  - ...
  * @endcode
  */
-class Optimizer
+class Optimizer : public rclcpp::Node
 {
 public:
   SMART_PTR_ALIASES_ONLY(Optimizer);

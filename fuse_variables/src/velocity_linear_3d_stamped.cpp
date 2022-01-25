@@ -37,7 +37,6 @@
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <pluginlib/class_list_macros.h>
-#include <ros/time.h>
 
 #include <boost/serialization/export.hpp>
 
@@ -47,7 +46,7 @@
 namespace fuse_variables
 {
 
-VelocityLinear3DStamped::VelocityLinear3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+VelocityLinear3DStamped::VelocityLinear3DStamped(const fuse_core::TimeStamp& stamp, const fuse_core::UUID& device_id) :
   FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
   Stamped(stamp, device_id)
 {

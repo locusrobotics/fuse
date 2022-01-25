@@ -102,15 +102,14 @@ public:
   /**
    * @brief Constructor
    *
+   * @param[in] options             The ros2 node options to start the optimiser node
    * @param[in] graph               The derived graph object. This allows different graph implementations to be used
    *                                with the same optimizer code.
-   * @param[in] node_handle         A node handle in the global namespace
-   * @param[in] private_node_handle A node handle in the node's private namespace
    */
   BatchOptimizer(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+    rclcpp::NodeOptions options,
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
+  );
 
   /**
    * @brief Destructor
@@ -157,7 +156,7 @@ protected:
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  fuse_core::TimeStamp start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
 
   /**

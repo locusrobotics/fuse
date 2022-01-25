@@ -7,7 +7,7 @@ set(build_depends
   fuse_variables
   geometry_msgs
   pluginlib
-  roscpp
+  rclcpp
 )
 
 find_package(catkin REQUIRED COMPONENTS

@@ -14,7 +14,7 @@
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>colcon</buildtool_depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
   <depend>fuse_core</depend>
@@ -22,9 +22,9 @@
   <depend>fuse_variables</depend>
   <depend>geometry_msgs</depend>
   <depend>pluginlib</depend>
-  <depend>roscpp</depend>
+  <depend>rclcpp</depend>
   <depend>suitesparse</depend>
-  <test_depend condition="$ROS_DISTRO >= melodic">benchmark</test_depend>
+  <test_depend condition="$ROS_DISTRO >= foxy">benchmark</test_depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
 

@@ -424,18 +424,20 @@ void Optimizer::injectCallback(
   const std::string& sensor_name,
   fuse_core::Transaction::SharedPtr transaction)
 {
-  // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
+  // motion models and sensor models are handed this function to run as their transactionCallback() method
+  // This function inserts the transaction into the optimiser's callback queue.
   // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
   // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
-  ros::getGlobalCallbackQueue()->addCallback(
-    boost::make_shared<fuse_core::CallbackWrapper<void>>(
-      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction))),
-    reinterpret_cast<uint64_t>(this));
+
+  // XXX the shared pointer will be erased from the queue if it isn't held in scope under this class
+  auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
+      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction)));
+  node->get_node_waitables_interface()->addCallback(callback, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 }
 
 void Optimizer::clearCallbacks()
 {
-  ros::getGlobalCallbackQueue()->removeByID(reinterpret_cast<uint64_t>(this));
+  node->get_node_waitables_interface()->remove_waitable();
 }
 
 void Optimizer::startPlugins()

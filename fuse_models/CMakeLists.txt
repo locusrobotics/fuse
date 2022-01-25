@@ -1,47 +1,40 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(fuse_models)
 
-find_package(
-  catkin REQUIRED
-  COMPONENTS
-    fuse_constraints
-    fuse_core
-    fuse_graphs
-    fuse_msgs
-    fuse_publishers
-    fuse_variables
-    geometry_msgs
-    message_generation
-    nav_msgs
-    pluginlib
-    roscpp
-    roslint
-    sensor_msgs
-    std_srvs
-    tf2
-    tf2_2d
-    tf2_geometry_msgs
-    tf2_ros)
+find_package(ament_cmake REQUIRED)
+
+find_package(fuse_constraints REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_graphs REQUIRED)
+find_package(fuse_msgs REQUIRED)
+find_package(fuse_publishers REQUIRED)
+find_package(fuse_variables REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(message_generation REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(rcl_components REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(roslint REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_2d REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros) REQUIRED)
 
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 
-# Generate messages
-add_service_files(
-  DIRECTORY
-    srv
-  FILES
-    SetGraph.srv
-    SetPose.srv
-    SetPoseDeprecated.srv
+set(srv_files
+  "srv/SetGraph.srv"
+  "srv/SetPose.srv"
+  "srv/SetPoseDeprecated.srv"
 )
 
-generate_messages(
-  DEPENDENCIES
-    geometry_msgs
-    fuse_msgs
-    std_msgs
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  srv_files
 )
 
 catkin_package(
@@ -73,7 +66,7 @@ catkin_package(
     EIGEN3
 )
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++17,-runtime/references")
 roslint_cpp()
 
 ###########

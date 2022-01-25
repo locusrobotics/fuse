@@ -4,7 +4,7 @@ project(fuse_variables)
 set(build_depends
   fuse_core
   pluginlib
-  roscpp
+  rclcpp
 )
 
 find_package(catkin REQUIRED COMPONENTS

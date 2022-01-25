@@ -102,7 +102,7 @@ namespace fuse_optimizers
  *                                               motion models to be generated. Once the timeout expires, that
  *                                               transaction will be deleted from the queue.
  */
-class FixedLagSmoother : public Optimizer
+class FixedLagSmoother : public Optimizer, public rclcpp::Node
 {
 public:
   SMART_PTR_DEFINITIONS(FixedLagSmoother);
@@ -117,9 +117,9 @@ public:
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   FixedLagSmoother(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+    rclcpp::NodeOptions options,
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
+  );
 
   /**
    * @brief Destructor

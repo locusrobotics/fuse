@@ -45,7 +45,7 @@
 
 namespace fuse_optimizers
 {
-ros::Time VariableStampIndex::currentStamp() const
+fuse_core::TimeStamp VariableStampIndex::currentStamp() const
 {
   auto compare_stamps = [](const StampedMap::value_type& lhs, const StampedMap::value_type& rhs)
   {
@@ -58,7 +58,7 @@ ros::Time VariableStampIndex::currentStamp() const
   }
   else
   {
-    return ros::Time(0, 0);
+    return fuse_core::TimeStamp(0);   // XXX Zero should not be treated like a flag
   }
 }
 

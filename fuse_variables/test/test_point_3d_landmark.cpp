@@ -34,7 +34,6 @@
 #include <fuse_core/serialization.h>
 #include <fuse_variables/point_3d_landmark.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
