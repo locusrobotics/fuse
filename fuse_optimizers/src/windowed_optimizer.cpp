@@ -103,6 +103,12 @@ WindowedOptimizer::WindowedOptimizer(
     ros::names::resolve(params_->reset_service),
     &WindowedOptimizer::resetServiceCallback,
     this);
+
+  // Subscribe to a reset message that will reset the optimizer to the initial state
+  reset_subscriber_ = node_handle_.subscribe(
+    ros::names::resolve(params_->reset_service), 10,
+    &WindowedOptimizer::resetMessageCallback, 
+    this);
 }
 
 WindowedOptimizer::~WindowedOptimizer()
@@ -414,6 +420,40 @@ void WindowedOptimizer::processQueue(fuse_core::Transaction& transaction)
       }
     }
   }
+}
+
+void WindowedOptimizer::resetMessageCallback(const std_msgs::Empty::ConstPtr&){
+  // Tell all the plugins to stop
+  stopPlugins();
+  // Reset the optimizer state
+  {
+    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    optimization_request_ = false;
+  }
+  started_ = false;
+  ignited_ = false;
+  setStartTime(ros::Time(0, 0));
+  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
+  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
+  //         prevent the possibility of deadlocks.
+  {
+    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Clear all pending transactions
+    {
+      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+      pending_transactions_.clear();
+    }
+    // Clear the graph and marginal tracking states
+    graph_->clear();
+    marginal_transaction_ = fuse_core::Transaction();
+  }
+  // Perform any required reset operations for derived classes
+  onReset();
+  // Tell all the plugins to start
+  startPlugins();
+  // Test for auto-start
+  autostart();
+  return;
 }
 
 bool WindowedOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)

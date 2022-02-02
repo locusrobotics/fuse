@@ -40,6 +40,7 @@
 #include <fuse_optimizers/windowed_optimizer_params.h>
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
+#include <std_msgs/Empty.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -184,6 +185,7 @@ protected:
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
+  ros::Subscriber reset_subscriber_; //!< Subscriber that resets the optimizer to its initial state
 
   /**
    * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
@@ -280,6 +282,11 @@ protected:
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
    */
   void processQueue(fuse_core::Transaction& transaction);
+
+  /**
+   * @brief Message callback that resets the optimizer to its original state
+   */
+  void resetMessageCallback(const std_msgs::Empty::ConstPtr&);
 
   /**
    * @brief Service callback that resets the optimizer to its original state
