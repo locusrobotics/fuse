@@ -19,6 +19,7 @@
   <depend>fuse_core</depend>
   <depend>fuse_graphs</depend>
   <depend>fuse_variables</depend>
+  <depend>locus_cpp</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>std_srvs</depend>

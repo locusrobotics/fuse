@@ -7,6 +7,7 @@ set(build_depends
   fuse_core
   fuse_graphs
   fuse_variables
+  locus_cpp
   pluginlib
   roscpp
   std_srvs
@@ -96,6 +97,9 @@ set_target_properties(fixed_lag_smoother_node
   PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
+)
+target_compile_options(fixed_lag_smoother_node
+  PRIVATE -DENABLE_TIMING
 )
 
 #############

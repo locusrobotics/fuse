@@ -48,6 +48,7 @@
 #include <thread>
 #include <vector>
 
+#include <locus_cpp/timing.h>
 
 namespace
 {
@@ -197,18 +198,23 @@ void FixedLagSmoother::optimizationLoop()
       //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
+      TIC(processQueue);
       processQueue(*new_transaction, lag_expiration_);
+      TOC(processQueue);
       // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
       // transactions queue.
       if (new_transaction->empty())
       {
         continue;
       }
+      TIC(preprocessMarginalization);
       // Prepare for selecting the marginal variables
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle
       new_transaction->merge(marginal_transaction_);
+      TOC(preprocessMarginalization);
       // Update the graph
+      TIC(updateGraph);
       try
       {
         graph_->update(*new_transaction);
@@ -227,13 +233,18 @@ void FixedLagSmoother::optimizationLoop()
         ros::requestShutdown();
         break;
       }
+      TOC(updateGraph);
       // Optimize the entire graph
+      TIC(optimizeGraph);
       summary_ = graph_->optimize(params_.solver_options);
+      TOC(optimizeGraph);
       optimization_end_time = ros::Time::now();
 
       // Optimization is complete. Notify all the things about the graph changes.
+      TIC(notify);
       const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
+      TOC(notify);
       optimization_notify_time = ros::Time::now();
 
       // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
@@ -247,6 +258,7 @@ void FixedLagSmoother::optimizationLoop()
       }
 
       // Compute a transaction that marginalizes out those variables.
+      TIC(marginalize);
       lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
         ros::this_node::getName(),
@@ -254,6 +266,7 @@ void FixedLagSmoother::optimizationLoop()
         *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
+      TOC(marginalize);
       optimization_marginalization_time = ros::Time::now();
       // Note: The marginal transaction will not be applied until the next optimization iteration
       // Log a warning if the optimization took too long
@@ -270,6 +283,7 @@ void FixedLagSmoother::optimizationLoop()
         ROS_FATAL_STREAM("Deadline:         " << optimization_deadline << "  [" << (optimization_deadline - optimization_request_time) << "]");
         ROS_FATAL_STREAM("Max Allowed Time: " << params_.optimization_period);
       }
+      TICTOC_PRINT_EVERY(9000);
     }
   }
 }
