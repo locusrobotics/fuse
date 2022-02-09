@@ -170,11 +170,18 @@ void FixedLagSmoother::optimizationLoop()
   {
     // Wait for the next signal to start the next optimization cycle
     auto optimization_deadline = ros::Time(0, 0);
+    auto optimization_request_time = ros::Time(0, 0);
+    auto optimization_start_time = ros::Time(0, 0);
+    auto optimization_end_time = ros::Time(0, 0);
+    auto optimization_notify_time = ros::Time(0, 0);
+    auto optimization_marginalization_time = ros::Time(0, 0);
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
       optimization_requested_.wait(lock, exit_wait_condition);
       optimization_request_ = false;
       optimization_deadline = optimization_deadline_;
+      optimization_request_time = optimization_request_time_;
+      optimization_start_time = ros::Time::now();
     }
     // If a shutdown is requested, exit now.
     if (!optimization_running_ || !ros::ok())
@@ -222,10 +229,12 @@ void FixedLagSmoother::optimizationLoop()
       }
       // Optimize the entire graph
       summary_ = graph_->optimize(params_.solver_options);
+      optimization_end_time = ros::Time::now();
 
       // Optimization is complete. Notify all the things about the graph changes.
       const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
+      optimization_notify_time = ros::Time::now();
 
       // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
       if (!summary_.IsSolutionUsable())
@@ -245,13 +254,21 @@ void FixedLagSmoother::optimizationLoop()
         *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
+      optimization_marginalization_time = ros::Time::now();
       // Note: The marginal transaction will not be applied until the next optimization iteration
       // Log a warning if the optimization took too long
       auto optimization_complete = ros::Time::now();
       if (optimization_complete > optimization_deadline)
       {
-        ROS_WARN_STREAM_THROTTLE(10.0, "Optimization exceeded the configured duration by "
+        ROS_WARN_STREAM_THROTTLE(0.01, "Optimization exceeded the configured duration by "
                                            << (optimization_complete - optimization_deadline) << "s");
+        ROS_FATAL_STREAM("Request Time:     " << optimization_request_time);
+        ROS_FATAL_STREAM("Start Time:       " << optimization_start_time << "  [" << (optimization_start_time - optimization_request_time) << "]");
+        ROS_FATAL_STREAM("End Time:         " << optimization_end_time << "  [" << (optimization_end_time - optimization_request_time) << "]");
+        ROS_FATAL_STREAM("Notify Time:      " << optimization_notify_time << "  [" << (optimization_notify_time - optimization_request_time) << "]");
+        ROS_FATAL_STREAM("Marginalize Time: " << optimization_marginalization_time << "  [" << (optimization_marginalization_time - optimization_request_time) << "]");
+        ROS_FATAL_STREAM("Deadline:         " << optimization_deadline << "  [" << (optimization_deadline - optimization_request_time) << "]");
+        ROS_FATAL_STREAM("Max Allowed Time: " << params_.optimization_period);
       }
     }
   }
@@ -278,6 +295,7 @@ void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
       std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
       optimization_request_ = true;
       optimization_deadline_ = event.current_expected + params_.optimization_period;
+      optimization_request_time_ = ros::Time::now();
     }
     optimization_requested_.notify_one();
   }
