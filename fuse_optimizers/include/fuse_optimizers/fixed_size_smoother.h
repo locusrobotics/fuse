@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
-#define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
+#ifndef FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_H
+#define FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_H
 
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
-#include <fuse_optimizers/fixed_lag_smoother_params.h>
+#include <fuse_optimizers/fixed_size_smoother_params.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_optimizers/windowed_optimizer.h>
 #include <ros/node_handle.h>
@@ -50,17 +50,17 @@
 namespace fuse_optimizers
 {
 /**
- * @brief A fixed-lag smoother implementation that marginalizes out variables that are older than a defined lag time
+ * @brief A fixed-2ize smoother implementation that marginalizes out variables that are older than a defined buffer size
  *
  * This implementation assumes that all added variable types are either derived from the fuse_variables::Stamped class,
  * or are directly connected to at least one fuse_variables::Stamped variable via a constraint. The current time of
- * the fixed-lag smoother is determined by the newest stamp of all added fuse_variables::Stamped variables.
+ * the fixed-size smoother is determined by the newest stamp of all added fuse_variables::Stamped variables.
  *
  * During optimization:
  *  (1) new variables and constraints are added to the graph
  *  (2) the augmented graph is optimized and the variable values are updated
  *  (3) all motion models, sensors, and publishers are notified of the updated graph
- *  (4) all variables older than "current time - lag duration" are marginalized out.
+ *  (4) all variables outside of the fixed buffer are marginalized out
  *
  * Optimization is performed at a fixed frequency, controlled by the \p optimization_frequency parameter. Received
  * sensor transactions are queued while the optimization is processing, then applied to the graph at the start of the
@@ -69,7 +69,7 @@ namespace fuse_optimizers
  * completion, and the next optimization will not begin until the next scheduled optimization period.
  *
  * Parameters:
- *  - lag_duration (float, default: 5.0) The duration of the smoothing window in seconds
+ *  - num_states (float, default: 10) The number of unique timestamped states in the window
  *  - motion_models (struct array) The set of motion model plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this motion model)
@@ -97,11 +97,11 @@ namespace fuse_optimizers
  *                                               motion models to be generated. Once the timeout expires, that
  *                                               transaction will be deleted from the queue.
  */
-class FixedLagSmoother : public WindowedOptimizer
+class FixedSizeSmoother : public WindowedOptimizer
 {
 public:
-  SMART_PTR_DEFINITIONS(FixedLagSmoother);
-  using ParameterType = FixedLagSmootherParams;
+  SMART_PTR_DEFINITIONS(FixedSizeSmoother);
+  using ParameterType = FixedSizeSmootherParams;
 
   /**
    * @brief Constructor
@@ -109,13 +109,13 @@ public:
    * @param[in] graph               The derived graph object. This allows different graph implementations to be used
    *                                with the same optimizer code.
    * @param[in] params              A structure containing all of the configuration parameters required by the
-   *                                fixed-lag smoother
+   *                                fixed-size smoother
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  FixedLagSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
-                   const ros::NodeHandle& node_handle = ros::NodeHandle(),
-                   const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                    const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
   /**
    * @brief Constructor
@@ -127,16 +127,15 @@ public:
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  explicit FixedLagSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
-                            const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  explicit FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                             const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
 protected:
   // Read-only after construction
-  ParameterType::SharedPtr params_;  //!< Configuration settings for this fixed-lag smoother
+  ParameterType::SharedPtr params_;  //!< Configuration settings for this fixed-Size smoother
 
   // Guarded by mutex_
-  std::mutex mutex_;                       //!< Mutex held while the fixed-lag smoother variables are modified
-  ros::Time lag_expiration_;               //!< The oldest stamp that is inside the fixed-lag smoother window
+  std::mutex mutex_;                       //!< Mutex held while the fixed-size smoother variables are modified
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
 
   /**
@@ -157,7 +156,7 @@ protected:
    * This will be called after \p preprocessMarginalization() and after the graph has been updated with the any
    * previous marginal transactions and new transactions.
    *
-   * @param[in] lag_expiration The oldest timestamp that should remain in the graph
+   * @param[in] Size_expiration The oldest timestamp that should remain in the graph
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
   std::vector<fuse_core::UUID> computeVariablesToMarginalize() override;
@@ -176,7 +175,7 @@ protected:
   /**
    * @brief Determine if a new transaction should be applied to the graph
    *
-   * Test if the transaction is within the defined lag window of the smoother.
+   * Test if the transaction is within the defined Size window of the smoother.
    *
    * @param[in] sensor_name - The name of the sensor that produced the provided transaction
    * @param[in] transaction - The transaction to be validated
@@ -191,4 +190,4 @@ protected:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
+#endif  // FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_H

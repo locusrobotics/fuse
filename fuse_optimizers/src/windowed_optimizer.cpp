@@ -58,9 +58,8 @@ namespace
  * @return A reverse iterator pointing to the element after the erased element
  */
 template <typename T>
-typename std::vector<T>::reverse_iterator erase(
-  std::vector<T>& container,
-  typename std::vector<T>::reverse_iterator position)
+typename std::vector<T>::reverse_iterator erase(std::vector<T>& container,
+                                                typename std::vector<T>::reverse_iterator position)
 {
   // Reverse iterators are weird
   // https://stackoverflow.com/questions/1830158/how-to-call-erase-with-a-reverse-iterator
@@ -76,17 +75,14 @@ typename std::vector<T>::reverse_iterator erase(
 
 namespace fuse_optimizers
 {
-WindowedOptimizer::WindowedOptimizer(
-  fuse_core::Graph::UniquePtr graph,
-  const ParameterType::SharedPtr& params,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-  fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-  params_(params),
-  ignited_(false),
-  optimization_running_(true),
-  started_(false),
-  optimization_request_(false)
+WindowedOptimizer::WindowedOptimizer(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                                     const ros::NodeHandle& node_handle, const ros::NodeHandle& private_node_handle)
+  : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
+  , params_(params)
+  , ignited_(false)
+  , optimization_running_(true)
+  , started_(false)
+  , optimization_request_(false)
 {
   // Test for auto-start
   autostart();
@@ -96,13 +92,15 @@ WindowedOptimizer::WindowedOptimizer(
 
   // Configure a timer to trigger optimizations
   optimize_timer_ =
-    node_handle_.createTimer(params_->optimization_period, &WindowedOptimizer::optimizerTimerCallback, this);
+      node_handle_.createTimer(params_->optimization_period, &WindowedOptimizer::optimizerTimerCallback, this);
 
   // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = node_handle_.advertiseService(
-    ros::names::resolve(params_->reset_service),
-    &WindowedOptimizer::resetServiceCallback,
-    this);
+  reset_service_server_ = node_handle_.advertiseService(ros::names::resolve(params_->reset_service),
+                                                        &WindowedOptimizer::resetServiceCallback, this);
+
+  // Subscribe to a reset message that will reset the optimizer to the initial state
+  reset_subscriber_ = node_handle_.subscribe(ros::names::resolve(params_->reset_service), 10,
+                                             &WindowedOptimizer::resetMessageCallback, this);
 }
 
 WindowedOptimizer::~WindowedOptimizer()
@@ -119,10 +117,8 @@ WindowedOptimizer::~WindowedOptimizer()
 
 void WindowedOptimizer::autostart()
 {
-  if (std::none_of(
-        sensor_models_.begin(),
-        sensor_models_.end(),
-        [](const auto& element) { return element.second.ignition; }))  // NOLINT(whitespace/braces)
+  if (std::none_of(sensor_models_.begin(), sensor_models_.end(),
+                   [](const auto& element) { return element.second.ignition; }))  // NOLINT(whitespace/braces)
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
@@ -133,8 +129,7 @@ void WindowedOptimizer::autostart()
 
 void WindowedOptimizer::optimizationLoop()
 {
-  auto exit_wait_condition = [this]()
-  {
+  auto exit_wait_condition = [this]() {
     return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
   };
   // Optimize constraints until told to exit
@@ -169,6 +164,31 @@ void WindowedOptimizer::optimizationLoop()
       {
         continue;
       }
+      // check if new transaction has added constraints to variables that are to be marginalized
+      std::vector<fuse_core::UUID> faulty_constraints;
+      for (auto& c : new_transaction->addedConstraints())
+      {
+        for (auto var_uuid : c.variables())
+        {
+          for (auto marginal_uuid : marginal_transaction_.removedVariables())
+          {
+            if (var_uuid == marginal_uuid)
+            {
+              faulty_constraints.push_back(c.uuid());
+              break;
+            }
+          }
+        }
+      }
+      if (faulty_constraints.size() > 0)
+      {
+        ROS_WARN_STREAM("Removing invalid constraints.");
+        for (auto& faulty_constraint : faulty_constraints)
+        {
+          new_transaction->removeConstraint(faulty_constraint);
+        }
+      }
+
       // Prepare for selecting the marginal variables -- Delegated to derived classes
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle
@@ -186,11 +206,10 @@ void WindowedOptimizer::optimizationLoop()
         oss << "\nTransaction:\n";
         new_transaction->print(oss);
 
-        ROS_FATAL_STREAM(
-          "Failed to update graph with transaction: " << ex.what()
-                                                      << "\nLeaving optimization loop and requesting "
-                                                         "node shutdown...\n"
-                                                      << oss.str());
+        ROS_FATAL_STREAM("Failed to update graph with transaction: " << ex.what()
+                                                                     << "\nLeaving optimization loop and requesting "
+                                                                        "node shutdown...\n"
+                                                                     << oss.str());
         ros::requestShutdown();
         break;
       }
@@ -204,9 +223,8 @@ void WindowedOptimizer::optimizationLoop()
       // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
       if (!summary_.IsSolutionUsable())
       {
-        ROS_FATAL_STREAM(
-          "Optimization failed after updating the graph with the transaction with timestamp "
-          << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
+        ROS_FATAL_STREAM("Optimization failed after updating the graph with the transaction with timestamp "
+                         << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
         ROS_INFO_STREAM(summary_.FullReport());
         ros::requestShutdown();
         break;
@@ -216,7 +234,7 @@ void WindowedOptimizer::optimizationLoop()
       // Determination of which variables to marginalize is delegated to derived classes
       auto variables_to_marginalize = computeVariablesToMarginalize();
       marginal_transaction_ =
-        fuse_constraints::marginalizeVariables(ros::this_node::getName(), variables_to_marginalize, *graph_);
+          fuse_constraints::marginalizeVariables(ros::this_node::getName(), variables_to_marginalize, *graph_);
       // Perform any post-marginal cleanup -- Delegated to derived classes
       postprocessMarginalization(marginal_transaction_);
       // Note: The marginal transaction will not be applied until the next optimization iteration
@@ -224,10 +242,8 @@ void WindowedOptimizer::optimizationLoop()
       auto optimization_complete = ros::Time::now();
       if (optimization_complete > optimization_deadline)
       {
-        ROS_WARN_STREAM_THROTTLE(
-          10.0,
-          "Optimization exceeded the configured duration by " << (optimization_complete - optimization_deadline)
-                                                              << "s");
+        ROS_WARN_STREAM_THROTTLE(10.0, "Optimization exceeded the configured duration by "
+                                           << (optimization_complete - optimization_deadline) << "s");
       }
     }
   }
@@ -290,10 +306,10 @@ void WindowedOptimizer::processQueue(fuse_core::Transaction& transaction)
     {
       // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
       // transaction, but we do not enforce it is processed individually.
-      ROS_ERROR_STREAM(
-        "The queued transaction with timestamp " << element.stamp() << " from sensor " << element.sensor_name
-                                                 << " is not an ignition sensor transaction. "
-                                                 << "This transaction will not be processed individually.");
+      ROS_ERROR_STREAM("The queued transaction with timestamp "
+                       << element.stamp() << " from sensor " << element.sensor_name
+                       << " is not an ignition sensor transaction. "
+                       << "This transaction will not be processed individually.");
     }
     else
     {
@@ -308,21 +324,20 @@ void WindowedOptimizer::processQueue(fuse_core::Transaction& transaction)
       {
         // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
         // trying again next time, so we ignore this transaction.
-        ROS_ERROR_STREAM(
-          "The queued ignition transaction with timestamp " << element.stamp() << " from sensor " << element.sensor_name
-                                                            << " could not be processed. Ignoring this ignition "
-                                                               "transaction.");
+        ROS_ERROR_STREAM("The queued ignition transaction with timestamp "
+                         << element.stamp() << " from sensor " << element.sensor_name
+                         << " could not be processed. Ignoring this ignition "
+                            "transaction.");
 
         // Remove the ignition transaction that just failed and purge all transactions after it. But if we find another
         // ignition transaction, we schedule it to be processed in the next optimization cycle.
         erase(pending_transactions_, transaction_rbegin);
 
-        const auto pending_ignition_transaction_iter = std::find_if(
-          pending_transactions_.rbegin(),
-          pending_transactions_.rend(),
-          [this](const auto& element) {  // NOLINT(whitespace/braces)
-            return sensor_models_.at(element.sensor_name).ignition;
-          });  // NOLINT(whitespace/braces)
+        const auto pending_ignition_transaction_iter =
+            std::find_if(pending_transactions_.rbegin(), pending_transactions_.rend(),
+                         [this](const auto& element) {  // NOLINT(whitespace/braces)
+                           return sensor_models_.at(element.sensor_name).ignition;
+                         });  // NOLINT(whitespace/braces)
         if (pending_ignition_transaction_iter == pending_transactions_.rend())
         {
           // There is no other ignition transaction pending. We simply roll back to not started state and all other
@@ -376,15 +391,13 @@ void WindowedOptimizer::processQueue(fuse_core::Transaction& transaction)
       if (max_stamp + params_->transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM(
-          "The queued transaction with timestamp " << element.stamp()
-                                                   << " and maximum "
-                                                      "involved stamp of "
-                                                   << max_stamp << " from sensor " << element.sensor_name
-                                                   << " could not be processed after " << (current_time - max_stamp)
-                                                   << " seconds, "
-                                                      "which is greater than the 'transaction_timeout' value of "
-                                                   << params_->transaction_timeout << ". Ignoring this transaction.");
+        ROS_ERROR_STREAM("The queued transaction with timestamp "
+                         << element.stamp() << " and maximum "
+                                               "involved stamp of "
+                         << max_stamp << " from sensor " << element.sensor_name << " could not be processed after "
+                         << (current_time - max_stamp) << " seconds, "
+                                                          "which is greater than the 'transaction_timeout' value of "
+                         << params_->transaction_timeout << ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -397,7 +410,7 @@ void WindowedOptimizer::processQueue(fuse_core::Transaction& transaction)
   }
 }
 
-bool WindowedOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+void WindowedOptimizer::reset()
 {
   // Tell all the plugins to stop
   stopPlugins();
@@ -429,24 +442,35 @@ bool WindowedOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs
   startPlugins();
   // Test for auto-start
   autostart();
+  return;
+}
 
+void WindowedOptimizer::resetMessageCallback(const std_msgs::Empty::ConstPtr&)
+{
+  // perform reset logic
+  reset();
+  return;
+}
+
+bool WindowedOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  // perform reset logic
+  reset();
   return true;
 }
 
-void WindowedOptimizer::transactionCallback(
-  const std::string& sensor_name,
-  fuse_core::Transaction::SharedPtr transaction)
+void WindowedOptimizer::transactionCallback(const std::string& sensor_name,
+                                            fuse_core::Transaction::SharedPtr transaction)
 {
   // If this transaction occurs before the start time, just ignore it
   auto start_time = getStartTime();
   const auto max_time = transaction->maxStamp();
   if (started_ && max_time < start_time)
   {
-    ROS_DEBUG_STREAM(
-      "Received a transaction before the start time from sensor '"
-      << sensor_name << "'.\n"
-      << "  start_time: " << start_time << ", maximum involved stamp: " << max_time
-      << ", difference: " << (start_time - max_time) << "s");
+    ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '"
+                     << sensor_name << "'.\n"
+                     << "  start_time: " << start_time << ", maximum involved stamp: " << max_time
+                     << ", difference: " << (start_time - max_time) << "s");
     return;
   }
   {
@@ -455,12 +479,11 @@ void WindowedOptimizer::transactionCallback(
 
     // Add the new transaction to the pending set
     // The pending set is arranged "smallest stamp last" to making popping off the back more efficient
-    auto comparator = [](const ros::Time& value, const TransactionQueueElement& element)
-    {
+    auto comparator = [](const ros::Time& value, const TransactionQueueElement& element) {
       return value >= element.stamp();
     };
     auto position =
-      std::upper_bound(pending_transactions_.begin(), pending_transactions_.end(), transaction->stamp(), comparator);
+        std::upper_bound(pending_transactions_.begin(), pending_transactions_.end(), transaction->stamp(), comparator);
     position = pending_transactions_.insert(position, { sensor_name, std::move(transaction) });  // NOLINT
 
     // If we haven't "started" yet..
@@ -481,16 +504,13 @@ void WindowedOptimizer::transactionCallback(
         // TODO(efernandez) Do '&min_time = std::as_const(start_time)' when C++17 is supported and we can use
         //                  std::as_const: https://en.cppreference.com/w/cpp/utility/as_const
         pending_transactions_.erase(
-          std::remove_if(
-            pending_transactions_.begin(),
-            pending_transactions_.end(),
-            [&sensor_name,
-             max_time,
-             &min_time = start_time](const auto& transaction) {  // NOLINT(whitespace/braces)
-              return transaction.sensor_name != sensor_name &&
-                     (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
-            }),  // NOLINT(whitespace/braces)
-          pending_transactions_.end());
+            std::remove_if(pending_transactions_.begin(), pending_transactions_.end(),
+                           [&sensor_name, max_time,
+                            &min_time = start_time ](const auto& transaction) {  // NOLINT(whitespace/braces)
+                             return transaction.sensor_name != sensor_name &&
+                                    (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
+                           }),  // NOLINT(whitespace/braces)
+            pending_transactions_.end());
       }
       else
       {

@@ -40,6 +40,7 @@
 #include <fuse_optimizers/windowed_optimizer_params.h>
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
+#include <std_msgs/Empty.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -111,11 +112,9 @@ public:
    * @param[in] node_handle - A node handle in the global namespace
    * @param[in] private_node_handle - A node handle in the node's private namespace
    */
-  WindowedOptimizer(
-    fuse_core::Graph::UniquePtr graph,
-    const ParameterType::SharedPtr& params,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  WindowedOptimizer(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                    const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
   /**
    * @brief Destructor
@@ -131,9 +130,18 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    const ros::Time& stamp() const { return transaction->stamp(); }
-    const ros::Time& minStamp() const { return transaction->minStamp(); }
-    const ros::Time& maxStamp() const { return transaction->maxStamp(); }
+    const ros::Time& stamp() const
+    {
+      return transaction->stamp();
+    }
+    const ros::Time& minStamp() const
+    {
+      return transaction->minStamp();
+    }
+    const ros::Time& maxStamp() const
+    {
+      return transaction->maxStamp();
+    }
   };
 
   /**
@@ -173,17 +181,18 @@ protected:
   // Guarded by optimization_requested_mutex_
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
-  bool optimization_request_;  //!< Flag to trigger a new optimization
+  bool optimization_request_;        //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  ros::Time start_time_;                 //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+  ros::Timer optimize_timer_;                //!< Trigger an optimization operation at a fixed frequency
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
+  ros::Subscriber reset_subscriber_;         //!< Subscriber that resets the optimizer to its initial state
 
   /**
    * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
@@ -280,6 +289,16 @@ protected:
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
    */
   void processQueue(fuse_core::Transaction& transaction);
+
+  /**
+   * @brief Performs all logic when the client calls for a reset
+   */
+  void reset();
+
+  /**
+   * @brief Message callback that resets the optimizer to its original state
+   */
+  void resetMessageCallback(const std_msgs::Empty::ConstPtr&);
 
   /**
    * @brief Service callback that resets the optimizer to its original state

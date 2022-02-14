@@ -42,7 +42,6 @@
 #include <unordered_map>
 #include <vector>
 
-
 TEST(Optimizer, Constructor)
 {
   // Create optimizer:
@@ -63,12 +62,12 @@ TEST(Optimizer, Constructor)
                                                             "unicycle_2d_ignition", "wheel_odometry" };
   const std::vector<std::string> expected_publishers = { "odometry_publisher", "serialized_publisher" };
 
-  ASSERT_TRUE(std::is_sorted(expected_motion_models.begin(), expected_motion_models.end()))
-      << expected_motion_models << " is not sorted.";
-  ASSERT_TRUE(std::is_sorted(expected_sensor_models.begin(), expected_sensor_models.end()))
-      << expected_sensor_models << " is not sorted.";
-  ASSERT_TRUE(std::is_sorted(expected_publishers.begin(), expected_publishers.end()))
-      << expected_publishers << " is not sorted.";
+  ASSERT_TRUE(std::is_sorted(expected_motion_models.begin(), expected_motion_models.end())) << expected_motion_models
+                                                                                            << " is not sorted.";
+  ASSERT_TRUE(std::is_sorted(expected_sensor_models.begin(), expected_sensor_models.end())) << expected_sensor_models
+                                                                                            << " is not sorted.";
+  ASSERT_TRUE(std::is_sorted(expected_publishers.begin(), expected_publishers.end())) << expected_publishers
+                                                                                      << " is not sorted.";
 
   // Compute the symmetric difference between the expected and actual motion and sensor models, and publishers:
   const auto difference_motion_models = set_symmetric_difference(expected_motion_models, motion_models);
@@ -77,14 +76,14 @@ TEST(Optimizer, Constructor)
 
   // Check the symmetric difference is empty, i.e. the actual motion and sensor models, and publishers are the same as
   // the expected ones:
-  EXPECT_TRUE(difference_motion_models.empty())
-      << "Actual: " << motion_models << "\nExpected: " << expected_motion_models
-      << "\nDifference: " << difference_motion_models;
-  EXPECT_TRUE(difference_sensor_models.empty())
-      << "Actual: " << sensor_models << "\nExpected: " << expected_sensor_models
-      << "\nDifference: " << difference_sensor_models;
-  EXPECT_TRUE(difference_publishers.empty())
-      << "Actual: " << publishers << "\nExpected: " << expected_publishers << "\nDifference: " << difference_publishers;
+  EXPECT_TRUE(difference_motion_models.empty()) << "Actual: " << motion_models
+                                                << "\nExpected: " << expected_motion_models
+                                                << "\nDifference: " << difference_motion_models;
+  EXPECT_TRUE(difference_sensor_models.empty()) << "Actual: " << sensor_models
+                                                << "\nExpected: " << expected_sensor_models
+                                                << "\nDifference: " << difference_sensor_models;
+  EXPECT_TRUE(difference_publishers.empty()) << "Actual: " << publishers << "\nExpected: " << expected_publishers
+                                             << "\nDifference: " << difference_publishers;
 }
 
 int main(int argc, char** argv)

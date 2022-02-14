@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_optimizers/fixed_lag_smoother.h>
+#include <fuse_optimizers/fixed_size_smoother.h>
 
 #include <fuse_core/graph.h>
 #include <fuse_core/parameter.h>
@@ -50,67 +50,71 @@
 
 namespace fuse_optimizers
 {
-FixedLagSmoother::FixedLagSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
-                                   const ros::NodeHandle& node_handle, const ros::NodeHandle& private_node_handle)
+FixedSizeSmoother::FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                                     const ros::NodeHandle& node_handle, const ros::NodeHandle& private_node_handle)
   : fuse_optimizers::WindowedOptimizer(std::move(graph), params, node_handle, private_node_handle), params_(params)
 {
 }
 
-FixedLagSmoother::FixedLagSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle,
-                                   const ros::NodeHandle& private_node_handle)
-  : FixedLagSmoother::FixedLagSmoother(
+FixedSizeSmoother::FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle,
+                                     const ros::NodeHandle& private_node_handle)
+  : FixedSizeSmoother::FixedSizeSmoother(
         std::move(graph), ParameterType::make_shared(fuse_core::loadFromROS<ParameterType>(private_node_handle)),
         node_handle, private_node_handle)
 {
 }
 
-void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& new_transaction)
+void FixedSizeSmoother::preprocessMarginalization(const fuse_core::Transaction& new_transaction)
 {
   std::lock_guard<std::mutex> lock(mutex_);
   timestamp_tracking_.addNewTransaction(new_transaction);
 }
 
-std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
+std::vector<fuse_core::UUID> FixedSizeSmoother::computeVariablesToMarginalize()
 {
-  // Find the most recent variable timestamp, then carefully subtract the lag duration.
-  // ROS Time objects do not handle negative values.
-  auto start_time = getStartTime();
-
   std::lock_guard<std::mutex> lock(mutex_);
-  auto now = timestamp_tracking_[timestamp_tracking_.numStates() - 1];
-  lag_expiration_ = (start_time + params_->lag_duration < now) ? now - params_->lag_duration : start_time;
+
   auto marginalize_variable_uuids = std::vector<fuse_core::UUID>();
-  timestamp_tracking_.query(lag_expiration_, std::back_inserter(marginalize_variable_uuids));
+
+  // if the total number of states is greater than our optimization window, then find the new state
+  // given we remove the first n states to bring the number of states back to our desired window size
+  if ((int)timestamp_tracking_.numStates() > params_->num_states)
+  {
+    size_t num_states_to_marginalize = timestamp_tracking_.numStates() - params_->num_states;
+    ros::Time new_start_time = timestamp_tracking_[num_states_to_marginalize - 1];
+    timestamp_tracking_.query(new_start_time, std::back_inserter(marginalize_variable_uuids));
+  }
+
   return marginalize_variable_uuids;
 }
 
-void FixedLagSmoother::postprocessMarginalization(const fuse_core::Transaction& marginal_transaction)
+void FixedSizeSmoother::postprocessMarginalization(const fuse_core::Transaction& marginal_transaction)
 {
   std::lock_guard<std::mutex> lock(mutex_);
   timestamp_tracking_.addMarginalTransaction(marginal_transaction);
 }
 
-bool FixedLagSmoother::validateTransaction(const std::string& sensor_name, const fuse_core::Transaction& transaction)
+bool FixedSizeSmoother::validateTransaction(const std::string& sensor_name, const fuse_core::Transaction& transaction)
 {
   auto min_stamp = transaction.minStamp();
   std::lock_guard<std::mutex> lock(mutex_);
-  if (min_stamp < lag_expiration_)
+  ros::Time window_start = timestamp_tracking_[0];
+  if (min_stamp < window_start)
   {
-    ROS_DEBUG_STREAM("The current lag expiration time is "
-                     << lag_expiration_ << ". The queued transaction with timestamp " << transaction.stamp()
+    ROS_DEBUG_STREAM("The current optimization window starts at "
+                     << window_start << ". The queued transaction with timestamp " << transaction.stamp()
                      << " from sensor " << sensor_name << " has a minimum involved timestamp of " << min_stamp
-                     << ", which is " << (lag_expiration_ - min_stamp)
-                     << " seconds too old. Ignoring this transaction.");
+                     << ", which is prior to the beginning "
+                     << "of this window, ignoring this transaction.");
     return false;
   }
   return true;
 }
 
-void FixedLagSmoother::onReset()
+void FixedSizeSmoother::onReset()
 {
   std::lock_guard<std::mutex> lock(mutex_);
   timestamp_tracking_.clear();
-  lag_expiration_ = ros::Time(0, 0);
 }
 
 }  // namespace fuse_optimizers

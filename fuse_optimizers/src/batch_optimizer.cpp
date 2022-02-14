@@ -42,27 +42,21 @@
 #include <utility>
 #include <thread>
 
-
 namespace fuse_optimizers
 {
-
-BatchOptimizer::BatchOptimizer(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-    fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    combined_transaction_(fuse_core::Transaction::make_shared()),
-    optimization_request_(false),
-    start_time_(ros::TIME_MAX),
-    started_(false)
+BatchOptimizer::BatchOptimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle,
+                               const ros::NodeHandle& private_node_handle)
+  : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
+  , combined_transaction_(fuse_core::Transaction::make_shared())
+  , optimization_request_(false)
+  , start_time_(ros::TIME_MAX)
+  , started_(false)
 {
   params_.loadFromROS(private_node_handle);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
-    ros::Duration(params_.optimization_period),
-    &BatchOptimizer::optimizerTimerCallback,
-    this);
+  optimize_timer_ = node_handle_.createTimer(ros::Duration(params_.optimization_period),
+                                             &BatchOptimizer::optimizerTimerCallback, this);
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&BatchOptimizer::optimizationLoop, this);
@@ -99,10 +93,11 @@ void BatchOptimizer::applyMotionModelsToQueue()
       if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
-                          << " could not be processed after " << (current_time - element.transaction->stamp())
-                          << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << params_.transaction_timeout << ". Ignoring this transaction.");
+        ROS_ERROR_STREAM("The queued transaction with timestamp "
+                         << element.transaction->stamp() << " could not be processed after "
+                         << (current_time - element.transaction->stamp())
+                         << " seconds, which is greater than the 'transaction_timeout' value of "
+                         << params_.transaction_timeout << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
       }
@@ -130,7 +125,7 @@ void BatchOptimizer::optimizationLoop()
     // Wait for the next signal to start the next optimization cycle
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
-      optimization_requested_.wait(lock, [this]{ return optimization_request_ || !ros::ok(); });  // NOLINT
+      optimization_requested_.wait(lock, [this] { return optimization_request_ || !ros::ok(); });  // NOLINT
     }
     // If a shutdown is requested, exit now.
     if (!ros::ok())
@@ -180,9 +175,7 @@ void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& /*event*/)
   }
 }
 
-void BatchOptimizer::transactionCallback(
-  const std::string& sensor_name,
-  fuse_core::Transaction::SharedPtr transaction)
+void BatchOptimizer::transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
 {
   // Add the new transaction to the pending set
   // Either we haven't "started" yet and we want to keep a short history of transactions around
