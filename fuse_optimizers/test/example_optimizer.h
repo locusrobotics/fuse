@@ -39,7 +39,6 @@
 #include <string>
 #include <utility>
 
-
 /**
  * @brief Example optimizer that exposes the motion and sensor models, and the publishers, so we can check the expected
  * ones are loaded.
@@ -50,7 +49,7 @@ public:
   SMART_PTR_DEFINITIONS(ExampleOptimizer);
 
   ExampleOptimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
-                 const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"))
+                   const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"))
     : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
   {
   }
@@ -70,9 +69,7 @@ public:
     return publishers_;
   }
 
-  void transactionCallback(
-      const std::string& sensor_name,
-      fuse_core::Transaction::SharedPtr transaction) override
+  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override
   {
   }
 };

@@ -50,25 +50,17 @@
 
 namespace fuse_optimizers
 {
-FixedSizeSmoother::FixedSizeSmoother(
-  fuse_core::Graph::UniquePtr graph,
-  const ParameterType::SharedPtr& params,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-  fuse_optimizers::WindowedOptimizer(std::move(graph), params, node_handle, private_node_handle),
-  params_(params)
+FixedSizeSmoother::FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                                     const ros::NodeHandle& node_handle, const ros::NodeHandle& private_node_handle)
+  : fuse_optimizers::WindowedOptimizer(std::move(graph), params, node_handle, private_node_handle), params_(params)
 {
 }
 
-FixedSizeSmoother::FixedSizeSmoother(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-  FixedSizeSmoother::FixedSizeSmoother(
-    std::move(graph),
-    ParameterType::make_shared(fuse_core::loadFromROS<ParameterType>(private_node_handle)),
-    node_handle,
-    private_node_handle)
+FixedSizeSmoother::FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle,
+                                     const ros::NodeHandle& private_node_handle)
+  : FixedSizeSmoother::FixedSizeSmoother(
+        std::move(graph), ParameterType::make_shared(fuse_core::loadFromROS<ParameterType>(private_node_handle)),
+        node_handle, private_node_handle)
 {
 }
 
@@ -86,9 +78,10 @@ std::vector<fuse_core::UUID> FixedSizeSmoother::computeVariablesToMarginalize()
 
   // if the total number of states is greater than our optimization window, then find the new state
   // given we remove the first n states to bring the number of states back to our desired window size
-  if((int)timestamp_tracking_.numStates() > params_->num_states){
+  if ((int)timestamp_tracking_.numStates() > params_->num_states)
+  {
     size_t num_states_to_marginalize = timestamp_tracking_.numStates() - params_->num_states;
-    ros::Time new_start_time = timestamp_tracking_.ithStamp(num_states_to_marginalize - 1);
+    ros::Time new_start_time = timestamp_tracking_[num_states_to_marginalize - 1];
     timestamp_tracking_.query(new_start_time, std::back_inserter(marginalize_variable_uuids));
   }
 
@@ -105,14 +98,14 @@ bool FixedSizeSmoother::validateTransaction(const std::string& sensor_name, cons
 {
   auto min_stamp = transaction.minStamp();
   std::lock_guard<std::mutex> lock(mutex_);
-  ros::Time window_start = timestamp_tracking_.firstStamp();
+  ros::Time window_start = timestamp_tracking_[0];
   if (min_stamp < window_start)
   {
-    ROS_DEBUG_STREAM(
-      "The current optimization window starts at "
-      << window_start << ". The queued transaction with timestamp " << transaction.stamp() << " from sensor "
-      << sensor_name << " has a minimum involved timestamp of " << min_stamp << ", which is prior to the beginning "
-      << "of this window, ignoring this transaction.");
+    ROS_DEBUG_STREAM("The current optimization window starts at "
+                     << window_start << ". The queued transaction with timestamp " << transaction.stamp()
+                     << " from sensor " << sensor_name << " has a minimum involved timestamp of " << min_stamp
+                     << ", which is prior to the beginning "
+                     << "of this window, ignoring this transaction.");
     return false;
   }
   return true;

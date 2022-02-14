@@ -49,10 +49,8 @@
 #include <utility>
 #include <vector>
 
-
 namespace fuse_optimizers
 {
-
 /**
  * @brief Plugin name and type configuration, as received from the parameter server
  *
@@ -79,17 +77,15 @@ struct PluginConfig
   XmlRpc::XmlRpcValue config;  //!< The entire configuration, that might have additional optional parameters
 };
 
-Optimizer::Optimizer(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-    graph_(std::move(graph)),
-    node_handle_(node_handle),
-    private_node_handle_(private_node_handle),
-    motion_model_loader_("fuse_core", "fuse_core::MotionModel"),
-    publisher_loader_("fuse_core", "fuse_core::Publisher"),
-    sensor_model_loader_("fuse_core", "fuse_core::SensorModel"),
-    diagnostic_updater_(node_handle_)
+Optimizer::Optimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle,
+                     const ros::NodeHandle& private_node_handle)
+  : graph_(std::move(graph))
+  , node_handle_(node_handle)
+  , private_node_handle_(private_node_handle)
+  , motion_model_loader_("fuse_core", "fuse_core::MotionModel")
+  , publisher_loader_("fuse_core", "fuse_core::Publisher")
+  , sensor_model_loader_("fuse_core", "fuse_core::SensorModel")
+  , diagnostic_updater_(node_handle_)
 {
   // Setup diagnostics updater
   private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
@@ -138,12 +134,12 @@ void Optimizer::loadMotionModels()
     {
       // Validate the parameter server values
       const auto& motion_model = motion_models[motion_model_index];
-      if ( (motion_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!motion_model.hasMember("name"))
-        || (!motion_model.hasMember("type")))
+      if ((motion_model.getType() != XmlRpc::XmlRpcValue::TypeStruct) || (!motion_model.hasMember("name")) ||
+          (!motion_model.hasMember("type")))
       {
-        throw std::invalid_argument("The 'motion_models' parameter should be a list of the form: "
-                                    "-{name: string, type: string}");
+        throw std::invalid_argument(
+            "The 'motion_models' parameter should be a list of the form: "
+            "-{name: string, type: string}");
       }
 
       motion_model_configs.emplace_back(static_cast<std::string>(motion_model["name"]),
@@ -156,11 +152,12 @@ void Optimizer::loadMotionModels()
     for (const auto& motion_model : motion_models)
     {
       const auto& motion_model_config = motion_model.second;
-      if ( (motion_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!motion_model_config.hasMember("type")))
+      if ((motion_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct) ||
+          (!motion_model_config.hasMember("type")))
       {
-        throw std::invalid_argument("The 'motion_models' parameter should be a struct of the form: "
-                                    "{string: {type: string}}");
+        throw std::invalid_argument(
+            "The 'motion_models' parameter should be a struct of the form: "
+            "{string: {type: string}}");
       }
 
       motion_model_configs.emplace_back(static_cast<std::string>(motion_model.first),
@@ -169,8 +166,9 @@ void Optimizer::loadMotionModels()
   }
   else
   {
-    throw std::invalid_argument("The 'motion_models' parameter should be a list of the form: "
-                                "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
+    throw std::invalid_argument(
+        "The 'motion_models' parameter should be a list of the form: "
+        "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
   }
 
   for (const auto& config : motion_model_configs)
@@ -204,12 +202,12 @@ void Optimizer::loadSensorModels()
     {
       // Validate the parameter server values
       const auto& sensor_model = sensor_models[sensor_model_index];
-      if ( (sensor_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!sensor_model.hasMember("name"))
-        || (!sensor_model.hasMember("type")))
+      if ((sensor_model.getType() != XmlRpc::XmlRpcValue::TypeStruct) || (!sensor_model.hasMember("name")) ||
+          (!sensor_model.hasMember("type")))
       {
-        throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
-                                    "-{name: string, type: string, motion_models: [name1, name2, ...]}");
+        throw std::invalid_argument(
+            "The 'sensor_models' parameter should be a list of the form: "
+            "-{name: string, type: string, motion_models: [name1, name2, ...]}");
       }
 
       sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model["name"]),
@@ -223,11 +221,12 @@ void Optimizer::loadSensorModels()
     {
       // Validate the parameter server values
       const auto& sensor_model_config = sensor_model.second;
-      if ( (sensor_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!sensor_model_config.hasMember("type")))
+      if ((sensor_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct) ||
+          (!sensor_model_config.hasMember("type")))
       {
-        throw std::invalid_argument("The 'sensor_models' parameter should be a struct of the form: "
-                                    "{string: {type: string, motion_models: [name1, name2, ...]}}");
+        throw std::invalid_argument(
+            "The 'sensor_models' parameter should be a struct of the form: "
+            "{string: {type: string, motion_models: [name1, name2, ...]}}");
       }
 
       sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model.first),
@@ -236,10 +235,11 @@ void Optimizer::loadSensorModels()
   }
   else
   {
-    throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
-                                "-{name: string, type: string, motion_models: [name1, name2, ...]} "
-                                "or a struct of the form: "
-                                "{string: {type: string, motion_models: [name1, name2, ...]}}");
+    throw std::invalid_argument(
+        "The 'sensor_models' parameter should be a list of the form: "
+        "-{name: string, type: string, motion_models: [name1, name2, ...]} "
+        "or a struct of the form: "
+        "{string: {type: string, motion_models: [name1, name2, ...]}}");
   }
 
   for (const auto& config : sensor_model_configs)
@@ -250,16 +250,15 @@ void Optimizer::loadSensorModels()
     // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
     auto sensor_model = sensor_model_loader_.createUniqueInstance(config.type);
     // Initialize the sensor
-    sensor_model->initialize(
-      config.name,
-      std::bind(&Optimizer::injectCallback, this, config.name, std::placeholders::_1));
+    sensor_model->initialize(config.name,
+                             std::bind(&Optimizer::injectCallback, this, config.name, std::placeholders::_1));
     // Store the sensor in a member variable for use later
     sensor_models_.emplace(config.name,
                            SensorModelInfo{ std::move(sensor_model), ignition });  // NOLINT(whitespace/braces)
 
     // Parse out the list of associated motion models, if any
-    if ( (config.config.hasMember("motion_models"))
-      && (config.config["motion_models"].getType() == XmlRpc::XmlRpcValue::TypeArray))
+    if ((config.config.hasMember("motion_models")) &&
+        (config.config["motion_models"].getType() == XmlRpc::XmlRpcValue::TypeArray))
     {
       XmlRpc::XmlRpcValue motion_model_list = config.config["motion_models"];
       for (int32_t motion_model_index = 0; motion_model_index < motion_model_list.size(); ++motion_model_index)
@@ -268,9 +267,10 @@ void Optimizer::loadSensorModels()
         associated_motion_models_[config.name].push_back(motion_model_name);
         if (motion_models_.find(motion_model_name) == motion_models_.end())
         {
-          ROS_WARN_STREAM("Sensor model '" << config.name << "' is configured to use motion model '" <<
-                          motion_model_name << "', but no motion model with that name currently exists. This is " <<
-                          "likely a configuration error.");
+          ROS_WARN_STREAM("Sensor model '" << config.name << "' is configured to use motion model '"
+                                           << motion_model_name
+                                           << "', but no motion model with that name currently exists. This is "
+                                           << "likely a configuration error.");
         }
       }
     }
@@ -297,12 +297,12 @@ void Optimizer::loadPublishers()
     {
       // Validate the parameter server values
       const auto& publisher = publishers[publisher_index];
-      if ( (publisher.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!publisher.hasMember("name"))
-        || (!publisher.hasMember("type")))
+      if ((publisher.getType() != XmlRpc::XmlRpcValue::TypeStruct) || (!publisher.hasMember("name")) ||
+          (!publisher.hasMember("type")))
       {
-        throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
-                                    "-{name: string, type: string}");
+        throw std::invalid_argument(
+            "The 'publishers' parameter should be a list of the form: "
+            "-{name: string, type: string}");
       }
 
       publisher_configs.emplace_back(static_cast<std::string>(publisher["name"]),
@@ -316,11 +316,11 @@ void Optimizer::loadPublishers()
     {
       // Validate the parameter server values
       const auto& publisher_config = publisher.second;
-      if ( (publisher_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!publisher_config.hasMember("type")))
+      if ((publisher_config.getType() != XmlRpc::XmlRpcValue::TypeStruct) || (!publisher_config.hasMember("type")))
       {
-        throw std::invalid_argument("The 'publishers' parameter should be a struct of the form: "
-                                    "{string: {type: string}}");
+        throw std::invalid_argument(
+            "The 'publishers' parameter should be a struct of the form: "
+            "{string: {type: string}}");
       }
 
       publisher_configs.emplace_back(static_cast<std::string>(publisher.first),
@@ -329,8 +329,9 @@ void Optimizer::loadPublishers()
   }
   else
   {
-    throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
-                                "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
+    throw std::invalid_argument(
+        "The 'publishers' parameter should be a list of the form: "
+        "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
   }
 
   for (const auto& config : publisher_configs)
@@ -346,9 +347,7 @@ void Optimizer::loadPublishers()
   diagnostic_updater_.force_update();
 }
 
-bool Optimizer::applyMotionModels(
-  const std::string& sensor_name,
-  fuse_core::Transaction& transaction) const
+bool Optimizer::applyMotionModels(const std::string& sensor_name, fuse_core::Transaction& transaction) const
 {
   // Check for trivial cases where we don't have to do anything
   auto iter = associated_motion_models_.find(sensor_name);
@@ -368,16 +367,15 @@ bool Optimizer::applyMotionModels(
     catch (const std::exception& e)
     {
       ROS_ERROR_STREAM("Error generating constraints for sensor '" << sensor_name << "' "
-                       << "from motion model '" << motion_model_name << "'. Error: " << e.what());
+                                                                   << "from motion model '" << motion_model_name
+                                                                   << "'. Error: " << e.what());
       success = false;
     }
   }
   return success;
 }
 
-void Optimizer::notify(
-  fuse_core::Transaction::ConstSharedPtr transaction,
-  fuse_core::Graph::ConstSharedPtr graph)
+void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph)
 {
   for (const auto& name__sensor_model : sensor_models_)
   {
@@ -387,8 +385,8 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling graphCallback() on sensor '" << name__sensor_model.first << "'. " <<
-                       "Error: " << e.what());
+      ROS_ERROR_STREAM("Failed calling graphCallback() on sensor '" << name__sensor_model.first << "'. "
+                                                                    << "Error: " << e.what());
       continue;
     }
   }
@@ -400,8 +398,8 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling graphCallback() on motion model '" << name__motion_model.first << "." <<
-                       " Error: " << e.what());
+      ROS_ERROR_STREAM("Failed calling graphCallback() on motion model '" << name__motion_model.first << "."
+                                                                          << " Error: " << e.what());
       continue;
     }
   }
@@ -413,24 +411,22 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling notify() on publisher '" << name__publisher.first << "." <<
-                       " Error: " << e.what());
+      ROS_ERROR_STREAM("Failed calling notify() on publisher '" << name__publisher.first << "."
+                                                                << " Error: " << e.what());
       continue;
     }
   }
 }
 
-void Optimizer::injectCallback(
-  const std::string& sensor_name,
-  fuse_core::Transaction::SharedPtr transaction)
+void Optimizer::injectCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
 {
   // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
   // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
   // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
   ros::getGlobalCallbackQueue()->addCallback(
-    boost::make_shared<fuse_core::CallbackWrapper<void>>(
-      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction))),
-    reinterpret_cast<uint64_t>(this));
+      boost::make_shared<fuse_core::CallbackWrapper<void>>(
+          std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction))),
+      reinterpret_cast<uint64_t>(this));
 }
 
 void Optimizer::clearCallbacks()

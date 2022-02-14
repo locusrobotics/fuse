@@ -59,7 +59,7 @@ public:
   /**
    * @brief The duration of the smoothing window in seconds
    */
-  ros::Duration lag_duration { 5.0 };
+  ros::Duration lag_duration{ 5.0 };
 
   /**
    * @brief Method for loading parameter values from ROS.

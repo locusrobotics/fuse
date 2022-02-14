@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,17 +34,9 @@
 #ifndef FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_PARAMS_H
 #define FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_PARAMS_H
 
-#include <fuse_core/ceres_options.h>
 #include <fuse_core/parameter.h>
 #include <fuse_optimizers/windowed_optimizer_params.h>
-#include <ros/duration.h>
 #include <ros/node_handle.h>
-
-#include <ceres/solver.h>
-
-#include <algorithm>
-#include <string>
-#include <vector>
 
 namespace fuse_optimizers
 {
@@ -57,9 +49,9 @@ public:
   SMART_PTR_DEFINITIONS(FixedSizeSmootherParams);
 
   /**
-   * @brief The duration of the smoothing window in seconds
+   * @brief Thenumber of unique stamps in the window
    */
-  int num_states {10};
+  int num_states{ 10 };
 
   /**
    * @brief Method for loading parameter values from ROS.

@@ -45,31 +45,23 @@
 
 namespace fuse_optimizers
 {
-ros::Time VariableStampIndex::currentStamp() const
+ros::Time VariableStampIndex::operator[](int i)
 {
-  if(!unique_stamps_.empty()){
-    return *unique_stamps_.end();
+  if (unique_stamps_.empty() || i < 0)
+  {
+    return ros::Time(0, 0);
   }
-  return ros::Time(0, 0);
-}
-
-ros::Time VariableStampIndex::firstStamp() const
-{
-  if(!unique_stamps_.empty()){
-    return *unique_stamps_.begin();
+  else if ((size_t)i < unique_stamps_.size())
+  {
+    uint64_t stamp_id = (*std::next(unique_stamps_.begin(), i)).first;
+    ros::Time stamp;
+    stamp.fromNSec(stamp_id);
+    return stamp;
   }
-  return ros::Time(0, 0);
-} 
-
-ros::Time VariableStampIndex::ithStamp(size_t idx) const{
-  if(idx < unique_stamps_.size()){
-    std::set<ros::Time>::iterator it = unique_stamps_.begin();
-    for(size_t i = 0; i < idx; i++){
-      it++;
-    }
-    return *(it);
+  else
+  {
+    throw std::runtime_error("Index exceeds size of Variable Stamp Index.");
   }
-  return ros::Time(0, 0);
 }
 
 void VariableStampIndex::addNewTransaction(const fuse_core::Transaction& transaction)
@@ -108,10 +100,16 @@ void VariableStampIndex::applyAddedVariables(const fuse_core::Transaction& trans
     auto stamped_variable = dynamic_cast<const fuse_variables::Stamped*>(&variable);
     if (stamped_variable)
     {
+      uint64_t stamp = stamped_variable->stamp().toNSec();
       stamped_index_[variable.uuid()] = stamped_variable->stamp();
-      // add to unique stamps
-      if(unique_stamps_.find(stamped_variable->stamp()) == unique_stamps_.end()){
-        unique_stamps_.insert(stamped_variable->stamp());
+      if (unique_stamps_.find(stamp) != unique_stamps_.end())
+      {
+        unique_stamps_[stamp].insert(variable.uuid());
+      }
+      else
+      {
+        std::unordered_set<fuse_core::UUID> set = { variable.uuid() };
+        unique_stamps_.insert({ stamp, set });
       }
     }
     variables_[variable.uuid()];  // Add an empty set of constraints
@@ -135,9 +133,17 @@ void VariableStampIndex::applyRemovedVariables(const fuse_core::Transaction& tra
   for (const auto& variable_uuid : transaction.removedVariables())
   {
     // remove from unique stamps
-    auto stamp = stamped_index_[variable_uuid];
-    if(unique_stamps_.find(stamp) != unique_stamps_.end()){
-      unique_stamps_.erase(stamp);
+    auto stamp = stamped_index_[variable_uuid].toNSec();
+    if (unique_stamps_.find(stamp) != unique_stamps_.end())
+    {
+      if (unique_stamps_[stamp].find(variable_uuid) != unique_stamps_[stamp].end())
+      {
+        unique_stamps_[stamp].erase(variable_uuid);
+      }
+      if (unique_stamps_[stamp].size() == 0)
+      {
+        unique_stamps_.erase(stamp);
+      }
     }
 
     stamped_index_.erase(variable_uuid);
