@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.0.2)
 project(fuse_optimizers)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-
 set(build_depends
   diagnostic_updater
   fuse_constraints
@@ -14,6 +12,8 @@ set(build_depends
   roscpp
   std_srvs
 )
+
+find_package(OpenMP)
 
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
@@ -52,11 +52,15 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
+)
+target_compile_options(${PROJECT_NAME}
+  PRIVATE ${OpenMP_CXX_FLAGS}
 )
 
 ## batch_optimizer node

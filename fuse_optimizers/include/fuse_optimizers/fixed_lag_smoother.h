@@ -113,11 +113,9 @@ public:
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  FixedLagSmoother(
-    fuse_core::Graph::UniquePtr graph,
-    const ParameterType::SharedPtr& params,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  FixedLagSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                   const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                   const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
   /**
    * @brief Constructor
@@ -129,18 +127,16 @@ public:
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  explicit FixedLagSmoother(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  explicit FixedLagSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                            const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
 protected:
   // Read-only after construction
   ParameterType::SharedPtr params_;  //!< Configuration settings for this fixed-lag smoother
 
   // Guarded by mutex_
-  std::mutex mutex_;  //!< Mutex held while the fixed-lag smoother variables are modified
-  ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
+  std::mutex mutex_;                       //!< Mutex held while the fixed-lag smoother variables are modified
+  ros::Time lag_expiration_;               //!< The oldest stamp that is inside the fixed-lag smoother window
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
 
   /**

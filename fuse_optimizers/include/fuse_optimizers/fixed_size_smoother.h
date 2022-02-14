@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -50,17 +50,17 @@
 namespace fuse_optimizers
 {
 /**
- * @brief A fixed-Size smoother implementation that marginalizes out variables that are older than a defined Size time
+ * @brief A fixed-2ize smoother implementation that marginalizes out variables that are older than a defined buffer size
  *
  * This implementation assumes that all added variable types are either derived from the fuse_variables::Stamped class,
  * or are directly connected to at least one fuse_variables::Stamped variable via a constraint. The current time of
- * the fixed-Size smoother is determined by the newest stamp of all added fuse_variables::Stamped variables.
+ * the fixed-size smoother is determined by the newest stamp of all added fuse_variables::Stamped variables.
  *
  * During optimization:
  *  (1) new variables and constraints are added to the graph
  *  (2) the augmented graph is optimized and the variable values are updated
  *  (3) all motion models, sensors, and publishers are notified of the updated graph
- *  (4) all variables older than "current time - Size duration" are marginalized out.
+ *  (4) all variables outside of the fixed buffer are marginalized out
  *
  * Optimization is performed at a fixed frequency, controlled by the \p optimization_frequency parameter. Received
  * sensor transactions are queued while the optimization is processing, then applied to the graph at the start of the
@@ -69,7 +69,7 @@ namespace fuse_optimizers
  * completion, and the next optimization will not begin until the next scheduled optimization period.
  *
  * Parameters:
- *  - Size_duration (float, default: 5.0) The duration of the smoothing window in seconds
+ *  - num_states (float, default: 10) The number of unique timestamped states in the window
  *  - motion_models (struct array) The set of motion model plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this motion model)
@@ -113,11 +113,9 @@ public:
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  FixedSizeSmoother(
-    fuse_core::Graph::UniquePtr graph,
-    const ParameterType::SharedPtr& params,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ParameterType::SharedPtr& params,
+                    const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
   /**
    * @brief Constructor
@@ -129,17 +127,15 @@ public:
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  explicit FixedSizeSmoother(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  explicit FixedSizeSmoother(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
+                             const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
 protected:
   // Read-only after construction
   ParameterType::SharedPtr params_;  //!< Configuration settings for this fixed-Size smoother
 
   // Guarded by mutex_
-  std::mutex mutex_;  //!< Mutex held while the fixed-size smoother variables are modified
+  std::mutex mutex_;                       //!< Mutex held while the fixed-size smoother variables are modified
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
 
   /**

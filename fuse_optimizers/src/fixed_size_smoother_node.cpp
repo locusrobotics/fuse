@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,7 @@
 #include <fuse_optimizers/fixed_size_smoother_params.h>
 #include <ros/ros.h>
 
-
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   ros::init(argc, argv, "fixed_size_smoother_node");
   ros::NodeHandle private_node_handle("~");

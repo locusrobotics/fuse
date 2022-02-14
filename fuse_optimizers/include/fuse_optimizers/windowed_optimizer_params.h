@@ -60,12 +60,12 @@ public:
    * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
    * parameter in Hz.
    */
-  ros::Duration optimization_period { 0.1 };
+  ros::Duration optimization_period{ 0.1 };
 
   /**
    * @brief The topic name of the advertised reset service
    */
-  std::string reset_service { "~reset" };
+  std::string reset_service{ "~reset" };
 
   /**
    * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
@@ -78,7 +78,7 @@ public:
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
-  ros::Duration transaction_timeout { 0.1 };
+  ros::Duration transaction_timeout{ 0.1 };
 
   /**
    * @brief Method for loading parameter values from ROS.
@@ -90,7 +90,7 @@ public:
     // Read settings from the parameter server
     if (nh.hasParam("optimization_frequency"))
     {
-      double optimization_frequency { 1.0 / optimization_period.toSec() };
+      double optimization_frequency{ 1.0 / optimization_period.toSec() };
       fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
       optimization_period.fromSec(1.0 / optimization_frequency);
     }
