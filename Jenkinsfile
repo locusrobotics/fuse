@@ -2,13 +2,13 @@
 @Library('tailor-meta@0.1.18')_
 tailorTestPipeline(
   // Name of job that generated this test definition.
-  rosdistro_job: '/ci/rosdistro/release%2Fmodex-22',
+  rosdistro_job: '/ci/rosdistro/release%2F22',
   // Distribution name
   rosdistro_name: 'ros1',
   // Release track to test branch against.
-  release_track: 'modex-22',
+  release_track: '22',
   // Release label to pull test images from.
-  release_label: 'modex-22-rc',
+  release_label: '22-rc',
   // OS distributions to test.
   distributions: ['focal'],
   // Version of tailor_meta to build against
