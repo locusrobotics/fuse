@@ -2,8 +2,8 @@
 Changelog for package fuse_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.0 (2022-02-23)
+------------------
 * [RST-4186] Fix fuse macro names (#263)
   * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
   * Update all fuse objects to use the new macro names
