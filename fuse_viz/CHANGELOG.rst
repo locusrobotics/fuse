@@ -2,8 +2,8 @@
 Changelog for package fuse_viz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.0 (2022-02-23)
+------------------
 * Adding doxygen to all packages (#241)
 * Contributors: Tom Moore
 
