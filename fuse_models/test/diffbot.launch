@@ -22,5 +22,9 @@
 
   <!-- Spawn controller -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner"
-        args="diffbot_controller"/>
+        args="joint_state_controller
+              diffbot_controller"/>
+
+  <!-- Convert joint states to TF transforms -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 </launch>

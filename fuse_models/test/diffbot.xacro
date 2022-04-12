@@ -77,7 +77,7 @@
         <bodyName>imu_link</bodyName>
         <updateRateHZ>50.0</updateRateHZ>
         <frameName>imu_link</frameName>
-        <gaussianNoise>0.001</gaussianNoise>
+        <gaussianNoise>1.0e-6</gaussianNoise>
         <xyzOffset>0 0 0</xyzOffset>
         <rpyOffset>0 0 0</rpyOffset>
         <initialOrientationAsReference>false</initialOrientationAsReference>
@@ -90,6 +90,16 @@
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>/</robotNamespace>
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
+  <!-- ground truth plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_p3d" filename="libgazebo_ros_p3d.so">
+      <bodyName>base_link</bodyName>
+      <topicName>ground_truth_odom</topicName>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50.0</updateRate>
     </plugin>
   </gazebo>
 

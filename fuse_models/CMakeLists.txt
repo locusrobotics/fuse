@@ -149,6 +149,7 @@ install(
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
+  find_package(catkin REQUIRED COMPONENTS angles)
 
   # Lint tests
   roslint_add_test()
