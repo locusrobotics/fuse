@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find fuse_models)/test/wheel.xacro"/>
+
+  <xacro:property name="deg_to_rad" value="0.01745329251994329577"/>
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="width" value="0.5" /> <!-- Square dimensions (widthxwidth) of beams -->
+  <xacro:property name="wheel_radius" value="0.11" /> <!-- Link 1 -->
+  <xacro:property name="thickness" value="0.086" /> <!-- Link 2 -->
+
+  <!-- Links: inertial,visual,collision -->
+  <link name="base_link">
+    <inertial>
+      <!-- origin is relative -->
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="5"/>
+      <inertia ixx="5" ixy="0" ixz="0" iyy="5" iyz="0" izz="5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="${width} 0.1 0.1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <!-- origin is relative -->
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <box size="${width} 0.1 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="base_footprint">
+    <visual>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.00000001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="base_footprint_joint" type="fixed">
+    <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+    <child link="base_link"/>
+    <parent link="base_footprint"/>
+  </joint>
+
+  <!-- Wheels -->
+  <xacro:wheel name="wheel_0" parent="base" radius="${wheel_radius}" thickness="${thickness}">
+    <origin xyz="${(width+thickness)/2} 0 0" rpy="0 ${90.0 * deg_to_rad} 0"/>
+  </xacro:wheel>
+  <xacro:wheel name="wheel_1" parent="base" radius="${wheel_radius}" thickness="${thickness}">
+    <origin xyz="${-(width+thickness)/2} 0 0" rpy="0 ${90.0 * deg_to_rad} 0"/>
+  </xacro:wheel>
+
+  <!-- IMU -->
+  <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="imu_link" />
+    <origin xyz="0.1 -0.2 0.3" rpy="0.0 ${-90.0 * deg_to_rad} ${90.0 * deg_to_rad}"/>
+  </joint>
+
+  <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>50.0</update_rate>
+      <visualize>true</visualize>
+      <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+        <topicName>imu</topicName>
+        <bodyName>imu_link</bodyName>
+        <updateRateHZ>50.0</updateRateHZ>
+        <frameName>imu_link</frameName>
+        <gaussianNoise>0.001</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ros_control plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
+  <!-- Colour -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Green</material>
+  </gazebo>
+
+  <gazebo reference="base_footprint">
+    <material>Gazebo/Purple</material>
+  </gazebo>
+</robot>
