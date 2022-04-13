@@ -40,7 +40,8 @@
 #include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
-#include <pluginlib/class_list_macros.hpp>
+#include <imu_transformer/tf2_sensor_msgs.h>
+#include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 
@@ -105,47 +106,61 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg->header.stamp);
 
+  // Transform to target frame
+  sensor_msgs::Imu imu_transformed;
+  try
+  {
+    tf_buffer_.transform(*msg, imu_transformed, params_.twist_target_frame);
+  }
+  catch (const tf2::TransformException& ex)
+  {
+    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform IMU message with stamp " << msg->header.stamp << " to target frame "
+                                                                             << params_.twist_target_frame
+                                                                             << ". Error: " << ex.what());
+    return;
+  }
+
   // Handle the orientation data (treat it as a pose, but with only orientation indices used)
-  auto pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
-  pose->header = msg->header;
-  pose->pose.pose.orientation = msg->orientation;
-  pose->pose.covariance[21] = msg->orientation_covariance[0];
-  pose->pose.covariance[22] = msg->orientation_covariance[1];
-  pose->pose.covariance[23] = msg->orientation_covariance[2];
-  pose->pose.covariance[27] = msg->orientation_covariance[3];
-  pose->pose.covariance[28] = msg->orientation_covariance[4];
-  pose->pose.covariance[29] = msg->orientation_covariance[5];
-  pose->pose.covariance[33] = msg->orientation_covariance[6];
-  pose->pose.covariance[34] = msg->orientation_covariance[7];
-  pose->pose.covariance[35] = msg->orientation_covariance[8];
+  geometry_msgs::PoseWithCovarianceStamped pose;
+  pose.header = imu_transformed.header;
+  pose.pose.pose.orientation = imu_transformed.orientation;
+  pose.pose.covariance[21] = imu_transformed.orientation_covariance[0];
+  pose.pose.covariance[22] = imu_transformed.orientation_covariance[1];
+  pose.pose.covariance[23] = imu_transformed.orientation_covariance[2];
+  pose.pose.covariance[27] = imu_transformed.orientation_covariance[3];
+  pose.pose.covariance[28] = imu_transformed.orientation_covariance[4];
+  pose.pose.covariance[29] = imu_transformed.orientation_covariance[5];
+  pose.pose.covariance[33] = imu_transformed.orientation_covariance[6];
+  pose.pose.covariance[34] = imu_transformed.orientation_covariance[7];
+  pose.pose.covariance[35] = imu_transformed.orientation_covariance[8];
 
   geometry_msgs::TwistWithCovarianceStamped twist;
-  twist.header = msg->header;
-  twist.twist.twist.angular = msg->angular_velocity;
-  twist.twist.covariance[21] = msg->angular_velocity_covariance[0];
-  twist.twist.covariance[22] = msg->angular_velocity_covariance[1];
-  twist.twist.covariance[23] = msg->angular_velocity_covariance[2];
-  twist.twist.covariance[27] = msg->angular_velocity_covariance[3];
-  twist.twist.covariance[28] = msg->angular_velocity_covariance[4];
-  twist.twist.covariance[29] = msg->angular_velocity_covariance[5];
-  twist.twist.covariance[33] = msg->angular_velocity_covariance[6];
-  twist.twist.covariance[34] = msg->angular_velocity_covariance[7];
-  twist.twist.covariance[35] = msg->angular_velocity_covariance[8];
+  twist.header = imu_transformed.header;
+  twist.twist.twist.angular = imu_transformed.angular_velocity;
+  twist.twist.covariance[21] = imu_transformed.angular_velocity_covariance[0];
+  twist.twist.covariance[22] = imu_transformed.angular_velocity_covariance[1];
+  twist.twist.covariance[23] = imu_transformed.angular_velocity_covariance[2];
+  twist.twist.covariance[27] = imu_transformed.angular_velocity_covariance[3];
+  twist.twist.covariance[28] = imu_transformed.angular_velocity_covariance[4];
+  twist.twist.covariance[29] = imu_transformed.angular_velocity_covariance[5];
+  twist.twist.covariance[33] = imu_transformed.angular_velocity_covariance[6];
+  twist.twist.covariance[34] = imu_transformed.angular_velocity_covariance[7];
+  twist.twist.covariance[35] = imu_transformed.angular_velocity_covariance[8];
 
   const bool validate = !params_.disable_checks;
 
   if (params_.differential)
   {
-    processDifferential(*pose, twist, validate, *transaction);
+    processDifferential(pose, twist, validate, *transaction);
   }
   else
   {
     common::processAbsolutePoseWithCovariance(
       name(),
       device_id_,
-      *pose,
+      pose,
       params_.pose_loss,
-      params_.orientation_target_frame,
+      params_.twist_target_frame,
       {},
       params_.orientation_indices,
       tf_buffer_,
@@ -171,17 +186,17 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
 
   // Handle the acceleration data
   geometry_msgs::AccelWithCovarianceStamped accel;
-  accel.header = msg->header;
-  accel.accel.accel.linear = msg->linear_acceleration;
-  accel.accel.covariance[0]  = msg->linear_acceleration_covariance[0];
-  accel.accel.covariance[1]  = msg->linear_acceleration_covariance[1];
-  accel.accel.covariance[2]  = msg->linear_acceleration_covariance[2];
-  accel.accel.covariance[6]  = msg->linear_acceleration_covariance[3];
-  accel.accel.covariance[7]  = msg->linear_acceleration_covariance[4];
-  accel.accel.covariance[8]  = msg->linear_acceleration_covariance[5];
-  accel.accel.covariance[12] = msg->linear_acceleration_covariance[6];
-  accel.accel.covariance[13] = msg->linear_acceleration_covariance[7];
-  accel.accel.covariance[14] = msg->linear_acceleration_covariance[8];
+  accel.header = imu_transformed.header;
+  accel.accel.accel.linear = imu_transformed.linear_acceleration;
+  accel.accel.covariance[0] = imu_transformed.linear_acceleration_covariance[0];
+  accel.accel.covariance[1] = imu_transformed.linear_acceleration_covariance[1];
+  accel.accel.covariance[2] = imu_transformed.linear_acceleration_covariance[2];
+  accel.accel.covariance[6] = imu_transformed.linear_acceleration_covariance[3];
+  accel.accel.covariance[7] = imu_transformed.linear_acceleration_covariance[4];
+  accel.accel.covariance[8] = imu_transformed.linear_acceleration_covariance[5];
+  accel.accel.covariance[12] = imu_transformed.linear_acceleration_covariance[6];
+  accel.accel.covariance[13] = imu_transformed.linear_acceleration_covariance[7];
+  accel.accel.covariance[14] = imu_transformed.linear_acceleration_covariance[8];
 
   // Optionally remove the acceleration due to gravity
   if (params_.remove_gravitational_acceleration)
@@ -190,7 +205,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     accel_gravity.z = params_.gravitational_acceleration;
     geometry_msgs::TransformStamped orientation_trans;
     tf2::Quaternion imu_orientation;
-    tf2::fromMsg(msg->orientation, imu_orientation);
+    tf2::fromMsg(imu_transformed.orientation, imu_orientation);
     orientation_trans.transform.rotation = tf2::toMsg(imu_orientation.inverse());
     tf2::doTransform(accel_gravity, accel_gravity, orientation_trans);  // Doesn't use the stamp
     accel.accel.accel.linear.x -= accel_gravity.x;
@@ -203,7 +218,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     device_id_,
     accel,
     params_.linear_acceleration_loss,
-    params_.acceleration_target_frame,
+    params_.twist_target_frame,
     params_.linear_acceleration_indices,
     tf_buffer_,
     validate,
@@ -218,52 +233,28 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
                                 const geometry_msgs::TwistWithCovarianceStamped& twist, const bool validate,
                                 fuse_core::Transaction& transaction)
 {
-  auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
-  transformed_pose->header.frame_id =
-      params_.orientation_target_frame.empty() ? pose.header.frame_id : params_.orientation_target_frame;
-
-  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
-  {
-    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp " << pose.header.stamp
-                                                                              << " to orientation target frame "
-                                                                              << params_.orientation_target_frame);
-    return;
-  }
-
   if (!previous_pose_)
   {
-    previous_pose_ = std::move(transformed_pose);
+    previous_pose_ = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+    *previous_pose_ = pose;
     return;
   }
 
   if (params_.use_twist_covariance)
   {
-    geometry_msgs::TwistWithCovarianceStamped transformed_twist;
-    transformed_twist.header.frame_id =
-        params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
-
-    if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
-    {
-      ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform twist message with stamp " << twist.header.stamp
-                                                                                 << " to twist target frame "
-                                                                                 << params_.twist_target_frame);
-    }
-    else
-    {
-      common::processDifferentialPoseWithTwistCovariance(
-        name(),
-        device_id_,
-        *previous_pose_,
-        *transformed_pose,
-        twist,
-        params_.minimum_pose_relative_covariance,
-        params_.twist_covariance_offset,
-        params_.pose_loss,
-        {},
-        params_.orientation_indices,
-        validate,
-        transaction);
-    }
+    common::processDifferentialPoseWithTwistCovariance(
+      name(),
+      device_id_,
+      *previous_pose_,
+      pose,
+      twist,
+      params_.minimum_pose_relative_covariance,
+      params_.twist_covariance_offset,
+      params_.pose_loss,
+      {},
+      params_.orientation_indices,
+      validate,
+      transaction);
   }
   else
   {
@@ -271,7 +262,7 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
       name(),
       device_id_,
       *previous_pose_,
-      *transformed_pose,
+      pose,
       params_.independent,
       params_.minimum_pose_relative_covariance,
       params_.pose_loss,
@@ -281,7 +272,7 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
       transaction);
   }
 
-  previous_pose_ = std::move(transformed_pose);
+  *previous_pose_ = pose;
 }
 
 }  // namespace fuse_models

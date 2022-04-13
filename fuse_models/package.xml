@@ -24,6 +24,7 @@
   <depend>fuse_publishers</depend>
   <depend>fuse_variables</depend>
   <depend>geometry_msgs</depend>
+  <depend>imu_transformer</depend>
   <depend>nav_msgs</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
