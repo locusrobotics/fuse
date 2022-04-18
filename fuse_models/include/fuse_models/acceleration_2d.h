@@ -68,7 +68,7 @@ namespace fuse_models
 class Acceleration2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Acceleration2D);
+  FUSE_SMART_PTR_DEFINITIONS(Acceleration2D);
   using ParameterType = parameters::Acceleration2DParams;
 
   /**

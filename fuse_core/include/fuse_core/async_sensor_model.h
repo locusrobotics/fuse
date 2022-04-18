@@ -35,7 +35,7 @@
 #define FUSE_CORE_ASYNC_SENSOR_MODEL_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
 #include <ros/callback_queue.h>
@@ -87,7 +87,7 @@ namespace fuse_core
 class AsyncSensorModel : public SensorModel
 {
 public:
-  SMART_PTR_ALIASES_ONLY(AsyncSensorModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(AsyncSensorModel);
 
   /**
    * @brief Destructor

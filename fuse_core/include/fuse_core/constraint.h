@@ -35,7 +35,7 @@
 #define FUSE_CORE_CONSTRAINT_H
 
 #include <fuse_core/loss.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
@@ -145,7 +145,7 @@
  * @endcode
  */
 #define FUSE_CONSTRAINT_DEFINITIONS(...) \
-  SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
   FUSE_CONSTRAINT_TYPE_DEFINITION(__VA_ARGS__) \
   FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__) \
   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(__VA_ARGS__)
@@ -165,7 +165,7 @@
  * @endcode
  */
 #define FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(...) \
-  SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
   FUSE_CONSTRAINT_TYPE_DEFINITION(__VA_ARGS__) \
   FUSE_CONSTRAINT_CLONE_DEFINITION(__VA_ARGS__) \
   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(__VA_ARGS__)
@@ -193,7 +193,7 @@ namespace fuse_core
 class Constraint
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Constraint);
+  FUSE_SMART_PTR_ALIASES_ONLY(Constraint);
 
   /**
    * @brief Default constructor

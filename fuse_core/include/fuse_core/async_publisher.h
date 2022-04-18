@@ -35,7 +35,7 @@
 #define FUSE_CORE_ASYNC_PUBLISHER_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/publisher.h>
 #include <fuse_core/transaction.h>
 #include <ros/callback_queue.h>
@@ -63,7 +63,7 @@ namespace fuse_core
 class AsyncPublisher : public Publisher
 {
 public:
-  SMART_PTR_ALIASES_ONLY(AsyncPublisher);
+  FUSE_SMART_PTR_ALIASES_ONLY(AsyncPublisher);
 
   /**
    * @brief Destructor

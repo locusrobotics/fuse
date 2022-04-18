@@ -35,7 +35,7 @@
 #define FUSE_TUTORIALS_RANGE_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_variables/point_2d_landmark.h>
 #include <fuse_variables/position_2d_stamped.h>
 

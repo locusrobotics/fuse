@@ -35,7 +35,7 @@
 #define FUSE_CORE_TRANSACTION_H
 
 #include <fuse_core/constraint.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
@@ -66,7 +66,7 @@ namespace fuse_core
 class Transaction
 {
 public:
-  SMART_PTR_DEFINITIONS(Transaction);
+  FUSE_SMART_PTR_DEFINITIONS(Transaction);
 
   /**
    * @brief A range of Constraint::SharedPtr objects

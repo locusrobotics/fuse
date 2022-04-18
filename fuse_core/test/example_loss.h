@@ -35,7 +35,7 @@
 #define FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
 
 #include <fuse_core/loss.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 
 #include <boost/serialization/access.hpp>
