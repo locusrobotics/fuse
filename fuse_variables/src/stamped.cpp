@@ -33,9 +33,6 @@
  */
 #include <fuse_variables/stamped.h>
 
-#include <fuse_core/uuid.h>
-#include <ros/node_handle.h>
-
 #include <string>
 
 

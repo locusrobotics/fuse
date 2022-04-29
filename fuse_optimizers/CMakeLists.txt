@@ -1,29 +1,31 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(fuse_optimizers)
 
-set(build_depends
-  diagnostic_updater
-  fuse_constraints
-  fuse_core
-  fuse_graphs
-  fuse_variables
-  pluginlib
-  roscpp
-  std_srvs
-)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Debug)
 
-find_package(catkin REQUIRED COMPONENTS
-  ${build_depends}
-)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    ${build_depends}
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+
+find_package(fuse_constraints REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_msgs REQUIRED)
+find_package(fuse_graphs REQUIRED)
+find_package(fuse_variables REQUIRED)
+
+find_package(std_srvs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
 ###########
 ## Build ##
@@ -37,65 +39,47 @@ add_library(${PROJECT_NAME}
   src/optimizer.cpp
   src/variable_stamp_index.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
 )
 target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
 )
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  fuse_constraints
+  fuse_core
+  fuse_msgs
+  fuse_graphs
+  fuse_variables
+  std_srvs
+  diagnostic_updater
+  pluginlib
+  rclcpp_components
 )
 
 ## batch_optimizer node
 add_executable(batch_optimizer_node
   src/batch_optimizer_node.cpp
 )
-add_dependencies(batch_optimizer_node
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(batch_optimizer_node
-  PRIVATE
+target_include_directories(batch_optimizer_node PRIVATE
     include
-    ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(batch_optimizer_node
   ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
 )
-set_target_properties(batch_optimizer_node
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-)
+
+
 
 ## fixed_lag_smoother node
 add_executable(fixed_lag_smoother_node
   src/fixed_lag_smoother_node.cpp
 )
-add_dependencies(fixed_lag_smoother_node
-  ${catkin_EXPORTED_TARGETS}
-)
 target_include_directories(fixed_lag_smoother_node
   PRIVATE
     include
-    ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(fixed_lag_smoother_node
   ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-set_target_properties(fixed_lag_smoother_node
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
 )
 
 #############
@@ -103,23 +87,20 @@ set_target_properties(fixed_lag_smoother_node
 #############
 
 install(
-  TARGETS
-    ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+  TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(
-  TARGETS
-    batch_optimizer_node
-    fixed_lag_smoother_node
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  TARGETS fuse_echo
+  RUNTIME DESTINATION bin
 )
 
 install(
   DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DESTINATION include/
 )
 
 #############

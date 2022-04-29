@@ -65,3 +65,10 @@ TimeStamp stamp_from_ros(const rclcpp::Time timestamp)
 
 
 }
+
+
+std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp)
+{
+    os << timestamp.time_since_epoch().count();
+    return os;
+}

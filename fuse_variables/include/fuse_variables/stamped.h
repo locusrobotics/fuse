@@ -37,7 +37,7 @@
 #include <fuse_core/macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
-#include <ros/node_handle.h>
+//#include <ros/node_handle.h>
 #include <fuse_core/time.h>
 
 #include <boost/serialization/access.hpp>
@@ -129,7 +129,7 @@ private:
  * @param[in] node_handle A node handle in the desired parameter namespace
  * @return                A device UUID
  */
-fuse_core::UUID loadDeviceId(const ros::NodeHandle& node_handle);
+//fuse_core::UUID loadDeviceId(const ros::NodeHandle& node_handle); // TODO
 
 }  // namespace fuse_variables
 

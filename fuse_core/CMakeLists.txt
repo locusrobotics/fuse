@@ -13,7 +13,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
 find_package(ament_cmake REQUIRED)
 find_package(fuse_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
@@ -74,27 +73,38 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 #rclcpp_components_register_nodes(${PROJECT_NAME} PLUGIN "${PROJECT_NAME}" EXECUTABLE ${PROJECT_NAME})
 
+include_directories(include)
 
 # fuse_echo executable
-add_executable(fuse_echo
-  src/fuse_echo.cpp
+add_executable(fuse_echo src/fuse_echo.cpp
+  src/constraint.cpp
+  src/graph.cpp
+  src/graph_deserializer.cpp
+  #src/loss.cpp
+  src/serialization.cpp
+  src/time.cpp
+  #src/timestamp_manager.cpp
+  src/transaction.cpp
+  src/transaction_deserializer.cpp
+  src/uuid.cpp
+  src/variable.cpp
 )
-#add_dependencies(fuse_echo
-#  ${catkin_EXPORTED_TARGETS}
-#)
-target_include_directories(fuse_echo
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
+target_include_directories(fuse_echo PUBLIC
+  include
+  ${EIGEN3_INCLUDE_DIRS}
 )
 target_link_libraries(fuse_echo
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
+ament_target_dependencies(fuse_echo fuse_msgs rclcpp pluginlib rclcpp_components)
+
 
 #############
 ## Install ##
 #############
+
+ament_export_include_directories(include)
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -102,14 +112,14 @@ install(
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
-
+#
 install(
   TARGETS fuse_echo
   RUNTIME DESTINATION bin
 )
 
 install(
-  DIRECTORY include/${PROJECT_NAME}/
+  DIRECTORY include/
   DESTINATION include/
 )
 
@@ -511,3 +521,9 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 endif()
+
+
+ament_package(
+  CONFIG_EXTRAS
+)
+

@@ -14,7 +14,7 @@
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
   <license>BSD</license>
 
-  <buildtool_depend>colcon</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
   <depend>fuse_core</depend>
@@ -29,6 +29,7 @@
   <test_depend>rostest</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
     <rosdoc config="rosdoc.yaml" />
   </export>

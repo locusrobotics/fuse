@@ -53,7 +53,7 @@
 #define FUSE_CORE_TIME_H
 
 #include <chrono>
-
+#include <iostream> 
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 
@@ -77,6 +77,16 @@ typedef std::chrono::time_point<fuse_core::Clock, fuse_core::Duration> TimeStamp
  */
 TimeStamp stamp_from_ros(const rclcpp::Time rostime);
 
-
 }
+
+
+/**
+ * @brief provide an overload for use with the ostream << operator
+ * 
+ * present a human readable fuse_core::TimeStamp
+ * 
+ * @param[in] timestamp  The rclcpp::Time to convert to print
+ */
+std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp);
+
 #endif  // FUSE_CORE_TIME_H
