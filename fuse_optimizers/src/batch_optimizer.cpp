@@ -50,20 +50,19 @@ BatchOptimizer::BatchOptimizer(
   rclcpp::NodeOptions options,
   fuse_core::Graph::UniquePtr graph
 ):
-  Node("batch_optimizer_node", options)
-  fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
+  fuse_optimizers::Optimizer(options, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
-  start_time_(ros::TIME_MAX),
+  start_time_(rclcpp::Time::max()),
   started_(false)
 {
   params_.loadFromROS(private_node_handle);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
-    ros::Duration(params_.optimization_period),
-    &BatchOptimizer::optimizerTimerCallback,
-    this);
+  optimize_timer_ = this->create_wall_timer(
+    params_.optimization_period,
+    &BatchOptimizer::optimizerTimerCallback
+  );
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&BatchOptimizer::optimizationLoop, this);
@@ -126,15 +125,15 @@ void BatchOptimizer::applyMotionModelsToQueue()
 void BatchOptimizer::optimizationLoop()
 {
   // Optimize constraints until told to exit
-  while (ros::ok())
+  while (rclcpp::ok())
   {
     // Wait for the next signal to start the next optimization cycle
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
-      optimization_requested_.wait(lock, [this]{ return optimization_request_ || !ros::ok(); });  // NOLINT
+      optimization_requested_.wait(lock, [this]{ return optimization_request_ || !rclcpp::ok(); });  // NOLINT
     }
     // If a shutdown is requested, exit now.
-    if (!ros::ok())
+    if (!rclcpp::ok())
     {
       break;
     }
@@ -158,7 +157,7 @@ void BatchOptimizer::optimizationLoop()
   }
 }
 
-void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& /*event*/)
+void BatchOptimizer::optimizerTimerCallback()
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
   if (!started_)

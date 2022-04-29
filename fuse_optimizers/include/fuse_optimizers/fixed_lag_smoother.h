@@ -35,11 +35,13 @@
 #define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
 
 #include <fuse_core/graph.h>
+#include <fuse_core/time.h>
 #include <fuse_core/transaction.h>
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
-#include <ros/ros.h>
+
+#include <rclcpp/rclcpp.hpp>
 #include <std_srvs/Empty.h>
 
 #include <atomic>
@@ -135,9 +137,9 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    const ros::Time& stamp() const { return transaction->stamp(); }
-    const ros::Time& minStamp() const { return transaction->minStamp(); }
-    const ros::Time& maxStamp() const { return transaction->maxStamp(); }
+    const fuse_core::TimeStamp& stamp() const { return transaction->stamp(); }
+    const fuse_core::TimeStamp& minStamp() const { return transaction->minStamp(); }
+    const fuse_core::TimeStamp& maxStamp() const { return transaction->maxStamp(); }
   };
 
   /**
@@ -171,24 +173,24 @@ protected:
   // Guarded by optimization_mutex_
   std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
   // fuse_core::Graph* graph_ member from the base class
-  ros::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
+  fuse_core::TimeStamp lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
   fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next optimization cycle
   VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with each variable
   ceres::Solver::Summary summary_;  //!< Optimization summary, written by optimizationLoop and read by setDiagnostics
 
   // Guarded by optimization_requested_mutex_
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  ros::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
+  fuse_core::TimeStamp optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
   bool optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
                                                     //!< until a new optimization is requested by the main thread
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  fuse_core::TimeStamp start_time_;  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
@@ -222,7 +224,7 @@ protected:
    * @param[in] lag_expiration The oldest timestamp that should remain in the graph
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
-  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const ros::Time& lag_expiration);
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const fuse_core::TimeStamp& lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -247,10 +249,8 @@ protected:
    *
    * This callback checks if a current optimization cycle is still running. If not, a new optimization cycle is started.
    * If so, we simply wait for the next timer event to start another optimization cycle.
-   *
-   * @param event  The ROS timer event metadata
    */
-  void optimizerTimerCallback(const ros::TimerEvent& event);
+  void optimizerTimerCallback();
 
   /**
    * @brief Generate motion model constraints for pending transactions and combine them into a single transaction
@@ -263,7 +263,7 @@ protected:
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
    * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
-  void processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration);
+  void processQueue(fuse_core::Transaction& transaction, const fuse_core::TimeStamp& lag_expiration);
 
   /**
    * @brief Service callback that resets the optimizer to its original state
@@ -271,9 +271,9 @@ protected:
   bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
 
   /**
-   * @brief Thread-safe read-only access to the optimizer start time
+   * @brief Thread-safe read-only access to the timestamp of the first transaction
    */
-  ros::Time getStartTime() const
+  fuse_core::TimeStamp getStartTime() const
   {
     std::lock_guard<std::mutex> lock(start_time_mutex_);
     return start_time_;
@@ -282,7 +282,7 @@ protected:
   /**
    * @brief Thread-safe write access to the optimizer start time
    */
-  void setStartTime(const ros::Time& start_time)
+  void setStartTime(const fuse_core::TimeStamp& start_time)
   {
     std::lock_guard<std::mutex> lock(start_time_mutex_);
     start_time_ = start_time;
