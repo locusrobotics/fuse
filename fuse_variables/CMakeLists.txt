@@ -21,7 +21,9 @@ find_package(rclcpp REQUIRED)
 ## Build ##
 ###########
 
-include_directories(include)
+ament_export_include_directories(include)
+
+#include_directories(include)
 
 ## fuse_variables library
 add_library(${PROJECT_NAME}

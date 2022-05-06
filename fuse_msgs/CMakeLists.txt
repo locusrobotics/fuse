@@ -17,4 +17,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES builtin_interfaces std_msgs
 )
 
-ament_package()
+ament_package(
+  CONFIG_EXTRAS
+)

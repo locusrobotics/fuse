@@ -125,3 +125,7 @@ if(CATKIN_ENABLE_TESTING)
     )
   endif()
 endif()
+
+ament_package(
+  CONFIG_EXTRAS
+)

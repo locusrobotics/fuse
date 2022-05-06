@@ -27,6 +27,9 @@ find_package(diagnostic_updater REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
+
 ###########
 ## Build ##
 ###########
@@ -41,6 +44,7 @@ add_library(${PROJECT_NAME}
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   include
+  ${EIGEN3_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
 )
@@ -90,11 +94,6 @@ install(
   TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-install(
-  TARGETS fuse_echo
   RUNTIME DESTINATION bin
 )
 
@@ -194,3 +193,7 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 endif()
+
+ament_package(
+  CONFIG_EXTRAS
+)

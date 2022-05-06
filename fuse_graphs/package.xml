@@ -13,7 +13,7 @@
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
   <license>BSD</license>
 
-  <buildtool_depend>colcon</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>libceres-dev</depend>
   <depend>fuse_core</depend>
   <test_depend condition="$ROS_DISTRO >= galactic">benchmark</test_depend>

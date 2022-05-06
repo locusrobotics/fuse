@@ -17,12 +17,15 @@
   <depend>diagnostic_updater</depend>
   <depend>fuse_constraints</depend>
   <depend>fuse_core</depend>
+  <depend>fuse_msgs</depend>
   <depend>fuse_graphs</depend>
   <depend>fuse_variables</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp_components</depend>
   <depend>rclcpp</depend>
   <depend>std_srvs</depend>
+  <depend>eigen</depend>
+
   <test_depend>fuse_models</test_depend>
   <test_depend>geometry_msgs</test_depend>
   <test_depend>nav_msgs</test_depend>
