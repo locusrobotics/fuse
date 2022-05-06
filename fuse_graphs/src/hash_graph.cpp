@@ -426,7 +426,7 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
 }
 
 ceres::Solver::Summary HashGraph::optimizeFor(
-  const std::chrono::Duration& max_optimization_time,
+  const std::chrono::nanoseconds& max_optimization_time,
   const ceres::Solver::Options& options)
 {
   auto start = std::chrono::system_clock::now();
@@ -435,9 +435,9 @@ ceres::Solver::Summary HashGraph::optimizeFor(
   createProblem(problem);
   auto created_problem = std::chrono::system_clock::now();
   // Modify the options to enforce the maximum time
-  auto remaining = max_optimization_time - (created_problem - start);
+  std::chrono::nanoseconds remaining = max_optimization_time - (created_problem - start);
   auto time_constrained_options = options;
-  time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.toSec());
+  time_constrained_options.max_solver_time_in_seconds = std::max(0.0, std::chrono::duration<double>(remaining).count());
   // Run the solver. This will update the variables in place.
   ceres::Solver::Summary summary;
   ceres::Solve(time_constrained_options, &problem, &summary);

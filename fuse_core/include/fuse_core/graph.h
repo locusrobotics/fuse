@@ -379,7 +379,7 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   virtual ceres::Solver::Summary optimizeFor(
-    const std::chrono::duration<std::chrono::system_clock, std::chrono::nanoseconds>& max_optimization_time,
+    const std::chrono::nanoseconds& max_optimization_time,
     const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
 
   /**

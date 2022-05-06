@@ -23,7 +23,8 @@ find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+
+include_directories(include)
 
 # fuse_constraints library
 add_library(${PROJECT_NAME}
@@ -47,15 +48,12 @@ add_library(${PROJECT_NAME}
   src/uuid_ordering.cpp
   src/variable_constraints.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-    ${SUITESPARSE_INCLUDE_DIRS}
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
+  ${CERES_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${SUITESPARSE_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${CERES_LIBRARIES}
@@ -64,6 +62,9 @@ target_link_libraries(${PROJECT_NAME}
 )
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
+  fuse_core
+  fuse_variables
+  pluginlib
 )
 
 #############
@@ -78,7 +79,7 @@ install(
 )
 
 install(
-  DIRECTORY include/${PROJECT_NAME}/
+  DIRECTORY include/
   DESTINATION include/
 )
 

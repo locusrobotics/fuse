@@ -56,6 +56,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <chrono>
 
 
 namespace fuse_graphs
@@ -329,7 +330,7 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   ceres::Solver::Summary optimizeFor(
-    const std::chrono::Duration& max_optimization_time,
+    const std::chrono::nanoseconds& max_optimization_time,
     const ceres::Solver::Options& options = ceres::Solver::Options()) override;
 
   /**

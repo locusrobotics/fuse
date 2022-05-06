@@ -69,7 +69,7 @@ install(
 )
 
 install(
-  DIRECTORY include/${PROJECT_NAME}/
+  DIRECTORY include/
   DESTINATION include/
 )
 
