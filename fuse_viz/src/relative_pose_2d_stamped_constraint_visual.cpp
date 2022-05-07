@@ -343,7 +343,7 @@ Ogre::ColourValue RelativePose2DStampedConstraintVisual::computeLossErrorLineCol
   // Get the error line color as HSB:
   Ogre::ColourValue error_line_color(color.r, color.g, color.b);
   Ogre::Real hue, saturation, brightness;
-  error_line_color.getHSB(&hue, &saturation, &brightness);
+  error_line_color.getHSB(hue, saturation, brightness);
 
   // We should correct the color brightness if it is smaller than minimum brightness. Otherwise, we would get an
   // incorrect loss brightness.
