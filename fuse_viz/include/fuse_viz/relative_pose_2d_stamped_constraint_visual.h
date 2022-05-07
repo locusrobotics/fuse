@@ -40,7 +40,7 @@
 #include <rviz/ogre_helpers/object.h>
 
 #include <OgreColourValue.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <memory>
 #include <string>
