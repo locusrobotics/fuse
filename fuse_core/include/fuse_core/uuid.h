@@ -35,6 +35,7 @@
 #define FUSE_CORE_UUID_H
 
 #include <fuse_core/time.h>
+#include <rclcpp/time.hpp>
 
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -146,8 +147,9 @@ namespace uuid
     return generate(namespace_string, data.c_str(), data.length());
   }
 
+
   /**
-   * @brief Generate a UUID from a namespace string and a ros timestamp
+   * @brief Generate a UUID from a namespace string and a fuse_core timestamp
    *
    * Every unique timestamp will generate a unique UUID
    *
@@ -157,8 +159,21 @@ namespace uuid
    */
   UUID generate(const std::string& namespace_string, const TimeStamp& stamp);
 
+
   /**
-   * @brief Generate a UUID from a namespace string, a ros timestamp, and an additional id
+   * @brief Generate a UUID from a namespace string and a ros timestamp
+   *
+   * Every unique timestamp will generate a unique UUID
+   *
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
+   * @param[in] stamp            An rclcpp::Time timestamp
+   * @return                     A repeatable UUID specific to the provided namespace and timestamp
+   */
+  UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp);
+
+
+  /**
+   * @brief Generate a UUID from a namespace string, a fuse_core timestamp, and an additional id
    *
    * Every unique timestamp and id pair will generate a unique UUID
    *
@@ -168,6 +183,19 @@ namespace uuid
    * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
   UUID generate(const std::string& namespace_string, const TimeStamp& stamp, const UUID& id);
+
+
+  /**
+   * @brief Generate a UUID from a namespace string, a ros timestamp, and an additional id
+   *
+   * Every unique timestamp and id pair will generate a unique UUID
+   *
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
+   * @param[in] stamp            A rclcpp::Time timestamp
+   * @param[in] id               A UUID
+   * @return                     A repeatable UUID specific to the provided namespace and timestamp
+   */
+  UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id);
 
     /**
    * @brief Generate a UUID from a namespace string and a user provided id

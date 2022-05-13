@@ -72,6 +72,19 @@ UUID generate(const std::string& namespace_string, const TimeStamp& stamp)
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
+
+UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
+{
+  const auto nanoseconds = stamp.nanoseconds();
+  constexpr size_t buffer_size = sizeof(nanoseconds);
+  std::array<unsigned char, buffer_size> buffer;
+  auto iter = buffer.begin();
+  iter = std::copy(reinterpret_cast<const unsigned char*>(&nanoseconds),
+                   reinterpret_cast<const unsigned char*>(&nanoseconds) + sizeof(nanoseconds),
+                   iter);
+  return generate(namespace_string, buffer.data(), buffer.size());
+}
+
 UUID generate(const std::string& namespace_string, const TimeStamp& stamp, const UUID& id)
 {
   constexpr size_t buffer_size = sizeof(stamp) + UUID::static_size();
@@ -87,6 +100,23 @@ UUID generate(const std::string& namespace_string, const TimeStamp& stamp, const
                    iter);
   return generate(namespace_string, buffer.data(), buffer.size());
 }
+
+
+UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id)
+{
+  const auto nanoseconds = stamp.nanoseconds();
+  constexpr size_t buffer_size = sizeof(nanoseconds) + UUID::static_size();
+  std::array<unsigned char, buffer_size> buffer;
+  auto iter = buffer.begin();
+  iter = std::copy(reinterpret_cast<const unsigned char*>(&nanoseconds),
+                   reinterpret_cast<const unsigned char*>(&nanoseconds) + sizeof(nanoseconds),
+                   iter);
+  iter = std::copy(id.begin(),
+                   id.end(),
+                   iter);
+  return generate(namespace_string, buffer.data(), buffer.size());
+}
+
 
 UUID generate(const std::string& namespace_string, const uint64_t& user_id)
 {

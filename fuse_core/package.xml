@@ -26,9 +26,9 @@
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclcpp_components</exec_depend>
   
-  <depend version_gte="1.13.8">rosconsole</depend>
-  <test_depend>roslint</test_depend>
-  <test_depend>rostest</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

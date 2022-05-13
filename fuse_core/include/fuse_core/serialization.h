@@ -37,6 +37,7 @@
 #include <fuse_core/uuid.h>
 
 #include <fuse_core/time.h>
+#include <rclcpp/time.hpp>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -52,6 +53,7 @@
 
 #include <boost/iostreams/categories.hpp>
 
+#include <ios>
 #include <vector>
 
 
@@ -155,6 +157,20 @@ void serialize(Archive& archive, fuse_core::TimeStamp& stamp, const unsigned int
   #warning "discarding clock source in serialisation"
   int64_t time_point = stamp.time_since_epoch().count();
   archive & time_point;
+}
+
+
+/**
+ * @brief Serialize a rclcpp::Time variable using Boost Serialization
+ */
+template<class Archive>
+void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* version */)
+{
+  auto nanoseconds = stamp.nanoseconds();
+  auto clock_type = stamp.get_clock_type();
+  archive & nanoseconds;
+  archive & clock_type;
+  stamp = rclcpp::Time(nanoseconds, clock_type);
 }
 
 /**

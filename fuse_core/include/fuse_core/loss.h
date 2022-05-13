@@ -41,7 +41,6 @@
 #include <boost/type_index/stl_type_index.hpp>
 #include <ceres/loss_function.h>
 
-#include <ostream>
 #include <iostream>
 #include <string>
 
@@ -169,7 +168,7 @@ namespace fuse_core
 class Loss
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Loss);
+  FUSE_SMART_PTR_ALIASES_ONLY(Loss)
 
   static constexpr ceres::Ownership Ownership =
       ceres::Ownership::TAKE_OWNERSHIP;  //!< The ownership of the ceres::LossFunction* returned by lossFunction()
