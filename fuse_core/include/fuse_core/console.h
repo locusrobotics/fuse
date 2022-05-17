@@ -34,11 +34,22 @@
 #ifndef FUSE_CORE_CONSOLE_H
 #define FUSE_CORE_CONSOLE_H
 
-#include <rclcpp/clock.hpp>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/time.h>
 
 
 namespace fuse_core
 {
+
+// To replicate ROS 1 behavior, the throttle checking conditions were adapted from the logic here:
+// https://github.com/ros/rosconsole/blob/c9503279e932a04b3d2667cca3d28a8133cacc22/include/ros/console.h
+#if defined(_MSC_VER)
+  #define FUSE_LIKELY(x)       (x)
+  #define FUSE_UNLIKELY(x)     (x)
+#else
+  #define FUSE_LIKELY(x)       __builtin_expect((x),1)
+  #define FUSE_UNLIKELY(x)     __builtin_expect((x),0)
+#endif
 
 /**
  * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to reset the last time the
@@ -60,23 +71,22 @@ public:
    * @brief Returns whether or not the log statement should be printed. Called before the log arguments are evaluated
    * and the message is formatted.
    *
-   * This works as ROS_*_DELAYED_THROTTLE but the last time the filter condition was hit is handled by this filter, so
+   * This borrows logic from ROS 1's delayed throttle logging, but the last time the filter condition was hit is handled by this filter, so
    * it can be reset.
+   *
+   * @param[in] now - The current ROS time at which to check if logging should fire
    *
    * @return True if the filter condition is hit, false otherwise
    */
-  bool isEnabled() override
+  bool isEnabled(const rclcpp::Time& now)
   {
-    #warn "migrated from ros1, using default clock"
-    const auto now = rclcpp::Clock().now().seconds();
-
     if (last_hit_ < 0.0)
     {
       last_hit_ = now;
       return true;
     }
 
-    if (now > (last_hit_ + period_))
+    if (FUSE_UNLIKELY(last_hit_ + period_ <= now) || FUSE_UNLIKELY(now < last_hit_))
     {
       last_hit_ = now;
       return true;
