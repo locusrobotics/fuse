@@ -42,9 +42,8 @@
 #include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 
-#include <limits>
-#include <ostream>
 #include <iostream>
+#include <limits>
 #include <string>
 
 
@@ -189,7 +188,7 @@ namespace fuse_core
 class Variable
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Variable);
+  FUSE_SMART_PTR_ALIASES_ONLY(Variable)
 
   /**
    * @brief Default constructor
@@ -323,10 +322,10 @@ public:
    *
    * Defaults to -max.
    *
-   * @param[in] index The variable dimension of interest
+   * @param[in] index The variable dimension of interest (not used in base class)
    * @return The lower bound for the requested variable dimension
    */
-  virtual double lowerBound(size_t index) const
+  virtual double lowerBound(size_t /* index */) const
   {
     return std::numeric_limits<double>::lowest();
   }
@@ -336,10 +335,10 @@ public:
    *
    * Defaults to +max.
    *
-   * @param[in] index The variable dimension of interest
+   * @param[in] index The variable dimension of interest (not used in base class)
    * @return The upper bound for the requested variable dimension
    */
-  virtual double upperBound(size_t index) const
+  virtual double upperBound(size_t /* index */) const
   {
     return std::numeric_limits<double>::max();
   }

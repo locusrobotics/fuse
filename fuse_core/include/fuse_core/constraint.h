@@ -194,7 +194,7 @@ namespace fuse_core
 class Constraint
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Constraint);
+  FUSE_SMART_PTR_ALIASES_ONLY(Constraint)
 
   /**
    * @brief Default constructor
