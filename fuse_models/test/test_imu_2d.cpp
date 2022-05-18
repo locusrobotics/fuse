@@ -46,6 +46,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <utility>
