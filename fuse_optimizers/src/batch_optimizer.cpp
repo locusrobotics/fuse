@@ -31,16 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/transaction.h>
 #include <fuse_optimizers/batch_optimizer.h>
-#include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
-
-#include <algorithm>
-#include <mutex>
-#include <string>
-#include <utility>
-#include <thread>
 
 
 namespace fuse_optimizers
@@ -48,9 +39,10 @@ namespace fuse_optimizers
 
 BatchOptimizer::BatchOptimizer(
   rclcpp::NodeOptions options,
-  fuse_core::Graph::UniquePtr graph
+  fuse_core::Graph::UniquePtr graph,
+  std::string node_name = "batch_optimiser"
 ):
-  fuse_optimizers::Optimizer(options, std::move(graph)),
+  fuse_optimizers::Optimizer(options, std::move(graph), node_name),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
   start_time_(rclcpp::Time::max()),
@@ -227,7 +219,7 @@ void BatchOptimizer::transactionCallback(
 
 void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
 {
-  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "BatchOptimizer");
+  status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "BatchOptimizer");
 
   Optimizer::setDiagnostics(status);
 

@@ -37,7 +37,10 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/loss_loader.h>
 
-#include <ros/node_handle.h>
+// #include <ros/node_handle.h>
+
+#include <rclcpp/node_interfaces/node_parameters_interface.hpp>
+#include <rclcpp/logger.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -55,8 +58,12 @@ namespace fuse_core
  * @throws std::runtime_error if the parameter does not exist
  */
 template <typename T>
-void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)
-{
+void getParamRequired(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  const std::string& key,
+  T& value
+){
   if (!nh.getParam(key, value))
   {
     const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
@@ -76,9 +83,13 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
  */
 template <typename T,
           typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
-void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T& default_value,
-                      const bool strict = true)
-{
+void getPositiveParam(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  const std::string& parameter_name,
+  T& default_value,
+  const bool strict = true
+){
   T value;
   node_handle.param(parameter_name, value, default_value);
   if (value < 0 || (strict && value == 0))
@@ -101,9 +112,13 @@ void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& par
  *                                 has the loaded (or default) value
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  */
-inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name,
-                             ros::Duration& default_value, const bool strict = true)
-{
+inline void getPositiveParam(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  const std::string& parameter_name,
+  ros::Duration& default_value,
+  const bool strict = true
+){
   double default_value_sec = default_value.toSec();
   getPositiveParam(node_handle, parameter_name, default_value_sec, strict);
   default_value.fromSec(default_value_sec);
@@ -123,10 +138,12 @@ inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::stri
  * @return The loaded (or default) covariance matrix, generated from the diagonal vector
  */
 template <int Size, typename Scalar = double>
-fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::NodeHandle& node_handle,
-                                                                 const std::string& parameter_name,
-                                                                 Scalar default_value)
-{
+fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  const std::string& parameter_name,
+  Scalar default_value
+){
   using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
 
   std::vector<Scalar> diagonal(Size, default_value);
@@ -155,8 +172,11 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::Node
  * @param[in] name - The ROS parameter name for the loss configuration parameter
  * @return Loss function or nullptr if the parameter does not exist
  */
-inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, const std::string& name)
-{
+inline fuse_core::Loss::SharedPtr loadLossConfig(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  const std::string& name
+){
   if (!nh.hasParam(name))
   {
     return {};

@@ -37,8 +37,6 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/stamped.h>
 
-#include <ros/time.h>
-
 #include <algorithm>
 #include <stdexcept>
 #include <vector>

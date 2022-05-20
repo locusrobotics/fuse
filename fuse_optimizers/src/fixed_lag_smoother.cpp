@@ -33,22 +33,6 @@
  */
 #include <fuse_optimizers/fixed_lag_smoother.h>
 
-#include <fuse_constraints/marginalize_variables.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
-#include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
-
-#include <algorithm>
-#include <iterator>
-#include <mutex>
-#include <sstream>
-#include <string>
-#include <thread>
-#include <vector>
-
-
 namespace
 {
 /**
@@ -80,10 +64,10 @@ namespace fuse_optimizers
 
 FixedLagSmoother::FixedLagSmoother(
   rclcpp::NodeOptions options,
-  fuse_core::Graph::UniquePtr graph
+  fuse_core::Graph::UniquePtr graph,
+  std::string node_name = "fixed_lag_smoother_node"
 ) :
-  Node("fixed_lag_smoother_node", options),
-  fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
+  fuse_optimizers::Optimizer(options, std::move(graph), node_name),
   ignited_(false),
   optimization_running_(true),
   started_(false),
@@ -130,7 +114,7 @@ void FixedLagSmoother::autostart()
     // No ignition sensors were provided. Auto-start.
     started_ = true;
     setStartTime(fuse_core::TimeStamp(0, 0)); // XXX no guarantees that zero is the beginning of time
-    ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
+    RCLCPP_INFO(this->get_logger(), "No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
 
@@ -216,9 +200,9 @@ void FixedLagSmoother::optimizationLoop()
         oss << "\nTransaction:\n";
         new_transaction->print(oss);
 
-        ROS_FATAL_STREAM("Failed to update graph with transaction: " << ex.what()
-                                                                     << "\nLeaving optimization loop and requesting "
-                                                                        "node shutdown...\n" << oss.str());
+        RCLCPP_FATAL(this->get_logger(), "Failed to update graph with transaction: " , ex.what()
+                                                                     , "\nLeaving optimization loop and requesting "
+                                                                        "node shutdown...\n" , oss.str());
         ros::requestShutdown();
         break;
       }
@@ -232,9 +216,9 @@ void FixedLagSmoother::optimizationLoop()
       // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
       if (!summary_.IsSolutionUsable())
       {
-        ROS_FATAL_STREAM("Optimization failed after updating the graph with the transaction with timestamp "
-                         << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
-        ROS_INFO_STREAM(summary_.FullReport());
+        RCLCPP_FATAL(this->get_logger(), "Optimization failed after updating the graph with the transaction with timestamp "
+                         , new_transaction_stamp , ". Leaving optimization loop and requesting node shutdown...");
+        RCLCPP_INFO(this->get_logger(), summary_.FullReport());
         ros::requestShutdown();
         break;
       }
@@ -252,8 +236,8 @@ void FixedLagSmoother::optimizationLoop()
       auto optimization_complete = ros::Time::now();  // XXX use the timestamp tracking to tell the robot time
       if (optimization_complete > optimization_deadline)
       {
-        ROS_WARN_STREAM_THROTTLE(10.0, "Optimization exceeded the configured duration by "
-                                           << (optimization_complete - optimization_deadline) << "s");
+        ROS_WARN_THROTTLE(10.0, "Optimization exceeded the configured duration by "
+                                           , (optimization_complete - optimization_deadline) , "s");
       }
     }
   }
@@ -316,8 +300,8 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
     {
       // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
       // transaction, but we do not enforce it is processed individually.
-      ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << " from sensor " <<
-                       element.sensor_name << " is not an ignition sensor transaction. " <<
+      RCLCPP_ERROR(this->get_logger(), "The queued transaction with timestamp " , element.stamp() , " from sensor " ,
+                       element.sensor_name , " is not an ignition sensor transaction. " ,
                        "This transaction will not be processed individually.");
     }
     else
@@ -333,8 +317,8 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
       {
         // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
         // trying again next time, so we ignore this transaction.
-        ROS_ERROR_STREAM("The queued ignition transaction with timestamp " << element.stamp() << " from sensor " <<
-                         element.sensor_name << " could not be processed. Ignoring this ignition transaction.");
+        RCLCPP_ERROR(this->get_logger(), "The queued ignition transaction with timestamp " , element.stamp() , " from sensor " ,
+                         element.sensor_name , " could not be processed. Ignoring this ignition transaction.");
 
         // Remove the ignition transaction that just failed and purge all transactions after it. But if we find another
         // ignition transaction, we schedule it to be processed in the next optimization cycle.
@@ -378,9 +362,9 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
     const auto& min_stamp = element.minStamp();
     if (min_stamp < lag_expiration)
     {
-      ROS_DEBUG_STREAM("The current lag expiration time is " << lag_expiration << ". The queued transaction with "
-                       "timestamp " << element.stamp() << " from sensor " << element.sensor_name << " has a minimum "
-                       "involved timestamp of " << min_stamp << ", which is " << (lag_expiration - min_stamp) <<
+      RCLCPP_DEBUG(this->get_logger(), "The current lag expiration time is " , lag_expiration , ". The queued transaction with "
+                       "timestamp " , element.stamp() , " from sensor " , element.sensor_name , " has a minimum "
+                       "involved timestamp of " , min_stamp , ", which is " , (lag_expiration - min_stamp) ,
                        " seconds too old. Ignoring this transaction.");
       transaction_riter = erase(pending_transactions_, transaction_riter);
     }
@@ -403,11 +387,11 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
       if (max_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.stamp() << " and maximum "
-                          "involved stamp of " << max_stamp << " from sensor " << element.sensor_name <<
-                          " could not be processed after " << (current_time - max_stamp) << " seconds, "
-                          "which is greater than the 'transaction_timeout' value of " <<
-                          params_.transaction_timeout << ". Ignoring this transaction.");
+        RCLCPP_ERROR(this->get_logger(), "The queued transaction with timestamp " , element.stamp() , " and maximum "
+                          "involved stamp of " , max_stamp , " from sensor " , element.sensor_name ,
+                          " could not be processed after " , (current_time - max_stamp) , " seconds, "
+                          "which is greater than the 'transaction_timeout' value of " ,
+                          params_.transaction_timeout , ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -420,8 +404,10 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
   }
 }
 
-bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
-{
+bool FixedLagSmoother::resetServiceCallback(
+  std_srvs::srv::Empty::Request&,
+  std_srvs::srv::Empty::Response&
+){
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
@@ -465,9 +451,9 @@ void FixedLagSmoother::transactionCallback(
   const auto max_time = transaction->maxStamp();
   if (started_ && max_time < start_time)
   {
-    ROS_DEBUG_STREAM("Received a transaction before the start time from sensor '" << sensor_name << "'.\n" <<
-                     "  start_time: " << start_time << ", maximum involved stamp: " << max_time <<
-                     ", difference: " << (start_time - max_time) << "s");
+    RCLCPP_DEBUG(this->get_logger(), "Received a transaction before the start time from sensor '" , sensor_name , "'.\n" ,
+                     "  start_time: " , start_time , ", maximum involved stamp: " , max_time ,
+                     ", difference: " , (start_time - max_time) , "s");
     return;
   }
   {
@@ -533,14 +519,14 @@ void FixedLagSmoother::transactionCallback(
 }
 
 /**
- * @brief Make a diagnostic_msgs::DiagnosticStatus message filling in the level and message
+ * @brief Make a diagnostic_msgs::msg::DiagnosticStatus message filling in the level and message
  *
  * @param[in] level   The diagnostic status level
  * @param[in] message The diagnostic status message
  */
-diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const std::string& message)
+diagnostic_msgs::msg::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const std::string& message)
 {
-  diagnostic_msgs::DiagnosticStatus status;
+  diagnostic_msgs::msg::DiagnosticStatus status;
 
   status.level = level;
   status.message = message;
@@ -560,17 +546,17 @@ diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const
  * @param[in] termination_type The optimization termination type
  * @return The diagnostic status with the level and message corresponding to the optimization termination type
  */
-diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type)
+diagnostic_msgs::msg::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type)
 {
   switch (termination_type)
   {
     case ceres::TerminationType::CONVERGENCE:
     case ceres::TerminationType::USER_SUCCESS:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
+      return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimization converged");
     case ceres::TerminationType::NO_CONVERGENCE:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
+      return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Optimization didn't converge");
     default:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+      return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Optimization failed");
   }
 }
 
@@ -599,7 +585,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
       }
       else
       {
-        status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimization running");
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimization running");
       }
     }
 

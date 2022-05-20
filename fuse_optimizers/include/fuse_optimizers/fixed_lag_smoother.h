@@ -42,7 +42,7 @@
 #include <fuse_optimizers/variable_stamp_index.h>
 
 #include <rclcpp/rclcpp.hpp>
-#include <std_srvs/Empty.h>
+#include <std_srvs/srv/empty.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -104,7 +104,7 @@ namespace fuse_optimizers
  *                                               motion models to be generated. Once the timeout expires, that
  *                                               transaction will be deleted from the queue.
  */
-class FixedLagSmoother : public Optimizer, public rclcpp::Node
+class FixedLagSmoother : public Optimizer
 {
 public:
   SMART_PTR_DEFINITIONS(FixedLagSmoother);
@@ -120,7 +120,8 @@ public:
    */
   FixedLagSmoother(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique(),
+    std::string node_name
   );
 
   /**
@@ -213,7 +214,7 @@ protected:
   /**
    * @brief Compute the oldest timestamp that is part of the configured lag window
    */
-  ros::Time computeLagExpirationTime() const;
+  fuse_core::TimeStamp computeLagExpirationTime() const;
 
   /**
    * @brief Compute the set of variables that should be marginalized from the graph
@@ -268,8 +269,10 @@ protected:
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-  bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
-
+bool FixedLagSmoother::resetServiceCallback(
+  std_srvs::srv::Empty::Request&,
+  std_srvs::srv::Empty::Response&
+);
   /**
    * @brief Thread-safe read-only access to the timestamp of the first transaction
    */

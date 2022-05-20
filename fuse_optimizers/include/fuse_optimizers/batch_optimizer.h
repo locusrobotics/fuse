@@ -108,7 +108,8 @@ public:
    */
   BatchOptimizer(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique(),
+    std::string node_name = "fixed_lag_smoother_node"
   );
 
   /**

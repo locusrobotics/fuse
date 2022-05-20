@@ -34,7 +34,7 @@
 #ifndef FUSE_OPTIMIZERS_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_OPTIMIZER_H
 
-#include <diagnostic_updater/diagnostic_updater.h>
+#include <diagnostic_updater/diagnostic_updater.hpp>
 #include <fuse_core/graph.h>
 #include <fuse_core/macros.h>
 #include <fuse_core/motion_model.h>

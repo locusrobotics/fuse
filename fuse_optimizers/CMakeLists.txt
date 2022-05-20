@@ -4,7 +4,6 @@ project(fuse_optimizers)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 #set(CMAKE_BUILD_TYPE Debug)
 
-# Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
@@ -33,7 +32,6 @@ find_package(Eigen3 REQUIRED)
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
 
 ## fuse_optimizers library
 add_library(${PROJECT_NAME}

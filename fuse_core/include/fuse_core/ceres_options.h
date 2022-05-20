@@ -38,8 +38,10 @@
 
 //#include <ros/console.h>
 //#include <ros/node_handle.h>
+
 #include <rclcpp/node_interfaces/node_parameters_interface.hpp>
 #include <rclcpp/logger.hpp>
+
 #include <ceres/version.h>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
@@ -238,7 +240,10 @@ T getParam(
  * @param[in] nh - A node handle in a namespace containing ceres::Covariance::Options settings
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
  */
-void loadCovarianceOptionsFromROS(rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params, ceres::Covariance::Options& covariance_options);
+void loadCovarianceOptionsFromROS(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  ceres::Covariance::Options& covariance_options
+);
 
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
@@ -246,7 +251,10 @@ void loadCovarianceOptionsFromROS(rclcpp::node_interfaces::NodeParametersInterfa
  * @param[in] nh - A node handle in a namespace containing ceres::Problem::Options settings
  * @param[out] problem_options - The ceres::Problem::Options object to update
  */
-void loadProblemOptionsFromROS(rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params, ceres::Problem::Options& problem_options);
+void loadProblemOptionsFromROS(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  ceres::Problem::Options& problem_options
+);
 
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
@@ -254,7 +262,10 @@ void loadProblemOptionsFromROS(rclcpp::node_interfaces::NodeParametersInterface:
  * @param[in] nh - A node handle in a namespace containing ceres::Solver::Options settings
  * @param[out] solver_options - The ceres::Solver::Options object to update
  */
-void loadSolverOptionsFromROS(rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params, ceres::Solver::Options& solver_options);
+void loadSolverOptionsFromROS(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  ceres::Solver::Options& solver_options
+);
 
 }  // namespace fuse_core
 
