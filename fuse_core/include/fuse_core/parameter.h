@@ -68,7 +68,7 @@ void getParamRequired(
   if (!nh.getParam(key, value))
   {
     const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
-    ROS_FATAL_STREAM(error);
+    RCLCPP_FATAL_STREAM(logger, error);
     throw std::runtime_error(error);
   }
 }
@@ -96,7 +96,7 @@ void getPositiveParam(
   node_handle.param(parameter_name, value, default_value);
   if (value < 0 || (strict && value == 0))
   {
-    ROS_WARN_STREAM("The requested " << parameter_name << " is <" << (strict ? "=" : "") <<
+    RCLCPP_WARN_STREAM(logger, "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "") <<
                     " 0. Using the default value (" << default_value << ") instead.");
   }
   else
