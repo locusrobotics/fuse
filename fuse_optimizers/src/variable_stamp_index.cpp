@@ -56,7 +56,8 @@ fuse_core::TimeStamp VariableStampIndex::currentStamp() const
   }
   else
   {
-    return fuse_core::TimeStamp(0);   // XXX Zero should not be treated like a flag
+    // XXX returning uninitialised
+    return fuse_core::TimeStamp();   // XXX Zero should not be treated like a flag
   }
 }
 

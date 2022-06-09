@@ -60,7 +60,7 @@ public:
   /**
    * @brief The duration of the smoothing window in seconds
    */
-  fuse_core::Duration lag_duration { 5.0 };
+  fuse_core::Duration lag_duration; // { 5.0 };
 
   /**
    * @brief The target duration for optimization cycles
@@ -69,7 +69,8 @@ public:
    * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
    * parameter in Hz.
    */
-  fuse_core::Duration optimization_period { 0.1 };
+   // XXX use std::chrono instead of a fuse_core::Duration, and provide clock comparison logic in fuse_core/time.h
+  fuse_core::Duration optimization_period;  // { 0.1 };
 
   /**
    * @brief The topic name of the advertised reset service
@@ -82,7 +83,7 @@ public:
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
-  fuse_core::Duration transaction_timeout { 0.1 };
+  fuse_core::Duration transaction_timeout;  // { 0.1 };
 
   /**
    * @brief Ceres Solver::Options object that controls various aspects of the optimizer.

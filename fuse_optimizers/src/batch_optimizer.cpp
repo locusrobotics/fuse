@@ -45,7 +45,7 @@ BatchOptimizer::BatchOptimizer(
   fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
-  start_time_(rclcpp::Time::max()),
+  //start_time_(),
   started_(false)
 {
   params_.loadFromROS(private_node_handle);
@@ -76,7 +76,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
   // We need get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
   // Use the most recent transaction time as the current time
-  fuse_core::TimeStamp current_time(0, 0);
+  fuse_core::TimeStamp current_time;    // XXX current_time can be used without init
   if (!pending_transactions_.empty())
   {
     current_time = pending_transactions_.rbegin()->first;
@@ -184,7 +184,7 @@ void BatchOptimizer::transactionCallback(
   // Either we haven't "started" yet and we want to keep a short history of transactions around
   // Or we have "started" already, and the new transaction is after the starting time.
   fuse_core::TimeStamp transaction_time = transaction->stamp();
-  fuse_core::TimeStamp last_pending_time(0);
+  fuse_core::TimeStamp last_pending_time;
   if (!started_ || transaction_time >= start_time_)
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
@@ -201,12 +201,8 @@ void BatchOptimizer::transactionCallback(
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
-    fuse_core::TimeStamp purge_time(0);
-    if (started_)
-    {
-      purge_time = start_time_;
-    }
-    else if (fuse_core::TimeStamp(0) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
+    fuse_core::TimeStamp purge_time = start_time_;
+    if (!started_)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }

@@ -189,6 +189,7 @@ protected:
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
+  bool start_time_valid_;  //true if the start_time_ has been initialised
   fuse_core::TimeStamp start_time_;  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
@@ -285,14 +286,33 @@ bool resetServiceCallback(
   }
 
   /**
+   * @brief Thread-safe read-only access to test if the start time has been initialised
+   */
+  bool getStartTimeValid() const
+  {
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+    return start_time_valid_;
+  }
+
+  /**
    * @brief Thread-safe write access to the optimizer start time
    */
   void setStartTime(const fuse_core::TimeStamp& start_time)
   {
     std::lock_guard<std::mutex> lock(start_time_mutex_);
     start_time_ = start_time;
+    start_time_valid_ = true;
   }
 
+  /**
+   * @brief Thread-safe write access to zero the optimizer start time
+   */
+  void resetStartTime()
+  {
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+    start_time_ = fuse_core::TimeStamp();
+    start_time_valid_ = false;
+  }
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction
    *
