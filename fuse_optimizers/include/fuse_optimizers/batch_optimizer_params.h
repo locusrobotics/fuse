@@ -63,7 +63,7 @@ public:
    * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
    * parameter in Hz.
    */
-  fuse_core::Duration optimization_period; // { 0.1 };
+  double optimization_period { 0.1 };
 
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
@@ -71,7 +71,7 @@ public:
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
-  fuse_core::Duration transaction_timeout;  // { 0.1 };
+  double transaction_timeout { 0.1 };
 
   /**
    * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
@@ -81,25 +81,27 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
-   */
-  void loadFromROS(const ros::NodeHandle& nh)
+   * @param[in] node_params - The node parameter interface handle used to load the parameter
+   * @param[in] logger - The ros logger used to report errors   */
+  void loadFromROS(
+    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+    rclcpp::Logger logger)
   {
     // Read settings from the parameter server
     if (nh.hasParam("optimization_frequency"))
     {
-      double optimization_frequency{ 1.0 / optimization_period.toSec() };
-      fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
-      optimization_period.fromSec(1.0 / optimization_frequency);
+      double optimization_frequency{ 1.0 / optimization_period };
+      fuse_core::getPositiveParam(node_params, logger, "optimization_frequency", optimization_frequency);
+      optimization_period = 1.0 / optimization_frequency;
     }
     else
     {
-      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
+      fuse_core::getPositiveParam(node_params, logger, "optimization_period", optimization_period);
     }
 
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
+    fuse_core::getPositiveParam(node_params, logger, "transaction_timeout", transaction_timeout);
 
-    fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
+    fuse_core::loadSolverOptionsFromROS(node_params, solver_options);
   }
 };
 

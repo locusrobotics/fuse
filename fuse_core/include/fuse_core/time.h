@@ -81,6 +81,10 @@ inline double toSec(Duration d){
     return std::chrono::duration<double>(d).count();
 }
 
+inline Duration fromSec(double d){
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(d));
+}
+
 
 }
 

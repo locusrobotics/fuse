@@ -73,7 +73,7 @@ FixedLagSmoother::FixedLagSmoother(
   started_(false),
   optimization_request_(false)
 {
-  params_.loadFromROS(private_node_handle);
+  params_.loadFromROS(get_node_parameters_interface(), get_logger());
 
   // Test for auto-start
   autostart();
@@ -83,7 +83,7 @@ FixedLagSmoother::FixedLagSmoother(
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = create_wall_timer(
-    params_.optimization_period,
+    fuse_core::fromSec(params_.optimization_period),
     std::bind(&FixedLagSmoother::optimizerTimerCallback, this)
   );
 
@@ -131,7 +131,7 @@ fuse_core::TimeStamp FixedLagSmoother::computeLagExpirationTime() const
   auto now = timestamp_tracking_.currentStamp();
   // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
   // XXX moved to std::Time for timestamps, this hack is no longer necessary
-  return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
+  return (start_time + fuse_core::fromSec(params_.lag_duration) < now) ? now - fuse_core::fromSec(params_.lag_duration) : start_time;
 }
 
 std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const fuse_core::TimeStamp& lag_expiration)
@@ -269,7 +269,7 @@ void FixedLagSmoother::optimizerTimerCallback()
       // XXX event.current_expected refers to when ROS planned to execute the callback, not the current time.
       //     wall-time and measurement-time should be decoupled further
       // optimization_deadline_ = event.current_expected + params_.optimization_period;
-      optimization_deadline_ = fuse_core::stamp_from_ros(get_clock()->now()) + params_.optimization_period;
+      optimization_deadline_ = fuse_core::stamp_from_ros(get_clock()->now()) + fuse_core::fromSec(params_.optimization_period);
     }
     optimization_requested_.notify_one();
   }
@@ -390,14 +390,14 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
       // The motion model processing failed.
       // Check the transaction timeout to determine if it should be removed or skipped.
       const auto& max_stamp = element.maxStamp();
-      if (max_stamp + params_.transaction_timeout < current_time)
+      if (max_stamp + fuse_core::fromSec(params_.transaction_timeout) < current_time)
       {
         // Warn that this transaction has expired, then skip it.
         RCLCPP_ERROR_STREAM(get_logger(), "The queued transaction with timestamp " << element.stamp() << " and maximum "
                           "involved stamp of " << max_stamp << " from sensor " << element.sensor_name <<
                           " could not be processed after " << std::chrono::duration<double>(current_time - max_stamp).count() << " seconds, "
                           "which is greater than the 'transaction_timeout' value of " <<
-                          std::chrono::duration<double>(params_.transaction_timeout).count() << ". Ignoring this transaction.");
+                          params_.transaction_timeout << ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -509,7 +509,7 @@ void FixedLagSmoother::transactionCallback(
       {
         // And purge out old transactions to limit the pending size while waiting for an ignition sensor
         auto last_pending_time = pending_transactions_.front().stamp();
-        fuse_core::TimeStamp purge_time = last_pending_time - params_.transaction_timeout;
+        fuse_core::TimeStamp purge_time = last_pending_time - fuse_core::fromSec(params_.transaction_timeout);
 
         while (!pending_transactions_.empty() && pending_transactions_.back().maxStamp() < purge_time)
         {
@@ -617,7 +617,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
     if (got_deadline_from_mutex)
     {
-      const auto optimization_request_time = optimization_deadline - params_.optimization_period;
+      const auto optimization_request_time = optimization_deadline - fuse_core::fromSec(params_.optimization_period);
       // XXX avoid using calls to ROS time without knowing which clock
       const auto time_since_last_optimization_request = fuse_core::stamp_from_ros(get_clock()->now()) - optimization_request_time;
       status.add("Time Since Last Optimization Request [s]", fuse_core::toSec(time_since_last_optimization_request));

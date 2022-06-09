@@ -237,7 +237,7 @@ T getParam(
 /**
  * @brief Populate a ceres::Covariance::Options object with information from the parameter server
  *
- * @param[in] nh - A node handle in a namespace containing ceres::Covariance::Options settings
+ * @param[in] node_params - The parameters interface of a node with ceres::Covariance::Options settings
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
  */
 void loadCovarianceOptionsFromROS(
@@ -248,7 +248,7 @@ void loadCovarianceOptionsFromROS(
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
  *
- * @param[in] nh - A node handle in a namespace containing ceres::Problem::Options settings
+ * @param[in] node_params - The parameters interface of a node with ceres::Problem::Options settings
  * @param[out] problem_options - The ceres::Problem::Options object to update
  */
 void loadProblemOptionsFromROS(
@@ -259,7 +259,7 @@ void loadProblemOptionsFromROS(
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
  *
- * @param[in] nh - A node handle in a namespace containing ceres::Solver::Options settings
+ * @param[in] node_params - The parameters interface of a node with ceres::Solver::Options settings
  * @param[out] solver_options - The ceres::Solver::Options object to update
  */
 void loadSolverOptionsFromROS(

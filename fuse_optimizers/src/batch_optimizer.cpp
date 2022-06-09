@@ -48,11 +48,11 @@ BatchOptimizer::BatchOptimizer(
   //start_time_(),
   started_(false)
 {
-  params_.loadFromROS(private_node_handle);
+  params_.loadFromROS(get_node_parameters_interface(), get_logger());
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = create_wall_timer(
-    params_.optimization_period,
+    fuse_core::fromSec(params_.optimization_period),
     std::bind(&BatchOptimizer::optimizerTimerCallback, this)
   );
 
@@ -88,7 +88,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
     // Apply the motion models to the transaction
     if (!applyMotionModels(element.sensor_name, *element.transaction))
     {
-      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
+      if (element.transaction->stamp() + fuse_core::fromSec(params_.transaction_timeout) < current_time)
       {
         // Warn that this transaction has expired, then skip it.
         RCLCPP_ERROR_STREAM(get_logger(),
@@ -97,7 +97,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
                           << " could not be processed after "
                           << std::chrono::duration<double>(current_time - element.transaction->stamp()).count()
                           << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << std::chrono::duration<double>(params_.transaction_timeout).count()
+                          << params_.transaction_timeout
                           << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
@@ -204,7 +204,7 @@ void BatchOptimizer::transactionCallback(
     fuse_core::TimeStamp purge_time = start_time_;
     if (!started_)
     {
-      purge_time = last_pending_time - params_.transaction_timeout;
+      purge_time = last_pending_time - fuse_core::fromSec(params_.transaction_timeout);
     }
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
     auto purge_iter = pending_transactions_.lower_bound(purge_time);
