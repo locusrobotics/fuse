@@ -91,10 +91,14 @@ void BatchOptimizer::applyMotionModelsToQueue()
       if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        ROS_ERROR_STREAM("The queued transaction with timestamp " << element.transaction->stamp()
-                          << " could not be processed after " << (current_time - element.transaction->stamp())
+        RCLCPP_ERROR_STREAM(get_logger(),
+                            "The queued transaction with timestamp "
+                          << element.transaction->stamp()
+                          << " could not be processed after "
+                          << std::chrono::duration<double>(current_time - element.transaction->stamp()).count()
                           << " seconds, which is greater than the 'transaction_timeout' value of "
-                          << params_.transaction_timeout << ". Ignoring this transaction.");
+                          << std::chrono::duration<double>(params_.transaction_timeout).count()
+                          << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
       }

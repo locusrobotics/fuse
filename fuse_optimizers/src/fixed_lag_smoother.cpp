@@ -200,10 +200,10 @@ void FixedLagSmoother::optimizationLoop()
         oss << "\nTransaction:\n";
         new_transaction->print(oss);
 
-        RCLCPP_FATAL(this->get_logger(), "Failed to update graph with transaction: " , ex.what()
-                                                                     , "\nLeaving optimization loop and requesting "
-                                                                        "node shutdown...\n" , oss.str());
-        ros::requestShutdown();
+        RCLCPP_FATAL_STREAM(this->get_logger(), "Failed to update graph with transaction: " << ex.what()
+                                                                     << "\nLeaving optimization loop and requesting "
+                                                                        "node shutdown...\n" << oss.str());
+        rclcpp::requestShutdown();
         break;
       }
       // Optimize the entire graph
@@ -216,10 +216,10 @@ void FixedLagSmoother::optimizationLoop()
       // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
       if (!summary_.IsSolutionUsable())
       {
-        RCLCPP_FATAL(this->get_logger(), "Optimization failed after updating the graph with the transaction with timestamp "
-                         , new_transaction_stamp , ". Leaving optimization loop and requesting node shutdown...");
-        RCLCPP_INFO(this->get_logger(), summary_.FullReport());
-        ros::requestShutdown();
+        RCLCPP_FATAL_STREAM(get_logger(), "Optimization failed after updating the graph with the transaction with timestamp "
+                          << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
+        RCLCPP_INFO(get_logger(), summary_.FullReport().c_str());
+        rclcpp::requestShutdown();
         break;
       }
 
@@ -236,8 +236,9 @@ void FixedLagSmoother::optimizationLoop()
       auto optimization_complete = ros::Time::now();  // XXX use the timestamp tracking to tell the robot time
       if (optimization_complete > optimization_deadline)
       {
-        ROS_WARN_THROTTLE(10.0, "Optimization exceeded the configured duration by "
-                                           , (optimization_complete - optimization_deadline) , "s");
+        auto clk = rclcpp::Clock(RCL_SYSTEM_TIME);
+        RCLCPP_WARN_STREAM_THROTTLE(get_logger(), clk, 10.0, "Optimization exceeded the configured duration by "
+                                           << std::chrono::duration<double>(optimization_complete - optimization_deadline).count() << "s");
       }
     }
   }
@@ -300,8 +301,8 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
     {
       // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
       // transaction, but we do not enforce it is processed individually.
-      RCLCPP_ERROR(this->get_logger(), "The queued transaction with timestamp " , element.stamp() , " from sensor " ,
-                       element.sensor_name , " is not an ignition sensor transaction. " ,
+      RCLCPP_ERROR_STREAM(get_logger(), "The queued transaction with timestamp " << element.stamp() << " from sensor " <<
+                       element.sensor_name << " is not an ignition sensor transaction. " <<
                        "This transaction will not be processed individually.");
     }
     else
@@ -317,8 +318,8 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
       {
         // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
         // trying again next time, so we ignore this transaction.
-        RCLCPP_ERROR(this->get_logger(), "The queued ignition transaction with timestamp " , element.stamp() , " from sensor " ,
-                         element.sensor_name , " could not be processed. Ignoring this ignition transaction.");
+        RCLCPP_ERROR_STREAM(get_logger(), "The queued ignition transaction with timestamp " << element.stamp() << " from sensor " <<
+                         element.sensor_name << " could not be processed. Ignoring this ignition transaction.");
 
         // Remove the ignition transaction that just failed and purge all transactions after it. But if we find another
         // ignition transaction, we schedule it to be processed in the next optimization cycle.
@@ -362,9 +363,9 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
     const auto& min_stamp = element.minStamp();
     if (min_stamp < lag_expiration)
     {
-      RCLCPP_DEBUG(this->get_logger(), "The current lag expiration time is " , lag_expiration , ". The queued transaction with "
-                       "timestamp " , element.stamp() , " from sensor " , element.sensor_name , " has a minimum "
-                       "involved timestamp of " , min_stamp , ", which is " , (lag_expiration - min_stamp) ,
+      RCLCPP_DEBUG_STREAM(this->get_logger(), "The current lag expiration time is " << lag_expiration << ". The queued transaction with "
+                       "timestamp " << element.stamp() << " from sensor " << element.sensor_name << " has a minimum "
+                       "involved timestamp of " << min_stamp << ", which is " << std::chrono::duration<double>(lag_expiration - min_stamp).count() <<
                        " seconds too old. Ignoring this transaction.");
       transaction_riter = erase(pending_transactions_, transaction_riter);
     }
@@ -387,11 +388,11 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
       if (max_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        RCLCPP_ERROR(this->get_logger(), "The queued transaction with timestamp " , element.stamp() , " and maximum "
-                          "involved stamp of " , max_stamp , " from sensor " , element.sensor_name ,
-                          " could not be processed after " , (current_time - max_stamp) , " seconds, "
-                          "which is greater than the 'transaction_timeout' value of " ,
-                          params_.transaction_timeout , ". Ignoring this transaction.");
+        RCLCPP_ERROR_STREAM(get_logger(), "The queued transaction with timestamp " << element.stamp() << " and maximum "
+                          "involved stamp of " << max_stamp << " from sensor " << element.sensor_name <<
+                          " could not be processed after " << std::chrono::duration<double>(current_time - max_stamp).count() << " seconds, "
+                          "which is greater than the 'transaction_timeout' value of " <<
+                          std::chrono::duration<double>(params_.transaction_timeout).count() << ". Ignoring this transaction.");
         transaction_riter = erase(pending_transactions_, transaction_riter);
       }
       else
@@ -451,9 +452,9 @@ void FixedLagSmoother::transactionCallback(
   const auto max_time = transaction->maxStamp();
   if (started_ && max_time < start_time)
   {
-    RCLCPP_DEBUG(this->get_logger(), "Received a transaction before the start time from sensor '" , sensor_name , "'.\n" ,
-                     "  start_time: " , start_time , ", maximum involved stamp: " , max_time ,
-                     ", difference: " , (start_time - max_time) , "s");
+    RCLCPP_DEBUG_STREAM(get_logger(), "Received a transaction before the start time from sensor '" << sensor_name.c_str() << "'.\n" <<
+                     "  start_time: " << start_time << ", maximum involved stamp: " << max_time <<
+                     ", difference: " << std::chrono::duration<double>(start_time - max_time).count() << "s");
     return;
   }
   {
