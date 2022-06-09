@@ -39,7 +39,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
+#include <fuse_graphs/hash_graph.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -108,8 +108,8 @@ public:
    */
   BatchOptimizer(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique(),
-    std::string node_name = "fixed_lag_smoother_node"
+    std::string node_name = "batch_optimizer_node",
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
   );
 
   /**

@@ -41,6 +41,7 @@
 #include <fuse_core/publisher.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/callback_wrapper.h>
 #include <pluginlib/class_loader.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -105,7 +106,8 @@ public:
    */
   Optimizer(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph,
+    std::string node_name,
+    fuse_core::Graph::UniquePtr graph
     );
 
   /**

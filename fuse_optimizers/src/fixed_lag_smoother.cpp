@@ -64,10 +64,10 @@ namespace fuse_optimizers
 
 FixedLagSmoother::FixedLagSmoother(
   rclcpp::NodeOptions options,
-  fuse_core::Graph::UniquePtr graph,
-  std::string node_name = "fixed_lag_smoother_node"
+  std::string node_name,
+  fuse_core::Graph::UniquePtr graph
 ) :
-  fuse_optimizers::Optimizer(options, std::move(graph), node_name),
+  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
   ignited_(false),
   optimization_running_(true),
   started_(false),

@@ -39,10 +39,10 @@ namespace fuse_optimizers
 
 BatchOptimizer::BatchOptimizer(
   rclcpp::NodeOptions options,
-  fuse_core::Graph::UniquePtr graph,
-  std::string node_name = "batch_optimiser"
+  std::string node_name,
+  fuse_core::Graph::UniquePtr graph
 ):
-  fuse_optimizers::Optimizer(options, std::move(graph), node_name),
+  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
   start_time_(rclcpp::Time::max()),

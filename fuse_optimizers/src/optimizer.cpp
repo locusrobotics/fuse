@@ -79,8 +79,8 @@ struct PluginConfig
 // XXX pass a rclcpp::Context, and a CallbackGroup
 Optimizer::Optimizer(
   rclcpp::NodeOptions options,
-  fuse_core::Graph::UniquePtr graph,
-  std::string node_name = "optimizer_node"
+  std::string node_name = "optimizer_node",
+  fuse_core::Graph::UniquePtr graph
   ) :
     Node(node_name, options),
     graph_(std::move(graph)),

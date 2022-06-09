@@ -48,6 +48,8 @@ ament_target_dependencies(${PROJECT_NAME}
 ## Install ##
 #############
 
+ament_export_include_directories(include)
+
 install(
   TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib

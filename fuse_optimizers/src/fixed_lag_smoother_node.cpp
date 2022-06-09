@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions options;
-  rclcpp::spin(std::make_shared<fuse_optimizers::FixedLagSmoother>(options, fuse_graphs::HashGraph::make_unique()));
+  rclcpp::spin(std::make_shared<fuse_optimizers::FixedLagSmoother>(options));
   rclcpp::shutdown();
   return 0;
 }

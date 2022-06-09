@@ -40,6 +40,7 @@
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
+#include <fuse_graphs/hash_graph.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
@@ -120,8 +121,8 @@ public:
    */
   FixedLagSmoother(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique(),
-    std::string node_name
+    std::string node_name = "fixed_lag_smoother_node",
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
   );
 
   /**
