@@ -150,10 +150,10 @@ void FixedLagSmoother::optimizationLoop()
 {
   auto exit_wait_condition = [this]()
   {
-    return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
+    return this->optimization_request_ || !this->optimization_running_ || !rclcpp::ok();
   };
   // Optimize constraints until told to exit
-  while (ros::ok() && optimization_running_)
+  while (rclcpp::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
     fuse_core::TimeStamp optimization_deadline;
