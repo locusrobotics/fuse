@@ -82,10 +82,11 @@ FixedLagSmoother::FixedLagSmoother(
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
+  optimize_timer_ = create_wall_timer(
     params_.optimization_period,
-    &FixedLagSmoother::optimizerTimerCallback,
-    this);
+    std::bind(&FixedLagSmoother::optimizerTimerCallback, this)
+  );
+
 
   // Advertise a service that resets the optimizer to its initial state
   reset_service_server_ = node_handle_.advertiseService(
@@ -163,7 +164,7 @@ void FixedLagSmoother::optimizationLoop()
       optimization_deadline = optimization_deadline_;
     }
     // If a shutdown is requested, exit now.
-    if (!optimization_running_ || !ros::ok())
+    if (!optimization_running_ || !rclcpp::ok())
     {
       break;
     }
@@ -226,7 +227,7 @@ void FixedLagSmoother::optimizationLoop()
       // Compute a transaction that marginalizes out those variables.
       lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
-        ros::this_node::getName(),
+        get_name(),
         computeVariablesToMarginalize(lag_expiration_),
         *graph_);
       // Perform any post-marginal cleanup
