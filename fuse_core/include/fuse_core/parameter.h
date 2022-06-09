@@ -52,7 +52,8 @@ namespace fuse_core
 /**
  * @brief Utility method for handling required ROS params
  *
- * @param[in] nh - The ROS node handle with which to load parameters
+ * @param[in] node_params - The node parameter interface handle used to load the parameter
+ * @param[in] logger - The ros logger used to report errors
  * @param[in] key - The ROS parameter key for the required parameter
  * @param[out] value - The ROS parameter value for the \p key
  * @throws std::runtime_error if the parameter does not exist
@@ -75,7 +76,8 @@ void getParamRequired(
 /**
  * @brief Helper function that loads positive integral or floating point values from the parameter server
  *
- * @param[in] node_handle - The node handle used to load the parameter
+ * @param[in] node_params - The node parameter interface handle used to load the parameter
+ * @param[in] logger - The ros logger used to report errors
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not exist. As output it
  *                                 has the loaded (or default) value
@@ -106,7 +108,8 @@ void getPositiveParam(
 /**
  * @brief Helper function that loads positive duration values from the parameter server
  *
- * @param[in] node_handle - The node handle used to load the parameter
+ * @param[in] node_params - The node parameter interface handle used to load the parameter
+ * @param[in] logger - The ros logger used to report errors
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not exist. As output it
  *                                 has the loaded (or default) value
@@ -131,7 +134,8 @@ inline void getPositiveParam(
  * @tparam Scalar - A scalar type, defaults to double
  * @tparam Size - An int size that specifies the expected size of the covariance matrix (rows and columns)
  *
- * @param[in] node_handle - The node handle used to load the parameter
+ * @param[in] node_params - The node parameter interface handle used to load the parameter
+ * @param[in] logger - The ros logger used to report errors
  * @param[in] parameter_name - The parameter name to load
  * @param[in] default_value - A default value to use for all the diagonal elements if the provided parameter name does
  *                            not exist
@@ -168,7 +172,8 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
 /**
  * @brief Utility method to load a loss configuration
  *
- * @param[in] nh - The ROS node handle with which to load parameters
+ * @param[in] node_params - The node parameter interface handle used to load the parameter
+ * @param[in] logger - The ros logger used to report errors
  * @param[in] name - The ROS parameter name for the loss configuration parameter
  * @return Loss function or nullptr if the parameter does not exist
  */
