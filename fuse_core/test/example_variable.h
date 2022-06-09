@@ -34,7 +34,7 @@
 #ifndef FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 #define FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>

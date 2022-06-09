@@ -41,7 +41,7 @@
 
 #include <rclcpp/node_interfaces/node_parameters_interface.hpp>
 #include <rclcpp/logger.hpp>
-
+#include <rclcpp/logging.hpp>
 #include <stdexcept>
 #include <string>
 #include <vector>

@@ -96,7 +96,7 @@ namespace fuse_models
 class Odometry2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS_WITH_EIGEN(Odometry2DPublisher);
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Odometry2DPublisher);
   using ParameterType = parameters::Odometry2DPublisherParams;
 
   /**

@@ -47,7 +47,7 @@
 class ExampleOptimizer : public fuse_optimizers::Optimizer
 {
 public:
-  SMART_PTR_DEFINITIONS(ExampleOptimizer);
+  FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer);
 
   ExampleOptimizer(
     rclcpp::NodeOptions options,

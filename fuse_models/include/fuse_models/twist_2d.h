@@ -66,7 +66,7 @@ namespace fuse_models
 class Twist2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Twist2D);
+  FUSE_SMART_PTR_DEFINITIONS(Twist2D);
   using ParameterType = parameters::Twist2DParams;
 
   /**

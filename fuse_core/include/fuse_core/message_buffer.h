@@ -34,7 +34,7 @@
 #ifndef FUSE_CORE_MESSAGE_BUFFER_H
 #define FUSE_CORE_MESSAGE_BUFFER_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/time.h>
 
 #include <boost/range/any_range.hpp>
@@ -60,7 +60,7 @@ template <typename Message>
 class MessageBuffer
 {
 public:
-  SMART_PTR_DEFINITIONS(MessageBuffer<Message>);
+  FUSE_SMART_PTR_DEFINITIONS(MessageBuffer<Message>);
 
   /**
    * @brief A range of messages

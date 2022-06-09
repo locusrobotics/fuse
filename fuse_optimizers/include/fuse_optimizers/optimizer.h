@@ -36,7 +36,7 @@
 
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
 #include <fuse_core/publisher.h>
 #include <fuse_core/sensor_model.h>
@@ -94,7 +94,7 @@ namespace fuse_optimizers
 class Optimizer : public rclcpp::Node
 {
 public:
-  SMART_PTR_ALIASES_ONLY(Optimizer);
+  FUSE_SMART_PTR_ALIASES_ONLY(Optimizer);
 
   /**
    * @brief Constructor

@@ -35,7 +35,7 @@
 #define FUSE_CORE_MOTION_MODEL_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 
 #include <string>
@@ -53,7 +53,7 @@ namespace fuse_core
 class MotionModel
 {
 public:
-  SMART_PTR_ALIASES_ONLY(MotionModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(MotionModel);
 
   /**
    * @brief Destructor

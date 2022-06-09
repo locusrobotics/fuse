@@ -36,7 +36,7 @@
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 #include <ros/ros.h>
 
@@ -57,7 +57,7 @@ namespace fuse_publishers
 class Path2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  SMART_PTR_DEFINITIONS(Path2DPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(Path2DPublisher);
 
   /**
    * @brief Constructor

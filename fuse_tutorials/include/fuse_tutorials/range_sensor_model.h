@@ -106,7 +106,7 @@ class RangeSensorModel : public fuse_core::AsyncSensorModel
 public:
   // It is convenient to have some typedefs for various smart pointer types (shared, unique, etc.). A macro is provided
   // to make it easy to define these typedefs and ensures that the naming is consistent throughout all fuse packages.
-  SMART_PTR_DEFINITIONS(RangeSensorModel);
+  FUSE_SMART_PTR_DEFINITIONS(RangeSensorModel);
 
   /**
    * @brief Default constructor

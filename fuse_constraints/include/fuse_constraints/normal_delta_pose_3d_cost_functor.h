@@ -36,7 +36,7 @@
 
 #include <fuse_constraints/normal_delta_orientation_3d_cost_functor.h>
 #include <fuse_core/eigen.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
 #include <ceres/rotation.h>

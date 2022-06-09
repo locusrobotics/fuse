@@ -35,7 +35,7 @@
 #define FUSE_CORE_ASYNC_MOTION_MODEL_H
 
 #include <fuse_core/graph.h>
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
 #include <fuse_core/transaction.h>
 #include <ros/callback_queue.h>
@@ -85,7 +85,7 @@ namespace fuse_core
 class AsyncMotionModel : public MotionModel
 {
 public:
-  SMART_PTR_ALIASES_ONLY(AsyncMotionModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(AsyncMotionModel);
 
   /**
    * @brief Destructor

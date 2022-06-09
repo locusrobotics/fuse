@@ -86,7 +86,7 @@ namespace fuse_models
 class Imu2D : public fuse_core::AsyncSensorModel
 {
 public:
-  SMART_PTR_DEFINITIONS(Imu2D);
+  FUSE_SMART_PTR_DEFINITIONS(Imu2D);
   using ParameterType = parameters::Imu2DParams;
 
   /**

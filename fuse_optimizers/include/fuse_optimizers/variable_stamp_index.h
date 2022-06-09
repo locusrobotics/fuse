@@ -34,7 +34,7 @@
 #ifndef FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
 #define FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
 
-#include <fuse_core/macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 
@@ -56,7 +56,7 @@ namespace fuse_optimizers
 class VariableStampIndex
 {
 public:
-  SMART_PTR_DEFINITIONS(VariableStampIndex);
+  FUSE_SMART_PTR_DEFINITIONS(VariableStampIndex);
 
   /**
    * @brief Constructor
