@@ -41,6 +41,7 @@
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_graphs/hash_graph.h>
+#include <fuse_constraints/marginalize_variables.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
