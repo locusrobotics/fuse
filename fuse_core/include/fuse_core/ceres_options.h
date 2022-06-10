@@ -185,23 +185,27 @@ CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
 /**
  * @brief Helper function that loads a Ceres Option (e.g. ceres::LinearSolverType) value from the parameter server
  *
- * @param[in] node - The node handle used to load the parameter
+ * @param[in] node_params - The node parameter interface to load the parameters from
+ * @param[in] logger - The ros logger to report errors on
  * @param[in] parameter_name - The parameter name to load
  * @param[in] default_value - A default value to use if the provided parameter name does not exist
  * @return The loaded (or default) value
  */
 template <class T>
-T getParam(rclcpp::Node& node, const std::string& parameter_name, const T& default_value)
+T getParam(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  const std::string& parameter_name, const T& default_value)
 {
   const std::string default_string_value{ ToString(default_value) };
 
   std::string string_value;
-  string_value = node.declare_parameter(parameter_name, default_string_value);
+  string_value = node_params->declare_parameter(parameter_name, default_string_value);
 
   T value;
   if (!FromString(string_value, &value))
   {
-    RCLCPP_WARN_STREAM(node.get_logger(), "The requested " << parameter_name << " (" << string_value
+    RCLCPP_WARN_STREAM(logger, "The requested " << parameter_name << " (" << string_value
                                      << ") is not supported. Using the default value (" << default_string_value
                                      << ") instead.");
     value = default_value;
@@ -213,26 +217,38 @@ T getParam(rclcpp::Node& node, const std::string& parameter_name, const T& defau
 /**
  * @brief Populate a ceres::Covariance::Options object with information from the parameter server
  *
- * @param[in] nh - A node handle in a namespace containing ceres::Covariance::Options settings
+ * @param[in] node_params - The node parameter interface to load the parameters from
+ * @param[in] logger - The ros logger to report errors on
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
  */
-void loadCovarianceOptionsFromROS(rclcpp::Node& nh, ceres::Covariance::Options& covariance_options);
+void loadCovarianceOptionsFromROS(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  ceres::Covariance::Options& covariance_options);
 
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
  *
- * @param[in] nh - A node handle in a namespace containing ceres::Problem::Options settings
+ * @param[in] node_params - The node parameter interface to load the parameters from
+ * @param[in] logger - The ros logger to report errors on
  * @param[out] problem_options - The ceres::Problem::Options object to update
  */
-void loadProblemOptionsFromROS(rclcpp::Node& nh, ceres::Problem::Options& problem_options);
+void loadProblemOptionsFromROS(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  ceres::Problem::Options& problem_options);
 
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
  *
- * @param[in] nh - A node handle in a namespace containing ceres::Solver::Options settings
+ * @param[in] node_params - The node parameter interface to load the parameters from
+ * @param[in] logger - The ros logger to report errors on
  * @param[out] solver_options - The ceres::Solver::Options object to update
  */
-void loadSolverOptionsFromROS(rclcpp::Node& nh, ceres::Solver::Options& solver_options);
+void loadSolverOptionsFromROS(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+  rclcpp::Logger logger,
+  ceres::Solver::Options& solver_options);
 
 }  // namespace fuse_core
 

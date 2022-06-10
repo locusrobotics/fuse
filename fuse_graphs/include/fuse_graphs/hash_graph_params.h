@@ -61,10 +61,12 @@ public:
    *
    * @param[in] nh - The ROS NodeParametersInterface with which to load parameters
    */
-  void loadFromROS(rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params)
+  void loadFromROS(
+    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
+    rclcpp::Logger logger)
   {
     // XXX lost "problem_options" namespace
-    fuse_core::loadProblemOptionsFromROS(node_params, problem_options);
+    fuse_core::loadProblemOptionsFromROS(node_params, logger, problem_options);
   }
 };
 
