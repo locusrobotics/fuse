@@ -126,6 +126,7 @@ install(
 if(CATKIN_ENABLE_TESTING)
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
+  find_package(geometry_msgs REQUIRED)
 
   # Lint tests
   set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
@@ -436,6 +437,12 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(test_throttled_callback
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
+  )
+  target_include_directories(test_throttled_callback
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${geometry_msgs_INCLUDE_DIRS}
   )
   set_target_properties(test_throttled_callback
     PROPERTIES
