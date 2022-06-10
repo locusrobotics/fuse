@@ -34,7 +34,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.h>
 
 #include <fuse_constraints/normal_prior_orientation_3d_euler_cost_functor.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>

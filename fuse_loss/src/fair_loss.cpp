@@ -34,7 +34,7 @@
 #include <fuse_loss/fair_loss.h>
 #include <fuse_loss/loss_function.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>

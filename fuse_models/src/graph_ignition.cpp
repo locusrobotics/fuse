@@ -36,7 +36,7 @@
 
 #include <std_srvs/Empty.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/range/algorithm.hpp>
 #include <boost/range/empty.hpp>

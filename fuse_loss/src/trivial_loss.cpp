@@ -33,7 +33,7 @@
  */
 #include <fuse_loss/trivial_loss.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>

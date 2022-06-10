@@ -322,5 +322,5 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
 
 }  // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz::SerializedGraphDisplay, rviz::Display)
