@@ -34,7 +34,7 @@ find_package(rcl_interfaces REQUIRED)
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
-  #src/async_motion_model.cpp
+  src/async_motion_model.cpp
   #src/async_publisher.cpp
   #src/async_sensor_model.cpp
   src/callback_wrapper.cpp

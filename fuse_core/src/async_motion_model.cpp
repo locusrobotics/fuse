@@ -49,7 +49,7 @@ namespace fuse_core
 
 AsyncMotionModel::AsyncMotionModel(size_t thread_count) :
   name_("uninitialized"),
-  executor_(rclcpp::ExecutorOptions(), thread_count)
+  executor_thread_count_(thread_count)
 {
 }
 
@@ -63,10 +63,9 @@ bool AsyncMotionModel::apply(Transaction& transaction)
   // in order.
   auto callback = std::make_shared<CallbackWrapper<bool>>(
     std::bind(&AsyncMotionModel::applyCallback, this, std::ref(transaction)));
-  auto result = callback->get_future();
-  waitables_interface_->add_waitable(callback, nullptr);
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
   result.wait();
-  waitables_interface_->remove_waitable(callback, nullptr);
 
   return result.get();
 }
@@ -74,37 +73,45 @@ bool AsyncMotionModel::apply(Transaction& transaction)
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
 {
   auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph)));
-  auto result = callback->get_future();
-  waitables_interface_->add_waitable(callback, nullptr);
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
   result.wait();
-  waitables_interface_->remove_waitable(callback, nullptr);
-
-  // @todo TAM: figure out whether we needed the second argument to addCallback here
-  //callback_queue_.addCallback(
-  //  boost::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph))),
-  //  reinterpret_cast<uint64_t>(this));
 }
 
 void AsyncMotionModel::initialize(const std::string& name)
 {
   // Initialize internal state
   name_ = name;
-  node_ = rclcpp::Node::make_shared(name);
-  waitables_interface_ = node_->get_node_waitables_interface();
+  std::string node_namespace = "";
+
+  rclcpp::Context::SharedPtr ros_context = std::make_shared<rclcpp::Context>();
+  auto node_options = rclcpp::NodeOptions();
+
+  ros_context->init(0, NULL);    // XXX should expose the init arg list
+  node_options.context(ros_context); //set a context to generate the node in
+
+  node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);
+
+  auto executor_options = rclcpp::ExecutorOptions();
+  executor_options.context = ros_context;
+  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(executor_options, executor_thread_count_);
+
+  callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
+  node_->get_node_waitables_interface()->add_waitable(
+    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
-  executor_.add_node(node_);
+  executor_->add_node(node_);
 }
 
 void AsyncMotionModel::start()
 {
   auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStart, this));
-  auto result = callback->get_future();
-  waitables_interface_->add_waitable(callback, nullptr);
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
   result.wait();
-  waitables_interface_->remove_waitable(callback, nullptr);
 }
 
 void AsyncMotionModel::stop()
@@ -112,15 +119,14 @@ void AsyncMotionModel::stop()
   if (rclcpp::ok())
   {
     auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStop, this));
-    auto result = callback->get_future();
-    waitables_interface_->add_waitable(callback, nullptr);
+    auto result = callback->getFuture();
+    callback_queue_->addCallback(callback);
     result.wait();
-    waitables_interface_->remove_waitable(callback, nullptr);
   }
   else
   {
-    executor_.cancel();
-    executor_.remove_node(node_);
+    executor_->cancel();
+    executor_->remove_node(node_);
 
     onStop();
   }

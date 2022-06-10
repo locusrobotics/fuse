@@ -156,7 +156,7 @@ class CallbackAdapter : public rclcpp::Waitable
 {
 public:
 
-  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
+  CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
 
   /**
    * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
@@ -177,9 +177,10 @@ public:
    */
   bool add_to_wait_set(rcl_wait_set_t * wait_set);
 
+  std::shared_ptr< void > take_data();
 
   // XXX check this against the threading model of the multi-threaded executor.
-  void execute();
+  void execute(std::shared_ptr<void> & /*data*/);
 
   void addCallback(const std::shared_ptr<CallbackWrapperBase> &callback);
 
