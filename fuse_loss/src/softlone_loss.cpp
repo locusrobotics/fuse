@@ -69,5 +69,5 @@ ceres::LossFunction* SoftLOneLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::SoftLOneLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::SoftLOneLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::SoftLOneLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::SoftLOneLoss, fuse_core::Loss)

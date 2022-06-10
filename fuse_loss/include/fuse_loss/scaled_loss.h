@@ -165,6 +165,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::ScaledLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::ScaledLoss)
 
 #endif  // FUSE_LOSS_SCALED_LOSS_H

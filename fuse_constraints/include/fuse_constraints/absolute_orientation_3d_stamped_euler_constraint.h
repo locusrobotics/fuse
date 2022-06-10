@@ -173,6 +173,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint)
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_H

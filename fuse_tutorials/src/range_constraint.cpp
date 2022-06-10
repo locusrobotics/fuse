@@ -90,6 +90,6 @@ ceres::CostFunction* RangeConstraint::costFunction() const
 }  // namespace fuse_tutorials
 
 // This is part of the serialization requirement. Boost needs to be told this class is serializable.
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_tutorials::RangeConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_tutorials::RangeConstraint)
 // Additionally we tell pluginlib about this class. This makes it loadable at runtime, if needed.
-PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeConstraint, fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeConstraint, fuse_core::Constraint)

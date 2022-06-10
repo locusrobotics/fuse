@@ -180,6 +180,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose2DStampedConstraint)
 
 #endif  // FUSE_CONSTRAINTS_RELATIVE_POSE_2D_STAMPED_CONSTRAINT_H

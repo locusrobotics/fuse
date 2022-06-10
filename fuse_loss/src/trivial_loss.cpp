@@ -56,5 +56,5 @@ ceres::LossFunction* TrivialLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::TrivialLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::TrivialLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::TrivialLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::TrivialLoss, fuse_core::Loss)

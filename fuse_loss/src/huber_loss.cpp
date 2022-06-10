@@ -69,5 +69,5 @@ ceres::LossFunction* HuberLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::HuberLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::HuberLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::HuberLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::HuberLoss, fuse_core::Loss)

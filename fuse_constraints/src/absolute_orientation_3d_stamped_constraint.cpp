@@ -123,5 +123,5 @@ fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::a
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedConstraint)
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedConstraint, fuse_core::Constraint)

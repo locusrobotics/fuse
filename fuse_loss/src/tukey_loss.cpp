@@ -89,5 +89,5 @@ ceres::LossFunction* TukeyLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::TukeyLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::TukeyLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::TukeyLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::TukeyLoss, fuse_core::Loss)

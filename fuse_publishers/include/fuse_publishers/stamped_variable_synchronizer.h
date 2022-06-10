@@ -67,7 +67,7 @@ template <typename ...Ts>
 class StampedVariableSynchronizer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(StampedVariableSynchronizer);
+  FUSE_SMART_PTR_DEFINITIONS(StampedVariableSynchronizer)
   static const ros::Time TIME_ZERO;  //!< Constant representing a zero timestamp
 
   /**

@@ -57,7 +57,7 @@ namespace fuse_core
 class Publisher
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Publisher);
+  FUSE_SMART_PTR_ALIASES_ONLY(Publisher)
 
   /**
    * @brief Constructor

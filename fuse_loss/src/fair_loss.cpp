@@ -70,5 +70,5 @@ ceres::LossFunction* FairLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::FairLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::FairLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::FairLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::FairLoss, fuse_core::Loss)

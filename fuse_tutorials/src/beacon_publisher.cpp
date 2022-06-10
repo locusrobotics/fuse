@@ -46,7 +46,7 @@
 #include <vector>
 
 // Register this publisher with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher);
+PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher)
 
 namespace fuse_tutorials
 {

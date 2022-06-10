@@ -71,6 +71,6 @@ fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() 
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation2DStamped, fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization)
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped)
+PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation2DStamped, fuse_core::Variable)

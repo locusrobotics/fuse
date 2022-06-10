@@ -92,5 +92,5 @@ ceres::CostFunction* AbsoluteOrientation3DStampedEulerConstraint::costFunction()
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint)
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint, fuse_core::Constraint)

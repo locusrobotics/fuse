@@ -66,7 +66,7 @@ namespace fuse_models
 class Unicycle2DStateKinematicConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Unicycle2DStateKinematicConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Unicycle2DStateKinematicConstraint)
 
   /**
    * @brief Default constructor
@@ -174,6 +174,6 @@ private:
 
 }  // namespace fuse_models
 
-BOOST_CLASS_EXPORT_KEY(fuse_models::Unicycle2DStateKinematicConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_models::Unicycle2DStateKinematicConstraint)
 
 #endif  // FUSE_MODELS_UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H

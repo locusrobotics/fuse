@@ -132,6 +132,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Position2DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Position2DStamped)
 
 #endif  // FUSE_VARIABLES_POSITION_2D_STAMPED_H

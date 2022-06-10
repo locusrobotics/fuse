@@ -523,5 +523,5 @@ void HashGraph::createProblem(ceres::Problem& problem) const
 
 }  // namespace fuse_graphs
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_graphs::HashGraph);
-PLUGINLIB_EXPORT_CLASS(fuse_graphs::HashGraph, fuse_core::Graph);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_graphs::HashGraph)
+PLUGINLIB_EXPORT_CLASS(fuse_graphs::HashGraph, fuse_core::Graph)

@@ -116,5 +116,5 @@ ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
 
 }  // namespace fuse_models
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Unicycle2DStateKinematicConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2DStateKinematicConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Unicycle2DStateKinematicConstraint)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2DStateKinematicConstraint, fuse_core::Constraint)

@@ -69,5 +69,5 @@ bool Point3DFixedLandmark::holdConstant() const
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Point3DFixedLandmark);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::Point3DFixedLandmark, fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Point3DFixedLandmark)
+PLUGINLIB_EXPORT_CLASS(fuse_variables::Point3DFixedLandmark, fuse_core::Variable)

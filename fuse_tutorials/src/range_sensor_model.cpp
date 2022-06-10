@@ -45,7 +45,7 @@
 #include <sensor_msgs/point_cloud2_iterator.h>
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeSensorModel, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeSensorModel, fuse_core::SensorModel)
 
 namespace fuse_tutorials
 {

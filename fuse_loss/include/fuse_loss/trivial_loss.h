@@ -118,6 +118,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::TrivialLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::TrivialLoss)
 
 #endif  // FUSE_LOSS_TRIVIAL_LOSS_H

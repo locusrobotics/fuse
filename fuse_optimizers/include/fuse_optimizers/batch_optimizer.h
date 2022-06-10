@@ -96,7 +96,7 @@ namespace fuse_optimizers
 class BatchOptimizer : public Optimizer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(BatchOptimizer);
+  FUSE_SMART_PTR_DEFINITIONS(BatchOptimizer)
   using ParameterType = BatchOptimizerParams;
 
   /**

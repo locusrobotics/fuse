@@ -43,7 +43,7 @@
 #include <boost/range/size.hpp>
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::GraphIgnition, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_models::GraphIgnition, fuse_core::SensorModel)
 
 namespace fuse_models
 {

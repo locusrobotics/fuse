@@ -141,6 +141,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::HuberLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::HuberLoss)
 
 #endif  // FUSE_LOSS_HUBER_LOSS_H

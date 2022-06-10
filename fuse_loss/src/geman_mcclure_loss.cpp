@@ -70,5 +70,5 @@ ceres::LossFunction* GemanMcClureLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::GemanMcClureLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::GemanMcClureLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::GemanMcClureLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::GemanMcClureLoss, fuse_core::Loss)

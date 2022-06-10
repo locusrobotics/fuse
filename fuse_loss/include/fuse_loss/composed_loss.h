@@ -170,6 +170,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::ComposedLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::ComposedLoss)
 
 #endif  // FUSE_LOSS_COMPOSED_LOSS_H

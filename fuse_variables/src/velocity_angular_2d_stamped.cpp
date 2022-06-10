@@ -65,5 +65,5 @@ void VelocityAngular2DStamped::print(std::ostream& stream) const
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::VelocityAngular2DStamped);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::VelocityAngular2DStamped, fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::VelocityAngular2DStamped)
+PLUGINLIB_EXPORT_CLASS(fuse_variables::VelocityAngular2DStamped, fuse_core::Variable)

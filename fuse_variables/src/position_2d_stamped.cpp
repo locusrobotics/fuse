@@ -66,5 +66,5 @@ void Position2DStamped::print(std::ostream& stream) const
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Position2DStamped);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::Position2DStamped, fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Position2DStamped)
+PLUGINLIB_EXPORT_CLASS(fuse_variables::Position2DStamped, fuse_core::Variable)

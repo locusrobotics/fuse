@@ -141,6 +141,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::SoftLOneLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::SoftLOneLoss)
 
 #endif  // FUSE_LOSS_SOFTLONE_LOSS_H

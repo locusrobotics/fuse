@@ -69,5 +69,5 @@ ceres::LossFunction* CauchyLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::CauchyLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::CauchyLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::CauchyLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::CauchyLoss, fuse_core::Loss)

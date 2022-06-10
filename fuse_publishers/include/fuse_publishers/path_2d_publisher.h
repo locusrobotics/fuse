@@ -57,7 +57,7 @@ namespace fuse_publishers
 class Path2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(Path2DPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(Path2DPublisher)
 
   /**
    * @brief Constructor

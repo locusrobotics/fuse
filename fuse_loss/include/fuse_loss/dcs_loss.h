@@ -145,6 +145,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::DCSLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::DCSLoss)
 
 #endif  // FUSE_LOSS_DCS_LOSS_H

@@ -213,7 +213,7 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DLocalParameterization);
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DLocalParameterization)
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DStamped)
 
 #endif  // FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H

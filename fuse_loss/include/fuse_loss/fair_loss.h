@@ -145,6 +145,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::FairLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::FairLoss)
 
 #endif  // FUSE_LOSS_FAIR_LOSS_H

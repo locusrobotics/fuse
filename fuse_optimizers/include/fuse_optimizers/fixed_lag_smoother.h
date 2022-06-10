@@ -108,7 +108,7 @@ namespace fuse_optimizers
 class FixedLagSmoother : public Optimizer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(FixedLagSmoother);
+  FUSE_SMART_PTR_DEFINITIONS(FixedLagSmoother)
   using ParameterType = FixedLagSmootherParams;
 
   /**

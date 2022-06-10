@@ -70,5 +70,5 @@ ceres::LossFunction* DCSLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::DCSLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::DCSLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::DCSLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::DCSLoss, fuse_core::Loss)

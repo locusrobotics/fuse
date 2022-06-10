@@ -149,7 +149,7 @@ namespace fuse_core
 class Graph
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Graph);
+  FUSE_SMART_PTR_ALIASES_ONLY(Graph)
 
   /**
    * @brief A range of fuse_core::Constraint objects
