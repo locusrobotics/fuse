@@ -141,6 +141,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::CauchyLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::CauchyLoss)
 
 #endif  // FUSE_LOSS_CAUCHY_LOSS_H

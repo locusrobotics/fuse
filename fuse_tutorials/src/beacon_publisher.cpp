@@ -37,7 +37,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_variables/point_2d_landmark.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
@@ -46,7 +46,7 @@
 #include <vector>
 
 // Register this publisher with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher);
+PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher)
 
 namespace fuse_tutorials
 {

@@ -145,6 +145,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::WelschLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::WelschLoss)
 
 #endif  // FUSE_LOSS_WELSCH_LOSS_H

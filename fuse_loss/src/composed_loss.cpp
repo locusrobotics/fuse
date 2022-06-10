@@ -35,7 +35,7 @@
 #include <fuse_loss/trivial_loss.h>
 
 #include <fuse_core/parameter.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
@@ -85,5 +85,5 @@ ceres::LossFunction* ComposedLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::ComposedLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::ComposedLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::ComposedLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::ComposedLoss, fuse_core::Loss)

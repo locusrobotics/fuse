@@ -204,6 +204,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation3DStampedConstraint)
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_CONSTRAINT_H

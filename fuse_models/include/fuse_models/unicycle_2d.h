@@ -72,7 +72,7 @@ namespace fuse_models
 class Unicycle2D : public fuse_core::AsyncMotionModel
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Unicycle2D);
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Unicycle2D)
 
   /**
    * @brief Default constructor

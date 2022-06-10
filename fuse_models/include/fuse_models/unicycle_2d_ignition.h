@@ -78,7 +78,7 @@ namespace fuse_models
 class Unicycle2DIgnition : public fuse_core::AsyncSensorModel
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(Unicycle2DIgnition);
+  FUSE_SMART_PTR_DEFINITIONS(Unicycle2DIgnition)
   using ParameterType = parameters::Unicycle2DIgnitionParams;
 
   /**

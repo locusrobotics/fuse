@@ -85,7 +85,7 @@ namespace fuse_core
 class AsyncMotionModel : public MotionModel
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(AsyncMotionModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(AsyncMotionModel)
 
   /**
    * @brief Destructor

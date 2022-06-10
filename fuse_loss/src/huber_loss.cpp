@@ -33,7 +33,7 @@
  */
 #include <fuse_loss/huber_loss.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
@@ -69,5 +69,5 @@ ceres::LossFunction* HuberLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::HuberLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::HuberLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::HuberLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::HuberLoss, fuse_core::Loss)

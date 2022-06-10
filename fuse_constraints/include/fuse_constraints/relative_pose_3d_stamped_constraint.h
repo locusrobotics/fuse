@@ -155,6 +155,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose3DStampedConstraint)
 
 #endif  // FUSE_CONSTRAINTS_RELATIVE_POSE_3D_STAMPED_CONSTRAINT_H

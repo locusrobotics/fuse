@@ -87,7 +87,7 @@ namespace fuse_core
 class AsyncSensorModel : public SensorModel
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(AsyncSensorModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(AsyncSensorModel)
 
   /**
    * @brief Destructor

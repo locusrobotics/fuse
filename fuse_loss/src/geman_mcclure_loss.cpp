@@ -34,7 +34,7 @@
 #include <fuse_loss/geman_mcclure_loss.h>
 #include <fuse_loss/loss_function.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
@@ -70,5 +70,5 @@ ceres::LossFunction* GemanMcClureLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::GemanMcClureLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::GemanMcClureLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::GemanMcClureLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::GemanMcClureLoss, fuse_core::Loss)

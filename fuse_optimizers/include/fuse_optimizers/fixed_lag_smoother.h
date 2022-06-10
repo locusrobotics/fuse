@@ -41,6 +41,7 @@
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_graphs/hash_graph.h>
+#include <fuse_constraints/marginalize_variables.h>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
@@ -108,7 +109,7 @@ namespace fuse_optimizers
 class FixedLagSmoother : public Optimizer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(FixedLagSmoother);
+  FUSE_SMART_PTR_DEFINITIONS(FixedLagSmoother)
   using ParameterType = FixedLagSmootherParams;
 
   /**

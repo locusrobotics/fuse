@@ -40,7 +40,7 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 
 #include <memory>

@@ -145,6 +145,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationLinear3DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationLinear3DStamped)
 
 #endif  // FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H

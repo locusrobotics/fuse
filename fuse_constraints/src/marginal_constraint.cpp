@@ -35,7 +35,7 @@
 
 #include <fuse_constraints/marginal_cost_function.h>
 #include <fuse_core/constraint.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <Eigen/Core>
@@ -78,5 +78,5 @@ ceres::CostFunction* MarginalConstraint::costFunction() const
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint)
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint)

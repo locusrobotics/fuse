@@ -431,6 +431,6 @@ void serialize(Archive& archive, ceres::Problem::Options& options, const unsigne
 }  // namespace serialization
 }  // namespace boost
 
-BOOST_CLASS_EXPORT_KEY(fuse_graphs::HashGraph);
+BOOST_CLASS_EXPORT_KEY(fuse_graphs::HashGraph)
 
 #endif  // FUSE_GRAPHS_HASH_GRAPH_H

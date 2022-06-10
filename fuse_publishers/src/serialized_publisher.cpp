@@ -41,12 +41,12 @@
 #include <fuse_core/transaction_deserializer.h>
 #include <fuse_msgs/SerializedGraph.h>
 #include <fuse_msgs/SerializedTransaction.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 
 
 // Register this publisher with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_publishers::SerializedPublisher, fuse_core::Publisher);
+PLUGINLIB_EXPORT_CLASS(fuse_publishers::SerializedPublisher, fuse_core::Publisher)
 
 namespace fuse_publishers
 {

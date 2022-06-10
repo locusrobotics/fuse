@@ -62,7 +62,7 @@ template <size_t N>
 class FixedSizeVariable : public fuse_core::Variable
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(FixedSizeVariable<N>);
+  FUSE_SMART_PTR_ALIASES_ONLY(FixedSizeVariable<N>)
 
   /**
    * @brief A static version of the variable size

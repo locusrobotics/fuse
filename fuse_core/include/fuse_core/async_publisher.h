@@ -63,7 +63,7 @@ namespace fuse_core
 class AsyncPublisher : public Publisher
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(AsyncPublisher);
+  FUSE_SMART_PTR_ALIASES_ONLY(AsyncPublisher)
 
   /**
    * @brief Destructor

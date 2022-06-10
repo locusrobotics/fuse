@@ -132,6 +132,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityLinear2DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityLinear2DStamped)
 
 #endif  // FUSE_VARIABLES_VELOCITY_LINEAR_2D_STAMPED_H

@@ -154,7 +154,7 @@ namespace serialization
 template<class Archive>
 void serialize(Archive& archive, fuse_core::TimeStamp& stamp, const unsigned int /* version */)
 {
-  #warning "discarding clock source in serialisation"
+  // XXX #warning "discarding clock source in serialisation"
   int64_t time_point = stamp.time_since_epoch().count();
   archive & time_point;
 }

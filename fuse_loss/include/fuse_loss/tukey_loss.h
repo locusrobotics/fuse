@@ -141,6 +141,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::TukeyLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::TukeyLoss)
 
 #endif  // FUSE_LOSS_TUKEY_LOSS_H

@@ -34,7 +34,7 @@
 #include <fuse_loss/welsch_loss.h>
 #include <fuse_loss/loss_function.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
@@ -70,5 +70,5 @@ ceres::LossFunction* WelschLoss::lossFunction() const
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::WelschLoss);
-PLUGINLIB_EXPORT_CLASS(fuse_loss::WelschLoss, fuse_core::Loss);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_loss::WelschLoss)
+PLUGINLIB_EXPORT_CLASS(fuse_loss::WelschLoss, fuse_core::Loss)

@@ -85,7 +85,7 @@ namespace fuse_models
 class Unicycle2DStateCostFunction : public ceres::SizedCostFunction<8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>
 {
 public:
-  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW()
 
   /**
    * @brief Construct a cost function instance

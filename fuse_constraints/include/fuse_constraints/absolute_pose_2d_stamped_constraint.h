@@ -178,6 +178,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePose2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePose2DStampedConstraint)
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_POSE_2D_STAMPED_CONSTRAINT_H

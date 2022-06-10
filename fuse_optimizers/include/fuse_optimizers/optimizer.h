@@ -94,7 +94,7 @@ namespace fuse_optimizers
 class Optimizer : public rclcpp::Node
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Optimizer);
+  FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)
 
   /**
    * @brief Constructor

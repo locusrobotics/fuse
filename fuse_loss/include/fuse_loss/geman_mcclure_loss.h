@@ -145,6 +145,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::GemanMcClureLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::GemanMcClureLoss)
 
 #endif  // FUSE_LOSS_GEMAN_MCCLURE_LOSS_H

@@ -36,14 +36,14 @@
 
 #include <std_srvs/Empty.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/range/algorithm.hpp>
 #include <boost/range/empty.hpp>
 #include <boost/range/size.hpp>
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::GraphIgnition, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_models::GraphIgnition, fuse_core::SensorModel)
 
 namespace fuse_models
 {

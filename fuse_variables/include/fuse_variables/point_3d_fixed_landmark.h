@@ -152,6 +152,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Point3DFixedLandmark);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Point3DFixedLandmark)
 
 #endif  // FUSE_VARIABLES_POINT_3D_FIXED_LANDMARK_H

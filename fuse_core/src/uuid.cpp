@@ -65,7 +65,7 @@ UUID generate(const std::string& namespace_string, const TimeStamp& stamp)
   std::array<unsigned char, buffer_size> buffer;
   auto iter = buffer.begin();
 
-  #warning "unsafe time packing"
+  // XXX #warning "unsafe time packing"
   iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp),
                    reinterpret_cast<const unsigned char*>(&stamp) + sizeof(stamp),
                    iter);
@@ -91,7 +91,7 @@ UUID generate(const std::string& namespace_string, const TimeStamp& stamp, const
   std::array<unsigned char, buffer_size> buffer;
   auto iter = buffer.begin();
 
-  #warning "unsafe time packing"
+  // XXX #warning "unsafe time packing"
   iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp),
                    reinterpret_cast<const unsigned char*>(&stamp) + sizeof(stamp),
                    iter);

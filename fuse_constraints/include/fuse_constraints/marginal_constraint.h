@@ -239,6 +239,6 @@ MarginalConstraint::MarginalConstraint(
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint)
 
 #endif  // FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H

@@ -305,7 +305,7 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization);
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization)
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped)
 
 #endif  // FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H

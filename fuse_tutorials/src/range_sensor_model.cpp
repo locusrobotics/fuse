@@ -40,12 +40,12 @@
 #include <fuse_tutorials/range_constraint.h>
 #include <fuse_variables/point_2d_landmark.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeSensorModel, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeSensorModel, fuse_core::SensorModel)
 
 namespace fuse_tutorials
 {

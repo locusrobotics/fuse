@@ -169,6 +169,6 @@ private:
 }  // namespace fuse_tutorials
 
 // This is part of the serialization requirement. Boost needs to be told this class is serializable.
-BOOST_CLASS_EXPORT_KEY(fuse_tutorials::RangeConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_tutorials::RangeConstraint)
 
 #endif  // FUSE_TUTORIALS_RANGE_CONSTRAINT_H

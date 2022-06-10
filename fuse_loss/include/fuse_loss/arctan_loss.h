@@ -141,6 +141,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::ArctanLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::ArctanLoss)
 
 #endif  // FUSE_LOSS_ARCTAN_LOSS_H

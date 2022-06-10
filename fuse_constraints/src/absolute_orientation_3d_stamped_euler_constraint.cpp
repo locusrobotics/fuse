@@ -34,7 +34,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.h>
 
 #include <fuse_constraints/normal_prior_orientation_3d_euler_cost_functor.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
@@ -92,5 +92,5 @@ ceres::CostFunction* AbsoluteOrientation3DStampedEulerConstraint::costFunction()
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint)
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedEulerConstraint, fuse_core::Constraint)
