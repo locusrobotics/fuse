@@ -190,7 +190,7 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   return ceres::internal::AutoDiff<PlusFunctor, double, kGlobalSize, kLocalSize>
     ::Differentiate(*plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
 #else
-  return ceres::internal::AutoDifferentiate<ceres::internal::StaticParameterDims<kGlobalSize, kLocalSize>>(
+  return ceres::internal::AutoDifferentiate<kGlobalSize, ceres::internal::StaticParameterDims<kGlobalSize, kLocalSize>>(
       *plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
 #endif
 }
@@ -217,7 +217,7 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   return ceres::internal::AutoDiff<MinusFunctor, double, kGlobalSize, kGlobalSize>
     ::Differentiate(*minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
 #else
-  return ceres::internal::AutoDifferentiate<ceres::internal::StaticParameterDims<kGlobalSize, kGlobalSize>>(
+  return ceres::internal::AutoDifferentiate<kGlobalSize, ceres::internal::StaticParameterDims<kGlobalSize, kGlobalSize>>(
       *minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
 #endif
 }
