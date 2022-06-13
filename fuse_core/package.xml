@@ -21,6 +21,7 @@
   <depend version_gte="1.13.8">rosconsole</depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
+  <test_depend>geometry_msgs</test_depend>
 
   <export>
     <rosdoc config="rosdoc.yaml" />
