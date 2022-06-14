@@ -60,6 +60,7 @@
   <test_depend>joint_state_controller</test_depend>
   <test_depend>robot_state_publisher</test_depend>
   <test_depend>rostest</test_depend>
+  <test_depend>xacro</test_depend>
 
   <export>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
