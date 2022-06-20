@@ -52,23 +52,21 @@ namespace fuse_core
 /**
  * @brief Utility method for handling required ROS params
  *
- * @param[in] node_params - The node parameter interface handle used to load the parameter
- * @param[in] logger - The ros logger used to report errors
+ * @param[in] node_handle - The node used to load the parameter
  * @param[in] key - The ROS parameter key for the required parameter
  * @param[out] value - The ROS parameter value for the \p key
  * @throws std::runtime_error if the parameter does not exist
  */
 template <typename T>
 void getParamRequired(
-  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
-  rclcpp::Logger logger,
+  rclcpp::Node& node_handle,
   const std::string& key,
   T& value
 ){
-  if (!nh.getParam(key, value))
+  if (!node_handle.getParam(key, value))
   {
-    const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
-    RCLCPP_FATAL_STREAM(logger, error);
+    const std::string error = "Could not find required parameter " + key + " in namespace " + node_handle.get_namespace();
+    RCLCPP_FATAL_STREAM(node_handle.get_logger(), error);
     throw std::runtime_error(error);
   }
 }
@@ -76,8 +74,7 @@ void getParamRequired(
 /**
  * @brief Helper function that loads positive integral or floating point values from the parameter server
  *
- * @param[in] node_params - The node parameter interface handle used to load the parameter
- * @param[in] logger - The ros logger used to report errors
+ * @param[in] node_handle - The rclcpp node used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not exist. As output it
  *                                 has the loaded (or default) value
@@ -86,8 +83,7 @@ void getParamRequired(
 template <typename T,
           typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
 void getPositiveParam(
-  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
-  rclcpp::Logger logger,
+  rclcpp::Node& node_handle,
   const std::string& parameter_name,
   T& default_value,
   const bool strict = true
@@ -96,7 +92,7 @@ void getPositiveParam(
   node_handle.param(parameter_name, value, default_value);
   if (value < 0 || (strict && value == 0))
   {
-    RCLCPP_WARN_STREAM(logger, "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "") <<
+    RCLCPP_WARN_STREAM(node_handle.get_logger(), "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "") <<
                     " 0. Using the default value (" << default_value << ") instead.");
   }
   else
@@ -112,8 +108,7 @@ void getPositiveParam(
  * @tparam Scalar - A scalar type, defaults to double
  * @tparam Size - An int size that specifies the expected size of the covariance matrix (rows and columns)
  *
- * @param[in] node_params - The node parameter interface handle used to load the parameter
- * @param[in] logger - The ros logger used to report errors
+ * @param[in] node_handle - The rclcpp node used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in] default_value - A default value to use for all the diagonal elements if the provided parameter name does
  *                            not exist
@@ -121,8 +116,7 @@ void getPositiveParam(
  */
 template <int Size, typename Scalar = double>
 fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
-  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
-  rclcpp::Logger logger,
+  rclcpp::Node& node_handle,
   const std::string& parameter_name,
   Scalar default_value
 ){
@@ -150,14 +144,12 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
 /**
  * @brief Utility method to load a loss configuration
  *
- * @param[in] node_params - The node parameter interface handle used to load the parameter
- * @param[in] logger - The ros logger used to report errors
+ * @param[in] node_handle - The rclcpp node used to load the parameter
  * @param[in] name - The ROS parameter name for the loss configuration parameter
  * @return Loss function or nullptr if the parameter does not exist
  */
 inline fuse_core::Loss::SharedPtr loadLossConfig(
-  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
-  rclcpp::Logger logger,
+  rclcpp::Node& node_handle,
   const std::string& name
 ){
   if (!nh.hasParam(name))
@@ -166,10 +158,10 @@ inline fuse_core::Loss::SharedPtr loadLossConfig(
   }
 
   std::string loss_type;
-  getParamRequired(nh, name + "/type", loss_type);
+  getParamRequired(node_handle, name + "/type", loss_type);
 
   auto loss = fuse_core::createUniqueLoss(loss_type);
-  loss->initialize(nh.resolveName(name));
+  loss->initialize(node_handle.get_fully_qualified_name());
 
   return loss;
 }

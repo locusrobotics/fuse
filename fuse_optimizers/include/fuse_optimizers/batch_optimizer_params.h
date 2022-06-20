@@ -81,27 +81,26 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] node_params - The node parameter interface handle used to load the parameter
-   * @param[in] logger - The ros logger used to report errors   */
+   * @param[in] node_handle - The node used to load the parameter
+   */
   void loadFromROS(
-    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params,
-    rclcpp::Logger logger)
+    rclcpp::Node& node_handle)
   {
     // Read settings from the parameter server
     if (nh.hasParam("optimization_frequency"))
     {
       double optimization_frequency{ 1.0 / optimization_period };
-      fuse_core::getPositiveParam(node_params, logger, "optimization_frequency", optimization_frequency);
+      fuse_core::getPositiveParam(node_handle, "optimization_frequency", optimization_frequency);
       optimization_period = 1.0 / optimization_frequency;
     }
     else
     {
-      fuse_core::getPositiveParam(node_params, logger, "optimization_period", optimization_period);
+      fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
     }
 
-    fuse_core::getPositiveParam(node_params, logger, "transaction_timeout", transaction_timeout);
+    fuse_core::getPositiveParam(node_handle, "transaction_timeout", transaction_timeout);
 
-    fuse_core::loadSolverOptionsFromROS(node_params, solver_options);
+    fuse_core::loadSolverOptionsFromROS(node_handle, solver_options);
   }
 };
 

@@ -59,12 +59,12 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS NodeParametersInterface with which to load parameters
+   * @param[in] nh - The ROS Node with which to load parameters
    */
-  void loadFromROS(rclcpp::node_interfaces::NodeParametersInterface::SharedPtr node_params)
+  void loadFromROS(rclcpp::Node& nh)
   {
     // XXX lost "problem_options" namespace
-    fuse_core::loadProblemOptionsFromROS(node_params, problem_options);
+    fuse_core::loadProblemOptionsFromROS(nh, problem_options);
   }
 };
 

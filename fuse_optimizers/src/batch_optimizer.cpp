@@ -48,7 +48,7 @@ BatchOptimizer::BatchOptimizer(
   //start_time_(),
   started_(false)
 {
-  params_.loadFromROS(get_node_parameters_interface(), get_logger());
+  params_.loadFromROS(*this);
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = create_wall_timer(

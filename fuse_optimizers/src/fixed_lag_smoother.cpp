@@ -73,7 +73,7 @@ FixedLagSmoother::FixedLagSmoother(
   started_(false),
   optimization_request_(false)
 {
-  params_.loadFromROS(get_node_parameters_interface(), get_logger());
+  params_.loadFromROS(*this);
 
   // Test for auto-start
   autostart();
