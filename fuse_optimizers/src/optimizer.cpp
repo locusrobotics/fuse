@@ -36,8 +36,9 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_optimizers/optimizer.h>
+#include <fuse_graphs/hash_graph.h>
 
-#include <XmlRpcValue.h>
+//#include <XmlRpcValue.h>
 
 #include <functional>
 #include <numeric>
@@ -80,7 +81,7 @@ struct PluginConfig
 Optimizer::Optimizer(
   rclcpp::NodeOptions options,
   std::string node_name = "optimizer_node",
-  fuse_core::Graph::UniquePtr graph
+  fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
   ) :
     Node(node_name, options),
     graph_(std::move(graph)),
@@ -271,7 +272,7 @@ void Optimizer::loadSensorModels()
         associated_motion_models_[config.name].push_back(motion_model_name);
         if (motion_models_.find(motion_model_name) == motion_models_.end())
         {
-          ROS_WARN_STREAM("Sensor model '" << config.name << "' is configured to use motion model '" <<
+          RCLCPP_WARN_STREAM(this->get_logger(), "Sensor model '" << config.name << "' is configured to use motion model '" <<
                           motion_model_name << "', but no motion model with that name currently exists. This is " <<
                           "likely a configuration error.");
         }
@@ -370,7 +371,7 @@ bool Optimizer::applyMotionModels(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Error generating constraints for sensor '" << sensor_name << "' "
+      RCLCPP_ERROR_STREAM(this->get_logger(), "Error generating constraints for sensor '" << sensor_name << "' "
                        << "from motion model '" << motion_model_name << "'. Error: " << e.what());
       success = false;
     }
@@ -390,7 +391,7 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling graphCallback() on sensor '" << name__sensor_model.first << "'. " <<
+      RCLCPP_ERROR_STREAM(this->get_logger(), "Failed calling graphCallback() on sensor '" << name__sensor_model.first << "'. " <<
                        "Error: " << e.what());
       continue;
     }
@@ -403,7 +404,7 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling graphCallback() on motion model '" << name__motion_model.first << "." <<
+      RCLCPP_ERROR_STREAM(this->get_logger(), "Failed calling graphCallback() on motion model '" << name__motion_model.first << "." <<
                        " Error: " << e.what());
       continue;
     }
@@ -416,7 +417,7 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling notify() on publisher '" << name__publisher.first << "." <<
+      RCLCPP_ERROR_STREAM(this->get_logger(), "Failed calling notify() on publisher '" << name__publisher.first << "." <<
                        " Error: " << e.what());
       continue;
     }
@@ -434,7 +435,7 @@ void Optimizer::injectCallback(
 
   auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
       std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction)));
-  callback_queue_->addCallback(callback, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+  callback_queue_->addCallback(callback);
 }
 
 void Optimizer::clearCallbacks()

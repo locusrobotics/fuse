@@ -36,8 +36,6 @@
 
 #include <fuse_core/ceres_options.h>
 #include <fuse_core/parameter.h>
-//#include <ros/duration.h>
-//#include <ros/node_handle.h>
 #include <fuse_core/time.h>
 
 #include <ceres/solver.h>

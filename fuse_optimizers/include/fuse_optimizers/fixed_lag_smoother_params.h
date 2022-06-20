@@ -38,9 +38,6 @@
 #include <fuse_core/parameter.h>
 #include <fuse_core/time.h>
 
-//#include <ros/duration.h>
-//#include <ros/node_handle.h>
-
 #include <ceres/solver.h>
 
 #include <algorithm>
