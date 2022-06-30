@@ -205,7 +205,7 @@ void FixedLagSmoother::optimizationLoop()
         RCLCPP_FATAL_STREAM(this->get_logger(), "Failed to update graph with transaction: " << ex.what()
                                                                      << "\nLeaving optimization loop and requesting "
                                                                         "node shutdown...\n" << oss.str());
-        rclcpp::requestShutdown();
+        rclcpp::shutdown();
         break;
       }
       // Optimize the entire graph
@@ -221,7 +221,7 @@ void FixedLagSmoother::optimizationLoop()
         RCLCPP_FATAL_STREAM(get_logger(), "Optimization failed after updating the graph with the transaction with timestamp "
                           << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
         RCLCPP_INFO(get_logger(), summary_.FullReport().c_str());
-        rclcpp::requestShutdown();
+        rclcpp::shutdown();
         break;
       }
 
