@@ -357,7 +357,7 @@ stored in `fuse_optimizers::BatchOptimizerParams.solver_options` and `fuse_optim
   **type:** int \
   **default:** 5 \
   **constraint:** \
-  **description:** The step returned by a trust region strategy can sometimes be numerically invalid, usually because of conditioning issues. Instead of crashing or stopping the optimization, the optimizer can go ahead and try solving with a smaller trust region/better conditioned problem. This parameter sets the number of consecutive retries before the minimizer gives u
+  **description:** The step returned by a trust region strategy can sometimes be numerically invalid, usually because of conditioning issues. Instead of crashing or stopping the optimization, the optimizer can go ahead and try solving with a smaller trust region/better conditioned problem. This parameter sets the number of consecutive retries before the minimizer gives up
   **stored in:** solver_options.max_num_consecutive_invalid_steps 
 
   `function_tolerance` \
@@ -490,7 +490,7 @@ stored in `fuse_optimizers::BatchOptimizerParams.solver_options` and `fuse_optim
   **type:** int \
   **default:** 500 \
   **constraint:** \
-  **description:** Minimum number of iterations used by the linear iterative solver. \
+  **description:** Maximum number of iterations used by the linear iterative solver. \
   **stored in:** solver_options.max_linear_solver_iterations 
 
   `eta` \
@@ -513,8 +513,8 @@ stored in `fuse_optimizers::BatchOptimizerParams.solver_options` and `fuse_optim
   `logging_type` \
   **type:** string \
   **default:** `PER_MINIMIZER_ITERATION` \
-  **constraint:** (undocumented) \
-  **description:** (undocumented) \
+  **constraint:** (undocumented upstream) \
+  **description:** (undocumented upstream) \
   **stored in:** solver_options.logging_type 
 
   `minimizer_progress_to_stdout` \
@@ -561,7 +561,7 @@ stored in `fuse_optimizers::BatchOptimizerParams.solver_options` and `fuse_optim
   **type:** double \
   **default:** 1e-8 \
   **constraint:** \
-  **description:** Precision to check for in the gradient checker. If the relative difference between an element in a Jacobian exceeds this number, then the Jacobian for that cost term is  dumped.
+  **description:** Precision to check for in the gradient checker. If the relative difference between an element in a Jacobian exceeds this number, then the Jacobian for that cost term is dumped.
   **stored in:** solver_options.gradient_check_relative_precision 
 
   `gradient_check_numeric_derivative_relative_step_size` \
