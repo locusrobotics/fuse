@@ -13,45 +13,54 @@ fixed-lag-smoother:
 
     # list of motion models to load config for
     motion_models:
-      - unicycle_motion_model
+      # a list of human-readable names for the models
+      motion_model_list:
+        - unicycle_motion_model
+
+      # model-loader config for motion models mentioned above
+      # this specifies the state variables Fuse will attempt to estimate
+      # these motion models load their own config as nodes below
+      unicycle_motion_model:
+        type: fuse_models::Unicycle2D
 
     # list of sensor models to load config for
     sensor_models:
-      - initial_localization_sensor
-      - odometry_sensor
-      - imu_sensor
+      # a list of human-readable names for the models
+      sensor_model_list:
+        - initial_localization_sensor
+        - odometry_sensor
+        - imu_sensor
+
+      # model-loader config for sensor models mentioned above
+      # this specifies which constraints will be generated
+      #  and how the constraints will link to the state variables
+      # these sensor models load their own config as nodes below
+      initial_localization_sensor:
+        type: fuse_models::Unicycle2DIgnition
+        motion_models: [unicycle_motion_model]
+        ignition: true
+
+      odometry_sensor:
+        type: fuse_models::Odometry2D
+        motion_models: [unicycle_motion_model]
+
+      imu_sensor:
+        type: fuse_models::Imu2D
+        motion_models: [unicycle_motion_model]
 
     # list of state estimation publishers to load config for
     publishers:
-      - filtered_publisher
+      # a list of human-readable names for the publishers
+      publisher_list:
+        - filtered_publisher
+        
+      # model-loader config for state estimation publishers mentioned above
+      # these publishers load their own config as nodes below
+      filtered_publisher:
+        type: fuse_models::Odometry2DPublisher
 
-    # model-loader config for motion models mentioned above
-    # this specifies the state variables Fuse will attempt to estimate
-    # these motion models load their own config as nodes below
-    unicycle_motion_model:
-      type: fuse_models::Unicycle2D
 
-    # model-loader config for sensor models mentioned above
-    # this specifies which constraints will be generated
-    #  and how the constraints will link to the state variables
-    # these sensor models load their own config as nodes below
-    initial_localization_sensor:
-      type: fuse_models::Unicycle2DIgnition
-      motion_models: [unicycle_motion_model]
-      ignition: true
 
-    odometry_sensor:
-      type: fuse_models::Odometry2D
-      motion_models: [unicycle_motion_model]
-
-    imu_sensor:
-      type: fuse_models::Imu2D
-      motion_models: [unicycle_motion_model]
-
-    # model-loader config for state estimation publishers mentioned above
-    # these publishers load their own config as nodes below
-    filtered_publisher:
-      type: fuse_models::Odometry2DPublisher
 
 
 # configuration for plugins to read themselves as nodes
