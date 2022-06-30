@@ -91,6 +91,11 @@ Optimizer::Optimizer(
     sensor_model_loader_("fuse_core", "fuse_core::SensorModel"),
     diagnostic_updater_(node_handle_)
 {
+  if (singleton_ != nullptr) {
+    singleton_ = this;
+  } else {
+    throw std::runtime_error("More than one optimizer at the same time!");
+  }
   // Setup diagnostics updater
   private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
                              diagnostic_updater_timer_period_);

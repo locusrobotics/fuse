@@ -113,6 +113,8 @@ public:
    */
   virtual ~Optimizer();
 
+  static Optimizer* getOptimizer() { return singleton_; }
+
 protected:
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type rather annoying
   // as it is not equivalent to Class::UniquePtr
@@ -163,6 +165,7 @@ protected:
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
   ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
   double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
+  static Optimizer* singleton_; //<! Pointer to the optimizer singleton. Assume that for each process, there is only one optimizer
 
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
@@ -175,6 +178,13 @@ protected:
   virtual void transactionCallback(
     const std::string& sensor_name,
     fuse_core::Transaction::SharedPtr transaction) = 0;
+
+  /**
+   * @brief Method exposed for resetting the optimizer in the event of an error. Replaces
+   *        the need to throw exceptions when things go wrong.
+   * @param[in] err_msg A specific error message that gives a reason for the reset
+   */
+  virtual void resetOptimizer(const std::string& err_msg) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server
