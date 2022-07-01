@@ -51,32 +51,6 @@
 namespace fuse_optimizers
 {
 
-/**
- * @brief Plugin name and type configuration, as received from the parameter server
- *
- * The entire configuration itself is also stored, so additional optional parameters can be retrieved, e.g. the
- * 'motion_models' parameter for the SensorModel plugins
- */
-struct PluginConfig
-{
-  /**
-   * @brief Constructor. This allows to use emplace_back(name, type, config) instead of push_back({name, type, config}),
-   * that generates roslint whitespace/braces errors
-   *
-   * @param[in] name   The plugin name
-   * @param[in] type   The plugin type
-   * @param[in] config The entire configuration, that might have additiona optional parameters
-   */
-  PluginConfig(const std::string& name, const std::string& type, const XmlRpc::XmlRpcValue& config)
-    : name(name), type(type), config(config)
-  {
-  }
-
-  std::string name;            //!< Plugin name
-  std::string type;            //!< Plugin type
-  XmlRpc::XmlRpcValue config;  //!< The entire configuration, that might have additional optional parameters
-};
-
 // XXX pass a rclcpp::Context, and a CallbackGroup
 Optimizer::Optimizer(
   rclcpp::NodeOptions options,
@@ -107,8 +81,6 @@ Optimizer::Optimizer(
   diagnostic_updater_.add(this->get_namespace(), this, &Optimizer::setDiagnostics);
   diagnostic_updater_.setHardwareID("fuse");
 
-  // XXX we don't wait in ros2
-
   // Load all configured plugins
   loadMotionModels();
   loadSensorModels();
@@ -126,8 +98,8 @@ Optimizer::~Optimizer()
 
 void Optimizer::loadMotionModels()
 {
-  const std::string motion_model_param_prefix = "motion_models/";
-  const std::string motion_model_list_param_name = motion_model_param_prefix + "motion_model_list";
+  const std::string param_prefix = "motion_models/";
+  const std::string list_param_full_name = param_prefix + "motion_model_list";
 
   // struct for readability
   typedef struct {
@@ -137,14 +109,14 @@ void Optimizer::loadMotionModels()
   } ModelConfig;
 
   // the configurations used to load models
-  std::vector< ModelConfig > motion_model_config;
+  std::vector<ModelConfig> motion_model_config;
 
   // declare the parameter
-  if(! this->has_parameter(motion_model_list_param_name)){
+  if(! this->has_parameter(list_param_full_name)){
     rcl_interfaces::msg::ParameterDescriptor descr;
     descr.description = "the list of motion models to load";
     this->declare_parameter(
-      motion_model_list_param_name,
+      list_param_full_name,
       rclcpp::ParameterValue (std::vector< std::string >()),
       descr
     );
@@ -152,21 +124,21 @@ void Optimizer::loadMotionModels()
   }
 
   // get the list of motion models
-  rclcpp::Parameter motion_model_list_param = this->get_parameter(motion_model_list_param_name);
+  rclcpp::Parameter motion_model_list_param = this->get_parameter(list_param_full_name);
 
   //extract the list from the parameter
   if(motion_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
     std::vector< std::string > names = motion_model_list_param.as_string_array();
     for(std::string name : names){
       ModelConfig config;
-      config.name;
+      config.name = name;
       motion_model_config.push_back(std::move(config));
     }
   }
 
   // declare config parameters for each model
   for(ModelConfig & config : motion_model_config){
-    config.param_name = motion_model_param_prefix + config.name + "/type";
+    config.param_name = param_prefix + config.name + "/type";
 
     if(! this->has_parameter(config.param_name)){
       rcl_interfaces::msg::ParameterDescriptor descr;
@@ -197,7 +169,7 @@ void Optimizer::loadMotionModels()
 
   // now load the models defined above
 
-  for(ModelConfig & config : motion_model_config){
+  for(const ModelConfig & config : motion_model_config){
     // Create a motion_model object using pluginlib. This will throw if the plugin name is not found.
     auto motion_model = motion_model_loader_.createUniqueInstance(config.type);
     // Initialize the motion_model
@@ -211,65 +183,125 @@ void Optimizer::loadMotionModels()
 
 void Optimizer::loadSensorModels()
 {
-  // Read and configure all of sensor model plugins
-  if (!private_node_handle_.hasParam("sensor_models"))
-  {
-    return;
-  }
-  // Validate the parameter server values
-  XmlRpc::XmlRpcValue sensor_models;
-  private_node_handle_.getParam("sensor_models", sensor_models);
-  std::vector<PluginConfig> sensor_model_configs;
-  if (sensor_models.getType() == XmlRpc::XmlRpcValue::TypeArray)
-  {
-    // Validate all of the parameters before we attempt to create any plugin instances
-    for (int32_t sensor_model_index = 0; sensor_model_index < sensor_models.size(); ++sensor_model_index)
-    {
-      // Validate the parameter server values
-      const auto& sensor_model = sensor_models[sensor_model_index];
-      if ( (sensor_model.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!sensor_model.hasMember("name"))
-        || (!sensor_model.hasMember("type")))
-      {
-        throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
-                                    "-{name: string, type: string, motion_models: [name1, name2, ...]}");
-      }
+  const std::string param_prefix = "sensor_models/";
+  const std::string list_param_full_name = param_prefix + "sensor_model_list";
 
-      sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model["name"]),
-                                        static_cast<std::string>(sensor_model["type"]), sensor_model);
+  // struct for readability
+  typedef struct {
+    std::string name;
+    std::string type;
+    bool ignition;
+    std::vector<std::string> associated_motion_models;
+    std::string type_param_name;
+    std::string models_param_name;
+    std::string ignition_param_name;
+  } ModelConfig;
+
+  // the configurations used to load models
+  std::vector<ModelConfig> sensor_model_config;
+
+  // declare the parameter
+  if(! this->has_parameter(list_param_full_name)){
+    rcl_interfaces::msg::ParameterDescriptor descr;
+    descr.description = "the list of sensor models to load";
+    this->declare_parameter(
+      list_param_full_name,
+      rclcpp::ParameterValue (std::vector< std::string >()),
+      descr
+    );
+    // XXX catch rclcpp::exceptions::InvalidParameterValueException when launch assigns wrong type
+  }
+
+  // get the list of sensor models
+  rclcpp::Parameter sensor_model_list_param = this->get_parameter(list_param_full_name);
+
+  //extract the list from the parameter
+  if(sensor_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
+    std::vector< std::string > names = sensor_model_list_param.as_string_array();
+    for(std::string name : names){
+      ModelConfig config;
+      config.name = name;
+      sensor_model_config.push_back(std::move(config));
     }
   }
-  else if (sensor_models.getType() == XmlRpc::XmlRpcValue::TypeStruct)
-  {
-    // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& sensor_model : sensor_models)
-    {
-      // Validate the parameter server values
-      const auto& sensor_model_config = sensor_model.second;
-      if ( (sensor_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!sensor_model_config.hasMember("type")))
-      {
-        throw std::invalid_argument("The 'sensor_models' parameter should be a struct of the form: "
-                                    "{string: {type: string, motion_models: [name1, name2, ...]}}");
-      }
 
-      sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model.first),
-                                        static_cast<std::string>(sensor_model_config["type"]), sensor_model_config);
+  // declare config parameters for each model
+  for(ModelConfig & config : sensor_model_config){
+    config.type_param_name = param_prefix + config.name + "/type";
+    config.models_param_name = param_prefix + config.name + "/motion_models";
+    config.ignition_param_name = param_prefix + config.name + "/ignition";
+
+
+    // get the type parameter for the sensor model
+    if(! this->has_parameter(config.type_param_name)){
+      rcl_interfaces::msg::ParameterDescriptor descr;
+      descr.description = "the PLUGINLIB type string to load for this sensor_model (eg: 'fuse_models::Acceleration2D')";
+      this->declare_parameter(
+        config.type_param_name,
+        rclcpp::ParameterValue (std::string ()),
+        descr
+      );
     }
-  }
-  else
-  {
-    throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
-                                "-{name: string, type: string, motion_models: [name1, name2, ...]} "
-                                "or a struct of the form: "
-                                "{string: {type: string, motion_models: [name1, name2, ...]}}");
+
+    // get the type parameter for the sensor model
+    rclcpp::Parameter sensor_model_type_param = this->get_parameter(config.type_param_name);
+    //extract the type string from the parameter
+    if(sensor_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING){
+      config.type = sensor_model_type_param.as_string();
+    }
+
+
+    // get the type parameter for the sensor model
+    if(! this->has_parameter(config.models_param_name)){
+      rcl_interfaces::msg::ParameterDescriptor descr;
+      descr.description = "the list of motion models this sensor is associated with";
+      this->declare_parameter(
+        config.models_param_name,
+        rclcpp::ParameterValue (std::vector< std::string >()),
+        descr
+      );
+    }
+
+    // get the model_list parameter for the sensor model
+    rclcpp::Parameter sensor_model_model_list_param = this->get_parameter(config.models_param_name);
+    //extract the model_list string from the parameter
+    if(sensor_model_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
+      config.associated_motion_models = sensor_model_model_list_param.as_string_array();
+    }
+
+
+    // get the ignition parameter for the sensor model
+    if(! this->has_parameter(config.ignition_param_name)){
+      rcl_interfaces::msg::ParameterDescriptor descr;
+      descr.description = "does the first message for this sensor start the optimizer";
+      this->declare_parameter(
+        config.ignition_param_name,
+        rclcpp::ParameterValue (false),
+        descr
+      );
+    }
+
+    // get the model list parameter for the sensor model
+    rclcpp::Parameter sensor_model_ignition_param = this->get_parameter(config.ignition_param_name);
+    //extract the ignition bool from the parameter
+    if(sensor_model_ignition_param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL){
+      config.ignition = sensor_model_ignition_param.as_bool();
+    }
+
+
+    // quickly check for common errors
+    if(config.type == ""){
+      RCLCPP_WARN_STREAM(this->get_logger(),
+        "parameter '" << config.type_param_name <<
+        "' should be the string of a sensor_model type " <<
+        "for the sensor_model named '" << config.name <<
+        "'.");
+    }
+
   }
 
-  for (const auto& config : sensor_model_configs)
-  {
-    // Check whether this is an ignition sensor model or not
-    const bool ignition = config.config.hasMember("ignition") ? static_cast<bool>(config.config["ignition"]) : false;
-
+  // now load the models defined above
+  for(const ModelConfig & config : sensor_model_config){
     // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
     auto sensor_model = sensor_model_loader_.createUniqueInstance(config.type);
     // Initialize the sensor
@@ -278,87 +310,107 @@ void Optimizer::loadSensorModels()
       std::bind(&Optimizer::injectCallback, this, config.name, std::placeholders::_1));
     // Store the sensor in a member variable for use later
     sensor_models_.emplace(config.name,
-                           SensorModelInfo{ std::move(sensor_model), ignition });  // NOLINT(whitespace/braces)
+                           SensorModelInfo{ std::move(sensor_model), config.ignition });  // NOLINT(whitespace/braces)
 
     // Parse out the list of associated motion models, if any
-    if ( (config.config.hasMember("motion_models"))
-      && (config.config["motion_models"].getType() == XmlRpc::XmlRpcValue::TypeArray))
+    associated_motion_models_[config.name] = config.associated_motion_models;
+
+    for (const auto & motion_model_name : config.associated_motion_models)
     {
-      XmlRpc::XmlRpcValue motion_model_list = config.config["motion_models"];
-      for (int32_t motion_model_index = 0; motion_model_index < motion_model_list.size(); ++motion_model_index)
+      if (motion_models_.find(motion_model_name) == motion_models_.end())
       {
-        const auto motion_model_name = static_cast<std::string>(motion_model_list[motion_model_index]);
-        associated_motion_models_[config.name].push_back(motion_model_name);
-        if (motion_models_.find(motion_model_name) == motion_models_.end())
-        {
-          RCLCPP_WARN_STREAM(this->get_logger(), "Sensor model '" << config.name << "' is configured to use motion model '" <<
-                          motion_model_name << "', but no motion model with that name currently exists. This is " <<
-                          "likely a configuration error.");
-        }
+        RCLCPP_WARN_STREAM(this->get_logger(), "Sensor model '" << config.name << "' is configured to use motion model '" <<
+                        motion_model_name << "', but no motion model with that name currently exists. This is " <<
+                        "likely a configuration error.");
       }
     }
   }
-
   diagnostic_updater_.force_update();
 }
 
+
+
+
+
+
+
+
 void Optimizer::loadPublishers()
 {
-  // Read and configure all of the publisher plugins
-  if (!private_node_handle_.hasParam("publishers"))
-  {
-    return;
-  }
-  // Validate the parameter server values
-  XmlRpc::XmlRpcValue publishers;
-  private_node_handle_.getParam("publishers", publishers);
-  std::vector<PluginConfig> publisher_configs;
-  if (publishers.getType() == XmlRpc::XmlRpcValue::TypeArray)
-  {
-    // Validate all of the parameters before we attempt to create any plugin instances
-    for (int32_t publisher_index = 0; publisher_index < publishers.size(); ++publisher_index)
-    {
-      // Validate the parameter server values
-      const auto& publisher = publishers[publisher_index];
-      if ( (publisher.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!publisher.hasMember("name"))
-        || (!publisher.hasMember("type")))
-      {
-        throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
-                                    "-{name: string, type: string}");
-      }
 
-      publisher_configs.emplace_back(static_cast<std::string>(publisher["name"]),
-                                     static_cast<std::string>(publisher["type"]), publisher);
+  const std::string param_prefix = "publishers/";
+  const std::string list_param_full_name = param_prefix + "publisher_list";
+
+  // struct for readability
+  typedef struct {
+    std::string name;
+    std::string type;
+    std::string param_name;
+  } PublisherConfig;
+
+  // the configurations used to load models
+  std::vector<PublisherConfig> publisher_config;
+
+  // declare the parameter
+  if(! this->has_parameter(list_param_full_name)){
+    rcl_interfaces::msg::ParameterDescriptor descr;
+    descr.description = "the list of publishers to load";
+    this->declare_parameter(
+      list_param_full_name,
+      rclcpp::ParameterValue (std::vector< std::string >()),
+      descr
+    );
+    // XXX catch rclcpp::exceptions::InvalidParameterValueException when launch assigns wrong type
+  }
+
+  // get the list of publishers
+  rclcpp::Parameter publisher_list_param = this->get_parameter(list_param_full_name);
+
+  //extract the list from the parameter
+  if(publisher_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
+    std::vector< std::string > names = publisher_list_param.as_string_array();
+    for(std::string name : names){
+      PublisherConfig config;
+      config.name = name;
+      publisher_config.push_back(std::move(config));
     }
   }
-  else if (publishers.getType() == XmlRpc::XmlRpcValue::TypeStruct)
-  {
-    // Validate all of the parameters before we attempt to create any plugin instances
-    for (const auto& publisher : publishers)
-    {
-      // Validate the parameter server values
-      const auto& publisher_config = publisher.second;
-      if ( (publisher_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
-        || (!publisher_config.hasMember("type")))
-      {
-        throw std::invalid_argument("The 'publishers' parameter should be a struct of the form: "
-                                    "{string: {type: string}}");
-      }
 
-      publisher_configs.emplace_back(static_cast<std::string>(publisher.first),
-                                     static_cast<std::string>(publisher_config["type"]), publisher_config);
+  // declare config parameters for each model
+  for(PublisherConfig & config : publisher_config){
+    config.param_name = param_prefix + config.name + "/type";
+
+    if(! this->has_parameter(config.param_name)){
+      rcl_interfaces::msg::ParameterDescriptor descr;
+      descr.description = "the PLUGINLIB type string to load for this publisher (eg: 'fuse_publishers::Path2DPublisher')";
+      this->declare_parameter(
+        config.param_name,
+        rclcpp::ParameterValue (std::string ()),
+        descr
+      );
+    }
+
+    // get the type parameter for the publisher
+    rclcpp::Parameter publisher_type_param = this->get_parameter(config.param_name);
+    //extract the type string from the parameter
+    if(publisher_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING){
+      config.type = publisher_type_param.as_string();
+    }
+
+    // quickly check for common errors
+    if(config.type == ""){
+      RCLCPP_WARN_STREAM(this->get_logger(),
+        "parameter '" << config.param_name <<
+        "' should be the string of a publisher type " <<
+        "for the publisher named '" << config.name <<
+        "'.");
     }
   }
-  else
-  {
-    throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
-                                "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
-  }
 
-  for (const auto& config : publisher_configs)
-  {
-    // Create a Publisher object using pluginlib. This will throw if the plugin name is not found.
+  // now load the models defined above
+
+  for(const PublisherConfig & config : publisher_config){
+    // Create a publisher object using pluginlib. This will throw if the plugin name is not found.
     auto publisher = publisher_loader_.createUniqueInstance(config.type);
     // Initialize the publisher
     publisher->initialize(config.name);
