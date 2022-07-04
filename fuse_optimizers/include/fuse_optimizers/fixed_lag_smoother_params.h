@@ -90,30 +90,21 @@ public:
    * @brief Method for loading parameter values from ROS.
    *
 
-   * @param[in] node_handle - The node used to load the parameter
+   * @param[in] node - The node used to load the parameter
    */
   void loadFromROS(
-    rclcpp::Node& node_handle)
+    rclcpp::Node& node)
   {
     // Read settings from the parameter server
-    fuse_core::getPositiveParam(node_handle, "lag_duration", lag_duration);
+    fuse_core::getPositiveParam(node, "lag_duration", lag_duration);
 
-    if (node_handle.hasParam("optimization_frequency"))
-    {
-      double optimization_frequency{ 1.0 / optimization_period };
-      fuse_core::getPositiveParam(node_handle, "optimization_frequency", optimization_frequency);
-      optimization_period = 1.0 / optimization_frequency;
-    }
-    else
-    {
-      fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
-    }
+    fuse_core::getPositiveParam(node, "optimization_period", optimization_period);
 
-    node_handle.getParam("reset_service", reset_service);
+    fuse_core::getParam(node, "reset_service", reset_service);
 
-    fuse_core::getPositiveParam(node_handle, "transaction_timeout", transaction_timeout);
+    fuse_core::getPositiveParam(node, "transaction_timeout", transaction_timeout);
 
-    fuse_core::loadSolverOptionsFromROS(node_handle, solver_options);
+    fuse_core::loadSolverOptionsFromROS(node, solver_options);
   }
 };
 

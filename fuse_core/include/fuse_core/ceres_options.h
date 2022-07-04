@@ -35,6 +35,7 @@
 #define FUSE_CORE_CERES_OPTIONS_H
 
 #include <fuse_core/ceres_macros.h>
+#include <fuse_core/parameter.h>
 
 #include <rclcpp/logging.hpp>
 #include <rclcpp/node.hpp>
@@ -183,7 +184,7 @@ CERES_OPTION_STRING_DEFINITIONS(TrustRegionStrategyType)
 CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
 
 /**
- * @brief Helper function that loads a Ceres Option (e.g. ceres::LinearSolverType) value from the parameter server
+ * @brief Helper function that loads and validates a Ceres Option (e.g. ceres::LinearSolverType) value from the parameter server
  *
  * @param[in] node - The node handle used to load the parameter
  * @param[in] parameter_name - The parameter name to load
@@ -191,12 +192,12 @@ CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
  * @return The loaded (or default) value
  */
 template <class T>
-T getParam(rclcpp::Node& node, const std::string& parameter_name, const T& default_value)
+T getCeresParam(rclcpp::Node& node, const std::string& parameter_name, const T& default_value)
 {
   const std::string default_string_value{ ToString(default_value) };
 
   std::string string_value;
-  string_value = node.declare_parameter(parameter_name, default_string_value);
+  string_value = getParam(node, parameter_name, default_string_value);
 
   T value;
   if (!FromString(string_value, &value))

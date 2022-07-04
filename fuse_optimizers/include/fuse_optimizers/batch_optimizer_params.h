@@ -85,16 +85,8 @@ public:
     rclcpp::Node& node_handle)
   {
     // Read settings from the parameter server
-    if (nh.hasParam("optimization_frequency"))
-    {
-      double optimization_frequency{ 1.0 / optimization_period };
-      fuse_core::getPositiveParam(node_handle, "optimization_frequency", optimization_frequency);
-      optimization_period = 1.0 / optimization_frequency;
-    }
-    else
-    {
-      fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
-    }
+
+    fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
 
     fuse_core::getPositiveParam(node_handle, "transaction_timeout", transaction_timeout);
 

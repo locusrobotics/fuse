@@ -51,10 +51,10 @@ void loadCovarianceOptionsFromROS(rclcpp::Node& node, ceres::Covariance::Options
 #if CERES_VERSION_AT_LEAST(1, 13, 0)
   // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
   // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
-  covariance_options.sparse_linear_algebra_library_type = fuse_core::getParam(
+  covariance_options.sparse_linear_algebra_library_type = fuse_core::getCeresParam(
       node, "sparse_linear_algebra_library_type", covariance_options.sparse_linear_algebra_library_type);
 #endif
-  covariance_options.algorithm_type = fuse_core::getParam(node, "algorithm_type", covariance_options.algorithm_type);
+  covariance_options.algorithm_type = fuse_core::getCeresParam(node, "algorithm_type", covariance_options.algorithm_type);
   
   covariance_options.min_reciprocal_condition_number = node.declare_parameter(
     "min_reciprocal_condition_number",
@@ -99,12 +99,12 @@ void loadProblemOptionsFromROS(rclcpp::Node& node, ceres::Problem::Options& prob
 void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver_options)
 {
   // Minimizer options
-  solver_options.minimizer_type = fuse_core::getParam(node, "minimizer_type", solver_options.minimizer_type);
+  solver_options.minimizer_type = fuse_core::getCeresParam(node, "minimizer_type", solver_options.minimizer_type);
   solver_options.line_search_direction_type =
-      fuse_core::getParam(node, "line_search_direction_type", solver_options.line_search_direction_type);
-  solver_options.line_search_type = fuse_core::getParam(node, "line_search_type", solver_options.line_search_type);
+      fuse_core::getCeresParam(node, "line_search_direction_type", solver_options.line_search_direction_type);
+  solver_options.line_search_type = fuse_core::getCeresParam(node, "line_search_type", solver_options.line_search_type);
   solver_options.nonlinear_conjugate_gradient_type =
-      fuse_core::getParam(node, "nonlinear_conjugate_gradient_type", solver_options.nonlinear_conjugate_gradient_type);
+      fuse_core::getCeresParam(node, "nonlinear_conjugate_gradient_type", solver_options.nonlinear_conjugate_gradient_type);
 
   solver_options.max_lbfgs_rank = node.declare_parameter(
     "max_lbfgs_rank",
@@ -118,7 +118,7 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
   );
 
   solver_options.line_search_interpolation_type =
-      fuse_core::getParam(node, "line_search_interpolation_type", solver_options.line_search_interpolation_type);
+      fuse_core::getCeresParam(node, "line_search_interpolation_type", solver_options.line_search_interpolation_type);
   solver_options.min_line_search_step_size = node.declare_parameter(
     "min_line_search_step_size",
     solver_options.min_line_search_step_size,
@@ -163,8 +163,8 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
   );
 
   solver_options.trust_region_strategy_type =
-      fuse_core::getParam(node, "trust_region_strategy_type", solver_options.trust_region_strategy_type);
-  solver_options.dogleg_type = fuse_core::getParam(node, "dogleg_type", solver_options.dogleg_type);
+      fuse_core::getCeresParam(node, "trust_region_strategy_type", solver_options.trust_region_strategy_type);
+  solver_options.dogleg_type = fuse_core::getCeresParam(node, "dogleg_type", solver_options.dogleg_type);
 
   solver_options.use_nonmonotonic_steps = node.declare_parameter(
     "use_nonmonotonic_steps",
@@ -247,14 +247,14 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
   );
 
   solver_options.linear_solver_type =
-      fuse_core::getParam(node, "linear_solver_type", solver_options.linear_solver_type);
+      fuse_core::getCeresParam(node, "linear_solver_type", solver_options.linear_solver_type);
   solver_options.preconditioner_type =
-      fuse_core::getParam(node, "preconditioner_type", solver_options.preconditioner_type);
+      fuse_core::getCeresParam(node, "preconditioner_type", solver_options.preconditioner_type);
   solver_options.visibility_clustering_type =
-      fuse_core::getParam(node, "visibility_clustering_type", solver_options.visibility_clustering_type);
+      fuse_core::getCeresParam(node, "visibility_clustering_type", solver_options.visibility_clustering_type);
   solver_options.dense_linear_algebra_library_type =
-      fuse_core::getParam(node, "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
-  solver_options.sparse_linear_algebra_library_type = fuse_core::getParam(
+      fuse_core::getCeresParam(node, "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
+  solver_options.sparse_linear_algebra_library_type = fuse_core::getCeresParam(
       node, "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
@@ -324,7 +324,7 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
   );
 
   // Logging options
-  solver_options.logging_type = fuse_core::getParam(node, "logging_type", solver_options.logging_type);
+  solver_options.logging_type = fuse_core::getCeresParam(node, "logging_type", solver_options.logging_type);
   solver_options.minimizer_progress_to_stdout = node.declare_parameter(
     "minimizer_progress_to_stdout",
     solver_options.minimizer_progress_to_stdout,
@@ -346,7 +346,7 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
     solver_options.trust_region_problem_dump_directory,
     {.description = ""}
   );
-  solver_options.trust_region_problem_dump_format_type = fuse_core::getParam(
+  solver_options.trust_region_problem_dump_format_type = fuse_core::getCeresParam(
       node, "trust_region_problem_dump_format_type", solver_options.trust_region_problem_dump_format_type);
 
   // Finite differences options
