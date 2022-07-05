@@ -65,14 +65,6 @@ Optimizer::Optimizer(
     diagnostic_updater_(shared_from_this()),
     callback_queue_(std::make_shared<fuse_core::CallbackAdapter>(rclcpp::contexts::get_global_default_context()))
 {
-  // Setup diagnostics updater
-  // XXX private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
-  // XXX                            diagnostic_updater_timer_period_);
-
-  diagnostic_updater_timer_ = this->create_wall_timer(
-    diagnostic_updater_timer_period_,
-    std::bind(&diagnostic_updater::Updater::update, &diagnostic_updater_)
-  );
 
   //add a ros1 style callback queue so that transactions can be processed in the optimiser's executor
   this->get_node_waitables_interface()->add_waitable(
