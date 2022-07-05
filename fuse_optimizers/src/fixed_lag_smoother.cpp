@@ -89,10 +89,16 @@ FixedLagSmoother::FixedLagSmoother(
 
 
   // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = node_handle_.advertiseService(
-    ros::names::resolve(params_.reset_service),
-    &FixedLagSmoother::resetServiceCallback,
-    this);
+  reset_service_server_ = create_service<std_srvs::srv::Empty>(
+    params_.reset_service,
+    std::bind(
+      &FixedLagSmoother::resetServiceCallback,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2
+    )
+  );
+
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -411,8 +417,8 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const f
 }
 
 bool FixedLagSmoother::resetServiceCallback(
-  std_srvs::srv::Empty::Request&,
-  std_srvs::srv::Empty::Response&
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  const std::shared_ptr<std_srvs::srv::Empty::Response>
 ){
   // Tell all the plugins to stop
   stopPlugins();

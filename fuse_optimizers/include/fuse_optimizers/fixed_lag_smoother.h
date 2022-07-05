@@ -195,7 +195,7 @@ protected:
 
   // Ordering ROS objects with callbacks last
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
-  ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
    * @brief Automatically start the smoother if no ignition sensors are specified
@@ -273,8 +273,8 @@ protected:
    * @brief Service callback that resets the optimizer to its original state
    */
 bool resetServiceCallback(
-  std_srvs::srv::Empty::Request&,
-  std_srvs::srv::Empty::Response&
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  const std::shared_ptr<std_srvs::srv::Empty::Response>
 );
 
   /**
