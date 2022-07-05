@@ -32,7 +32,7 @@ find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
 include_directories(include)
 
 # fuse_constraints library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/absolute_constraint.cpp
   src/absolute_orientation_3d_stamped_constraint.cpp
   src/absolute_orientation_3d_stamped_euler_constraint.cpp
@@ -78,6 +78,7 @@ ament_target_dependencies(${PROJECT_NAME}
 #############
 
 ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}

@@ -21,12 +21,8 @@ find_package(rclcpp REQUIRED)
 ## Build ##
 ###########
 
-ament_export_include_directories(include)
-
-#include_directories(include)
-
 ## fuse_variables library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/acceleration_angular_2d_stamped.cpp
   src/acceleration_angular_3d_stamped.cpp
   src/acceleration_linear_2d_stamped.cpp
@@ -62,6 +58,9 @@ ament_target_dependencies(${PROJECT_NAME}
 #############
 ## Install ##
 #############
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}

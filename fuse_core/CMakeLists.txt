@@ -33,7 +33,7 @@ find_package(rcl_interfaces REQUIRED)
 ###########
 
 ## fuse_core library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/async_motion_model.cpp
   #src/async_publisher.cpp
   #src/async_sensor_model.cpp
@@ -77,25 +77,25 @@ include_directories(include)
 
 # fuse_echo executable
 add_executable(fuse_echo src/fuse_echo.cpp
-  src/constraint.cpp
-  src/graph.cpp
-  src/graph_deserializer.cpp
-  #src/loss.cpp
-  src/serialization.cpp
-  src/time.cpp
-  #src/timestamp_manager.cpp
-  src/transaction.cpp
-  src/transaction_deserializer.cpp
-  src/uuid.cpp
-  src/variable.cpp
+src/constraint.cpp
+src/graph.cpp
+src/graph_deserializer.cpp
+#src/loss.cpp
+src/serialization.cpp
+src/time.cpp
+#src/timestamp_manager.cpp
+src/transaction.cpp
+src/transaction_deserializer.cpp
+src/uuid.cpp
+src/variable.cpp
 )
 target_include_directories(fuse_echo PUBLIC
-  include
-  ${EIGEN3_INCLUDE_DIRS}
+include
+${EIGEN3_INCLUDE_DIRS}
 )
 target_link_libraries(fuse_echo
-  ${EIGEN3_LIBRARIES}
-  ${Boost_LIBRARIES}
+${EIGEN3_LIBRARIES}
+${Boost_LIBRARIES}
 )
 ament_target_dependencies(fuse_echo fuse_msgs rclcpp pluginlib rclcpp_components)
 
@@ -105,6 +105,10 @@ ament_target_dependencies(fuse_echo fuse_msgs rclcpp pluginlib rclcpp_components
 #############
 
 ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
+
+
 
 install(
   TARGETS ${PROJECT_NAME}

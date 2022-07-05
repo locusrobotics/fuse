@@ -26,15 +26,16 @@ find_package(diagnostic_updater REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
+find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
-
 
 ###########
 ## Build ##
 ###########
 
 ## fuse_optimizers library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/batch_optimizer.cpp
   src/fixed_lag_smoother.cpp
   src/optimizer.cpp
@@ -59,42 +60,84 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp_components
 )
 
+
 ## batch_optimizer node
 add_executable(batch_optimizer_node
-  src/batch_optimizer_node.cpp
+src/batch_optimizer_node.cpp
+src/batch_optimizer.cpp
+src/optimizer.cpp
+src/variable_stamp_index.cpp
 )
-target_include_directories(batch_optimizer_node PRIVATE
-    include
+
+target_include_directories(batch_optimizer_node PUBLIC
+include
 )
 target_link_libraries(batch_optimizer_node
-  ${PROJECT_NAME}
+${PROJECT_NAME}
+${Boost_LIBRARIES}
+#  ${CERES_LIBRARIES}
+#  ${GLOG_LIBRARIES}
+)
+ament_target_dependencies(batch_optimizer_node
+rclcpp
+fuse_constraints
+fuse_core
+fuse_msgs
+fuse_graphs
+fuse_variables
+std_srvs
+diagnostic_updater
+pluginlib
+rclcpp_components
 )
 
 
 
 ## fixed_lag_smoother node
 add_executable(fixed_lag_smoother_node
-  src/fixed_lag_smoother_node.cpp
+src/fixed_lag_smoother_node.cpp
+src/fixed_lag_smoother.cpp
+src/optimizer.cpp
+src/variable_stamp_index.cpp
 )
-target_include_directories(fixed_lag_smoother_node
-  PRIVATE
-    include
+target_include_directories(fixed_lag_smoother_node PUBLIC
+include
 )
 target_link_libraries(fixed_lag_smoother_node
-  ${PROJECT_NAME}
+${PROJECT_NAME}
+${Boost_LIBRARIES}
+${CERES_LIBRARIES}
+#  ${GLOG_LIBRARIES}
 )
+ament_target_dependencies(fixed_lag_smoother_node
+rclcpp
+fuse_constraints
+fuse_core
+fuse_msgs
+fuse_graphs
+fuse_variables
+std_srvs
+diagnostic_updater
+pluginlib
+rclcpp_components
+)
+
+
 
 #############
 ## Install ##
 #############
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
-)
-
+  )
+  
 install(
   DIRECTORY include/${PROJECT_NAME}/
   DESTINATION include/

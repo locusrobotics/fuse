@@ -25,7 +25,7 @@ find_package(rclcpp)
 include_directories(include)
 
 ## fuse_graphs library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/hash_graph.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -49,6 +49,7 @@ ament_target_dependencies(${PROJECT_NAME}
 #############
 
 ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
