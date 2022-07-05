@@ -99,7 +99,7 @@ public:
   /**
    * @brief Call this function. This is used by the callback queue.
    */
-  virtual void call();
+  virtual void call() = 0;
 
 };
 
