@@ -84,7 +84,7 @@ namespace fuse_core
    * @brief unused part of the rclcpp::waitables interface
    *
    */
-  std::shared_ptr< void > take_data(){
+  std::shared_ptr< void > CallbackAdapter::take_data(){
     return nullptr;
   }
 
