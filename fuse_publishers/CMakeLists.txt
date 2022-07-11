@@ -17,7 +17,7 @@ find_package(fuse_variables)
 find_package(geometry_msgs)
 find_package(nav_msgs)
 find_package(pluginlib)
-find_package(roscpp)
+find_package(rclcpp)
 find_package(tf2)
 find_package(tf2_geometry_msgs)
 find_package(tf2_ros)
@@ -32,20 +32,20 @@ include_directories(include)
 add_library(${PROJECT_NAME} SHARED
   src/path_2d_publisher.cpp
   src/pose_2d_publisher.cpp
-  src/serialized_publisher.cpp
+  #src/serialized_publisher.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
-include
+  include
 )
 target_link_libraries(${PROJECT_NAME}
 )
 ament_target_dependencies(${PROJECT_NAME}
   fuse_core
   fuse_variables
+  rclcpp
   geometry_msgs
   nav_msgs
   pluginlib
-  rclcpp
   tf2
   tf2_geometry_msgs
   tf2_ros
