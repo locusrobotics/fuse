@@ -77,6 +77,16 @@ typedef std::chrono::time_point<fuse_core::Clock, fuse_core::Duration> TimeStamp
  */
 TimeStamp stamp_from_ros(const rclcpp::Time rostime);
 
+/**
+ * @brief provide a conversion to ROS timestamps
+ * 
+ * A convenience function providing a trivial type conversion to rclcpp::Time
+ * 
+ * @param[in] timestamp  The fuse_core::TimeStamp to convert to a rclcpp::Time
+ */
+rclcpp::Time stamp_to_ros(const TimeStamp timestamp);
+
+
 inline double toSec(Duration d){
     return std::chrono::duration<double>(d).count();
 }

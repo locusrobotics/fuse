@@ -63,6 +63,14 @@ TimeStamp stamp_from_ros(const rclcpp::Time timestamp)
     );
 }
 
+rclcpp::Time stamp_to_ros(const TimeStamp timestamp)
+{
+    return rclcpp::Time(
+        timestamp.time_since_epoch().count()
+    );
+}
+
+
 
 }
 

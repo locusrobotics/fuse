@@ -65,6 +65,21 @@ T getParam(rclcpp::Node& node, const std::string& parameter_name, const T& defau
 
 
 /**
+ * @brief Compatibility wrapper for ros2 params in ros1 syntax
+ *
+ * @param[in] node - The node pointer used to load the parameter
+ * @param[in] parameter_name - The ROS parameter name
+ * @param[out] default_value - The default value for this parameter
+ * @throws if the parameter has already been declared
+ */
+template <class T>
+T getParam(rclcpp::Node::SharedPtr node, const std::string& parameter_name, const T& default_value){
+  T value = node->declare_parameter(parameter_name, default_value);
+  return value;
+}
+
+
+/**
  * @brief Utility method for handling required ROS params
  *
  * @param[in] node - The node used to load the parameter
