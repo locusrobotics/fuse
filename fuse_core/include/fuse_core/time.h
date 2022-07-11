@@ -57,15 +57,77 @@
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
 
+#include <stdexcept>
+
+
 namespace fuse_core
 {
+
+
 
 // ros and rclcpp both use nanosecond resolution
 typedef std::chrono::nanoseconds    Duration;
 // rclcpp is configurable but defaults to system time
 typedef std::chrono::system_clock   Clock;
 // alias time
-typedef std::chrono::time_point<fuse_core::Clock, fuse_core::Duration> TimeStamp;
+//typedef std::chrono::time_point<fuse_core::Clock, fuse_core::Duration> TimeStamp;
+
+
+class TimeStamp{
+  public:
+    TimeStamp();
+    TimeStamp(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> stamp);
+    TimeStamp(const rclcpp::Time& stamp);
+
+
+    bool initialised() const {
+        return valid;
+    }
+    inline operator std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>() const {
+        return timestamp;
+    }
+
+    //inline operator int64_t() const {
+    //    return timestamp.time_since_epoch().count();
+    //}
+
+    //operator rclcpp::Time() const {
+    //    return rclcpp::Time(timestamp.time_since_epoch().count());
+    //}
+
+    inline std::chrono::nanoseconds time_since_epoch()const {return timestamp.time_since_epoch();}
+
+    inline friend bool operator< (const TimeStamp& lhs, const TimeStamp& rhs){
+        if((!lhs.valid) && (!rhs.valid)) throw std::logic_error("Comparing two uninitialised Timestamps");
+        if(!lhs.valid) return true;
+        if(!rhs.valid) return false;
+        return lhs.timestamp < rhs.timestamp;
+    }
+    inline friend bool operator> (const TimeStamp& lhs, const TimeStamp& rhs) { return rhs < lhs; }
+    inline friend bool operator<=(const TimeStamp& lhs, const TimeStamp& rhs) { return !(lhs > rhs); }
+    inline friend bool operator>=(const TimeStamp& lhs, const TimeStamp& rhs) { return !(lhs < rhs); }
+
+    inline friend bool operator== (const TimeStamp& lhs, const TimeStamp& rhs){
+        if((!lhs.valid) && (!rhs.valid)) return true;   // XXX this permits time_zero syntax in publishers. please deprecate
+        return lhs.valid && rhs.valid && (lhs.timestamp == rhs.timestamp);
+    }
+
+    inline friend TimeStamp operator+ (TimeStamp lhs, const Duration& rhs){
+        return TimeStamp(lhs.timestamp + rhs);
+    }
+    inline friend TimeStamp operator- (TimeStamp lhs, const Duration& rhs){
+        return TimeStamp(lhs.timestamp - rhs);
+    }
+    inline friend Duration operator- (TimeStamp lhs, const TimeStamp& rhs){
+        return Duration(lhs.timestamp - rhs.timestamp);
+    }
+
+
+  private:
+    bool valid;   // a hack to deal with comparisons to zero in fuse_publishers
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> timestamp;
+
+};
 
 
 /**

@@ -51,16 +51,29 @@
 namespace fuse_core
 {
 
+TimeStamp::TimeStamp():
+    valid(false)
+{}
+
+TimeStamp::TimeStamp(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> stamp):
+    valid(true),
+    timestamp(stamp)
+{}
+
+TimeStamp::TimeStamp(const rclcpp::Time& stamp):
+    valid(true),
+    timestamp(
+        std::chrono::duration_cast<Duration>(
+            std::chrono::nanoseconds(
+                stamp.nanoseconds()
+            )
+        )
+    )
+{}
 
 TimeStamp stamp_from_ros(const rclcpp::Time timestamp)
 {
-    return TimeStamp(
-        std::chrono::duration_cast<Duration>(
-            std::chrono::nanoseconds(
-                timestamp.nanoseconds()
-            )
-        )
-    );
+    return TimeStamp(timestamp);
 }
 
 rclcpp::Time stamp_to_ros(const TimeStamp timestamp)
