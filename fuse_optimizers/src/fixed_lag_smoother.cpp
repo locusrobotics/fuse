@@ -634,7 +634,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
 void FixedLagSmoother::resetOptimizer(const std::string& err_msg) 
 {
-  ROS_ERROR(err_msg.c_str());
+  // ROS_ERROR(err_msg.c_str());
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state

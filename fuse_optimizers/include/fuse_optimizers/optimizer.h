@@ -38,6 +38,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/publisher.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
@@ -113,7 +114,7 @@ public:
    */
   virtual ~Optimizer();
 
-  static Optimizer* getOptimizer() { return singleton_; }
+  // static Optimizer* getOptimizer() { return singleton_; }
 
 protected:
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type rather annoying
@@ -161,11 +162,12 @@ protected:
   Publishers publishers_;  //!< The set of publishers to execute after every graph optimization
   pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
+  pluginlib::ClassLoader<fuse_core::ErrorHandler> error_handler_loader_;  //!< Pluginlib class loader for ErrorHandler
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
   ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
   double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
-  static Optimizer* singleton_; //<! Pointer to the optimizer singleton. Assume that for each process, there is only one optimizer
+  // static Optimizer* singleton_; //<! Pointer to the optimizer singleton. Assume that for each process, there is only one optimizer
 
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction

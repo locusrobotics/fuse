@@ -94,6 +94,7 @@ add_library(${PROJECT_NAME}
   src/unicycle_2d.cpp
   src/unicycle_2d_ignition.cpp
   src/unicycle_2d_state_kinematic_constraint.cpp
+  src/basic_error_handler.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
