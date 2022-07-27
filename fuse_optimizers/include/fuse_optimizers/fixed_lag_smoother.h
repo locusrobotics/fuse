@@ -308,7 +308,7 @@ protected:
    *        the need to throw exceptions when things go wrong.
    * @param[in] err_msg A specific error message that gives a reason for the reset
    */
-  void resetOptimizer(const std::string& err_msg) override;
+  // void resetOptimizer(const std::string& err_msg) override;
   
   /**
    * @brief Update and publish diagnotics

@@ -58,4 +58,13 @@ namespace fuse_models
     throw std::invalid_argument(info);
   }
 
+  void BasicErrorHandler::outOfRangeError(const std::string& info)
+  {
+    throw std::out_of_range(info);
+  }
+
+  void BasicErrorHandler::logicError(const std::string& info)
+  {
+    throw std::logic_error(info);
+  }
 }

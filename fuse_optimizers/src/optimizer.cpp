@@ -92,11 +92,6 @@ Optimizer::Optimizer(
     error_handler_loader_("fuse_core", "fuse_core::ErrorHandler"),
     diagnostic_updater_(node_handle_)
 {
-  // if (singleton_ != nullptr) {
-  //   singleton_ = this;
-  // } else {
-  //   throw std::runtime_error("More than one optimizer at the same time!");
-  // }
   // Setup diagnostics updater
   private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
                              diagnostic_updater_timer_period_);
@@ -112,6 +107,7 @@ Optimizer::Optimizer(
   ros::Time::waitForValid();
 
   // Load all configured plugins
+  loadErrorHandler();
   loadMotionModels();
   loadSensorModels();
   loadPublishers();
@@ -350,6 +346,26 @@ void Optimizer::loadPublishers()
   }
 
   diagnostic_updater_.force_update();
+}
+
+void Optimizer::loadErrorHandler() 
+{
+  std::string type;
+  if (!private_node_handle_.hasParam("error_handler"))
+  {
+    ROS_WARN("No error handler specified, defaulting to BasicErrorHandler.");
+    type = "fuse_models::BasicErrorHandler";
+  } 
+  else 
+  {
+    //parse error handler type
+    private_node_handle_.getParam("error_handler", type);
+  }
+
+  // If the plugin name is not found, this will throw
+  auto handler = error_handler_loader_.createUniqueInstance(type);
+  handler->initialize("handler");
+  error_handler_ = std::move(handler);
 }
 
 bool Optimizer::applyMotionModels(

@@ -114,7 +114,6 @@ public:
    */
   virtual ~Optimizer();
 
-  // static Optimizer* getOptimizer() { return singleton_; }
 
 protected:
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type rather annoying
@@ -124,6 +123,7 @@ protected:
   using PublisherUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::Publisher>;
   using Publishers = std::unordered_map<std::string, PublisherUniquePtr>;
   using SensorModelUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::SensorModel>;
+  using ErrorHandlerUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::ErrorHandler>;
 
   /**
    * @brief A struct to hold the sensor model and whether it is an ignition one or not
@@ -163,11 +163,11 @@ protected:
   pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
   pluginlib::ClassLoader<fuse_core::ErrorHandler> error_handler_loader_;  //!< Pluginlib class loader for ErrorHandler
+  ErrorHandlerUniquePtr error_handler_; // The error handler for a given optimizer 
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
   ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
   double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
-  // static Optimizer* singleton_; //<! Pointer to the optimizer singleton. Assume that for each process, there is only one optimizer
 
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
@@ -181,12 +181,12 @@ protected:
     const std::string& sensor_name,
     fuse_core::Transaction::SharedPtr transaction) = 0;
 
-  /**
-   * @brief Method exposed for resetting the optimizer in the event of an error. Replaces
-   *        the need to throw exceptions when things go wrong.
-   * @param[in] err_msg A specific error message that gives a reason for the reset
-   */
-  virtual void resetOptimizer(const std::string& err_msg) = 0;
+  // /**
+  //  * @brief Method exposed for resetting the optimizer in the event of an error. Replaces
+  //  *        the need to throw exceptions when things go wrong.
+  //  * @param[in] err_msg A specific error message that gives a reason for the reset
+  //  */
+  // virtual void resetOptimizer(const std::string& err_msg) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server
@@ -208,6 +208,13 @@ protected:
    * Will throw if the parameter server configuration is invalid.
    */
   void loadSensorModels();
+
+    /**
+   * @brief Configure the error handler plugin specified on the parameter server
+   *
+   * If the parameter server configuration is invalid or missing, it will default to basicErrorHandler.
+   */
+  void loadErrorHandler();
 
   /**
    * @brief Given a transaction and some timestamps, augment the transaction with constraints from all associated

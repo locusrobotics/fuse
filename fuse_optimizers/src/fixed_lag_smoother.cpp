@@ -632,39 +632,39 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
   }
 }
 
-void FixedLagSmoother::resetOptimizer(const std::string& err_msg) 
-{
-  // ROS_ERROR(err_msg.c_str());
-  // Tell all the plugins to stop
-  stopPlugins();
-  // Reset the optimizer state
-  {
-    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
-    optimization_request_ = false;
-  }
-  started_ = false;
-  ignited_ = false;
-  setStartTime(ros::Time(0, 0));
-  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
-  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
-  //         prevent the possibility of deadlocks.
-  {
-    std::lock_guard<std::mutex> lock(optimization_mutex_);
-    // Clear all pending transactions
-    {
-      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-      pending_transactions_.clear();
-    }
-    // Clear the graph and marginal tracking states
-    graph_->clear();
-    marginal_transaction_ = fuse_core::Transaction();
-    timestamp_tracking_.clear();
-    lag_expiration_ = ros::Time(0, 0);
-  }
-  // Tell all the plugins to start
-  startPlugins();
-  // Test for auto-start
-  autostart();
-}
+// void FixedLagSmoother::resetOptimizer(const std::string& err_msg) 
+// {
+//   // ROS_ERROR(err_msg.c_str());
+//   // Tell all the plugins to stop
+//   stopPlugins();
+//   // Reset the optimizer state
+//   {
+//     std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+//     optimization_request_ = false;
+//   }
+//   started_ = false;
+//   ignited_ = false;
+//   setStartTime(ros::Time(0, 0));
+//   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
+//   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
+//   //         prevent the possibility of deadlocks.
+//   {
+//     std::lock_guard<std::mutex> lock(optimization_mutex_);
+//     // Clear all pending transactions
+//     {
+//       std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+//       pending_transactions_.clear();
+//     }
+//     // Clear the graph and marginal tracking states
+//     graph_->clear();
+//     marginal_transaction_ = fuse_core::Transaction();
+//     timestamp_tracking_.clear();
+//     lag_expiration_ = ros::Time(0, 0);
+//   }
+//   // Tell all the plugins to start
+//   startPlugins();
+//   // Test for auto-start
+//   autostart();
+// }
 
 }  // namespace fuse_optimizers
