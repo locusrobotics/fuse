@@ -1,0 +1,14 @@
+type: 'rosdoc2 config'
+version: 1
+---
+settings:
+  output_dir: ''
+builders:
+  - doxygen: {
+    name: 'doxygen',
+    output_dir: 'api',
+    extra_doxyfile_statements: [
+      "FILE_PATTERNS = '*.cpp *.h",
+      "EXCLUDE_PATTERNS = '*/test/*'"
+    ]
+  }

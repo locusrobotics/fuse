@@ -6,12 +6,13 @@
   <name>fuse_tutorials</name>
   <version>0.4.2</version>
   <description>
-    Package containing source code for the fuse tutorials
+    Package containing source code for the fuse tutorials.
   </description>
 
   <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
-  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
+
   <license>BSD</license>
+  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
   <build_depend>fuse_constraints</build_depend>
@@ -39,6 +40,6 @@
   <export>
     <build_type>ament_cmake</build_type>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
-    <rosdoc config="rosdoc.yaml" />
+    <rosdoc2>rosdoc2.yaml</rosdoc2>
   </export>
 </package>

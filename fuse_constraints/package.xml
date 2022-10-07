@@ -6,7 +6,7 @@
   <name>fuse_constraints</name>
   <version>0.4.2</version>
   <description>
-    The fuse_constraints package provides a set of commonly used constraint types, such as direct measurements on
+    The fuse_constraints package provides a set of commonly used constraint types, such as direct measurements on \
     state variables (absolute constraints) or measurements of the state changes (relative constraints).
   </description>
 
@@ -42,6 +42,6 @@
   <export>
     <build_type>ament_cmake</build_type>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
-    <rosdoc config="rosdoc.yaml" />
+    <rosdoc2>rosdoc2.yaml</rosdoc2>
   </export>
 </package>
