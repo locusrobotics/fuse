@@ -1,5 +1,7 @@
 # fuse
 
+**NOTE**: The `rolling` branch is a [work in progress](https://github.com/locusrobotics/fuse/issues/276) port of the fuse stack to ROS 2, it is **not** expected to work until said work is done!
+
 The fuse stack provides a general architecture for performing sensor fusion live on a robot. Some possible applications
 include state estimation, localization, mapping, and calibration.
 
