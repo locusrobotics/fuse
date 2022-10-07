@@ -34,9 +34,7 @@
 #ifndef FUSE_CORE_CONSOLE_H
 #define FUSE_CORE_CONSOLE_H
 
-#include <rclcpp/logging.hpp>
-#include <rclcpp/time.h>
-
+#include <chrono>
 
 namespace fuse_core
 {
@@ -63,8 +61,10 @@ public:
    *
    * @param[in] The throttle period in seconds
    */
-  explicit DelayedThrottleFilter(const double period) : period_(period)
+  explicit DelayedThrottleFilter(const double period)
+  : period_(std::chrono::duration<double, std::ratio<1>>(period))
   {
+    reset();
   }
 
   /**
@@ -76,11 +76,14 @@ public:
    *
    * @param[in] now - The current ROS time at which to check if logging should fire
    *
-   * @return True if the filter condition is hit, false otherwise
+   * @return True if the filter condition is hit (signalling that the message should print), false otherwise
    */
-  bool isEnabled(const rclcpp::Time& now)
+  bool isEnabled()
   {
-    if (last_hit_ < 0.0)
+    using namespace std::chrono;
+    const auto now = time_point_cast<milliseconds>(system_clock::now());
+
+    if (last_hit_.time_since_epoch().count() < 0.0)
     {
       last_hit_ = now;
       return true;
@@ -100,13 +103,14 @@ public:
    */
   void reset()
   {
-    last_hit_ = -1.0;
+    using namespace std::chrono;
+    last_hit_ = time_point_cast<milliseconds>(system_clock::from_time_t(-1));
   }
 
 private:
-  double period_{ 0.0 };     //!< The throttle period in seconds
-  double last_hit_{ -1.0 };  //!< The last time in seconds the filter condition was hit, and the message was printed. A
-                             //!< negative value means it has never been hit
+  std::chrono::duration<double, std::ratio<1>> period_;          //!< The throttle period in seconds
+  std::chrono::time_point<std::chrono::system_clock> last_hit_;  //!< The last time in milliseconds the filter condition was hit, and the
+                                                                 //!< message was printed. A negative value means it has never been hit
 };
 
 }  // namespace fuse_core
