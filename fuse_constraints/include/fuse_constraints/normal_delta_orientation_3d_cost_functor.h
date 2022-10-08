@@ -69,7 +69,7 @@ namespace fuse_constraints
 class NormalDeltaOrientation3DCostFunctor
 {
 public:
-  FUSE_MAKE_ALIGNED_OPERATOR_NEW();
+  FUSE_MAKE_ALIGNED_OPERATOR_NEW()
 
   /**
    * @brief Construct a cost function instance

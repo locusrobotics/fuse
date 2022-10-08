@@ -43,7 +43,7 @@
 class TestVariable : public fuse_variables::FixedSizeVariable<2>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(TestVariable);
+  FUSE_VARIABLE_DEFINITIONS(TestVariable)
 
   TestVariable() :
     fuse_variables::FixedSizeVariable<2>(fuse_core::uuid::generate())

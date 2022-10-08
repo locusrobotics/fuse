@@ -57,7 +57,7 @@ namespace fuse_loss
 class TukeyLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(TukeyLoss);
+  FUSE_LOSS_DEFINITIONS(TukeyLoss)
 
   /**
    * @brief Constructor

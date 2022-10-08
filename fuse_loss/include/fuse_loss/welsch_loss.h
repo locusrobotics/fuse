@@ -61,7 +61,7 @@ namespace fuse_loss
 class WelschLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(WelschLoss);
+  FUSE_LOSS_DEFINITIONS(WelschLoss)
 
   /**
    * @brief Constructor

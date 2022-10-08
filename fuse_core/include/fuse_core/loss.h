@@ -53,7 +53,7 @@
  * class Derived : public Loss
  * {
  * public:
- *   FUSE_LOSS_CLONE_DEFINITION(Derived);
+ *   FUSE_LOSS_CLONE_DEFINITION(Derived)
  *   // The rest of the derived loss function implementation
  * }
  * @endcode
@@ -72,7 +72,7 @@
  * class Derived : public Loss
  * {
  * public:
- *   FUSE_LOSS_SERIALIZE_DEFINITION(Derived);
+ *   FUSE_LOSS_SERIALIZE_DEFINITION(Derived)
  *   // The rest of the derived loss function implementation
  * }
  * @endcode
@@ -105,7 +105,7 @@
  * class Derived : public Loss
  * {
  * public:
- *   FUSE_LOSS_TYPE_DEFINITION(Derived);
+ *   FUSE_LOSS_TYPE_DEFINITION(Derived)
  *   // The rest of the derived loss function implementation
  * }
  * @endcode
@@ -131,7 +131,7 @@
  * class Derived : public Loss
  * {
  * public:
- *   FUSE_LOSS_DEFINITIONS(Derived);
+ *   FUSE_LOSS_DEFINITIONS(Derived)
  *   // The rest of the derived loss function implementation
  * }
  * @endcode
@@ -169,7 +169,7 @@ namespace fuse_core
 class Loss
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Loss);
+  FUSE_SMART_PTR_ALIASES_ONLY(Loss)
 
   static constexpr ceres::Ownership Ownership =
       ceres::Ownership::TAKE_OWNERSHIP;  //!< The ownership of the ceres::LossFunction* returned by lossFunction()

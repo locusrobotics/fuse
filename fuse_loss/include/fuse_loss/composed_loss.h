@@ -58,7 +58,7 @@ namespace fuse_loss
 class ComposedLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ComposedLoss);
+  FUSE_LOSS_DEFINITIONS(ComposedLoss)
 
   /**
    * @brief Constructor

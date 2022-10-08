@@ -47,7 +47,7 @@
 class ExampleOptimizer : public fuse_optimizers::Optimizer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer);
+  FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer)
 
   ExampleOptimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
                  const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"))

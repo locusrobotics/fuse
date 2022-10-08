@@ -60,7 +60,7 @@ namespace fuse_variables
 class AccelerationLinear2DStamped : public FixedSizeVariable<2>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(AccelerationLinear2DStamped);
+  FUSE_VARIABLE_DEFINITIONS(AccelerationLinear2DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array

@@ -58,7 +58,7 @@
 class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(StampedVariable);
+  FUSE_VARIABLE_DEFINITIONS(StampedVariable)
 
   explicit StampedVariable(const ros::Time& stamp = ros::Time(0, 0)) :
     fuse_core::Variable(fuse_core::uuid::generate()),
@@ -115,7 +115,7 @@ BOOST_CLASS_EXPORT(StampedVariable);
 class UnstampedVariable : public fuse_core::Variable
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(UnstampedVariable);
+  FUSE_VARIABLE_DEFINITIONS(UnstampedVariable)
 
   UnstampedVariable() :
     fuse_core::Variable(fuse_core::uuid::generate()),
@@ -170,7 +170,7 @@ BOOST_CLASS_EXPORT(UnstampedVariable);
 class GenericConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint)
 
   GenericConstraint() = default;
 

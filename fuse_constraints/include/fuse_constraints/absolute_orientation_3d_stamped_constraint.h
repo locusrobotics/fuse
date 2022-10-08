@@ -65,7 +65,7 @@ namespace fuse_constraints
 class AbsoluteOrientation3DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsoluteOrientation3DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsoluteOrientation3DStampedConstraint)
 
   /**
    * @brief Default constructor

@@ -57,7 +57,7 @@ namespace fuse_loss
 class CauchyLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(CauchyLoss);
+  FUSE_LOSS_DEFINITIONS(CauchyLoss)
 
   /**
    * @brief Constructor

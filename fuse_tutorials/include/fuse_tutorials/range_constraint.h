@@ -75,7 +75,7 @@ public:
   // There are some boilerplate types and functions that must be implemented for each constraint, such as shared pointer
   // typedefs and clone() methods. These are formulaic, but the derived type is needed for their proper implementation.
   // A few different macro options are provided to make implementing this boilerplate code easy.
-  FUSE_CONSTRAINT_DEFINITIONS(RangeConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(RangeConstraint)
 
   /**
    * @brief Default constructor

@@ -66,7 +66,7 @@ namespace fuse_constraints
 class RelativePose2DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(RelativePose2DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(RelativePose2DStampedConstraint)
 
   /**
    * @brief Default constructor

@@ -57,7 +57,7 @@ namespace fuse_loss
 class SoftLOneLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(SoftLOneLoss);
+  FUSE_LOSS_DEFINITIONS(SoftLOneLoss)
 
   /**
    * @brief Constructor

@@ -75,7 +75,7 @@ namespace fuse_graphs
 class HashGraph : public fuse_core::Graph
 {
 public:
-  FUSE_GRAPH_DEFINITIONS(HashGraph);
+  FUSE_GRAPH_DEFINITIONS(HashGraph)
 
   /**
    * @brief Constructor

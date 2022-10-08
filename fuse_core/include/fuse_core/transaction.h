@@ -66,7 +66,7 @@ namespace fuse_core
 class Transaction
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(Transaction);
+  FUSE_SMART_PTR_DEFINITIONS(Transaction)
 
   /**
    * @brief A range of Constraint::SharedPtr objects

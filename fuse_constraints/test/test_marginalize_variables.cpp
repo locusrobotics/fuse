@@ -62,7 +62,7 @@
 class GenericVariable : public fuse_core::Variable
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(GenericVariable);
+  FUSE_VARIABLE_DEFINITIONS(GenericVariable)
 
   GenericVariable() :
     fuse_core::Variable(fuse_core::uuid::generate()),
@@ -110,7 +110,7 @@ BOOST_CLASS_EXPORT(GenericVariable);
 class GenericConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint)
 
   GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) :
     Constraint("test", variable_uuids) {}
@@ -145,7 +145,7 @@ private:
 class FixedOrientation3DStamped : public fuse_variables::Orientation3DStamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(FixedOrientation3DStamped);
+  FUSE_VARIABLE_DEFINITIONS(FixedOrientation3DStamped)
 
   FixedOrientation3DStamped() = default;
 

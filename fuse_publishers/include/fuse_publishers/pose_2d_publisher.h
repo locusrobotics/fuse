@@ -97,7 +97,7 @@ namespace fuse_publishers
 class Pose2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(Pose2DPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(Pose2DPublisher)
 
   /**
    * @brief Constructor

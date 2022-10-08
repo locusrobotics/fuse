@@ -135,7 +135,7 @@ private:
 class Orientation2DStamped : public FixedSizeVariable<1>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Orientation2DStamped);
+  FUSE_VARIABLE_DEFINITIONS(Orientation2DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array

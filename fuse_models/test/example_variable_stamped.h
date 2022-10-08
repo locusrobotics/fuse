@@ -51,7 +51,7 @@
 class ExampleVariableStamped : public fuse_core::Variable, public fuse_variables::Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(ExampleVariableStamped);
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariableStamped)
 
   ExampleVariableStamped() = default;
 

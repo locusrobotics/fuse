@@ -61,7 +61,7 @@
  * class Derived : public Constraint
  * {
  * public:
- *   FUSE_CONSTRAINT_CLONE_DEFINITION(Derived);
+ *   FUSE_CONSTRAINT_CLONE_DEFINITION(Derived)
  *   // The rest of the derived constraint implementation
  * }
  * @endcode
@@ -80,7 +80,7 @@
  * class Derived : public Constraint
  * {
  * public:
- *   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(Derived);
+ *   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(Derived)
  *   // The rest of the derived constraint implementation
  * }
  * @endcode
@@ -113,7 +113,7 @@
  * class Derived : public Constraint
  * {
  * public:
- *   FUSE_CONSTRAINT_TYPE_DEFINITION(Derived);
+ *   FUSE_CONSTRAINT_TYPE_DEFINITION(Derived)
  *   // The rest of the derived constraint implementation
  * }
  * @endcode
@@ -139,7 +139,7 @@
  * class Derived : public Constraint
  * {
  * public:
- *   FUSE_CONSTRAINT_DEFINITIONS(Derived);
+ *   FUSE_CONSTRAINT_DEFINITIONS(Derived)
  *   // The rest of the derived constraint implementation
  * }
  * @endcode
@@ -159,7 +159,7 @@
  * class Derived : public Constraint
  * {
  * public:
- *   FUSE_CONSTRAINT_DEFINITIONS_WTIH_EIGEN(Derived);
+ *   FUSE_CONSTRAINT_DEFINITIONS_WTIH_EIGEN(Derived)
  *   // The rest of the derived constraint implementation
  * }
  * @endcode
@@ -193,7 +193,7 @@ namespace fuse_core
 class Constraint
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Constraint);
+  FUSE_SMART_PTR_ALIASES_ONLY(Constraint)
 
   /**
    * @brief Default constructor

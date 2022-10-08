@@ -67,7 +67,7 @@ namespace fuse_constraints
 class AbsoluteOrientation3DStampedEulerConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(AbsoluteOrientation3DStampedEulerConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(AbsoluteOrientation3DStampedEulerConstraint)
 
   using Euler = fuse_variables::Orientation3DStamped::Euler;
 

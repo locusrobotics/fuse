@@ -61,7 +61,7 @@ namespace fuse_loss
 class DCSLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(DCSLoss);
+  FUSE_LOSS_DEFINITIONS(DCSLoss)
 
   /**
    * @brief Constructor

@@ -65,7 +65,7 @@
  * class Derived : public Graph
  * {
  * public:
- *   FUSE_GRAPH_SERIALIZE_DEFINITION(Derived);
+ *   FUSE_GRAPH_SERIALIZE_DEFINITION(Derived)
  *   // The rest of the derived graph implementation
  * }
  * @endcode
@@ -98,7 +98,7 @@
  * class Derived : public Graph
  * {
  * public:
- *   FUSE_GRAPH_TYPE_DEFINITION(Derived);
+ *   FUSE_GRAPH_TYPE_DEFINITION(Derived)
  *   // The rest of the derived graph implementation
  * }
  * @endcode
@@ -124,7 +124,7 @@
 * class Derived : public Graph
 * {
 * public:
-*   FUSE_GRAPH_DEFINITIONS(Derived);
+*   FUSE_GRAPH_DEFINITIONS(Derived)
 *   // The rest of the derived graph implementation
 * }
 * @endcode
@@ -149,7 +149,7 @@ namespace fuse_core
 class Graph
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Graph);
+  FUSE_SMART_PTR_ALIASES_ONLY(Graph)
 
   /**
    * @brief A range of fuse_ros::Constraint objects

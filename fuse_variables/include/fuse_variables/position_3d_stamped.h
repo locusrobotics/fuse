@@ -62,7 +62,7 @@ namespace fuse_variables
 class Position3DStamped : public FixedSizeVariable<3>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Position3DStamped);
+  FUSE_VARIABLE_DEFINITIONS(Position3DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array

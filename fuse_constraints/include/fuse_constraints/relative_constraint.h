@@ -75,7 +75,7 @@ template<class Variable>
 class RelativeConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(RelativeConstraint<Variable>);
+  FUSE_CONSTRAINT_DEFINITIONS(RelativeConstraint<Variable>)
 
   /**
    * @brief Default constructor

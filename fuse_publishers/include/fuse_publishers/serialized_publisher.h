@@ -53,7 +53,7 @@ namespace fuse_publishers
 class SerializedPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(SerializedPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(SerializedPublisher)
 
   /**
    * @brief Constructor

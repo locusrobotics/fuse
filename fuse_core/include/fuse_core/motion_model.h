@@ -53,7 +53,7 @@ namespace fuse_core
 class MotionModel
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(MotionModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(MotionModel)
 
   /**
    * @brief Destructor

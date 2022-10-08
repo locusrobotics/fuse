@@ -57,7 +57,7 @@ namespace fuse_loss
 class HuberLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(HuberLoss);
+  FUSE_LOSS_DEFINITIONS(HuberLoss)
 
   /**
    * @brief Constructor
