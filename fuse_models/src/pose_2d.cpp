@@ -72,8 +72,9 @@ void Pose2D::onInit()
   if (params_.position_indices.empty() &&
       params_.orientation_indices.empty())
   {
-    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
-                    " will be ignored.");
+    RCLCPP_WARN_STREAM(node_->get_logger(),
+                       "No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic)
+                       << " will be ignored.");
   }
 }
 
@@ -133,8 +134,9 @@ void Pose2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped&
 
   if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
   {
-    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp "
-                                      << pose.header.stamp << " to target frame " << params_.target_frame);
+    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
+                                "Cannot transform pose message with stamp " << pose.header.stamp
+                                << " to target frame " << params_.target_frame);
     return;
   }
 

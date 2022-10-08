@@ -88,7 +88,7 @@ void GraphIgnition::subscriberCallback(const fuse_msgs::SerializedGraph::ConstPt
   }
   catch (const std::exception& e)
   {
-    ROS_ERROR_STREAM(e.what() << " Ignoring message.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), e.what() << " Ignoring message.");
   }
 }
 
@@ -103,7 +103,7 @@ bool GraphIgnition::setGraphServiceCallback(fuse_models::SetGraph::Request& req,
   {
     res.success = false;
     res.message = e.what();
-    ROS_ERROR_STREAM(e.what() << " Ignoring request.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), e.what() << " Ignoring request.");
   }
   return true;
 }
@@ -136,7 +136,8 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
     // Wait for the reset service
     while (!reset_client_.waitForExistence(ros::Duration(10.0)) && ros::ok())
     {
-      ROS_WARN_STREAM("Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
+      RCLCPP_WARN_STREAM(node_->get_logger(),
+                         "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
     }
 
     auto srv = std_srvs::Empty();
@@ -186,9 +187,10 @@ void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const ros::Time& st
   // Send the transaction to the optimizer.
   sendTransaction(transaction);
 
-  ROS_INFO_STREAM("Received a set_graph request (stamp: "
-                  << transaction->stamp() << ", constraints: " << boost::size(transaction->addedConstraints())
-                  << ", variables: " << boost::size(transaction->addedVariables()) << ")");
+  RCLCPP_INFO_STREAM(node_->get_logger(),
+                     "Received a set_graph request (stamp: " << transaction->stamp() << ", constraints: "
+                     << boost::size(transaction->addedConstraints()) << ", variables: "
+                     << boost::size(transaction->addedVariables()) << ")");
 }
 
 }  // namespace fuse_models

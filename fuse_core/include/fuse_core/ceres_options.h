@@ -36,7 +36,7 @@
 
 #include <fuse_core/ceres_macros.h>
 
-#include <ros/console.h>
+#include <rclcpp/logging.hpp>
 #include <ros/node_handle.h>
 
 #include <ceres/version.h>
@@ -190,7 +190,7 @@ CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
  * @param[in] default_value - A default value to use if the provided parameter name does not exist
  * @return The loaded (or default) value
  */
-template <class T>
+template <class T>  // TODO(CH3): Replace nh with a node
 T getParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, const T& default_value)
 {
   const std::string default_string_value{ ToString(default_value) };
@@ -201,9 +201,10 @@ T getParam(const ros::NodeHandle& node_handle, const std::string& parameter_name
   T value;
   if (!FromString(string_value, &value))
   {
-    ROS_WARN_STREAM("The requested " << parameter_name << " (" << string_value
-                                     << ") is not supported. Using the default value (" << default_string_value
-                                     << ") instead.");
+    RCLCPP_WARN_STREAM(node->get_logger(),
+                       "The requested " << parameter_name << " (" << string_value
+                       << ") is not supported. Using the default value (" << default_string_value
+                       << ") instead.");
     value = default_value;
   }
 

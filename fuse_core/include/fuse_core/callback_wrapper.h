@@ -83,7 +83,7 @@ namespace fuse_core
  * std::future<double> result = callback->getFuture();
  * ros::getGlobalCallbackQueue()->addCallback(callback);
  * result.wait();
- * ROS_INFO_STREAM("The result is: " << result.get());
+ * RCLCPP_INFO_STREAM(rclcpp::get_logger("callback_wrapper"), "The result is: " << result.get());
  * @endcode
  */
 template <typename T>

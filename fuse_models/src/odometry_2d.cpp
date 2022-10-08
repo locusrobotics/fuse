@@ -76,8 +76,9 @@ void Odometry2D::onInit()
       params_.linear_velocity_indices.empty() &&
       params_.angular_velocity_indices.empty())
   {
-    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
-                    " will be ignored.");
+    RCLCPP_WARN_STREAM(node_->get_logger(),
+                       "No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic)
+                       << " will be ignored.");
   }
 }
 
@@ -167,8 +168,9 @@ void Odometry2D::processDifferential(const geometry_msgs::PoseWithCovarianceStam
 
   if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
   {
-    ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp "
-                                      << pose.header.stamp << " to pose target frame " << params_.pose_target_frame);
+    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
+                                "Cannot transform pose message with stamp "
+                                << pose.header.stamp << " to pose target frame " << params_.pose_target_frame);
     return;
   }
 
@@ -186,9 +188,9 @@ void Odometry2D::processDifferential(const geometry_msgs::PoseWithCovarianceStam
 
     if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
     {
-      ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform twist message with stamp " << twist.header.stamp
-                                                                                 << " to twist target frame "
-                                                                                 << params_.twist_target_frame);
+      RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
+                                  "Cannot transform twist message with stamp " << twist.header.stamp
+                                  << " to twist target frame " << params_.twist_target_frame);
     }
     else
     {

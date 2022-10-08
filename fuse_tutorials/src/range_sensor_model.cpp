@@ -61,7 +61,7 @@ void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::PointCloud2::Cons
   {
     beacon_db_[*id_it] = Beacon { *x_it, *y_it, *sigma_it };
   }
-  ROS_INFO_STREAM("Updated Beacon Database.");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "Updated Beacon Database.");
 }
 
 void RangeSensorModel::onInit()

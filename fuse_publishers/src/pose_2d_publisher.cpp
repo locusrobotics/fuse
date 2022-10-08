@@ -43,6 +43,7 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <pluginlib/class_list_macros.h>
+#include <rclcpp/clock.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -84,12 +85,14 @@ bool findPose(
   }
   catch (const std::exception& e)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error" << e.what());
+    RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("pose_2d_publisher"), rclcpp::Clock(), 10.0 * 1000,
+                                "Failed to find a pose at time " << stamp << ". Error" << e.what());
     return false;
   }
   catch (...)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a pose at time " << stamp << ". Error: unknown");
+    RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("pose_2d_publisher"), rclcpp::Clock(), 10.0 * 1000,
+                                "Failed to find a pose at time " << stamp << ". Error: unknown");
     return false;
   }
   return true;
@@ -136,8 +139,9 @@ void Pose2DPublisher::onInit()
       private_node_handle_.param("tf_cache_time", tf_cache_time, default_tf_cache_time);
       if (tf_cache_time <= 0)
       {
-        ROS_WARN_STREAM("The requested tf_cache_time is <= 0. Using the default value (" <<
-                        default_tf_cache_time << "s) instead.");
+        RCLCPP_WARN_STREAM(node_->get_logger(),
+                           "The requested tf_cache_time is <= 0. Using the default value (" <<
+                           default_tf_cache_time << "s) instead.");
         tf_cache_time = default_tf_cache_time;
       }
 
@@ -146,8 +150,9 @@ void Pose2DPublisher::onInit()
       private_node_handle_.param("tf_timeout", tf_timeout, default_tf_timeout);
       if (tf_timeout <= 0)
       {
-        ROS_WARN_STREAM("The requested tf_timeout is <= 0. Using the default value (" <<
-                        default_tf_timeout << "s) instead.");
+        RCLCPP_WARN_STREAM(node_->get_logger(),
+                           "The requested tf_timeout is <= 0. Using the default value (" <<
+                           default_tf_timeout << "s) instead.");
         tf_timeout = default_tf_timeout;
       }
       tf_timeout_ = ros::Duration(tf_timeout);
@@ -161,8 +166,9 @@ void Pose2DPublisher::onInit()
     private_node_handle_.param("tf_publish_frequency", tf_publish_frequency, default_tf_publish_frequency);
     if (tf_publish_frequency <= 0)
     {
-      ROS_WARN_STREAM("The requested tf_publish_frequency is <= 0. Using the default value (" <<
-                      default_tf_publish_frequency << "hz) instead.");
+      RCLCPP_WARN_STREAM(node_->get_logger(),
+                         "The requested tf_publish_frequency is <= 0. Using the default value (" <<
+                         default_tf_publish_frequency << "hz) instead.");
       tf_publish_frequency = default_tf_publish_frequency;
     }
     tf_publish_timer_ = private_node_handle_.createTimer(
@@ -204,8 +210,9 @@ void Pose2DPublisher::notifyCallback(
   auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
   if (latest_stamp == Synchronizer::TIME_ZERO)
   {
-    ROS_WARN_STREAM_THROTTLE(
-        10.0, "Failed to find a matching set of stamped pose variables with device id '" << device_id_ << "'.");
+    RCLCPP_WARN_STREAM_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+      "Failed to find a matching set of stamped pose variables with device id '" << device_id_ << "'.");
     return;
   }
   // Get the pose values associated with the selected timestamp
@@ -243,8 +250,9 @@ void Pose2DPublisher::notifyCallback(
       }
       catch (const std::exception& e)
       {
-        ROS_WARN_STREAM_THROTTLE(2.0, "Could not lookup the transform " << base_frame_ << "->" << odom_frame_ <<
-                                      ". Error: " << e.what());
+        RCLCPP_WARN_STREAM_THROTTLE(
+          node_->get_logger(), *node_->get_clock(), 2.0 * 1000,
+          "Could not lookup the transform " << base_frame_ << "->" << odom_frame_ << ". Error: " << e.what());
       }
     }
     else

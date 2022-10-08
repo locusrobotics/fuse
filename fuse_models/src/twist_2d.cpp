@@ -69,8 +69,9 @@ void Twist2D::onInit()
   if (params_.linear_indices.empty() &&
       params_.angular_indices.empty())
   {
-    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
-                    " will be ignored.");
+    RCLCPP_WARN_STREAM(node_->get_logger(),
+                       "No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic)
+                       << " will be ignored.");
   }
 }
 

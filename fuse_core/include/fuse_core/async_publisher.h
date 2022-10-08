@@ -38,6 +38,7 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/publisher.h>
 #include <fuse_core/transaction.h>
+// #include <rclcpp/rclcpp.hpp>  TODO(CH3): Uncomment when ready
 #include <ros/callback_queue.h>
 #include <ros/node_handle.h>
 #include <ros/spinner.h>
@@ -135,6 +136,7 @@ public:
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
   std::string name_;  //!< The unique name for this publisher instance
+  // rclcpp::Node::SharedPtr node_;  //!< The node for this publisher (TODO(CH3): Uncomment when it's time)
   ros::NodeHandle node_handle_;  //!< A node handle in the global namespace using the local callback queue
   ros::NodeHandle private_node_handle_;  //!< A node handle in the private namespace using the local callback queue
   ros::AsyncSpinner spinner_;  //!< A single/multi-threaded spinner assigned to the local callback queue

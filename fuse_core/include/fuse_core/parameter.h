@@ -55,12 +55,12 @@ namespace fuse_core
  * @throws std::runtime_error if the parameter does not exist
  */
 template <typename T>
-void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)
+void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)  // TODO(CH3): Replace nh with a node
 {
   if (!nh.getParam(key, value))
   {
     const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
-    ROS_FATAL_STREAM(error);
+    RCLCPP_FATAL_STREAM(node->get_logger(), error);
     throw std::runtime_error(error);
   }
 }
@@ -77,14 +77,15 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
 template <typename T,
           typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
 void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T& default_value,
-                      const bool strict = true)
+                      const bool strict = true)  // TODO(CH3): Replace nh with a node
 {
   T value;
   node_handle.param(parameter_name, value, default_value);
   if (value < 0 || (strict && value == 0))
   {
-    ROS_WARN_STREAM("The requested " << parameter_name << " is <" << (strict ? "=" : "") <<
-                    " 0. Using the default value (" << default_value << ") instead.");
+    RCLCPP_WARN_STREAM(node->get_logger(),
+                       "The requested " << parameter_name << " is <" << (strict ? "=" : "")
+                       << " 0. Using the default value (" << default_value << ") instead.");
   }
   else
   {
