@@ -8,12 +8,13 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Werror -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(fuse_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(rcl_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
@@ -22,6 +23,17 @@ find_package(Eigen3 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(libglog REQUIRED)  # Used downstream
 
+set(ament_dependencies
+  fuse_msgs
+  pluginlib
+  rcl_interfaces
+  rclcpp
+)
+
+###########
+## Build ##
+###########
+
 ## fuse_core library
 add_library(
   ${PROJECT_NAME} SHARED
@@ -29,23 +41,18 @@ add_library(
 #    src/async_publisher.cpp
 #    src/async_sensor_model.cpp
 #    src/ceres_options.cpp
-#    src/constraint.cpp
-#    src/graph.cpp
-#    src/graph_deserializer.cpp
-#    src/loss.cpp
-#    src/serialization.cpp
-#    src/timestamp_manager.cpp
-#    src/transaction.cpp
-#    src/transaction_deserializer.cpp
-#    src/uuid.cpp
-#    src/variable.cpp
+    src/constraint.cpp
+    src/graph.cpp
+    src/graph_deserializer.cpp
+    src/loss.cpp
+    src/serialization.cpp
+    src/timestamp_manager.cpp
+    src/transaction.cpp
+    src/transaction_deserializer.cpp
+    src/uuid.cpp
+    src/variable.cpp
 )
-ament_target_dependencies(
-  ${PROJECT_NAME}
-    fuse_msgs
-    rclcpp
-    std_msgs
-)
+ament_target_dependencies(${PROJECT_NAME} ${ament_dependencies})
 target_include_directories(
   ${PROJECT_NAME} PUBLIC
     include
@@ -61,22 +68,12 @@ target_link_libraries(
     ${GLOG_LIBRARIES}
 )
 
+
 # fuse_echo executable
-# add_executable(fuse_echo
-#   src/fuse_echo.cpp
-# )
-# target_include_directories(fuse_echo
-#   PUBLIC
-#     include
-# )
-# target_link_libraries(fuse_echo
-#   ${PROJECT_NAME}
-# )
-# ament_target_dependencies(fuse_echo
-#   fuse_msgs
-#   rclcpp
-#   pluginlib
-# )
+add_executable(fuse_echo src/fuse_echo.cpp)
+ament_target_dependencies(fuse_echo ${ament_dependencies})
+target_include_directories(fuse_echo PUBLIC include)
+target_link_libraries(fuse_echo ${PROJECT_NAME})
 
 #############
 ## Testing ##
@@ -490,25 +487,19 @@ endif()
 ## Install ##
 #############
 
-set(dependencies
-  fuse_msgs
-  pluginlib
-  rclcpp
-)
-
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
-ament_export_dependencies(${dependencies})
+ament_export_dependencies(${ament_dependencies})
 
 install(
   TARGETS ${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# install(
-#   TARGETS fuse_echo
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(
+  TARGETS fuse_echo
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(DIRECTORY include/
   DESTINATION include

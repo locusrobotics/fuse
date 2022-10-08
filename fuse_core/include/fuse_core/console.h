@@ -34,18 +34,17 @@
 #ifndef FUSE_CORE_CONSOLE_H
 #define FUSE_CORE_CONSOLE_H
 
-#include <ros/console.h>
-#include <ros/time.h>
+#include <rclcpp/clock.hpp>
 
 
 namespace fuse_core
 {
 
 /**
- * @brief ROS console filter that prints messages with ROS_*_DELAYED_THROTTLE and allows to reset the last time the
+ * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to reset the last time the
  * message was print, so the delayed and throttle conditions are computed from the initial state again.
  */
-class DelayedThrottleFilter : public ros::console::FilterBase
+class DelayedThrottleFilter
 {
 public:
   /**
@@ -68,14 +67,16 @@ public:
    */
   bool isEnabled() override
   {
-    const auto now = ros::Time::now().toSec();
+    #warn "migrated from ros1, using default clock"
+    const auto now = rclcpp::Clock().now().seconds();
 
     if (last_hit_ < 0.0)
     {
       last_hit_ = now;
+      return true;
     }
 
-    if (ROSCONSOLE_THROTTLE_CHECK(now, last_hit_, period_))
+    if (now > (last_hit_ + period_))
     {
       last_hit_ = now;
       return true;
