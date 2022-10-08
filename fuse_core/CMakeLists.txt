@@ -16,6 +16,7 @@ find_package(fuse_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rcl_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
@@ -28,6 +29,7 @@ set(ament_dependencies
   pluginlib
   rcl_interfaces
   rclcpp
+  rclcpp_components
 )
 
 ###########
@@ -491,9 +493,10 @@ ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 ament_export_dependencies(${ament_dependencies})
 
-install(
-  TARGETS ${PROJECT_NAME}
-  DESTINATION lib/${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(
