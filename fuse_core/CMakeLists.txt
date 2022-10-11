@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(fuse_core)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
   set(CXX_STANDARD_REQUIRED YES)
@@ -18,27 +18,18 @@ find_package(rcl_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
-find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(libglog REQUIRED)  # Used downstream
+find_package(glog REQUIRED)  # Used downstream
 
-set(ament_dependencies
-  fuse_msgs
-  pluginlib
-  rcl_interfaces
-  rclcpp
-  rclcpp_components
-)
+include(boost-extras.cmake)
 
 ###########
 ## Build ##
 ###########
 
 ## fuse_core library
-add_library(
-  ${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} SHARED
 #    src/async_motion_model.cpp
 #    src/async_publisher.cpp
 #    src/async_sensor_model.cpp
@@ -54,28 +45,27 @@ add_library(
     src/uuid.cpp
     src/variable.cpp
 )
-ament_target_dependencies(${PROJECT_NAME} ${ament_dependencies})
-target_include_directories(
-  ${PROJECT_NAME} PUBLIC
-    include
-    ${Boost_INCLUDE_DIRS}
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-    ${GLOG_INCLUDE_DIRS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
 )
-target_link_libraries(
-  ${PROJECT_NAME}
-    ${Boost_LIBRARIES}
-    ${CERES_LIBRARIES}
-    ${GLOG_LIBRARIES}
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  Boost::serialization
+  Ceres::ceres
+  Eigen3::Eigen
+  ${fuse_msgs_TARGETS}
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  ${rcl_interfaces_TARGETS}
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  rclcpp_components::component
 )
 
-
-# fuse_echo executable
+## fuse_echo executable
 add_executable(fuse_echo src/fuse_echo.cpp)
-ament_target_dependencies(fuse_echo ${ament_dependencies})
-target_include_directories(fuse_echo PUBLIC include)
-target_link_libraries(fuse_echo ${PROJECT_NAME})
+target_link_libraries(fuse_echo PUBLIC ${PROJECT_NAME})
+target_link_libraries(fuse_echo PRIVATE rclcpp_components::component)
 
 #############
 ## Testing ##
@@ -489,11 +479,7 @@ endif()
 ## Install ##
 #############
 
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
-ament_export_dependencies(${ament_dependencies})
-
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -505,9 +491,10 @@ install(
 )
 
 install(DIRECTORY include/
-  DESTINATION include
+  DESTINATION include/${PROJECT_NAME}
 )
 
-ament_package(
-  CONFIG_EXTRAS
-)
+ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
+ament_export_dependencies(${ament_dependencies})
+
+ament_package(CONFIG_EXTRAS boost-extras.cmake)
