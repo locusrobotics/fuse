@@ -64,8 +64,8 @@ UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
   // replicate ros1 behaviour for now
   #warning "deprecated time API"
   rcl_time_point_value_t stamp_val = stamp.nanoseconds();
-  int32_t stamp_s = stamp_val / (rcl_time_point_value_t)1e9;
-  int32_t stamp_ns = stamp_val % (rcl_time_point_value_t)1e9;
+  int32_t stamp_s = RCUTILS_NS_TO_S(stamp_val);
+  int32_t stamp_ns = stamp_val % (1000LL * 1000LL * 1000LL);
 
   constexpr size_t buffer_size = sizeof(stamp_s) + sizeof(stamp_ns);
   std::array<unsigned char, buffer_size> buffer;
@@ -86,8 +86,8 @@ UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, co
   // replicate ros1 behaviour for now
   #warning "deprecated time API"
   rcl_time_point_value_t stamp_val = stamp.nanoseconds();
-  int32_t stamp_s = stamp_val / (rcl_time_point_value_t)1e9;
-  int32_t stamp_ns = stamp_val % (rcl_time_point_value_t)1e9;
+  int32_t stamp_s = RCUTILS_NS_TO_S(stamp_val);
+  int32_t stamp_ns = stamp_val % (1000LL * 1000LL * 1000LL);
 
   constexpr size_t buffer_size = sizeof(stamp_s) + sizeof(stamp_ns) + UUID::static_size();
   std::array<unsigned char, buffer_size> buffer;
