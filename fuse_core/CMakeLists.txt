@@ -38,6 +38,7 @@ add_library(${PROJECT_NAME} SHARED
     src/graph_deserializer.cpp
     src/loss.cpp
     src/serialization.cpp
+    src/time.cpp
     src/timestamp_manager.cpp
     src/transaction.cpp
     src/transaction_deserializer.cpp
