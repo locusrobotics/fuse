@@ -73,7 +73,10 @@ public:
    * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
    */
-  fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::msg::SerializedGraph::SharedPtr msg) const;
+   inline fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::msg::SerializedGraph::ConstSharedPtr msg) const
+   {
+     return deserialize(*msg);
+   }
 
   /**
    * @brief Deserialize a SerializedGraph message into a fuse Graph object.

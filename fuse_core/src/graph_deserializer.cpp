@@ -77,11 +77,6 @@ GraphDeserializer::GraphDeserializer() :
   }
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph::SharedPtr msg) const
-{
-  return deserialize(*msg);
-}
-
 fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph& msg) const
 {
   // Create a Graph object using pluginlib. This will throw if the plugin name is not found.
