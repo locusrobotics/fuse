@@ -167,7 +167,7 @@ protected:
    * @brief Timer callback method for the filtered state publication and tf broadcasting
    * @param[in] event The timer event parameters that are associated with the given invocation
    */
-  void publishTimerCallback(const ros::TimerEvent& event);
+  void publishTimerCallback();
 
   /**
    * @brief Object that searches for the most recent common timestamp for a set of variables
@@ -207,7 +207,7 @@ protected:
   fuse_core::DelayedThrottleFilter delayed_throttle_filter_{ 10.0 };  //!< A ros::console filter to print delayed
                                                                       //!< throttle messages, that can be reset on start
 
-  ros::Timer publish_timer_;
+  rclcpp::TimerBase::SharedPtr publish_timer_;
 
   ros::CallbackQueue publish_timer_callback_queue_;  //!< A dedicated callback queue for the publish timer
   ros::NodeHandle publish_timer_node_handle_;        //!< A dedicated node handle for the publish timer, so it can use

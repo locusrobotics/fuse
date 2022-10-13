@@ -188,7 +188,7 @@ protected:
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
@@ -250,7 +250,7 @@ protected:
    *
    * @param event  The ROS timer event metadata
    */
-  void optimizerTimerCallback(const ros::TimerEvent& event);
+  void optimizerTimerCallback();
 
   /**
    * @brief Generate motion model constraints for pending transactions and combine them into a single transaction

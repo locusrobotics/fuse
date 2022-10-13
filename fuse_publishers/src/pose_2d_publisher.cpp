@@ -171,8 +171,6 @@ void Pose2DPublisher::onInit()
                          default_tf_publish_frequency << "hz) instead.");
       tf_publish_frequency = default_tf_publish_frequency;
     }
-    tf_publish_timer_ = private_node_handle_.createTimer(
-      rclcpp::Duration::from_seconds(1.0 / tf_publish_frequency), &Pose2DPublisher::tfPublishTimerCallback, this, false, false);
   }
 
   // Advertise the topics
@@ -190,7 +188,10 @@ void Pose2DPublisher::onStart()
   // Start the tf timer
   if (publish_to_tf_)
   {
-    tf_publish_timer_.start();
+    tf_publish_timer_ = node_.create_wall_timer(
+      rclcpp::Duration::from_seconds(1.0 / tf_publish_frequency),
+      std::bind(&Pose2DPublisher::tfPublishTimerCallback, this)
+    );
   }
 }
 
@@ -199,7 +200,7 @@ void Pose2DPublisher::onStop()
   // Stop the tf timer
   if (publish_to_tf_)
   {
-    tf_publish_timer_.stop();
+    tf_publish_timer_.reset();
   }
 }
 
@@ -295,7 +296,7 @@ void Pose2DPublisher::notifyCallback(
   }
 }
 
-void Pose2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
+void Pose2DPublisher::tfPublishTimerCallback()
 {
   // The tf_transform_ is updated in a separate thread, so we must guard the read/write operations.
   // Only publish if the tf transform is valid

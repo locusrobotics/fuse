@@ -59,10 +59,10 @@ BatchOptimizer::BatchOptimizer(
   params_.loadFromROS(private_node_handle);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
-    rclcpp::Duration::from_seconds(params_.optimization_period),
-    &BatchOptimizer::optimizerTimerCallback,
-    this);
+  optimize_timer_ = node_.create_wall_timer(
+    params_.optimization_period,
+    std::bind(&BatchOptimizer::optimizerTimerCallback, this)
+  );
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&BatchOptimizer::optimizationLoop, this);
@@ -158,7 +158,7 @@ void BatchOptimizer::optimizationLoop()
   }
 }
 
-void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& /*event*/)
+void BatchOptimizer::optimizerTimerCallback()
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
   if (!started_)

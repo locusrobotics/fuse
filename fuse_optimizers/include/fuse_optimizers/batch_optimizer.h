@@ -152,7 +152,7 @@ protected:
                                                     //!< until a new optimization is requested by the main thread
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
@@ -185,7 +185,7 @@ protected:
    *
    * @param event  The ROS timer event metadata
    */
-  void optimizerTimerCallback(const ros::TimerEvent& event);
+  void optimizerTimerCallback();
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction

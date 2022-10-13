@@ -87,14 +87,6 @@ void Odometry2DPublisher::onInit()
       ros::names::resolve(params_.acceleration_topic), params_.queue_size);
 
   publish_timer_node_handle_.setCallbackQueue(&publish_timer_callback_queue_);
-
-  publish_timer_ = publish_timer_node_handle_.createTimer(
-    rclcpp::Duration::from_seconds(1.0 / params_.publish_frequency),
-    &Odometry2DPublisher::publishTimerCallback,
-    this,
-    false,
-    false);
-
   publish_timer_spinner_.start();
 }
 
@@ -244,13 +236,19 @@ void Odometry2DPublisher::onStart()
   latest_covariance_valid_ = false;
   odom_output_ = nav_msgs::Odometry();
   acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
-  publish_timer_.start();
+
+  // TODO(CH3): Add this to a separate callback group for async behavior
+  publish_timer_ = this->node_.create_wall_timer(
+    rclcpp::Duration::from_seconds(1.0 / params_.publish_frequency),
+    std::bind(&Odometry2DPublisher::publishTimerCallback, this)
+  );
+
   delayed_throttle_filter_.reset();
 }
 
 void Odometry2DPublisher::onStop()
 {
-  publish_timer_.stop();
+  publish_timer_.reset();
 }
 
 bool Odometry2DPublisher::getState(
@@ -321,7 +319,7 @@ bool Odometry2DPublisher::getState(
   return true;
 }
 
-void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
+void Odometry2DPublisher::publishTimerCallback()
 {
   ros::Time latest_stamp;
   ros::Time latest_covariance_stamp;

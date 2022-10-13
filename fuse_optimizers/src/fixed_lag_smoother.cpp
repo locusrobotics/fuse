@@ -97,10 +97,10 @@ FixedLagSmoother::FixedLagSmoother(
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
+  optimize_timer_ = node_.create_wall_timer(
     params_.optimization_period,
-    &FixedLagSmoother::optimizerTimerCallback,
-    this);
+    std::bind(&FixedLagSmoother::optimizerTimerCallback, this)
+  );
 
   // Advertise a service that resets the optimizer to its initial state
   reset_service_server_ = node_handle_.advertiseService(
@@ -259,7 +259,7 @@ void FixedLagSmoother::optimizationLoop()
   }
 }
 
-void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
+void FixedLagSmoother::optimizerTimerCallback()
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
   if (!started_)
