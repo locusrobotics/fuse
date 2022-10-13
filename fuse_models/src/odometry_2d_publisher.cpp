@@ -89,7 +89,7 @@ void Odometry2DPublisher::onInit()
   publish_timer_node_handle_.setCallbackQueue(&publish_timer_callback_queue_);
 
   publish_timer_ = publish_timer_node_handle_.createTimer(
-    ros::Duration(1.0 / params_.publish_frequency),
+    rclcpp::Duration::from_seconds(1.0 / params_.publish_frequency),
     &Odometry2DPublisher::publishTimerCallback,
     this,
     false,

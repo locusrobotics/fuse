@@ -35,7 +35,7 @@
 #include <fuse_core/timestamp_manager.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
-#include <ros/duration.h>
+#include <rclcpp/duration.hpp>
 #include <ros/time.h>
 
 #include <gtest/gtest.h>
@@ -60,7 +60,7 @@ public:
                       std::placeholders::_2,
                       std::placeholders::_3,
                       std::placeholders::_4),
-            ros::DURATION_MAX)
+            rclcpp::Duration::max())
   {
   }
 
@@ -144,7 +144,7 @@ TEST_F(TimestampManagerTestFixture, EmptySingleStamp)
 TEST_F(TimestampManagerTestFixture, Exceptions)
 {
   // Set a finite buffer length and populate it with some queries
-  manager.bufferLength(ros::Duration(25.0));
+  manager.bufferLength(rclcpp::Duration::from_seconds(25.0));
   populate();
   // Call the query with a beginning stamp that is too early
   {
@@ -170,7 +170,7 @@ TEST_F(TimestampManagerTestFixture, Exceptions)
 TEST_F(TimestampManagerTestFixture, Purge)
 {
   // Set a finite buffer length and populate it with some queries
-  manager.bufferLength(ros::Duration(30.0));
+  manager.bufferLength(rclcpp::Duration::from_seconds(30.0));
   populate();
 
   // The timespan is within the specified duration. All entries should still be present.

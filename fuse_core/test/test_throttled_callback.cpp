@@ -66,10 +66,10 @@ public:
   void publish(const size_t num_messages)
   {
     // Wait for the subscribers to be ready before sending them data:
-    ros::WallTime subscriber_timeout = ros::WallTime::now() + ros::WallDuration(1.0);
+    ros::WallTime subscriber_timeout = ros::WallTime::now() + rclcpp::Duration::from_seconds(1.0);
     while (publisher_.getNumSubscribers() < 1u && ros::WallTime::now() < subscriber_timeout)
     {
-      ros::WallDuration(0.01).sleep();
+      rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.01);
     }
 
     ASSERT_GE(publisher_.getNumSubscribers(), 1u);
@@ -108,7 +108,7 @@ public:
    *
    * @param[in] throttle_period The throttle period duration in seconds
    */
-  explicit PointSensorModel(const ros::Duration& throttle_period)
+  explicit PointSensorModel(const rclcpp::Duration& throttle_period)
     : throttled_callback_(std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
                           std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1), throttle_period)
   {
@@ -183,10 +183,10 @@ private:
 TEST(ThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
-  ASSERT_TRUE(ros::Time::waitForValid(ros::WallDuration(1.0)));
+  ASSERT_TRUE(ros::Time::waitForValid(rclcpp::Duration::from_seconds(1.0)));
 
   // Start sensor model to listen to messages:
-  const ros::Duration throttled_period(0.0);
+  const rclcpp::Duration throttled_period(0.0);
   PointSensorModel sensor_model(throttled_period);
 
   // Publish some messages:
@@ -204,10 +204,10 @@ TEST(ThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
 TEST(ThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
-  ASSERT_TRUE(ros::Time::waitForValid(ros::WallDuration(1.0)));
+  ASSERT_TRUE(ros::Time::waitForValid(rclcpp::Duration::from_seconds(1.0)));
 
   // Start sensor model to listen to messages:
-  const ros::Duration throttled_period(0.2);
+  const rclcpp::Duration throttled_period(0.2);
   PointSensorModel sensor_model(throttled_period);
 
   // Publish some messages at half the throttled period:
@@ -230,10 +230,10 @@ TEST(ThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
 TEST(ThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLarge)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
-  ASSERT_TRUE(ros::Time::waitForValid(ros::WallDuration(1.0)));
+  ASSERT_TRUE(ros::Time::waitForValid(rclcpp::Duration::from_seconds(1.0)));
 
   // Start sensor model to listen to messages:
-  const ros::Duration throttled_period(10.0);
+  const rclcpp::Duration throttled_period(10.0);
   PointSensorModel sensor_model(throttled_period);
 
   ASSERT_EQ(nullptr, sensor_model.getLastKeptMessage());

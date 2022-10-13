@@ -227,7 +227,7 @@ bool transformMessage(
   const tf2_ros::Buffer& tf_buffer,
   const T& input,
   T& output,
-  const ros::Duration& tf_timeout = ros::Duration(0, 0))
+  const rclcpp::Duration& tf_timeout = rclcpp::Duration(0, 0))
 {
   try
   {
@@ -281,7 +281,7 @@ inline bool processAbsolutePoseWithCovariance(
   const tf2_ros::Buffer& tf_buffer,
   const bool validate,
   fuse_core::Transaction& transaction,
-  const ros::Duration& tf_timeout = ros::Duration(0, 0))
+  const rclcpp::Duration& tf_timeout = rclcpp::Duration(0, 0))
 {
   if (position_indices.empty() && orientation_indices.empty())
   {
@@ -945,7 +945,7 @@ inline bool processTwistWithCovariance(
   const tf2_ros::Buffer& tf_buffer,
   const bool validate,
   fuse_core::Transaction& transaction,
-  const ros::Duration& tf_timeout = ros::Duration(0, 0))
+  const rclcpp::Duration& tf_timeout = rclcpp::Duration(0, 0))
 {
   // Make sure we actually have work to do
   if (linear_indices.empty() && angular_indices.empty())
@@ -1112,7 +1112,7 @@ inline bool processAccelWithCovariance(
   const tf2_ros::Buffer& tf_buffer,
   const bool validate,
   fuse_core::Transaction& transaction,
-  const ros::Duration& tf_timeout = ros::Duration(0, 0))
+  const rclcpp::Duration& tf_timeout = rclcpp::Duration(0, 0))
 {
   // Make sure we actually have work to do
   if (indices.empty())

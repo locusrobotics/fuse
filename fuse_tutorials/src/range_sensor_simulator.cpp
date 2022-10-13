@@ -208,11 +208,11 @@ void initializeStateEstimation(const Robot& state)
   srv.request.pose.pose.covariance[21] = 1.0;
   srv.request.pose.pose.covariance[28] = 1.0;
   srv.request.pose.pose.covariance[35] = 1.0;
-  ros::service::waitForService("/state_estimation/set_pose", ros::Duration(30.0));
+  ros::service::waitForService("/state_estimation/set_pose", rclcpp::Duration::from_seconds(30.0));
   auto success = false;
   while (!success)
   {
-    ros::Duration(0.1).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
     srv.request.pose.header.stamp = ros::Time::now();
     ros::service::call("/state_estimation/set_pose", srv);
     success = srv.response.success;

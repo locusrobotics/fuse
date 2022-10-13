@@ -96,7 +96,7 @@ Optimizer::Optimizer(
                              diagnostic_updater_timer_period_);
 
   diagnostic_updater_timer_ =
-      private_node_handle_.createTimer(ros::Duration(diagnostic_updater_timer_period_),
+      private_node_handle_.createTimer(rclcpp::Duration::from_seconds(diagnostic_updater_timer_period_),
                                        boost::bind(&diagnostic_updater::Updater::update, &diagnostic_updater_));
 
   diagnostic_updater_.add(private_node_handle_.getNamespace(), this, &Optimizer::setDiagnostics);

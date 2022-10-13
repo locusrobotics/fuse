@@ -60,7 +60,7 @@ BatchOptimizer::BatchOptimizer(
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = node_handle_.createTimer(
-    ros::Duration(params_.optimization_period),
+    rclcpp::Duration::from_seconds(params_.optimization_period),
     &BatchOptimizer::optimizerTimerCallback,
     this);
 

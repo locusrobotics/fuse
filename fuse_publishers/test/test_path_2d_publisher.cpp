@@ -192,10 +192,10 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  ros::Time timeout = ros::Time::now() + ros::Duration(10.0);
+  ros::Time timeout = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_path_msg_) && (ros::Time::now() < timeout))
   {
-    ros::Duration(0.10).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_path_msg_);

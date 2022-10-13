@@ -213,10 +213,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  ros::Time timeout = ros::Time::now() + ros::Duration(10.0);
+  ros::Time timeout = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_pose_msg_) && (ros::Time::now() < timeout))
   {
-    ros::Duration(0.10).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_pose_msg_);
@@ -252,10 +252,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  ros::Time timeout = ros::Time::now() + ros::Duration(10.0);
+  ros::Time timeout = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_pose_with_covariance_msg_) && (ros::Time::now() < timeout))
   {
-    ros::Duration(0.10).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_pose_with_covariance_msg_);
@@ -304,10 +304,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  ros::Time timeout = ros::Time::now() + ros::Duration(10.0);
+  ros::Time timeout = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_tf_msg_) && (ros::Time::now() < timeout))
   {
-    ros::Duration(0.10).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_tf_msg_);
@@ -344,10 +344,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  ros::Time timeout = ros::Time::now() + ros::Duration(10.0);
+  ros::Time timeout = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_tf_msg_) && (ros::Time::now() < timeout))
   {
-    ros::Duration(0.10).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_tf_msg_);

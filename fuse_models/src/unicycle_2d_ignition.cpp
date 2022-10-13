@@ -227,7 +227,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
   if (!params_.reset_service.empty())
   {
     // Wait for the reset service
-    while (!reset_client_.waitForExistence(ros::Duration(10.0)) && ros::ok())
+    while (!reset_client_.waitForExistence(rclcpp::Duration::from_seconds(10.0)) && ros::ok())
     {
       RCLCPP_WARN_STREAM(node_->get_logger(),
                          "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");

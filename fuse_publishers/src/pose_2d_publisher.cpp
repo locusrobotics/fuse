@@ -155,9 +155,9 @@ void Pose2DPublisher::onInit()
                            default_tf_timeout << "s) instead.");
         tf_timeout = default_tf_timeout;
       }
-      tf_timeout_ = ros::Duration(tf_timeout);
+      tf_timeout_ = rclcpp::Duration::from_seconds(tf_timeout);
 
-      tf_buffer_ = std::make_unique<tf2_ros::Buffer>(ros::Duration(tf_cache_time));
+      tf_buffer_ = std::make_unique<tf2_ros::Buffer>(rclcpp::Duration::from_seconds(tf_cache_time));
       tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, node_handle_);
     }
 
@@ -172,7 +172,7 @@ void Pose2DPublisher::onInit()
       tf_publish_frequency = default_tf_publish_frequency;
     }
     tf_publish_timer_ = private_node_handle_.createTimer(
-      ros::Duration(1.0 / tf_publish_frequency), &Pose2DPublisher::tfPublishTimerCallback, this, false, false);
+      rclcpp::Duration::from_seconds(1.0 / tf_publish_frequency), &Pose2DPublisher::tfPublishTimerCallback, this, false, false);
   }
 
   // Advertise the topics

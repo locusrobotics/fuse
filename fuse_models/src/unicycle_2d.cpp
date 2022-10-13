@@ -117,9 +117,9 @@ namespace fuse_models
 
 Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
-  buffer_length_(ros::DURATION_MAX),
+  buffer_length_(rclcpp::Duration::max()),
   device_id_(fuse_core::uuid::NIL),
-  timestamp_manager_(&Unicycle2D::generateMotionModel, this, ros::DURATION_MAX)
+  timestamp_manager_(&Unicycle2D::generateMotionModel, this, rclcpp::Duration::max())
 {
 }
 
@@ -217,7 +217,7 @@ void Unicycle2D::onInit()
     throw std::runtime_error("Invalid negative buffer length of " + std::to_string(buffer_length) + " specified.");
   }
 
-  buffer_length_ = (buffer_length == 0.0) ? ros::DURATION_MAX : ros::Duration(buffer_length);
+  buffer_length_ = (buffer_length == 0.0) ? rclcpp::Duration::max() : rclcpp::Duration::from_seconds(buffer_length);
   timestamp_manager_.bufferLength(buffer_length_);
 
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -407,7 +407,7 @@ void Unicycle2D::generateMotionModel(
 void Unicycle2D::updateStateHistoryEstimates(
   const fuse_core::Graph& graph,
   StateHistory& state_history,
-  const ros::Duration& buffer_length)
+  const rclcpp::Duration& buffer_length)
 {
   if (state_history.empty())
   {

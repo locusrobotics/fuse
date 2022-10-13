@@ -11,7 +11,7 @@
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
-#include <ros/duration.h>
+#include <rclcpp/duration.hpp>
 #include <ros/time.h>
 
 #include <gtest/gtest.h>
@@ -175,7 +175,7 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
       tf2_2d::Vector2(0.0, 0.0)});  // NOLINT(whitespace/braces)
 
   // Update the state history
-  Unicycle2DModelTest::updateStateHistoryEstimates(graph, state_history, ros::Duration(10.0));
+  Unicycle2DModelTest::updateStateHistoryEstimates(graph, state_history, rclcpp::Duration::from_seconds(10.0));
 
   // Check the state estimates in the state history
   {

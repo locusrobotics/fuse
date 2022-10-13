@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/message_buffer.h>
-#include <ros/duration.h>
+#include <rclcpp/duration.hpp>
 #include <ros/time.h>
 
 #include <gtest/gtest.h>
@@ -46,7 +46,7 @@ class MessageBufferTestFixture : public ::testing::Test
 {
 public:
   MessageBufferTestFixture() :
-    buffer(ros::DURATION_MAX)
+    buffer(rclcpp::Duration::max())
   {
   }
 
@@ -144,7 +144,7 @@ TEST_F(MessageBufferTestFixture, Purge)
   // Verify the finite buffer length purges old data correctly
 
   // Set a finite buffer length and populate it with some queries
-  buffer.bufferLength(ros::Duration(30.0));
+  buffer.bufferLength(rclcpp::Duration::from_seconds(30.0));
   populate();
 
   // Verify the buffer contains the expected data.

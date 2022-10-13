@@ -329,7 +329,7 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   ceres::Solver::Summary optimizeFor(
-    const ros::Duration& max_optimization_time,
+    const rclcpp::Duration& max_optimization_time,
     const ceres::Solver::Options& options = ceres::Solver::Options()) override;
 
   /**

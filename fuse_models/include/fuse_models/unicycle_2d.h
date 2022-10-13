@@ -168,7 +168,7 @@ protected:
   static void updateStateHistoryEstimates(
     const fuse_core::Graph& graph,
     StateHistory& state_history,
-    const ros::Duration& buffer_length);
+    const rclcpp::Duration& buffer_length);
 
   /**
    * @brief Validate the motion model state #1, state #2 and process noise covariance
@@ -183,7 +183,7 @@ protected:
   static void validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
                                   const fuse_core::Matrix8d& process_noise_covariance);
 
-  ros::Duration buffer_length_;                    //!< The length of the state history
+  rclcpp::Duration buffer_length_;                    //!< The length of the state history
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
   fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
   fuse_core::Matrix8d process_noise_covariance_;   //!< Process noise covariance matrix

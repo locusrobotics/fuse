@@ -426,7 +426,7 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
 }
 
 ceres::Solver::Summary HashGraph::optimizeFor(
-  const ros::Duration& max_optimization_time,
+  const rclcpp::Duration& max_optimization_time,
   const ceres::Solver::Options& options)
 {
   auto start = ros::Time::now();
