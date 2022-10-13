@@ -61,7 +61,7 @@ template <typename Message>
 class MessageBuffer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(MessageBuffer<Message>);
+  FUSE_SMART_PTR_DEFINITIONS(MessageBuffer<Message>)
 
   /**
    * @brief A range of messages

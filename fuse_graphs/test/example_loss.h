@@ -52,7 +52,7 @@
 class ExampleLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ExampleLoss);
+  FUSE_LOSS_DEFINITIONS(ExampleLoss)
 
   explicit ExampleLoss(const double a = 1.0) : a(a)
   {

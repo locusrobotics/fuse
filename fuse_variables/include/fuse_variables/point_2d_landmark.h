@@ -56,7 +56,7 @@ namespace fuse_variables
 class Point2DLandmark : public FixedSizeVariable<2>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Point2DLandmark);
+  FUSE_VARIABLE_DEFINITIONS(Point2DLandmark)
 
   /**
    * @brief Can be used to directly index variables in the data array

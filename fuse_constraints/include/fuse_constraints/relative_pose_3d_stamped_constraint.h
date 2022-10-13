@@ -65,7 +65,7 @@ namespace fuse_constraints
 class RelativePose3DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativePose3DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativePose3DStampedConstraint)
 
   /**
    * @brief Default constructor

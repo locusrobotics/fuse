@@ -57,7 +57,7 @@ namespace fuse_loss
 class ArctanLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ArctanLoss);
+  FUSE_LOSS_DEFINITIONS(ArctanLoss)
 
   /**
    * @brief Constructor

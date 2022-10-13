@@ -101,7 +101,7 @@ class BeaconPublisher : public fuse_core::AsyncPublisher
 public:
   // It is convenient to have some typedefs for various smart pointer types (shared, unique, etc.). A macro is provided
   // to make it easy to define these typedefs and ensures that the naming is consistent throughout all fuse packages.
-  FUSE_SMART_PTR_DEFINITIONS(BeaconPublisher);
+  FUSE_SMART_PTR_DEFINITIONS(BeaconPublisher)
 
   /**
    * @brief Default constructor

@@ -57,7 +57,7 @@ namespace fuse_loss
 class TrivialLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(TrivialLoss);
+  FUSE_LOSS_DEFINITIONS(TrivialLoss)
 
   /**
    * @brief Constructor

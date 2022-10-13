@@ -61,7 +61,7 @@ namespace fuse_loss
 class GemanMcClureLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(GemanMcClureLoss);
+  FUSE_LOSS_DEFINITIONS(GemanMcClureLoss)
 
   /**
    * @brief Constructor

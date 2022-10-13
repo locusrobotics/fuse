@@ -56,7 +56,7 @@ namespace fuse_variables
 class Point3DFixedLandmark : public FixedSizeVariable<3>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Point3DFixedLandmark);
+  FUSE_VARIABLE_DEFINITIONS(Point3DFixedLandmark)
 
   /**
    * @brief Can be used to directly index variables in the data array

@@ -61,7 +61,7 @@ namespace fuse_loss
 class FairLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(FairLoss);
+  FUSE_LOSS_DEFINITIONS(FairLoss)
 
   /**
    * @brief Constructor

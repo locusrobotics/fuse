@@ -57,7 +57,7 @@ namespace fuse_variables
 class Stamped
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Stamped);
+  FUSE_SMART_PTR_ALIASES_ONLY(Stamped)
 
   /**
    * @brief Default constructor

@@ -56,7 +56,7 @@ namespace fuse_optimizers
 class VariableStampIndex
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(VariableStampIndex);
+  FUSE_SMART_PTR_DEFINITIONS(VariableStampIndex)
 
   /**
    * @brief Constructor

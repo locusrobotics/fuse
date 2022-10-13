@@ -65,7 +65,7 @@ namespace fuse_core
 class TimestampManager
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(TimestampManager);
+  FUSE_SMART_PTR_DEFINITIONS(TimestampManager)
 
   /**
    * @brief Function that generates motion model constraints between the requested timestamps

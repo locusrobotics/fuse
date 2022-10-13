@@ -55,7 +55,7 @@
  * class Derived : public Variable
  * {
  * public:
- *   FUSE_VARIABLE_CLONE_DEFINITION(Derived);
+ *   FUSE_VARIABLE_CLONE_DEFINITION(Derived)
  *   // The rest of the derived variable implementation
  * }
  * @endcode
@@ -74,7 +74,7 @@
  * class Derived : public Variable
  * {
  * public:
- *   FUSE_VARIABLE_SERIALIZE_DEFINITION(Derived);
+ *   FUSE_VARIABLE_SERIALIZE_DEFINITION(Derived)
  *   // The rest of the derived variable implementation
  * }
  * @endcode
@@ -107,7 +107,7 @@
  * class Derived : public Variable
  * {
  * public:
- *   FUSE_VARIABLE_TYPE_DEFINITION(Derived);
+ *   FUSE_VARIABLE_TYPE_DEFINITION(Derived)
  *   // The rest of the derived variable implementation
  * }
  * @endcode
@@ -133,7 +133,7 @@
  * class Derived : public Variable
  * {
  * public:
- *   FUSE_VARIABLE_DEFINITIONS(Derived);
+ *   FUSE_VARIABLE_DEFINITIONS(Derived)
  *   // The rest of the derived variable implementation
  * }
  * @endcode
@@ -153,7 +153,7 @@
  * class Derived : public Variable
  * {
  * public:
- *   FUSE_VARIABLE_DEFINITIONS_WTIH_EIGEN(Derived);
+ *   FUSE_VARIABLE_DEFINITIONS_WTIH_EIGEN(Derived)
  *   // The rest of the derived variable implementation
  * }
  * @endcode
@@ -188,7 +188,7 @@ namespace fuse_core
 class Variable
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Variable);
+  FUSE_SMART_PTR_ALIASES_ONLY(Variable)
 
   /**
    * @brief Default constructor

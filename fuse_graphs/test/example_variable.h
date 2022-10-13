@@ -52,7 +52,7 @@
 class ExampleVariable : public fuse_core::Variable
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(ExampleVariable);
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
   explicit ExampleVariable(size_t N = 1) :
     fuse_core::Variable(fuse_core::uuid::generate()),

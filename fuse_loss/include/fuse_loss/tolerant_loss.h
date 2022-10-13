@@ -57,7 +57,7 @@ namespace fuse_loss
 class TolerantLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(TolerantLoss);
+  FUSE_LOSS_DEFINITIONS(TolerantLoss)
 
   /**
    * @brief Constructor

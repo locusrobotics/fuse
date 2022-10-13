@@ -77,7 +77,7 @@ template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLoc
 class AutoDiffLocalParameterization : public LocalParameterization
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>);
+  FUSE_SMART_PTR_DEFINITIONS(AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>)
 
   /**
    * @brief Constructs new PlusFunctor and MinusFunctor instances

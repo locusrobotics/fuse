@@ -72,7 +72,7 @@ template<class Variable>
 class AbsoluteConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(AbsoluteConstraint<Variable>);
+  FUSE_CONSTRAINT_DEFINITIONS(AbsoluteConstraint<Variable>)
 
   /**
    * @brief Default constructor

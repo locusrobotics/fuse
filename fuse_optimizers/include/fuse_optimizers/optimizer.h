@@ -93,7 +93,7 @@ namespace fuse_optimizers
 class Optimizer
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(Optimizer);
+  FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)
 
   /**
    * @brief Constructor

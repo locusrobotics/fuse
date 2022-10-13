@@ -172,7 +172,7 @@ private:
 class Orientation3DStamped : public FixedSizeVariable<4>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Orientation3DStamped);
+  FUSE_VARIABLE_DEFINITIONS(Orientation3DStamped)
 
   /**
    * @brief Can be used to directly index variables in the quaternion

@@ -61,7 +61,7 @@ namespace fuse_variables
 class AccelerationAngular3DStamped : public FixedSizeVariable<3>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(AccelerationAngular3DStamped);
+  FUSE_VARIABLE_DEFINITIONS(AccelerationAngular3DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array

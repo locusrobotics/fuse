@@ -68,7 +68,7 @@ using TransactionCallback = std::function<void(Transaction::SharedPtr transactio
 class SensorModel
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(SensorModel);
+  FUSE_SMART_PTR_ALIASES_ONLY(SensorModel)
 
   /**
    * @brief Destructor

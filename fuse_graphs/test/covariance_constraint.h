@@ -142,7 +142,7 @@ public:
 class CovarianceConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(CovarianceConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(CovarianceConstraint)
 
   CovarianceConstraint() = default;
 

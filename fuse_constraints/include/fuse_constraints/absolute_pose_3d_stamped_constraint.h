@@ -68,7 +68,7 @@ namespace fuse_constraints
 class AbsolutePose3DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsolutePose3DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsolutePose3DStampedConstraint)
 
   /**
    * @brief Default constructor

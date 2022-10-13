@@ -72,7 +72,7 @@ namespace fuse_constraints
 class MarginalConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(MarginalConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(MarginalConstraint)
 
   /**
    * @brief Default constructor

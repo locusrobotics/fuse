@@ -53,7 +53,7 @@
 class ExampleConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
 
   ExampleConstraint() = default;
 

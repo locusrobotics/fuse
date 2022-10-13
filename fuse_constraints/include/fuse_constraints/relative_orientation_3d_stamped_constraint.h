@@ -64,7 +64,7 @@ namespace fuse_constraints
 class RelativeOrientation3DStampedConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativeOrientation3DStampedConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativeOrientation3DStampedConstraint)
 
   /**
    * @brief Default constructor
