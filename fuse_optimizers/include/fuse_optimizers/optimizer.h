@@ -152,6 +152,7 @@ protected:
   fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
 
   // Ordering ROS objects with callbacks last
+  // TODO(CH3): Store clock interface
   ros::NodeHandle node_handle_;  //!< Node handle in the public namespace for subscribing and advertising
   ros::NodeHandle private_node_handle_;  //!< Node handle in the private namespace for reading configuration settings
   pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader for MotionModels

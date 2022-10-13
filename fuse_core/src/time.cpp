@@ -36,9 +36,9 @@
 
 /*
  * This file provides a sane configuration for a clock to manage order of events.
- * This file exists to help with a migration from ros::time to rclcpp::time
+ * This file exists to help with a migration from fuse_core::TimeStamp to rclcpp::time
  * Priority is given to C++ std::chrono
- * emphasis will be placed on interoperability with ros::time and rclcpp::time
+ * emphasis will be placed on interoperability with fuse_core::TimeStamp and rclcpp::time
  *
  * This will likely be extended to distinguish between:
  *    times of events being optimised
@@ -47,6 +47,7 @@
  */
 
 #include <fuse_core/time.h>
+#include <rclcpp/utilities.hpp>
 
 using chrono_ns_time_point_t =
   std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
@@ -96,6 +97,40 @@ std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp
 {
     os << timestamp.nanoseconds();
     return os;
+}
+
+
+bool isValid(rclcpp::Clock::SharedPtr clock)
+{
+  switch (clock->get_clock_type()) {
+    case RCL_CLOCK_UNINITIALIZED:
+      return false;
+    case RCL_SYSTEM_TIME:
+      return true;
+    case RCL_ROS_TIME:
+      return clock->now().nanoseconds() == 0;
+    default:
+      return false;
+  }
+}
+
+
+// Logic adapted from: http://docs.ros.org/en/noetic/api/rostime/html/src_2time_8cpp_source.html
+bool waitForValid(rclcpp::Clock::SharedPtr clock, rclcpp::Duration timeout)
+{
+   rclcpp::Time start = clock->now();
+   while (clock->now().nanoseconds() == 0 && rclcpp::ok()) {
+     rclcpp::sleep_for(std::chrono::nanoseconds(timeout.nanoseconds()));
+
+     if (timeout > rclcpp::Duration(0, 0) && (clock->now() - start > timeout)) {
+       return false;
+     }
+   }
+
+   if (!rclcpp::ok()) {
+     return false;
+   }
+   return true;
 }
 
 }

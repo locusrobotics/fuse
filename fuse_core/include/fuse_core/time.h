@@ -36,9 +36,9 @@
 
 /*
  * This file provides a sane configuration for a clock to manage order of events.
- * This file exists to help with a migration from ros::time to rclcpp::time
+ * This file exists to help with a migration from fuse_core::TimeStamp to rclcpp::time
  * Priority is given to C++ std::chrono
- * emphasis will be placed on interoperability with ros::time and rclcpp::time
+ * emphasis will be placed on interoperability with fuse_core::TimeStamp and rclcpp::time
  *
  * This will likely be extended to distinguish between:
  *   times of events being optimised
@@ -54,10 +54,11 @@
 
 #include <chrono>
 #include <iostream>
+#include <stdexcept>
+
+#include <rclcpp/clock.hpp>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
-
-#include <stdexcept>
 
 
 namespace fuse_core
@@ -132,6 +133,19 @@ class TimeStamp : public rclcpp::Time
  * @param[in] timestamp  The rclcpp::Time to convert to print
  */
 std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp);
+
+
+/**
+ * @brief Wait for time to be valid (non-zero)
+ *
+ * Logic adapted from: http://docs.ros.org/en/noetic/api/rostime/html/src_2time_8cpp_source.html
+ *
+ * @param[in] clock    An rclcpp::Clock to measure time against
+ * @param[in] timeout  An optional timeout
+ *
+ * @param[out] valid   Whether the clock's time was valid
+ */
+bool waitForValid(rclcpp::Clock clock, rclcpp::Duration timeout=rclcpp::Duration(0, 0));
 
 }
 

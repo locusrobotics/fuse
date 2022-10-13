@@ -33,6 +33,7 @@
  */
 #include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
+#include <fuse_core/time.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_optimizers/optimizer.h>
@@ -103,7 +104,7 @@ Optimizer::Optimizer(
   diagnostic_updater_.setHardwareID("fuse");
 
   // Wait for a valid time before loading any of the plugins
-  ros::Time::waitForValid();
+  // fuse_core::waitForValid(this->get_node_clock_interface()->get_clock());  // TODO(CH3): Uncomment this when ready
 
   // Load all configured plugins
   loadMotionModels();
@@ -481,7 +482,7 @@ void Optimizer::stopPlugins()
 
 void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
 {
-  if (!ros::Time::isValid())
+  if (!fuse_core::isValid(this->get_node_clock_interface()->get_clock()))
   {
     status.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Waiting for valid ROS time");
     return;
