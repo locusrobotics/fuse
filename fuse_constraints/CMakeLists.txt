@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(fuse_constraints)
 
+# TODO(CH3): Migrate these to ament
 set(build_depends
   fuse_core
   fuse_graphs
@@ -17,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(glog REQUIRED)
 find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
 
 catkin_package(

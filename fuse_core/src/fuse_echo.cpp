@@ -92,14 +92,6 @@ private:
 
 } // namespace fuse_core
 
-int main(int argc, char **argv)
-{
-  rclcpp::init(argc, argv);
-  rclcpp::NodeOptions options;
-  rclcpp::spin(std::make_shared<fuse_core::FuseEcho>(options));
-  rclcpp::shutdown();
-  return 0;
-}
 
 #include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(fuse_core::FuseEcho)

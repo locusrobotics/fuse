@@ -54,6 +54,11 @@ template <class Callback>
 class ThrottledCallback
 {
 public:
+  // TODO(CH3): Keep the use of "use_wall_time", but pass in a clock as appropriate to use
+  // non-wall-time.
+  //
+  // TODO(CH3): Add getters into any class that could add ThrottledCallbacks to obtain their
+  // NodeClockInterface to then get the clock to pass into this!
   /**
    * @brief Constructor
    *

@@ -20,7 +20,6 @@ find_package(rclcpp_components REQUIRED)
 
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(glog REQUIRED)  # Used downstream
 
 include(boost-extras.cmake)
 
@@ -63,9 +62,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 ## fuse_echo executable
-add_executable(fuse_echo src/fuse_echo.cpp)
-target_link_libraries(fuse_echo PUBLIC ${PROJECT_NAME})
-target_link_libraries(fuse_echo PRIVATE rclcpp_components::component)
+add_library(fuse_echo_component SHARED src/fuse_echo.cpp)
+target_link_libraries(fuse_echo_component PUBLIC ${PROJECT_NAME})
+target_link_libraries(fuse_echo_component PRIVATE rclcpp_components::component)
+
+rclcpp_components_register_node(fuse_echo_component
+  PLUGIN "fuse_core::FuseEcho"
+  EXECUTABLE fuse_echo
+  EXECUTOR SingleThreadedExecutor
+)
 
 #############
 ## Testing ##
@@ -485,9 +490,10 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
   RUNTIME DESTINATION bin
 )
 
-install(
-  TARGETS fuse_echo
-  DESTINATION lib/${PROJECT_NAME}
+install(TARGETS fuse_echo_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(DIRECTORY include/
@@ -495,6 +501,15 @@ install(DIRECTORY include/
 )
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
-ament_export_dependencies(${ament_dependencies})
+ament_export_dependencies(
+  ament_cmake
+  fuse_msgs
+  pluginlib
+  rcl_interfaces
+  rclcpp
+  rclcpp_components
+  Ceres
+  Eigen3
+)
 
 ament_package(CONFIG_EXTRAS boost-extras.cmake)
