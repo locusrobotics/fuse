@@ -122,7 +122,7 @@ void computeShapeScaleAndOrientation3D(const Eigen::Matrix3d& covariance, Ogre::
   else
   {
     RCLCPP_WARN_THROTTLE(
-      rclcpp::get_logger("mapped_covariance_visual"), rclcpp::Clock(), 1000,
+      rclcpp::get_logger("fuse"), rclcpp::Clock(), 1000,
       "failed to compute eigen vectors/values for position. Is the covariance matrix correct?");
     eigenvalues = Eigen::Vector3d::Zero();  // Setting the scale to zero will hide it on the screen
     eigenvectors = Eigen::Matrix3d::Identity();
@@ -167,7 +167,7 @@ void computeShapeScaleAndOrientation2D(const Eigen::Matrix2d& covariance, Ogre::
   else
   {
     RCLCPP_WARN_THROTTLE(
-      rclcpp::get_logger("mapped_covariance_visual"), rclcpp::Clock(), 1000,
+      rclcpp::get_logger("fuse"), rclcpp::Clock(), 1000,
       "failed to compute eigen vectors/values for position. Is the covariance matrix correct?");
     eigenvalues = Eigen::Vector2d::Zero();  // Setting the scale to zero will hide it on the screen
     eigenvectors = Eigen::Matrix2d::Identity();
@@ -314,9 +314,7 @@ void MappedCovarianceVisual::setCovariance(const geometry_msgs::PoseWithCovarian
   {
     if (std::isnan(pose.covariance[i]))
     {
-      RCLCPP_WARN_THROTTLE(
-        rclcpp::get_logger("mapped_covariance_visual"), rclcpp::Clock(), 1000,
-        "covariance contains NaN");
+      RCLCPP_WARN_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 1000, "covariance contains NaN");
       return;
     }
   }
@@ -374,9 +372,7 @@ void MappedCovarianceVisual::updatePosition(const Eigen::Matrix6d& covariance)
   }
   else
   {
-    RCLCPP_WARN_STREAM(
-      rclcpp::get_logger("mapped_covariance_visual"),
-      "position shape_scale contains NaN: " << shape_scale);
+    RCLCPP_WARN_STREAM(rclcpp::get_logger("fuse"), "position shape_scale contains NaN: " << shape_scale);
   }
 }
 
@@ -447,9 +443,7 @@ void MappedCovarianceVisual::updateOrientation(const Eigen::Matrix6d& covariance
   }
   else
   {
-    RCLCPP_WARN_STREAM(
-      rclcpp::get_logger("mapped_covariance_visual"),
-      "orientation shape_scale contains NaN: " << shape_scale);
+    RCLCPP_WARN_STREAM(rclcpp::get_logger("fuse"), "orientation shape_scale contains NaN: " << shape_scale);
   }
 }
 

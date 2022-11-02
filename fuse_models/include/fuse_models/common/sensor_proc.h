@@ -245,7 +245,7 @@ bool transformMessage(
   }
   catch (const tf2::TransformException& ex)
   {
-    RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 5.0 * 1000,
+    RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 5.0 * 1000,
                                           "Could not transform message from " << input.header.frame_id << " to "
                                           << output.header.frame_id << ". Error was " << ex.what());
   }
@@ -300,7 +300,7 @@ inline bool processAbsolutePoseWithCovariance(
     if (!transformMessage(tf_buffer, pose, transformed_message, tf_timeout))
     {
       RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(
-        rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+        rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
         "Failed to transform pose message with stamp " << pose.header.stamp << ". Cannot create constraint.");
       return false;
     }
@@ -350,7 +350,7 @@ inline bool processAbsolutePoseWithCovariance(
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                    "Invalid partial absolute pose measurement from '" << source
                                    << "' source: " << ex.what());
       return false;
@@ -693,7 +693,7 @@ inline bool processDifferentialPoseWithCovariance(
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                    "Invalid partial differential pose measurement from '"
                                    << source << "' source: " << ex.what());
       return false;
@@ -849,7 +849,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
 
   if (dt < 1e-6)
   {
-    RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+    RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                  "Very small time difference " << dt << "s from '" << source << "' source.");
     return false;
   }
@@ -883,7 +883,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                    "Invalid partial differential pose measurement using the twist covariance from '"
                                    << source << "' source: " << ex.what());
       return false;
@@ -965,7 +965,7 @@ inline bool processTwistWithCovariance(
     if (!transformMessage(tf_buffer, twist, transformed_message, tf_timeout))
     {
       RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(
-        rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+        rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
         "Failed to transform twist message with stamp " << twist.header.stamp << ". Cannot create constraint.");
       return false;
     }
@@ -1014,7 +1014,7 @@ inline bool processTwistWithCovariance(
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                      "Invalid partial linear velocity measurement from '"
                                      << source << "' source: " << ex.what());
         add_constraint = false;
@@ -1057,7 +1057,7 @@ inline bool processTwistWithCovariance(
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0,
                                      "Invalid partial angular velocity measurement from '"
                                      << source << "' source: " << ex.what());
         add_constraint = false;
@@ -1132,7 +1132,7 @@ inline bool processAccelWithCovariance(
     if (!transformMessage(tf_buffer, acceleration, transformed_message, tf_timeout))
     {
       RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(
-        rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0,
+        rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0,
         "Failed to transform acceleration message with stamp " << acceleration.header.stamp
                                                                << ". Cannot create constraint.");
       return false;
@@ -1170,7 +1170,7 @@ inline bool processAccelWithCovariance(
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("sensor_proc"), rclcpp::Clock(), 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                    "Invalid partial linear acceleration measurement from '"
                                    << source << "' source: " << ex.what());
       return false;

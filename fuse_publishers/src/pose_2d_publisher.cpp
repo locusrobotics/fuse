@@ -85,13 +85,13 @@ bool findPose(
   }
   catch (const std::exception& e)
   {
-    RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("pose_2d_publisher"), rclcpp::Clock(), 10.0 * 1000,
+    RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                 "Failed to find a pose at time " << stamp << ". Error" << e.what());
     return false;
   }
   catch (...)
   {
-    RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("pose_2d_publisher"), rclcpp::Clock(), 10.0 * 1000,
+    RCLCPP_WARN_STREAM_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
                                 "Failed to find a pose at time " << stamp << ". Error: unknown");
     return false;
   }

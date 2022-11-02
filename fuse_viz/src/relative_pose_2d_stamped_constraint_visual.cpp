@@ -198,8 +198,7 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
     if (rho[0] > squared_norm)
     {
       RCLCPP_WARN_STREAM_THROTTLE(
-        rclcpp::get_logger("relative_pose_2d_stamped_constraint_visual"),
-        rclcpp::Clock(), 10.0 * 1000,
+        rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
         "Detected invalid loss value of " << rho[0] << " greater than squared residual of " << squared_norm
                                           << " for constraint " << constraint_name(constraint)
                                           << " with loss type " << constraint.loss()->type()
