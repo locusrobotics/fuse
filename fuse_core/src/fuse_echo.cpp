@@ -31,64 +31,67 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_msgs/SerializedGraph.h>
-#include <fuse_msgs/SerializedTransaction.h>
+#include <fuse_msgs/msg/serialized_graph.h>
+#include <fuse_msgs/msg/serialized_transaction.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/graph_deserializer.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/transaction_deserializer.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/clock.hpp>
 
+
+namespace fuse_core
+{
 
 /**
  * Class that subscribes to the 'graph' and 'transaction' topics and prints the objects to stdout
  */
-class FuseEcho
+class FuseEcho : public rclcpp::Node
 {
 public:
-  explicit FuseEcho(const ros::NodeHandle& node_handle = ros::NodeHandle()) :
-    node_handle_(node_handle)
+  explicit FuseEcho(rclcpp::NodeOptions options): Node("fuse_echo", options)
   {
     // Subscribe to the constraint topic
-    graph_subscriber_ = node_handle_.subscribe("graph", 100, &FuseEcho::graphCallback, this);
-    transaction_subscriber_ = node_handle_.subscribe("transaction", 100, &FuseEcho::transactionCallback, this);
+    graph_subscriber_ = this->create_subscription<fuse_msgs::msg::SerializedGraph>(
+      "graph",
+      rclcpp::QoS(100),
+      std::bind(&FuseEcho::graphCallback, this, std::placeholders::_1)
+    );
+    transaction_subscriber_ = this->create_subscription<fuse_msgs::msg::SerializedTransaction>(
+      "transaction",
+      rclcpp::QoS(100),
+      std::bind(&FuseEcho::transactionCallback, this, std::placeholders::_1)
+    );
   }
 
 private:
   fuse_core::GraphDeserializer graph_deserializer_;
   fuse_core::TransactionDeserializer transaction_deserializer_;
-  ros::NodeHandle node_handle_;
-  ros::Subscriber graph_subscriber_;
-  ros::Subscriber transaction_subscriber_;
+  rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_subscriber_;
+  rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_subscriber_;
 
-  void graphCallback(const fuse_msgs::SerializedGraph::ConstPtr& msg)
+  void graphCallback(const fuse_msgs::msg::SerializedGraph& msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "GRAPH:" << std::endl;
-    std::cout << "received at: " << ros::Time::now() << std::endl;
+    std::cout << "received at: " << this->now().seconds() << std::endl;
     auto graph = graph_deserializer_.deserialize(msg);
     graph->print();
   }
 
-  void transactionCallback(const fuse_msgs::SerializedTransaction::ConstPtr& msg)
+  void transactionCallback(const fuse_msgs::msg::SerializedTransaction& msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "TRANSACTION:" << std::endl;
-    std::cout << "received at: " << ros::Time::now() << std::endl;
+    std::cout << "received at: " << this->now().seconds() << std::endl;
     auto transaction = transaction_deserializer_.deserialize(msg);
     transaction.print();
   }
 };
 
-int main(int argc, char **argv)
-{
-  ros::init(argc, argv, "fuse_echo", ros::init_options::AnonymousName);
+} // namespace fuse_core
 
-  // Object that subscribes to the 'graph' and 'transaction' topics and prints the objects to stdout
-  FuseEcho echoer;
 
-  // Wait for an exit signal
-  ros::spin();
-
-  return 0;
-}
+#include <rclcpp_components/register_node_macro.hpp>
+RCLCPP_COMPONENTS_REGISTER_NODE(fuse_core::FuseEcho)

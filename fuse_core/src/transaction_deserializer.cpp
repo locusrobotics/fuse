@@ -34,7 +34,6 @@
 #include <fuse_core/transaction_deserializer.h>
 
 #include <fuse_core/serialization.h>
-#include <fuse_msgs/SerializedTransaction.h>
 
 #include <boost/iostreams/stream.hpp>
 
@@ -42,7 +41,7 @@
 namespace fuse_core
 {
 
-void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::SerializedTransaction& msg)
+void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::msg::SerializedTransaction& msg)
 {
   // Serialize the transaction into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
@@ -75,12 +74,12 @@ TransactionDeserializer::TransactionDeserializer() :
   }
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction::ConstPtr& msg) const
+fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const
 {
   return deserialize(*msg);
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::SerializedTransaction& msg) const
+fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::msg::SerializedTransaction& msg) const
 {
   // The Transaction object is not a plugin and has no derived types. That makes it much easier to use.
   auto transaction = fuse_core::Transaction();

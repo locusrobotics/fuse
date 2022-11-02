@@ -17,8 +17,7 @@ set(msg_files
   "msg/SerializedTransaction.msg"
 )
 
-rosidl_generate_interfaces(${PROJECT_NAME}
-    ${msg_files}
+rosidl_generate_interfaces(${PROJECT_NAME} ${msg_files}
   DEPENDENCIES
     std_msgs
   ADD_LINTER_TESTS

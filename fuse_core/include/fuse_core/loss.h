@@ -42,8 +42,8 @@
 #include <ceres/loss_function.h>
 
 #include <ostream>
+#include <iostream>
 #include <string>
-
 
 /**
  * @brief Implementation of the clone() member function for derived classes
