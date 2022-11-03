@@ -76,7 +76,7 @@ Unicycle2DStateKinematicConstraint::Unicycle2DStateKinematicConstraint(
        linear_velocity2.uuid(),
        yaw_velocity2.uuid(),
        linear_acceleration2.uuid()}),  // NOLINT
-    dt_((position2.stamp() - position1.stamp()).toSec()),
+    dt_((position2.stamp() - position1.stamp()).seconds()),
     sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }

@@ -115,7 +115,7 @@ void Unicycle2DIgnition::start()
   if (params_.publish_on_startup && !initial_transaction_sent_)
   {
     auto pose = geometry_msgs::PoseWithCovarianceStamped();
-    pose.header.stamp = ros::Time::now();
+    pose.header.stamp = this->get_node_clock_interface()->now();
     pose.pose.pose.position.x = params_.initial_state[0];
     pose.pose.pose.position.y = params_.initial_state[1];
     pose.pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0.0, 0.0, 1.0), params_.initial_state[2]));

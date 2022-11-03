@@ -113,7 +113,7 @@ protected:
      */
     void validate() const;
   };
-  using StateHistory = std::map<ros::Time, StateHistoryElement>;
+  using StateHistory = std::map<fuse_core::TimeStamp, StateHistoryElement>;
 
   /**
    * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
@@ -138,8 +138,8 @@ protected:
    *                             variables should include initial values for the optimizer.
    */
   void generateMotionModel(
-    const ros::Time& beginning_stamp,
-    const ros::Time& ending_stamp,
+    const fuse_core::TimeStamp& beginning_stamp,
+    const fuse_core::TimeStamp& ending_stamp,
     std::vector<fuse_core::Constraint::SharedPtr>& constraints,
     std::vector<fuse_core::Variable::SharedPtr>& variables);
 

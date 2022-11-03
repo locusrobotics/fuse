@@ -153,7 +153,7 @@ protected:
    */
   bool getState(
     const fuse_core::Graph& graph,
-    const ros::Time& stamp,
+    const fuse_core::TimeStamp& stamp,
     const fuse_core::UUID& device_id,
     fuse_core::UUID& position_uuid,
     fuse_core::UUID& orientation_uuid,
@@ -182,9 +182,9 @@ protected:
 
   ParameterType params_;
 
-  ros::Time latest_stamp_;
+  fuse_core::TimeStamp latest_stamp_;
 
-  ros::Time latest_covariance_stamp_;
+  fuse_core::TimeStamp latest_covariance_stamp_;
 
   bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
 

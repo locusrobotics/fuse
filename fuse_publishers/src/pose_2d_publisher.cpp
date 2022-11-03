@@ -64,7 +64,7 @@ namespace
 
 bool findPose(
   const fuse_core::Graph& graph,
-  const ros::Time& stamp,
+  const fuse_core::TimeStamp& stamp,
   const fuse_core::UUID& device_id,
   fuse_core::UUID& orientation_uuid,
   fuse_core::UUID& position_uuid,

@@ -230,15 +230,15 @@ void Unicycle2D::onStart()
 }
 
 void Unicycle2D::generateMotionModel(
-  const ros::Time& beginning_stamp,
-  const ros::Time& ending_stamp,
+  const fuse_core::TimeStamp& beginning_stamp,
+  const fuse_core::TimeStamp& ending_stamp,
   std::vector<fuse_core::Constraint::SharedPtr>& constraints,
   std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
   assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history_.empty()));
 
   StateHistoryElement base_state;
-  ros::Time base_time;
+  fuse_core::TimeStamp base_time;
 
   // Find an entry that is > beginning_stamp
   // The entry that is <= will be the one before it
@@ -267,7 +267,7 @@ void Unicycle2D::generateMotionModel(
       base_state.velocity_linear,
       base_state.velocity_yaw,
       base_state.acceleration_linear,
-      (beginning_stamp - base_time).toSec(),
+      (beginning_stamp - base_time).seconds(),
       state1.pose,
       state1.velocity_linear,
       state1.velocity_yaw,
@@ -279,7 +279,7 @@ void Unicycle2D::generateMotionModel(
   }
 
   // If dt is zero, we only need to update the state history:
-  const double dt = (ending_stamp - beginning_stamp).toSec();
+  const double dt = (ending_stamp - beginning_stamp).seconds();
 
   if (dt == 0.0)
   {
@@ -416,8 +416,12 @@ void Unicycle2D::updateStateHistoryEstimates(
 
   // Compute the expiration time carefully, as ROS can't handle negative times
   const auto& ending_stamp = state_history.rbegin()->first;
-  auto expiration_time =
-      ending_stamp.toSec() > buffer_length.toSec() ? ending_stamp - buffer_length : ros::Time(0, 0);
+
+  if (ending_stamp.seconds() > buffer_length.seconds()) {
+    auto expiration_time = ending_stamp - buffer_length;
+  } else {
+    auto expiration_time = fuse_core::TimeStamp(0, 0, ending_stamp.get_clock_type);
+  }
 
   // Remove state history elements before the expiration time.
   // Be careful to ensure that:
@@ -473,7 +477,7 @@ void Unicycle2D::updateStateHistoryEstimates(
         previous_state.velocity_linear,
         previous_state.velocity_yaw,
         previous_state.acceleration_linear,
-        (current_stamp - previous_stamp).toSec(),
+        (current_stamp - previous_stamp).seconds(),
         current_state.pose,
         current_state.velocity_linear,
         current_state.velocity_yaw,

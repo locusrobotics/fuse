@@ -80,7 +80,7 @@ void BeaconPublisher::notifyCallback(
   // rviz, the PointCloud2 needs to have (x, y, z) fields of type Float32. Additionally we are adding a channel for
   // the beacon ID. Rviz cannot really display that information, but it is potentially useful.
   auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
-  msg->header.stamp = ros::Time::now();
+  msg->header.stamp = this->get_node_clock_interface()->now();  // TODO(CH3): Implement getter in AsyncPublisher
   msg->header.frame_id = map_frame_id_;
   sensor_msgs::PointCloud2Modifier modifier(*msg);
   // clang-format off

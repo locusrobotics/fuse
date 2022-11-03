@@ -128,7 +128,7 @@ void FixedLagSmoother::autostart()
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
-    setStartTime(ros::Time(0, 0));
+    setStartTime(fuse_core::TimeStamp(0, 0, RCL_ROS_TIME));
     RCLCPP_INFO_STREAM(this->get_logger(), "No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
@@ -138,7 +138,7 @@ void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& n
   timestamp_tracking_.addNewTransaction(new_transaction);
 }
 
-ros::Time FixedLagSmoother::computeLagExpirationTime() const
+fuse_core::TimeStamp FixedLagSmoother::computeLagExpirationTime() const
 {
   // Find the most recent variable timestamp
   auto start_time = getStartTime();
@@ -147,7 +147,7 @@ ros::Time FixedLagSmoother::computeLagExpirationTime() const
   return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
 }
 
-std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const ros::Time& lag_expiration)
+std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const fuse_core::TimeStamp& lag_expiration)
 {
   auto marginalize_variable_uuids = std::vector<fuse_core::UUID>();
   timestamp_tracking_.query(lag_expiration, std::back_inserter(marginalize_variable_uuids));
@@ -169,7 +169,7 @@ void FixedLagSmoother::optimizationLoop()
   while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
-    auto optimization_deadline = ros::Time(0, 0);
+    auto optimization_deadline = fuse_core::TimeStamp(0, 0, RCL_ROS_TIME);
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
       optimization_requested_.wait(lock, exit_wait_condition);
@@ -248,7 +248,7 @@ void FixedLagSmoother::optimizationLoop()
       postprocessMarginalization(marginal_transaction_);
       // Note: The marginal transaction will not be applied until the next optimization iteration
       // Log a warning if the optimization took too long
-      auto optimization_complete = ros::Time::now();
+      auto optimization_complete = this->get_node_clock_interface()->now();
       if (optimization_complete > optimization_deadline)
       {
         RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10.0 * 1000,
@@ -285,7 +285,7 @@ void FixedLagSmoother::optimizerTimerCallback()
   }
 }
 
-void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const ros::Time& lag_expiration)
+void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const fuse_core::TimeStamp& lag_expiration)
 {
   // We need to get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
@@ -437,7 +437,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   }
   started_ = false;
   ignited_ = false;
-  setStartTime(ros::Time(0, 0));
+  setStartTime(fuse_core::TimeStamp(0, 0, RCL_ROS_TIME));
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
@@ -452,7 +452,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
     graph_->clear();
     marginal_transaction_ = fuse_core::Transaction();
     timestamp_tracking_.clear();
-    lag_expiration_ = ros::Time(0, 0);
+    lag_expiration_ = fuse_core::TimeStamp(0, 0, RCL_ROS_TIME);
   }
   // Tell all the plugins to start
   startPlugins();
@@ -483,7 +483,7 @@ void FixedLagSmoother::transactionCallback(
 
     // Add the new transaction to the pending set
     // The pending set is arranged "smallest stamp last" to making popping off the back more efficient
-    auto comparator = [](const ros::Time& value, const TransactionQueueElement& element)
+    auto comparator = [](const fuse_core::TimeStamp& value, const TransactionQueueElement& element)
     {
       return value >= element.stamp();
     };
@@ -523,9 +523,11 @@ void FixedLagSmoother::transactionCallback(
       else
       {
         // And purge out old transactions to limit the pending size while waiting for an ignition sensor
-        auto purge_time = ros::Time(0, 0);
+        auto purge_time = fuse_core::TimeStamp(0, 0, RCL_ROS_TIME);
         auto last_pending_time = pending_transactions_.front().stamp();
-        if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // ros::Time doesn't allow negatives
+
+        // fuse_core::TimeStamp doesn't allow negatives
+        if (fuse_core::TimeStamp(0, 0, RCL_ROS_TIME) + params_.transaction_timeout < last_pending_time)
         {
           purge_time = last_pending_time - params_.transaction_timeout;
         }
@@ -635,8 +637,9 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
     if (!optimization_deadline.isZero())  // This is zero for the default-constructed optimization_deadline object
     {
       const auto optimization_request_time = optimization_deadline - params_.optimization_period;
-      const auto time_since_last_optimization_request = ros::Time::now() - optimization_request_time;
-      status.add("Time Since Last Optimization Request [s]", time_since_last_optimization_request.toSec());
+      const auto time_since_last_optimization_request =
+        this->get_node_clock_interface()->now() - optimization_request_time;
+      status.add("Time Since Last Optimization Request [s]", time_since_last_optimization_request.seconds());
     }
   }
 }

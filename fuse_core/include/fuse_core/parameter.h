@@ -105,7 +105,7 @@ void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& par
 inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name,
                              rclcpp::Duration& default_value, const bool strict = true)
 {
-  double default_value_sec = default_value.toSec();
+  double default_value_sec = default_value.seconds();
   getPositiveParam(node_handle, parameter_name, default_value_sec, strict);
   default_value.fromSec(default_value_sec);
 }

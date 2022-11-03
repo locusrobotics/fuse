@@ -845,7 +845,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
   //
   // It is also common that for the same reason, the twist covariance T12 already has a minimum covariance offset added
   // to it by the publisher, so we have to remove it before using it.
-  const auto dt = (pose2.header.stamp - pose1.header.stamp).toSec();
+  const auto dt = (pose2.header.stamp - pose1.header.stamp).seconds();
 
   if (dt < 1e-6)
   {

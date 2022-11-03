@@ -99,7 +99,7 @@ public:
 
     if (nh.hasParam("optimization_frequency"))
     {
-      double optimization_frequency{ 1.0 / optimization_period.toSec() };
+      double optimization_frequency{ 1.0 / optimization_period.seconds() };
       fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
       optimization_period.fromSec(1.0 / optimization_frequency);
     }

@@ -53,7 +53,7 @@ BatchOptimizer::BatchOptimizer(
     fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
     combined_transaction_(fuse_core::Transaction::make_shared()),
     optimization_request_(false),
-    start_time_(ros::TIME_MAX),
+    start_time_(rclcpp::Time::max()),
     started_(false)
 {
   params_.loadFromROS(private_node_handle);
@@ -83,12 +83,14 @@ void BatchOptimizer::applyMotionModelsToQueue()
 {
   // We need get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
-  // Use the most recent transaction time as the current time
-  ros::Time current_time(0, 0);
+
+  fuse_core::TimeStamp current_time;
   if (!pending_transactions_.empty())
   {
+    // Use the most recent transaction time as the current time
     current_time = pending_transactions_.rbegin()->first;
   }
+
   // Attempt to process each pending transaction
   while (!pending_transactions_.empty())
   {
@@ -188,8 +190,10 @@ void BatchOptimizer::transactionCallback(
   // Add the new transaction to the pending set
   // Either we haven't "started" yet and we want to keep a short history of transactions around
   // Or we have "started" already, and the new transaction is after the starting time.
-  ros::Time transaction_time = transaction->stamp();
-  ros::Time last_pending_time(0, 0);
+  auto transaction_clock_type = transaction->stamp()->get_clock_type();
+
+  fuse_core::TimeStamp transaction_time = transaction->stamp();
+  fuse_core::TimeStamp last_pending_time(0, 0, transaction_clock_type);
   if (!started_ || transaction_time >= start_time_)
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
@@ -206,12 +210,12 @@ void BatchOptimizer::transactionCallback(
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
-    ros::Time purge_time(0, 0);
+    fuse_core::TimeStamp purge_time(0, 0, transaction_clock_type);
     if (started_)
     {
       purge_time = start_time_;
     }
-    else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
+    else if (fuse_core::TimeStamp(0, 0, transaction_clock_type) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }

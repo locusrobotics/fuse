@@ -36,7 +36,7 @@
 
 #include <fuse_core/fuse_macros.h>
 #include <rclcpp/duration.hpp>
-#include <rclcpp/time.hpp>
+#include <fuse_core/time.h>
 
 #include <boost/range/any_range.hpp>
 

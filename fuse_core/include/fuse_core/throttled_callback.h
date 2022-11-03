@@ -108,6 +108,7 @@ public:
     throttle_period_ = throttle_period;
   }
 
+  // TODO(CH3): REFACTOR THIS OUT!!!! Take a clock type param instead
   /**
    * @brief Use wall time flag setter
    *

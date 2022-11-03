@@ -37,7 +37,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/stamped.h>
 
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -45,7 +45,7 @@
 
 namespace fuse_optimizers
 {
-ros::Time VariableStampIndex::currentStamp() const
+fuse_core::TimeStamp VariableStampIndex::currentStamp(rcl_clock_t defualt_clock_type) const
 {
   auto compare_stamps = [](const StampedMap::value_type& lhs, const StampedMap::value_type& rhs)
   {
@@ -58,7 +58,7 @@ ros::Time VariableStampIndex::currentStamp() const
   }
   else
   {
-    return ros::Time(0, 0);
+    return fuse_core::TimeStamp(0, 0, default_clock_type);
   }
 }
 

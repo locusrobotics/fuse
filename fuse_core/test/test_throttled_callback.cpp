@@ -66,8 +66,8 @@ public:
   void publish(const size_t num_messages)
   {
     // Wait for the subscribers to be ready before sending them data:
-    ros::WallTime subscriber_timeout = ros::WallTime::now() + rclcpp::Duration::from_seconds(1.0);
-    while (publisher_.getNumSubscribers() < 1u && ros::WallTime::now() < subscriber_timeout)
+    rclcpp::Time subscriber_timeout = this->node_->now() + rclcpp::Duration::from_seconds(1.0);
+    while (publisher_.getNumSubscribers() < 1u && this->node_->now() < subscriber_timeout)
     {
       rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.01);
     }
@@ -88,6 +88,7 @@ public:
   }
 
 private:
+  // TODO(CH3): Make this an rclcpp node. It's a test, we don't need the node interfaces.
   ros::NodeHandle node_handle_;  //!< The node handle
   ros::Publisher publisher_;     //!< The publisher
   double frequency_{ 10.0 };     //!< The publish rate frequency
@@ -215,7 +216,7 @@ TEST(ThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
   // Publish some messages at half the throttled period:
   const size_t num_messages = 10;
   const double period_factor = 0.25;
-  const double period = period_factor * throttled_period.toSec();
+  const double period = period_factor * throttled_period.seconds();
   const double frequency = 1.0 / period;
 
   PointPublisher publisher(frequency);
@@ -243,7 +244,7 @@ TEST(ThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLarge)
 
   // Publish some messages:
   const size_t num_messages = 10;
-  const double period = 0.1 * num_messages / throttled_period.toSec();
+  const double period = 0.1 * num_messages / throttled_period.seconds();
   const double frequency = 1.0 / period;
 
   PointPublisher publisher(frequency);

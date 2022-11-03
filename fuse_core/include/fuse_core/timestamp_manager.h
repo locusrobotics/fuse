@@ -39,7 +39,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
 #include <rclcpp/duration.hpp>
-#include <rclcpp/time.hpp>
+#include <fuse_core/time.h>
 
 #include <boost/range/any_range.hpp>
 

@@ -34,7 +34,7 @@
 #include <fuse_graphs/hash_graph.h>
 
 #include <fuse_core/uuid.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/serialization/export.hpp>
@@ -426,18 +426,18 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
 }
 
 ceres::Solver::Summary HashGraph::optimizeFor(
-  const rclcpp::Duration& max_optimization_time,
+  const std::chrono::nanoseconds& max_optimization_time,
   const ceres::Solver::Options& options)
 {
-  auto start = ros::Time::now();
+  auto start = std::chrono::system_clock::now();
   // Construct the ceres::Problem object from scratch
   ceres::Problem problem(problem_options_);
   createProblem(problem);
-  auto created_problem = ros::Time::now();
+  auto created_problem = std::chrono::system_clock::now();
   // Modify the options to enforce the maximum time
-  auto remaining = max_optimization_time - (created_problem - start);
+  std::chrono::nanoseconds remaining = max_optimization_time - (created_problem - start);
   auto time_constrained_options = options;
-  time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.toSec());
+  time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.seconds());
   // Run the solver. This will update the variables in place.
   ceres::Solver::Summary summary;
   ceres::Solve(time_constrained_options, &problem, &summary);
@@ -523,5 +523,5 @@ void HashGraph::createProblem(ceres::Problem& problem) const
 
 }  // namespace fuse_graphs
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_graphs::HashGraph);
-PLUGINLIB_EXPORT_CLASS(fuse_graphs::HashGraph, fuse_core::Graph);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_graphs::HashGraph)
+PLUGINLIB_EXPORT_CLASS(fuse_graphs::HashGraph, fuse_core::Graph)

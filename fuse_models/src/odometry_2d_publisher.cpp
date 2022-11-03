@@ -143,7 +143,7 @@ void Odometry2DPublisher::notifyCallback(
   acceleration_output.header.stamp = latest_stamp;
 
   // Don't waste CPU computing the covariance if nobody is listening
-  ros::Time latest_covariance_stamp = latest_covariance_stamp_;
+  fuse_core::TimeStamp latest_covariance_stamp = latest_covariance_stamp_;
   bool latest_covariance_valid = latest_covariance_valid_;
   if (odom_pub_.getNumSubscribers() > 0 || acceleration_pub_.getNumSubscribers() > 0)
   {
@@ -253,7 +253,7 @@ void Odometry2DPublisher::onStop()
 
 bool Odometry2DPublisher::getState(
   const fuse_core::Graph& graph,
-  const ros::Time& stamp,
+  const fuse_core::TimeStamp& stamp,
   const fuse_core::UUID& device_id,
   fuse_core::UUID& position_uuid,
   fuse_core::UUID& orientation_uuid,
@@ -321,8 +321,8 @@ bool Odometry2DPublisher::getState(
 
 void Odometry2DPublisher::publishTimerCallback()
 {
-  ros::Time latest_stamp;
-  ros::Time latest_covariance_stamp;
+  fuse_core::TimeStamp latest_stamp;
+  fuse_core::TimeStamp latest_covariance_stamp;
   bool latest_covariance_valid;
   nav_msgs::Odometry odom_output;
   geometry_msgs::AccelWithCovarianceStamped acceleration_output;
@@ -353,7 +353,7 @@ void Odometry2DPublisher::publishTimerCallback()
     tf2_2d::Vector2 velocity_linear;
     tf2::fromMsg(odom_output.twist.twist.linear, velocity_linear);
 
-    const double dt = event.current_real.toSec() - odom_output.header.stamp.toSec();
+    const double dt = event.current_real.seconds() - odom_output.header.stamp.seconds();
 
     fuse_core::Matrix8d jacobian;
 

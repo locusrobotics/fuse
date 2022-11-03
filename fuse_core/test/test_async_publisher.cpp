@@ -91,8 +91,8 @@ TEST(AsyncPublisher, notifyCallback)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   publisher.notify(transaction, graph);
   EXPECT_FALSE(publisher.callback_processed);
-  ros::Time wait_time_elapsed = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
-  while (!publisher.callback_processed && ros::Time::now() < wait_time_elapsed)
+  fuse_core::TimeStamp wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  while (!publisher.callback_processed && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
   }

@@ -93,8 +93,8 @@ TEST(AsyncMotionModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   motion_model.graphCallback(graph);
   EXPECT_FALSE(motion_model.graph_received);
-  ros::Time wait_time_elapsed = ros::Time::now() + rclcpp::Duration::from_seconds(10.0);
-  while (!motion_model.graph_received && ros::Time::now() < wait_time_elapsed)
+  fuse_core::TimeStamp wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  while (!motion_model.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
   }
@@ -110,9 +110,9 @@ TEST(AsyncMotionModel, ApplyCallback)
   // will then inject a call to applyCallback() into the motion model's callback queue. There is a time delay there, so
   // this call should block for *at least* 1.0 second. Once it returns, the "received_transaction" flag should be set.
   fuse_core::Transaction transaction;
-  ros::Time before_apply = ros::Time::now();
+  fuse_core::TimeStamp before_apply = rclcpp::Clock(RCL_SYSTEM_TIME).now();
   motion_model.apply(transaction);
-  ros::Time after_apply = ros::Time::now();
+  fuse_core::TimeStamp after_apply = rclcpp::Clock(RCL_SYSTEM_TIME).now();
   EXPECT_TRUE(motion_model.transaction_received);
   EXPECT_LE(rclcpp::Duration::from_seconds(1.0), after_apply - before_apply);
 }
