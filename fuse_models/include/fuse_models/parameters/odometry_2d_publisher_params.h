@@ -70,7 +70,7 @@ public:
    *
    * @param[in] nh - The ROS node handle with which to load parameters
    */
-  void loadFromROS(const ros::NodeHandle& nh) final  // TODO(CH3): Replace with an rclcpp NodeHandle<???> (params interface probably)
+  void loadFromROS(const ros::NodeHandle& nh) final  // TODO(CH3): Replace with a NodePtr
   {
     nh.getParam("publish_tf", publish_tf);
     nh.getParam("invert_tf", invert_tf);

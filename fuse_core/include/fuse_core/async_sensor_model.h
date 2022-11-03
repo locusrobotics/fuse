@@ -177,7 +177,7 @@ public:
 protected:
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
   std::string name_;  //!< The unique name for this sensor model instance
-  // rclcpp::NodeHandle<???>::SharedPtr nh_;  //!< The node handle for this sensor model (TODO(CH3): Uncomment when it's time)
+  // rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model (TODO(CH3): Uncomment when it's time)
   ros::NodeHandle node_handle_;  //!< A node handle in the global namespace using the local callback queue
   ros::NodeHandle private_node_handle_;  //!< A node handle in the private namespace using the local callback queue
   ros::AsyncSpinner spinner_;  //!< A single/multi-threaded spinner assigned to the local callback queue
