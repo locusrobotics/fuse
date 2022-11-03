@@ -46,7 +46,7 @@ TEST(FixedLagIgnition, SetInitialState)
   auto relative_pose_publisher = node_handle.advertise<geometry_msgs::PoseWithCovarianceStamped>("/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
-  ASSERT_TRUE(fuse_core::waitForValid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
+  ASSERT_TRUE(fuse_core::wait_for_valid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
 
   // Wait for the optimizer to be ready
   ASSERT_TRUE(ros::service::waitForService("/fixed_lag/set_pose", rclcpp::Duration::from_seconds(1.0)));

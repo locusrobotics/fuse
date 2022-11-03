@@ -185,7 +185,7 @@ TEST(ThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
   // TODO(CH3): Refactor this with a passed in node
-  // ASSERT_TRUE(fuse_core::waitForValid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
+  // ASSERT_TRUE(fuse_core::wait_for_valid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
 
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(0.0);
@@ -207,7 +207,7 @@ TEST(ThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
   // TODO(CH3): Refactor this with a passed in node
-  // ASSERT_TRUE(fuse_core::waitForValid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
+  // ASSERT_TRUE(fuse_core::wait_for_valid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
 
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(0.2);
@@ -234,7 +234,7 @@ TEST(ThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLarge)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
   // TODO(CH3): Refactor this with a passed in node
-  // ASSERT_TRUE(fuse_core::waitForValid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
+  // ASSERT_TRUE(fuse_core::wait_for_valid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
 
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(10.0);

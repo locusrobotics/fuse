@@ -47,6 +47,8 @@
  */
 
 #include <fuse_core/time.h>
+
+#include "rcl/time.h"
 #include <rclcpp/utilities.hpp>
 
 using chrono_ns_time_point_t =
@@ -100,37 +102,78 @@ std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp
 }
 
 
-bool isValid(rclcpp::Clock::SharedPtr clock)
+bool is_valid(rclcpp::Clock::SharedPtr clock)
 {
+  // Checks for null pointer, missing get_now() implementation, and RCL_CLOCK_UNINITIALIZED
+  if (!rcl_clock_valid(clock->get_clock_handle())) {
+    return false;
+  }
+
   switch (clock->get_clock_type()) {
-    case RCL_CLOCK_UNINITIALIZED:
-      return false;
-    case RCL_SYSTEM_TIME:
-      return true;
     case RCL_ROS_TIME:
-      return clock->now().nanoseconds() == 0;
+    case RCL_STEADY_TIME:
+    case RCL_SYSTEM_TIME:
+      return clock->now().nanoseconds() > 0;
+
+    // By right we shouldn't even get to this block, but these cases are included for completeness
+    case RCL_CLOCK_UNINITIALIZED:
     default:
       return false;
   }
 }
 
 
-// Logic adapted from: http://docs.ros.org/en/noetic/api/rostime/html/src_2time_8cpp_source.html
-bool waitForValid(rclcpp::Clock::SharedPtr clock, rclcpp::Duration timeout)
+bool wait_for_valid(
+  rclcpp::Clock::SharedPtr clock,
+  rclcpp::Context::SharedPtr context)
 {
-   rclcpp::Time start = clock->now();
-   while (clock->now().nanoseconds() == 0 && rclcpp::ok()) {
-     rclcpp::sleep_for(std::chrono::nanoseconds(timeout.nanoseconds()));
+  if (!context || !context->is_valid()) {
+    throw std::runtime_error("context cannot be slept with because it's invalid");
+  }
 
-     if (timeout > rclcpp::Duration(0, 0) && (clock->now() - start > timeout)) {
-       return false;
-     }
-   }
+  if (!rcl_clock_valid(clock->get_clock_handle())) {
+    throw std::runtime_error("clock cannot be waited on as it is not rcl_clock_valid");
+  }
 
-   if (!rclcpp::ok()) {
-     return false;
-   }
-   return true;
+  if (is_valid(clock)) {
+    return true;
+  } else {
+    // Wait until the first valid time
+    return clock->sleep_until(rclcpp::Time(0, 1, clock->get_clock_type()), context);
+  }
+}
+
+
+bool wait_for_valid(
+  rclcpp::Clock::SharedPtr clock,
+  const rclcpp::Duration & timeout,
+  rclcpp::Context::SharedPtr context,
+  const rclcpp::Duration & wait_tick_ns)
+{
+  if (!context || !context->is_valid()) {
+    throw std::runtime_error("context cannot be slept with because it's invalid");
+  }
+
+  if (!rcl_clock_valid(clock->get_clock_handle())) {
+    throw std::runtime_error("clock cannot be waited on as it is not rcl_clock_valid");
+  }
+
+  rclcpp::Clock timeout_clock = rclcpp::Clock(RCL_STEADY_TIME);
+  rclcpp::Time start = timeout_clock.now();
+
+  while (!is_valid(clock) && context->is_valid()) {  // Context check checks for rclcpp::shutdown()
+    if (timeout < wait_tick_ns) {
+      timeout_clock.sleep_for(timeout);
+    } else {
+      timeout_clock.sleep_for(rclcpp::Duration(wait_tick_ns));
+    }
+
+    if (timeout_clock.now() - start > timeout) {
+      return is_valid(clock);
+    }
+  }
+
+  return is_valid(clock);
 }
 
 }

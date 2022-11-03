@@ -56,6 +56,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "rclcpp/contexts/default_context.hpp"
 #include <rclcpp/clock.hpp>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
@@ -136,17 +137,46 @@ std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp
 
 
 /**
- * @brief Wait for time to be valid (non-zero)
- *
- * Logic adapted from: http://docs.ros.org/en/noetic/api/rostime/html/src_2time_8cpp_source.html
+ * @brief Check if clock's time is valid (non-zero)
  *
  * @param[in] clock    An rclcpp::Clock to measure time against
- * @param[in] timeout  An optional timeout
  *
- * @param[out] valid   Whether the clock's time was valid
+ * @return valid  true if clock was or became valid
  */
-bool waitForValid(rclcpp::Clock clock, rclcpp::Duration timeout=rclcpp::Duration(0, 0));
+// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+bool is_valid(rclcpp::Clock::SharedPtr clock);
 
+
+/**
+ * @brief Wait for clock's time to be valid (non-zero)
+ *
+ * @param[in] clock         An rclcpp::Clock to measure time against
+ * @param[in] context       The context to wait in
+ *
+ * @return valid  true if clock was or became valid
+ */
+// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+bool wait_for_valid(
+  rclcpp::Clock::SharedPtr clock,
+  rclcpp::Context::SharedPtr context = rclcpp::contexts::get_global_default_context());
+
+
+/**
+ * @brief Wait for clock's time to be valid (non-zero), with timeout
+ *
+ * @param[in] clock         An rclcpp::Clock to measure time against
+ * @param[in] timeout       The maximum time to wait for
+ * @param[in] context       The context to wait in
+ * @param[in] wait_tick_ns  The time to wait between each iteration of the wait loop (in ns)
+ *
+ * @return valid  true if clock was or became valid
+ */
+// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+bool wait_for_valid(
+  rclcpp::Clock::SharedPtr clock,
+  const rclcpp::Duration & timeout,
+  rclcpp::Context::SharedPtr context = rclcpp::contexts::get_global_default_context(),
+  const rclcpp::Duration & wait_tick_ns = rclcpp::Duration(0, static_cast<uint32_t>(1e7)));
 }
 
 #endif  // FUSE_CORE_TIME_H
