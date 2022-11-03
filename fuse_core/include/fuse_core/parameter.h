@@ -55,7 +55,7 @@ namespace fuse_core
  * @throws std::runtime_error if the parameter does not exist
  */
 template <typename T>
-void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)  // TODO(CH3): Replace nh with a node
+void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& value)  // TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (params probably)
 {
   if (!nh.getParam(key, value))
   {
@@ -77,7 +77,7 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
 template <typename T,
           typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
 void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, T& default_value,
-                      const bool strict = true)  // TODO(CH3): Replace nh with a node
+                      const bool strict = true)  // TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (params probably)
 {
   T value;
   node_handle.param(parameter_name, value, default_value);
@@ -124,6 +124,7 @@ inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::stri
  * @return The loaded (or default) covariance matrix, generated from the diagonal vector
  */
 template <int Size, typename Scalar = double>
+// TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (params probably)
 fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::NodeHandle& node_handle,
                                                                  const std::string& parameter_name,
                                                                  Scalar default_value)
@@ -156,6 +157,7 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::Node
  * @param[in] name - The ROS parameter name for the loss configuration parameter
  * @return Loss function or nullptr if the parameter does not exist
  */
+// TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (params probably)
 inline fuse_core::Loss::SharedPtr loadLossConfig(const ros::NodeHandle& nh, const std::string& name)
 {
   if (!nh.hasParam(name))

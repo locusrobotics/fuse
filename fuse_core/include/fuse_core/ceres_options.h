@@ -190,7 +190,7 @@ CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
  * @param[in] default_value - A default value to use if the provided parameter name does not exist
  * @return The loaded (or default) value
  */
-template <class T>  // TODO(CH3): Replace nh with a node
+template <class T>  // TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (logging and params probably)
 T getParam(const ros::NodeHandle& node_handle, const std::string& parameter_name, const T& default_value)
 {
   const std::string default_string_value{ ToString(default_value) };
@@ -217,6 +217,7 @@ T getParam(const ros::NodeHandle& node_handle, const std::string& parameter_name
  * @param[in] nh - A node handle in a namespace containing ceres::Covariance::Options settings
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
  */
+// TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (logging and params probably)
 void loadCovarianceOptionsFromROS(const ros::NodeHandle& nh, ceres::Covariance::Options& covariance_options);
 
 /**
@@ -225,6 +226,7 @@ void loadCovarianceOptionsFromROS(const ros::NodeHandle& nh, ceres::Covariance::
  * @param[in] nh - A node handle in a namespace containing ceres::Problem::Options settings
  * @param[out] problem_options - The ceres::Problem::Options object to update
  */
+// TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (logging and params probably)
 void loadProblemOptionsFromROS(const ros::NodeHandle& nh, ceres::Problem::Options& problem_options);
 
 /**
@@ -233,6 +235,7 @@ void loadProblemOptionsFromROS(const ros::NodeHandle& nh, ceres::Problem::Option
  * @param[in] nh - A node handle in a namespace containing ceres::Solver::Options settings
  * @param[out] solver_options - The ceres::Solver::Options object to update
  */
+// TODO(CH3): Replace nh with an rclcpp NodeHandle<???> (logging and params probably)
 void loadSolverOptionsFromROS(const ros::NodeHandle& nh, ceres::Solver::Options& solver_options);
 
 }  // namespace fuse_core
