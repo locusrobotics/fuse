@@ -180,7 +180,8 @@ bool Unicycle2D::applyCallback(fuse_core::Transaction& transaction)
   }
   catch (const std::exception& e)
   {
-    ROS_ERROR_STREAM_THROTTLE(10.0, "An error occurred while completing the motion model query. Error: " << e.what());
+    RCLCPP_ERROR_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+                                 "An error occurred while completing the motion model query. Error: " << e.what());
     return false;
   }
   return true;
@@ -244,8 +245,9 @@ void Unicycle2D::generateMotionModel(
   auto base_state_pair_it = state_history_.upper_bound(beginning_stamp);
   if (base_state_pair_it == state_history_.begin())
   {
-    ROS_WARN_STREAM_COND_NAMED(!state_history_.empty(), "UnicycleModel", "Unable to locate a state in this history "
-                               "with stamp <= " << beginning_stamp << ". Variables will all be initialized to 0.");
+    RCLCPP_WARN_STREAM_EXPRESSION(node_->get_logger(), !state_history_.empty(),
+                                  "UnicycleModel", "Unable to locate a state in this history with stamp <= "
+                                  << beginning_stamp << ". Variables will all be initialized to 0.");
     base_time = beginning_stamp;
   }
   else
@@ -367,7 +369,8 @@ void Unicycle2D::generateMotionModel(
     }
     catch (const std::runtime_error& ex)
     {
-      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid '" << name_ << "' motion model: " << ex.what());
+      RCLCPP_ERROR_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+                                   "Invalid '" << name_ << "' motion model: " << ex.what());
       return;
     }
   }

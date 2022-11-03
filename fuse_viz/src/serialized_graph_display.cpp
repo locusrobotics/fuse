@@ -170,8 +170,9 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
   Ogre::Quaternion orientation;
   if (!context_->getFrameManager()->getTransform(msg->header, position, orientation))
   {
-    ROS_DEBUG_STREAM("Error transforming from frame '" << msg->header.frame_id << "' to frame '"
-                                                       << qPrintable(fixed_frame_) << "'");
+    RCLCPP_DEBUG_STREAM(rclcpp::get_logger("fuse"),
+                        "Error transforming from frame '" << msg->header.frame_id << "' to frame '"
+                        << qPrintable(fixed_frame_) << "'");
   }
 
   root_node_->setPosition(position);

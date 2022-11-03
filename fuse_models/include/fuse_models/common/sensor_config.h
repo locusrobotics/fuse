@@ -42,7 +42,7 @@
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
-#include <ros/console.h>
+#include <rclcpp/logging.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -65,7 +65,7 @@ namespace common
 inline void throwDimensionError(const std::string& dimension)
 {
   std::string error = "Dimension " + dimension + " is not valid for this type.";
-  ROS_ERROR_STREAM(error);
+  RCLCPP_ERROR_STREAM(rclcpp::get_logger("fuse"), error);
   throw std::runtime_error(error);
 }
 

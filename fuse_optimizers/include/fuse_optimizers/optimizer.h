@@ -43,6 +43,7 @@
 #include <fuse_core/transaction.h>
 #include <pluginlib/class_loader.hpp>
 #include <ros/ros.h>
+// #include <rclcpp/rclcpp.hpp> TODO(CH3): Uncomment when it's time
 
 #include <string>
 #include <unordered_map>
@@ -90,7 +91,7 @@ namespace fuse_optimizers
  *  - ...
  * @endcode
  */
-class Optimizer
+class Optimizer // : public rclcpp::Node TODO(CH3): Uncomment when it's time
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)

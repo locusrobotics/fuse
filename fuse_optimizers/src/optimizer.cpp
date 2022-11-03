@@ -268,9 +268,10 @@ void Optimizer::loadSensorModels()
         associated_motion_models_[config.name].push_back(motion_model_name);
         if (motion_models_.find(motion_model_name) == motion_models_.end())
         {
-          ROS_WARN_STREAM("Sensor model '" << config.name << "' is configured to use motion model '" <<
-                          motion_model_name << "', but no motion model with that name currently exists. This is " <<
-                          "likely a configuration error.");
+          RCLCPP_WARN_STREAM(this->get_logger(),
+                             "Sensor model '" << config.name << "' is configured to use motion model '"
+                             << motion_model_name << "', but no motion model with that name currently exists. "
+                             << "This is likely a configuration error.");
         }
       }
     }
@@ -367,8 +368,9 @@ bool Optimizer::applyMotionModels(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Error generating constraints for sensor '" << sensor_name << "' "
-                       << "from motion model '" << motion_model_name << "'. Error: " << e.what());
+      RCLCPP_ERROR_STREAM(this->get_logger(),
+                          "Error generating constraints for sensor '" << sensor_name << "' "
+                          << "from motion model '" << motion_model_name << "'. Error: " << e.what());
       success = false;
     }
   }
@@ -387,8 +389,9 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling graphCallback() on sensor '" << name__sensor_model.first << "'. " <<
-                       "Error: " << e.what());
+      RCLCPP_ERROR_STREAM(this->get_logger(),
+                          "Failed calling graphCallback() on sensor '" << name__sensor_model.first
+                          << "'. Error: " << e.what());
       continue;
     }
   }
@@ -400,8 +403,9 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling graphCallback() on motion model '" << name__motion_model.first << "." <<
-                       " Error: " << e.what());
+      RCLCPP_ERROR_STREAM(this->get_logger(),
+                          "Failed calling graphCallback() on motion model '" << name__motion_model.first
+                          << ". Error: " << e.what());
       continue;
     }
   }
@@ -413,8 +417,9 @@ void Optimizer::notify(
     }
     catch (const std::exception& e)
     {
-      ROS_ERROR_STREAM("Failed calling notify() on publisher '" << name__publisher.first << "." <<
-                       " Error: " << e.what());
+      RCLCPP_ERROR_STREAM(this->get_logger(),
+                          "Failed calling notify() on publisher '" << name__publisher.first
+                          << ". Error: " << e.what());
       continue;
     }
   }

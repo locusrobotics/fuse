@@ -34,11 +34,20 @@
 #ifndef FUSE_CORE_CONSOLE_H
 #define FUSE_CORE_CONSOLE_H
 
-#include <rclcpp/clock.hpp>
-
+#include <chrono>
 
 namespace fuse_core
 {
+
+// To replicate ROS 1 behavior, the throttle checking conditions were adapted from the logic here:
+// https://github.com/ros/rosconsole/blob/c9503279e932a04b3d2667cca3d28a8133cacc22/include/ros/console.h
+#if defined(_MSC_VER)
+  #define FUSE_LIKELY(x)       (x)
+  #define FUSE_UNLIKELY(x)     (x)
+#else
+  #define FUSE_LIKELY(x)       __builtin_expect((x),1)
+  #define FUSE_UNLIKELY(x)     __builtin_expect((x),0)
+#endif
 
 /**
  * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to reset the last time the
@@ -52,31 +61,35 @@ public:
    *
    * @param[in] The throttle period in seconds
    */
-  explicit DelayedThrottleFilter(const double period) : period_(period)
+  explicit DelayedThrottleFilter(const double period)
+  : period_(std::chrono::duration<double, std::ratio<1>>(period))
   {
+    reset();
   }
 
   /**
    * @brief Returns whether or not the log statement should be printed. Called before the log arguments are evaluated
    * and the message is formatted.
    *
-   * This works as ROS_*_DELAYED_THROTTLE but the last time the filter condition was hit is handled by this filter, so
+   * This borrows logic from ROS 1's delayed throttle logging, but the last time the filter condition was hit is handled by this filter, so
    * it can be reset.
    *
-   * @return True if the filter condition is hit, false otherwise
+   * @param[in] now - The current ROS time at which to check if logging should fire
+   *
+   * @return True if the filter condition is hit (signalling that the message should print), false otherwise
    */
-  bool isEnabled() override
+  bool isEnabled()
   {
-    #warn "migrated from ros1, using default clock"
-    const auto now = rclcpp::Clock().now().seconds();
+    using namespace std::chrono;
+    const auto now = time_point_cast<milliseconds>(system_clock::now());
 
-    if (last_hit_ < 0.0)
+    if (last_hit_.time_since_epoch().count() < 0.0)
     {
       last_hit_ = now;
       return true;
     }
 
-    if (now > (last_hit_ + period_))
+    if (FUSE_UNLIKELY(last_hit_ + period_ <= now) || FUSE_UNLIKELY(now < last_hit_))
     {
       last_hit_ = now;
       return true;
@@ -90,13 +103,14 @@ public:
    */
   void reset()
   {
-    last_hit_ = -1.0;
+    using namespace std::chrono;
+    last_hit_ = time_point_cast<milliseconds>(system_clock::from_time_t(-1));
   }
 
 private:
-  double period_{ 0.0 };     //!< The throttle period in seconds
-  double last_hit_{ -1.0 };  //!< The last time in seconds the filter condition was hit, and the message was printed. A
-                             //!< negative value means it has never been hit
+  std::chrono::duration<double, std::ratio<1>> period_;          //!< The throttle period in seconds
+  std::chrono::time_point<std::chrono::system_clock> last_hit_;  //!< The last time in milliseconds the filter condition was hit, and the
+                                                                 //!< message was printed. A negative value means it has never been hit
 };
 
 }  // namespace fuse_core

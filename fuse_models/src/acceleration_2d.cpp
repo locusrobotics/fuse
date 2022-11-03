@@ -68,8 +68,9 @@ void Acceleration2D::onInit()
 
   if (params_.indices.empty())
   {
-    ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
-                    " will be ignored.");
+    RCLCPP_WARN_STREAM(node_->get_logger(),
+                      "No dimensions were specified. Data from topic "
+                       << ros::names::resolve(params_.topic) << " will be ignored.");
   }
 }
 

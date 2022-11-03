@@ -50,6 +50,9 @@
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
+#include <rclcpp/clock.hpp>
+#include <rclcpp/logging.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -194,11 +197,12 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
 
     if (rho[0] > squared_norm)
     {
-      ROS_WARN_STREAM_THROTTLE(10.0, "Detected invalid loss value of "
-                                         << rho[0] << " greater than squared residual of " << squared_norm
-                                         << " for constraint " << constraint_name(constraint) << " with loss type "
-                                         << constraint.loss()->type()
-                                         << ". Loss value clamped to the squared residual.");
+      RCLCPP_WARN_STREAM_THROTTLE(
+        rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
+        "Detected invalid loss value of " << rho[0] << " greater than squared residual of " << squared_norm
+                                          << " for constraint " << constraint_name(constraint)
+                                          << " with loss type " << constraint.loss()->type()
+                                          << ". Loss value clamped to the squared residual.");
 
       rho[0] = squared_norm;
     }

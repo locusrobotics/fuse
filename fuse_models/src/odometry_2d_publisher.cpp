@@ -111,8 +111,9 @@ void Odometry2DPublisher::notifyCallback(
       latest_stamp_ = latest_stamp;
     }
 
-    ROS_WARN_STREAM_THROTTLE(
-        10.0, "Failed to find a matching set of state variables with device id '" << device_id_ << "'.");
+    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+                                "Failed to find a matching set of state variables with device id '"
+                                << device_id_ << "'.");
     return;
   }
 
@@ -203,8 +204,9 @@ void Odometry2DPublisher::notifyCallback(
       }
       catch (const std::exception& e)
       {
-        ROS_WARN_STREAM("An error occurred computing the covariance information for " << latest_stamp << ". "
-                        "The covariance will be set to zero.\n" << e.what());
+        RCLCPP_WARN_STREAM(node_->get_logger(),
+                           "An error occurred computing the covariance information for " << latest_stamp
+                           << ". The covariance will be set to zero.\n" << e.what());
         std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
         std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
         std::fill(acceleration_output.accel.covariance.begin(), acceleration_output.accel.covariance.end(), 0.0);
@@ -305,12 +307,14 @@ bool Odometry2DPublisher::getState(
   }
   catch (const std::exception& e)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a state at time " << stamp << ". Error: " << e.what());
+    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+                                "Failed to find a state at time " << stamp << ". Error: " << e.what());
     return false;
   }
   catch (...)
   {
-    ROS_WARN_STREAM_THROTTLE(10.0, "Failed to find a state at time " << stamp << ". Error: unknown");
+    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+                                "Failed to find a state at time " << stamp << ". Error: unknown");
     return false;
   }
 
@@ -336,8 +340,9 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
 
   if (latest_stamp == Synchronizer::TIME_ZERO)
   {
-    RCLCPP_WARN_STREAM_EXPRESSION(node_->get_logger(), delayed_throttle_filter_.isEnabled(),
-                                  "No valid state data yet. Delaying tf broadcast.");
+    RCLCPP_WARN_STREAM_EXPRESSION(
+      node_->get_logger(), delayed_throttle_filter_.isEnabled(),
+      "No valid state data yet. Delaying tf broadcast.");
     return;
   }
 
@@ -507,8 +512,10 @@ void Odometry2DPublisher::publishTimerCallback(const ros::TimerEvent& event)
       }
       catch (const std::exception& e)
       {
-        ROS_WARN_STREAM_THROTTLE(5.0, "Could not lookup the " << params_.base_link_frame_id << "->" <<
-          params_.odom_frame_id << " transform. Error: " << e.what());
+        RCLCPP_WARN_STREAM_THROTTLE(
+          node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
+          "Could not lookup the " << params_.base_link_frame_id << "->"
+          << params_.odom_frame_id<< " transform. Error: " << e.what());
 
         return;
       }

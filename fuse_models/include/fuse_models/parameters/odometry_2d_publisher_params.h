@@ -40,7 +40,7 @@
 #include <fuse_core/eigen.h>
 #include <fuse_core/parameter.h>
 
-#include <ros/console.h>
+#include <rclcpp/logging.hpp>
 #include <ros/node_handle.h>
 
 #include <ceres/covariance.h>
@@ -70,7 +70,7 @@ public:
    *
    * @param[in] nh - The ROS node handle with which to load parameters
    */
-  void loadFromROS(const ros::NodeHandle& nh) final
+  void loadFromROS(const ros::NodeHandle& nh) final  // TODO(CH3): Replace with a NodePtr
   {
     nh.getParam("publish_tf", publish_tf);
     nh.getParam("invert_tf", invert_tf);
@@ -105,10 +105,11 @@ public:
 
     if (!frames_valid)
     {
-      ROS_FATAL_STREAM("Invalid frame configuration! Please note:\n" <<
-        " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n" <<
-        " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n" <<
-        " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
+      RCLCPP_FATAL_STREAM(node->get_logger(),
+        "Invalid frame configuration! Please note:\n"
+        << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n"
+        << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n"
+        << " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
 
       assert(frames_valid);
     }
