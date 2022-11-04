@@ -47,13 +47,14 @@ namespace fuse_optimizers
 {
 
 BatchOptimizer::BatchOptimizer(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-    fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    combined_transaction_(fuse_core::Transaction::make_shared()),
-    optimization_request_(false),
-    start_time_(rclcpp::Time::max()),
+  rclcpp::NodeOptions options,
+  std::string node_name,
+  fuse_core::Graph::UniquePtr graph
+):
+  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
+  combined_transaction_(fuse_core::Transaction::make_shared()),
+  optimization_request_(false),
+    start_time_(rclcpp::Time::max()),  // NOTE(CH3): ???
     started_(false)
 {
   params_.loadFromROS(private_node_handle);
@@ -83,14 +84,15 @@ void BatchOptimizer::applyMotionModelsToQueue()
 {
   // We need get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
-
   rclcpp::Time current_time;
+  // Use the most recent transaction time as the current time
   if (!pending_transactions_.empty())
   {
     // Use the most recent transaction time as the current time
     current_time = pending_transactions_.rbegin()->first;
   }
 
+  // TODO(CH3): We might have to check for time validity here?
   // Attempt to process each pending transaction
   while (!pending_transactions_.empty())
   {
@@ -210,12 +212,12 @@ void BatchOptimizer::transactionCallback(
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
-    rclcpp::Time purge_time(0, 0, transaction_clock_type);
+    rclcpp::Time purge_time(0, 1, transaction_clock_type);  // Initialized
     if (started_)
     {
       purge_time = start_time_;
     }
-    else if (rclcpp::Time(0, 0, transaction_clock_type) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
+    else if (rclcpp::Time(0, 1, transaction_clock_type) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }

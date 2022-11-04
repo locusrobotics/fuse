@@ -128,7 +128,7 @@ void FixedLagSmoother::autostart()
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
-    setStartTime(rclcpp::Time(0, 0, RCL_ROS_TIME));
+    setStartTime(rclcpp::Time(0, 1, RCL_ROS_TIME));  // Initialized
     RCLCPP_INFO_STREAM(this->get_logger(), "No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
@@ -190,6 +190,7 @@ void FixedLagSmoother::optimizationLoop()
       //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
+      //  XXX make sure lag_expiration_ has been initialised
       processQueue(*new_transaction, lag_expiration_);
       // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
       // transactions queue.
@@ -279,7 +280,11 @@ void FixedLagSmoother::optimizerTimerCallback()
     {
       std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
       optimization_request_ = true;
-      optimization_deadline_ = event.current_expected + params_.optimization_period;
+      // TODO(CH3): ??????? No idea what this does...
+      // XXX event.current_expected refers to when ROS planned to execute the callback, not the current time.
+      //     wall-time and measurement-time should be decoupled further
+      // optimization_deadline_ = event.current_expected + params_.optimization_period;
+      optimization_deadline_ = get_clock()->now() + params_.optimization_period;
     }
     optimization_requested_.notify_one();
   }
@@ -437,7 +442,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   }
   started_ = false;
   ignited_ = false;
-  setStartTime(rclcpp::Time(0, 0, RCL_ROS_TIME));
+  setStartTime(rclcpp::Time(0, 0, RCL_ROS_TIME));  // NOTE(CH3): UNINITIALIZED!
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
@@ -625,16 +630,18 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
     // Add time since the last optimization request time. This is useful to detect if no transactions are received for
     // too long
+    bool got_deadline_from_mutex = false;
     auto optimization_deadline = decltype(optimization_deadline_)();
     {
       const std::unique_lock<std::mutex> lock(optimization_requested_mutex_, std::try_to_lock);
       if (lock)
       {
         optimization_deadline = optimization_deadline_;
+        got_deadline_from_mutex = true;
       }
     }
 
-    if (!optimization_deadline.isZero())  // This is zero for the default-constructed optimization_deadline object
+    if (got_deadline_from_mutex)
     {
       const auto optimization_request_time = optimization_deadline - params_.optimization_period;
       const auto time_since_last_optimization_request =
