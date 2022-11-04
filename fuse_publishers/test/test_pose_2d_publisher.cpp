@@ -69,26 +69,26 @@ public:
     received_tf_msg_(false)
   {
     // Add a few pose variables
-    auto position1 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1234, 10));
+    auto position1 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10));
     position1->x() = 1.01;
     position1->y() = 2.01;
-    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1234, 10));
+    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10));
     orientation1->yaw() = 3.01;
-    auto position2 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1235, 10));
+    auto position2 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10));
     position2->x() = 1.02;
     position2->y() = 2.02;
-    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1235, 10));
+    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10));
     orientation2->yaw() = 3.02;
-    auto position3 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1235, 9));
+    auto position3 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9));
     position3->x() = 1.03;
     position3->y() = 2.03;
-    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1235, 9));
+    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9));
     orientation3->yaw() = 3.03;
-    auto position4 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1235, 11),
+    auto position4 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 11),
                                                                     fuse_core::uuid::generate("kitt"));
     position4->x() = 1.04;
     position4->y() = 2.04;
-    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1235, 11),
+    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 11),
                                                                           fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
@@ -144,7 +144,7 @@ public:
 
     // Publish a odom->base transform so tf lookups will succeed
     geometry_msgs::TransformStamped odom_to_base;
-    odom_to_base.header.stamp = fuse_core::TimeStamp(0, 0);
+    odom_to_base.header.stamp = rclcpp::Time(0, 0);
     odom_to_base.header.frame_id = "test_odom";
     odom_to_base.child_frame_id = "test_base";
     odom_to_base.transform.translation.x = -0.10;
@@ -214,14 +214,14 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  fuse_core::TimeStamp timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_pose_msg_) && (node_->now() < timeout))
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_pose_msg_);
-  EXPECT_EQ(fuse_core::TimeStamp(1235, 10), pose_msg_.header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10), pose_msg_.header.stamp);
   EXPECT_EQ("test_map", pose_msg_.header.frame_id);
   EXPECT_NEAR(1.02, pose_msg_.pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.02, pose_msg_.pose.position.y, 1.0e-9);
@@ -253,14 +253,14 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  fuse_core::TimeStamp timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_pose_with_covariance_msg_) && (node_->now() < timeout))
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_pose_with_covariance_msg_);
-  EXPECT_EQ(fuse_core::TimeStamp(1235, 10), pose_with_covariance_msg_.header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10), pose_with_covariance_msg_.header.stamp);
   EXPECT_EQ("test_map", pose_with_covariance_msg_.header.frame_id);
   EXPECT_NEAR(1.02, pose_with_covariance_msg_.pose.pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.02, pose_with_covariance_msg_.pose.pose.position.y, 1.0e-9);
@@ -305,7 +305,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  fuse_core::TimeStamp timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_tf_msg_) && (node_->now() < timeout))
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
@@ -345,7 +345,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  fuse_core::TimeStamp timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_tf_msg_) && (node_->now() < timeout))
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));

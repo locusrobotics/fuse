@@ -36,9 +36,9 @@
 
 /*
  * This file provides a sane configuration for a clock to manage order of events.
- * This file exists to help with a migration from fuse_core::TimeStamp to rclcpp::time
+ * This file exists to help with a migration from rclcpp::Time to rclcpp::time
  * Priority is given to C++ std::chrono
- * emphasis will be placed on interoperability with fuse_core::TimeStamp and rclcpp::time
+ * emphasis will be placed on interoperability with rclcpp::Time and rclcpp::time
  *
  * This will likely be extended to distinguish between:
  *    times of events being optimised
@@ -51,57 +51,9 @@
 #include "rcl/time.h"
 #include <rclcpp/utilities.hpp>
 
-using chrono_ns_time_point_t =
-  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
-
 namespace fuse_core
 {
-TimeStamp::TimeStamp() :
-  rclcpp::Time(static_cast<int64_t>(0), RCL_CLOCK_UNINITIALIZED)
-{}
-
-TimeStamp::TimeStamp(const TimeStamp& rhs) = default;
-
-TimeStamp::TimeStamp(int32_t seconds, uint32_t nanoseconds, rcl_clock_type_t clock_type) :
-  rclcpp::Time(seconds, nanoseconds, clock_type)
-{}
-
-TimeStamp::TimeStamp(int64_t nanoseconds, rcl_clock_type_t clock_type) :
-  rclcpp::Time(nanoseconds, clock_type)
-{}
-
-TimeStamp::TimeStamp(const rclcpp::Time& time) :
-  rclcpp::Time(time)
-{}
-
-TimeStamp::TimeStamp(chrono_ns_time_point_t& stamp):
-  rclcpp::Time(stamp.time_since_epoch().count(), RCL_SYSTEM_TIME)
-{}
-
-rclcpp::Time TimeStamp::to_ros() const
-{
-  return rclcpp::Time(this->nanoseconds(), this->get_clock_type());
-}
-
-chrono_ns_time_point_t TimeStamp::to_chrono() const
-{
-  if (this->get_clock_type() != RCL_SYSTEM_TIME) {
-    throw std::runtime_error("Constructing system clock time_point from non-system clock");
-  }
-  return chrono_ns_time_point_t(
-    std::chrono::nanoseconds(this->nanoseconds())
-  );
-}
-
-
 // UTILITIES =======================================================================================
-std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp)
-{
-    os << timestamp.nanoseconds();
-    return os;
-}
-
-
 bool is_valid(rclcpp::Clock::SharedPtr clock)
 {
   // Checks for null pointer, missing get_now() implementation, and RCL_CLOCK_UNINITIALIZED

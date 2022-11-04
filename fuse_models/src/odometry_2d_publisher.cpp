@@ -143,7 +143,7 @@ void Odometry2DPublisher::notifyCallback(
   acceleration_output.header.stamp = latest_stamp;
 
   // Don't waste CPU computing the covariance if nobody is listening
-  fuse_core::TimeStamp latest_covariance_stamp = latest_covariance_stamp_;
+  rclcpp::Time latest_covariance_stamp = latest_covariance_stamp_;
   bool latest_covariance_valid = latest_covariance_valid_;
   if (odom_pub_.getNumSubscribers() > 0 || acceleration_pub_.getNumSubscribers() > 0)
   {
@@ -253,7 +253,7 @@ void Odometry2DPublisher::onStop()
 
 bool Odometry2DPublisher::getState(
   const fuse_core::Graph& graph,
-  const fuse_core::TimeStamp& stamp,
+  const rclcpp::Time& stamp,
   const fuse_core::UUID& device_id,
   fuse_core::UUID& position_uuid,
   fuse_core::UUID& orientation_uuid,
@@ -321,8 +321,8 @@ bool Odometry2DPublisher::getState(
 
 void Odometry2DPublisher::publishTimerCallback()
 {
-  fuse_core::TimeStamp latest_stamp;
-  fuse_core::TimeStamp latest_covariance_stamp;
+  rclcpp::Time latest_stamp;
+  rclcpp::Time latest_covariance_stamp;
   bool latest_covariance_valid;
   nav_msgs::Odometry odom_output;
   geometry_msgs::AccelWithCovarianceStamped acceleration_output;

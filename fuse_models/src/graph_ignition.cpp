@@ -152,7 +152,7 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
   sendGraph(*graph, msg.header.stamp);
 }
 
-void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const fuse_core::TimeStamp& stamp)
+void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp)
 {
   // Create a transaction equivalent to the graph
   auto transaction = fuse_core::Transaction::make_shared();

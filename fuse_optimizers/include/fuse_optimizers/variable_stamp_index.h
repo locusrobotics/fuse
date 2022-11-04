@@ -91,11 +91,11 @@ public:
   /**
    * @brief Returns the most recent timestamp associated with any variable
    *
-   * @param[in] default_clock_type The clock type of the returned TimeStamp if the index is empty
+   * @param[in] default_clock_type The clock type of the returned rclcpp::Time if the index is empty
    */
   // TODO(CH3), NOTE(CH3): I think RCL_ROS_TIME makes sense as a default type, but that deviates
   // from the rclcpp::Time default. What should the clock type be?
-  fuse_core::TimeStamp currentStamp(rcl_clock_t default_clock_type=RCL_ROS_TIME) const;
+  rclcpp::Time currentStamp(rcl_clock_t default_clock_type=RCL_ROS_TIME) const;
 
   /**
    * @brief Update the index with the information from the added transactions
@@ -123,7 +123,7 @@ public:
    * @param[out] result An output iterator capable of receiving fuse_core::UUID objects
    */
   template <typename OutputUuidIterator>
-  void query(const fuse_core::TimeStamp& stamp, OutputUuidIterator result) const
+  void query(const rclcpp::Time& stamp, OutputUuidIterator result) const
   {
     // First get all of the stamped variables greater than or equal to the input stamp
     std::unordered_set<fuse_core::UUID> recent_variable_uuids;
@@ -171,7 +171,7 @@ public:
   }
 
 protected:
-  using StampedMap = std::unordered_map<fuse_core::UUID, fuse_core::TimeStamp>;
+  using StampedMap = std::unordered_map<fuse_core::UUID, rclcpp::Time>;
   StampedMap stamped_index_;  //!< Container that holds the UUID->Stamp mapping for fuse_variables::Stamped variables
 
   using VariableToConstraintsMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;

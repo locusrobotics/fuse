@@ -99,7 +99,7 @@ TEST(AsyncSensorModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   sensor.graphCallback(graph);
   EXPECT_FALSE(sensor.graph_received);
-  fuse_core::TimeStamp wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
   while (!sensor.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));

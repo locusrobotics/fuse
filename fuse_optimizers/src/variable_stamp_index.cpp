@@ -45,7 +45,7 @@
 
 namespace fuse_optimizers
 {
-fuse_core::TimeStamp VariableStampIndex::currentStamp(rcl_clock_t defualt_clock_type) const
+rclcpp::Time VariableStampIndex::currentStamp(rcl_clock_t defualt_clock_type) const
 {
   auto compare_stamps = [](const StampedMap::value_type& lhs, const StampedMap::value_type& rhs)
   {
@@ -58,7 +58,7 @@ fuse_core::TimeStamp VariableStampIndex::currentStamp(rcl_clock_t defualt_clock_
   }
   else
   {
-    return fuse_core::TimeStamp(0, 0, default_clock_type);
+    return rclcpp::Time(0, 0, default_clock_type);
   }
 }
 

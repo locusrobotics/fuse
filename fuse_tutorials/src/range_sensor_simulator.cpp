@@ -72,7 +72,7 @@ struct Beacon
  */
 struct Robot
 {
-  fuse_core::TimeStamp stamp;
+  rclcpp::Time stamp;
   double x;
   double y;
   double yaw;
@@ -236,7 +236,7 @@ void initializeStateEstimation(
 /**
  * @brief Compute the next robot state given the current robot state and a simulated step time
  */
-Robot simulateRobotMotion(const Robot& previous_state, const fuse_core::TimeStamp& now)
+Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 {
   auto dt = (now - previous_state.stamp).seconds();
   auto theta = std::atan2(previous_state.y, previous_state.x) + (dt * previous_state.vyaw);

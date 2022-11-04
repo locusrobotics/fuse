@@ -84,7 +84,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
   // We need get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
 
-  fuse_core::TimeStamp current_time;
+  rclcpp::Time current_time;
   if (!pending_transactions_.empty())
   {
     // Use the most recent transaction time as the current time
@@ -192,8 +192,8 @@ void BatchOptimizer::transactionCallback(
   // Or we have "started" already, and the new transaction is after the starting time.
   auto transaction_clock_type = transaction->stamp()->get_clock_type();
 
-  fuse_core::TimeStamp transaction_time = transaction->stamp();
-  fuse_core::TimeStamp last_pending_time(0, 0, transaction_clock_type);
+  rclcpp::Time transaction_time = transaction->stamp();
+  rclcpp::Time last_pending_time(0, 0, transaction_clock_type);
   if (!started_ || transaction_time >= start_time_)
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
@@ -210,12 +210,12 @@ void BatchOptimizer::transactionCallback(
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
-    fuse_core::TimeStamp purge_time(0, 0, transaction_clock_type);
+    rclcpp::Time purge_time(0, 0, transaction_clock_type);
     if (started_)
     {
       purge_time = start_time_;
     }
-    else if (fuse_core::TimeStamp(0, 0, transaction_clock_type) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
+    else if (rclcpp::Time(0, 0, transaction_clock_type) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }

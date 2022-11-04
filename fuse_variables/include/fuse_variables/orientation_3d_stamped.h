@@ -206,7 +206,7 @@ public:
    * @param[in] stamp     The timestamp attached to this velocity.
    * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
-  explicit Orientation3DStamped(const fuse_core::TimeStamp& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit Orientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the quaternion w component

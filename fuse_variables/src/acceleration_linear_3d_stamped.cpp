@@ -47,7 +47,7 @@
 namespace fuse_variables
 {
 
-AccelerationLinear3DStamped::AccelerationLinear3DStamped(const fuse_core::TimeStamp& stamp, const fuse_core::UUID& device_id) :
+AccelerationLinear3DStamped::AccelerationLinear3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
   FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
   Stamped(stamp, device_id)
 {

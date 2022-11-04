@@ -82,7 +82,7 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
   explicit AccelerationAngular2DStamped(
-    const fuse_core::TimeStamp& stamp,
+    const rclcpp::Time& stamp,
     const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**

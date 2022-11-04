@@ -49,7 +49,7 @@ TEST(MarginalConstraint, OneVariable)
 {
   // Create a marginal constraint with one variable, no local parameterizations
   std::vector<fuse_variables::Position2DStamped> variables;
-  fuse_variables::Position2DStamped x1(fuse_core::TimeStamp(1, 0));
+  fuse_variables::Position2DStamped x1(rclcpp::Time(1, 0));
   x1.x() = 1.0;
   x1.y() = 2.0;
   variables.push_back(x1);
@@ -99,12 +99,12 @@ TEST(MarginalConstraint, TwoVariables)
 {
   // Create a marginal constraint with one variable, no local parameterizations
   std::vector<fuse_variables::Position2DStamped> variables;
-  fuse_variables::Position2DStamped x1(fuse_core::TimeStamp(1, 0));
+  fuse_variables::Position2DStamped x1(rclcpp::Time(1, 0));
   x1.x() = 1.0;
   x1.y() = 2.0;
   variables.push_back(x1);
 
-  fuse_variables::Position2DStamped x2(fuse_core::TimeStamp(2, 0));
+  fuse_variables::Position2DStamped x2(rclcpp::Time(2, 0));
   x2.x() = 3.0;
   x2.y() = 4.0;
   variables.push_back(x2);
@@ -165,7 +165,7 @@ TEST(MarginalConstraint, LocalParameterization)
 {
   // Create a marginal constraint with one variable with a local parameterizations
   std::vector<fuse_variables::Orientation3DStamped> variables;
-  fuse_variables::Orientation3DStamped x1(fuse_core::TimeStamp(1, 0));
+  fuse_variables::Orientation3DStamped x1(rclcpp::Time(1, 0));
   x1.w() = 0.842614977;
   x1.x() = 0.2;
   x1.y() = 0.3;
@@ -223,7 +223,7 @@ TEST(MarginalConstraint, Serialization)
 {
   // Construct a constraint
   std::vector<fuse_variables::Orientation3DStamped> variables;
-  fuse_variables::Orientation3DStamped x1(fuse_core::TimeStamp(1, 0));
+  fuse_variables::Orientation3DStamped x1(rclcpp::Time(1, 0));
   x1.w() = 0.842614977;
   x1.x() = 0.2;
   x1.y() = 0.3;

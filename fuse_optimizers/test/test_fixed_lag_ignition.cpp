@@ -55,7 +55,7 @@ TEST(FixedLagIgnition, SetInitialState)
   // Set the initial pose to something far away from zero
   fuse_models::SetPose::Request req;
   req.pose.header.frame_id = "map";
-  req.pose.header.stamp = fuse_core::TimeStamp(1, 0);
+  req.pose.header.stamp = rclcpp::Time(1, 0);
   req.pose.pose.pose.position.x = 100.1;
   req.pose.pose.pose.position.y = 100.2;
   req.pose.pose.pose.position.z = 0.0;
@@ -82,7 +82,7 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // Publish a relative pose
   auto pose_msg1 = geometry_msgs::PoseWithCovarianceStamped();
-  pose_msg1.header.stamp = fuse_core::TimeStamp(2, 0);
+  pose_msg1.header.stamp = rclcpp::Time(2, 0);
   pose_msg1.header.frame_id = "base_link";
   pose_msg1.pose.pose.position.x = 5.0;
   pose_msg1.pose.pose.position.y = 6.0;
@@ -97,7 +97,7 @@ TEST(FixedLagIgnition, SetInitialState)
   relative_pose_publisher.publish(pose_msg1);
 
   auto pose_msg2 = geometry_msgs::PoseWithCovarianceStamped();
-  pose_msg2.header.stamp = fuse_core::TimeStamp(3, 0);
+  pose_msg2.header.stamp = rclcpp::Time(3, 0);
   pose_msg2.header.frame_id = "base_link";
   pose_msg2.pose.pose.position.x = 10.0;
   pose_msg2.pose.pose.position.y = 20.0;
@@ -112,15 +112,15 @@ TEST(FixedLagIgnition, SetInitialState)
   relative_pose_publisher.publish(pose_msg2);
 
   // Wait for the optimizer to process all queued transactions
-  fuse_core::TimeStamp result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
+  rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
   auto odom_msg = nav_msgs::Odometry::ConstPtr();
-  while ((!odom_msg || odom_msg->header.stamp != fuse_core::TimeStamp(3, 0)) &&
+  while ((!odom_msg || odom_msg->header.stamp != rclcpp::Time(3, 0)) &&
          (node->now() < result_timeout))
   {
     odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
   }
   ASSERT_TRUE(static_cast<bool>(odom_msg));
-  ASSERT_EQ(odom_msg->header.stamp, fuse_core::TimeStamp(3, 0));
+  ASSERT_EQ(odom_msg->header.stamp, rclcpp::Time(3, 0));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call state, give or

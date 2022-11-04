@@ -36,9 +36,9 @@
 
 /*
  * This file provides a sane configuration for a clock to manage order of events.
- * This file exists to help with a migration from fuse_core::TimeStamp to rclcpp::time
+ * This file exists to help with a migration from rclcpp::Time to rclcpp::time
  * Priority is given to C++ std::chrono
- * emphasis will be placed on interoperability with fuse_core::TimeStamp and rclcpp::time
+ * emphasis will be placed on interoperability with rclcpp::Time and rclcpp::time
  *
  * This will likely be extended to distinguish between:
  *   times of events being optimised
@@ -64,78 +64,6 @@
 
 namespace fuse_core
 {
-using Duration = std::chrono::nanoseconds;  // rclcpp uses nanosecond durations
-
-/**
- * @brief Implements a Time class that supports interoperability between rclcpp and std::chrono time
- *
- * The class is implemented as a thin wrapper around rclcpp::Time. This allows us to take advantage
- * of the operator overloads and clock type tracking of the parent class. Including the consistency
- * checks for clock types when doing time arithmetic.
- *
- * To support this, the internal representation of time is an rclcpp::Time object and conversion
- * functions and constructors are written to create this object out of primitive, rclcpp::Time and
- * std::chrono time objects.
- *
- * A significant deviation from rclcpp:Time is the introduction of the default constructor that
- * explicitly sets the clock type to RCL_CLOCK_UNINITIALIZED. This is done to differentiate between
- * zero-initializations of time, and an uninitialized time.
- */
-class TimeStamp : public rclcpp::Time
-{
-  public:
-    // TODO(CH3): Write docstrings for these once interfaces have stabilized
-    TimeStamp();
-    TimeStamp(const TimeStamp& rhs);
-
-    TimeStamp(int32_t seconds, uint32_t nanoseconds, rcl_clock_type_t clock_type=RCL_SYSTEM_TIME);
-    TimeStamp(int64_t nanoseconds, rcl_clock_type_t clock_type=RCL_SYSTEM_TIME);
-
-    TimeStamp(const rclcpp::Time& time);
-    TimeStamp(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>& stamp);
-
-
-    rclcpp::Time to_ros() const;
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> to_chrono() const;
-
-    inline bool initialized() const {
-      return this->get_clock_type() != RCL_CLOCK_UNINITIALIZED;
-    }
-
-    inline std::chrono::nanoseconds time_since_epoch() const {
-      return std::chrono::nanoseconds(this->nanoseconds());
-    }
-
-
-    // OPERATORS ===================================================================================
-    TimeStamp & operator=(const TimeStamp & rhs) = default;
-
-    inline TimeStamp & operator=(const rclcpp::Time & time) {
-      *this = TimeStamp(time);
-      return *this;
-    }
-
-    inline TimeStamp & operator=(const builtin_interfaces::msg::Time & time_msg) {
-      *this = TimeStamp(time_msg);
-      return *this;
-    }
-
-    inline operator std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>() const {
-      return this->to_chrono();
-    }
-};
-
-
-/**
- * @brief provide an overload for use with the ostream << operator
- *
- * Present a human readable fuse_core::TimeStamp (in nanosecond units)
- *
- * @param[in] timestamp  The rclcpp::Time to convert to print
- */
-std::ostream& operator<<(std::ostream& os, const fuse_core::TimeStamp& timestamp);
-
-
 /**
  * @brief Check if clock's time is valid (non-zero)
  *
@@ -177,6 +105,7 @@ bool wait_for_valid(
   const rclcpp::Duration & timeout,
   rclcpp::Context::SharedPtr context = rclcpp::contexts::get_global_default_context(),
   const rclcpp::Duration & wait_tick_ns = rclcpp::Duration(0, static_cast<uint32_t>(1e7)));
+
 }
 
 #endif  // FUSE_CORE_TIME_H

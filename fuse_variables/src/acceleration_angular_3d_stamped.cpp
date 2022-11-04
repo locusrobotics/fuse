@@ -48,7 +48,7 @@ namespace fuse_variables
 {
 
 AccelerationAngular3DStamped::AccelerationAngular3DStamped(
-  const fuse_core::TimeStamp& stamp,
+  const rclcpp::Time& stamp,
   const fuse_core::UUID& device_id) :
     FixedSizeVariable<3>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
     Stamped(stamp, device_id)

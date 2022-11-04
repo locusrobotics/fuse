@@ -67,26 +67,26 @@ public:
     received_pose_array_msg_(false)
   {
     // Add a few pose variables
-    auto position1 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1234, 10));
+    auto position1 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10));
     position1->x() = 1.01;
     position1->y() = 2.01;
-    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1234, 10));
+    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10));
     orientation1->yaw() = 3.01;
-    auto position2 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1235, 10));
+    auto position2 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10));
     position2->x() = 1.02;
     position2->y() = 2.02;
-    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1235, 10));
+    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10));
     orientation2->yaw() = 3.02;
-    auto position3 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1235, 9));
+    auto position3 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9));
     position3->x() = 1.03;
     position3->y() = 2.03;
-    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1235, 9));
+    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9));
     orientation3->yaw() = 3.03;
-    auto position4 = fuse_variables::Position2DStamped::make_shared(fuse_core::TimeStamp(1235, 11),
+    auto position4 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 11),
                                                                     fuse_core::uuid::generate("kitt"));
     position4->x() = 1.04;
     position4->y() = 2.04;
-    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(fuse_core::TimeStamp(1235, 11),
+    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 11),
                                                                           fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
@@ -193,32 +193,32 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  fuse_core::TimeStamp timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_path_msg_) && (node_->now() < timeout))
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
   }
 
   ASSERT_TRUE(received_path_msg_);
-  EXPECT_EQ(fuse_core::TimeStamp(1235, 10), path_msg_.header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10), path_msg_.header.stamp);
   EXPECT_EQ("test_map", path_msg_.header.frame_id);
   ASSERT_EQ(3ul, path_msg_.poses.size());
 
-  EXPECT_EQ(fuse_core::TimeStamp(1234, 10), path_msg_.poses[0].header.stamp);
+  EXPECT_EQ(rclcpp::Time(1234, 10), path_msg_.poses[0].header.stamp);
   EXPECT_EQ("test_map", path_msg_.poses[0].header.frame_id);
   EXPECT_NEAR(1.01, path_msg_.poses[0].pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.01, path_msg_.poses[0].pose.position.y, 1.0e-9);
   EXPECT_NEAR(0.00, path_msg_.poses[0].pose.position.z, 1.0e-9);
   EXPECT_NEAR(3.01, tf2::getYaw(path_msg_.poses[0].pose.orientation), 1.0e-9);
 
-  EXPECT_EQ(fuse_core::TimeStamp(1235, 9), path_msg_.poses[1].header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 9), path_msg_.poses[1].header.stamp);
   EXPECT_EQ("test_map", path_msg_.poses[1].header.frame_id);
   EXPECT_NEAR(1.03, path_msg_.poses[1].pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.03, path_msg_.poses[1].pose.position.y, 1.0e-9);
   EXPECT_NEAR(0.00, path_msg_.poses[1].pose.position.z, 1.0e-9);
   EXPECT_NEAR(3.03, tf2::getYaw(path_msg_.poses[1].pose.orientation), 1.0e-9);
 
-  EXPECT_EQ(fuse_core::TimeStamp(1235, 10), path_msg_.poses[2].header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10), path_msg_.poses[2].header.stamp);
   EXPECT_EQ("test_map", path_msg_.poses[2].header.frame_id);
   EXPECT_NEAR(1.02, path_msg_.poses[2].pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.02, path_msg_.poses[2].pose.position.y, 1.0e-9);
@@ -227,7 +227,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
 
 
   ASSERT_TRUE(received_pose_array_msg_);
-  EXPECT_EQ(fuse_core::TimeStamp(1235, 10), pose_array_msg_.header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10), pose_array_msg_.header.stamp);
   EXPECT_EQ("test_map", pose_array_msg_.header.frame_id);
   ASSERT_EQ(3ul, pose_array_msg_.poses.size());
 

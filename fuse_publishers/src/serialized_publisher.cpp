@@ -101,7 +101,7 @@ void SerializedPublisher::notifyCallback(
   }
 }
 
-void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const fuse_core::TimeStamp& stamp) const
+void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const
 {
   fuse_msgs::SerializedGraph msg;
   msg.header.stamp = stamp;

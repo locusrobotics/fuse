@@ -68,7 +68,7 @@ class StampedVariableSynchronizer
 {
 public:
   FUSE_SMART_PTR_DEFINITIONS(StampedVariableSynchronizer);
-  static const fuse_core::TimeStamp TIME_ZERO;  //!< Constant representing a zero timestamp
+  static const rclcpp::Time TIME_ZERO;  //!< Constant representing a zero timestamp
 
   /**
    * @brief Construct a synchronizer object
@@ -84,11 +84,11 @@ public:
    * @param[in] graph       The complete graph
    * @return The latest timestamp shared by all requested variable types
    */
-  fuse_core::TimeStamp findLatestCommonStamp(const fuse_core::Transaction& transaction, const fuse_core::Graph& graph);
+  rclcpp::Time findLatestCommonStamp(const fuse_core::Transaction& transaction, const fuse_core::Graph& graph);
 
 private:
   fuse_core::UUID device_id_;  //!< The device_id to use with the Stamped classes
-  fuse_core::TimeStamp latest_common_stamp_;  //!< The previously discovered common stamp
+  rclcpp::Time latest_common_stamp_;  //!< The previously discovered common stamp
 
   /**
    * @brief Search the variables in the provided range for more recent timestamps. Update the \p latest_common_stamp_
@@ -194,7 +194,7 @@ constexpr bool allStampedVariables = all_stamped_variables<Ts...>::value;
 template <typename...>
 struct all_variables_exist
 {
-  static bool value(const fuse_core::Graph& /*graph*/, const fuse_core::TimeStamp& /*stamp*/, const fuse_core::UUID& /*device_id*/)
+  static bool value(const fuse_core::Graph& /*graph*/, const rclcpp::Time& /*stamp*/, const fuse_core::UUID& /*device_id*/)
   {
     return true;
   }
@@ -213,7 +213,7 @@ struct all_variables_exist
 template <typename T, typename ...Ts>
 struct all_variables_exist<T, Ts...>
 {
-  static bool value(const fuse_core::Graph& graph, const fuse_core::TimeStamp& stamp, const fuse_core::UUID& device_id)
+  static bool value(const fuse_core::Graph& graph, const rclcpp::Time& stamp, const fuse_core::UUID& device_id)
   {
     return graph.variableExists(T(stamp, device_id).uuid()) &&
            all_variables_exist<Ts...>::value(graph, stamp, device_id);
@@ -262,7 +262,7 @@ struct is_variable_in_pack<T, Ts...>
 }  // namespace detail
 
 template <typename ...Ts>
-const fuse_core::TimeStamp StampedVariableSynchronizer<Ts...>::TIME_ZERO = fuse_core::TimeStamp(0, 0);
+const rclcpp::Time StampedVariableSynchronizer<Ts...>::TIME_ZERO = rclcpp::Time(0, 0);
 
 template <typename ...Ts>
 StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(const fuse_core::UUID& device_id) :
@@ -275,7 +275,7 @@ StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(const fuse_core:
 }
 
 template <typename ...Ts>
-fuse_core::TimeStamp StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(
+rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(
   const fuse_core::Transaction& transaction,
   const fuse_core::Graph& graph)
 {

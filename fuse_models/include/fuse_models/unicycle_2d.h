@@ -113,7 +113,7 @@ protected:
      */
     void validate() const;
   };
-  using StateHistory = std::map<fuse_core::TimeStamp, StateHistoryElement>;
+  using StateHistory = std::map<rclcpp::Time, StateHistoryElement>;
 
   /**
    * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
@@ -138,8 +138,8 @@ protected:
    *                             variables should include initial values for the optimizer.
    */
   void generateMotionModel(
-    const fuse_core::TimeStamp& beginning_stamp,
-    const fuse_core::TimeStamp& ending_stamp,
+    const rclcpp::Time& beginning_stamp,
+    const rclcpp::Time& ending_stamp,
     std::vector<fuse_core::Constraint::SharedPtr>& constraints,
     std::vector<fuse_core::Variable::SharedPtr>& variables);
 
@@ -185,7 +185,7 @@ protected:
 
   rclcpp::Duration buffer_length_;                    //!< The length of the state history
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
-  fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
+  rclcpp::TimeManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
   fuse_core::Matrix8d process_noise_covariance_;   //!< Process noise covariance matrix
   bool scale_process_noise_{ false };              //!< Whether to scale the process noise covariance pose by the norm
                                                    //!< of the current state twist
