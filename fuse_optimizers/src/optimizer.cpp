@@ -86,7 +86,7 @@ Optimizer::Optimizer(
     publisher_loader_("fuse_core", "fuse_core::Publisher"),
     sensor_model_loader_("fuse_core", "fuse_core::SensorModel"),
     diagnostic_updater_(shared_from_this()),
-    callback_queue_(rclcpp::contexts::default_context::get_global_default_context())
+    callback_queue_(rclcpp::contexts::get_global_default_context())
 {
   // Setup diagnostics updater
   // XXX private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,

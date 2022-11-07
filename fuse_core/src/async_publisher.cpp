@@ -33,6 +33,8 @@
  */
 #include <fuse_core/async_publisher.h>
 
+#include <rclcpp/contexts/default_context.hpp>
+
 
 namespace fuse_core
 {
@@ -49,7 +51,7 @@ void AsyncPublisher::initialize(const std::string& name)
   name_ = name;
   std::string node_namespace = "";
 
-  rclcpp::Context::SharedPtr ros_context = std::make_shared<rclcpp::Context>();
+  rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
 
   ros_context->init(0, NULL);    // XXX should expose the init arg list

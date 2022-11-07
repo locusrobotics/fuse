@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME} SHARED
   src/async_publisher.cpp
   src/async_sensor_model.cpp
   src/callback_wrapper.cpp
-  src/ceres_options.cpp
+  # src/ceres_options.cpp
   src/constraint.cpp
   src/graph.cpp
   src/graph_deserializer.cpp

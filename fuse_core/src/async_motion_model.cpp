@@ -36,6 +36,7 @@
 #include <fuse_core/callback_wrapper.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
+#include <rclcpp/contexts/default_context.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <functional>
@@ -76,7 +77,7 @@ void AsyncMotionModel::initialize(const std::string& name)
   name_ = name;
   std::string node_namespace = "";
 
-  rclcpp::Context::SharedPtr ros_context = std::make_shared<rclcpp::Context>();
+  rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
 
   ros_context->init(0, NULL);    // XXX should expose the init arg list

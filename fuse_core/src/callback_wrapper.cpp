@@ -40,15 +40,17 @@ namespace fuse_core
 
   CallbackAdapter::CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr){
 
-    rcl_guard_condition_options_t guard_condition_options = 
+    rcl_guard_condition_options_t guard_condition_options =
         rcl_guard_condition_get_default_options();
 
     // Guard condition is used by the wait set to handle execute-or-not logic
     gc_ = rcl_get_zero_initialized_guard_condition();
-    rcl_ret_t ret = rcl_guard_condition_init(
-        &gc_, context_ptr->get_rcl_context().get(), guard_condition_options);
-    // XXX ret needs to be used to silence a warning
-
+    if (RCL_RET_OK != rcl_guard_condition_init(
+      &gc_, context_ptr->get_rcl_context().get(), guard_condition_options)
+    ) {
+      RCLCPP_WARN(rclcpp::get_logger("fuse"),
+                  "Could not init guard condition for callback waitable.");
+    }
   }
 
   /**
@@ -73,11 +75,13 @@ namespace fuse_core
     waitable_ptr = std::make_shared<CallbackAdapter>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */
-  bool CallbackAdapter::add_to_wait_set(rcl_wait_set_t * wait_set)
+  void CallbackAdapter::add_to_wait_set(rcl_wait_set_t * wait_set)
   {
     std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
-    rcl_ret_t ret = rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL);
-    return RCL_RET_OK == ret;
+    RCLCPP_WARN(rclcpp::get_logger("fuse"),
+    "Could not add callback waitable to wait set.");
+    if (RCL_RET_OK != rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL)) {
+    }
   }
 
   /**
@@ -99,7 +103,7 @@ namespace fuse_core
       std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
       if(!callback_queue_.empty()){
         cb_wrapper = callback_queue_.front();
-        callback_queue_.pop();
+        callback_queue_.pop_front();
       }
     }
     //the lock is released and the callback is no longer associated with the queue, run it.
@@ -110,22 +114,28 @@ namespace fuse_core
 
   void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase> &callback){
     std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    callback_queue_.push(callback);
-    rcl_ret_t ret = rcl_trigger_guard_condition(&gc_);
-    // XXX ret needs to be used to silence a warning, pull the callback off the queue on failure
-  } 
+    callback_queue_.push_back(callback);
+    if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
+      RCLCPP_WARN(rclcpp::get_logger("fuse"),
+                  "Could not trigger guard condition for callback, pulling callback off the queue.");
+      callback_queue_.pop_back();  // Undo
+    }
+  }
 
   void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase> && callback){
     std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    callback_queue_.push(std::move(callback));
-    rcl_ret_t ret = rcl_trigger_guard_condition(&gc_);
-    // XXX ret needs to be used to silence a warning, pull the callback off the queue on failure
+    callback_queue_.push_back(std::move(callback));
+    if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
+      RCLCPP_WARN(rclcpp::get_logger("fuse"),
+                  "Could not trigger guard condition for callback, pulling callback off the queue.");
+      callback_queue_.pop_back();  // Undo
+    }
   }
 
   void CallbackAdapter::removeAllCallbacks(){
     std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
     while(!callback_queue_.empty()){
-      callback_queue_.pop();
+      callback_queue_.pop_front();
     }
   }
 

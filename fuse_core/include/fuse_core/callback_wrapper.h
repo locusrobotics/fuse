@@ -37,7 +37,7 @@
 
 #include <functional>
 #include <future>
-#include <queue>
+#include <deque>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -78,7 +78,7 @@ namespace fuse_core
  * };
  *
  * auto callback_queue = std::make_shared<CallbackAdapter>(
- *   rclcpp::contexts::default_context::get_global_default_context());
+ *   rclcpp::contexts::get_global_default_context());
  * node->get_node_waitables_interface()->add_waitable(callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
  * MyClass my_object;
  * std::vector<double> really_big_data(1000000);
@@ -171,7 +171,7 @@ public:
     waitable_ptr = std::make_shared<CallbackWrapper>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */
-  bool add_to_wait_set(rcl_wait_set_t * wait_set);
+  void add_to_wait_set(rcl_wait_set_t * wait_set);
 
   std::shared_ptr< void > take_data();
 
@@ -188,9 +188,9 @@ public:
 private:
   std::recursive_mutex reentrant_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
-  
+
   std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
-  std::queue<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
+  std::deque<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
 };
 
 
