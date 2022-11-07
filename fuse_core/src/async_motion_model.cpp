@@ -70,14 +70,6 @@ bool AsyncMotionModel::apply(Transaction& transaction)
   return result.get();
 }
 
-void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
-{
-  auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph)));
-  auto result = callback->getFuture();
-  callback_queue_->addCallback(callback);
-  result.wait();
-}
-
 void AsyncMotionModel::initialize(const std::string& name)
 {
   // Initialize internal state
@@ -106,9 +98,21 @@ void AsyncMotionModel::initialize(const std::string& name)
   executor_->add_node(node_);
 }
 
+void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
+{
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+    std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph))
+  );
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
+  result.wait();
+}
+
 void AsyncMotionModel::start()
 {
-  auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStart, this));
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+    std::bind(&AsyncMotionModel::onStart, this)
+  );
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
@@ -118,7 +122,9 @@ void AsyncMotionModel::stop()
 {
   if (rclcpp::ok())
   {
-    auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncMotionModel::onStop, this));
+    auto callback = std::make_shared<CallbackWrapper<void>>(
+      std::bind(&AsyncMotionModel::onStop, this)
+    );
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();

@@ -34,11 +34,13 @@
 #ifndef FUSE_CORE_ASYNC_MOTION_MODEL_H
 #define FUSE_CORE_ASYNC_MOTION_MODEL_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
+
 #include <fuse_core/transaction.h>
+#include <fuse_core/graph.h>
 #include <fuse_core/callback_wrapper.h>
+
+//#include <fuse_core/fuse_macros.h>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -170,7 +172,7 @@ public:
   void stop() override;
 
 protected:
-  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;  //!< The local callback queue used for all subscriptions
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_; //!< The callback queue used for fuse internal callbacks
   std::string name_;  //!< The unique name for this motion model instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
