@@ -31,12 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_CORE_CALLBACK_WRAPPER_H
 #define FUSE_CORE_CALLBACK_WRAPPER_H
 
 #include <functional>
 #include <future>
+#include <queue>
 
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_core
 {
@@ -88,9 +91,18 @@ namespace fuse_core
  * @endcode
  */
 
+class CallbackWrapperBase
+{
+public:
+  /**
+   * @brief Call this function. This is used by the callback queue.
+   */
+  virtual void call();
+
+};
 
 template <typename T>
-class CallbackWrapper 
+class CallbackWrapper : public CallbackWrapperBase
 {
 public:
   using CallbackFunction = std::function<T(void)>;
@@ -116,7 +128,7 @@ public:
   /**
    * @brief Call this function. This is used by the callback queue.
    */
-  void call() override
+  void call()
   {
     promise_.set_value(callback_());
   }
@@ -140,32 +152,18 @@ class CallbackAdapter : public rclcpp::Waitable
 {
 public:
 
-  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr){
-
-    rcl_guard_condition_options_t guard_condition_options = 
-        rcl_guard_condition_get_default_options();
-
-    // Guard condition is used by the wait set to handle execute-or-not logic
-    gc_ = rcl_get_zero_initialized_guard_condition();
-    rcl_ret_t ret = rcl_guard_condition_init(
-        &gc_, context_ptr->get_rcl_context().get(), guard_condition_options);
-  }
+  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
 
   /**
    * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
    */
-  size_t get_number_of_ready_guard_conditions() { return 1;}
+  size_t get_number_of_ready_guard_conditions();
 
 
   /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
-  bool is_ready(rcl_wait_set_t * wait_set) {
-    (void) wait_set;
-    // std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    // a thread glitch isn't a disaster here and a mutex wouldn't stop it anyway
-    return !callback_queue_.empty();
-  }
+  bool is_ready(rcl_wait_set_t * wait_set);
 
 
   /**
@@ -173,48 +171,17 @@ public:
     waitable_ptr = std::make_shared<CallbackWrapper>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */
-  bool add_to_wait_set(rcl_wait_set_t * wait_set)
-  {
-    std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
-    rcl_ret_t ret = rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL);
-    return RCL_RET_OK == ret;
-  }
+  bool add_to_wait_set(rcl_wait_set_t * wait_set);
 
 
   // XXX check this against the threading model of the multi-threaded executor.
-  void execute(){
-    std::shared_ptr<CallbackWrapper> cb_wrapper = nullptr;
-    // fetch the callback ptr and release the lock without spending time in the callback
-    {
-      std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-      if(!callback_queue_.empty()){
-        cb_wrapper = callback_queue_.front();
-        callback_queue_.pop();
-      }
-    }
-    //the lock is released and the callback is no longer associated with the queue, run it.
-    if(cb_wrapper) {
-      cb_wrapper->call();
-    }
-  }
+  void execute();
 
-  void addCallback(const std::shared_ptr<CallbackWrapper> &callback){
-    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    callback_queue_.push(callback);
-    rcl_trigger_guard_condition(&gc_);
-  }
-  void addCallback(std::shared_ptr<CallbackWrapper> && callback){
-    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    callback_queue_.push(std::move(callback));
-    rcl_trigger_guard_condition(&gc_);
-  }
+  void addCallback(const std::shared_ptr<CallbackWrapperBase> &callback);
 
-  void removeAllCallbacks(){
-    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    while(!callback_queue_.empty()){
-      callback_queue_.pop();
-    }
-  }
+  void addCallback(std::shared_ptr<CallbackWrapperBase> && callback);
+
+  void removeAllCallbacks();
 
 
 private:
@@ -222,7 +189,7 @@ private:
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
   
   std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
-  std::queue<std::shared_ptr<CallbackWrapper> > callback_queue_;
+  std::queue<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
 };
 
 
