@@ -144,6 +144,7 @@ ros::Time FixedLagSmoother::computeLagExpirationTime() const
   auto start_time = getStartTime();
   auto now = timestamp_tracking_.currentStamp();
   // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
+  // XXX moved to std::Time for timestamps, this hack is no longer necessary
   return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
 }
 
@@ -248,7 +249,7 @@ void FixedLagSmoother::optimizationLoop()
       postprocessMarginalization(marginal_transaction_);
       // Note: The marginal transaction will not be applied until the next optimization iteration
       // Log a warning if the optimization took too long
-      auto optimization_complete = ros::Time::now();
+      auto optimization_complete = ros::Time::now();  // XXX use the timestamp tracking to tell the robot time
       if (optimization_complete > optimization_deadline)
       {
         RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10.0 * 1000,
@@ -259,7 +260,7 @@ void FixedLagSmoother::optimizationLoop()
   }
 }
 
-void FixedLagSmoother::optimizerTimerCallback(const ros::TimerEvent& event)
+void FixedLagSmoother::optimizerTimerCallback()
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
   if (!started_)

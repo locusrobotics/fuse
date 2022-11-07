@@ -49,9 +49,10 @@ class ExampleOptimizer : public fuse_optimizers::Optimizer
 public:
   FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer)
 
-  ExampleOptimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
-                 const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"))
-    : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
+  ExampleOptimizer(
+    rclcpp::NodeOptions options,
+    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
+  ) : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
   {
   }
 

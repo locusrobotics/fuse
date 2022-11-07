@@ -39,7 +39,8 @@
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
-#include <ros/ros.h>
+
+#include <rclcpp/rclcpp.hpp>
 #include <std_srvs/Empty.h>
 
 #include <atomic>
@@ -247,10 +248,8 @@ protected:
    *
    * This callback checks if a current optimization cycle is still running. If not, a new optimization cycle is started.
    * If so, we simply wait for the next timer event to start another optimization cycle.
-   *
-   * @param event  The ROS timer event metadata
    */
-  void optimizerTimerCallback(const ros::TimerEvent& event);
+  void optimizerTimerCallback();
 
   /**
    * @brief Generate motion model constraints for pending transactions and combine them into a single transaction
@@ -271,7 +270,7 @@ protected:
   bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
 
   /**
-   * @brief Thread-safe read-only access to the optimizer start time
+   * @brief Thread-safe read-only access to the timestamp of the first transaction
    */
   ros::Time getStartTime() const
   {

@@ -34,8 +34,6 @@
 #ifndef FUSE_CORE_CALLBACK_WRAPPER_H
 #define FUSE_CORE_CALLBACK_WRAPPER_H
 
-#include <ros/callback_queue_interface.h>
-
 #include <functional>
 #include <future>
 
