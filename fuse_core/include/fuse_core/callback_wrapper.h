@@ -76,18 +76,23 @@ namespace fuse_core
  *   }
  * };
  *
+ * auto callback_queue = std::make_shared<CallbackAdapter>(
+ *   rclcpp::contexts::default_context::get_global_default_context());
+ * node->get_node_waitables_interface()->add_waitable(callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
  * MyClass my_object;
  * std::vector<double> really_big_data(1000000);
  * auto callback = boost::make_shared<CallbackWrapper<double> >(
  *   std::bind(&MyClass::processData, &my_object, std::ref(really_big_data)));
+ * callback_queue->add_callback(callback);
  * std::future<double> result = callback->getFuture();
- * ros::getGlobalCallbackQueue()->addCallback(callback);
  * result.wait();
  * RCLCPP_INFO_STREAM(rclcpp::get_logger("fuse"), "The result is: " << result.get());
  * @endcode
  */
+
+
 template <typename T>
-class CallbackWrapper : public ros::CallbackInterface
+class CallbackWrapper 
 {
 public:
   using CallbackFunction = std::function<T(void)>;
@@ -113,10 +118,9 @@ public:
   /**
    * @brief Call this function. This is used by the callback queue.
    */
-  CallResult call() override
+  void call() override
   {
     promise_.set_value(callback_());
-    return Success;
   }
 
 private:
@@ -127,12 +131,102 @@ private:
 // Specialization to handle 'void' return types
 // Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
 template <>
-inline ros::CallbackInterface::CallResult CallbackWrapper<void>::call()
+inline void CallbackWrapper<void>::call()
 {
   callback_();
   promise_.set_value();
-  return Success;
 }
+
+
+class CallbackAdapter : public rclcpp::Waitable
+{
+public:
+
+  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr){
+
+    rcl_guard_condition_options_t guard_condition_options = 
+        rcl_guard_condition_get_default_options();
+
+    // Guard condition is used by the wait set to handle execute-or-not logic
+    gc_ = rcl_get_zero_initialized_guard_condition();
+    rcl_ret_t ret = rcl_guard_condition_init(
+        &gc_, context_ptr->get_rcl_context().get(), guard_condition_options);
+  }
+
+  /**
+   * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
+   */
+  size_t get_number_of_ready_guard_conditions() { return 1;}
+
+
+  /**
+   * @brief tell the CallbackGroup that this waitable is ready to execute anything
+   */
+  bool is_ready(rcl_wait_set_t * wait_set) {
+    (void) wait_set;
+    // std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    // a thread glitch isn't a disaster here and a mutex wouldn't stop it anyway
+    return !callback_queue_.empty();
+  }
+
+
+  /**
+   * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and CallbackGroup::add_waitable()
+    waitable_ptr = std::make_shared<CallbackWrapper>();
+    node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+   */
+  bool add_to_wait_set(rcl_wait_set_t * wait_set)
+  {
+    std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
+    rcl_ret_t ret = rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL);
+    return RCL_RET_OK == ret;
+  }
+
+
+  // XXX check this against the threading model of the multi-threaded executor.
+  void execute(){
+    std::shared_ptr<CallbackWrapper> cb_wrapper = nullptr;
+    // fetch the callback ptr and release the lock without spending time in the callback
+    {
+      std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+      if(!callback_queue_.empty()){
+        cb_wrapper = callback_queue_.front();
+        callback_queue_.pop();
+      }
+    }
+    //the lock is released and the callback is no longer associated with the queue, run it.
+    if(cb_wrapper) {
+      cb_wrapper->call();
+    }
+  }
+
+  void addCallback(const std::shared_ptr<CallbackWrapper> &callback){
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    callback_queue_.push(callback);
+    rcl_trigger_guard_condition(&gc_);
+  }
+  void addCallback(std::shared_ptr<CallbackWrapper> && callback){
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    callback_queue_.push(std::move(callback));
+    rcl_trigger_guard_condition(&gc_);
+  }
+
+  void removeAllCallbacks(){
+    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    while(!callback_queue_.empty()){
+      callback_queue_.pop();
+    }
+  }
+
+
+private:
+  std::recursive_mutex reentrant_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
+  
+  std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  std::queue<std::shared_ptr<CallbackWrapper> > callback_queue_;
+};
+
 
 }  // namespace fuse_core
 
