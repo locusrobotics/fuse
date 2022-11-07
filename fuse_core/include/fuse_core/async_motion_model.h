@@ -38,6 +38,8 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/callback_wrapper.h>
+
 #include <rclcpp/rclcpp.hpp>
 
 #include <string>
@@ -168,11 +170,12 @@ public:
   void stop() override;
 
 protected:
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;  //!< The local callback queue used for all subscriptions
   std::string name_;  //!< The unique name for this motion model instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
-  rclcpp::executors::MultiThreadedExecutor executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   rclcpp::node_interfaces::NodeWaitablesInterface::SharedPtr waitables_interface_;
-
+  size_t executor_thread_count_;
   /**
    * @brief Constructor
    *

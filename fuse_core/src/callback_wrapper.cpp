@@ -47,6 +47,8 @@ namespace fuse_core
     gc_ = rcl_get_zero_initialized_guard_condition();
     rcl_ret_t ret = rcl_guard_condition_init(
         &gc_, context_ptr->get_rcl_context().get(), guard_condition_options);
+    // XXX ret needs to be used to silence a warning
+
   }
 
   /**
@@ -78,9 +80,19 @@ namespace fuse_core
     return RCL_RET_OK == ret;
   }
 
+  /**
+   * @brief unused part of the rclcpp::waitables interface
+   *
+   */
+  std::shared_ptr< void > take_data(){
+    return nullptr;
+  }
 
-  // XXX check this against the threading model of the multi-threaded executor.
-  void CallbackAdapter::execute(){
+  /**
+   * @brief hook that allows the rclcpp::waitables interface to run the next callback
+   *
+   */
+  void CallbackAdapter::execute(std::shared_ptr<void> & /*data*/){
     std::shared_ptr<CallbackWrapperBase> cb_wrapper = nullptr;
     // fetch the callback ptr and release the lock without spending time in the callback
     {
@@ -99,13 +111,15 @@ namespace fuse_core
   void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase> &callback){
     std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
     callback_queue_.push(callback);
-    rcl_trigger_guard_condition(&gc_);
+    rcl_ret_t ret = rcl_trigger_guard_condition(&gc_);
+    // XXX ret needs to be used to silence a warning, pull the callback off the queue on failure
   } 
 
   void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase> && callback){
     std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
     callback_queue_.push(std::move(callback));
-    rcl_trigger_guard_condition(&gc_);
+    rcl_ret_t ret = rcl_trigger_guard_condition(&gc_);
+    // XXX ret needs to be used to silence a warning, pull the callback off the queue on failure
   }
 
   void CallbackAdapter::removeAllCallbacks(){
