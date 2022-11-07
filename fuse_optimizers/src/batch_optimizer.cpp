@@ -195,7 +195,7 @@ void BatchOptimizer::transactionCallback(
   auto transaction_clock_type = transaction->stamp()->get_clock_type();
 
   rclcpp::Time transaction_time = transaction->stamp();
-  rclcpp::Time last_pending_time(0, 0, transaction_clock_type);
+  rclcpp::Time last_pending_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
   if (!started_ || transaction_time >= start_time_)
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
@@ -212,12 +212,15 @@ void BatchOptimizer::transactionCallback(
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
-    rclcpp::Time purge_time(0, 1, transaction_clock_type);  // Initialized
+    rclcpp::Time purge_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
     if (started_)
     {
       purge_time = start_time_;
     }
-    else if (rclcpp::Time(0, 1, transaction_clock_type) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
+    // NOTE(CH3): In this case we're okay with uninitialized time since it's just used
+    //            for comparison
+    // prevent a bad subtraction
+    else if (rclcpp::Time(0, 0, transaction_clock_type) + params_.transaction_timeout < last_pending_time)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }

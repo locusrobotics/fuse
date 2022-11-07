@@ -68,7 +68,7 @@ class StampedVariableSynchronizer
 {
 public:
   FUSE_SMART_PTR_DEFINITIONS(StampedVariableSynchronizer);
-  static const rclcpp::Time TIME_ZERO;  //!< Constant representing a zero timestamp
+  static const rclcpp::Time ROS_TIME_ZERO;  //!< Constant representing a zero timestamp
 
   /**
    * @brief Construct a synchronizer object
@@ -261,13 +261,23 @@ struct is_variable_in_pack<T, Ts...>
 
 }  // namespace detail
 
+// NOTE(CH3): ROS_TIME_ZERO should be uninitialized, it's used for getting latest time!
 template <typename ...Ts>
-const rclcpp::Time StampedVariableSynchronizer<Ts...>::TIME_ZERO = rclcpp::Time(0, 0);
+const rclcpp::Time StampedVariableSynchronizer<Ts...>::ROS_TIME_ZERO =
+  rclcpp::Time(0, 0, RCL_ROS_TIME);
+
+template <typename ...Ts>
+const rclcpp::Time StampedVariableSynchronizer<Ts...>::SYSTEM_TIME_ZERO =
+  rclcpp::Time(0, 0, RCL_SYSTEM_TIME);
+
+template <typename ...Ts>
+const rclcpp::Time StampedVariableSynchronizer<Ts...>::STEADY_TIME_ZERO =
+  rclcpp::Time(0, 0, RCL_STEADY_TIME);
 
 template <typename ...Ts>
 StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(const fuse_core::UUID& device_id) :
   device_id_(device_id),
-  latest_common_stamp_(TIME_ZERO)
+  latest_common_stamp_(ROS_TIME_ZERO)  // NOTE(CH3): Uninitialized, for getting latest
 {
   static_assert(detail::allStampedVariables<Ts...>, "All synchronized types must be derived from both "
                                                     "fuse_core::Variable and fuse_variable::Stamped.");
@@ -280,15 +290,15 @@ rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(
   const fuse_core::Graph& graph)
 {
   // Clear the previous stamp if the variable was deleted
-  if (latest_common_stamp_ != TIME_ZERO &&
+  if (latest_common_stamp_ != ROS_TIME_ZERO &&
       !detail::all_variables_exist<Ts...>::value(graph, latest_common_stamp_, device_id_))
   {
-    latest_common_stamp_ = TIME_ZERO;
+    latest_common_stamp_ = ROS_TIME_ZERO;
   }
   // Search the transaction for more recent variables
   updateTime(transaction.addedVariables(), graph);
   // If no common timestamp was found, search the whole graph for the most recent variable set
-  if (latest_common_stamp_ == TIME_ZERO)
+  if (latest_common_stamp_ == ROS_TIME_ZERO)
   {
     updateTime(graph.getVariables(), graph);
   }

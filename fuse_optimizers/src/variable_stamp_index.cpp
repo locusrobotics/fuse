@@ -58,7 +58,8 @@ rclcpp::Time VariableStampIndex::currentStamp(rcl_clock_t defualt_clock_type) co
   }
   else
   {
-    return rclcpp::Time(0, 0, default_clock_type);
+    // NOTE(CH3): Might be useful to figure out where to place uninitialized checks later on...
+    return rclcpp::Time(0, 0, default_clock_type);  // NOTE(CH3): Signals uninitialized
   }
 }
 

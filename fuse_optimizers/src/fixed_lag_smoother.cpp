@@ -169,6 +169,7 @@ void FixedLagSmoother::optimizationLoop()
   while (ros::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
+    // NOTE(CH3): Uninitialized, but it's ok since it's meant to get overwritten.
     auto optimization_deadline = rclcpp::Time(0, 0, RCL_ROS_TIME);
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
@@ -442,7 +443,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   }
   started_ = false;
   ignited_ = false;
-  setStartTime(rclcpp::Time(0, 0, RCL_ROS_TIME));  // NOTE(CH3): UNINITIALIZED!
+  setStartTime(rclcpp::Time(0, 1, RCL_ROS_TIME));  // NOTE(CH3): INITIALIZED!
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
@@ -457,7 +458,7 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
     graph_->clear();
     marginal_transaction_ = fuse_core::Transaction();
     timestamp_tracking_.clear();
-    lag_expiration_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+    lag_expiration_ = rclcpp::Time(0, 1, RCL_ROS_TIME);  // NOTE(CH3): INITIALIZED!
   }
   // Tell all the plugins to start
   startPlugins();
@@ -528,10 +529,12 @@ void FixedLagSmoother::transactionCallback(
       else
       {
         // And purge out old transactions to limit the pending size while waiting for an ignition sensor
-        auto purge_time = rclcpp::Time(0, 0, RCL_ROS_TIME);
+        auto purge_time = rclcpp::Time(0, 0, RCL_ROS_TIME);  // NOTE(CH3): Uninitialized
         auto last_pending_time = pending_transactions_.front().stamp();
 
         // rclcpp::Time doesn't allow negatives
+        // NOTE(CH3): In this case we're okay with uninitialized time since it's just used
+        //            for comparison
         if (rclcpp::Time(0, 0, RCL_ROS_TIME) + params_.transaction_timeout < last_pending_time)
         {
           purge_time = last_pending_time - params_.transaction_timeout;
