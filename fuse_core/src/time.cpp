@@ -33,7 +33,6 @@
  */
 
 
-
 /*
  * This file provides a sane configuration for a clock to manage order of events.
  * This file exists to help with a migration from rclcpp::Time to rclcpp::time
@@ -54,6 +53,12 @@
 namespace fuse_core
 {
 // UTILITIES =======================================================================================
+bool is_valid(rclcpp::Time time)
+{
+  return time.nanoseconds() > 0;
+}
+
+
 bool is_valid(rclcpp::Clock::SharedPtr clock)
 {
   // Checks for null pointer, missing get_now() implementation, and RCL_CLOCK_UNINITIALIZED
@@ -65,7 +70,7 @@ bool is_valid(rclcpp::Clock::SharedPtr clock)
     case RCL_ROS_TIME:
     case RCL_STEADY_TIME:
     case RCL_SYSTEM_TIME:
-      return clock->now().nanoseconds() > 0;
+      return is_valid(clock->now());
 
     // By right we shouldn't even get to this block, but these cases are included for completeness
     case RCL_CLOCK_UNINITIALIZED:
