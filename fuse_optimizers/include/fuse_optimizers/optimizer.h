@@ -42,8 +42,7 @@
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
 #include <pluginlib/class_loader.hpp>
-#include <ros/ros.h>
-// #include <rclcpp/rclcpp.hpp> TODO(CH3): Uncomment when it's time
+#include <rclcpp/rclcpp.hpp>
 
 #include <string>
 #include <unordered_map>
@@ -105,9 +104,9 @@ public:
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   Optimizer(
+    rclcpp::NodeOptions options,
     fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+    );
 
   /**
    * @brief Destructor
@@ -151,10 +150,6 @@ protected:
   AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used for each sensor
   fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
 
-  // Ordering ROS objects with callbacks last
-  // TODO(CH3): Store clock interface
-  ros::NodeHandle node_handle_;  //!< Node handle in the public namespace for subscribing and advertising
-  ros::NodeHandle private_node_handle_;  //!< Node handle in the private namespace for reading configuration settings
   pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader for MotionModels
   MotionModels motion_models_;  //!< The set of motion models, addressable by name
   pluginlib::ClassLoader<fuse_core::Publisher> publisher_loader_;  //!< Pluginlib class loader for Publishers
@@ -163,8 +158,11 @@ protected:
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
-  rclcpp::TimerBase::SharedPtr diagnostic_updater_timer_;  //!< Diagnostic updater timer
+  rclcpp::TimerBase::SharedPtr diagnostic_updater_timer_; //!< Diagnostic updater timer
   double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
+
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
+
 
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
@@ -227,7 +225,7 @@ protected:
     fuse_core::Transaction::ConstSharedPtr transaction,
     fuse_core::Graph::ConstSharedPtr graph);
 
-   /**
+  /**
    * @brief Inject a transaction callback function into the global callback queue
    *
    * @param[in] sensor_name The name of the sensor that produced the Transaction

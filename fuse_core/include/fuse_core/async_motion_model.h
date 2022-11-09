@@ -34,14 +34,15 @@
 #ifndef FUSE_CORE_ASYNC_MOTION_MODEL_H
 #define FUSE_CORE_ASYNC_MOTION_MODEL_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
+
 #include <fuse_core/transaction.h>
-// #include <rclcpp/rclcpp.hpp>  TODO(CH3): Uncomment when ready
-#include <ros/callback_queue.h>
-#include <ros/node_handle.h>
-#include <ros/spinner.h>
+#include <fuse_core/graph.h>
+#include <fuse_core/callback_wrapper.h>
+
+//#include <fuse_core/fuse_macros.h>
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <string>
 
@@ -171,13 +172,12 @@ public:
   void stop() override;
 
 protected:
-  ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_; //!< The callback queue used for fuse internal callbacks
   std::string name_;  //!< The unique name for this motion model instance
-  // rclcpp::Node::SharedPtr node_;  //!< The node for this motion model (TODO(CH3): Uncomment when it's time)
-  ros::NodeHandle node_handle_;  //!< A node handle in the global namespace using the local callback queue
-  ros::NodeHandle private_node_handle_;  //!< A node handle in the private namespace using the local callback queue
-  ros::AsyncSpinner spinner_;  //!< A single/multi-threaded spinner assigned to the local callback queue
-
+  rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
+  rclcpp::node_interfaces::NodeWaitablesInterface::SharedPtr waitables_interface_;
+  size_t executor_thread_count_;
   /**
    * @brief Constructor
    *

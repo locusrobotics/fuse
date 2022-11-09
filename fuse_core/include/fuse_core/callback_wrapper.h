@@ -31,14 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_CORE_CALLBACK_WRAPPER_H
 #define FUSE_CORE_CALLBACK_WRAPPER_H
 
-#include <ros/callback_queue_interface.h>
-
 #include <functional>
 #include <future>
+#include <deque>
 
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_core
 {
@@ -76,18 +77,32 @@ namespace fuse_core
  *   }
  * };
  *
+ * auto callback_queue = std::make_shared<CallbackAdapter>(
+ *   rclcpp::contexts::get_global_default_context());
+ * node->get_node_waitables_interface()->add_waitable(callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
  * MyClass my_object;
  * std::vector<double> really_big_data(1000000);
  * auto callback = boost::make_shared<CallbackWrapper<double> >(
  *   std::bind(&MyClass::processData, &my_object, std::ref(really_big_data)));
+ * callback_queue->add_callback(callback);
  * std::future<double> result = callback->getFuture();
- * ros::getGlobalCallbackQueue()->addCallback(callback);
  * result.wait();
  * RCLCPP_INFO_STREAM(rclcpp::get_logger("fuse"), "The result is: " << result.get());
  * @endcode
  */
+
+class CallbackWrapperBase
+{
+public:
+  /**
+   * @brief Call this function. This is used by the callback queue.
+   */
+  virtual void call() = 0;
+
+};
+
 template <typename T>
-class CallbackWrapper : public ros::CallbackInterface
+class CallbackWrapper : public CallbackWrapperBase
 {
 public:
   using CallbackFunction = std::function<T(void)>;
@@ -113,10 +128,9 @@ public:
   /**
    * @brief Call this function. This is used by the callback queue.
    */
-  CallResult call() override
+  void call()
   {
     promise_.set_value(callback_());
-    return Success;
   }
 
 private:
@@ -127,12 +141,58 @@ private:
 // Specialization to handle 'void' return types
 // Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
 template <>
-inline ros::CallbackInterface::CallResult CallbackWrapper<void>::call()
+inline void CallbackWrapper<void>::call()
 {
   callback_();
   promise_.set_value();
-  return Success;
 }
+
+
+class CallbackAdapter : public rclcpp::Waitable
+{
+public:
+
+  CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
+
+  /**
+   * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
+   */
+  size_t get_number_of_ready_guard_conditions();
+
+
+  /**
+   * @brief tell the CallbackGroup that this waitable is ready to execute anything
+   */
+  bool is_ready(rcl_wait_set_t * wait_set);
+
+
+  /**
+   * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and CallbackGroup::add_waitable()
+    waitable_ptr = std::make_shared<CallbackWrapper>();
+    node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+   */
+  void add_to_wait_set(rcl_wait_set_t * wait_set);
+
+  std::shared_ptr< void > take_data();
+
+  // XXX check this against the threading model of the multi-threaded executor.
+  void execute(std::shared_ptr<void> & /*data*/);
+
+  void addCallback(const std::shared_ptr<CallbackWrapperBase> &callback);
+
+  void addCallback(std::shared_ptr<CallbackWrapperBase> && callback);
+
+  void removeAllCallbacks();
+
+
+private:
+  std::recursive_mutex reentrant_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
+
+  std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  std::deque<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
+};
+
 
 }  // namespace fuse_core
 

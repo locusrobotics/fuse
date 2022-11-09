@@ -37,9 +37,6 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_optimizers/optimizer.h>
-#include <ros/callback_queue.h>
-#include <ros/init.h>
-#include <ros/node_handle.h>
 
 #include <XmlRpcValue.h>
 
@@ -80,28 +77,30 @@ struct PluginConfig
   XmlRpc::XmlRpcValue config;  //!< The entire configuration, that might have additional optional parameters
 };
 
-Optimizer::Optimizer(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
+// TODO(CH3): pass a rclcpp::Context, and a CallbackGroup
+Optimizer::Optimizer(rclcpp::NodeOptions options, fuse_core::Graph::UniquePtr graph) :
+    Node("optimizer_node", options),
     graph_(std::move(graph)),
-    node_handle_(node_handle),
-    private_node_handle_(private_node_handle),
     motion_model_loader_("fuse_core", "fuse_core::MotionModel"),
     publisher_loader_("fuse_core", "fuse_core::Publisher"),
     sensor_model_loader_("fuse_core", "fuse_core::SensorModel"),
-    diagnostic_updater_(node_handle_)
+    diagnostic_updater_(shared_from_this()),
+    callback_queue_(rclcpp::contexts::get_global_default_context())
 {
   // Setup diagnostics updater
-  private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
-                             diagnostic_updater_timer_period_);
+  // TODO(CH3): private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
+  //                                       diagnostic_updater_timer_period_);
 
   diagnostic_updater_timer_ = this->create_timer(
     rclcpp::Duration::from_seconds(diagnostic_updater_timer_period_),
     std::bind(&diagnostic_updater::Updater::update, &diagnostic_updater_)
   );
 
-  diagnostic_updater_.add(private_node_handle_.getNamespace(), this, &Optimizer::setDiagnostics);
+  //add a ros1 style callback queue so that transactions can be processed in the optimiser's executor
+  this->get_node_waitables_interface()->add_waitable(
+    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+
+  diagnostic_updater_.add(this->get_namespace(), this, &Optimizer::setDiagnostics);
   diagnostic_updater_.setHardwareID("fuse");
 
   // Wait for a valid time before loading any of the plugins
@@ -434,15 +433,15 @@ void Optimizer::injectCallback(
   // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
   // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
   // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
-  ros::getGlobalCallbackQueue()->addCallback(
-    boost::make_shared<fuse_core::CallbackWrapper<void>>(
-      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction))),
-    reinterpret_cast<uint64_t>(this));
+
+  auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
+      std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction)));
+  callback_queue_->addCallback(callback, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 }
 
 void Optimizer::clearCallbacks()
 {
-  ros::getGlobalCallbackQueue()->removeByID(reinterpret_cast<uint64_t>(this));
+  callback_queue_->removeAllCallbacks();
 }
 
 void Optimizer::startPlugins()
@@ -489,7 +488,9 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat
     return;
   }
 
-  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
+  // TODO test for previous convergence success or failure
+
+  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimizer exists");
 
   auto print_key = [](const std::string& result, const auto& entry) { return result + entry.first + ' '; };
 

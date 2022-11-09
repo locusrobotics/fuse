@@ -182,8 +182,6 @@ protected:
    *
    * This callback checks if a current optimization cycle is still running. If not, a new optimization cycle is started.
    * If so, we simply wait for the next timer event to start another optimization cycle.
-   *
-   * @param event  The ROS timer event metadata
    */
   void optimizerTimerCallback();
 

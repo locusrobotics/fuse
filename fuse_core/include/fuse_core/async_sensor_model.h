@@ -34,14 +34,13 @@
 #ifndef FUSE_CORE_ASYNC_SENSOR_MODEL_H
 #define FUSE_CORE_ASYNC_SENSOR_MODEL_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
 #include <fuse_core/sensor_model.h>
+
 #include <fuse_core/transaction.h>
-// #include <rclcpp/rclcpp.hpp>  TODO(CH3): Uncomment when ready
-#include <ros/callback_queue.h>
-#include <ros/node_handle.h>
-#include <ros/spinner.h>
+#include <fuse_core/graph.h>
+#include <fuse_core/callback_wrapper.h>
+
+//#include <fuse_core/fuse_macros.h>
 
 #include <functional>
 #include <string>
@@ -175,14 +174,13 @@ public:
   void stop() override;
 
 protected:
-  // TODO(CH3): Add a node clock interface
-  ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_; //!< The callback queue used for fuse internal callbacks
   std::string name_;  //!< The unique name for this sensor model instance
-  // rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model (TODO(CH3): Uncomment when it's time)
-  ros::NodeHandle node_handle_;  //!< A node handle in the global namespace using the local callback queue
-  ros::NodeHandle private_node_handle_;  //!< A node handle in the private namespace using the local callback queue
-  ros::AsyncSpinner spinner_;  //!< A single/multi-threaded spinner assigned to the local callback queue
+  rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   TransactionCallback transaction_callback_;  //!< The function to be executed every time a Transaction is "published"
+  rclcpp::node_interfaces::NodeWaitablesInterface::SharedPtr waitables_interface_;
+  size_t executor_thread_count_;
 
   /**
    * @brief Constructor
