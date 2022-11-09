@@ -188,7 +188,7 @@ void Pose2DPublisher::onStart()
   // Start the tf timer
   if (publish_to_tf_)
   {
-    tf_publish_timer_ = node_.create_wall_timer(
+    tf_publish_timer_ = node_.create_timer(
       rclcpp::Duration::from_seconds(1.0 / tf_publish_frequency),
       std::bind(&Pose2DPublisher::tfPublishTimerCallback, this)
     );
@@ -200,7 +200,7 @@ void Pose2DPublisher::onStop()
   // Stop the tf timer
   if (publish_to_tf_)
   {
-    tf_publish_timer_.reset();
+    tf_publish_timer_.cancel();
   }
 }
 

@@ -60,7 +60,7 @@ BatchOptimizer::BatchOptimizer(
   params_.loadFromROS(private_node_handle);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_.create_wall_timer(
+  optimize_timer_ = this->create_timer(
     params_.optimization_period,
     std::bind(&BatchOptimizer::optimizerTimerCallback, this)
   );

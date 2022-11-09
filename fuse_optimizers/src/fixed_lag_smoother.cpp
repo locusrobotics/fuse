@@ -97,7 +97,7 @@ FixedLagSmoother::FixedLagSmoother(
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_.create_wall_timer(
+  optimize_timer_ = this->create_timer(
     params_.optimization_period,
     std::bind(&FixedLagSmoother::optimizerTimerCallback, this)
   );
@@ -196,7 +196,7 @@ void FixedLagSmoother::optimizationLoop()
       //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
       //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
       //         not extremely careful, we could get a deadlock.
-      //  XXX make sure lag_expiration_ has been initialised
+      //  TODO(CH3): We might have to make sure lag_expiration_ has been initialised
       processQueue(*new_transaction, lag_expiration_);
       // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
       // transactions queue.
@@ -286,11 +286,7 @@ void FixedLagSmoother::optimizerTimerCallback()
     {
       std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
       optimization_request_ = true;
-      // TODO(CH3): ??????? No idea what this does...
-      // XXX event.current_expected refers to when ROS planned to execute the callback, not the current time.
-      //     wall-time and measurement-time should be decoupled further
-      // optimization_deadline_ = event.current_expected + params_.optimization_period;
-      optimization_deadline_ = get_clock()->now() + params_.optimization_period;
+      optimization_deadline_ = get_clock()->now() + optimize_timer_->time_until_trigger();
     }
     optimization_requested_.notify_one();
   }

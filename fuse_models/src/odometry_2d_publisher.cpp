@@ -238,7 +238,7 @@ void Odometry2DPublisher::onStart()
   acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
 
   // TODO(CH3): Add this to a separate callback group for async behavior
-  publish_timer_ = this->node_.create_wall_timer(
+  publish_timer_ = this->node_.create_timer(
     rclcpp::Duration::from_seconds(1.0 / params_.publish_frequency),
     std::bind(&Odometry2DPublisher::publishTimerCallback, this)
   );
@@ -248,7 +248,7 @@ void Odometry2DPublisher::onStart()
 
 void Odometry2DPublisher::onStop()
 {
-  publish_timer_.reset();
+  publish_timer_.cancel();
 }
 
 bool Odometry2DPublisher::getState(

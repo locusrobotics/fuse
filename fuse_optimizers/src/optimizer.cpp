@@ -96,7 +96,7 @@ Optimizer::Optimizer(
   private_node_handle_.param("diagnostic_updater_timer_period", diagnostic_updater_timer_period_,
                              diagnostic_updater_timer_period_);
 
-  diagnostic_updater_timer_ = node_.create_wall_timer(
+  diagnostic_updater_timer_ = this->create_timer(
     rclcpp::Duration::from_seconds(diagnostic_updater_timer_period_),
     std::bind(&diagnostic_updater::Updater::update, &diagnostic_updater_)
   );

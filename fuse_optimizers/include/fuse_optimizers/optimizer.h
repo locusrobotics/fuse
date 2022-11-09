@@ -91,7 +91,7 @@ namespace fuse_optimizers
  *  - ...
  * @endcode
  */
-class Optimizer // : public rclcpp::Node TODO(CH3): Uncomment when it's time
+class Optimizer : public rclcpp::Node
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)

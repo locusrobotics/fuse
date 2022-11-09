@@ -119,12 +119,12 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
  */
 sensor_msgs::PointCloud2::ConstPtr beaconsToPointcloud(
   const std::vector<Beacon>& beacons,
-  rclcpp::node_interfaces::NodeClockInterface::SharedPtr clock_interface=nullptr)
+  rclcpp::Clock::SharedPtr clock=nullptr)
 {
   auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
 
-  if (clock_interface != nullptr) {
-    msg->header.stamp = clock_interface->get_clock()->now();
+  if (clock != nullptr) {
+    msg->header.stamp = clock->now();
   } else {
     msg->header.stamp = rclcpp::Clock(RCL_SYSTEM_TIME).now();
   }
@@ -199,7 +199,7 @@ nav_msgs::Odometry::ConstPtr robotToOdometry(const Robot& state)
  * The state estimator will not run until it has been sent a starting pose.
  */
 void initializeStateEstimation(
-  const Robot& state, rclcpp::node_interfaces::NodeClockInterface::SharedPtr clock_interface=nullptr)
+  const Robot& state, rclcpp::Clock::SharedPtr clock=nullptr)
 {
   // Send the initial localization signal to the state estimator
   auto srv = fuse_models::SetPose();
@@ -223,8 +223,8 @@ void initializeStateEstimation(
   {
     rclcpp::Duration::from_seconds(0.1).sleep();
 
-    if (clock_interface != nullptr) {
-      srv.request.pose.header.stamp = clock_interface->get_clock()->now();
+    if (clock != nullptr) {
+      srv.request.pose.header.stamp = clock->now();
     } else {
       srv.request.pose.header.stamp = rclcpp::Clock(RCL_SYSTEM_TIME).now();
     }
@@ -365,11 +365,11 @@ int main(int argc, char **argv)
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
-  true_beacons_publisher.publish(beaconsToPointcloud(beacons), node->get_node_clock_interface);
+  true_beacons_publisher.publish(beaconsToPointcloud(beacons), node->get_clock());
 
   // Publish a set of noisy beacon locations to act as the known priors
   auto noisy_beacons = createNoisyBeacons(beacons);
-  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons, node->get_node_clock_interface);
+  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons, node->get_clock());
 
   // Initialize the robot state
   auto state = Robot();
