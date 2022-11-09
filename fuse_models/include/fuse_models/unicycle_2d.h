@@ -185,7 +185,7 @@ protected:
 
   rclcpp::Duration buffer_length_;                    //!< The length of the state history
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
-  rclcpp::TimeManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
+  fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
   fuse_core::Matrix8d process_noise_covariance_;   //!< Process noise covariance matrix
   bool scale_process_noise_{ false };              //!< Whether to scale the process noise covariance pose by the norm
                                                    //!< of the current state twist

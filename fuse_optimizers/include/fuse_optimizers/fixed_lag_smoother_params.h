@@ -58,7 +58,7 @@ public:
   /**
    * @brief The duration of the smoothing window in seconds
    */
-  rclcpp::Duration lag_duration { RCUTILS_S_TO_NS(5.0) };
+  rclcpp::Duration lag_duration { 5, 0 };
 
   /**
    * @brief The target duration for optimization cycles

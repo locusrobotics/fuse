@@ -85,7 +85,7 @@ public:
     generated_time_spans.emplace_back(beginning_stamp, ending_stamp);
   }
 
-  rclcpp::TimeManager manager;
+  fuse_core::TimestampManager manager;
   std::vector<std::pair<rclcpp::Time, rclcpp::Time> > generated_time_spans;
 };
 

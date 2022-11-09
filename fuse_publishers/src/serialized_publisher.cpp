@@ -67,7 +67,7 @@ void SerializedPublisher::onInit()
   bool latch = false;
   private_node_handle_.getParam("latch", latch);
 
-  rclcpp::Duration graph_throttle_period{ RCUTILS_S_TO_NS(0.0) };
+  rclcpp::Duration graph_throttle_period{ 0 };
   fuse_core::getPositiveParam(private_node_handle_, "graph_throttle_period", graph_throttle_period, false);
 
   bool graph_throttle_use_wall_time{ false };
