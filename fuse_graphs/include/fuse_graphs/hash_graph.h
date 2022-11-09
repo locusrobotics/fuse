@@ -56,6 +56,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <chrono>
 
 
 namespace fuse_graphs

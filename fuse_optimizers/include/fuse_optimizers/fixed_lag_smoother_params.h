@@ -90,29 +90,31 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+
+   * @param[in] node - The node used to load the parameter
    */
-  void loadFromROS(const ros::NodeHandle& nh)
+  void loadFromROS(
+    rclcpp::Node& node)
   {
     // Read settings from the parameter server
-    fuse_core::getPositiveParam(nh, "lag_duration", lag_duration);
+    fuse_core::getPositiveParam(node, "lag_duration", lag_duration);
 
-    if (nh.hasParam("optimization_frequency"))
+    if (node_handle.hasParam("optimization_frequency"))
     {
       double optimization_frequency{ 1.0 / optimization_period.seconds() };
-      fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
-      optimization_period.fromSec(1.0 / optimization_frequency);
+      fuse_core::getPositiveParam(node_params, logger, "optimization_frequency", optimization_frequency);
+      optimization_period = rclcpp::Duration::from_seconds(RCUTILS_S_TO_NS(1.0 / optimization_frequency));
     }
     else
     {
-      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
+      fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
     }
 
-    nh.getParam("reset_service", reset_service);
+    fuse_core::getParam(node, "reset_service", reset_service);
 
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
+    fuse_core::getPositiveParam(node, "transaction_timeout", transaction_timeout);
 
-    fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
+    fuse_core::loadSolverOptionsFromROS(node, solver_options);
   }
 };
 

@@ -25,20 +25,39 @@ catkin_package(
     ${build_depends}
 )
 
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+
+find_package(fuse_constraints REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_msgs REQUIRED)
+find_package(fuse_graphs REQUIRED)
+find_package(fuse_variables REQUIRED)
+
+find_package(std_srvs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp_components REQUIRED)
+
+find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(Ceres REQUIRED)
+find_package(Eigen3 REQUIRED)
+
 ###########
 ## Build ##
 ###########
 add_compile_options(-Wall -Werror)
 
 ## fuse_optimizers library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/batch_optimizer.cpp
   src/fixed_lag_smoother.cpp
   src/optimizer.cpp
   src/variable_stamp_index.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
+  ${EIGEN3_INCLUDE_DIRS}
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -54,69 +73,82 @@ set_target_properties(${PROJECT_NAME}
     CXX_STANDARD_REQUIRED YES
 )
 
+
 ## batch_optimizer node
 add_executable(batch_optimizer_node
-  src/batch_optimizer_node.cpp
+src/batch_optimizer_node.cpp
+src/batch_optimizer.cpp
+src/optimizer.cpp
+src/variable_stamp_index.cpp
 )
-add_dependencies(batch_optimizer_node
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(batch_optimizer_node
-  PRIVATE
-    include
-    ${catkin_INCLUDE_DIRS}
+
+target_include_directories(batch_optimizer_node PUBLIC
+include
 )
 target_link_libraries(batch_optimizer_node
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
+${PROJECT_NAME}
+${Boost_LIBRARIES}
+#  ${CERES_LIBRARIES}
+#  ${GLOG_LIBRARIES}
 )
-set_target_properties(batch_optimizer_node
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+ament_target_dependencies(batch_optimizer_node
+rclcpp
+fuse_constraints
+fuse_core
+fuse_msgs
+fuse_graphs
+fuse_variables
+std_srvs
+diagnostic_updater
+pluginlib
+rclcpp_components
 )
 
 ## fixed_lag_smoother node
 add_executable(fixed_lag_smoother_node
-  src/fixed_lag_smoother_node.cpp
+src/fixed_lag_smoother_node.cpp
+src/fixed_lag_smoother.cpp
+src/optimizer.cpp
+src/variable_stamp_index.cpp
 )
-add_dependencies(fixed_lag_smoother_node
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(fixed_lag_smoother_node
-  PRIVATE
-    include
-    ${catkin_INCLUDE_DIRS}
+target_include_directories(fixed_lag_smoother_node PUBLIC
+include
 )
 target_link_libraries(fixed_lag_smoother_node
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
+${PROJECT_NAME}
+${Boost_LIBRARIES}
+${CERES_LIBRARIES}
+#  ${GLOG_LIBRARIES}
 )
-set_target_properties(fixed_lag_smoother_node
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+ament_target_dependencies(fixed_lag_smoother_node
+rclcpp
+fuse_constraints
+fuse_core
+fuse_msgs
+fuse_graphs
+fuse_variables
+std_srvs
+diagnostic_updater
+pluginlib
+rclcpp_components
 )
+
+
 
 #############
 ## Install ##
 #############
 
-install(
-  TARGETS
-    ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 install(
-  TARGETS
-    batch_optimizer_node
-    fixed_lag_smoother_node
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
+  TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  )
+  
 install(
   DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
@@ -213,3 +245,7 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 endif()
+
+ament_package(
+  CONFIG_EXTRAS
+)

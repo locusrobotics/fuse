@@ -68,7 +68,7 @@ template <typename ...Ts>
 class StampedVariableSynchronizer
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(StampedVariableSynchronizer);
+  FUSE_SMART_PTR_DEFINITIONS(StampedVariableSynchronizer)
 
   /**
    * @brief Construct a synchronizer object

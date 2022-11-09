@@ -79,16 +79,17 @@ namespace fuse_optimizers
 {
 
 FixedLagSmoother::FixedLagSmoother(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-    fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    ignited_(false),
-    optimization_running_(true),
-    started_(false),
-    optimization_request_(false)
+  rclcpp::NodeOptions options,
+  std::string node_name,
+  fuse_core::Graph::UniquePtr graph
+) :
+  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
+  ignited_(false),
+  optimization_running_(true),
+  started_(false),
+  optimization_request_(false)
 {
-  params_.loadFromROS(private_node_handle);
+  params_.loadFromROS(*this);
 
   // Test for auto-start
   autostart();
@@ -98,15 +99,21 @@ FixedLagSmoother::FixedLagSmoother(
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = this->create_timer(
-    params_.optimization_period,
+    params_.optimization_period.to_chrono<std::chrono::nanoseconds>(),
     std::bind(&FixedLagSmoother::optimizerTimerCallback, this)
   );
 
   // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = node_handle_.advertiseService(
-    ros::names::resolve(params_.reset_service),
-    &FixedLagSmoother::resetServiceCallback,
-    this);
+  reset_service_server_ = create_service<std_srvs::srv::Empty>(
+    params_.reset_service,
+    std::bind(
+      &FixedLagSmoother::resetServiceCallback,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2
+    )
+  );
+
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -168,10 +175,10 @@ void FixedLagSmoother::optimizationLoop()
 {
   auto exit_wait_condition = [this]()
   {
-    return this->optimization_request_ || !this->optimization_running_ || !ros::ok();
+    return this->optimization_request_ || !this->optimization_running_ || !rclcpp::ok();
   };
   // Optimize constraints until told to exit
-  while (ros::ok() && optimization_running_)
+  while (rclcpp::ok() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
     // NOTE(CH3): Uninitialized, but it's ok since it's meant to get overwritten.
@@ -183,7 +190,7 @@ void FixedLagSmoother::optimizationLoop()
       optimization_deadline = optimization_deadline_;
     }
     // If a shutdown is requested, exit now.
-    if (!optimization_running_ || !ros::ok())
+    if (!optimization_running_ || !rclcpp::ok())
     {
       break;
     }
@@ -224,7 +231,7 @@ void FixedLagSmoother::optimizationLoop()
         RCLCPP_FATAL_STREAM(this->get_logger(),
                             "Failed to update graph with transaction: " << ex.what()
                             << "\nLeaving optimization loop and requesting node shutdown...\n" << oss.str());
-        ros::requestShutdown();
+        rclcpp::shutdown();
         break;
       }
       // Optimize the entire graph
@@ -240,15 +247,15 @@ void FixedLagSmoother::optimizationLoop()
         RCLCPP_FATAL_STREAM(this->get_logger(),
                             "Optimization failed after updating the graph with the transaction with timestamp "
                             << new_transaction_stamp << ". Leaving optimization loop and requesting node shutdown...");
-        RCLCPP_INFO_STREAM(this->get_logger(), summary_.FullReport());
-        ros::requestShutdown();
+        RCLCPP_INFO(get_logger(), summary_.FullReport().c_str());
+        rclcpp::shutdown();
         break;
       }
 
       // Compute a transaction that marginalizes out those variables.
       lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
-        ros::this_node::getName(),
+        get_name(),
         computeVariablesToMarginalize(lag_expiration_),
         *graph_);
       // Perform any post-marginal cleanup
@@ -433,8 +440,10 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   }
 }
 
-bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
-{
+bool FixedLagSmoother::resetServiceCallback(
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  const std::shared_ptr<std_srvs::srv::Empty::Response>
+){
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state

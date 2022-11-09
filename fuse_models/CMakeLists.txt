@@ -1,27 +1,37 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(fuse_models)
 
-find_package(
-  catkin REQUIRED
-  COMPONENTS
-    fuse_constraints
-    fuse_core
-    fuse_graphs
-    fuse_msgs
-    fuse_publishers
-    fuse_variables
-    geometry_msgs
-    message_generation
-    nav_msgs
-    pluginlib
-    roscpp
-    roslint
-    sensor_msgs
-    std_srvs
-    tf2
-    tf2_2d
-    tf2_geometry_msgs
-    tf2_ros)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Debug)
+
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+
+find_package(fuse_constraints REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_graphs REQUIRED)
+find_package(fuse_msgs REQUIRED)
+find_package(fuse_publishers REQUIRED)
+find_package(fuse_variables REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(message_generation REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(rcl_components REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(roslint REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_2d REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -37,52 +47,25 @@ add_service_files(
     SetPoseDeprecated.srv
 )
 
-generate_messages(
-  DEPENDENCIES
-    geometry_msgs
-    fuse_msgs
-    std_msgs
+
+## Generate added messages and services with any dependencies listed here
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${srv_files}
+  DEPENDENCIES builtin_interfaces std_msgs
 )
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    fuse_constraints
-    fuse_core
-    fuse_graphs
-    fuse_msgs
-    fuse_publishers
-    fuse_variables
-    geometry_msgs
-    message_runtime
-    nav_msgs
-    pluginlib
-    roscpp
-    sensor_msgs
-    std_srvs
-    tf2
-    tf2_2d
-    tf2_geometry_msgs
-    tf2_ros
-  DEPENDS
-    Boost
-    CERES
-    EIGEN3
-)
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
-roslint_cpp()
+#set(ROSLINT_CPP_OPTS "--filter=-build/c++17,-runtime/references")
+#roslint_cpp()
 
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+
+include_directories(include)
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/acceleration_2d.cpp
   src/graph_ignition.cpp
   src/imu_2d.cpp
@@ -95,52 +78,68 @@ add_library(${PROJECT_NAME}
   src/unicycle_2d_ignition.cpp
   src/unicycle_2d_state_kinematic_constraint.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
+  ${Boost_INCLUDE_DIRS}
+  ${CERES_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${Boost_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-)
+
 target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
 )
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+
+ament_target_dependencies(${PROJECT_NAME} PUBLIC
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  fuse_constraints
+  fuse_core
+  fuse_graphs
+  fuse_msgs
+  fuse_publishers
+  fuse_variables
+  geometry_msgs
+  message_generation
+  nav_msgs
+  rcl_components
+  rclcpp
+  roslint
+  sensor_msgs
+  std_srvs
+  tf2
+  tf2_2d
+  tf2_geometry_msgs
+  tf2_ros
 )
+
 
 #############
 ## Install ##
 #############
 
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
 ## Mark executables and/or libraries for installation
 install(
   TARGETS
     ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION DESTINATION lib
+  LIBRARY DESTINATION DESTINATION lib
+  RUNTIME DESTINATION DESTINATION bin
 )
 
 ## Mark cpp header files for installation
 install(
-  DIRECTORY
-    include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DIRECTORY include/
+  DESTINATION include/
   FILES_MATCHING PATTERN "*.h"
 )
 
 install(
   FILES fuse_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
 
 #############
@@ -281,3 +280,7 @@ if(CATKIN_ENABLE_TESTING)
     endif()
   endif()
 endif()
+
+ament_package(
+  CONFIG_EXTRAS
+)

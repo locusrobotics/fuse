@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>fuse_optimizers</name>
   <version>0.4.2</version>
   <description>
@@ -17,11 +20,14 @@
   <depend>diagnostic_updater</depend>
   <depend>fuse_constraints</depend>
   <depend>fuse_core</depend>
+  <depend>fuse_msgs</depend>
   <depend>fuse_graphs</depend>
   <depend>fuse_variables</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>std_srvs</depend>
+  <depend>eigen</depend>
+
   <test_depend>fuse_models</test_depend>
   <test_depend>geometry_msgs</test_depend>
   <test_depend>nav_msgs</test_depend>

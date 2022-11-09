@@ -70,7 +70,7 @@ public:
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
-  rclcpp::Duration optimization_period { RCUTILS_S_TO_NS(0.1) };
+  rclcpp::Duration transaction_timeout { RCUTILS_S_TO_NS(0.1) };
 
   /**
    * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
@@ -80,25 +80,28 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+   * @param[in] node_handle - The node used to load the parameter
    */
-  void loadFromROS(const ros::NodeHandle& nh)
+  void loadFromROS(
+    rclcpp::Node& node_handle)
   {
     // Read settings from the parameter server
     if (nh.hasParam("optimization_frequency"))
     {
       double optimization_frequency{ 1.0 / optimization_period.seconds() };
-      fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
-      optimization_period.fromSec(1.0 / optimization_frequency);
+      fuse_core::getPositiveParam(node_params, logger, "optimization_frequency", optimization_frequency);
+      optimization_period = rclcpp::Duration::from_seconds(RCUTILS_S_TO_NS(1.0 / optimization_frequency));
     }
     else
     {
-      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
+      fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
     }
 
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
+    fuse_core::getPositiveParam(node_handle, "optimization_period", optimization_period);
 
-    fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
+    fuse_core::getPositiveParam(node_handle, "transaction_timeout", transaction_timeout);
+
+    fuse_core::loadSolverOptionsFromROS(node_handle, solver_options);
   }
 };
 

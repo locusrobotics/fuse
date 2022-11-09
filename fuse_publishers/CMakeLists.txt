@@ -1,76 +1,77 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(fuse_publishers)
 
-set(build_depends
-  fuse_core
-  fuse_variables
-  geometry_msgs
-  nav_msgs
-  pluginlib
-  roscpp
-  tf2
-  tf2_geometry_msgs
-  tf2_ros
-)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Debug)
 
-find_package(catkin REQUIRED COMPONENTS
-  ${build_depends}
-)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    ${build_depends}
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(fuse_core)
+find_package(fuse_variables)
+find_package(geometry_msgs)
+find_package(nav_msgs)
+find_package(pluginlib)
+find_package(rclcpp)
+find_package(tf2)
+find_package(tf2_geometry_msgs)
+find_package(tf2_ros)
 
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+
+include_directories(include)
 
 # fuse_publishers library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/path_2d_publisher.cpp
   src/pose_2d_publisher.cpp
-  src/serialized_publisher.cpp
+  #src/serialized_publisher.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  include
 )
 target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
 )
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+ament_target_dependencies(${PROJECT_NAME}
+  fuse_core
+  fuse_variables
+  rclcpp
+  geometry_msgs
+  nav_msgs
+  pluginlib
+  tf2
+  tf2_geometry_msgs
+  tf2_ros
 )
 
 #############
 ## Install ##
 #############
 
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
 install(
   TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+  ARCHIVE DESTINATION DESTINATION lib
+  LIBRARY DESTINATION DESTINATION lib
+  RUNTIME DESTINATION DESTINATION bin
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+install(
+  DIRECTORY include/
+  DESTINATION include/
 )
 
 install(FILES fuse_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
 
 #############
@@ -162,3 +163,7 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 endif()
+
+ament_package(
+  CONFIG_EXTRAS
+)

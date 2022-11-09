@@ -29,7 +29,7 @@ catkin_package(
 add_compile_options(-Wall -Werror)
 
 ## fuse_variables library
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/acceleration_angular_2d_stamped.cpp
   src/acceleration_angular_3d_stamped.cpp
   src/acceleration_linear_2d_stamped.cpp
@@ -71,6 +71,9 @@ set_target_properties(${PROJECT_NAME}
 ## Install ##
 #############
 
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
 install(
   TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -83,8 +86,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 install(
-  FILES fuse_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DIRECTORY include/
+  DESTINATION include/
 )
 
 #############

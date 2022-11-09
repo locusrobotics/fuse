@@ -33,25 +33,11 @@
  */
 #include <fuse_publishers/pose_2d_publisher.h>
 
-#include <fuse_core/async_publisher.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/time.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <pluginlib/class_list_macros.h>
-#include <rclcpp/clock.hpp>
-#include <ros/ros.h>
-#include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <fuse_core/parameter.h>
+
+#include <chrono>
 #include <exception>
-#include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -69,7 +55,8 @@ bool findPose(
   const fuse_core::UUID& device_id,
   fuse_core::UUID& orientation_uuid,
   fuse_core::UUID& position_uuid,
-  geometry_msgs::Pose& pose)
+  geometry_msgs::msg::Pose& pose,
+  rclcpp::Logger logger)
 {
   try
   {
@@ -106,7 +93,7 @@ namespace fuse_publishers
 
 Pose2DPublisher::Pose2DPublisher() :
   fuse_core::AsyncPublisher(1),
-  device_id_(fuse_core::uuid::NIL),
+  device_id_(fuse_core::uuid::NIL)//,
   publish_to_tf_(false),
   use_tf_lookup_(false)
 {
@@ -115,19 +102,24 @@ Pose2DPublisher::Pose2DPublisher() :
 void Pose2DPublisher::onInit()
 {
   // Read configuration from the parameter server
-  private_node_handle_.param("base_frame", base_frame_, std::string("base_link"));
-  private_node_handle_.param("map_frame", map_frame_, std::string("map"));
-  private_node_handle_.param("odom_frame", odom_frame_, std::string("odom"));
+  base_frame_ = fuse_core::getParam(node_, "base_frame", std::string("base_link"));
+  map_frame_ = fuse_core::getParam(node_, "map_frame", std::string("map"));
+  odom_frame_ = fuse_core::getParam(node_, "odom_frame", std::string("odom"));
+
   std::string device_str;
-  if (private_node_handle_.getParam("device_id", device_str))
+  fuse_core::getParam(node_, "device_id", device_str);
+  if (device_str != "")
   {
     device_id_ = fuse_core::uuid::from_string(device_str);
   }
-  else if (private_node_handle_.getParam("device_name", device_str))
-  {
-    device_id_ = fuse_core::uuid::generate(device_str);
+  else{
+    fuse_core::getParam(node_, "device_name", device_str);
+    if (device_str != "")
+    {
+      device_id_ = fuse_core::uuid::generate(device_str);
+    }
   }
-  private_node_handle_.param("publish_to_tf", publish_to_tf_, false);
+  publish_to_tf_ = fuse_core::getParam(node_, "publish_to_tf", false);
 
   // Configure tf, if requested
   if (publish_to_tf_)
@@ -137,7 +129,7 @@ void Pose2DPublisher::onInit()
     {
       double tf_cache_time;
       double default_tf_cache_time = 10.0;
-      private_node_handle_.param("tf_cache_time", tf_cache_time, default_tf_cache_time);
+      tf_cache_time = fuse_core::getParam(node_, "tf_cache_time", default_tf_cache_time);
       if (tf_cache_time <= 0)
       {
         RCLCPP_WARN_STREAM(node_->get_logger(),
@@ -148,7 +140,7 @@ void Pose2DPublisher::onInit()
 
       double tf_timeout;
       double default_tf_timeout = 0.1;
-      private_node_handle_.param("tf_timeout", tf_timeout, default_tf_timeout);
+      tf_timeout = fuse_core::getParam(node_, "tf_timeout", default_tf_timeout);
       if (tf_timeout <= 0)
       {
         RCLCPP_WARN_STREAM(node_->get_logger(),
@@ -164,7 +156,8 @@ void Pose2DPublisher::onInit()
 
     double tf_publish_frequency;
     double default_tf_publish_frequency = 10.0;
-    private_node_handle_.param("tf_publish_frequency", tf_publish_frequency, default_tf_publish_frequency);
+
+    tf_publish_frequency = fuse_core::getParam(node_, "tf_publish_frequency", default_tf_publish_frequency);
     if (tf_publish_frequency <= 0)
     {
       RCLCPP_WARN_STREAM(node_->get_logger(),
@@ -172,25 +165,34 @@ void Pose2DPublisher::onInit()
                          default_tf_publish_frequency << "hz) instead.");
       tf_publish_frequency = default_tf_publish_frequency;
     }
+
+    tf_publish_timer_ = rclcpp::create_timer(
+      node_,
+      node_->get_clock(),
+      std::chrono::nanoseconds(RCUTILS_S_TO_NS(1.0 / tf_publish_frequency)),
+      &Pose2DPublisher::tfPublishTimerCallback
+      // callback_group
+    );
   }
 
   // Advertise the topics
-  pose_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseStamped>("pose", 1);
-  pose_with_covariance_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
+  pose_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("pose", 1);
+
+  pose_with_covariance_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "pose_with_covariance", 1);
 }
 
 void Pose2DPublisher::onStart()
 {
   // Clear the transform
-  tf_transform_ = geometry_msgs::TransformStamped();
+  tf_transform_ = geometry_msgs::msg::TransformStamped();
   // Clear the synchronizer
   synchronizer_ = Synchronizer::make_unique(device_id_);
   // Start the tf timer
   if (publish_to_tf_)
   {
     tf_publish_timer_ = node_.create_timer(
-      rclcpp::Duration::from_seconds(1.0 / tf_publish_frequency),
+      std::chrono::nanoseconds(RCUTILS_S_TO_NS(1.0 / tf_publish_frequency)),
       std::bind(&Pose2DPublisher::tfPublishTimerCallback, this)
     );
   }
@@ -220,8 +222,8 @@ void Pose2DPublisher::notifyCallback(
   // Get the pose values associated with the selected timestamp
   fuse_core::UUID orientation_uuid;
   fuse_core::UUID position_uuid;
-  geometry_msgs::Pose pose;
-  if (!findPose(*graph, latest_stamp, device_id_, orientation_uuid, position_uuid, pose))
+  geometry_msgs::msg::Pose pose;
+  if (!findPose(*graph, latest_stamp, device_id_, orientation_uuid, position_uuid, pose, node_->get_logger()))
   {
     return;
   }
@@ -229,8 +231,8 @@ void Pose2DPublisher::notifyCallback(
   if (publish_to_tf_)
   {
     // Create a 3D ROS Transform message from the current 2D pose
-    geometry_msgs::TransformStamped map_to_base;
-    map_to_base.header.stamp = latest_stamp;
+    geometry_msgs::msg::TransformStamped map_to_base;
+    map_to_base.header.stamp = fuse_core::stamp_to_ros(latest_stamp);
     map_to_base.header.frame_id = map_frame_;
     map_to_base.child_frame_id = base_frame_;
     map_to_base.transform.translation.x = pose.position.x;  // Transforms use Vector3 instead of Point (shakes fist)
@@ -245,7 +247,7 @@ void Pose2DPublisher::notifyCallback(
       try
       {
         auto base_to_odom = tf_buffer_->lookupTransform(base_frame_, odom_frame_, latest_stamp, tf_timeout_);
-        geometry_msgs::TransformStamped map_to_odom;
+        geometry_msgs::msg::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, map_to_base);
         map_to_odom.child_frame_id = odom_frame_;  // The child frame is not populated for some reason
         tf_transform_ = map_to_odom;
@@ -263,15 +265,15 @@ void Pose2DPublisher::notifyCallback(
       tf_transform_ = map_to_base;
     }
   }
-  if (pose_publisher_.getNumSubscribers() > 0)
+  if (pose_publisher_->get_subscription_count() > 0)
   {
-    geometry_msgs::PoseStamped msg;
-    msg.header.stamp = latest_stamp;
+    geometry_msgs::msg::PoseStamped msg;
+    msg.header.stamp = fuse_core::stamp_to_ros(latest_stamp);
     msg.header.frame_id = map_frame_;
     msg.pose = pose;
-    pose_publisher_.publish(msg);
+    pose_publisher_->publish(msg);
   }
-  if (pose_with_covariance_publisher_.getNumSubscribers() > 0)
+  if (pose_with_covariance_publisher_->get_subscription_count() > 0)
   {
     // Get the covariance from the graph
     std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> requests;
@@ -280,8 +282,8 @@ void Pose2DPublisher::notifyCallback(
     requests.emplace_back(orientation_uuid, orientation_uuid);
     std::vector<std::vector<double>> covariance_blocks;
     graph->getCovariance(requests, covariance_blocks);
-    geometry_msgs::PoseWithCovarianceStamped msg;
-    msg.header.stamp = latest_stamp;
+    geometry_msgs::msg::PoseWithCovarianceStamped msg;
+    msg.header.stamp = fuse_core::stamp_to_ros(latest_stamp);
     msg.header.frame_id = map_frame_;
     msg.pose.pose = pose;
     msg.pose.covariance[0] = covariance_blocks[0][0];
@@ -293,7 +295,7 @@ void Pose2DPublisher::notifyCallback(
     msg.pose.covariance[30] = covariance_blocks[1][0];
     msg.pose.covariance[31] = covariance_blocks[1][1];
     msg.pose.covariance[35] = covariance_blocks[2][0];
-    pose_with_covariance_publisher_.publish(msg);
+    pose_with_covariance_publisher_->publish(msg);
   }
 }
 

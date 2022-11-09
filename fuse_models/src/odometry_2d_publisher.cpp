@@ -48,6 +48,7 @@
 #include <tf2_ros/transform_listener.h>
 
 #include <algorithm>
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -239,7 +240,7 @@ void Odometry2DPublisher::onStart()
 
   // TODO(CH3): Add this to a separate callback group for async behavior
   publish_timer_ = this->node_.create_timer(
-    rclcpp::Duration::from_seconds(1.0 / params_.publish_frequency),
+    std::chrono::nanoseconds(RCUTILS_S_TO_NS(1.0 / params_.publish_frequency)),
     std::bind(&Odometry2DPublisher::publishTimerCallback, this)
   );
 
