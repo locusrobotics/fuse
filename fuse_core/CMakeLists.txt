@@ -82,8 +82,58 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  # find_package(ament_cmake_gtest REQUIRED)
-  # add_subdirectory(test)
+  ament_add_gtest(test_constraint
+    test/test_constraint.cpp)
+  target_link_libraries(test_constraint ${PROJECT_NAME})
+  target_include_directories(test_constraint PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  ament_add_gtest(test_eigen
+    test/test_eigen.cpp)
+  target_link_libraries(test_eigen ${PROJECT_NAME})
+  target_include_directories(test_eigen PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  # TODO(sloretz) fails to build: can't include ros/node_handle.h
+  # ament_add_gtest(test_local_parameterization
+  #   test/test_local_parameterization.cpp)
+  # target_link_libraries(test_local_parameterization ${PROJECT_NAME})
+  # target_include_directories(test_local_parameterization PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  ament_add_gtest(test_loss
+    test/test_loss.cpp)
+  target_link_libraries(test_loss ${PROJECT_NAME})
+  target_include_directories(test_loss PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  # TODO(sloretz) fails to build: invalid use of rclcpp::Time::get_clock_type()
+  # ament_add_gtest(test_message_buffer
+  #   test/test_message_buffer.cpp)
+  # target_link_libraries(test_message_buffer ${PROJECT_NAME})
+  # target_include_directories(test_message_buffer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  ament_add_gtest(test_timestamp_manager
+    test/test_timestamp_manager.cpp)
+  target_link_libraries(test_timestamp_manager ${PROJECT_NAME})
+  target_include_directories(test_timestamp_manager PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  ament_add_gtest(test_transaction
+    test/test_transaction.cpp)
+  target_link_libraries(test_transaction ${PROJECT_NAME})
+  target_include_directories(test_transaction PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  # TODO(sloretz) fails to build: can't include ros/node_handle.h
+  # ament_add_gtest(test_util
+  #   test/test_util.cpp)
+  # target_link_libraries(test_util ${PROJECT_NAME})
+  # target_include_directories(test_util PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  ament_add_gtest(test_uuid
+    test/test_uuid.cpp)
+  target_link_libraries(test_uuid ${PROJECT_NAME})
+  target_include_directories(test_uuid PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  ament_add_gtest(test_variable
+    test/test_variable.cpp)
+  target_link_libraries(test_variable ${PROJECT_NAME})
+  target_include_directories(test_variable PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 # TODO(CH3): Move this to the test directory and port to ROS 2
@@ -199,173 +249,6 @@ endif()
 #       CXX_STANDARD_REQUIRED YES
 #   )
 
-#   # Constraint tests
-#   catkin_add_gtest(test_constraint
-#     test/test_constraint.cpp
-#   )
-#   add_dependencies(test_constraint
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_constraint
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${CMAKE_CURRENT_SOURCE_DIR}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_constraint
-#     ${PROJECT_NAME}
-#   )
-#   set_target_properties(test_constraint
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Eigen tests
-#   catkin_add_gtest(test_eigen
-#     test/test_eigen.cpp
-#   )
-#   add_dependencies(test_eigen
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_eigen
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${CMAKE_CURRENT_SOURCE_DIR}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_eigen
-#     ${PROJECT_NAME}
-#   )
-#   set_target_properties(test_eigen
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Local Parameterization tests
-#   catkin_add_gtest(test_local_parameterization
-#     test/test_local_parameterization.cpp
-#   )
-#   target_include_directories(test_local_parameterization
-#     PRIVATE
-#       include
-#   )
-#   target_link_libraries(test_local_parameterization
-#     ${PROJECT_NAME}
-#   )
-#   set_target_properties(test_local_parameterization
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Loss tests
-#   catkin_add_gtest(test_loss
-#     test/test_loss.cpp
-#   )
-#   add_dependencies(test_loss
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_loss
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${CMAKE_CURRENT_SOURCE_DIR}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_loss
-#     ${PROJECT_NAME}
-#   )
-#   set_target_properties(test_loss
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Message Buffer Tests
-#   catkin_add_gtest(test_message_buffer
-#     test/test_message_buffer.cpp
-#   )
-#   add_dependencies(test_message_buffer
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_message_buffer
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_message_buffer
-#     ${catkin_LIBRARIES}
-#   )
-#   set_target_properties(test_message_buffer
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Timestamp Manager Tests
-#   catkin_add_gtest(test_timestamp_manager
-#     test/test_timestamp_manager.cpp
-#   )
-#   add_dependencies(test_timestamp_manager
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_timestamp_manager
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_timestamp_manager
-#     ${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#   )
-#   set_target_properties(test_timestamp_manager
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Transaction tests
-#   catkin_add_gtest(test_transaction
-#     test/test_transaction.cpp
-#   )
-#   add_dependencies(test_transaction
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_transaction
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${CMAKE_CURRENT_SOURCE_DIR}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_transaction
-#     ${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#   )
-#   set_target_properties(test_transaction
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
 #   # Parameter tests
 #   add_rostest_gtest(test_parameter
 #     test/parameter.test
@@ -402,80 +285,6 @@ endif()
 #     ${catkin_LIBRARIES}
 #   )
 #   set_target_properties(test_throttled_callback
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Util tests
-#   catkin_add_gtest(test_util
-#     test/test_util.cpp
-#   )
-#   add_dependencies(test_util
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_util
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_util
-#     ${catkin_LIBRARIES}
-#   )
-#   set_target_properties(test_util
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # UUID tests
-#   catkin_add_gtest(test_uuid
-#     test/test_uuid.cpp
-#   )
-#   add_dependencies(test_uuid
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_uuid
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_uuid
-#     ${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#   )
-#   set_target_properties(test_uuid
-#     PROPERTIES
-#       CXX_STANDARD 14
-#       CXX_STANDARD_REQUIRED YES
-#   )
-
-#   # Variable tests
-#   catkin_add_gtest(test_variable
-#     test/test_variable.cpp
-#   )
-#   add_dependencies(test_variable
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-#   target_include_directories(test_variable
-#     PRIVATE
-#       include
-#       ${Boost_INCLUDE_DIRS}
-#       ${catkin_INCLUDE_DIRS}
-#       ${CERES_INCLUDE_DIRS}
-#       ${CMAKE_CURRENT_SOURCE_DIR}
-#       ${EIGEN3_INCLUDE_DIRS}
-#   )
-#   target_link_libraries(test_variable
-#     ${PROJECT_NAME}
-#   )
-#   set_target_properties(test_variable
 #     PROPERTIES
 #       CXX_STANDARD 14
 #       CXX_STANDARD_REQUIRED YES
