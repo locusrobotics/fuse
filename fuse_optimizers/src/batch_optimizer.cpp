@@ -217,10 +217,9 @@ void BatchOptimizer::transactionCallback(
     {
       purge_time = start_time_;
     }
-    // NOTE(CH3): In this case we're okay with uninitialized time since it's just used
-    //            for comparison
     // prevent a bad subtraction
-    else if (rclcpp::Time(0, 0, transaction_clock_type) + params_.transaction_timeout < last_pending_time)
+    else if (rclcpp::Time(params_.transaction_timeout.nanoseconds, last_pending_time.get_clock_type())
+             < last_pending_time)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }
