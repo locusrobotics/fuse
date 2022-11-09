@@ -261,7 +261,7 @@ TEST(VariableStampIndex, CurrentStamp)
   auto index = fuse_optimizers::VariableStampIndex();
 
   // Verify the current stamp is 0
-  EXPECT_EQ(rclcpp::Time(0, 0), index.currentStamp());
+  EXPECT_EQ(rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED), index.currentStamp());
 
   // Add an unstamped variable
   auto x1 = UnstampedVariable::make_shared();
@@ -270,7 +270,7 @@ TEST(VariableStampIndex, CurrentStamp)
   index.addNewTransaction(transaction1);
 
   // Verify the current stamp is still 0
-  EXPECT_EQ(rclcpp::Time(0, 0), index.currentStamp());
+  EXPECT_EQ(rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED), index.currentStamp());
 
   // Add a stamped variable
   auto x2 = StampedVariable::make_shared(rclcpp::Time(1, 0));

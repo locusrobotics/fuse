@@ -91,11 +91,9 @@ public:
   /**
    * @brief Returns the most recent timestamp associated with any variable
    *
-   * @param[in] default_clock_type The clock type of the returned rclcpp::Time if the index is empty
+   * If there is no timestamp in the index, returns rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED)
    */
-  // TODO(CH3), NOTE(CH3): I think RCL_ROS_TIME makes sense as a default type, but that deviates
-  // from the rclcpp::Time default. What should the clock type be?
-  rclcpp::Time currentStamp(rcl_clock_t default_clock_type=RCL_ROS_TIME) const;
+  rclcpp::Time currentStamp() const;
 
   /**
    * @brief Update the index with the information from the added transactions

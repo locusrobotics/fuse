@@ -55,6 +55,9 @@
 
 namespace fuse_core
 {
+// NOTE(CH3): These are snake case despite the rest of the codebase being camel-case because
+//            they're anticipating rclcpp methods!!
+
 /**
  * @brief Check if time is valid (non-zero)
  *

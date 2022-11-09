@@ -143,6 +143,11 @@ rclcpp::Time FixedLagSmoother::computeLagExpirationTime() const
   // Find the most recent variable timestamp
   auto start_time = getStartTime();
   auto now = timestamp_tracking_.currentStamp();
+
+  if (!fuse_core::is_valid(now)) {  // now is Time(0, 0)
+    return start_time;
+  }
+
   // Then carefully subtract the lag duration. ROS Time objects do not handle negative values.
   return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
 }
@@ -633,18 +638,16 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
     // Add time since the last optimization request time. This is useful to detect if no transactions are received for
     // too long
-    bool got_deadline_from_mutex = false;
     auto optimization_deadline = decltype(optimization_deadline_)();
     {
       const std::unique_lock<std::mutex> lock(optimization_requested_mutex_, std::try_to_lock);
       if (lock)
       {
         optimization_deadline = optimization_deadline_;
-        got_deadline_from_mutex = true;
       }
     }
 
-    if (got_deadline_from_mutex)
+    if (fuse_core::is_valid(optimization_deadline))
     {
       const auto optimization_request_time = optimization_deadline - params_.optimization_period;
       const auto time_since_last_optimization_request =
