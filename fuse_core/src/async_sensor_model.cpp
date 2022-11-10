@@ -109,7 +109,7 @@ void AsyncSensorModel::start()
 
 void AsyncSensorModel::stop()
 {
-  if (rclcpp::ok())
+  if (node_->get_node_base_interface()->get_context()->is_valid())
   {
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncSensorModel::onStop, this)

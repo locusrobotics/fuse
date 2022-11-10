@@ -91,7 +91,7 @@ void AsyncPublisher::start()
 
 void AsyncPublisher::stop()
 {
-  if (rclcpp::ok())
+  if (node_->get_node_base_interface()->get_context()->is_valid())
   {
     auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStop, this));
     auto result = callback->getFuture();

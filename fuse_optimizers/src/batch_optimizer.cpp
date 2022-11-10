@@ -126,15 +126,19 @@ void BatchOptimizer::applyMotionModelsToQueue()
 void BatchOptimizer::optimizationLoop()
 {
   // Optimize constraints until told to exit
-  while (rclcpp::ok())
+  while (get_node_base_interface()->get_context()->is_valid())
   {
     // Wait for the next signal to start the next optimization cycle
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
-      optimization_requested_.wait(lock, [this]{ return optimization_request_ || !rclcpp::ok(); });  // NOLINT
+      optimization_requested_.wait(
+        lock,
+        [this]{
+          return optimization_request_ || !get_node_base_interface()->get_context()->is_valid();
+        });
     }
     // If a shutdown is requested, exit now.
-    if (!rclcpp::ok())
+    if (!get_node_base_interface()->get_context()->is_valid())
     {
       break;
     }
