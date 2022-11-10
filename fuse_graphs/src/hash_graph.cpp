@@ -31,13 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_graphs/hash_graph.h>
+ #include <fuse_graphs/hash_graph.h>
 
 #include <fuse_core/uuid.h>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/serialization/export.hpp>
+#include <rclcpp/clock.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -426,21 +427,26 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
 }
 
 ceres::Solver::Summary HashGraph::optimizeFor(
-  const std::chrono::nanoseconds& max_optimization_time,
+  const rclcpp::Duration& max_optimization_time,
   const ceres::Solver::Options& options)
 {
-  auto start = std::chrono::system_clock::now();
+  auto clock = rclcpp::Clock::Clock(RCL_STEADY_TIME);
+  auto start = clock.now();
+
   // Construct the ceres::Problem object from scratch
   ceres::Problem problem(problem_options_);
   createProblem(problem);
-  auto created_problem = std::chrono::system_clock::now();
+  auto created_problem = clock.now();
+
   // Modify the options to enforce the maximum time
-  std::chrono::nanoseconds remaining = max_optimization_time - (created_problem - start);
+  rclcpp::Duration remaining = max_optimization_time - (created_problem - start);
   auto time_constrained_options = options;
   time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.seconds());
+
   // Run the solver. This will update the variables in place.
   ceres::Solver::Summary summary;
   ceres::Solve(time_constrained_options, &problem, &summary);
+
   // Return the optimization summary
   return summary;
 }

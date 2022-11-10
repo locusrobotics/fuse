@@ -40,6 +40,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
+#include <rclcpp/duration.hpp>
 
 #include <boost/core/demangle.hpp>
 #include <boost/range/any_range.hpp>
@@ -379,7 +380,7 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   virtual ceres::Solver::Summary optimizeFor(
-    const std::chrono::nanoseconds& max_optimization_time,
+    const rclcpp::Duration& max_optimization_time,
     const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
 
   /**
