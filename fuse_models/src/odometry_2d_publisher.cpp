@@ -63,8 +63,8 @@ namespace fuse_models
 Odometry2DPublisher::Odometry2DPublisher() :
   fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
-  latest_stamp_(Synchronizer::ROS_TIME_ZERO),
-  latest_covariance_stamp_(Synchronizer::ROS_TIME_ZERO),
+  latest_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME)),
+  latest_covariance_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME)),
   publish_timer_spinner_(1, &publish_timer_callback_queue_)
 {
 }
@@ -96,7 +96,7 @@ void Odometry2DPublisher::notifyCallback(
 {
   // Find the most recent common timestamp
   const auto latest_stamp = synchronizer_.findLatestCommonStamp(*transaction, *graph);
-  if (latest_stamp == Synchronizer::ROS_TIME_ZERO)
+  if (!fuse_core::is_valid(latest_stamp))
   {
     {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -232,7 +232,7 @@ void Odometry2DPublisher::notifyCallback(
 void Odometry2DPublisher::onStart()
 {
   synchronizer_ = Synchronizer(device_id_);
-  latest_stamp_ = latest_covariance_stamp_ = Synchronizer::ROS_TIME_ZERO;
+  latest_stamp_ = latest_covariance_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   latest_covariance_valid_ = false;
   odom_output_ = nav_msgs::Odometry();
   acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
@@ -336,7 +336,7 @@ void Odometry2DPublisher::publishTimerCallback()
     acceleration_output = acceleration_output_;
   }
 
-  if (latest_stamp == Synchronizer::ROS_TIME_ZERO)
+  if (!fuse_core::is_valid(latest_stamp))
   {
     RCLCPP_WARN_STREAM_EXPRESSION(
       node_->get_logger(), delayed_throttle_filter_.isEnabled(),

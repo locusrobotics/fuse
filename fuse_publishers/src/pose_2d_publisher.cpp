@@ -35,6 +35,7 @@
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
+#include <fuse_core/time.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -209,7 +210,7 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
-  if (latest_stamp == Synchronizer::ROS_TIME_ZERO)
+  if (!fuse_core::is_valid(latest_stamp))  // If uninitialized
   {
     RCLCPP_WARN_STREAM_THROTTLE(
       node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
@@ -300,7 +301,7 @@ void Pose2DPublisher::tfPublishTimerCallback()
 {
   // The tf_transform_ is updated in a separate thread, so we must guard the read/write operations.
   // Only publish if the tf transform is valid
-  if (tf_transform_.header.stamp != Synchronizer::ROS_TIME_ZERO)
+  if (fuse_core::is_valid(tf_transform_.header.stamp))
   {
     // Update the timestamp of the transform so the tf tree will continue to be valid
     tf_transform_.header.stamp = event.current_real;
