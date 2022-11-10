@@ -40,8 +40,6 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/callback_wrapper.h>
 
-//#include <fuse_core/fuse_macros.h>
-
 #include <functional>
 #include <string>
 

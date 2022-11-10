@@ -48,8 +48,7 @@ namespace fuse_core
     if (RCL_RET_OK != rcl_guard_condition_init(
       &gc_, context_ptr->get_rcl_context().get(), guard_condition_options)
     ) {
-      RCLCPP_WARN(rclcpp::get_logger("fuse"),
-                  "Could not init guard condition for callback waitable.");
+      throw std::runtime_error("Could not init guard condition for callback waitable.");
     }
   }
 
@@ -64,8 +63,9 @@ namespace fuse_core
    */
   bool CallbackAdapter::is_ready(rcl_wait_set_t * wait_set) {
     (void) wait_set;
-    // std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
-    // a thread glitch isn't a disaster here and a mutex wouldn't stop it anyway
+
+    // Prevent multiple simultaneous calls of is_ready (causing the executor to wake multiple times)
+    std::lock_guard<std::mutex> lock(ready_mutex_);
     return !callback_queue_.empty();
   }
 
@@ -85,18 +85,10 @@ namespace fuse_core
   }
 
   /**
-   * @brief unused part of the rclcpp::waitables interface
+   * @brief check the callback queue and return the next callback to run
    *
    */
   std::shared_ptr< void > CallbackAdapter::take_data(){
-    return nullptr;
-  }
-
-  /**
-   * @brief hook that allows the rclcpp::waitables interface to run the next callback
-   *
-   */
-  void CallbackAdapter::execute(std::shared_ptr<void> & /*data*/){
     std::shared_ptr<CallbackWrapperBase> cb_wrapper = nullptr;
     // fetch the callback ptr and release the lock without spending time in the callback
     {
@@ -106,10 +98,21 @@ namespace fuse_core
         callback_queue_.pop_front();
       }
     }
-    //the lock is released and the callback is no longer associated with the queue, run it.
-    if(cb_wrapper) {
-      cb_wrapper->call();
+    if (cb_wrapper) {
+      return std::shared_ptr<void>(cb_wrapper, cb_wrapper.get());
     }
+    return nullptr;
+  }
+
+  /**
+   * @brief hook that allows the rclcpp::waitables interface to run the next callback
+   *
+   */
+  void CallbackAdapter::execute(std::shared_ptr<void> & data){
+    if (!data) {
+      throw std::runtime_error("'data' is empty");
+    }
+    std::static_pointer_cast<CallbackWrapperBase>(data)->call();
   }
 
   void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase> &callback){

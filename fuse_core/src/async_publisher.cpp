@@ -53,8 +53,6 @@ void AsyncPublisher::initialize(const std::string& name)
 
   rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
-
-  ros_context->init(0, NULL);    // XXX should expose the init arg list
   node_options.context(ros_context); //set a context to generate the node in
 
   node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);
