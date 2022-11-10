@@ -119,15 +119,10 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
  */
 sensor_msgs::PointCloud2::ConstPtr beaconsToPointcloud(
   const std::vector<Beacon>& beacons,
-  rclcpp::Clock::SharedPtr clock=nullptr)
+  const rclcpp::Clock& clock)
 {
   auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
-
-  if (clock != nullptr) {
-    msg->header.stamp = clock->now();
-  } else {
-    msg->header.stamp = rclcpp::Clock(RCL_SYSTEM_TIME).now();
-  }
+  msg->header.stamp = clock.now();
 
   msg->header.frame_id = MAP_FRAME;
   sensor_msgs::PointCloud2Modifier modifier(*msg);
@@ -365,11 +360,11 @@ int main(int argc, char **argv)
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
-  true_beacons_publisher.publish(beaconsToPointcloud(beacons), node->get_clock());
+  true_beacons_publisher.publish(beaconsToPointcloud(beacons), *node->get_clock());
 
   // Publish a set of noisy beacon locations to act as the known priors
   auto noisy_beacons = createNoisyBeacons(beacons);
-  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons, node->get_clock());
+  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons, *node->get_clock());
 
   // Initialize the robot state
   auto state = Robot();
