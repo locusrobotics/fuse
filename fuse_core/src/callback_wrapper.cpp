@@ -37,7 +37,6 @@
 namespace fuse_core
 {
 
-
   CallbackAdapter::CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr){
 
     rcl_guard_condition_options_t guard_condition_options =
@@ -57,18 +56,13 @@ namespace fuse_core
    */
   size_t CallbackAdapter::get_number_of_ready_guard_conditions() { return 1;}
 
-
   /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
   bool CallbackAdapter::is_ready(rcl_wait_set_t * wait_set) {
     (void) wait_set;
-
-    // Prevent multiple simultaneous calls of is_ready (causing the executor to wake multiple times)
-    std::lock_guard<std::mutex> lock(ready_mutex_);
     return !callback_queue_.empty();
   }
-
 
   /**
    * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and CallbackGroup::add_waitable()
@@ -77,10 +71,8 @@ namespace fuse_core
    */
   void CallbackAdapter::add_to_wait_set(rcl_wait_set_t * wait_set)
   {
-    std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
-    RCLCPP_WARN(rclcpp::get_logger("fuse"),
-    "Could not add callback waitable to wait set.");
     if (RCL_RET_OK != rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL)) {
+      RCLCPP_WARN(rclcpp::get_logger("fuse"), "Could not add callback waitable to wait set.");
     }
   }
 
@@ -92,16 +84,13 @@ namespace fuse_core
     std::shared_ptr<CallbackWrapperBase> cb_wrapper = nullptr;
     // fetch the callback ptr and release the lock without spending time in the callback
     {
-      std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+      std::lock_guard<std::mutex> lock(queue_mutex_);
       if(!callback_queue_.empty()){
         cb_wrapper = callback_queue_.front();
         callback_queue_.pop_front();
       }
     }
-    if (cb_wrapper) {
-      return std::shared_ptr<void>(cb_wrapper, cb_wrapper.get());
-    }
-    return nullptr;
+    return std::static_pointer_cast<void>(cb_wrapper);
   }
 
   /**
@@ -116,7 +105,7 @@ namespace fuse_core
   }
 
   void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase> &callback){
-    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    std::lock_guard<std::mutex> lock(queue_mutex_);
     callback_queue_.push_back(callback);
     if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
       RCLCPP_WARN(rclcpp::get_logger("fuse"),
@@ -126,7 +115,7 @@ namespace fuse_core
   }
 
   void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase> && callback){
-    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    std::lock_guard<std::mutex> lock(queue_mutex_);
     callback_queue_.push_back(std::move(callback));
     if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
       RCLCPP_WARN(rclcpp::get_logger("fuse"),
@@ -136,13 +125,11 @@ namespace fuse_core
   }
 
   void CallbackAdapter::removeAllCallbacks(){
-    std::lock_guard<std::recursive_mutex> lock(queue_mutex_);
+    std::lock_guard<std::mutex> lock(queue_mutex_);
     while(!callback_queue_.empty()){
       callback_queue_.pop_front();
     }
   }
-
-
 
 
 }  // namespace fuse_core

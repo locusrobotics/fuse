@@ -186,11 +186,9 @@ public:
 
 
 private:
-  std::recursive_mutex reentrant_mutex_;  //!< mutex to allow multiple threads to add callbacks into a single queue simultaneously
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
 
-  std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
-  std::mutex ready_mutex_;  //!< mutex to prevent multiple simultaneous calls of is_ready
+  std::mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
   std::deque<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
 };
 
