@@ -71,9 +71,9 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   if (ending_stamp < beginning_stamp)
   {
     std::stringstream beginning_time_ss;
-    beginning_time_ss << beginning_stamp;
+    beginning_time_ss << beginning_stamp.seconds();
     std::stringstream ending_time_ss;
-    ending_time_ss << ending_stamp;
+    ending_time_ss << ending_stamp.seconds();
     throw std::invalid_argument("The beginning_stamp (" + beginning_time_ss.str() + ") must be less than or equal to "
                                 "the ending_stamp (" + ending_time_ss.str() + ").");
   }
@@ -81,7 +81,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   if (buffer_.empty() || (beginning_stamp < buffer_.front().first) || (ending_stamp > buffer_.back().first))
   {
     std::stringstream requested_time_range_ss;
-    requested_time_range_ss << "(" << beginning_stamp << ", " << ending_stamp << ")";
+    requested_time_range_ss << "(" << beginning_stamp.seconds() << ", " << ending_stamp.seconds() << ")";
     std::stringstream available_time_range_ss;
     if (buffer_.empty())
     {
@@ -89,7 +89,8 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
     }
     else
     {
-      available_time_range_ss << "(" << buffer_.front().first << ", " << buffer_.back().first << ")";
+      available_time_range_ss << "(" << buffer_.front().first.seconds() << ", "
+                              << buffer_.back().first.seconds() << ")";
     }
     throw std::out_of_range("The requested time range " + requested_time_range_ss.str() + " is outside the available "
                             "time range " + available_time_range_ss.str() + ".");
@@ -141,11 +142,12 @@ void MessageBuffer<Message>::purgeHistory()
   // Compute the expiration time carefully, as ROS can't handle negative times
   const auto& ending_stamp = buffer_.back().first;
 
+  rclcpp::Time expiration_time;
   if (ending_stamp.seconds() > buffer_length_.seconds()) {
-    auto expiration_time = ending_stamp - buffer_length_;
+    expiration_time = ending_stamp - buffer_length_;
   } else {
     // NOTE(CH3): Uninitialized. But okay because it's just used for comparison.
-    auto expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type);
+    expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type());
   }
 
   // Remove buffer elements before the expiration time.

@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_graphs/hash_graph.h>
-#include <test/example_optimizer.h>
-#include <test/common.h>
+#include "example_optimizer.h"
+#include "common.h"
 
 #include <gtest/gtest.h>
 

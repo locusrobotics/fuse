@@ -36,10 +36,10 @@
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_graphs/hash_graph.h>
-#include <test/covariance_constraint.h>
-#include <test/example_constraint.h>
-#include <test/example_loss.h>
-#include <test/example_variable.h>
+#include "covariance_constraint.h"
+#include "example_constraint.h"
+#include "example_loss.h"
+#include "example_variable.h"
 
 #include <gtest/gtest.h>
 

@@ -41,9 +41,9 @@
 #include <fuse_models/graph_ignition.h>
 #include <ros/ros.h>
 
-#include <test/example_constraint.h>
-#include <test/example_variable.h>
-#include <test/example_variable_stamped.h>
+#include "example_constraint.h"
+#include "example_variable.h"
+#include "example_variable_stamped.h"
 
 #include <gtest/gtest.h>
 

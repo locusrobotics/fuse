@@ -34,7 +34,7 @@
 #include <fuse_constraints/normal_prior_pose_2d.h>
 #include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
 
-#include <test/cost_function_gtest.h>
+#include "cost_function_gtest.h"
 
 #include <gtest/gtest.h>
 #include <fuse_core/eigen_gtest.h>
