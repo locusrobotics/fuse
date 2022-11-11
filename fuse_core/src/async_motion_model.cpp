@@ -104,9 +104,9 @@ void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
   auto callback = std::make_shared<CallbackWrapper<void>>(
     std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph))
   );
-  auto result = callback->getFuture();
+  // auto result = callback->getFuture();  // TODO(CH3): Circle back if we need this again
   callback_queue_->addCallback(callback);
-  result.wait();
+  // result.wait();
 }
 
 void AsyncMotionModel::start()

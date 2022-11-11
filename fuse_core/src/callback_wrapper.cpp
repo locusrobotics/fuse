@@ -126,9 +126,7 @@ namespace fuse_core
 
   void CallbackAdapter::removeAllCallbacks(){
     std::lock_guard<std::mutex> lock(queue_mutex_);
-    while(!callback_queue_.empty()){
-      callback_queue_.clear();
-    }
+    callback_queue_.clear();
   }
 
 

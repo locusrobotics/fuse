@@ -128,7 +128,7 @@ public:
   /**
    * @brief Call this function. This is used by the callback queue.
    */
-  void call()
+  void call() override
   {
     promise_.set_value(callback_());
   }
