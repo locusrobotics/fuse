@@ -34,8 +34,6 @@
 #ifndef FUSE_CORE_THROTTLED_CALLBACK_H
 #define FUSE_CORE_THROTTLED_CALLBACK_H
 
-//#include <ros/subscriber.h>
-
 #include <functional>
 #include <utility>
 

@@ -157,13 +157,13 @@ public:
   /**
    * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
    */
-  size_t get_number_of_ready_guard_conditions();
+  size_t get_number_of_ready_guard_conditions() override;
 
 
   /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
-  bool is_ready(rcl_wait_set_t * wait_set);
+  bool is_ready(rcl_wait_set_t * wait_set) override;
 
 
   /**
@@ -171,12 +171,12 @@ public:
     waitable_ptr = std::make_shared<CallbackWrapper>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */
-  void add_to_wait_set(rcl_wait_set_t * wait_set);
+  void add_to_wait_set(rcl_wait_set_t * wait_set) override;
 
-  std::shared_ptr< void > take_data();
+  std::shared_ptr< void > take_data() override;
 
   // XXX check this against the threading model of the multi-threaded executor.
-  void execute(std::shared_ptr<void> & /*data*/);
+  void execute(std::shared_ptr<void> & data) override;
 
   void addCallback(const std::shared_ptr<CallbackWrapperBase> &callback);
 
@@ -186,10 +186,11 @@ public:
 
 
 private:
-  std::recursive_mutex reentrant_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  std::recursive_mutex reentrant_mutex_;  //!< mutex to allow multiple threads to add callbacks into a single queue simultaneously
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
 
   std::recursive_mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  std::mutex ready_mutex_;  //!< mutex to prevent multiple simultaneous calls of is_ready
   std::deque<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
 };
 
