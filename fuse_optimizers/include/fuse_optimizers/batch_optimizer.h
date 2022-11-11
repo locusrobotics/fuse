@@ -140,7 +140,7 @@ protected:
    * the computer will run out of memory before the insertion time grows large enough to surpass the sensor update
    * period.
    */
-  using TransactionQueue = std::multimap<ros::Time, TransactionQueueElement>;
+  using TransactionQueue = std::multimap<rclcpp::Time, TransactionQueueElement>;
 
   fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate constraints and variables
                                                             //!< from multiple sensors and motions models before being
@@ -152,12 +152,12 @@ protected:
                                                     //!< until a new optimization is requested by the main thread
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
+  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
                                            //!< optimizer yet. Transactions are added by the main thread, and removed
                                            //!< and processed by the optimization thread.
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
-  ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
 
   /**
@@ -185,7 +185,7 @@ protected:
    *
    * @param event  The ROS timer event metadata
    */
-  void optimizerTimerCallback(const ros::TimerEvent& event);
+  void optimizerTimerCallback();
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction

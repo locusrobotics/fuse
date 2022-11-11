@@ -52,6 +52,7 @@
 
 #include <boost/iostreams/categories.hpp>
 
+#include <ios>
 #include <vector>
 
 
@@ -152,9 +153,11 @@ namespace serialization
 template<class Archive>
 void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* version */)
 {
-  #warning "discarding clock source in serialisation"
-  rcl_time_point_value_t time_point = stamp.nanoseconds();
-  archive & time_point;
+  auto nanoseconds = stamp.nanoseconds();
+  auto clock_type = stamp.get_clock_type();
+  archive & nanoseconds;
+  archive & clock_type;
+  stamp = rclcpp::Time(nanoseconds, clock_type);
 }
 
 /**

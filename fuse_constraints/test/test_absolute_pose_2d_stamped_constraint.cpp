@@ -55,8 +55,8 @@ using fuse_constraints::AbsolutePose2DStampedConstraint;
 TEST(AbsolutePose2DStampedConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
-  Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
-  Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Position2DStamped position_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
@@ -68,8 +68,8 @@ TEST(AbsolutePose2DStampedConstraint, Constructor)
 TEST(AbsolutePose2DStampedConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
-  Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
-  Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
+  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("mo"));
+  Position2DStamped position_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
@@ -90,9 +90,9 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
-  auto orientation_variable = Orientation2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto orientation_variable = Orientation2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->yaw() = 0.8;
-  auto position_variable = Position2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto position_variable = Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
   position_variable->y() = -3.0;
   // Create an absolute pose constraint
@@ -166,9 +166,9 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
-  auto orientation_variable = Orientation2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto orientation_variable = Orientation2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->yaw() = 0.8;
-  auto position_variable = Position2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto position_variable = Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
   position_variable->y() = -3.0;
 
@@ -281,8 +281,8 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
 TEST(AbsolutePose2DStampedConstraint, Serialization)
 {
   // Construct a constraint
-  Orientation2DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
-  Position2DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Position2DStamped position_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;

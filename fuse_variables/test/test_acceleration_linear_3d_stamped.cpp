@@ -34,7 +34,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_variables/acceleration_linear_3d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
@@ -49,7 +49,7 @@ using fuse_variables::AccelerationLinear3DStamped;
 
 TEST(AccelerationLinear3DStamped, Type)
 {
-  AccelerationLinear3DStamped variable(ros::Time(12345678, 910111213));
+  AccelerationLinear3DStamped variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::AccelerationLinear3DStamped", variable.type());
 }
 
@@ -57,20 +57,20 @@ TEST(AccelerationLinear3DStamped, UUID)
 {
   // Verify two accelerations at the same timestamp produce the same UUID
   {
-    AccelerationLinear3DStamped variable1(ros::Time(12345678, 910111213));
-    AccelerationLinear3DStamped variable2(ros::Time(12345678, 910111213));
+    AccelerationLinear3DStamped variable1(rclcpp::Time(12345678, 910111213));
+    AccelerationLinear3DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    AccelerationLinear3DStamped variable3(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    AccelerationLinear3DStamped variable4(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationLinear3DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationLinear3DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two accelerations at different timestamps produce different UUIDs
   {
-    AccelerationLinear3DStamped variable1(ros::Time(12345678, 910111213));
-    AccelerationLinear3DStamped variable2(ros::Time(12345678, 910111214));
-    AccelerationLinear3DStamped variable3(ros::Time(12345679, 910111213));
+    AccelerationLinear3DStamped variable1(rclcpp::Time(12345678, 910111213));
+    AccelerationLinear3DStamped variable2(rclcpp::Time(12345678, 910111214));
+    AccelerationLinear3DStamped variable3(rclcpp::Time(12345679, 910111213));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
     EXPECT_NE(variable1.uuid(), variable3.uuid());
     EXPECT_NE(variable2.uuid(), variable3.uuid());
@@ -78,24 +78,24 @@ TEST(AccelerationLinear3DStamped, UUID)
 
   // Verify two accelerations with different hardware IDs produce different UUIDs
   {
-    AccelerationLinear3DStamped variable1(ros::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
-    AccelerationLinear3DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
+    AccelerationLinear3DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
+    AccelerationLinear3DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(AccelerationLinear3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = AccelerationLinear3DStamped::make_shared(ros::Time(12345678, 910111213),
+  fuse_core::Variable::SharedPtr base = AccelerationLinear3DStamped::make_shared(rclcpp::Time(12345678, 910111213),
                                                                                  fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<AccelerationLinear3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
-  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
 
   auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
   ASSERT_TRUE(static_cast<bool>(stamped));
-  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
@@ -115,7 +115,7 @@ struct CostFunctor
 TEST(AccelerationLinear3DStamped, Optimization)
 {
   // Create a AccelerationLinear3DStamped
-  AccelerationLinear3DStamped acceleration(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationLinear3DStamped acceleration(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   acceleration.x() = 1.5;
   acceleration.y() = -3.0;
   acceleration.z() = 14.0;
@@ -150,7 +150,7 @@ TEST(AccelerationLinear3DStamped, Optimization)
 TEST(AccelerationLinear3DStamped, Serialization)
 {
   // Create a AccelerationLinear3DStamped
-  AccelerationLinear3DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationLinear3DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
   expected.z() = 14.0;

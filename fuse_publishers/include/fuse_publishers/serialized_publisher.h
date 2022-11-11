@@ -86,15 +86,15 @@ protected:
    * @brief Publish the serialized graph
    *
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed
-   * @param[in] stamp A ros::Time stamp used for the serialized graph message published
+   * @param[in] stamp A rclcpp::Time stamp used for the serialized graph message published
    */
-  void graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const ros::Time& stamp) const;
+  void graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const;
 
   std::string frame_id_;  //!< The name of the frame for the serialized graph and transaction messages published
   ros::Publisher graph_publisher_;
   ros::Publisher transaction_publisher_;
 
-  using GraphPublisherCallback = std::function<void(fuse_core::Graph::ConstSharedPtr, const ros::Time&)>;
+  using GraphPublisherCallback = std::function<void(fuse_core::Graph::ConstSharedPtr, const rclcpp::Time&)>;
   using GraphPublisherThrottledCallback = fuse_core::ThrottledCallback<GraphPublisherCallback>;
   GraphPublisherThrottledCallback graph_publisher_throttled_callback_;  //!< The graph publisher throttled callback
 };

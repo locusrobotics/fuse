@@ -152,7 +152,7 @@ namespace uuid
    * Every unique timestamp will generate a unique UUID
    *
    * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
-   * @param[in] stamp            A rclcpp::Time timestamp
+   * @param[in] stamp            An rclcpp::Time timestamp
    * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
   UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp);

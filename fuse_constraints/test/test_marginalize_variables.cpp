@@ -149,7 +149,7 @@ public:
 
   FixedOrientation3DStamped() = default;
 
-  explicit FixedOrientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
+  explicit FixedOrientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
     Orientation3DStamped(stamp, device_id)
   {
   }
@@ -298,13 +298,13 @@ TEST(MarginalizeVariables, ComputeEliminationOrderWithOrphanVariables)
 TEST(MarginalizeVariables, Linearize)
 {
   // Create a graph with one relative 3D orientation constraint
-  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1, 0));
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1, 0));
   x1->w() = 0.927362;
   x1->x() = 0.1;
   x1->y() = 0.2;
   x1->z() = 0.3;
 
-  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2, 0));
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2, 0));
   x2->w() = 0.848625;
   x2->x() = 0.13798;
   x2->y() = 0.175959;
@@ -417,22 +417,22 @@ TEST(MarginalizeVariables, MarginalizeNext)
 TEST(MarginalizeVariables, MarginalizeVariables)
 {
   // Create variables
-  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1.0));
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1.0));
   x1->w() = 0.927362;
   x1->x() = 0.1;
   x1->y() = 0.2;
   x1->z() = 0.3;
-  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2.0));
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2.0));
   x2->w() = 0.848625;
   x2->x() = 0.13798;
   x2->y() = 0.175959;
   x2->z() = 0.479411;
-  auto x3 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.0));
+  auto x3 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3.0));
   x3->w() = 0.735597;
   x3->x() = 0.170384;
   x3->y() = 0.144808;
   x3->z() = 0.63945;
-  auto l1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.5));
+  auto l1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3.5));
   l1->w() = 0.803884;
   l1->x() = 0.304917;
   l1->y() = 0.268286;
@@ -573,22 +573,22 @@ TEST(MarginalizeVariables, MarginalizeVariables)
 TEST(MarginalizeVariables, MarginalizeFixedVariables)
 {
   // Create variables
-  auto x1 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(1.0));
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1.0));
   x1->w() = 0.927362;
   x1->x() = 0.1;
   x1->y() = 0.2;
   x1->z() = 0.3;
-  auto x2 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(2.0));
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2.0));
   x2->w() = 0.848625;
   x2->x() = 0.13798;
   x2->y() = 0.175959;
   x2->z() = 0.479411;
-  auto x3 = fuse_variables::Orientation3DStamped::make_shared(ros::Time(3.0));
+  auto x3 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3.0));
   x3->w() = 0.735597;
   x3->x() = 0.170384;
   x3->y() = 0.144808;
   x3->z() = 0.63945;
-  auto l1 = FixedOrientation3DStamped::make_shared(ros::Time(3.5));
+  auto l1 = FixedOrientation3DStamped::make_shared(rclcpp::Time(3.5));
   l1->w() = 0.803884;
   l1->x() = 0.304917;
   l1->y() = 0.268286;

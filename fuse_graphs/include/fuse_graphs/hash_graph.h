@@ -329,8 +329,9 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   ceres::Solver::Summary optimizeFor(
-    const ros::Duration& max_optimization_time,
-    const ceres::Solver::Options& options = ceres::Solver::Options()) override;
+    const rclcpp::Duration& max_optimization_time,
+    const ceres::Solver::Options& options = ceres::Solver::Options(),
+    const rclcpp::Clock& clock = rclcpp::Clock::Clock(RCL_STEADY_TIME)) override;
 
   /**
    * @brief Evalute the values of the current set of variables, given the current set of constraints.

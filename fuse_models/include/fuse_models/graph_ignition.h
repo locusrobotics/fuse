@@ -138,7 +138,7 @@ protected:
    * @param[in] graph - The graph
    * @param[in] stamp - The graph stamp
    */
-  void sendGraph(const fuse_core::Graph& graph, const ros::Time& stamp);
+  void sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp);
 
   std::atomic_bool started_;  //!< Flag indicating the sensor has been started
 

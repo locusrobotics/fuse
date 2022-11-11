@@ -146,7 +146,7 @@ public:
    * transform. Although this is "wrong", it keeps the tf tree populated with recent transforms so that other nodes
    * can execute tf queries.
    */
-  void tfPublishTimerCallback(const ros::TimerEvent& event);
+  void tfPublishTimerCallback();
 
 protected:
   using Synchronizer = StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
@@ -164,8 +164,8 @@ protected:
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the tf topics and
                                                              //!< inserts the received transforms into the tf buffer
   tf2_ros::TransformBroadcaster tf_publisher_;  //!< Publish the map->odom or map->base transform to the tf system
-  ros::Timer tf_publish_timer_;  //!< Timer that publishes tf messages to ensure the tf transform doesn't get stale
-  ros::Duration tf_timeout_;  //!< The max time to wait for a tf transform to become available
+  rclcpp::TimerBase::SharedPtr tf_publish_timer_;  //!< Timer that publishes tf messages to ensure the tf transform doesn't get stale
+  rclcpp::Duration tf_timeout_;  //!< The max time to wait for a tf transform to become available
   geometry_msgs::TransformStamped tf_transform_;  //!< The transform to be published to tf
   bool use_tf_lookup_;  //!< Internal flag indicating that a tf frame lookup is required
 };

@@ -55,7 +55,7 @@ using fuse_variables::Orientation3DStamped;
 TEST(AbsoluteOrientation3DStampedConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
-  Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation3DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   fuse_core::Vector4d mean;
   mean << 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix3d cov;
@@ -74,7 +74,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Constructor)
 TEST(AbsoluteOrientation3DStampedConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
-  Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
+  Orientation3DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   fuse_core::Vector4d mean;
   mean << 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix3d cov;
@@ -97,7 +97,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
-  auto orientation_variable = Orientation3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto orientation_variable = Orientation3DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->w() = 0.952;
   orientation_variable->x() = 0.038;
   orientation_variable->y() = -0.189;
@@ -167,7 +167,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
 TEST(AbsoluteOrientation3DStampedConstraint, Serialization)
 {
   // Construct a constraint
-  Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation3DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   fuse_core::Vector4d mean;
   mean << 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix3d cov;

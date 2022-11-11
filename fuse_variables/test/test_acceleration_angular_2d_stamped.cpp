@@ -34,7 +34,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
@@ -49,7 +49,7 @@ using fuse_variables::AccelerationAngular2DStamped;
 
 TEST(AccelerationAngular2DStamped, Type)
 {
-  AccelerationAngular2DStamped variable(ros::Time(12345678, 910111213));
+  AccelerationAngular2DStamped variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::AccelerationAngular2DStamped", variable.type());
 }
 
@@ -57,20 +57,20 @@ TEST(AccelerationAngular2DStamped, UUID)
 {
   // Verify two accelerations at the same timestamp produce the same UUID
   {
-    AccelerationAngular2DStamped variable1(ros::Time(12345678, 910111213));
-    AccelerationAngular2DStamped variable2(ros::Time(12345678, 910111213));
+    AccelerationAngular2DStamped variable1(rclcpp::Time(12345678, 910111213));
+    AccelerationAngular2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    AccelerationAngular2DStamped variable3(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    AccelerationAngular2DStamped variable4(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationAngular2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationAngular2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two accelerations at different timestamps produce different UUIDs
   {
-    AccelerationAngular2DStamped variable1(ros::Time(12345678, 910111213));
-    AccelerationAngular2DStamped variable2(ros::Time(12345678, 910111214));
-    AccelerationAngular2DStamped variable3(ros::Time(12345679, 910111213));
+    AccelerationAngular2DStamped variable1(rclcpp::Time(12345678, 910111213));
+    AccelerationAngular2DStamped variable2(rclcpp::Time(12345678, 910111214));
+    AccelerationAngular2DStamped variable3(rclcpp::Time(12345679, 910111213));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
     EXPECT_NE(variable1.uuid(), variable3.uuid());
     EXPECT_NE(variable2.uuid(), variable3.uuid());
@@ -78,24 +78,24 @@ TEST(AccelerationAngular2DStamped, UUID)
 
   // Verify two accelerations with different hardware IDs produce different UUIDs
   {
-    AccelerationAngular2DStamped variable1(ros::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    AccelerationAngular2DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    AccelerationAngular2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    AccelerationAngular2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(AccelerationAngular2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = AccelerationAngular2DStamped::make_shared(ros::Time(12345678, 910111213),
+  fuse_core::Variable::SharedPtr base = AccelerationAngular2DStamped::make_shared(rclcpp::Time(12345678, 910111213),
                                                                                   fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<AccelerationAngular2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
-  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
 
   auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
   ASSERT_TRUE(static_cast<bool>(stamped));
-  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
@@ -113,7 +113,7 @@ struct CostFunctor
 TEST(AccelerationAngular2DStamped, Optimization)
 {
   // Create a AccelerationAngular2DStamped
-  AccelerationAngular2DStamped acceleration(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationAngular2DStamped acceleration(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   acceleration.yaw() = 1.5;
 
   // Create a simple a constraint
@@ -144,7 +144,7 @@ TEST(AccelerationAngular2DStamped, Optimization)
 TEST(AccelerationAngular2DStamped, Serialization)
 {
   // Create a AccelerationAngular2DStamped
-  AccelerationAngular2DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationAngular2DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.yaw() = 1.5;
 
   // Serialize the variable into an archive

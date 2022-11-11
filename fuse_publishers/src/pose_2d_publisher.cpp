@@ -35,6 +35,7 @@
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
+#include <fuse_core/time.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -64,7 +65,7 @@ namespace
 
 bool findPose(
   const fuse_core::Graph& graph,
-  const ros::Time& stamp,
+  const rclcpp::Time& stamp,
   const fuse_core::UUID& device_id,
   fuse_core::UUID& orientation_uuid,
   fuse_core::UUID& position_uuid,
@@ -155,9 +156,9 @@ void Pose2DPublisher::onInit()
                            default_tf_timeout << "s) instead.");
         tf_timeout = default_tf_timeout;
       }
-      tf_timeout_ = ros::Duration(tf_timeout);
+      tf_timeout_ = rclcpp::Duration::from_seconds(tf_timeout);
 
-      tf_buffer_ = std::make_unique<tf2_ros::Buffer>(ros::Duration(tf_cache_time));
+      tf_buffer_ = std::make_unique<tf2_ros::Buffer>(rclcpp::Duration::from_seconds(tf_cache_time));
       tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, node_handle_);
     }
 
@@ -171,8 +172,6 @@ void Pose2DPublisher::onInit()
                          default_tf_publish_frequency << "hz) instead.");
       tf_publish_frequency = default_tf_publish_frequency;
     }
-    tf_publish_timer_ = private_node_handle_.createTimer(
-      ros::Duration(1.0 / tf_publish_frequency), &Pose2DPublisher::tfPublishTimerCallback, this, false, false);
   }
 
   // Advertise the topics
@@ -190,7 +189,10 @@ void Pose2DPublisher::onStart()
   // Start the tf timer
   if (publish_to_tf_)
   {
-    tf_publish_timer_.start();
+    tf_publish_timer_ = node_.create_timer(
+      rclcpp::Duration::from_seconds(1.0 / tf_publish_frequency),
+      std::bind(&Pose2DPublisher::tfPublishTimerCallback, this)
+    );
   }
 }
 
@@ -199,7 +201,7 @@ void Pose2DPublisher::onStop()
   // Stop the tf timer
   if (publish_to_tf_)
   {
-    tf_publish_timer_.stop();
+    tf_publish_timer_.cancel();
   }
 }
 
@@ -208,7 +210,7 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
-  if (latest_stamp == Synchronizer::TIME_ZERO)
+  if (!fuse_core::is_valid(latest_stamp))  // If uninitialized
   {
     RCLCPP_WARN_STREAM_THROTTLE(
       node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
@@ -295,11 +297,11 @@ void Pose2DPublisher::notifyCallback(
   }
 }
 
-void Pose2DPublisher::tfPublishTimerCallback(const ros::TimerEvent& event)
+void Pose2DPublisher::tfPublishTimerCallback()
 {
   // The tf_transform_ is updated in a separate thread, so we must guard the read/write operations.
   // Only publish if the tf transform is valid
-  if (tf_transform_.header.stamp != Synchronizer::TIME_ZERO)
+  if (fuse_core::is_valid(tf_transform_.header.stamp))
   {
     // Update the timestamp of the transform so the tf tree will continue to be valid
     tf_transform_.header.stamp = event.current_real;

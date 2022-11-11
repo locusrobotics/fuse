@@ -35,8 +35,8 @@
 #include <fuse_core/timestamp_manager.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
-#include <ros/duration.h>
-#include <ros/time.h>
+#include <rclcpp/duration.hpp>
+#include <fuse_core/time.h>
 
 #include <gtest/gtest.h>
 
@@ -60,7 +60,7 @@ public:
                       std::placeholders::_2,
                       std::placeholders::_3,
                       std::placeholders::_4),
-            ros::DURATION_MAX)
+            rclcpp::Duration::max())
   {
   }
 
@@ -68,17 +68,17 @@ public:
   {
     // Add a standard set of entries into the motion model
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(10, 0));
-    transaction.addInvolvedStamp(ros::Time(20, 0));
-    transaction.addInvolvedStamp(ros::Time(30, 0));
-    transaction.addInvolvedStamp(ros::Time(40, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(10, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(20, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(30, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(40, 0));
     manager.query(transaction);
     generated_time_spans.clear();
   }
 
   void generator(
-    const ros::Time& beginning_stamp,
-    const ros::Time& ending_stamp,
+    const rclcpp::Time& beginning_stamp,
+    const rclcpp::Time& ending_stamp,
     std::vector<fuse_core::Constraint::SharedPtr>& /*constraints*/,
     std::vector<fuse_core::Variable::SharedPtr>& /*variables*/)
   {
@@ -86,7 +86,7 @@ public:
   }
 
   fuse_core::TimestampManager manager;
-  std::vector<std::pair<ros::Time, ros::Time> > generated_time_spans;
+  std::vector<std::pair<rclcpp::Time, rclcpp::Time> > generated_time_spans;
 };
 
 
@@ -99,22 +99,22 @@ TEST_F(TimestampManagerTestFixture, Empty)
 
   // Perform a single query
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(10, 0));
-  transaction.addInvolvedStamp(ros::Time(20, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(10, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(20, 0));
   manager.query(transaction);
 
   // Verify the manager contains the timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(2, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
 
   // Verify the expected queries were performed
   ASSERT_EQ(1ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(20, 0), generated_time_spans[0].second);
 }
 
 TEST_F(TimestampManagerTestFixture, EmptySingleStamp)
@@ -126,43 +126,43 @@ TEST_F(TimestampManagerTestFixture, EmptySingleStamp)
 
   // Perform a single query
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(10, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(10, 0));
   manager.query(transaction);
 
   // Verify the manager contains the timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(1, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
 
   // Verify the expected queries were performed
   ASSERT_EQ(1ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].first);
   EXPECT_EQ(generated_time_spans[0].first, generated_time_spans[0].second);
 }
 
 TEST_F(TimestampManagerTestFixture, Exceptions)
 {
   // Set a finite buffer length and populate it with some queries
-  manager.bufferLength(ros::Duration(25.0));
+  manager.bufferLength(rclcpp::Duration::from_seconds(25.0));
   populate();
   // Call the query with a beginning stamp that is too early
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(1, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(1, 0));
     EXPECT_THROW(manager.query(transaction), std::invalid_argument);
   }
   // Call the query function with a timestamp within the range. This should not throw.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(35, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(35, 0));
     EXPECT_NO_THROW(manager.query(transaction));
   }
   // Call the query with a timestamp outside of the buffer length, but within the current timespan of the history
   // This should not throw, as it is safe to perform this operation.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(11, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(11, 0));
     EXPECT_NO_THROW(manager.query(transaction));
   }
 }
@@ -170,7 +170,7 @@ TEST_F(TimestampManagerTestFixture, Exceptions)
 TEST_F(TimestampManagerTestFixture, Purge)
 {
   // Set a finite buffer length and populate it with some queries
-  manager.bufferLength(ros::Duration(30.0));
+  manager.bufferLength(rclcpp::Duration::from_seconds(30.0));
   populate();
 
   // The timespan is within the specified duration. All entries should still be present.
@@ -179,103 +179,103 @@ TEST_F(TimestampManagerTestFixture, Purge)
     auto stamp_range = manager.stamps();
     ASSERT_EQ(4, std::distance(stamp_range.begin(), stamp_range.end()));
     auto stamp_range_iter = stamp_range.begin();
-    EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   }
 
   // Add an entry right at the edge of the time range (calculations use the ending stamp).
   // This should still keep all entries.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(50, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(50, 0));
     manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
     auto stamp_range_iter = stamp_range.begin();
-    EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(50, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(50, 0), *stamp_range_iter);
   }
 
   // Add another entry. This should cause the oldest entry to be purged.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(50, 1));
+    transaction.addInvolvedStamp(rclcpp::Time(50, 1));
     manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
     auto stamp_range_iter = stamp_range.begin();
-    EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(50, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(50, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(50, 1), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(50, 1), *stamp_range_iter);
   }
 
   // Add a longer entry. This should cause multiple entries to get purged.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(70, 1));
+    transaction.addInvolvedStamp(rclcpp::Time(70, 1));
     manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(4, std::distance(stamp_range.begin(), stamp_range.end()));
     auto stamp_range_iter = stamp_range.begin();
-    EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(50, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(50, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(50, 1), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(50, 1), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(70, 1), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(70, 1), *stamp_range_iter);
   }
 
   // Add a very long entry. This should cause all but two entry to get purged.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(1000, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(1000, 0));
     manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(2, std::distance(stamp_range.begin(), stamp_range.end()));
     auto stamp_range_iter = stamp_range.begin();
-    EXPECT_EQ(ros::Time(70, 1), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(70, 1), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(1000, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(1000, 0), *stamp_range_iter);
   }
 
   // Add an entry far in the future. This should leave only the gap segment and the new segment.
   {
     fuse_core::Transaction transaction;
-    transaction.addInvolvedStamp(ros::Time(1100, 0));
-    transaction.addInvolvedStamp(ros::Time(1101, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(1100, 0));
+    transaction.addInvolvedStamp(rclcpp::Time(1101, 0));
     manager.query(transaction);
 
     auto stamp_range = manager.stamps();
     ASSERT_EQ(3, std::distance(stamp_range.begin(), stamp_range.end()));
     auto stamp_range_iter = stamp_range.begin();
-    EXPECT_EQ(ros::Time(1000, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(1000, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(1100, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(1100, 0), *stamp_range_iter);
     ++stamp_range_iter;
-    EXPECT_EQ(ros::Time(1101, 0), *stamp_range_iter);
+    EXPECT_EQ(rclcpp::Time(1101, 0), *stamp_range_iter);
   }
 }
 
@@ -288,21 +288,21 @@ TEST_F(TimestampManagerTestFixture, Existing)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(20, 0));
-  transaction.addInvolvedStamp(ros::Time(30, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(20, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(30, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(4, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify no new motion model segments were generated
   ASSERT_EQ(0ul, generated_time_spans.size());
@@ -317,28 +317,28 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningAligned)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(5, 0));
-  transaction.addInvolvedStamp(ros::Time(10, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(5, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(10, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(5, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(5, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(1ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(5, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(5, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].second);
 }
 
 TEST_F(TimestampManagerTestFixture, BeforeBeginningUnaligned)
@@ -350,32 +350,32 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningUnaligned)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(5, 0));
-  transaction.addInvolvedStamp(ros::Time(8, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(5, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(8, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(5, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(5, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(8, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(8, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(2ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(5, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(8, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(8, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(5, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(8, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(8, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, BeforeBeginningOverlap)
@@ -387,34 +387,34 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningOverlap)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(5, 0));
-  transaction.addInvolvedStamp(ros::Time(15, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(5, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(15, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(5, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(5, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(15, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(15, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(3ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(5, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(15, 0), generated_time_spans[1].second);
-  EXPECT_EQ(ros::Time(15, 0), generated_time_spans[2].first);
-  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[2].second);
+  EXPECT_EQ(rclcpp::Time(5, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(15, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(15, 0), generated_time_spans[2].first);
+  EXPECT_EQ(rclcpp::Time(20, 0), generated_time_spans[2].second);
 }
 
 TEST_F(TimestampManagerTestFixture, AfterEndAligned)
@@ -426,27 +426,27 @@ TEST_F(TimestampManagerTestFixture, AfterEndAligned)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(45, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(45, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(1ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(45, 0), generated_time_spans[0].second);
 }
 
 TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
@@ -458,32 +458,32 @@ TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(42, 0));
-  transaction.addInvolvedStamp(ros::Time(45, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(42, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(45, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(42, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(42, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(2ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(42, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(42, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(42, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(42, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(45, 0), generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
@@ -495,34 +495,34 @@ TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(35, 0));
-  transaction.addInvolvedStamp(ros::Time(45, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(35, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(45, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(35, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(35, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(3ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(30, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(35, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(35, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[1].second);
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[2].first);
-  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[2].second);
+  EXPECT_EQ(rclcpp::Time(30, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(35, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(35, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[2].first);
+  EXPECT_EQ(rclcpp::Time(45, 0), generated_time_spans[2].second);
 }
 
 TEST_F(TimestampManagerTestFixture, MultiSegment)
@@ -534,21 +534,21 @@ TEST_F(TimestampManagerTestFixture, MultiSegment)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(10, 0));
-  transaction.addInvolvedStamp(ros::Time(40, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(10, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(40, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(4, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(0ul, generated_time_spans.size());
@@ -563,28 +563,28 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentBeforeBeginning)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(5, 0));
-  transaction.addInvolvedStamp(ros::Time(40, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(5, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(40, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(5, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(5, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(1ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(5, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(5, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].second);
 }
 
 TEST_F(TimestampManagerTestFixture, MultiSegmentPastEnd)
@@ -596,28 +596,28 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastEnd)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(10, 0));
-  transaction.addInvolvedStamp(ros::Time(45, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(10, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(45, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(1ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(45, 0), generated_time_spans[0].second);
 }
 
 TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
@@ -629,32 +629,32 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(5, 0));
-  transaction.addInvolvedStamp(ros::Time(45, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(5, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(45, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(5, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(5, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(45, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(45, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(2ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(5, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(45, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(5, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(45, 0), generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, SplitBeginning)
@@ -666,30 +666,30 @@ TEST_F(TimestampManagerTestFixture, SplitBeginning)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(15, 0));
-  transaction.addInvolvedStamp(ros::Time(30, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(15, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(30, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(15, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(15, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(2ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(15, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(15, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(15, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(15, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(20, 0), generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, SplitEnd)
@@ -701,30 +701,30 @@ TEST_F(TimestampManagerTestFixture, SplitEnd)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(20, 0));
-  transaction.addInvolvedStamp(ros::Time(35, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(20, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(35, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(5, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(35, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(35, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(2ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(30, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(35, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(35, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(30, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(35, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(35, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[1].second);
 }
 
 TEST_F(TimestampManagerTestFixture, SplitBoth)
@@ -736,36 +736,36 @@ TEST_F(TimestampManagerTestFixture, SplitBoth)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(15, 0));
-  transaction.addInvolvedStamp(ros::Time(35, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(15, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(35, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(15, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(15, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(35, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(35, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(4ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(10, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(15, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(15, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[1].second);
-  EXPECT_EQ(ros::Time(30, 0), generated_time_spans[2].first);
-  EXPECT_EQ(ros::Time(35, 0), generated_time_spans[2].second);
-  EXPECT_EQ(ros::Time(35, 0), generated_time_spans[3].first);
-  EXPECT_EQ(ros::Time(40, 0), generated_time_spans[3].second);
+  EXPECT_EQ(rclcpp::Time(10, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(15, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(15, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(20, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(30, 0), generated_time_spans[2].first);
+  EXPECT_EQ(rclcpp::Time(35, 0), generated_time_spans[2].second);
+  EXPECT_EQ(rclcpp::Time(35, 0), generated_time_spans[3].first);
+  EXPECT_EQ(rclcpp::Time(40, 0), generated_time_spans[3].second);
 }
 
 TEST_F(TimestampManagerTestFixture, SplitSame)
@@ -777,34 +777,34 @@ TEST_F(TimestampManagerTestFixture, SplitSame)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(22, 0));
-  transaction.addInvolvedStamp(ros::Time(27, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(22, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(27, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(6, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(22, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(22, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(27, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(27, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(3ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(22, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(22, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(27, 0), generated_time_spans[1].second);
-  EXPECT_EQ(ros::Time(27, 0), generated_time_spans[2].first);
-  EXPECT_EQ(ros::Time(30, 0), generated_time_spans[2].second);
+  EXPECT_EQ(rclcpp::Time(20, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(22, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(22, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(27, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(27, 0), generated_time_spans[2].first);
+  EXPECT_EQ(rclcpp::Time(30, 0), generated_time_spans[2].second);
 }
 
 TEST_F(TimestampManagerTestFixture, SplitSameMultiple)
@@ -816,44 +816,44 @@ TEST_F(TimestampManagerTestFixture, SplitSameMultiple)
 
   populate();
   fuse_core::Transaction transaction;
-  transaction.addInvolvedStamp(ros::Time(22, 0));
-  transaction.addInvolvedStamp(ros::Time(25, 0));
-  transaction.addInvolvedStamp(ros::Time(27, 0));
-  transaction.addInvolvedStamp(ros::Time(29, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(22, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(25, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(27, 0));
+  transaction.addInvolvedStamp(rclcpp::Time(29, 0));
   manager.query(transaction);
 
   // Verify the manager contains the expected timestamps
   auto stamp_range = manager.stamps();
   ASSERT_EQ(8, std::distance(stamp_range.begin(), stamp_range.end()));
   auto stamp_range_iter = stamp_range.begin();
-  EXPECT_EQ(ros::Time(10, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(10, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(20, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(20, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(22, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(22, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(25, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(25, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(27, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(27, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(29, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(29, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(30, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(30, 0), *stamp_range_iter);
   ++stamp_range_iter;
-  EXPECT_EQ(ros::Time(40, 0), *stamp_range_iter);
+  EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
 
   // Verify the expected new motion model segments were generated
   ASSERT_EQ(5ul, generated_time_spans.size());
-  EXPECT_EQ(ros::Time(20, 0), generated_time_spans[0].first);
-  EXPECT_EQ(ros::Time(22, 0), generated_time_spans[0].second);
-  EXPECT_EQ(ros::Time(22, 0), generated_time_spans[1].first);
-  EXPECT_EQ(ros::Time(25, 0), generated_time_spans[1].second);
-  EXPECT_EQ(ros::Time(25, 0), generated_time_spans[2].first);
-  EXPECT_EQ(ros::Time(27, 0), generated_time_spans[2].second);
-  EXPECT_EQ(ros::Time(27, 0), generated_time_spans[3].first);
-  EXPECT_EQ(ros::Time(29, 0), generated_time_spans[3].second);
-  EXPECT_EQ(ros::Time(29, 0), generated_time_spans[4].first);
-  EXPECT_EQ(ros::Time(30, 0), generated_time_spans[4].second);
+  EXPECT_EQ(rclcpp::Time(20, 0), generated_time_spans[0].first);
+  EXPECT_EQ(rclcpp::Time(22, 0), generated_time_spans[0].second);
+  EXPECT_EQ(rclcpp::Time(22, 0), generated_time_spans[1].first);
+  EXPECT_EQ(rclcpp::Time(25, 0), generated_time_spans[1].second);
+  EXPECT_EQ(rclcpp::Time(25, 0), generated_time_spans[2].first);
+  EXPECT_EQ(rclcpp::Time(27, 0), generated_time_spans[2].second);
+  EXPECT_EQ(rclcpp::Time(27, 0), generated_time_spans[3].first);
+  EXPECT_EQ(rclcpp::Time(29, 0), generated_time_spans[3].second);
+  EXPECT_EQ(rclcpp::Time(29, 0), generated_time_spans[4].first);
+  EXPECT_EQ(rclcpp::Time(30, 0), generated_time_spans[4].second);
 }
 
 int main(int argc, char **argv)

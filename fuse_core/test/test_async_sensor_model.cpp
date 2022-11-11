@@ -47,7 +47,7 @@ static bool received_transaction = false;
  */
 void transactionCallback(fuse_core::Transaction::SharedPtr /*transaction*/)
 {
-  ros::Duration(1.0).sleep();
+  rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
   received_transaction = true;
 }
 
@@ -72,7 +72,7 @@ public:
 
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
-    ros::Duration(1.0).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
     graph_received = true;
   }
 
@@ -99,10 +99,10 @@ TEST(AsyncSensorModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   sensor.graphCallback(graph);
   EXPECT_FALSE(sensor.graph_received);
-  ros::Time wait_time_elapsed = ros::Time::now() + ros::Duration(10.0);
-  while (!sensor.graph_received && ros::Time::now() < wait_time_elapsed)
+  rclcpp::Time wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  while (!sensor.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
-    ros::Duration(0.1).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
   }
   EXPECT_TRUE(sensor.graph_received);
 }

@@ -55,7 +55,7 @@ public:
 
   ExampleVariableStamped() = default;
 
-  explicit ExampleVariableStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+  explicit ExampleVariableStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
     : fuse_core::Variable(fuse_core::uuid::generate(detail::type(), stamp, device_id))
     , Stamped(stamp, device_id)
     , data_(0.0)

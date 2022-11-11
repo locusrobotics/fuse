@@ -34,7 +34,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_variables/position_3d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
@@ -49,7 +49,7 @@ using fuse_variables::Position3DStamped;
 
 TEST(Position3DStamped, Type)
 {
-  Position3DStamped variable(ros::Time(12345678, 910111213));
+  Position3DStamped variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::Position3DStamped", variable.type());
 }
 
@@ -57,8 +57,8 @@ TEST(Position3DStamped, UUID)
 {
   // Verify two positions at the same timestamp produce the same UUID
   {
-    Position3DStamped variable1(ros::Time(12345678, 910111213));
-    Position3DStamped variable2(ros::Time(12345678, 910111213));
+    Position3DStamped variable1(rclcpp::Time(12345678, 910111213));
+    Position3DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
@@ -67,53 +67,53 @@ TEST(Position3DStamped, UUID)
 
   // Verify two positions at the same timestamp and same hardware ID produce the same UUID
   {
-    Position3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(ros::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_1);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the same timestamp but different hardware IDs generate different UUIDs
   {
-    Position3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(ros::Time(12345678, 910111213), uuid_2);
+    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the same hardware ID and different timestamps produce different UUIDs
   {
-    Position3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(ros::Time(12345678, 910111214), uuid_1);
+    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Position3DStamped variable3(ros::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable4(ros::Time(12345679, 910111213), uuid_1);
+    Position3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_1);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two positions with different hardware IDs and different timestamps produce different UUIDs
   {
-    Position3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(ros::Time(12345678, 910111214), uuid_2);
+    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Position3DStamped variable3(ros::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable4(ros::Time(12345679, 910111213), uuid_2);
+    Position3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_2);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 }
 
 TEST(Position3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Position3DStamped::make_shared(ros::Time(12345678, 910111213),
+  fuse_core::Variable::SharedPtr base = Position3DStamped::make_shared(rclcpp::Time(12345678, 910111213),
                                                                        fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Position3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
-  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
 
   auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
   ASSERT_TRUE(static_cast<bool>(stamped));
-  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
@@ -133,7 +133,7 @@ struct CostFunctor
 TEST(Position3DStamped, Optimization)
 {
   // Create a Position3DStamped
-  Position3DStamped position(ros::Time(12345678, 910111213));
+  Position3DStamped position(rclcpp::Time(12345678, 910111213));
   position.x() = 1.5;
   position.y() = -3.0;
   position.z() = 0.8;
@@ -167,7 +167,7 @@ TEST(Position3DStamped, Optimization)
 TEST(Position3DStamped, Serialization)
 {
   // Create a Position3DStamped
-  Position3DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  Position3DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
   expected.z() = 0.8;

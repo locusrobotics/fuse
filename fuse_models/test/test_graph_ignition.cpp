@@ -309,15 +309,15 @@ TEST(Unicycle2DIgnition, SetGraphServiceWithStampedVariables)
   // Create graph
   fuse_graphs::HashGraph graph;
 
-  auto variable1 = ExampleVariableStamped::make_shared(ros::Time(101.0));
+  auto variable1 = ExampleVariableStamped::make_shared(rclcpp::Time(101.0));
   variable1->data()[0] = 1.0;
   graph.addVariable(variable1);
 
-  auto variable2 = ExampleVariableStamped::make_shared(ros::Time(102.0));
+  auto variable2 = ExampleVariableStamped::make_shared(rclcpp::Time(102.0));
   variable2->data()[0] = 2.5;
   graph.addVariable(variable2);
 
-  auto variable3 = ExampleVariableStamped::make_shared(ros::Time(103.0));
+  auto variable3 = ExampleVariableStamped::make_shared(rclcpp::Time(103.0));
   variable3->data()[0] = -1.2;
   graph.addVariable(variable3);
 

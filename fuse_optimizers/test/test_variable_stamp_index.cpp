@@ -38,7 +38,7 @@
 #include <fuse_core/variable.h>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -60,7 +60,7 @@ class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamp
 public:
   FUSE_VARIABLE_DEFINITIONS(StampedVariable)
 
-  explicit StampedVariable(const ros::Time& stamp = ros::Time(0, 0)) :
+  explicit StampedVariable(const rclcpp::Time& stamp = rclcpp::Time(0, 0)) :
     fuse_core::Variable(fuse_core::uuid::generate()),
     fuse_variables::Stamped(stamp),
     data_{}
@@ -261,7 +261,7 @@ TEST(VariableStampIndex, CurrentStamp)
   auto index = fuse_optimizers::VariableStampIndex();
 
   // Verify the current stamp is 0
-  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+  EXPECT_EQ(rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED), index.currentStamp());
 
   // Add an unstamped variable
   auto x1 = UnstampedVariable::make_shared();
@@ -270,16 +270,16 @@ TEST(VariableStampIndex, CurrentStamp)
   index.addNewTransaction(transaction1);
 
   // Verify the current stamp is still 0
-  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+  EXPECT_EQ(rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED), index.currentStamp());
 
   // Add a stamped variable
-  auto x2 = StampedVariable::make_shared(ros::Time(1, 0));
+  auto x2 = StampedVariable::make_shared(rclcpp::Time(1, 0));
   auto transaction2 = fuse_core::Transaction();
   transaction2.addVariable(x2);
   index.addNewTransaction(transaction2);
 
   // Verify the current stamp is now Time(1, 0)
-  EXPECT_EQ(ros::Time(1, 0), index.currentStamp());
+  EXPECT_EQ(rclcpp::Time(1, 0), index.currentStamp());
 }
 
 TEST(VariableStampIndex, Query)
@@ -288,9 +288,9 @@ TEST(VariableStampIndex, Query)
   auto index = fuse_optimizers::VariableStampIndex();
 
   // Add some variables and constraints
-  auto x1 = StampedVariable::make_shared(ros::Time(1, 0));
-  auto x2 = StampedVariable::make_shared(ros::Time(2, 0));
-  auto x3 = StampedVariable::make_shared(ros::Time(3, 0));
+  auto x1 = StampedVariable::make_shared(rclcpp::Time(1, 0));
+  auto x2 = StampedVariable::make_shared(rclcpp::Time(2, 0));
+  auto x3 = StampedVariable::make_shared(rclcpp::Time(3, 0));
   auto l1 = UnstampedVariable::make_shared();
   auto l2 = UnstampedVariable::make_shared();
 
@@ -315,13 +315,13 @@ TEST(VariableStampIndex, Query)
 
   auto expected1 = std::vector<fuse_core::UUID>{};
   auto actual1 = std::vector<fuse_core::UUID>();
-  index.query(ros::Time(1, 500000), std::back_inserter(actual1));
+  index.query(rclcpp::Time(1, 500000), std::back_inserter(actual1));
   EXPECT_EQ(expected1, actual1);
 
   auto expected2 = std::vector<fuse_core::UUID>{x1->uuid(), l1->uuid()};
   std::sort(expected2.begin(), expected2.end());
   auto actual2 = std::vector<fuse_core::UUID>();
-  index.query(ros::Time(2, 500000), std::back_inserter(actual2));
+  index.query(rclcpp::Time(2, 500000), std::back_inserter(actual2));
   std::sort(actual2.begin(), actual2.end());
   EXPECT_EQ(expected2, actual2);
 }
@@ -332,9 +332,9 @@ TEST(VariableStampIndex, MarginalTransaction)
   auto index = fuse_optimizers::VariableStampIndex();
 
   // Add some variables and constraints
-  auto x1 = StampedVariable::make_shared(ros::Time(1, 0));
-  auto x2 = StampedVariable::make_shared(ros::Time(2, 0));
-  auto x3 = StampedVariable::make_shared(ros::Time(3, 0));
+  auto x1 = StampedVariable::make_shared(rclcpp::Time(1, 0));
+  auto x2 = StampedVariable::make_shared(rclcpp::Time(2, 0));
+  auto x3 = StampedVariable::make_shared(rclcpp::Time(3, 0));
   auto l1 = UnstampedVariable::make_shared();
   auto l2 = UnstampedVariable::make_shared();
 
@@ -374,7 +374,7 @@ TEST(VariableStampIndex, MarginalTransaction)
   auto expected = std::vector<fuse_core::UUID>{l1->uuid()};
   std::sort(expected.begin(), expected.end());
   auto actual = std::vector<fuse_core::UUID>();
-  index.query(ros::Time(2, 500000), std::back_inserter(actual));
+  index.query(rclcpp::Time(2, 500000), std::back_inserter(actual));
   std::sort(actual.begin(), actual.end());
   EXPECT_EQ(expected, actual);
 }

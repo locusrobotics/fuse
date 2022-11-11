@@ -36,7 +36,7 @@
 #include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/cost_function_to_functor.h>
@@ -54,7 +54,7 @@ using fuse_variables::Orientation3DStamped;
 
 TEST(Orientation3DStamped, Type)
 {
-  Orientation3DStamped variable(ros::Time(12345678, 910111213));
+  Orientation3DStamped variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::Orientation3DStamped", variable.type());
 }
 
@@ -62,8 +62,8 @@ TEST(Orientation3DStamped, UUID)
 {
   // Verify two orientations at the same timestamp produce the same UUID
   {
-    Orientation3DStamped variable1(ros::Time(12345678, 910111213));
-    Orientation3DStamped variable2(ros::Time(12345678, 910111213));
+    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213));
+    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
@@ -72,37 +72,37 @@ TEST(Orientation3DStamped, UUID)
 
   // Verify two orientations at the same timestamp and same hardware ID produce the same UUID
   {
-    Orientation3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(ros::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_1);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two orientations with the same timestamp but different hardware IDs generate different UUIDs
   {
-    Orientation3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(ros::Time(12345678, 910111213), uuid_2);
+    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two orientations with the same hardware ID and different timestamps produce different UUIDs
   {
-    Orientation3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(ros::Time(12345678, 910111214), uuid_1);
+    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Orientation3DStamped variable3(ros::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable4(ros::Time(12345679, 910111213), uuid_1);
+    Orientation3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_1);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two orientations with different hardware IDs and different timestamps produce different UUIDs
   {
-    Orientation3DStamped variable1(ros::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(ros::Time(12345678, 910111214), uuid_2);
+    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Orientation3DStamped variable3(ros::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable4(ros::Time(12345679, 910111213), uuid_2);
+    Orientation3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_2);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 }
@@ -141,7 +141,7 @@ using Orientation3DLocalParameterization =
 
 TEST(Orientation3DStamped, Plus)
 {
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
 
   double x[4] = {0.842614977, 0.2, 0.3, 0.4};
   double delta[3] = {0.15, -0.2, 0.433012702};
@@ -159,7 +159,7 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
 
   double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
   double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
@@ -176,7 +176,7 @@ TEST(Orientation3DStamped, Minus)
 
 TEST(Orientation3DStamped, PlusJacobian)
 {
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
@@ -217,7 +217,7 @@ TEST(Orientation3DStamped, PlusJacobian)
 
 TEST(Orientation3DStamped, MinusJacobian)
 {
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
@@ -256,16 +256,16 @@ TEST(Orientation3DStamped, MinusJacobian)
 
 TEST(Orientation3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(ros::Time(12345678, 910111213),
+  fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(rclcpp::Time(12345678, 910111213),
                                                                           fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
-  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
 
   auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
   ASSERT_TRUE(static_cast<bool>(stamped));
-  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
@@ -316,7 +316,7 @@ struct QuaternionCostFunction
 TEST(Orientation3DStamped, Optimization)
 {
   // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
-  Orientation3DStamped orientation(ros::Time(12345678, 910111213));
+  Orientation3DStamped orientation(rclcpp::Time(12345678, 910111213));
   orientation.w() = 0.952;
   orientation.x() = 0.038;
   orientation.y() = -0.189;
@@ -357,7 +357,7 @@ TEST(Orientation3DStamped, Euler)
   const double RAD_TO_DEG = 180.0 / M_PI;
 
   // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
-  Orientation3DStamped orientation_r(ros::Time(12345678, 910111213));
+  Orientation3DStamped orientation_r(rclcpp::Time(12345678, 910111213));
   orientation_r.w() = 0.9961947;
   orientation_r.x() = 0.0871557;
   orientation_r.y() = 0.0;
@@ -365,7 +365,7 @@ TEST(Orientation3DStamped, Euler)
 
   EXPECT_NEAR(10.0, RAD_TO_DEG * orientation_r.roll(), 1e-5);
 
-  Orientation3DStamped orientation_p(ros::Time(12345678, 910111213));
+  Orientation3DStamped orientation_p(rclcpp::Time(12345678, 910111213));
   orientation_p.w() = 0.9848078;
   orientation_p.x() = 0.0;
   orientation_p.y() = -0.1736482;
@@ -373,7 +373,7 @@ TEST(Orientation3DStamped, Euler)
 
   EXPECT_NEAR(-20.0, RAD_TO_DEG * orientation_p.pitch(), 1e-5);
 
-  Orientation3DStamped orientation_y(ros::Time(12345678, 910111213));
+  Orientation3DStamped orientation_y(rclcpp::Time(12345678, 910111213));
   orientation_y.w() = 0.9659258;
   orientation_y.x() = 0.0;
   orientation_y.y() = 0.0;
@@ -385,7 +385,7 @@ TEST(Orientation3DStamped, Euler)
 TEST(Orientation3DStamped, Serialization)
 {
   // Create an Orientation3DStamped
-  Orientation3DStamped expected(ros::Time(12345678, 910111213));
+  Orientation3DStamped expected(rclcpp::Time(12345678, 910111213));
   expected.w() = 0.952;
   expected.x() = 0.038;
   expected.y() = -0.189;

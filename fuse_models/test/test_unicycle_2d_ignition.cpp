@@ -207,7 +207,7 @@ TEST(Unicycle2DIgnition, SetPoseService)
 
   // Call the SetPose service
   fuse_models::SetPose srv;
-  srv.request.pose.header.stamp = ros::Time(12, 345678910);
+  srv.request.pose.header.stamp = rclcpp::Time(12, 345678910);
   srv.request.pose.pose.pose.position.x = 1.0;
   srv.request.pose.pose.pose.position.y = 2.0;
   srv.request.pose.pose.pose.orientation.z = 0.0499792;  // yaw = 0.1rad
@@ -299,7 +299,7 @@ TEST(Unicycle2DIgnition, SetPoseDeprecatedService)
 
   // Call the SetPose service
   fuse_models::SetPoseDeprecated srv;
-  srv.request.pose.header.stamp = ros::Time(12, 345678910);
+  srv.request.pose.header.stamp = rclcpp::Time(12, 345678910);
   srv.request.pose.pose.pose.position.x = 1.0;
   srv.request.pose.pose.pose.position.y = 2.0;
   srv.request.pose.pose.pose.orientation.z = 0.0499792;  // yaw = 0.1rad

@@ -40,6 +40,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
+#include <rclcpp/duration.hpp>
 
 #include <boost/core/demangle.hpp>
 #include <boost/range/any_range.hpp>

@@ -156,13 +156,13 @@ class Position2DStamped : public fuse_core::Variable
 private:
   std::array<double, 2> data_;
   fuse_core::UUID device_id_;
-  ros::Time stamp_;
+  rclcpp::Time stamp_;
   fuse_core::UUID uuid_;
 
 public:
   SMART_PTR_DEFINITIONS(Position2DStamped);
 
-  Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Position2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
     data{},
     device_id_(device_id),
     stamp_(stamp),
@@ -193,8 +193,8 @@ public:
     return Position2DStamped::make_unique(*this);
   }
 
-  const ros::Time& deviceId() const { return device_id_; }
-  const ros::Time& stamp() const { return stamp_; }
+  const rclcpp::Time& deviceId() const { return device_id_; }
+  const rclcpp::Time& stamp() const { return stamp_; }
 
   double& x() { return data_[0]; }
   const double& x() const { return data_[0]; }
@@ -223,14 +223,15 @@ private:
 
 Our Variable also needs to hold the identity information. For this Variable we want to support both multi-robot
 scenarios as well as time-varying processes, so we need some sort of "robot id" and a timestamp. Since this is a
-ROS library, we will use a `ros::Time` to hold the timestamp. And we will choose a `fuse_core::UUID` to act as a
-generic "robot id". fuse ships with several functions for converting strings and other types into a UUID
-([UUID functions](../fuse_core/include/fuse_core/uuid.h)), so this choice should support most use-cases.
+ROS library, we will use a `rclcpp::Time` (which subclasses `rclcpp::Time`) to hold the timestamp.
+And we will choose a `fuse_core::UUID` to act as a generic "robot id". fuse ships with several functions
+for converting strings and other types into a UUID ([UUID functions](../fuse_core/include/fuse_core/uuid.h)),
+so this choice should support most use-cases.
 
 ```C++
 private:
   fuse_core::UUID device_id_;
-  ros::Time stamp_;
+  rclcpp::Time stamp_;
 ```
 
 fuse expects the identity portion of the Variable to be distilled into a `fuse_core::UUID` value. We choose to make
@@ -247,7 +248,7 @@ construction, these values cannot be changed.
 
 ```C++
 public:
-  Position2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
+  Position2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
     data{},
     device_id_(device_id),
     stamp_(stamp),
@@ -357,8 +358,8 @@ but it is very strongly recommended. This creates some standard aliases for vari
 e.g.`Position2dStamped::make_shared()` and `Position2dStamped::make_unique()`.
 
 ```C++
-const ros::Time& deviceId() const { return device_id_; }
-const ros::Time& stamp() const { return stamp_; }
+const rclcpp::Time& deviceId() const { return device_id_; }
+const rclcpp::Time& stamp() const { return stamp_; }
 ```
 
 Providing accessor functions for the identity information, not just the identity UUID, is also recommended.

@@ -37,7 +37,7 @@
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <pluginlib/class_list_macros.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <boost/serialization/export.hpp>
 
@@ -48,7 +48,7 @@ namespace fuse_variables
 {
 
 AccelerationAngular3DStamped::AccelerationAngular3DStamped(
-  const ros::Time& stamp,
+  const rclcpp::Time& stamp,
   const fuse_core::UUID& device_id) :
     FixedSizeVariable<3>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
     Stamped(stamp, device_id)

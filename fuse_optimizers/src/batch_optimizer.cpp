@@ -47,22 +47,23 @@ namespace fuse_optimizers
 {
 
 BatchOptimizer::BatchOptimizer(
-  fuse_core::Graph::UniquePtr graph,
-  const ros::NodeHandle& node_handle,
-  const ros::NodeHandle& private_node_handle) :
-    fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle),
-    combined_transaction_(fuse_core::Transaction::make_shared()),
-    optimization_request_(false),
-    start_time_(ros::TIME_MAX),
+  rclcpp::NodeOptions options,
+  std::string node_name,
+  fuse_core::Graph::UniquePtr graph
+):
+  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
+  combined_transaction_(fuse_core::Transaction::make_shared()),
+  optimization_request_(false),
+    start_time_(rclcpp::Time::max()),  // NOTE(CH3): ???
     started_(false)
 {
   params_.loadFromROS(private_node_handle);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = node_handle_.createTimer(
-    ros::Duration(params_.optimization_period),
-    &BatchOptimizer::optimizerTimerCallback,
-    this);
+  optimize_timer_ = this->create_timer(
+    params_.optimization_period,
+    std::bind(&BatchOptimizer::optimizerTimerCallback, this)
+  );
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&BatchOptimizer::optimizationLoop, this);
@@ -83,12 +84,15 @@ void BatchOptimizer::applyMotionModelsToQueue()
 {
   // We need get the pending transactions from the queue
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+  rclcpp::Time current_time;
   // Use the most recent transaction time as the current time
-  ros::Time current_time(0, 0);
   if (!pending_transactions_.empty())
   {
+    // Use the most recent transaction time as the current time
     current_time = pending_transactions_.rbegin()->first;
   }
+
+  // TODO(CH3): We might have to check for time validity here?
   // Attempt to process each pending transaction
   while (!pending_transactions_.empty())
   {
@@ -158,7 +162,7 @@ void BatchOptimizer::optimizationLoop()
   }
 }
 
-void BatchOptimizer::optimizerTimerCallback(const ros::TimerEvent& /*event*/)
+void BatchOptimizer::optimizerTimerCallback()
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
   if (!started_)
@@ -188,8 +192,10 @@ void BatchOptimizer::transactionCallback(
   // Add the new transaction to the pending set
   // Either we haven't "started" yet and we want to keep a short history of transactions around
   // Or we have "started" already, and the new transaction is after the starting time.
-  ros::Time transaction_time = transaction->stamp();
-  ros::Time last_pending_time(0, 0);
+  auto transaction_clock_type = transaction->stamp()->get_clock_type();
+
+  rclcpp::Time transaction_time = transaction->stamp();
+  rclcpp::Time last_pending_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
   if (!started_ || transaction_time >= start_time_)
   {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
@@ -206,12 +212,14 @@ void BatchOptimizer::transactionCallback(
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
-    ros::Time purge_time(0, 0);
+    rclcpp::Time purge_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
     if (started_)
     {
       purge_time = start_time_;
     }
-    else if (ros::Time(0, 0) + params_.transaction_timeout < last_pending_time)  // prevent a bad subtraction
+    // prevent a bad subtraction
+    else if (rclcpp::Time(params_.transaction_timeout.nanoseconds, last_pending_time.get_clock_type())
+             < last_pending_time)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }

@@ -53,14 +53,14 @@ public:
 
   bool applyCallback(fuse_core::Transaction& /*transaction*/)
   {
-    ros::Duration(1.0).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
     transaction_received = true;
     return true;
   }
 
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
-    ros::Duration(1.0).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
     graph_received = true;
   }
 
@@ -93,10 +93,10 @@ TEST(AsyncMotionModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   motion_model.graphCallback(graph);
   EXPECT_FALSE(motion_model.graph_received);
-  ros::Time wait_time_elapsed = ros::Time::now() + ros::Duration(10.0);
-  while (!motion_model.graph_received && ros::Time::now() < wait_time_elapsed)
+  rclcpp::Time wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  while (!motion_model.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
-    ros::Duration(0.1).sleep();
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
   }
   EXPECT_TRUE(motion_model.graph_received);
 }
@@ -110,11 +110,11 @@ TEST(AsyncMotionModel, ApplyCallback)
   // will then inject a call to applyCallback() into the motion model's callback queue. There is a time delay there, so
   // this call should block for *at least* 1.0 second. Once it returns, the "received_transaction" flag should be set.
   fuse_core::Transaction transaction;
-  ros::Time before_apply = ros::Time::now();
+  rclcpp::Time before_apply = rclcpp::Clock(RCL_SYSTEM_TIME).now();
   motion_model.apply(transaction);
-  ros::Time after_apply = ros::Time::now();
+  rclcpp::Time after_apply = rclcpp::Clock(RCL_SYSTEM_TIME).now();
   EXPECT_TRUE(motion_model.transaction_received);
-  EXPECT_LE(ros::Duration(1.0), after_apply - before_apply);
+  EXPECT_LE(rclcpp::Duration::from_seconds(1.0), after_apply - before_apply);
 }
 
 int main(int argc, char** argv)

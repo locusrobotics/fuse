@@ -117,9 +117,9 @@ namespace fuse_models
 
 Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
-  buffer_length_(ros::DURATION_MAX),
+  buffer_length_(rclcpp::Duration::max()),
   device_id_(fuse_core::uuid::NIL),
-  timestamp_manager_(&Unicycle2D::generateMotionModel, this, ros::DURATION_MAX)
+  timestamp_manager_(&Unicycle2D::generateMotionModel, this, rclcpp::Duration::max())
 {
 }
 
@@ -217,7 +217,7 @@ void Unicycle2D::onInit()
     throw std::runtime_error("Invalid negative buffer length of " + std::to_string(buffer_length) + " specified.");
   }
 
-  buffer_length_ = (buffer_length == 0.0) ? ros::DURATION_MAX : ros::Duration(buffer_length);
+  buffer_length_ = (buffer_length == 0.0) ? rclcpp::Duration::max() : rclcpp::Duration::from_seconds(buffer_length);
   timestamp_manager_.bufferLength(buffer_length_);
 
   device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
@@ -230,15 +230,15 @@ void Unicycle2D::onStart()
 }
 
 void Unicycle2D::generateMotionModel(
-  const ros::Time& beginning_stamp,
-  const ros::Time& ending_stamp,
+  const rclcpp::Time& beginning_stamp,
+  const rclcpp::Time& ending_stamp,
   std::vector<fuse_core::Constraint::SharedPtr>& constraints,
   std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
   assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history_.empty()));
 
   StateHistoryElement base_state;
-  ros::Time base_time;
+  rclcpp::Time base_time;
 
   // Find an entry that is > beginning_stamp
   // The entry that is <= will be the one before it
@@ -267,7 +267,7 @@ void Unicycle2D::generateMotionModel(
       base_state.velocity_linear,
       base_state.velocity_yaw,
       base_state.acceleration_linear,
-      (beginning_stamp - base_time).toSec(),
+      (beginning_stamp - base_time).seconds(),
       state1.pose,
       state1.velocity_linear,
       state1.velocity_yaw,
@@ -279,7 +279,7 @@ void Unicycle2D::generateMotionModel(
   }
 
   // If dt is zero, we only need to update the state history:
-  const double dt = (ending_stamp - beginning_stamp).toSec();
+  const double dt = (ending_stamp - beginning_stamp).seconds();
 
   if (dt == 0.0)
   {
@@ -407,7 +407,7 @@ void Unicycle2D::generateMotionModel(
 void Unicycle2D::updateStateHistoryEstimates(
   const fuse_core::Graph& graph,
   StateHistory& state_history,
-  const ros::Duration& buffer_length)
+  const rclcpp::Duration& buffer_length)
 {
   if (state_history.empty())
   {
@@ -416,8 +416,13 @@ void Unicycle2D::updateStateHistoryEstimates(
 
   // Compute the expiration time carefully, as ROS can't handle negative times
   const auto& ending_stamp = state_history.rbegin()->first;
-  auto expiration_time =
-      ending_stamp.toSec() > buffer_length.toSec() ? ending_stamp - buffer_length : ros::Time(0, 0);
+
+  if (ending_stamp.seconds() > buffer_length.seconds()) {
+    auto expiration_time = ending_stamp - buffer_length;
+  } else {
+    // NOTE(CH3): Uninitialized. But okay because it's just used for comparison.
+    auto expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type);
+  }
 
   // Remove state history elements before the expiration time.
   // Be careful to ensure that:
@@ -473,7 +478,7 @@ void Unicycle2D::updateStateHistoryEstimates(
         previous_state.velocity_linear,
         previous_state.velocity_yaw,
         previous_state.acceleration_linear,
-        (current_stamp - previous_stamp).toSec(),
+        (current_stamp - previous_stamp).seconds(),
         current_state.pose,
         current_state.velocity_linear,
         current_state.velocity_yaw,

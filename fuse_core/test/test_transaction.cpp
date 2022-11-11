@@ -52,7 +52,7 @@ using fuse_core::UUID;
  *
  * Order of the stamps is not important. Extra stamps in the Transaction will return False.
  *
- * @tparam TimeRange   A range or container with objects compatible with a "const ros::Time&" signature
+ * @tparam TimeRange   A range or container with objects compatible with a "const rclcpp::Time&" signature
  * @param expected     The set of expected stamps
  * @param transaction  The transaction to test
  * @return             True if the expected stamps, and only the expected stamps, exist in the
@@ -341,7 +341,7 @@ TEST(Transaction, Empty)
 
   // A transaction with involved stamps cannot be empty
   {
-    const ros::Time involved_stamp(12345, 6789);
+    const rclcpp::Time involved_stamp(12345, 6789);
 
     Transaction transaction;
     transaction.addInvolvedStamp(involved_stamp);
@@ -712,9 +712,9 @@ TEST(Transaction, RemoveVariable)
 TEST(Transaction, Merge)
 {
   // Create two transactions with different info
-  ros::Time involved_stamp1(12345, 6789);
-  ros::Time involved_stamp2(12346, 6789);
-  ros::Time involved_stamp3(12347, 6789);
+  rclcpp::Time involved_stamp1(12345, 6789);
+  rclcpp::Time involved_stamp2(12346, 6789);
+  rclcpp::Time involved_stamp3(12347, 6789);
 
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
@@ -764,7 +764,7 @@ TEST(Transaction, Merge)
   transaction1.merge(transaction2);
 
   // Verify the correct combination now exists in transaction1
-  std::vector<ros::Time> expected_involved_stamps;
+  std::vector<rclcpp::Time> expected_involved_stamps;
   expected_involved_stamps.push_back(involved_stamp1);
   expected_involved_stamps.push_back(involved_stamp2);
   expected_involved_stamps.push_back(involved_stamp3);
@@ -800,8 +800,8 @@ TEST(Transaction, Merge)
 TEST(Transaction, Clone)
 {
   // Create two transactions with different info
-  ros::Time involved_stamp1(12345, 6789);
-  ros::Time involved_stamp2(12346, 6789);
+  rclcpp::Time involved_stamp1(12345, 6789);
+  rclcpp::Time involved_stamp2(12346, 6789);
 
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
@@ -833,7 +833,7 @@ TEST(Transaction, Clone)
   auto transaction2 = transaction1.clone();
 
   // Verify the correct combination now exists in transaction2
-  std::vector<ros::Time> expected_involved_stamps;
+  std::vector<rclcpp::Time> expected_involved_stamps;
   expected_involved_stamps.push_back(involved_stamp1);
   expected_involved_stamps.push_back(involved_stamp2);
   EXPECT_TRUE(testInvolvedStamps(expected_involved_stamps, *transaction2));
@@ -862,8 +862,8 @@ TEST(Transaction, Clone)
 TEST(Transaction, Serialize)
 {
   // Create a transaction
-  ros::Time involved_stamp1(12345, 6789);
-  ros::Time involved_stamp2(12346, 6789);
+  rclcpp::Time involved_stamp1(12345, 6789);
+  rclcpp::Time involved_stamp2(12346, 6789);
 
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();

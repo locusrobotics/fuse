@@ -41,7 +41,7 @@
 #include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -206,7 +206,7 @@ public:
    * @param[in] stamp     The timestamp attached to this velocity.
    * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
-  explicit Orientation3DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit Orientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the quaternion w component

@@ -36,7 +36,7 @@
 
 #include <fuse_core/ceres_options.h>
 #include <fuse_core/parameter.h>
-#include <ros/duration.h>
+#include <rclcpp/duration.hpp>
 #include <ros/node_handle.h>
 
 #include <ceres/solver.h>
@@ -62,7 +62,7 @@ public:
    * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
    * parameter in Hz.
    */
-  ros::Duration optimization_period { 0.1 };
+  rclcpp::Duration optimization_period { RCUTILS_S_TO_NS(0.1) };
 
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
@@ -70,7 +70,7 @@ public:
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
-  ros::Duration transaction_timeout { 0.1 };
+  rclcpp::Duration optimization_period { RCUTILS_S_TO_NS(0.1) };
 
   /**
    * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
@@ -87,7 +87,7 @@ public:
     // Read settings from the parameter server
     if (nh.hasParam("optimization_frequency"))
     {
-      double optimization_frequency{ 1.0 / optimization_period.toSec() };
+      double optimization_frequency{ 1.0 / optimization_period.seconds() };
       fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
       optimization_period.fromSec(1.0 / optimization_frequency);
     }

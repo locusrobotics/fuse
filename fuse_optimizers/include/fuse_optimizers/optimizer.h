@@ -91,7 +91,7 @@ namespace fuse_optimizers
  *  - ...
  * @endcode
  */
-class Optimizer // : public rclcpp::Node TODO(CH3): Uncomment when it's time
+class Optimizer : public rclcpp::Node
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)
@@ -152,6 +152,7 @@ protected:
   fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
 
   // Ordering ROS objects with callbacks last
+  // TODO(CH3): Store clock interface
   ros::NodeHandle node_handle_;  //!< Node handle in the public namespace for subscribing and advertising
   ros::NodeHandle private_node_handle_;  //!< Node handle in the private namespace for reading configuration settings
   pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader for MotionModels
@@ -162,7 +163,7 @@ protected:
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
-  ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
+  rclcpp::TimerBase::SharedPtr diagnostic_updater_timer_;  //!< Diagnostic updater timer
   double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
 
   /**

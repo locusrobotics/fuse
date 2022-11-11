@@ -131,10 +131,10 @@ public:
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   bool scale_process_noise{ false };
   double velocity_norm_min{ 1e-3 };
-  ros::Duration covariance_throttle_period { 0.0 };  //!< The throttle period duration in seconds to compute the
+  rclcpp::Duration covariance_throttle_period { 0 };  //!< The throttle period duration in seconds to compute the
                                                      //!< covariance
-  ros::Duration tf_cache_time { 10.0 };
-  ros::Duration tf_timeout { 0.1 };
+  rclcpp::Duration tf_cache_time { 10, 0 };
+  rclcpp::Duration tf_timeout { RCUTILS_S_TO_NS(0.1) };
   int queue_size { 1 };
   std::string map_frame_id { "map" };
   std::string odom_frame_id { "odom" };

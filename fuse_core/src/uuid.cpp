@@ -33,6 +33,11 @@
  */
 #include <fuse_core/uuid.h>
 
+#include <rclcpp/time.hpp>
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include <algorithm>
 #include <array>
 #include <mutex>
@@ -61,49 +66,36 @@ UUID generate()
 
 UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
 {
-  // replicate ros1 behaviour for now
-  #warning "deprecated time API"
-  rcl_time_point_value_t stamp_val = stamp.nanoseconds();
-  int32_t stamp_s = RCUTILS_NS_TO_S(stamp_val);
-  int32_t stamp_ns = stamp_val % (1000LL * 1000LL * 1000LL);
-
-  constexpr size_t buffer_size = sizeof(stamp_s) + sizeof(stamp_ns);
+  const auto nanoseconds = stamp.nanoseconds();
+  constexpr size_t buffer_size = sizeof(nanoseconds);
   std::array<unsigned char, buffer_size> buffer;
-  auto iter = buffer.begin();
 
-  #warning "unsafe time packing"
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_s),
-                   reinterpret_cast<const unsigned char*>(&stamp_s) + sizeof(stamp_s),
-                   iter);
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_ns),
-                   reinterpret_cast<const unsigned char*>(&stamp_ns) + sizeof(stamp_ns),
-                   iter);
+  // Explicitly pack nanosecond bits from LSB -> MSB by masking and shifting
+  // E.g. 10 would be 0x00000000'0000000A, so the buffer would store 0x0A at buffer[0]
+  for (size_t i = 0; i < sizeof(nanoseconds); i++) {
+    auto mask = (nanoseconds & (static_cast<int64_t>(0xFF) << 8 * i));
+    buffer[i] = static_cast<unsigned char>(mask >> 8 * i);
+  }
+
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
 UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id)
 {
-  // replicate ros1 behaviour for now
-  #warning "deprecated time API"
-  rcl_time_point_value_t stamp_val = stamp.nanoseconds();
-  int32_t stamp_s = RCUTILS_NS_TO_S(stamp_val);
-  int32_t stamp_ns = stamp_val % (1000LL * 1000LL * 1000LL);
-
-  constexpr size_t buffer_size = sizeof(stamp_s) + sizeof(stamp_ns) + UUID::static_size();
+  const auto nanoseconds = stamp.nanoseconds();
+  constexpr size_t buffer_size = sizeof(nanoseconds) + UUID::static_size();
   std::array<unsigned char, buffer_size> buffer;
-  auto iter = buffer.begin();
 
+  // Explicitly pack nanosecond bits from LSB -> MSB by masking and shifting
+  for (size_t i = 0; i < sizeof(nanoseconds); i++) {
+    auto mask = (nanoseconds & (static_cast<int64_t>(0xFF) << 8 * i));
+    buffer[i] = static_cast<unsigned char>(mask >> 8 * i);
+  }
 
-  #warning "unsafe time packing"
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_s),
-                   reinterpret_cast<const unsigned char*>(&stamp_s) + sizeof(stamp_s),
-                   iter);
-  iter = std::copy(reinterpret_cast<const unsigned char*>(&stamp_ns),
-                   reinterpret_cast<const unsigned char*>(&stamp_ns) + sizeof(stamp_ns),
-                   iter);
-  iter = std::copy(id.begin(),
-                   id.end(),
-                   iter);
+  // Then append the ID bytes
+  auto iter = &buffer[sizeof(nanoseconds)];
+  iter = std::copy(id.begin(), id.end(), iter);
+
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 

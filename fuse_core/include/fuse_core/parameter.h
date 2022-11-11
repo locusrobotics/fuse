@@ -103,9 +103,9 @@ void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& par
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  */
 inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name,
-                             ros::Duration& default_value, const bool strict = true)
+                             rclcpp::Duration& default_value, const bool strict = true)
 {
-  double default_value_sec = default_value.toSec();
+  double default_value_sec = default_value.seconds();
   getPositiveParam(node_handle, parameter_name, default_value_sec, strict);
   default_value.fromSec(default_value_sec);
 }

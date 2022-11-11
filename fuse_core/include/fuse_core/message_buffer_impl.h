@@ -35,7 +35,7 @@
 #define FUSE_CORE_MESSAGE_BUFFER_IMPL_H
 
 #include <rclcpp/duration.hpp>
-#include <rclcpp/time.hpp>
+#include <fuse_core/time.h>
 
 #include <boost/iterator/transform_iterator.hpp>
 
@@ -140,8 +140,14 @@ void MessageBuffer<Message>::purgeHistory()
 
   // Compute the expiration time carefully, as ROS can't handle negative times
   const auto& ending_stamp = buffer_.back().first;
-  auto expiration_time =
-      ending_stamp.toSec() > buffer_length_.toSec() ? ending_stamp - buffer_length_ : rclcpp::Time(0, 0);
+
+  if (ending_stamp.seconds() > buffer_length_.seconds()) {
+    auto expiration_time = ending_stamp - buffer_length_;
+  } else {
+    // NOTE(CH3): Uninitialized. But okay because it's just used for comparison.
+    auto expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type);
+  }
+
   // Remove buffer elements before the expiration time.
   // Be careful to ensure that:
   //  - at least two entries remains at all times

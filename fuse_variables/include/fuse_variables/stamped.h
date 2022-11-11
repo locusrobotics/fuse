@@ -38,7 +38,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <ros/node_handle.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <boost/serialization/access.hpp>
 
@@ -67,7 +67,7 @@ public:
   /**
    * @brief Constructor
    */
-  explicit Stamped(const ros::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
+  explicit Stamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
     device_id_(device_id),
     stamp_(stamp)
   {}
@@ -80,7 +80,7 @@ public:
   /**
    * @brief Read-only access to the associated timestamp.
    */
-  const ros::Time& stamp() const { return stamp_; }
+  const rclcpp::Time& stamp() const { return stamp_; }
 
   /**
    * @brief Read-only access to the associated device ID.
@@ -89,7 +89,7 @@ public:
 
 private:
   fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
-  ros::Time stamp_;  //!< The timestamp associated with this variable instance
+  rclcpp::Time stamp_;  //!< The timestamp associated with this variable instance
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

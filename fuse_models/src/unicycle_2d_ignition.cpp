@@ -115,7 +115,7 @@ void Unicycle2DIgnition::start()
   if (params_.publish_on_startup && !initial_transaction_sent_)
   {
     auto pose = geometry_msgs::PoseWithCovarianceStamped();
-    pose.header.stamp = ros::Time::now();
+    pose.header.stamp = this->get_node_clock_interface()->now();
     pose.pose.pose.position.x = params_.initial_state[0];
     pose.pose.pose.position.y = params_.initial_state[1];
     pose.pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0.0, 0.0, 1.0), params_.initial_state[2]));
@@ -227,7 +227,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
   if (!params_.reset_service.empty())
   {
     // Wait for the reset service
-    while (!reset_client_.waitForExistence(ros::Duration(10.0)) && ros::ok())
+    while (!reset_client_.waitForExistence(rclcpp::Duration::from_seconds(10.0)) && ros::ok())
     {
       RCLCPP_WARN_STREAM(node_->get_logger(),
                          "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");

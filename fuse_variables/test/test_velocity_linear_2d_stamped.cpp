@@ -34,7 +34,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
@@ -49,7 +49,7 @@ using fuse_variables::VelocityLinear2DStamped;
 
 TEST(VelocityLinear2DStamped, Type)
 {
-  VelocityLinear2DStamped variable(ros::Time(12345678, 910111213));
+  VelocityLinear2DStamped variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::VelocityLinear2DStamped", variable.type());
 }
 
@@ -57,20 +57,20 @@ TEST(VelocityLinear2DStamped, UUID)
 {
   // Verify two velocities at the same timestamp produce the same UUID
   {
-    VelocityLinear2DStamped variable1(ros::Time(12345678, 910111213));
-    VelocityLinear2DStamped variable2(ros::Time(12345678, 910111213));
+    VelocityLinear2DStamped variable1(rclcpp::Time(12345678, 910111213));
+    VelocityLinear2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    VelocityLinear2DStamped variable3(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    VelocityLinear2DStamped variable4(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityLinear2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityLinear2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two velocities at different timestamps produce different UUIDs
   {
-    VelocityLinear2DStamped variable1(ros::Time(12345678, 910111213));
-    VelocityLinear2DStamped variable2(ros::Time(12345678, 910111214));
-    VelocityLinear2DStamped variable3(ros::Time(12345679, 910111213));
+    VelocityLinear2DStamped variable1(rclcpp::Time(12345678, 910111213));
+    VelocityLinear2DStamped variable2(rclcpp::Time(12345678, 910111214));
+    VelocityLinear2DStamped variable3(rclcpp::Time(12345679, 910111213));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
     EXPECT_NE(variable1.uuid(), variable3.uuid());
     EXPECT_NE(variable2.uuid(), variable3.uuid());
@@ -78,24 +78,24 @@ TEST(VelocityLinear2DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    VelocityLinear2DStamped variable1(ros::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    VelocityLinear2DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    VelocityLinear2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    VelocityLinear2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(VelocityLinear2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = VelocityLinear2DStamped::make_shared(ros::Time(12345678, 910111213),
+  fuse_core::Variable::SharedPtr base = VelocityLinear2DStamped::make_shared(rclcpp::Time(12345678, 910111213),
                                                                              fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<VelocityLinear2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
-  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
 
   auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
   ASSERT_TRUE(static_cast<bool>(stamped));
-  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
@@ -114,7 +114,7 @@ struct CostFunctor
 TEST(VelocityLinear2DStamped, Optimization)
 {
   // Create a VelocityLinear2DStamped
-  VelocityLinear2DStamped velocity(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  VelocityLinear2DStamped velocity(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   velocity.x() = 1.5;
   velocity.y() = -3.0;
 
@@ -147,7 +147,7 @@ TEST(VelocityLinear2DStamped, Optimization)
 TEST(VelocityLinear2DStamped, Serialization)
 {
   // Create a VelocityLinear2DStamped
-  VelocityLinear2DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  VelocityLinear2DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
 

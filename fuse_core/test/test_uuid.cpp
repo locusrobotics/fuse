@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/uuid.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <gtest/gtest.h>
 
@@ -113,12 +113,12 @@ TEST(UUID, Generate)
     ASSERT_NE(id9, id11);
     ASSERT_NE(id9, id12);
   }
-  // Generate a UUID from a namespace and a ros::Time
+  // Generate a UUID from a namespace and a rclcpp::Time
   {
     std::string name1 = "Cobb";
     std::string name2 = "Frye";
-    ros::Time stamp1(1234, 5678);
-    ros::Time stamp2(1235, 5678);
+    rclcpp::Time stamp1(1234, 5678);
+    rclcpp::Time stamp2(1235, 5678);
 
     UUID id1 = fuse_core::uuid::generate(name1, stamp1);
     UUID id2 = fuse_core::uuid::generate(name1, stamp1);
@@ -128,12 +128,12 @@ TEST(UUID, Generate)
     ASSERT_NE(id1, id3);
     ASSERT_NE(id1, id4);
   }
-  // Generate a UUID from a namespace, a ros::Time, and another UUID
+  // Generate a UUID from a namespace, a rclcpp::Time, and another UUID
   {
     std::string name1 = "Book";
     std::string name2 = "Tam";
-    ros::Time stamp1(1234, 5678);
-    ros::Time stamp2(1235, 5678);
+    rclcpp::Time stamp1(1234, 5678);
+    rclcpp::Time stamp2(1235, 5678);
     UUID uuid1 = fuse_core::uuid::generate();
     UUID uuid2 = fuse_core::uuid::generate();
 

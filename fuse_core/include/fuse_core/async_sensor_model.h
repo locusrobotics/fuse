@@ -175,6 +175,7 @@ public:
   void stop() override;
 
 protected:
+  // TODO(CH3): Add a node clock interface
   ros::CallbackQueue callback_queue_;  //!< The local callback queue used for all subscriptions
   std::string name_;  //!< The unique name for this sensor model instance
   // rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model (TODO(CH3): Uncomment when it's time)

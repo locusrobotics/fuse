@@ -153,7 +153,7 @@ protected:
    */
   bool getState(
     const fuse_core::Graph& graph,
-    const ros::Time& stamp,
+    const rclcpp::Time& stamp,
     const fuse_core::UUID& device_id,
     fuse_core::UUID& position_uuid,
     fuse_core::UUID& orientation_uuid,
@@ -167,7 +167,7 @@ protected:
    * @brief Timer callback method for the filtered state publication and tf broadcasting
    * @param[in] event The timer event parameters that are associated with the given invocation
    */
-  void publishTimerCallback(const ros::TimerEvent& event);
+  void publishTimerCallback();
 
   /**
    * @brief Object that searches for the most recent common timestamp for a set of variables
@@ -182,9 +182,9 @@ protected:
 
   ParameterType params_;
 
-  ros::Time latest_stamp_;
+  rclcpp::Time latest_stamp_;
 
-  ros::Time latest_covariance_stamp_;
+  rclcpp::Time latest_covariance_stamp_;
 
   bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
 
@@ -207,7 +207,7 @@ protected:
   fuse_core::DelayedThrottleFilter delayed_throttle_filter_{ 10.0 };  //!< A ros::console filter to print delayed
                                                                       //!< throttle messages, that can be reset on start
 
-  ros::Timer publish_timer_;
+  rclcpp::TimerBase::SharedPtr publish_timer_;
 
   ros::CallbackQueue publish_timer_callback_queue_;  //!< A dedicated callback queue for the publish timer
   ros::NodeHandle publish_timer_node_handle_;        //!< A dedicated node handle for the publish timer, so it can use

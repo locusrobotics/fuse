@@ -38,7 +38,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -90,8 +90,10 @@ public:
 
   /**
    * @brief Returns the most recent timestamp associated with any variable
+   *
+   * If there is no timestamp in the index, returns rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED)
    */
-  ros::Time currentStamp() const;
+  rclcpp::Time currentStamp() const;
 
   /**
    * @brief Update the index with the information from the added transactions
@@ -119,7 +121,7 @@ public:
    * @param[out] result An output iterator capable of receiving fuse_core::UUID objects
    */
   template <typename OutputUuidIterator>
-  void query(const ros::Time& stamp, OutputUuidIterator result) const
+  void query(const rclcpp::Time& stamp, OutputUuidIterator result) const
   {
     // First get all of the stamped variables greater than or equal to the input stamp
     std::unordered_set<fuse_core::UUID> recent_variable_uuids;
@@ -167,7 +169,7 @@ public:
   }
 
 protected:
-  using StampedMap = std::unordered_map<fuse_core::UUID, ros::Time>;
+  using StampedMap = std::unordered_map<fuse_core::UUID, rclcpp::Time>;
   StampedMap stamped_index_;  //!< Container that holds the UUID->Stamp mapping for fuse_variables::Stamped variables
 
   using VariableToConstraintsMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;

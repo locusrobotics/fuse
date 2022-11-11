@@ -72,7 +72,7 @@ struct Beacon
  */
 struct Robot
 {
-  ros::Time stamp;
+  rclcpp::Time stamp;
   double x;
   double y;
   double yaw;
@@ -117,10 +117,13 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::PointCloud2::ConstPtr beaconsToPointcloud(const std::vector<Beacon>& beacons)
+sensor_msgs::PointCloud2::ConstPtr beaconsToPointcloud(
+  const std::vector<Beacon>& beacons,
+  const rclcpp::Clock& clock)
 {
   auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
-  msg->header.stamp = ros::Time::now();
+  msg->header.stamp = clock.now();
+
   msg->header.frame_id = MAP_FRAME;
   sensor_msgs::PointCloud2Modifier modifier(*msg);
   modifier.setPointCloud2Fields(5, "x", 1, sensor_msgs::PointField::FLOAT32,
@@ -190,7 +193,8 @@ nav_msgs::Odometry::ConstPtr robotToOdometry(const Robot& state)
  *
  * The state estimator will not run until it has been sent a starting pose.
  */
-void initializeStateEstimation(const Robot& state)
+void initializeStateEstimation(
+  const Robot& state, const rclcpp::Clock& clock)
 {
   // Send the initial localization signal to the state estimator
   auto srv = fuse_models::SetPose();
@@ -208,12 +212,12 @@ void initializeStateEstimation(const Robot& state)
   srv.request.pose.pose.covariance[21] = 1.0;
   srv.request.pose.pose.covariance[28] = 1.0;
   srv.request.pose.pose.covariance[35] = 1.0;
-  ros::service::waitForService("/state_estimation/set_pose", ros::Duration(30.0));
+  ros::service::waitForService("/state_estimation/set_pose", rclcpp::Duration::from_seconds(30.0));
   auto success = false;
   while (!success)
   {
-    ros::Duration(0.1).sleep();
-    srv.request.pose.header.stamp = ros::Time::now();
+    rclcpp::Duration::from_seconds(0.1).sleep();
+    srv.request.pose.header.stamp = clock.now();
     ros::service::call("/state_estimation/set_pose", srv);
     success = srv.response.success;
   }
@@ -222,9 +226,9 @@ void initializeStateEstimation(const Robot& state)
 /**
  * @brief Compute the next robot state given the current robot state and a simulated step time
  */
-Robot simulateRobotMotion(const Robot& previous_state, const ros::Time& now)
+Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 {
-  auto dt = (now - previous_state.stamp).toSec();
+  auto dt = (now - previous_state.stamp).seconds();
   auto theta = std::atan2(previous_state.y, previous_state.x) + (dt * previous_state.vyaw);
   auto next_state = Robot();
   next_state.stamp = now;
@@ -340,6 +344,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "range_sensor_simulator");
 
+  // TODO(CH3): Make this an rclcpp node!
   ros::NodeHandle node_handle;
   ros::Publisher imu_publisher = node_handle.advertise<sensor_msgs::Imu>("imu", 1);
   ros::Publisher true_beacons_publisher = node_handle.advertise<sensor_msgs::PointCloud2>("true_beacons", 1, true);
@@ -350,15 +355,15 @@ int main(int argc, char **argv)
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
-  true_beacons_publisher.publish(beaconsToPointcloud(beacons));
+  true_beacons_publisher.publish(beaconsToPointcloud(beacons), *node->get_clock());
 
   // Publish a set of noisy beacon locations to act as the known priors
   auto noisy_beacons = createNoisyBeacons(beacons);
-  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons));
+  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons, *node->get_clock());
 
   // Initialize the robot state
   auto state = Robot();
-  state.stamp = ros::Time::now();
+  state.stamp = node->now();
   state.x = ROBOT_PATH_RADIUS;
   state.y = 0.0;
   state.yaw = M_PI / 2;
@@ -367,14 +372,14 @@ int main(int argc, char **argv)
   state.vyaw = state.vx / ROBOT_PATH_RADIUS;
 
   // Send the initial localization pose to the state estimator
-  initializeStateEstimation(state);
+  initializeStateEstimation(state, *node->get_clock());
 
   // Simulate the robot traveling in a circular path
-  auto rate = ros::Rate(10.0);
+  auto rate = rclcpp::Rate(10.0);
   while (ros::ok())
   {
     // Simulate the robot motion
-    auto new_state = simulateRobotMotion(state, ros::Time::now());
+    auto new_state = simulateRobotMotion(state, node->now());
     // Publish the new ground truth
     ground_truth_publisher.publish(robotToOdometry(new_state));
     // Generate and publish simulated measurements from the new robot state

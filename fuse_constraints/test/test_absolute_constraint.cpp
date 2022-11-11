@@ -57,7 +57,7 @@ TEST(AbsoluteConstraint, Constructor)
 {
   // Construct a constraint for every type, just to make sure they compile.
   {
-    fuse_variables::AccelerationAngular2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("robby"));
+    fuse_variables::AccelerationAngular2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("robby"));
     fuse_core::Vector1d mean;
     mean << 3.0;
     fuse_core::Matrix1d cov;
@@ -66,7 +66,7 @@ TEST(AbsoluteConstraint, Constructor)
       fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
-    fuse_variables::AccelerationLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("bender"));
+    fuse_variables::AccelerationLinear2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("bender"));
     fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
@@ -75,7 +75,7 @@ TEST(AbsoluteConstraint, Constructor)
       fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
-    fuse_variables::Orientation2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
+    fuse_variables::Orientation2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
     fuse_core::Vector1d mean;
     mean << 3.0;
     fuse_core::Matrix1d cov;
@@ -84,7 +84,7 @@ TEST(AbsoluteConstraint, Constructor)
       fuse_constraints::AbsoluteOrientation2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
-    fuse_variables::Position2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
+    fuse_variables::Position2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
     fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
@@ -93,7 +93,7 @@ TEST(AbsoluteConstraint, Constructor)
       fuse_constraints::AbsolutePosition2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
-    fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("clank"));
+    fuse_variables::Position3DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("clank"));
     fuse_core::Vector3d mean;
     mean << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov;
@@ -102,7 +102,7 @@ TEST(AbsoluteConstraint, Constructor)
       fuse_constraints::AbsolutePosition3DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
-    fuse_variables::VelocityAngular2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("gort"));
+    fuse_variables::VelocityAngular2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("gort"));
     fuse_core::Vector1d mean;
     mean << 3.0;
     fuse_core::Matrix1d cov;
@@ -111,7 +111,7 @@ TEST(AbsoluteConstraint, Constructor)
       fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint constraint("test", variable, mean, cov));
   }
   {
-    fuse_variables::VelocityLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
+    fuse_variables::VelocityLinear2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
     fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
@@ -123,7 +123,7 @@ TEST(AbsoluteConstraint, Constructor)
 
 TEST(AbsoluteConstraint, PartialMeasurement)
 {
-  fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("vici"));
+  fuse_variables::Position3DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("vici"));
   fuse_core::Vector2d mean;
   mean << 3.0, 1.0;
   fuse_core::Matrix2d cov;
@@ -138,7 +138,7 @@ TEST(AbsoluteConstraint, Covariance)
   // Test the covariance of a full measurement
   {
     // Verify the covariance <--> sqrt information conversions are correct
-    fuse_variables::AccelerationLinear2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("chappie"));
+    fuse_variables::AccelerationLinear2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("chappie"));
     fuse_core::Vector2d mean;
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov;
@@ -155,7 +155,7 @@ TEST(AbsoluteConstraint, Covariance)
   }
   // Test the covariance of a partial measurement
   {
-    fuse_variables::Position3DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("astroboy"));
+    fuse_variables::Position3DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("astroboy"));
     fuse_core::Vector2d mean;
     mean << 3.0, 1.0;
     fuse_core::Matrix2d cov;
@@ -184,7 +184,7 @@ TEST(AbsoluteConstraint, Optimization)
     // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
     // Create a variable
     auto variable = fuse_variables::AccelerationLinear2DStamped::make_shared(
-      ros::Time(1234, 5678),
+      rclcpp::Time(1234, 5678),
       fuse_core::uuid::generate("t800"));
     variable->x() = 10.7;
     variable->y() = -3.2;
@@ -237,7 +237,7 @@ TEST(AbsoluteConstraint, Optimization)
     // Optimize a single variable with a full measurement and a partial measurement
     // Verify the expected value and covariance are generated.
     // Create a variable
-    auto var = fuse_variables::Position3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("t1000"));
+    auto var = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("t1000"));
     var->x() = 10.7;
     var->y() = -3.2;
     var->z() = 0.9;
@@ -311,7 +311,7 @@ TEST(AbsoluteConstraint, Optimization)
 TEST(AbsoluteConstraint, PartialOptimization)
 {
   // Create a variable
-  auto var = fuse_variables::Position3DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("t1000"));
+  auto var = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("t1000"));
   var->x() = 10.7;
   var->y() = -3.2;
   var->z() = 0.9;
@@ -376,7 +376,7 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
   // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
   // Create a variable
   auto variable = fuse_variables::Orientation2DStamped::make_shared(
-    ros::Time(1234, 5678),
+    rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("tiktok"));
   variable->yaw() = 0.7;
   // Create an absolute constraint
@@ -424,7 +424,7 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
 TEST(AbsoluteConstraint, Serialization)
 {
   // Construct a constraint
-  fuse_variables::AccelerationAngular2DStamped variable(ros::Time(1234, 5678), fuse_core::uuid::generate("robby"));
+  fuse_variables::AccelerationAngular2DStamped variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("robby"));
   fuse_core::Vector1d mean;
   mean << 3.0;
   fuse_core::Matrix1d cov;

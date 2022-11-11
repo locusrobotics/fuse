@@ -34,7 +34,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <ros/time.h>
+#include <fuse_core/time.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
@@ -49,7 +49,7 @@ using fuse_variables::Position2DStamped;
 
 TEST(Position2DStamped, Type)
 {
-  Position2DStamped variable(ros::Time(12345678, 910111213));
+  Position2DStamped variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::Position2DStamped", variable.type());
 }
 
@@ -57,20 +57,20 @@ TEST(Position2DStamped, UUID)
 {
   // Verify two velocities at the same timestamp produce the same UUID
   {
-    Position2DStamped variable1(ros::Time(12345678, 910111213));
-    Position2DStamped variable2(ros::Time(12345678, 910111213));
+    Position2DStamped variable1(rclcpp::Time(12345678, 910111213));
+    Position2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    Position2DStamped variable3(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    Position2DStamped variable4(ros::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    Position2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    Position2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two velocities at different timestamps produce different UUIDs
   {
-    Position2DStamped variable1(ros::Time(12345678, 910111213));
-    Position2DStamped variable2(ros::Time(12345678, 910111214));
-    Position2DStamped variable3(ros::Time(12345679, 910111213));
+    Position2DStamped variable1(rclcpp::Time(12345678, 910111213));
+    Position2DStamped variable2(rclcpp::Time(12345678, 910111214));
+    Position2DStamped variable3(rclcpp::Time(12345679, 910111213));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
     EXPECT_NE(variable1.uuid(), variable3.uuid());
     EXPECT_NE(variable2.uuid(), variable3.uuid());
@@ -78,24 +78,24 @@ TEST(Position2DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    Position2DStamped variable1(ros::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    Position2DStamped variable2(ros::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    Position2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    Position2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(Position2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Position2DStamped::make_shared(ros::Time(12345678, 910111213),
+  fuse_core::Variable::SharedPtr base = Position2DStamped::make_shared(rclcpp::Time(12345678, 910111213),
                                                                        fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Position2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
-  EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), derived->deviceId());
 
   auto stamped = std::dynamic_pointer_cast<fuse_variables::Stamped>(base);
   ASSERT_TRUE(static_cast<bool>(stamped));
-  EXPECT_EQ(ros::Time(12345678, 910111213), stamped->stamp());
+  EXPECT_EQ(rclcpp::Time(12345678, 910111213), stamped->stamp());
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
@@ -114,7 +114,7 @@ struct CostFunctor
 TEST(Position2DStamped, Optimization)
 {
   // Create a Position2DStamped
-  Position2DStamped position(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  Position2DStamped position(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   position.x() = 1.5;
   position.y() = -3.0;
 
@@ -147,7 +147,7 @@ TEST(Position2DStamped, Optimization)
 TEST(Position2DStamped, Serialization)
 {
   // Create a Position2DStamped
-  Position2DStamped expected(ros::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  Position2DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
 

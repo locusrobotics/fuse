@@ -109,7 +109,7 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& 
   auto transaction = fuse_core::Transaction::make_shared();
   // Each transaction has a timestamp. This is used by the optimizer to determine what order the sensor transactions
   // should be added to the graph. Unless you have a very specific reason not to, the transaction timestamp should be
-  // the same as the sensor data timestamp. Or ros::Time::now() if the sensor data is not stamped.
+  // the same as the sensor data timestamp. Or rclcpp::Clock(RCL_SYSTEM_TIME).now() if the sensor data is not stamped.
   transaction->stamp(msg->header.stamp);
 
   // All of the measured range constraints will involve the robot position at the pointcloud message timestamp.

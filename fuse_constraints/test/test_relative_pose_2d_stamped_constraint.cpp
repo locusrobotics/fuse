@@ -57,10 +57,10 @@ using fuse_constraints::RelativePose2DStampedConstraint;
 TEST(RelativePose2DStampedConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
-  Orientation2DStamped orientation1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position2DStamped position1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation2DStamped orientation2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position2DStamped position2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
   fuse_core::Vector3d delta;
   delta << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
@@ -72,10 +72,10 @@ TEST(RelativePose2DStampedConstraint, Constructor)
 TEST(RelativePose2DStampedConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
-  Orientation2DStamped orientation1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position2DStamped position1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation2DStamped orientation2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position2DStamped position2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
   fuse_core::Vector3d delta;
   delta << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
@@ -104,14 +104,14 @@ TEST(RelativePose2DStampedConstraint, OptimizationFull)
   // Optimize a two-pose system with a pose prior and a relative pose constraint
   // Verify the expected poses and covariances are generated.
   // Create two poses
-  auto orientation1 = Orientation2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto orientation1 = Orientation2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
   orientation1->yaw() = 0.8;
-  auto position1 = Position2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto position1 = Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
   position1->x() = 1.5;
   position1->y() = -3.0;
-  auto orientation2 = Orientation2DStamped::make_shared(ros::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto orientation2 = Orientation2DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
   orientation2->yaw() = -2.7;
-  auto position2 = Position2DStamped::make_shared(ros::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto position2 = Position2DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
   position2->x() = 3.7;
   position2->y() = 1.2;
   // Create an absolute pose constraint at the origin
@@ -251,15 +251,15 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
   // Optimize a two-pose system with a pose prior and a relative pose constraint
   // Verify the expected poses and covariances are generated.
   // Create two poses
-  auto orientation1 = Orientation2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto orientation1 = Orientation2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
   orientation1->yaw() = 0.8;
-  auto position1 = Position2DStamped::make_shared(ros::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto position1 = Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
   position1->x() = 1.5;
   position1->y() = -3.0;
 
-  auto orientation2 = Orientation2DStamped::make_shared(ros::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto orientation2 = Orientation2DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
   orientation2->yaw() = -2.7;
-  auto position2 = Position2DStamped::make_shared(ros::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
+  auto position2 = Position2DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
   position2->x() = 3.7;
   position2->y() = 1.2;
 
@@ -437,10 +437,10 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
 TEST(RelativePose2DStampedConstraint, Serialization)
 {
   // Construct a constraint
-  Orientation2DStamped orientation1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position2DStamped position1(ros::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation2DStamped orientation2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position2DStamped position2(ros::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation2DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position2DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
   fuse_core::Vector3d delta;
   delta << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;

@@ -134,7 +134,7 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
   if (!params_.reset_service.empty())
   {
     // Wait for the reset service
-    while (!reset_client_.waitForExistence(ros::Duration(10.0)) && ros::ok())
+    while (!reset_client_.waitForExistence(rclcpp::Duration::from_seconds(10.0)) && ros::ok())
     {
       RCLCPP_WARN_STREAM(node_->get_logger(),
                          "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
@@ -152,7 +152,7 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
   sendGraph(*graph, msg.header.stamp);
 }
 
-void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const ros::Time& stamp)
+void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp)
 {
   // Create a transaction equivalent to the graph
   auto transaction = fuse_core::Transaction::make_shared();
