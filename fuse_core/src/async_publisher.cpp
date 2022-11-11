@@ -70,8 +70,7 @@ void AsyncPublisher::initialize(const std::string& name)
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
-  // Start the async spinner to service the local callback queue
-  // XXX spinner_.start();
+  executor_->add_node(node_);
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
