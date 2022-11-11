@@ -194,7 +194,7 @@ nav_msgs::Odometry::ConstPtr robotToOdometry(const Robot& state)
  * The state estimator will not run until it has been sent a starting pose.
  */
 void initializeStateEstimation(
-  const Robot& state, rclcpp::Clock::SharedPtr clock=nullptr)
+  const Robot& state, const rclcpp::Clock& clock)
 {
   // Send the initial localization signal to the state estimator
   auto srv = fuse_models::SetPose();
@@ -217,12 +217,7 @@ void initializeStateEstimation(
   while (!success)
   {
     rclcpp::Duration::from_seconds(0.1).sleep();
-
-    if (clock != nullptr) {
-      srv.request.pose.header.stamp = clock->now();
-    } else {
-      srv.request.pose.header.stamp = rclcpp::Clock(RCL_SYSTEM_TIME).now();
-    }
+    srv.request.pose.header.stamp = clock.now();
     ros::service::call("/state_estimation/set_pose", srv);
     success = srv.response.success;
   }
@@ -377,7 +372,7 @@ int main(int argc, char **argv)
   state.vyaw = state.vx / ROBOT_PATH_RADIUS;
 
   // Send the initial localization pose to the state estimator
-  initializeStateEstimation(state);
+  initializeStateEstimation(state, *node->get_clock());
 
   // Simulate the robot traveling in a circular path
   auto rate = rclcpp::Rate(10.0);

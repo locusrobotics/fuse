@@ -330,7 +330,8 @@ public:
    */
   ceres::Solver::Summary optimizeFor(
     const rclcpp::Duration& max_optimization_time,
-    const ceres::Solver::Options& options = ceres::Solver::Options()) override;
+    const ceres::Solver::Options& options = ceres::Solver::Options(),
+    const rclcpp::Clock& clock = rclcpp::Clock::Clock(RCL_STEADY_TIME)) override;
 
   /**
    * @brief Evalute the values of the current set of variables, given the current set of constraints.
