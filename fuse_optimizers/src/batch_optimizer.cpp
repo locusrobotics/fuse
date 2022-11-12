@@ -48,14 +48,13 @@ namespace fuse_optimizers
 
 BatchOptimizer::BatchOptimizer(
   rclcpp::NodeOptions options,
-  std::string node_name,
   fuse_core::Graph::UniquePtr graph
 ):
-  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
+  fuse_optimizers::Optimizer(options, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
-    start_time_(rclcpp::Time::max()),  // NOTE(CH3): ???
-    started_(false)
+  start_time_(rclcpp::Time::max()),
+  started_(false)
 {
   params_.loadFromROS(private_node_handle);
 
@@ -130,15 +129,19 @@ void BatchOptimizer::applyMotionModelsToQueue()
 void BatchOptimizer::optimizationLoop()
 {
   // Optimize constraints until told to exit
-  while (ros::ok())
+  while (get_node_base_interface()->get_context()->is_valid())
   {
     // Wait for the next signal to start the next optimization cycle
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
-      optimization_requested_.wait(lock, [this]{ return optimization_request_ || !ros::ok(); });  // NOLINT
+      optimization_requested_.wait(
+        lock,
+        [this]{
+          return optimization_request_ || !get_node_base_interface()->get_context()->is_valid();
+        });
     }
     // If a shutdown is requested, exit now.
-    if (!ros::ok())
+    if (!get_node_base_interface()->get_context()->is_valid())
     {
       break;
     }
