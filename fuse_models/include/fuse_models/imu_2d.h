@@ -40,9 +40,9 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/msg/Imu.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 

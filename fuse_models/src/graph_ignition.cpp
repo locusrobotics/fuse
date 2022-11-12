@@ -34,7 +34,7 @@
 
 #include <fuse_models/graph_ignition.h>
 
-#include <std_srvs/Empty.h>
+#include <std_srvs/srv/Empty.h>
 
 #include <pluginlib/class_list_macros.h>
 

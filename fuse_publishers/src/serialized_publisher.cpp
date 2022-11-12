@@ -39,8 +39,8 @@
 #include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
-#include <fuse_msgs/SerializedGraph.h>
-#include <fuse_msgs/SerializedTransaction.h>
+#include <fuse_msgs/msg/SerializedGraph.hpp>
+#include <fuse_msgs/msg/SerializedTransaction.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 

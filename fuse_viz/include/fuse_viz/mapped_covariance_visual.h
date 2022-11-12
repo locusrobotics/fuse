@@ -36,7 +36,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include <geometry_msgs/PoseWithCovariance.h>
+#include <geometry_msgs/msg/PoseWithCovariance.hpp>
 
 #include <Eigen/Dense>
 

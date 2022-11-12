@@ -39,7 +39,7 @@
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_core/graph.hpp>
-#include <geometry_msgs/PoseWithCovariance.h>
+#include <geometry_msgs/msg/PoseWithCovariance.hpp>
 #include <rviz/ogre_helpers/axes.h>
 #include <rviz/ogre_helpers/billboard_line.h>
 #include <rviz/ogre_helpers/movable_text.h>
@@ -48,7 +48,7 @@
 
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
-#include <OgreSceneNode.h>
+#include <OgreSceneNode.hpp>
 
 #include <rclcpp/clock.hpp>
 #include <rclcpp/logging.hpp>

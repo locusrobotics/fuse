@@ -39,11 +39,11 @@
 #include <fuse_publishers/pose_2d_publisher.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/msg/PoseStamped.hpp>
+#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
-#include <tf2_msgs/TFMessage.h>
+#include <tf2_msgs/msg/TFMessage.hpp>
 #include <tf2_ros/static_transform_broadcaster.h>
 
 #include <gtest/gtest.h>

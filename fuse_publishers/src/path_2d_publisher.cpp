@@ -38,13 +38,13 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/PoseArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Path.h>
+#include <geometry_msgs/msg/PoseArray.hpp>
+#include <geometry_msgs/msg/PoseStamped.hpp>
+#include <nav_msgs/msg/Path.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <algorithm>
 #include <string>

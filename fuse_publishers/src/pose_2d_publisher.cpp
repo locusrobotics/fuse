@@ -40,14 +40,14 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/PoseStamped.hpp>
+#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/TransformStamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <rclcpp/clock.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <exception>
 #include <memory>

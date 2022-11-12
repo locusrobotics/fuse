@@ -39,9 +39,9 @@
 #include <fuse_publishers/path_2d_publisher.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/PoseArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Path.h>
+#include <geometry_msgs/msg/PoseArray.hpp>
+#include <geometry_msgs/msg/PoseStamped.hpp>
+#include <nav_msgs/msg/Path.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
 

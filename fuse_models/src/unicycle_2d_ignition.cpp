@@ -49,12 +49,12 @@
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
 #include <pluginlib/class_list_macros.h>
-#include <std_srvs/Empty.h>
+#include <std_srvs/srv/Empty.h>
 #include <tf2/convert.h>
 #include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <Eigen/Dense>
 

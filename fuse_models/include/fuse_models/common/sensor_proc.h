@@ -48,15 +48,15 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <geometry_msgs/TwistWithCovarianceStamped.h>
+#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/TransformStamped.hpp>
+#include <geometry_msgs/msg/TwistWithCovarianceStamped.hpp>
 #include <rclcpp/clock.hpp>
 #include <ros/ros.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/LinearMath/Vector3.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_2d/tf2_2d.h>
 #include <tf2_2d/transform.h>

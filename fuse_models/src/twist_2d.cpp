@@ -37,7 +37,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/TwistWithCovarianceStamped.h>
+#include <geometry_msgs/msg/TwistWithCovarianceStamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
