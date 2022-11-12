@@ -129,7 +129,7 @@ public:
    *
    * @param[in] msg - Message containing the database of known but noisy beacon positions.
    */
-  void priorBeaconsCallback(const sensor_msgs::msg::PointCloud2::ConstPtr& msg);
+  void priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg);
 
   /**
    * @brief Callback for range measurement messages
@@ -139,7 +139,7 @@ public:
    *
    * @param[in] msg - The range message to process
    */
-  void rangesCallback(const sensor_msgs::msg::PointCloud2::ConstPtr& msg);
+  void rangesCallback(const sensor_msgs::msg::PointCloud2& msg);
 
 protected:
   /**

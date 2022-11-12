@@ -79,10 +79,10 @@ void BeaconPublisher::notifyCallback(
   // We then transform those variables into a sensor_msgs::msg::PointCloud2 representation. To support visualization in
   // rviz, the PointCloud2 needs to have (x, y, z) fields of type Float32. Additionally we are adding a channel for
   // the beacon ID. Rviz cannot really display that information, but it is potentially useful.
-  auto msg = boost::make_shared<sensor_msgs::msg::PointCloud2>();
-  msg->header.stamp = this->get_node_clock_interface()->now();  // TODO(CH3): Implement getter in AsyncPublisher
-  msg->header.frame_id = map_frame_id_;
-  sensor_msgs::msg::PointCloud2Modifier modifier(*msg);
+  auto msg = sensor_msgs::msg::PointCloud2();
+  msg.header.stamp = this->get_node_clock_interface()->now();  // TODO(CH3): Implement getter in AsyncPublisher
+  msg.header.frame_id = map_frame_id_;
+  sensor_msgs::msg::PointCloud2Modifier modifier(msg);
   // clang-format off
   modifier.setPointCloud2Fields(4, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
                                    "y", 1, sensor_msgs::msg::PointField::FLOAT32,
@@ -90,10 +90,10 @@ void BeaconPublisher::notifyCallback(
                                    "id", 1, sensor_msgs::msg::PointField::UINT32);
   // clang-format on
   modifier.resize(beacons.size());
-  sensor_msgs::msg::PointCloud2Iterator<float> x_it(*msg, "x");
-  sensor_msgs::msg::PointCloud2Iterator<float> y_it(*msg, "y");
-  sensor_msgs::msg::PointCloud2Iterator<float> z_it(*msg, "z");
-  sensor_msgs::msg::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
+  sensor_msgs::msg::PointCloud2Iterator<float> x_it(msg, "x");
+  sensor_msgs::msg::PointCloud2Iterator<float> y_it(msg, "y");
+  sensor_msgs::msg::PointCloud2Iterator<float> z_it(msg, "z");
+  sensor_msgs::msg::PointCloud2Iterator<unsigned int> id_it(msg, "id");
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     const auto& beacon = beacons.at(id);

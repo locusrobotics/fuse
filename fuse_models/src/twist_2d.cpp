@@ -94,16 +94,16 @@ void Twist2D::onStop()
   subscriber_.shutdown();
 }
 
-void Twist2D::process(const geometry_msgs::msg::TwistWithCovarianceStamped::ConstPtr& msg)
+void Twist2D::process(const geometry_msgs::msg::TwistWithCovarianceStamped& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   common::processTwistWithCovariance(
     name(),
     device_id_,
-    *msg,
+    msg,
     params_.linear_loss,
     params_.angular_loss,
     params_.target_frame,

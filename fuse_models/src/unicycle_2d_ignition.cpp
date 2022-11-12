@@ -132,11 +132,11 @@ void Unicycle2DIgnition::stop()
   started_ = false;
 }
 
-void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg)
+void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
 {
   try
   {
-    process(*msg);
+    process(msg);
   }
   catch (const std::exception& e)
   {

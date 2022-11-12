@@ -110,7 +110,7 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg);
+  void subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph

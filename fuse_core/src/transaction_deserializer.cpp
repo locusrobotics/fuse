@@ -72,7 +72,7 @@ TransactionDeserializer::TransactionDeserializer()
 }
 
 fuse_core::Transaction TransactionDeserializer::deserialize(
-  const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const
+  const fuse_msgs::msg::SerializedTransaction::ConstSharedPtr msg) const
 {
   return deserialize(*msg);
 }

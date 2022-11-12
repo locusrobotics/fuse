@@ -39,9 +39,9 @@
 #include <sensor_msgs/msg/PointCloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
-#include <boost/make_shared.hpp>
 
 #include <cmath>
+#include <memory>
 #include <random>
 #include <vector>
 
@@ -117,11 +117,11 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::msg::PointCloud2::ConstPtr beaconsToPointcloud(
+sensor_msgs::msg::PointCloud2::ConstSharedPtr beaconsToPointcloud(
   const std::vector<Beacon>& beacons,
   const rclcpp::Clock& clock)
 {
-  auto msg = boost::make_shared<sensor_msgs::msg::PointCloud2>();
+  auto msg = sensor_msgs::msg::PointCloud2::SharedPtr();
   msg->header.stamp = clock.now();
 
   msg->header.frame_id = MAP_FRAME;
@@ -148,15 +148,15 @@ sensor_msgs::msg::PointCloud2::ConstPtr beaconsToPointcloud(
     *id_it = id;
     ++x_it; ++y_it; ++z_it; ++sigma_it, ++id_it;
   }
-  return msg;
+  return sensor_msgs::msg::PointCloud2::ConstSharedPtr(msg);
 }
 
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry::ConstPtr robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry::ConstSharedPtr robotToOdometry(const Robot& state)
 {
-  auto msg = boost::make_shared<nav_msgs::msg::Odometry>();
+  auto msg = nav_msgs::msg::Odometry::SharedPtr();
   msg->header.stamp = state.stamp;
   msg->header.frame_id = MAP_FRAME;
   msg->child_frame_id = BASELINK_FRAME;
@@ -185,7 +185,7 @@ nav_msgs::msg::Odometry::ConstPtr robotToOdometry(const Robot& state)
   msg->twist.covariance[21] = 0.1;
   msg->twist.covariance[28] = 0.1;
   msg->twist.covariance[35] = 0.1;
-  return msg;
+  return nav_msgs::msg::Odometry::ConstSharedPtr(msg);
 }
 
 /**
@@ -244,33 +244,33 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu::ConstPtr simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu::ConstSharedPtr simulateImu(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, IMU_SIGMA};
 
-  auto msg = boost::make_shared<sensor_msgs::msg::Imu>();
+  auto msg = sensor_msgs::msg::Imu::SharedPtr();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
   msg->orientation_covariance[0] = -1;  // Simulated IMU does not provide orientation
   msg->angular_velocity.z = robot.vyaw + noise(generator);
   msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
   msg->linear_acceleration_covariance[0] = -1;  // Simulated IMU does not provide acceleration
-  return msg;
+  return sensor_msgs::msg::Imu::ConstSharedPtr(msg);
 }
 
 /**
  * @brief Create a simulated Odometry measurement from the current state
  */
-nav_msgs::msg::Odometry::ConstPtr simulateWheelOdometry(const Robot& robot)
+nav_msgs::msg::Odometry::ConstSharedPtr simulateWheelOdometry(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> vx_noise{0.0, ODOM_VX_SIGMA};
   static std::normal_distribution<> vyaw_noise{0.0, ODOM_VYAW_SIGMA};
 
-  auto msg = boost::make_shared<nav_msgs::msg::Odometry>();
+  auto msg = nav_msgs::msg::Odometry::SharedPtr();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = ODOM_FRAME;
   msg->child_frame_id = BASELINK_FRAME;
@@ -280,16 +280,16 @@ nav_msgs::msg::Odometry::ConstPtr simulateWheelOdometry(const Robot& robot)
   msg->twist.covariance[0] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[7] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[35] = ODOM_VYAW_SIGMA * ODOM_VYAW_SIGMA;
-  return msg;
+  return nav_msgs::msg::Odometry::ConstSharedPtr(msg);
 }
 
-sensor_msgs::msg::PointCloud2::ConstPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
+sensor_msgs::msg::PointCloud2::ConstSharedPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, RANGE_SIGMA};
 
-  auto msg = boost::make_shared<sensor_msgs::msg::PointCloud2>();
+  auto msg = sensor_msgs::msg::PointCloud2::SharedPtr();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
 
@@ -317,7 +317,7 @@ sensor_msgs::msg::PointCloud2::ConstPtr simulateRangeSensor(const Robot& robot, 
     *sigma_it = RANGE_SIGMA;
     ++id_it; ++range_it; ++sigma_it;
   }
-  return msg;
+  return sensor_msgs::msg::PointCloud2::ConstSharedPtr(msg);
 }
 
 /**

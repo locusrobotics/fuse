@@ -83,7 +83,7 @@ public:
    * @brief Callback for twist messages
    * @param[in] msg - The twist message to process
    */
-  void process(const geometry_msgs::msg::TwistWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::TwistWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device

@@ -104,21 +104,21 @@ void Odometry2D::onStop()
   subscriber_.shutdown();
 }
 
-void Odometry2D::process(const nav_msgs::msg::Odometry::ConstPtr& msg)
+void Odometry2D::process(const nav_msgs::msg::Odometry& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   // Handle the pose data
   auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  pose->header = msg->header;
-  pose->pose = msg->pose;
+  pose->header = msg.header;
+  pose->pose = msg.pose;
 
   geometry_msgs::msg::TwistWithCovarianceStamped twist;
-  twist.header = msg->header;
-  twist.header.frame_id = msg->child_frame_id;
-  twist.twist = msg->twist;
+  twist.header = msg.header;
+  twist.header.frame_id = msg.child_frame_id;
+  twist.twist = msg.twist;
 
   const bool validate = !params_.disable_checks;
 

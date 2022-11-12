@@ -99,7 +99,7 @@ public:
    * @brief Callback for pose messages
    * @param[in] msg - The pose message to process
    */
-  void process(const nav_msgs::msg::Odometry::ConstPtr& msg);
+  void process(const nav_msgs::msg::Odometry& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device

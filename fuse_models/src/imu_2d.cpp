@@ -103,38 +103,38 @@ void Imu2D::onStop()
   subscriber_.shutdown();
 }
 
-void Imu2D::process(const sensor_msgs::msg::Imu::ConstPtr& msg)
+void Imu2D::process(const sensor_msgs::msg::Imu& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   // Handle the orientation data (treat it as a pose, but with only orientation indices used)
   auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  pose->header = msg->header;
-  pose->pose.pose.orientation = msg->orientation;
-  pose->pose.covariance[21] = msg->orientation_covariance[0];
-  pose->pose.covariance[22] = msg->orientation_covariance[1];
-  pose->pose.covariance[23] = msg->orientation_covariance[2];
-  pose->pose.covariance[27] = msg->orientation_covariance[3];
-  pose->pose.covariance[28] = msg->orientation_covariance[4];
-  pose->pose.covariance[29] = msg->orientation_covariance[5];
-  pose->pose.covariance[33] = msg->orientation_covariance[6];
-  pose->pose.covariance[34] = msg->orientation_covariance[7];
-  pose->pose.covariance[35] = msg->orientation_covariance[8];
+  pose->header = msg.header;
+  pose->pose.pose.orientation = msg.orientation;
+  pose->pose.covariance[21] = msg.orientation_covariance[0];
+  pose->pose.covariance[22] = msg.orientation_covariance[1];
+  pose->pose.covariance[23] = msg.orientation_covariance[2];
+  pose->pose.covariance[27] = msg.orientation_covariance[3];
+  pose->pose.covariance[28] = msg.orientation_covariance[4];
+  pose->pose.covariance[29] = msg.orientation_covariance[5];
+  pose->pose.covariance[33] = msg.orientation_covariance[6];
+  pose->pose.covariance[34] = msg.orientation_covariance[7];
+  pose->pose.covariance[35] = msg.orientation_covariance[8];
 
   geometry_msgs::msg::TwistWithCovarianceStamped twist;
-  twist.header = msg->header;
-  twist.twist.twist.angular = msg->angular_velocity;
-  twist.twist.covariance[21] = msg->angular_velocity_covariance[0];
-  twist.twist.covariance[22] = msg->angular_velocity_covariance[1];
-  twist.twist.covariance[23] = msg->angular_velocity_covariance[2];
-  twist.twist.covariance[27] = msg->angular_velocity_covariance[3];
-  twist.twist.covariance[28] = msg->angular_velocity_covariance[4];
-  twist.twist.covariance[29] = msg->angular_velocity_covariance[5];
-  twist.twist.covariance[33] = msg->angular_velocity_covariance[6];
-  twist.twist.covariance[34] = msg->angular_velocity_covariance[7];
-  twist.twist.covariance[35] = msg->angular_velocity_covariance[8];
+  twist.header = msg.header;
+  twist.twist.twist.angular = msg.angular_velocity;
+  twist.twist.covariance[21] = msg.angular_velocity_covariance[0];
+  twist.twist.covariance[22] = msg.angular_velocity_covariance[1];
+  twist.twist.covariance[23] = msg.angular_velocity_covariance[2];
+  twist.twist.covariance[27] = msg.angular_velocity_covariance[3];
+  twist.twist.covariance[28] = msg.angular_velocity_covariance[4];
+  twist.twist.covariance[29] = msg.angular_velocity_covariance[5];
+  twist.twist.covariance[33] = msg.angular_velocity_covariance[6];
+  twist.twist.covariance[34] = msg.angular_velocity_covariance[7];
+  twist.twist.covariance[35] = msg.angular_velocity_covariance[8];
 
   const bool validate = !params_.disable_checks;
 
@@ -175,17 +175,17 @@ void Imu2D::process(const sensor_msgs::msg::Imu::ConstPtr& msg)
 
   // Handle the acceleration data
   geometry_msgs::msg::AccelWithCovarianceStamped accel;
-  accel.header = msg->header;
-  accel.accel.accel.linear = msg->linear_acceleration;
-  accel.accel.covariance[0]  = msg->linear_acceleration_covariance[0];
-  accel.accel.covariance[1]  = msg->linear_acceleration_covariance[1];
-  accel.accel.covariance[2]  = msg->linear_acceleration_covariance[2];
-  accel.accel.covariance[6]  = msg->linear_acceleration_covariance[3];
-  accel.accel.covariance[7]  = msg->linear_acceleration_covariance[4];
-  accel.accel.covariance[8]  = msg->linear_acceleration_covariance[5];
-  accel.accel.covariance[12] = msg->linear_acceleration_covariance[6];
-  accel.accel.covariance[13] = msg->linear_acceleration_covariance[7];
-  accel.accel.covariance[14] = msg->linear_acceleration_covariance[8];
+  accel.header = msg.header;
+  accel.accel.accel.linear = msg.linear_acceleration;
+  accel.accel.covariance[0]  = msg.linear_acceleration_covariance[0];
+  accel.accel.covariance[1]  = msg.linear_acceleration_covariance[1];
+  accel.accel.covariance[2]  = msg.linear_acceleration_covariance[2];
+  accel.accel.covariance[6]  = msg.linear_acceleration_covariance[3];
+  accel.accel.covariance[7]  = msg.linear_acceleration_covariance[4];
+  accel.accel.covariance[8]  = msg.linear_acceleration_covariance[5];
+  accel.accel.covariance[12] = msg.linear_acceleration_covariance[6];
+  accel.accel.covariance[13] = msg.linear_acceleration_covariance[7];
+  accel.accel.covariance[14] = msg.linear_acceleration_covariance[8];
 
   // Optionally remove the acceleration due to gravity
   if (params_.remove_gravitational_acceleration)
@@ -194,7 +194,7 @@ void Imu2D::process(const sensor_msgs::msg::Imu::ConstPtr& msg)
     accel_gravity.z = params_.gravitational_acceleration;
     geometry_msgs::msg::TransformStamped orientation_trans;
     tf2::Quaternion imu_orientation;
-    tf2::fromMsg(msg->orientation, imu_orientation);
+    tf2::fromMsg(msg.orientation, imu_orientation);
     orientation_trans.transform.rotation = tf2::toMsg(imu_orientation.inverse());
     tf2::doTransform(accel_gravity, accel_gravity, orientation_trans);  // Doesn't use the stamp
     accel.accel.accel.linear.x -= accel_gravity.x;

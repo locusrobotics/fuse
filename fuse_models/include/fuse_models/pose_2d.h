@@ -88,7 +88,7 @@ public:
    * @brief Callback for pose messages
    * @param[in] msg - The pose message to process
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -124,7 +124,7 @@ protected:
 
   ParameterType params_;
 
-  geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr previous_pose_msg_;
+  geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr previous_pose_msg_;
 
   tf2_ros::Buffer tf_buffer_;
 

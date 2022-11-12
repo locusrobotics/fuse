@@ -98,7 +98,7 @@ private:
 
   void clear();
 
-  void processMessage(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg) override;
+  void processMessage(const fuse_msgs::msg::SerializedGraph& msg) override;
 
   Ogre::SceneNode* root_node_;
 

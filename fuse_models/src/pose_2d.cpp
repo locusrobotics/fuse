@@ -97,24 +97,24 @@ void Pose2D::onStop()
   subscriber_.shutdown();
 }
 
-void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg)
+void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   const bool validate = !params_.disable_checks;
 
   if (params_.differential)
   {
-    processDifferential(*msg, validate, *transaction);
+    processDifferential(msg, validate, *transaction);
   }
   else
   {
     common::processAbsolutePoseWithCovariance(
       name(),
       device_id_,
-      *msg,
+      msg,
       params_.loss,
       params_.target_frame,
       params_.position_indices,

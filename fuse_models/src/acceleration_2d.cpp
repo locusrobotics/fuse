@@ -92,16 +92,16 @@ void Acceleration2D::onStop()
   subscriber_.shutdown();
 }
 
-void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped::ConstPtr& msg)
+void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   common::processAccelWithCovariance(
     name(),
     device_id_,
-    *msg,
+    msg,
     params_.loss,
     params_.target_frame,
     params_.indices,

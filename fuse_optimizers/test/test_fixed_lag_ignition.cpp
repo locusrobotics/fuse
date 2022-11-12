@@ -113,10 +113,15 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // Wait for the optimizer to process all queued transactions
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
-  auto odom_msg = nav_msgs::msg::Odometry::ConstPtr();
+  auto odom_msg = nav_msgs::msg::Odometry::ConstSharedPtr();
   while ((!odom_msg || odom_msg->header.stamp != rclcpp::Time(3, 0)) &&
          (node->now() < result_timeout))
   {
+    // TODO(CH3): Oh no, there's no equivalent rclcpp method I think...
+    //            Probably just wait a bit?? It's in a test anyway
+    //
+    //            Maybe wrap the test method in a lambda? Does that even work with gtest??
+    //            Or in an object that exposes the latest message or something...
     odom_msg = ros::topic::waitForMessage<nav_msgs::msg::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
   }
   ASSERT_TRUE(static_cast<bool>(odom_msg));

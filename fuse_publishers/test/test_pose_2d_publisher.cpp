@@ -157,22 +157,22 @@ public:
     static_broadcaster_.sendTransform(odom_to_base);
   }
 
-  void poseCallback(const geometry_msgs::msg::PoseStamped::ConstPtr& msg)
+  void poseCallback(const geometry_msgs::msg::PoseStamped& msg)
   {
     received_pose_msg_ = true;
-    pose_msg_ = *msg;
+    pose_msg_ = msg;
   }
 
-  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg)
+  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
   {
     received_pose_with_covariance_msg_ = true;
-    pose_with_covariance_msg_ = *msg;
+    pose_with_covariance_msg_ = msg;
   }
 
-  void tfCallback(const tf2_msgs::msg::TFMessage::ConstPtr& msg)
+  void tfCallback(const tf2_msgs::msg::TFMessage& msg)
   {
     received_tf_msg_ = true;
-    tf_msg_ = *msg;
+    tf_msg_ = msg;
   }
 
 protected:

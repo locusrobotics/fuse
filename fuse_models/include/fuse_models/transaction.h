@@ -96,7 +96,7 @@ protected:
    * @brief Callback for transaction messages
    * @param[in] msg - The transaction message to process
    */
-  void process(const fuse_msgs::msg::SerializedTransaction::ConstPtr& msg);
+  void process(const fuse_msgs::msg::SerializedTransaction& msg);
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 

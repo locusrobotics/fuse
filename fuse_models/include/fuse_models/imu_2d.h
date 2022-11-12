@@ -103,7 +103,7 @@ public:
    * @brief Callback for pose messages
    * @param[in] msg - The IMU message to process
    */
-  void process(const sensor_msgs::msg::Imu::ConstPtr& msg);
+  void process(const sensor_msgs::msg::Imu& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device

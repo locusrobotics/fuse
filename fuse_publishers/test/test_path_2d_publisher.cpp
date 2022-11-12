@@ -141,15 +141,15 @@ public:
     graph_->optimize();
   }
 
-  void pathCallback(const nav_msgs::msg::Path::ConstPtr& msg)
+  void pathCallback(const nav_msgs::msg::Path& msg)
   {
-    path_msg_ = *msg;
+    path_msg_ = msg;
     received_path_msg_ = true;
   }
 
-  void poseArrayCallback(const geometry_msgs::msg::PoseArray::ConstPtr& msg)
+  void poseArrayCallback(const geometry_msgs::msg::PoseArray& msg)
   {
-    pose_array_msg_ = *msg;
+    pose_array_msg_ = msg;
     received_pose_array_msg_ = true;
   }
 

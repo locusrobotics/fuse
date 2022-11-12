@@ -80,11 +80,11 @@ void GraphIgnition::stop()
   started_ = false;
 }
 
-void GraphIgnition::subscriberCallback(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg)
+void GraphIgnition::subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg)
 {
   try
   {
-    process(*msg);
+    process(msg);
   }
   catch (const std::exception& e)
   {

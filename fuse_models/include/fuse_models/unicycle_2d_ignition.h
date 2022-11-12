@@ -116,7 +116,7 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg);
+  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose

@@ -182,7 +182,7 @@ private:
   void keepCallback(const geometry_msgs::msg::Point::ConstSharedPtr & msg)
   {
     ++kept_messages_;
-    last_kept_message_ = msg;
+    last_kept_message_ = std::move(msg);
   }
 
   /**
