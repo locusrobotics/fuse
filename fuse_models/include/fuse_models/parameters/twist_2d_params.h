@@ -89,7 +89,7 @@ struct Twist2DParams : public ParameterBase
                                   //!< socket or not. TCP_NODELAY forces a socket to send the data in its buffer,
                                   //!< whatever the packet size. This reduces delay at the cost of network congestion,
                                   //!< specially if the payload of a packet is smaller than the TCP header data. This is
-                                  //!< true for small ROS messages like geometry_msgs::AccelWithCovarianceStamped
+                                  //!< true for small ROS messages like geometry_msgs::msg::AccelWithCovarianceStamped
     rclcpp::Duration tf_timeout { 0 };  //!< The maximum time to wait for a transform to become available
     rclcpp::Duration throttle_period { 0 };  //!< The throttle period duration in seconds
     bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not

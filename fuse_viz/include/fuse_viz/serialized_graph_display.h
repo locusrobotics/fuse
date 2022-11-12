@@ -62,9 +62,9 @@ class Pose2DStampedProperty;
 class RelativePose2DStampedConstraintProperty;
 
 /**
- * @brief An rviz dispaly for fuse_msgs::SerializedGraph messages.
+ * @brief An rviz dispaly for fuse_msgs::msg::SerializedGraph messages.
  */
-class SerializedGraphDisplay : public MessageFilterDisplay<fuse_msgs::SerializedGraph>
+class SerializedGraphDisplay : public MessageFilterDisplay<fuse_msgs::msg::SerializedGraph>
 {
   Q_OBJECT
 public:
@@ -98,7 +98,7 @@ private:
 
   void clear();
 
-  void processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg) override;
+  void processMessage(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg) override;
 
   Ogre::SceneNode* root_node_;
 

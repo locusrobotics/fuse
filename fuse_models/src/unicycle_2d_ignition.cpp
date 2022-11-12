@@ -86,7 +86,7 @@ void Unicycle2DIgnition::onInit()
   // Connect to the reset service
   if (!params_.reset_service.empty())
   {
-    reset_client_ = node_handle_.serviceClient<std_srvs::Empty>(ros::names::resolve(params_.reset_service));
+    reset_client_ = node_handle_.serviceClient<std_srvs::srv::Empty>(ros::names::resolve(params_.reset_service));
   }
 
   // Advertise
@@ -114,7 +114,7 @@ void Unicycle2DIgnition::start()
   // Send an initial state transaction immediately, if requested
   if (params_.publish_on_startup && !initial_transaction_sent_)
   {
-    auto pose = geometry_msgs::PoseWithCovarianceStamped();
+    auto pose = geometry_msgs::msg::PoseWithCovarianceStamped();
     pose.header.stamp = this->get_node_clock_interface()->now();
     pose.pose.pose.position.x = params_.initial_state[0];
     pose.pose.pose.position.y = params_.initial_state[1];
@@ -132,7 +132,7 @@ void Unicycle2DIgnition::stop()
   started_ = false;
 }
 
-void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg)
 {
   try
   {
@@ -176,7 +176,7 @@ bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
   }
 }
 
-void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped& pose)
+void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose)
 {
   // Verify we are in the correct state to process set pose requests
   if (!started_)
@@ -233,7 +233,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
                          "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
     }
 
-    auto srv = std_srvs::Empty();
+    auto srv = std_srvs::srv::Empty();
     if (!reset_client_.call(srv))
     {
       // The reset() service failed. Propagate that failure to the caller of this service.
@@ -246,7 +246,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
   sendPrior(pose);
 }
 
-void Unicycle2DIgnition::sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose)
+void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose)
 {
   const auto& stamp = pose.header.stamp;
 

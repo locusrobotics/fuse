@@ -164,7 +164,7 @@ void SerializedGraphDisplay::clear()
   constraints_changed_map_.clear();
 }
 
-void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg)
+void SerializedGraphDisplay::processMessage(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg)
 {
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;

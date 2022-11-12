@@ -484,7 +484,7 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat
 {
   if (!fuse_core::is_valid(this->get_node_clock_interface()->get_clock()))
   {
-    status.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Waiting for valid ROS time");
+    status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Waiting for valid ROS time");
     return;
   }
 

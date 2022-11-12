@@ -2,7 +2,7 @@
   <class type="fuse_publishers::Path2DPublisher" base_class_type="fuse_core::Publisher">
     <description>
       Publisher plugin that publishes all of the Position2DStamped/Orientation2DStamped poses as a
-      nav_msgs::Path message.
+      nav_msgs::msg::Path message.
     </description>
   </class>
   <class type="fuse_publishers::Pose2DPublisher" base_class_type="fuse_core::Publisher">

@@ -111,7 +111,7 @@ public:
   AbsoluteOrientation3DStampedConstraint(
     const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation,
-    const geometry_msgs::Quaternion& mean,
+    const geometry_msgs::msg::Quaternion& mean,
     const std::array<double, 9>& covariance);
 
   /**
@@ -171,7 +171,7 @@ protected:
    * @param[in] quaternion - The input ROS quaternion message
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static fuse_core::Vector4d toEigen(const geometry_msgs::Quaternion& quaternion);
+  static fuse_core::Vector4d toEigen(const geometry_msgs::msg::Quaternion& quaternion);
 
   /**
    * @brief Utility method to convert a flat 1D array to a 3x3 Eigen matrix

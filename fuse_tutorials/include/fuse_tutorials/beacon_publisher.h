@@ -147,7 +147,7 @@ public:
    * are extracted from the graph and converted into ROS messages. In this publisher, we are interested in all
    * "beacon" variables, represented as fuse_variables::Point2DLandmark objects. We loop through the variables in the
    * graph, determine if it is the correct type, and insert the current (X, Y) coordinates into a
-   * sensor_msgs::PointCloud2 object.
+   * sensor_msgs::msg::PointCloud2 object.
    *
    * @param[in] transaction - A read-only pointer to a Transaction object, describing all changes to the graph
    * @param[in] graph - A read-only pointer to the graph object, allowing queries to be performed whenever needed
@@ -157,7 +157,7 @@ public:
 
 protected:
   std::string map_frame_id_;  //!< The name of the robot's map frame
-  ros::Publisher beacon_publisher_;  //!< Publish the set of beacon positions as a sensor_msgs::PointCloud2 message
+  ros::Publisher beacon_publisher_;  //!< Publish the set of beacon positions as a sensor_msgs::msg::PointCloud2 message
 };
 
 }  // namespace fuse_tutorials

@@ -141,13 +141,13 @@ public:
     graph_->optimize();
   }
 
-  void pathCallback(const nav_msgs::Path::ConstPtr& msg)
+  void pathCallback(const nav_msgs::msg::Path::ConstPtr& msg)
   {
     path_msg_ = *msg;
     received_path_msg_ = true;
   }
 
-  void poseArrayCallback(const geometry_msgs::PoseArray::ConstPtr& msg)
+  void poseArrayCallback(const geometry_msgs::msg::PoseArray::ConstPtr& msg)
   {
     pose_array_msg_ = *msg;
     received_pose_array_msg_ = true;
@@ -160,9 +160,9 @@ protected:
   fuse_graphs::HashGraph::SharedPtr graph_;
   fuse_core::Transaction::SharedPtr transaction_;
   bool received_path_msg_;
-  nav_msgs::Path path_msg_;
+  nav_msgs::msg::Path path_msg_;
   bool received_pose_array_msg_;
-  geometry_msgs::PoseArray pose_array_msg_;
+  geometry_msgs::msg::PoseArray pose_array_msg_;
 };
 
 TEST_F(Path2DPublisherTestFixture, PublishPath)

@@ -81,7 +81,7 @@ namespace tf2
 */
 template <>
 inline
-void doTransform(const geometry_msgs::TwistWithCovarianceStamped& t_in, geometry_msgs::TwistWithCovarianceStamped& t_out, const geometry_msgs::TransformStamped& transform)  // NOLINT
+void doTransform(const geometry_msgs::msg::TwistWithCovarianceStamped& t_in, geometry_msgs::msg::TwistWithCovarianceStamped& t_out, const geometry_msgs::msg::TransformStamped& transform)  // NOLINT
 {
   tf2::Vector3 vl;
   fromMsg(t_in.twist.twist.linear, vl);
@@ -106,7 +106,7 @@ void doTransform(const geometry_msgs::TwistWithCovarianceStamped& t_in, geometry
 */
 template <>
 inline
-void doTransform(const geometry_msgs::AccelWithCovarianceStamped& t_in, geometry_msgs::AccelWithCovarianceStamped& t_out, const geometry_msgs::TransformStamped& transform)  // NOLINT
+void doTransform(const geometry_msgs::msg::AccelWithCovarianceStamped& t_in, geometry_msgs::msg::AccelWithCovarianceStamped& t_out, const geometry_msgs::msg::TransformStamped& transform)  // NOLINT
 {
   tf2::Vector3 al;
   fromMsg(t_in.accel.accel.linear, al);
@@ -231,7 +231,7 @@ bool transformMessage(
 {
   try
   {
-    auto trans = geometry_msgs::TransformStamped();
+    auto trans = geometry_msgs::msg::TransformStamped();
     if (tf_timeout.isZero())
     {
       trans = tf_buffer.lookupTransform(output.header.frame_id, input.header.frame_id, input.header.stamp);
@@ -273,7 +273,7 @@ bool transformMessage(
 inline bool processAbsolutePoseWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
-  const geometry_msgs::PoseWithCovarianceStamped& pose,
+  const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
   const fuse_core::Loss::SharedPtr& loss,
   const std::string& target_frame,
   const std::vector<size_t>& position_indices,
@@ -288,7 +288,7 @@ inline bool processAbsolutePoseWithCovariance(
     return false;
   }
 
-  geometry_msgs::PoseWithCovarianceStamped transformed_message;
+  geometry_msgs::msg::PoseWithCovarianceStamped transformed_message;
   if (target_frame.empty())
   {
     transformed_message = pose;
@@ -407,8 +407,8 @@ inline bool processAbsolutePoseWithCovariance(
 inline bool processDifferentialPoseWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
-  const geometry_msgs::PoseWithCovarianceStamped& pose1,
-  const geometry_msgs::PoseWithCovarianceStamped& pose2,
+  const geometry_msgs::msg::PoseWithCovarianceStamped& pose1,
+  const geometry_msgs::msg::PoseWithCovarianceStamped& pose2,
   const bool independent,
   const fuse_core::Matrix3d& minimum_pose_relative_covariance,
   const fuse_core::Loss::SharedPtr& loss,
@@ -755,9 +755,9 @@ inline bool processDifferentialPoseWithCovariance(
 inline bool processDifferentialPoseWithTwistCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
-  const geometry_msgs::PoseWithCovarianceStamped& pose1,
-  const geometry_msgs::PoseWithCovarianceStamped& pose2,
-  const geometry_msgs::TwistWithCovarianceStamped& twist,
+  const geometry_msgs::msg::PoseWithCovarianceStamped& pose1,
+  const geometry_msgs::msg::PoseWithCovarianceStamped& pose2,
+  const geometry_msgs::msg::TwistWithCovarianceStamped& twist,
   const fuse_core::Matrix3d& minimum_pose_relative_covariance,
   const fuse_core::Matrix3d& twist_covariance_offset,
   const fuse_core::Loss::SharedPtr& loss,
@@ -936,7 +936,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
 inline bool processTwistWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
-  const geometry_msgs::TwistWithCovarianceStamped& twist,
+  const geometry_msgs::msg::TwistWithCovarianceStamped& twist,
   const fuse_core::Loss::SharedPtr& linear_velocity_loss,
   const fuse_core::Loss::SharedPtr& angular_velocity_loss,
   const std::string& target_frame,
@@ -953,7 +953,7 @@ inline bool processTwistWithCovariance(
     return false;
   }
 
-  geometry_msgs::TwistWithCovarianceStamped transformed_message;
+  geometry_msgs::msg::TwistWithCovarianceStamped transformed_message;
   if (target_frame.empty())
   {
     transformed_message = twist;
@@ -1105,7 +1105,7 @@ inline bool processTwistWithCovariance(
 inline bool processAccelWithCovariance(
   const std::string& source,
   const fuse_core::UUID& device_id,
-  const geometry_msgs::AccelWithCovarianceStamped& acceleration,
+  const geometry_msgs::msg::AccelWithCovarianceStamped& acceleration,
   const fuse_core::Loss::SharedPtr& loss,
   const std::string& target_frame,
   const std::vector<size_t>& indices,
@@ -1120,7 +1120,7 @@ inline bool processAccelWithCovariance(
     return false;
   }
 
-  geometry_msgs::AccelWithCovarianceStamped transformed_message;
+  geometry_msgs::msg::AccelWithCovarianceStamped transformed_message;
   if (target_frame.empty())
   {
     transformed_message = acceleration;

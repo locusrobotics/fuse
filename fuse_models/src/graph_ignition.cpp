@@ -60,7 +60,7 @@ void GraphIgnition::onInit()
   // Connect to the reset service
   if (!params_.reset_service.empty())
   {
-    reset_client_ = node_handle_.serviceClient<std_srvs::Empty>(ros::names::resolve(params_.reset_service));
+    reset_client_ = node_handle_.serviceClient<std_srvs::srv::Empty>(ros::names::resolve(params_.reset_service));
   }
 
   // Advertise
@@ -80,7 +80,7 @@ void GraphIgnition::stop()
   started_ = false;
 }
 
-void GraphIgnition::subscriberCallback(const fuse_msgs::SerializedGraph::ConstPtr& msg)
+void GraphIgnition::subscriberCallback(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg)
 {
   try
   {
@@ -108,7 +108,7 @@ bool GraphIgnition::setGraphServiceCallback(fuse_models::SetGraph::Request& req,
   return true;
 }
 
-void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
+void GraphIgnition::process(const fuse_msgs::msg::SerializedGraph& msg)
 {
   // Verify we are in the correct state to process set graph requests
   if (!started_)
@@ -140,7 +140,7 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
                          "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
     }
 
-    auto srv = std_srvs::Empty();
+    auto srv = std_srvs::srv::Empty();
     if (!reset_client_.call(srv))
     {
       // The reset() service failed. Propagate that failure to the caller of this service.

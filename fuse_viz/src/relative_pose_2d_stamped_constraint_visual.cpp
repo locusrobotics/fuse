@@ -142,7 +142,7 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
   relative_pose_line_->addPoint(absolute_position_ogre);
 
   // Update constraint covariance:
-  geometry_msgs::PoseWithCovariance relative_pose_msg;
+  geometry_msgs::msg::PoseWithCovariance relative_pose_msg;
   tf2::toMsg(absolute_pose, relative_pose_msg.pose);
   tf2::toMsg(constraint.covariance(), relative_pose_msg.covariance);
 

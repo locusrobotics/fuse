@@ -43,7 +43,7 @@ TEST(FixedLagIgnition, SetInitialState)
 {
   // TODO(CH3): Make this an rclcpp node
   auto node_handle = ros::NodeHandle();
-  auto relative_pose_publisher = node_handle.advertise<geometry_msgs::PoseWithCovarianceStamped>("/relative_pose", 1);
+  auto relative_pose_publisher = node_handle.advertise<geometry_msgs::msg::PoseWithCovarianceStamped>("/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
@@ -81,7 +81,7 @@ TEST(FixedLagIgnition, SetInitialState)
   ASSERT_GE(relative_pose_publisher.getNumSubscribers(), 1u);
 
   // Publish a relative pose
-  auto pose_msg1 = geometry_msgs::PoseWithCovarianceStamped();
+  auto pose_msg1 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg1.header.stamp = rclcpp::Time(2, 0);
   pose_msg1.header.frame_id = "base_link";
   pose_msg1.pose.pose.position.x = 5.0;
@@ -96,7 +96,7 @@ TEST(FixedLagIgnition, SetInitialState)
   pose_msg1.pose.covariance[35] = 1.0;
   relative_pose_publisher.publish(pose_msg1);
 
-  auto pose_msg2 = geometry_msgs::PoseWithCovarianceStamped();
+  auto pose_msg2 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg2.header.stamp = rclcpp::Time(3, 0);
   pose_msg2.header.frame_id = "base_link";
   pose_msg2.pose.pose.position.x = 10.0;
@@ -113,11 +113,11 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // Wait for the optimizer to process all queued transactions
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
-  auto odom_msg = nav_msgs::Odometry::ConstPtr();
+  auto odom_msg = nav_msgs::msg::Odometry::ConstPtr();
   while ((!odom_msg || odom_msg->header.stamp != rclcpp::Time(3, 0)) &&
          (node->now() < result_timeout))
   {
-    odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
+    odom_msg = ros::topic::waitForMessage<nav_msgs::msg::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
   }
   ASSERT_TRUE(static_cast<bool>(odom_msg));
   ASSERT_EQ(odom_msg->header.stamp, rclcpp::Time(3, 0));

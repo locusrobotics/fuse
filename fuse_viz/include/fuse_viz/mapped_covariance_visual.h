@@ -137,7 +137,7 @@ public:
    * This effectively changes the orientation and scale of position and orientation
    * covariance shapes
    */
-  virtual void setCovariance(const geometry_msgs::PoseWithCovariance& pose);
+  virtual void setCovariance(const geometry_msgs::msg::PoseWithCovariance& pose);
 
   virtual const Ogre::Vector3& getPositionCovarianceScale();
   virtual const Ogre::Quaternion& getPositionCovarianceOrientation();

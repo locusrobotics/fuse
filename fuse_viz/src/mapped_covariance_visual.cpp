@@ -307,7 +307,7 @@ MappedCovarianceVisual::~MappedCovarianceVisual()
   scene_manager_->destroySceneNode(root_node_->getName());
 }
 
-void MappedCovarianceVisual::setCovariance(const geometry_msgs::PoseWithCovariance& pose)
+void MappedCovarianceVisual::setCovariance(const geometry_msgs::msg::PoseWithCovariance& pose)
 {
   // check for NaN in covariance
   for (unsigned i = 0; i < 3; ++i)

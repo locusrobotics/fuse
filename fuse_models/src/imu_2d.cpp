@@ -92,7 +92,7 @@ void Imu2D::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe<sensor_msgs::Imu>(ros::names::resolve(params_.topic), params_.queue_size,
+    subscriber_ = node_handle_.subscribe<sensor_msgs::msg::Imu>(ros::names::resolve(params_.topic), params_.queue_size,
                                                            &ImuThrottledCallback::callback, &throttled_callback_,
                                                            ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
@@ -103,14 +103,14 @@ void Imu2D::onStop()
   subscriber_.shutdown();
 }
 
-void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
+void Imu2D::process(const sensor_msgs::msg::Imu::ConstPtr& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg->header.stamp);
 
   // Handle the orientation data (treat it as a pose, but with only orientation indices used)
-  auto pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+  auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
   pose->header = msg->header;
   pose->pose.pose.orientation = msg->orientation;
   pose->pose.covariance[21] = msg->orientation_covariance[0];
@@ -123,7 +123,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   pose->pose.covariance[34] = msg->orientation_covariance[7];
   pose->pose.covariance[35] = msg->orientation_covariance[8];
 
-  geometry_msgs::TwistWithCovarianceStamped twist;
+  geometry_msgs::msg::TwistWithCovarianceStamped twist;
   twist.header = msg->header;
   twist.twist.twist.angular = msg->angular_velocity;
   twist.twist.covariance[21] = msg->angular_velocity_covariance[0];
@@ -174,7 +174,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     params_.tf_timeout);
 
   // Handle the acceleration data
-  geometry_msgs::AccelWithCovarianceStamped accel;
+  geometry_msgs::msg::AccelWithCovarianceStamped accel;
   accel.header = msg->header;
   accel.accel.accel.linear = msg->linear_acceleration;
   accel.accel.covariance[0]  = msg->linear_acceleration_covariance[0];
@@ -190,9 +190,9 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   // Optionally remove the acceleration due to gravity
   if (params_.remove_gravitational_acceleration)
   {
-    geometry_msgs::Vector3 accel_gravity;
+    geometry_msgs::msg::Vector3 accel_gravity;
     accel_gravity.z = params_.gravitational_acceleration;
-    geometry_msgs::TransformStamped orientation_trans;
+    geometry_msgs::msg::TransformStamped orientation_trans;
     tf2::Quaternion imu_orientation;
     tf2::fromMsg(msg->orientation, imu_orientation);
     orientation_trans.transform.rotation = tf2::toMsg(imu_orientation.inverse());
@@ -218,11 +218,11 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   sendTransaction(transaction);
 }
 
-void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose,
-                                const geometry_msgs::TwistWithCovarianceStamped& twist, const bool validate,
+void Imu2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+                                const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
                                 fuse_core::Transaction& transaction)
 {
-  auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+  auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
   transformed_pose->header.frame_id =
       params_.orientation_target_frame.empty() ? pose.header.frame_id : params_.orientation_target_frame;
 
@@ -242,7 +242,7 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
 
   if (params_.use_twist_covariance)
   {
-    geometry_msgs::TwistWithCovarianceStamped transformed_twist;
+    geometry_msgs::msg::TwistWithCovarianceStamped transformed_twist;
     transformed_twist.header.frame_id =
         params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 

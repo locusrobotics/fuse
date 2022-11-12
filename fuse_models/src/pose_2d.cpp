@@ -86,7 +86,7 @@ void Pose2D::onStart()
   if (!params_.position_indices.empty() ||
       !params_.orientation_indices.empty())
   {
-    subscriber_ = node_handle_.subscribe<geometry_msgs::PoseWithCovarianceStamped>(
+    subscriber_ = node_handle_.subscribe<geometry_msgs::msg::PoseWithCovarianceStamped>(
         ros::names::resolve(params_.topic), params_.queue_size, &PoseThrottledCallback::callback, &throttled_callback_,
         ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
@@ -97,7 +97,7 @@ void Pose2D::onStop()
   subscriber_.shutdown();
 }
 
-void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -129,10 +129,10 @@ void Pose2D::process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& m
   sendTransaction(transaction);
 }
 
-void Pose2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose, const bool validate,
+void Pose2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
                                  fuse_core::Transaction& transaction)
 {
-  auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+  auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
   transformed_pose->header.frame_id = params_.target_frame.empty() ? pose.header.frame_id : params_.target_frame;
 
   if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))

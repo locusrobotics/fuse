@@ -143,7 +143,7 @@ public:
     graph_->optimize();
 
     // Publish a odom->base transform so tf lookups will succeed
-    geometry_msgs::TransformStamped odom_to_base;
+    geometry_msgs::msg::TransformStamped odom_to_base;
     odom_to_base.header.stamp = rclcpp::Time(0, 0);
     odom_to_base.header.frame_id = "test_odom";
     odom_to_base.child_frame_id = "test_base";
@@ -157,19 +157,19 @@ public:
     static_broadcaster_.sendTransform(odom_to_base);
   }
 
-  void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+  void poseCallback(const geometry_msgs::msg::PoseStamped::ConstPtr& msg)
   {
     received_pose_msg_ = true;
     pose_msg_ = *msg;
   }
 
-  void poseWithCovarianceCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstPtr& msg)
   {
     received_pose_with_covariance_msg_ = true;
     pose_with_covariance_msg_ = *msg;
   }
 
-  void tfCallback(const tf2_msgs::TFMessage::ConstPtr& msg)
+  void tfCallback(const tf2_msgs::msg::TFMessage::ConstPtr& msg)
   {
     received_tf_msg_ = true;
     tf_msg_ = *msg;
@@ -182,11 +182,11 @@ protected:
   fuse_graphs::HashGraph::SharedPtr graph_;
   fuse_core::Transaction::SharedPtr transaction_;
   bool received_pose_msg_;
-  geometry_msgs::PoseStamped pose_msg_;
+  geometry_msgs::msg::PoseStamped pose_msg_;
   bool received_pose_with_covariance_msg_;
-  geometry_msgs::PoseWithCovarianceStamped pose_with_covariance_msg_;
+  geometry_msgs::msg::PoseWithCovarianceStamped pose_with_covariance_msg_;
   bool received_tf_msg_;
-  tf2_msgs::TFMessage tf_msg_;
+  tf2_msgs::msg::TFMessage tf_msg_;
   tf2_ros::StaticTransformBroadcaster static_broadcaster_;
 };
 

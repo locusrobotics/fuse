@@ -110,7 +110,7 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::SerializedGraph::ConstPtr& msg);
+  void subscriberCallback(const fuse_msgs::msg::SerializedGraph::ConstPtr& msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
@@ -130,7 +130,7 @@ protected:
    *
    * @param[in] msg - The graph message
    */
-  void process(const fuse_msgs::SerializedGraph& msg);
+  void process(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph
