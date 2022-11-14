@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.0.2)
 project(fuse_constraints)
 
 # TODO(CH3): Migrate these to ament
@@ -15,32 +15,32 @@ find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
-find_package(ament_cmake)
-find_package(rclcpp)
-find_package(fuse_core)
-find_package(fuse_variables)
-find_package(pluginlib)
-find_package(geometry_msgs REQUIRED)
-
-
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(glog REQUIRED)
 find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
 
+catkin_package(
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    ${PROJECT_NAME}
+  CATKIN_DEPENDS
+    ${build_depends}
+  DEPENDS
+    CERES
+    EIGEN3
+    SUITESPARSE
+)
+
 ###########
 ## Build ##
 ###########
-
-include_directories(include)
+add_compile_options(-Wall -Werror)
 
 # fuse_constraints library
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   src/absolute_constraint.cpp
   src/absolute_orientation_3d_stamped_constraint.cpp
   src/absolute_orientation_3d_stamped_euler_constraint.cpp
@@ -61,12 +61,16 @@ add_library(${PROJECT_NAME} SHARED
   src/uuid_ordering.cpp
   src/variable_constraints.cpp
 )
-
-target_include_directories(${PROJECT_NAME} PUBLIC
-  include
-  ${CERES_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-  ${SUITESPARSE_INCLUDE_DIRS}
+add_dependencies(${PROJECT_NAME}
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+    ${SUITESPARSE_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
@@ -74,20 +78,15 @@ target_link_libraries(${PROJECT_NAME}
   ${EIGEN3_LIBRARIES}
   ${SUITESPARSE_LIBRARIES}
 )
-ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
-  fuse_core
-  fuse_variables
-  pluginlib
-  geometry_msgs
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
 ## Install ##
 #############
-
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -101,8 +100,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 install(
-  DIRECTORY include/
-  DESTINATION include/
+  FILES fuse_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 #############

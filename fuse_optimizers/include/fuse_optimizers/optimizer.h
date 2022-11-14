@@ -41,7 +41,6 @@
 #include <fuse_core/publisher.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
-#include <fuse_core/callback_wrapper.h>
 #include <pluginlib/class_loader.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -106,8 +105,7 @@ public:
    */
   Optimizer(
     rclcpp::NodeOptions options,
-    std::string node_name,
-    fuse_core::Graph::UniquePtr graph
+    fuse_core::Graph::UniquePtr graph,
     );
 
   /**
@@ -160,6 +158,8 @@ protected:
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
+  rclcpp::TimerBase::SharedPtr diagnostic_updater_timer_; //!< Diagnostic updater timer
+  double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
 
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 

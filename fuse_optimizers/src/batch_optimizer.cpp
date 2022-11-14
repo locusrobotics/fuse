@@ -56,11 +56,11 @@ BatchOptimizer::BatchOptimizer(
   start_time_(rclcpp::Time::max()),
   started_(false)
 {
-  params_.loadFromROS(*this);
+  params_.loadFromROS(private_node_handle);
 
   // Configure a timer to trigger optimizations
   optimize_timer_ = this->create_timer(
-    params_.optimization_period.to_chrono<std::chrono::nanoseconds>(),
+    params_.optimization_period,
     std::bind(&BatchOptimizer::optimizerTimerCallback, this)
   );
 

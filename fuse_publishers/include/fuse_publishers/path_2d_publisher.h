@@ -38,12 +38,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
-#include <rclcpp/rclcpp.hpp>
-
-#include <nav_msgs/msg/path.hpp>
-#include <geometry_msgs/msg/pose_array.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <ros/ros.h>
 
 #include <string>
 
@@ -93,8 +88,8 @@ public:
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   std::string frame_id_;  //!< The name of the frame for this path
-  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
-  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
+  ros::Publisher path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
+  ros::Publisher pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
 };
 
 }  // namespace fuse_publishers

@@ -1,66 +1,78 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.0.2)
 project(fuse_graphs)
 
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-#set(CMAKE_BUILD_TYPE Debug)
+set(build_depends
+  fuse_core
+  pluginlib
+  roscpp
+)
 
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra)
-endif()
-
+find_package(catkin REQUIRED COMPONENTS
+  ${build_depends}
+)
 find_package(Boost REQUIRED)
 find_package(Ceres REQUIRED)
-find_package(fuse_core)
-find_package(pluginlib)
-find_package(rclcpp)
+
+catkin_package(
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    ${PROJECT_NAME}
+  CATKIN_DEPENDS
+    ${build_depends}
+  DEPENDS
+    Boost
+    CERES
+)
 
 ###########
 ## Build ##
 ###########
-
-include_directories(include)
+add_compile_options(-Wall -Werror)
 
 ## fuse_graphs library
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   src/hash_graph.cpp
 )
-target_include_directories(${PROJECT_NAME} PUBLIC
-  include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
+add_dependencies(${PROJECT_NAME}
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${Boost_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
 )
-ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
-  fuse_core
-  pluginlib
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
 )
 
 #############
 ## Install ##
 #############
 
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
-
 install(
   TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 
 install(
-  DIRECTORY include/
-  DESTINATION include/
+  DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
+
+install(
+  FILES fuse_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 #############
@@ -128,7 +140,3 @@ if(CATKIN_ENABLE_TESTING)
     )
   endif()
 endif()
-
-ament_package(
-  CONFIG_EXTRAS
-)

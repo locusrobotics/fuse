@@ -32,17 +32,22 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_publishers/path_2d_publisher.h>
+#include <fuse_core/async_publisher.h>
+#include <fuse_core/graph.h>
+#include <fuse_core/transaction.h>
+#include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-
-#include <pluginlib/class_list_macros.hpp>
+#include <geometry_msgs/PoseArray.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Path.h>
+#include <pluginlib/class_list_macros.h>
+#include <ros/ros.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-
-#include <fuse_core/parameter.h>
-
 #include <algorithm>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -64,23 +69,19 @@ void Path2DPublisher::onInit()
 {
   // Configure the publisher
   std::string device_str;
-  fuse_core::getParam(node_, "device_id", device_str);
-  if (device_str != "")
+  if (private_node_handle_.getParam("device_id", device_str))
   {
     device_id_ = fuse_core::uuid::from_string(device_str);
   }
-  else{
-    fuse_core::getParam(node_, "device_name", device_str);
-    if (device_str != "")
-    {
-      device_id_ = fuse_core::uuid::generate(device_str);
-    }
+  else if (private_node_handle_.getParam("device_name", device_str))
+  {
+    device_id_ = fuse_core::uuid::generate(device_str);
   }
-  fuse_core::getParam(node_, "frame_id", frame_id_);
+  private_node_handle_.getParam("frame_id", frame_id_);
 
   // Advertise the topic
-  path_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("path", 1);
-  pose_array_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseArray>("pose_array", 1);
+  path_publisher_ = private_node_handle_.advertise<nav_msgs::Path>("path", 1);
+  pose_array_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseArray>("pose_array", 1);
 }
 
 void Path2DPublisher::notifyCallback(
@@ -88,12 +89,12 @@ void Path2DPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   // Exit early if no one is listening
-  if ((path_publisher_->get_subscription_count() == 0) && (pose_array_publisher_->get_subscription_count() == 0))
+  if ((path_publisher_.getNumSubscribers() == 0) && (pose_array_publisher_.getNumSubscribers() == 0))
   {
     return;
   }
   // Extract all of the 2D pose variables to the path
-  std::vector<geometry_msgs::msg::PoseStamped> poses;
+  std::vector<geometry_msgs::PoseStamped> poses;
   for (const auto& variable : graph->getVariables())
   {
     auto orientation = dynamic_cast<const fuse_variables::Orientation2DStamped*>(&variable);
@@ -107,8 +108,8 @@ void Path2DPublisher::notifyCallback(
         continue;
       }
       auto position = dynamic_cast<const fuse_variables::Position2DStamped*>(&graph->getVariable(position_uuid));
-      geometry_msgs::msg::PoseStamped pose;
-      pose.header.stamp = fuse_core::stamp_to_ros(stamp);
+      geometry_msgs::PoseStamped pose;
+      pose.header.stamp = stamp;
       pose.header.frame_id = frame_id_;
       pose.pose.position.x = position->x();
       pose.pose.position.y = position->y();
@@ -123,44 +124,36 @@ void Path2DPublisher::notifyCallback(
     return;
   }
   // Sort the poses by timestamp
-  auto compare_stamps = [](const geometry_msgs::msg::PoseStamped& pose1, const geometry_msgs::msg::PoseStamped& pose2)
+  auto compare_stamps = [](const geometry_msgs::PoseStamped& pose1, const geometry_msgs::PoseStamped& pose2)
   {
-    if(pose1.header.stamp.sec == pose2.header.stamp.sec){
-      return pose1.header.stamp.nanosec < pose2.header.stamp.nanosec;
-    }
-    else
-    {
-      return pose1.header.stamp.sec < pose2.header.stamp.sec;
-    }
-
-
+    return pose1.header.stamp < pose2.header.stamp;
   };
   std::sort(poses.begin(), poses.end(), compare_stamps);
   // Define the header for the aggregate message
-  std_msgs::msg::Header header;
+  std_msgs::Header header;
   header.stamp = poses.back().header.stamp;
   header.frame_id = frame_id_;
   // Convert the sorted poses into a Path msg
-  if (path_publisher_->get_subscription_count() > 0)
+  if (path_publisher_.getNumSubscribers() > 0)
   {
-    nav_msgs::msg::Path path_msg;
+    nav_msgs::Path path_msg;
     path_msg.header = header;
     path_msg.poses = poses;
-    path_publisher_->publish(path_msg);
+    path_publisher_.publish(path_msg);
   }
   // Convert the sorted poses into a PoseArray msg
-  if (pose_array_publisher_->get_subscription_count() > 0)
+  if (pose_array_publisher_.getNumSubscribers() > 0)
   {
-    geometry_msgs::msg::PoseArray pose_array_msg;
+    geometry_msgs::PoseArray pose_array_msg;
     pose_array_msg.header = header;
     std::transform(poses.begin(),
                    poses.end(),
                    std::back_inserter(pose_array_msg.poses),
-                   [](const geometry_msgs::msg::PoseStamped& pose)
+                   [](const geometry_msgs::PoseStamped& pose)
                    {
                      return pose.pose;
                    });  // NOLINT(whitespace/braces)
-    pose_array_publisher_->publish(pose_array_msg);
+    pose_array_publisher_.publish(pose_array_msg);
   }
 }
 

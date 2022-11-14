@@ -39,7 +39,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
-#include <fuse_graphs/hash_graph.h>
+#include <ros/ros.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -108,10 +108,9 @@ public:
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   BatchOptimizer(
-    rclcpp::NodeOptions options,
-    std::string node_name = "batch_optimizer_node",
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
-  );
+    fuse_core::Graph::UniquePtr graph,
+    const ros::NodeHandle& node_handle = ros::NodeHandle(),
+    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
   /**
    * @brief Destructor

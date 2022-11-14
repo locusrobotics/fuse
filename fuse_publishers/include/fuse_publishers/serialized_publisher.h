@@ -39,7 +39,7 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/throttled_callback.h>
 #include <fuse_core/transaction.h>
-#include <rclcpp/rclcpp.h>
+#include <ros/ros.h>
 
 #include <string>
 
