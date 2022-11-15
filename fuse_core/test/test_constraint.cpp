@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/uuid.h>
-#include <test/example_constraint.h>
+#include "example_constraint.h"
 
 #include <gtest/gtest.h>
 

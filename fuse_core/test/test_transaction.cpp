@@ -34,8 +34,8 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
-#include <test/example_constraint.h>
-#include <test/example_variable.h>
+#include "example_constraint.h"
+#include "example_variable.h"
 
 #include <gtest/gtest.h>
 

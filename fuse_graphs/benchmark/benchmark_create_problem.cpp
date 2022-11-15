@@ -36,7 +36,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_graphs/hash_graph.h>
 
-#include <test/example_variable.h>
+#include "example_variable.h"
 
 #include <benchmark/benchmark.h>
 
