@@ -5,9 +5,8 @@ target_link_libraries(test_constraint ${PROJECT_NAME})
 ament_add_gtest(test_eigen test_eigen.cpp)
 target_link_libraries(test_eigen ${PROJECT_NAME})
 
-# TODO(sloretz) fails to build: can't include ros/node_handle.h
-# ament_add_gtest(test_local_parameterization test_local_parameterization.cpp)
-# target_link_libraries(test_local_parameterization ${PROJECT_NAME})
+ament_add_gtest(test_local_parameterization test_local_parameterization.cpp)
+target_link_libraries(test_local_parameterization ${PROJECT_NAME})
 
 ament_add_gtest(test_loss test_loss.cpp)
 target_link_libraries(test_loss ${PROJECT_NAME})
@@ -21,9 +20,8 @@ target_link_libraries(test_timestamp_manager ${PROJECT_NAME})
 ament_add_gtest(test_transaction test_transaction.cpp)
 target_link_libraries(test_transaction ${PROJECT_NAME})
 
-# TODO(sloretz) fails to build: can't include ros/node_handle.h
-# ament_add_gtest(test_util test_util.cpp)
-# target_link_libraries(test_util ${PROJECT_NAME})
+ament_add_gtest(test_util test_util.cpp)
+target_link_libraries(test_util ${PROJECT_NAME})
 
 ament_add_gtest(test_uuid test_uuid.cpp)
 target_link_libraries(test_uuid ${PROJECT_NAME})
