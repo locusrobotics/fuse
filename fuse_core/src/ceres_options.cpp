@@ -46,97 +46,118 @@
 namespace fuse_core
 {
 
-void loadCovarianceOptionsFromROS(rclcpp::Node& node, ceres::Covariance::Options& covariance_options)
+void loadCovarianceOptionsFromROS(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
+  ceres::Covariance::Options& covariance_options)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
 #if CERES_VERSION_AT_LEAST(1, 13, 0)
   // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
   // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
-  covariance_options.sparse_linear_algebra_library_type = fuse_core::getCeresParam(
-      node, "sparse_linear_algebra_library_type", covariance_options.sparse_linear_algebra_library_type);
+  covariance_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
+    interfaces, "sparse_linear_algebra_library_type",
+    covariance_options.sparse_linear_algebra_library_type);
 #endif
-  covariance_options.algorithm_type = fuse_core::getCeresParam(node, "algorithm_type", covariance_options.algorithm_type);
+  covariance_options.algorithm_type =
+    fuse_core::declareCeresParam(interfaces, "algorithm_type", covariance_options.algorithm_type);
 
   tmp_descr.description = "";
-  covariance_options.min_reciprocal_condition_number = node.declare_parameter(
-    "min_reciprocal_condition_number",
-    covariance_options.min_reciprocal_condition_number,
-    tmp_descr
+  covariance_options.min_reciprocal_condition_number = fuse_core::declareParam(
+    interfaces,
+    "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number, tmp_descr
   );
 
-  tmp_descr.description = "the number of singular dimensions to tolerate (-1 unbounded) no effect on `SPARSE_QR`";
-  covariance_options.null_space_rank = node.declare_parameter(
-    "null_space_rank",
-    covariance_options.null_space_rank,
-    tmp_descr
+  tmp_descr.description =
+    "the number of singular dimensions to tolerate (-1 unbounded) no effect on `SPARSE_QR`";
+  covariance_options.null_space_rank = fuse_core::declareParam(
+    interfaces,
+    "null_space_rank", covariance_options.null_space_rank, tmp_descr
   );
 
-  tmp_descr.description = "Number of threads to be used for evaluating the Jacobian and estimation of covariance";
-  covariance_options.num_threads = node.declare_parameter(
-    "num_threads",
-    covariance_options.num_threads,
-    tmp_descr
+  tmp_descr.description =
+    "Number of threads to be used for evaluating the Jacobian and estimation of covariance";
+  covariance_options.num_threads = fuse_core::declareParam(
+    interfaces,
+    "num_threads", covariance_options.num_threads, tmp_descr
   );
 
-  tmp_descr.description = "false will turn off the application of the loss function to the output of the cost function and in turn its effect on the covariance (does not affect residual blocks with built-in loss functions)";
-  covariance_options.apply_loss_function = node.declare_parameter(
-    "apply_loss_function",
-    covariance_options.apply_loss_function,
-    tmp_descr
+  tmp_descr.description = (
+    "false will turn off the application of the loss function to the output of the cost function "
+    "and in turn its effect on the covariance (does not affect residual blocks with built-in loss "
+    "functions)");
+  covariance_options.apply_loss_function = fuse_core::declareParam(
+    interfaces,
+    "apply_loss_function", covariance_options.apply_loss_function, tmp_descr
   );
 }
 
-void loadProblemOptionsFromROS(rclcpp::Node& node, ceres::Problem::Options& problem_options)
+void loadProblemOptionsFromROS(
+  node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
+  ceres::Problem::Options& problem_options)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
   tmp_descr.description = "trades memory for faster Problem::RemoveResidualBlock()";
-  problem_options.enable_fast_removal = node.declare_parameter(
-    "enable_fast_removal",
-    problem_options.enable_fast_removal,
-    tmp_descr
+  problem_options.enable_fast_removal = fuse_core::declareParam(
+    interfaces,
+    "enable_fast_removal", problem_options.enable_fast_removal, tmp_descr
   );
 
   tmp_descr.description = "If true, trades memory for faster Problem::RemoveResidualBlock()";
-  problem_options.disable_all_safety_checks = node.declare_parameter(
-    "disable_all_safety_checks",
-    problem_options.disable_all_safety_checks,
-    tmp_descr
+  problem_options.disable_all_safety_checks = fuse_core::declareParam(
+    interfaces,
+    "disable_all_safety_checks", problem_options.disable_all_safety_checks, tmp_descr
   );
 }
 
-void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver_options)
+void loadSolverOptionsFromROS(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
+  ceres::Solver::Options& solver_options)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
   // Minimizer options
-  solver_options.minimizer_type = fuse_core::getCeresParam(node, "minimizer_type", solver_options.minimizer_type);
-  solver_options.line_search_direction_type =
-      fuse_core::getCeresParam(node, "line_search_direction_type", solver_options.line_search_direction_type);
-  solver_options.line_search_type = fuse_core::getCeresParam(node, "line_search_type", solver_options.line_search_type);
-  solver_options.nonlinear_conjugate_gradient_type =
-      fuse_core::getCeresParam(node, "nonlinear_conjugate_gradient_type", solver_options.nonlinear_conjugate_gradient_type);
+  solver_options.minimizer_type =
+    fuse_core::declareCeresParam(interfaces, "minimizer_type", solver_options.minimizer_type);
+  solver_options.line_search_direction_type = fuse_core::declareCeresParam(
+    interfaces, "line_search_direction_type", solver_options.line_search_direction_type);
+  solver_options.line_search_type =
+    fuse_core::declareCeresParam(interfaces, "line_search_type", solver_options.line_search_type);
+  solver_options.nonlinear_conjugate_gradient_type = fuse_core::declareCeresParam(
+    interfaces, "nonlinear_conjugate_gradient_type",
+    solver_options.nonlinear_conjugate_gradient_type);
 
   tmp_descr.description = "";
-  solver_options.max_lbfgs_rank = node.declare_parameter(
+  solver_options.max_lbfgs_rank = fuse_core::declareParam(
+    interfaces,
     "max_lbfgs_rank",
     solver_options.max_lbfgs_rank,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.use_approximate_eigenvalue_bfgs_scaling = node.declare_parameter(
+  solver_options.use_approximate_eigenvalue_bfgs_scaling = fuse_core::declareParam(
+    interfaces,
     "use_approximate_eigenvalue_bfgs_scaling",
     solver_options.use_approximate_eigenvalue_bfgs_scaling,
     tmp_descr
   );
 
-  solver_options.line_search_interpolation_type =
-      fuse_core::getCeresParam(node, "line_search_interpolation_type", solver_options.line_search_interpolation_type);
+  solver_options.line_search_interpolation_type = fuse_core::declareCeresParam(
+    interfaces, "line_search_interpolation_type", solver_options.line_search_interpolation_type);
 
   tmp_descr.description = "";
-  solver_options.min_line_search_step_size = node.declare_parameter(
+  solver_options.min_line_search_step_size = fuse_core::declareParam(
+    interfaces,
     "min_line_search_step_size",
     solver_options.min_line_search_step_size,
     tmp_descr
@@ -144,62 +165,72 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
 
   // Line search parameters
   tmp_descr.description = "";
-  solver_options.line_search_sufficient_function_decrease = node.declare_parameter(
+  solver_options.line_search_sufficient_function_decrease = fuse_core::declareParam(
+    interfaces,
     "line_search_sufficient_function_decrease",
     solver_options.line_search_sufficient_function_decrease,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.max_line_search_step_contraction = node.declare_parameter(
+  solver_options.max_line_search_step_contraction = fuse_core::declareParam(
+    interfaces,
     "max_line_search_step_contraction",
     solver_options.max_line_search_step_contraction,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.min_line_search_step_contraction = node.declare_parameter(
+  solver_options.min_line_search_step_contraction = fuse_core::declareParam(
+    interfaces,
     "min_line_search_step_contraction",
     solver_options.min_line_search_step_contraction,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.max_num_line_search_step_size_iterations = node.declare_parameter(
+  solver_options.max_num_line_search_step_size_iterations = fuse_core::declareParam(
+    interfaces,
     "max_num_line_search_step_size_iterations",
     solver_options.max_num_line_search_step_size_iterations,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.max_num_line_search_direction_restarts = node.declare_parameter(
+  solver_options.max_num_line_search_direction_restarts = fuse_core::declareParam(
+    interfaces,
     "max_num_line_search_direction_restarts",
     solver_options.max_num_line_search_direction_restarts,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.line_search_sufficient_curvature_decrease = node.declare_parameter(
+  solver_options.line_search_sufficient_curvature_decrease = fuse_core::declareParam(
+    interfaces,
     "line_search_sufficient_curvature_decrease",
     solver_options.line_search_sufficient_curvature_decrease,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.max_line_search_step_expansion = node.declare_parameter(
+  solver_options.max_line_search_step_expansion = fuse_core::declareParam(
+    interfaces,
     "max_line_search_step_expansion",
     solver_options.max_line_search_step_expansion,
     tmp_descr
   );
 
-  solver_options.trust_region_strategy_type =
-      fuse_core::getCeresParam(node, "trust_region_strategy_type", solver_options.trust_region_strategy_type);
-  solver_options.dogleg_type = fuse_core::getCeresParam(node, "dogleg_type", solver_options.dogleg_type);
+  solver_options.trust_region_strategy_type = fuse_core::declareCeresParam(
+    interfaces, "trust_region_strategy_type", solver_options.trust_region_strategy_type);
+  solver_options.dogleg_type = fuse_core::declareCeresParam(
+    interfaces, "dogleg_type", solver_options.dogleg_type);
 
 
   tmp_descr.description = "";
-  solver_options.use_nonmonotonic_steps = node.declare_parameter(
+  solver_options.use_nonmonotonic_steps = fuse_core::declareParam(
+    interfaces,
     "use_nonmonotonic_steps",
     solver_options.use_nonmonotonic_steps,
     tmp_descr
   );
 
   tmp_descr.description = "The window size used by the step selection algorithm to accept non-monotonic steps";
-  solver_options.max_consecutive_nonmonotonic_steps = node.declare_parameter(
+  solver_options.max_consecutive_nonmonotonic_steps = fuse_core::declareParam(
+    interfaces,
     "max_consecutive_nonmonotonic_steps",
     solver_options.max_consecutive_nonmonotonic_steps,
     tmp_descr
@@ -207,129 +238,154 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
 
 
   tmp_descr.description = "Maximum number of iterations for which the solver should run";
-  solver_options.max_num_iterations = node.declare_parameter(
+  solver_options.max_num_iterations = fuse_core::declareParam(
+    interfaces,
     "max_num_iterations",
     solver_options.max_num_iterations,
     tmp_descr
   );
 
   tmp_descr.description = "Maximum amount of time for which the solver should run";
-  solver_options.max_solver_time_in_seconds = node.declare_parameter(
+  solver_options.max_solver_time_in_seconds = fuse_core::declareParam(
+    interfaces,
     "max_solver_time_in_seconds",
     solver_options.max_solver_time_in_seconds,
     tmp_descr
   );
 
-
   tmp_descr.description = "Maximum number of iterations for which the solver should run";
-  solver_options.num_threads = node.declare_parameter(
+  solver_options.num_threads = fuse_core::declareParam(
+    interfaces,
     "num_threads",
     solver_options.num_threads,
     tmp_descr
   );
 
-
-  tmp_descr.description = "The size of the initial trust region. When the LEVENBERG_MARQUARDT strategy is used, the reciprocal of this number is the initial regularization parameter";
-  solver_options.initial_trust_region_radius = node.declare_parameter(
+  tmp_descr.description = (
+    "The size of the initial trust region. When the LEVENBERG_MARQUARDT strategy is used, the "
+    "reciprocal of this number is the initial regularization parameter");
+  solver_options.initial_trust_region_radius = fuse_core::declareParam(
+    interfaces,
     "initial_trust_region_radius",
     solver_options.initial_trust_region_radius,
     tmp_descr
   );
 
   tmp_descr.description = "The trust region radius is not allowed to grow beyond this value";
-  solver_options.max_trust_region_radius = node.declare_parameter(
+  solver_options.max_trust_region_radius = fuse_core::declareParam(
+    interfaces,
     "max_trust_region_radius",
     solver_options.max_trust_region_radius,
     tmp_descr
   );
 
-  tmp_descr.description = "The solver terminates when the trust region becomes smaller than this value";
-  solver_options.min_trust_region_radius = node.declare_parameter(
+  tmp_descr.description =
+    "The solver terminates when the trust region becomes smaller than this value";
+  solver_options.min_trust_region_radius = fuse_core::declareParam(
+    interfaces,
     "min_trust_region_radius",
     solver_options.min_trust_region_radius,
     tmp_descr
   );
 
-
-  tmp_descr.description = "Lower threshold for relative decrease before a trust-region step is accepted";
-  solver_options.min_relative_decrease = node.declare_parameter(
+  tmp_descr.description =
+    "Lower threshold for relative decrease before a trust-region step is accepted";
+  solver_options.min_relative_decrease = fuse_core::declareParam(
+    interfaces,
     "min_relative_decrease",
     solver_options.min_relative_decrease,
     tmp_descr
   );
 
-  tmp_descr.description = "The LEVENBERG_MARQUARDT strategy, uses a diagonal matrix to regularize the trust region step. This is the lower bound on the values of this diagonal matrix";
-  solver_options.min_lm_diagonal = node.declare_parameter(
+  tmp_descr.description = (
+    "The LEVENBERG_MARQUARDT strategy, uses a diagonal matrix to regularize the trust region step. "
+    "This is the lower bound on the values of this diagonal matrix");
+  solver_options.min_lm_diagonal = fuse_core::declareParam(
+    interfaces,
     "min_lm_diagonal",
     solver_options.min_lm_diagonal,
     tmp_descr
   );
 
-  tmp_descr.description = "The LEVENBERG_MARQUARDT strategy, uses a diagonal matrix to regularize the trust region step. This is the upper bound on the values of this diagonal matrix";
-  solver_options.max_lm_diagonal = node.declare_parameter(
+  tmp_descr.description = (
+    "The LEVENBERG_MARQUARDT strategy, uses a diagonal matrix to regularize the trust region step. "
+    "This is the upper bound on the values of this diagonal matrix");
+  solver_options.max_lm_diagonal = fuse_core::declareParam(
+    interfaces,
     "max_lm_diagonal",
     solver_options.max_lm_diagonal,
     tmp_descr
   );
 
-  tmp_descr.description = "The step returned by a trust region strategy can sometimes be numerically invalid, usually because of conditioning issues. Instead of crashing or stopping the optimization, the optimizer can go ahead and try solving with a smaller trust region/better conditioned problem. This parameter sets the number of consecutive retries before the minimizer gives up";
-  solver_options.max_num_consecutive_invalid_steps = node.declare_parameter(
+  tmp_descr.description = (
+    "The step returned by a trust region strategy can sometimes be numerically invalid, usually "
+    "because of conditioning issues. Instead of crashing or stopping the optimization, the "
+    "optimizer can go ahead and try solving with a smaller trust region/better conditioned problem."
+    " This parameter sets the number of consecutive retries before the minimizer gives up");
+  solver_options.max_num_consecutive_invalid_steps = fuse_core::declareParam(
+    interfaces,
     "max_num_consecutive_invalid_steps",
     solver_options.max_num_consecutive_invalid_steps,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.function_tolerance = node.declare_parameter(
+  solver_options.function_tolerance = fuse_core::declareParam(
+    interfaces,
     "function_tolerance",
     solver_options.function_tolerance,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.gradient_tolerance = node.declare_parameter(
+  solver_options.gradient_tolerance = fuse_core::declareParam(
+    interfaces,
     "gradient_tolerance",
     solver_options.gradient_tolerance,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.parameter_tolerance = node.declare_parameter(
+  solver_options.parameter_tolerance = fuse_core::declareParam(
+    interfaces,
     "parameter_tolerance",
     solver_options.parameter_tolerance,
     tmp_descr
   );
 
   solver_options.linear_solver_type =
-      fuse_core::getCeresParam(node, "linear_solver_type", solver_options.linear_solver_type);
+      fuse_core::declareCeresParam(interfaces, "linear_solver_type", solver_options.linear_solver_type);
   solver_options.preconditioner_type =
-      fuse_core::getCeresParam(node, "preconditioner_type", solver_options.preconditioner_type);
+      fuse_core::declareCeresParam(interfaces, "preconditioner_type", solver_options.preconditioner_type);
   solver_options.visibility_clustering_type =
-      fuse_core::getCeresParam(node, "visibility_clustering_type", solver_options.visibility_clustering_type);
+      fuse_core::declareCeresParam(interfaces, "visibility_clustering_type", solver_options.visibility_clustering_type);
   solver_options.dense_linear_algebra_library_type =
-      fuse_core::getCeresParam(node, "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
-  solver_options.sparse_linear_algebra_library_type = fuse_core::getCeresParam(
-      node, "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
+      fuse_core::declareCeresParam(interfaces, "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
+  solver_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
+      interfaces, "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
 
 
   tmp_descr.description = "";
-  solver_options.use_explicit_schur_complement = node.declare_parameter(
+  solver_options.use_explicit_schur_complement = fuse_core::declareParam(
+    interfaces,
     "use_explicit_schur_complement",
     solver_options.use_explicit_schur_complement,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.use_postordering = node.declare_parameter(
+  solver_options.use_postordering = fuse_core::declareParam(
+    interfaces,
     "use_postordering",
     solver_options.use_postordering,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.dynamic_sparsity = node.declare_parameter(
+  solver_options.dynamic_sparsity = fuse_core::declareParam(
+    interfaces,
     "dynamic_sparsity",
     solver_options.dynamic_sparsity,
     tmp_descr
@@ -338,14 +394,16 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
 #if CERES_VERSION_AT_LEAST(2, 0, 0)
 
   tmp_descr.description = "";
-  solver_options.use_mixed_precision_solves = node.declare_parameter(
+  solver_options.use_mixed_precision_solves = fuse_core::declareParam(
+    interfaces,
     "use_mixed_precision_solves",
     solver_options.use_mixed_precision_solves,
     tmp_descr
   );
 
   tmp_descr.description = "";
-  solver_options.max_num_refinement_iterations = node.declare_parameter(
+  solver_options.max_num_refinement_iterations = fuse_core::declareParam(
+    interfaces,
     "max_num_refinement_iterations",
     solver_options.max_num_refinement_iterations,
     tmp_descr
@@ -354,7 +412,8 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
 
 
   tmp_descr.description = "";
-  solver_options.use_inner_iterations = node.declare_parameter(
+  solver_options.use_inner_iterations = fuse_core::declareParam(
+    interfaces,
     "use_inner_iterations",
     solver_options.use_inner_iterations,
     tmp_descr
@@ -364,28 +423,32 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
 
 
   tmp_descr.description = "";
-  solver_options.inner_iteration_tolerance = node.declare_parameter(
+  solver_options.inner_iteration_tolerance = fuse_core::declareParam(
+    interfaces,
     "inner_iteration_tolerance",
     solver_options.inner_iteration_tolerance,
     tmp_descr
   );
 
   tmp_descr.description = "Minimum number of iterations used by the linear iterative solver";
-  solver_options.min_linear_solver_iterations = node.declare_parameter(
+  solver_options.min_linear_solver_iterations = fuse_core::declareParam(
+    interfaces,
     "min_linear_solver_iterations",
     solver_options.min_linear_solver_iterations,
     tmp_descr
   );
 
   tmp_descr.description = "Maximum number of iterations used by the linear iterative solver";
-  solver_options.max_linear_solver_iterations = node.declare_parameter(
+  solver_options.max_linear_solver_iterations = fuse_core::declareParam(
+    interfaces,
     "max_linear_solver_iterations",
     solver_options.max_linear_solver_iterations,
     tmp_descr
   );
 
   tmp_descr.description = "Forcing sequence parameter. The truncated Newton solver uses this number to control the relative accuracy with which the Newton step is computed";
-  solver_options.eta = node.declare_parameter(
+  solver_options.eta = fuse_core::declareParam(
+    interfaces,
     "eta",
     solver_options.eta,
     tmp_descr
@@ -393,24 +456,29 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
 
 
   tmp_descr.description = "true means that the Jacobian is scaled by the norm of its columns before being passed to the linear solver. This improves the numerical conditioning of the normal equations";
-  solver_options.jacobi_scaling = node.declare_parameter(
+  solver_options.jacobi_scaling = fuse_core::declareParam(
+    interfaces,
     "jacobi_scaling",
     solver_options.jacobi_scaling,
     tmp_descr
   );
 
   // Logging options
-  solver_options.logging_type = fuse_core::getCeresParam(node, "logging_type", solver_options.logging_type);
+  solver_options.logging_type = fuse_core::declareCeresParam(interfaces, "logging_type", solver_options.logging_type);
 
   tmp_descr.description = "";
-  solver_options.minimizer_progress_to_stdout = node.declare_parameter(
+  solver_options.minimizer_progress_to_stdout = fuse_core::declareParam(
+    interfaces,
     "minimizer_progress_to_stdout",
     solver_options.minimizer_progress_to_stdout,
     tmp_descr
   );
-  node.declare_parameter("trust_region_minimizer_iterations_to_dump", rclcpp::PARAMETER_INTEGER_ARRAY);
-  std::vector<int64_t> iterations_to_dump_tmp;
-  if (node.get_parameter("trust_region_minimizer_iterations_to_dump", iterations_to_dump_tmp)) {
+  fuse_core::declareParam<std::vector<int64_t>>(
+    interfaces, "trust_region_minimizer_iterations_to_dump");
+  std::vector<int64_t> iterations_to_dump_tmp = interfaces.get_node_parameters_interface()
+    ->get_parameter("trust_region_minimizer_iterations_to_dump")
+    .get_value<std::vector<int64_t>>();
+  if (!iterations_to_dump_tmp.empty()) {
     solver_options.trust_region_minimizer_iterations_to_dump.reserve(iterations_to_dump_tmp.size());
     std::transform(
       iterations_to_dump_tmp.begin(),
@@ -420,35 +488,40 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
   }
 
   tmp_descr.description = "";
-  solver_options.trust_region_problem_dump_directory = node.declare_parameter(
+  solver_options.trust_region_problem_dump_directory = fuse_core::declareParam(
+    interfaces,
     "trust_region_problem_dump_directory",
     solver_options.trust_region_problem_dump_directory,
     tmp_descr
   );
-  solver_options.trust_region_problem_dump_format_type = fuse_core::getCeresParam(
-      node, "trust_region_problem_dump_format_type", solver_options.trust_region_problem_dump_format_type);
+  solver_options.trust_region_problem_dump_format_type = fuse_core::declareCeresParam(
+      interfaces, "trust_region_problem_dump_format_type", solver_options.trust_region_problem_dump_format_type);
 
   // Finite differences options
   tmp_descr.description = "Check all Jacobians computed by each residual block with finite differences, abort if numeric and analytic gradients differ substantially)";
-  solver_options.check_gradients = node.declare_parameter(
+  solver_options.check_gradients = fuse_core::declareParam(
+    interfaces,
     "check_gradients",
     solver_options.check_gradients,
     tmp_descr
   );
   tmp_descr.description = "Precision to check for in the gradient checker. If the relative difference between an element in a Jacobian exceeds this number, then the Jacobian for that cost term is dumped";
-  solver_options.gradient_check_relative_precision = node.declare_parameter(
+  solver_options.gradient_check_relative_precision = fuse_core::declareParam(
+    interfaces,
     "gradient_check_relative_precision",
     solver_options.gradient_check_relative_precision,
     tmp_descr
   );
   tmp_descr.description = "";
-  solver_options.gradient_check_numeric_derivative_relative_step_size = node.declare_parameter(
+  solver_options.gradient_check_numeric_derivative_relative_step_size = fuse_core::declareParam(
+    interfaces,
     "gradient_check_numeric_derivative_relative_step_size",
     solver_options.gradient_check_numeric_derivative_relative_step_size,
     tmp_descr
   );
   tmp_descr.description = "If update_state_every_iteration is true, then Ceres Solver will guarantee that at the end of every iteration and before any user IterationCallback is called, the parameter blocks are updated to the current best solution found by the solver. Thus the IterationCallback can inspect the values of the parameter blocks for purposes of computation, visualization or termination";
-  solver_options.update_state_every_iteration = node.declare_parameter(
+  solver_options.update_state_every_iteration = fuse_core::declareParam(
+    interfaces,
     "update_state_every_iteration",
     solver_options.update_state_every_iteration,
     tmp_descr
@@ -457,7 +530,10 @@ void loadSolverOptionsFromROS(rclcpp::Node& node, ceres::Solver::Options& solver
   std::string error;
   if (!solver_options.IsValid(&error))
   {
-    throw std::invalid_argument("Invalid solver options in parameter " + std::string(node.get_namespace()) + ". Error: " + error);
+    throw std::invalid_argument(
+      "Invalid solver options in parameter "
+      + std::string(interfaces.get_node_base_interface()->get_namespace())
+      + ". Error: " + error);
   }
 }
 

@@ -142,7 +142,6 @@ protected:
   std::string name_;  //!< The unique name for this publisher instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this publisher
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
-  rclcpp::node_interfaces::NodeWaitablesInterface::SharedPtr waitables_interface_;
   size_t executor_thread_count_;
 
   /**

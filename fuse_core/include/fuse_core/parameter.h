@@ -36,11 +36,11 @@
 
 #include <fuse_core/eigen.h>
 #include <fuse_core/loss_loader.h>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 
-// #include <ros/node_handle.h>
-#include <rclcpp/node.hpp>
-#include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
+#include "rclcpp/parameter.hpp"
+
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -48,56 +48,101 @@
 namespace fuse_core
 {
 
-/**
- * @brief Compatibility wrapper for ros2 params in ros1 syntax
- *
- * @param[in] node - The node used to load the parameter
- * @param[in] parameter_name - The ROS parameter name
- * @param[out] default_value - The default value for this parameter
- * @throws if the parameter has already been declared
- */
-template <class T>
-T getParam(rclcpp::Node& node, const std::string& parameter_name, const T& default_value){
-  T value = node.declare_parameter(parameter_name, default_value);
-  return value;
-}
-
+// NOTE(CH3): Some of these basically mimic the behavior from rclcpp's node.hpp, but for interfaces
 
 /**
  * @brief Compatibility wrapper for ros2 params in ros1 syntax
  *
- * @param[in] node - The node pointer used to load the parameter
+ * This is needed because the node parameters interface does not do the type conversions to and
+ * from ParameterValue for us.
+ *
+ * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The ROS parameter name
  * @param[out] default_value - The default value for this parameter
+ * @param[in] parameter_descriptor - An optional, custom description for the parameter.
+ * @param[in] When `true`, the parameter override is ignored. Default to `false`.
+ * \return The value of the parameter.
  * @throws if the parameter has already been declared
  */
 template <class T>
-T getParam(rclcpp::Node::SharedPtr node, const std::string& parameter_name, const T& default_value){
-  T value = node->declare_parameter(parameter_name, default_value);
-  return value;
+T declareParam(
+  node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
+  const std::string& parameter_name,
+  const T& default_value,
+  const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
+  rcl_interfaces::msg::ParameterDescriptor(),
+  bool ignore_override = false)
+{
+  try {
+    return interfaces.get_node_parameters_interface()->declare_parameter(
+      parameter_name, rclcpp::ParameterValue(default_value), parameter_descriptor, ignore_override
+    ).get<T>();
+  } catch (const rclcpp::ParameterTypeException & ex) {
+    throw rclcpp::exceptions::InvalidParameterTypeException(parameter_name, ex.what());
+  }
 }
 
+/**
+ * @brief Compatibility wrapper for ros2 params in ros1 syntax
+ *
+ * This is needed because the node parameters interface does not do the type conversions to and
+ * from ParameterValue for us.
+ *
+ * @param[in] interfaces - The node interfaces used to load the parameter
+ * @param[in] parameter_name - The ROS parameter name
+ * @param[in] parameter_descriptor - An optional, custom description for the parameter.
+ * @param[in] When `true`, the parameter override is ignored. Default to `false`.
+ * \return The value of the parameter.
+ * @throws if the parameter has already been declared
+ */
+template <class T>
+T declareParam(
+  node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
+  const std::string& parameter_name,
+  const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
+  rcl_interfaces::msg::ParameterDescriptor(),
+  bool ignore_override = false)
+{
+  // get advantage of parameter value template magic to get
+  // the correct rclcpp::ParameterType from T
+  rclcpp::ParameterValue value{T{}};
+  try {
+    return interfaces.get_node_parameters_interface()->declare_parameter(
+      parameter_name, value.get_type(), parameter_descriptor, ignore_override
+    ).get<T>();
+  } catch (const rclcpp::ParameterTypeException & ex) {
+    throw rclcpp::exceptions::InvalidParameterTypeException(parameter_name, ex.what());
+  }
+}
 
 /**
  * @brief Utility method for handling required ROS params
  *
- * @param[in] node - The node used to load the parameter
+ * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] key - The ROS parameter key for the required parameter
  * @param[out] value - The ROS parameter value for the \p key
  * @throws std::runtime_error if the parameter does not exist
  */
 inline
-void getParamRequired(
-  rclcpp::Node& node,
+void declareParamRequired(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
   const std::string& key,
   std::string& value
 ){
   std::string default_value = "";
-  value = getParam(node, key, default_value);
+  value = declareParam(interfaces, key, default_value);
+
   if (value == default_value)
   {
-    const std::string error = "Could not find required parameter " + key + " in namespace " + node.get_namespace();
-    RCLCPP_FATAL_STREAM(node.get_logger(), error);
+    const std::string error =
+      "Could not find required parameter " + key + " in namespace "
+      + interfaces.get_node_base_interface()->get_namespace();
+
+    RCLCPP_FATAL_STREAM(interfaces.get_node_logging_interface()->get_logger(), error);
     throw std::runtime_error(error);
   }
 }
@@ -105,7 +150,7 @@ void getParamRequired(
 /**
  * @brief Helper function that loads positive integral or floating point values from the parameter server
  *
- * @param[in] node - The rclcpp node used to load the parameter
+ * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not exist. As output it
  *                                 has the loaded (or default) value
@@ -113,17 +158,21 @@ void getParamRequired(
  */
 template <typename T,
           typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
-void getPositiveParam(
-  rclcpp::Node& node,
+void declarePositiveParam(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
   const std::string& parameter_name,
   T& default_value,
   const bool strict = true
 ){
-  T value = getParam(node, parameter_name, default_value);
+  T value = declareParam(interfaces, parameter_name, default_value);
   if (value < 0 || (strict && value == 0))
   {
-    RCLCPP_WARN_STREAM(node.get_logger(), "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "") <<
-                    " 0. Using the default value (" << default_value << ") instead.");
+    RCLCPP_WARN_STREAM(interfaces.get_node_logging_interface()->get_logger(),
+                       "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "")
+                       << " 0. Using the default value (" << default_value << ") instead.");
   }
   else
   {
@@ -140,11 +189,16 @@ void getPositiveParam(
  *                                 has the loaded (or default) value
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  */
-inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::string& parameter_name,
-                             rclcpp::Duration& default_value, const bool strict = true)
+inline void declarePositiveParam(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
+  const std::string& parameter_name,
+  rclcpp::Duration& default_value, const bool strict = true)
 {
   double default_value_sec = default_value.seconds();
-  getPositiveParam(node_handle, parameter_name, default_value_sec, strict);
+  declarePositiveParam(interfaces, parameter_name, default_value_sec, strict);
   default_value = rclcpp::Duration::from_seconds(default_value_sec);
 }
 
@@ -155,7 +209,7 @@ inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::stri
  * @tparam Scalar - A scalar type, defaults to double
  * @tparam Size - An int size that specifies the expected size of the covariance matrix (rows and columns)
  *
- * @param[in] node - The rclcpp node used to load the parameter
+ * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in] default_value - A default value to use for all the diagonal elements if the provided parameter name does
  *                            not exist
@@ -163,14 +217,17 @@ inline void getPositiveParam(const ros::NodeHandle& node_handle, const std::stri
  */
 template <int Size, typename Scalar = double>
 fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
-  rclcpp::Node& node,
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
   const std::string& parameter_name,
   Scalar default_value
 ){
   using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
 
   std::vector<Scalar> diagonal(Size, default_value);
-  diagonal = getParam(node, parameter_name, diagonal);
+  diagonal = declareParam(interfaces, parameter_name, diagonal);
 
   const auto diagonal_size = diagonal.size();
   if (diagonal_size != Size)
@@ -191,20 +248,23 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
 /**
  * @brief Utility method to load a loss configuration
  *
- * @param[in] node - The rclcpp node used to load the parameter
+ * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] name - The ROS parameter name for the loss configuration parameter
  * @return Loss function or nullptr if the parameter does not exist
  */
 inline fuse_core::Loss::SharedPtr loadLossConfig(
-  rclcpp::Node& node,
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
   const std::string& name
 ){
-
   std::string loss_type;
-  getParamRequired(node, name + "/type", loss_type);
+  declareParamRequired(interfaces, name + "/type", loss_type);
 
   auto loss = fuse_core::createUniqueLoss(loss_type);
-  loss->initialize(node.get_fully_qualified_name());
+  loss->initialize(interfaces.get_node_base_interface()->get_fully_qualified_name());
 
   return loss;
 }

@@ -32,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/util.h>
-#include <ros/ros.h>
 
 #include <gtest/gtest.h>
 

@@ -39,7 +39,7 @@
 #include <numeric>
 #include <string>
 
-TEST(Parameter, GetPositiveParam)
+TEST(Parameter, DeclarePositiveParam)
 {
   // Load parameters enforcing they are positive:
   const double default_value{ 1.0 };
@@ -49,28 +49,29 @@ TEST(Parameter, GetPositiveParam)
   // Load a positive parameter:
   {
     double parameter{ default_value };
-    fuse_core::getPositiveParam(node_handle, "positive_parameter", parameter);
+    fuse_core::declarePositiveParam(node_handle, "positive_parameter", parameter);
+    fuse_core::declarePositiveParam(node_handle, "positive_parameter", parameter);
     EXPECT_EQ(3.0, parameter);
   }
 
   // Load a negative parameter:
   {
     double parameter{ default_value };
-    fuse_core::getPositiveParam(node_handle, "negative_parameter", parameter);
+    fuse_core::declarePositiveParam(node_handle, "negative_parameter", parameter);
     EXPECT_EQ(default_value, parameter);
   }
 
   // Load a zero parameter:
   {
     double parameter{ default_value };
-    fuse_core::getPositiveParam(node_handle, "zero_parameter", parameter);
+    fuse_core::declarePositiveParam(node_handle, "zero_parameter", parameter);
     EXPECT_EQ(default_value, parameter);
   }
 
   // Load a zero parameter allowing zero (not strict):
   {
     double parameter{ default_value };
-    fuse_core::getPositiveParam(node_handle, "zero_parameter", parameter, false);
+    fuse_core::declarePositiveParam(node_handle, "zero_parameter", parameter, false);
     EXPECT_EQ(0.0, parameter);
   }
 }
