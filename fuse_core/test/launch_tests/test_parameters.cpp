@@ -32,51 +32,81 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/parameter.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
 #include <numeric>
 #include <string>
 
-TEST(Parameter, DeclarePositiveParam)
+class TestParameters : public ::testing::Test
+{
+public:
+  void SetUp() override
+  {
+    exec_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+
+    spinning_ = true;
+    spinner_ = std::thread([&](){
+      auto context = rclcpp::contexts::get_global_default_context();
+      while(context->is_valid() && spinning_) {
+        exec_->spin_some();
+      }
+    });
+  }
+
+  void TearDown() override
+  {
+    spinning_ = false;
+    if (spinner_.joinable()) {
+      spinner_.join();
+    }
+
+    exec_.reset();
+  }
+
+  std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr exec_;
+};
+
+TEST_F(TestParameters, getPositiveParam)
 {
   // Load parameters enforcing they are positive:
   const double default_value{ 1.0 };
 
-  ros::NodeHandle node_handle;
+  auto node = rclcpp::Node::make_shared("test_parameters_node");
 
   // Load a positive parameter:
   {
     double parameter{ default_value };
-    fuse_core::declarePositiveParam(node_handle, "positive_parameter", parameter);
-    fuse_core::declarePositiveParam(node_handle, "positive_parameter", parameter);
+    fuse_core::getPositiveParam(node, "positive_parameter", parameter);
     EXPECT_EQ(3.0, parameter);
   }
 
   // Load a negative parameter:
   {
     double parameter{ default_value };
-    fuse_core::declarePositiveParam(node_handle, "negative_parameter", parameter);
+    fuse_core::getPositiveParam(node, "negative_parameter", parameter);
     EXPECT_EQ(default_value, parameter);
   }
 
   // Load a zero parameter:
   {
     double parameter{ default_value };
-    fuse_core::declarePositiveParam(node_handle, "zero_parameter", parameter);
+    fuse_core::getPositiveParam(node, "zero_parameter", parameter);
     EXPECT_EQ(default_value, parameter);
   }
 
   // Load a zero parameter allowing zero (not strict):
   {
     double parameter{ default_value };
-    fuse_core::declarePositiveParam(node_handle, "zero_parameter", parameter, false);
+    fuse_core::getPositiveParam(node, "zero_parameter", parameter, false);
     EXPECT_EQ(0.0, parameter);
   }
 }
 
-TEST(Parameter, GetCovarianceDiagonalParam)
+TEST_F(TestParameters, GetCovarianceDiagonalParam)
 {
   // Build expected covariance matrix:
   constexpr int Size = 3;
@@ -90,18 +120,18 @@ TEST(Parameter, GetCovarianceDiagonalParam)
   default_covariance *= default_variance;
 
   // Load covariance matrix diagonal from the parameter server:
-  ros::NodeHandle node_handle;
+  auto node = rclcpp::Node::make_shared("test_parameters_node");
 
   // A covariance diagonal with the expected size and valid should be the same as the expected one:
   {
     const std::string parameter_name{ "covariance_diagonal" };
 
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
 
     try
     {
       const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
+        fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -112,7 +142,7 @@ TEST(Parameter, GetCovarianceDiagonalParam)
     }
     catch (const std::exception& ex)
     {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
+      FAIL() << "Failed to get " << parameter_name.c_str() << ": " << ex.what();
     }
   }
 
@@ -120,12 +150,12 @@ TEST(Parameter, GetCovarianceDiagonalParam)
   {
     const std::string parameter_name{ "non_existent_parameter" };
 
-    ASSERT_FALSE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
 
     try
     {
       const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
+          fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -136,7 +166,7 @@ TEST(Parameter, GetCovarianceDiagonalParam)
     }
     catch (const std::exception& ex)
     {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
+      FAIL() << "Failed to get " << parameter_name.c_str() << ": " << ex.what();
     }
   }
 
@@ -144,9 +174,9 @@ TEST(Parameter, GetCovarianceDiagonalParam)
   {
     const std::string parameter_name{ "covariance_diagonal_with_negative_values" };
 
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
 
-    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
                  std::invalid_argument);
   }
 
@@ -154,9 +184,9 @@ TEST(Parameter, GetCovarianceDiagonalParam)
   {
     const std::string parameter_name{ "covariance_diagonal_with_size_2" };
 
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
 
-    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
                  std::invalid_argument);
   }
 
@@ -164,72 +194,82 @@ TEST(Parameter, GetCovarianceDiagonalParam)
   {
     const std::string parameter_name{ "covariance_diagonal_with_size_4" };
 
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
 
-    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance),
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
                  std::invalid_argument);
   }
 
-  // A covariance diagonal with invalid element type does not throw, but nothing it is loaded, so we should get the
-  // default covariance:
+
+  // A covariance diagonal with an invalid element should throw rclcpp::exceptions::InvalidParameterTypeException:
   {
     const std::string parameter_name{ "covariance_diagonal_with_strings" };
 
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+                 rclcpp::exceptions::InvalidParameterTypeException);
 
-    try
-    {
-      const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
-
-      EXPECT_EQ(Size, covariance.rows());
-      EXPECT_EQ(Size, covariance.cols());
-
-      EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
-                default_covariance.cwiseEqual(covariance).count())
-          << "Expected\n" << default_covariance << "\nActual\n" << covariance;
-    }
-    catch (const std::exception& ex)
-    {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
-    }
+    // NOTE(CH3): This test used to work this way, but doesn't anymore because of strongly typed
+    //            params in ROS2
+    //
+    // A covariance diagonal with invalid element type does not throw, but nothing it is loaded, so we should get the
+    // default covariance:
+    // try
+    // {
+    //   const auto covariance =
+    //       fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance);
+    //
+    //   EXPECT_EQ(Size, covariance.rows());
+    //   EXPECT_EQ(Size, covariance.cols());
+    //
+    //   EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
+    //             default_covariance.cwiseEqual(covariance).count())
+    //       << "Expected\n" << default_covariance << "\nActual\n" << covariance;
+    // }
+    // catch (const std::exception& ex)
+    // {
+    //   FAIL() << "Failed to get " << parameter_name.c_str() << ": " << ex.what();
+    // }
   }
 
-  // A covariance diagonal with invalid element type does not throw, but nothing it is loaded, so we should get the
-  // default covariance:
+  // A covariance diagonal with an invalid element should throw rclcpp::exceptions::InvalidParameterTypeException:
   {
     const std::string parameter_name{ "covariance_diagonal_with_string" };
 
-    ASSERT_TRUE(node_handle.hasParam(parameter_name));
+    ASSERT_FALSE(node->has_parameter(parameter_name));
+    EXPECT_THROW(fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+                 rclcpp::exceptions::InvalidParameterTypeException);
 
-    try
-    {
-      const auto covariance =
-          fuse_core::getCovarianceDiagonalParam<Size>(node_handle, parameter_name, default_variance);
-
-      EXPECT_EQ(Size, covariance.rows());
-      EXPECT_EQ(Size, covariance.cols());
-
-      EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
-                default_covariance.cwiseEqual(covariance).count())
-          << "Expected\n" << default_covariance << "\nActual\n" << covariance;
-    }
-    catch (const std::exception& ex)
-    {
-      FAIL() << "Failed to get " << node_handle.resolveName(parameter_name) << ": " << ex.what();
-    }
+    // NOTE(CH3): This test used to work this way, but doesn't anymore because of strongly typed
+    //            params in ROS2
+    //
+    // A covariance diagonal with invalid element type does not throw, but nothing it is loaded, so we should get the
+    // default covariance:
+    // try
+    // {
+    //   const auto covariance =
+    //       fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance);
+    //
+    //   EXPECT_EQ(Size, covariance.rows());
+    //   EXPECT_EQ(Size, covariance.cols());
+    //
+    //   EXPECT_EQ(default_covariance.rows() * default_covariance.cols(),
+    //             default_covariance.cwiseEqual(covariance).count())
+    //       << "Expected\n" << default_covariance << "\nActual\n" << covariance;
+    // }
+    // catch (const std::exception& ex)
+    // {
+    //   FAIL() << "Failed to get " << parameter_name.c_str() << ": " << ex.what();
+    // }
   }
 }
 
 int main(int argc, char** argv)
 {
+  rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "parameter_test");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
   int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
+  rclcpp::shutdown();
+
   return ret;
 }

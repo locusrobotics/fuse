@@ -32,19 +32,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/throttled_callback.h>
-#include <geometry_msgs/Point.h>
-#include <ros/ros.h>
+#include <fuse_core/time.h>
+#include <geometry_msgs/msg/point.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
+#include <atomic>
 
 /**
- * @brief A helper class to publish a given number geometry_msgs::Point messages at a given frequency.
+ * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given frequency.
  *
- * The messages published are geometry_msgs::Point because it is simple. The 'x' field is set to the number of messages
+ * The messages published are geometry_msgs::msg::Point because it is simple. The 'x' field is set to the number of messages
  * published so far, starting at 0.
  */
-class PointPublisher
+class PointPublisher : public rclcpp::Node
 {
 public:
   /**
@@ -53,9 +55,20 @@ public:
    * @param[in] frequency The publishing frequency in Hz
    */
   explicit PointPublisher(const double frequency)
-    : frequency_(frequency)
+    : Node("point_publisher_node")
+    , frequency_(frequency)
   {
-    publisher_ = node_handle_.advertise<geometry_msgs::Point>("point", 1);
+    publisher_ = this->create_publisher<geometry_msgs::msg::Point>("point", 1);
+  }
+
+  /**
+   * @brief Get the internal node pointer
+   *
+   * @return the node pointer
+   */
+  rclcpp::Node::SharedPtr getNode()
+  {
+    return shared_from_this();
   }
 
   /**
@@ -65,43 +78,41 @@ public:
    */
   void publish(const size_t num_messages)
   {
-    // Wait for the subscribers to be ready before sending them data:
-    rclcpp::Time subscriber_timeout = this->node_->now() + rclcpp::Duration::from_seconds(1.0);
-    while (publisher_.getNumSubscribers() < 1u && this->node_->now() < subscriber_timeout)
+    // Wait for the subscriptions to be ready before sending them data:
+    rclcpp::Time subscription_timeout = this->now() + rclcpp::Duration::from_seconds(1.0);
+    while (publisher_->get_subscription_count() < 1u && this->now() < subscription_timeout)
     {
-      rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.01);
+      rclcpp::sleep_for(std::chrono::milliseconds(10));
     }
 
-    ASSERT_GE(publisher_.getNumSubscribers(), 1u);
+    ASSERT_GE(publisher_->get_subscription_count(), 1u);
 
     // Send data:
-    ros::Rate rate(frequency_);
+    rclcpp::Rate rate(frequency_);
     for (size_t i = 0; i < num_messages; ++i)
     {
-      geometry_msgs::Point point_message;
+      geometry_msgs::msg::Point point_message;
       point_message.x = i;
 
-      publisher_.publish(point_message);
+      publisher_->publish(point_message);
 
       rate.sleep();
     }
   }
 
 private:
-  // TODO(CH3): Make this an rclcpp node. It's a test, we don't need the node interfaces.
-  ros::NodeHandle node_handle_;  //!< The node handle
-  ros::Publisher publisher_;     //!< The publisher
+  rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr publisher_;     //!< The publisher
   double frequency_{ 10.0 };     //!< The publish rate frequency
 };
 
 /**
- * @brief A dummy point sensor model that uses a fuse_core::ThrottledMessageCallback<geometry_msgs::Point> with a keep
+ * @brief A dummy point sensor model that uses a fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point> with a keep
  * and drop callback.
  *
  * The callbacks simply count the number of times they are called, for testing purposes. The keep callback also caches
  * the last message received, also for testing purposes.
  */
-class PointSensorModel
+class PointSensorModel : public rclcpp::Node
 {
 public:
   /**
@@ -110,11 +121,33 @@ public:
    * @param[in] throttle_period The throttle period duration in seconds
    */
   explicit PointSensorModel(const rclcpp::Duration& throttle_period)
-    : throttled_callback_(std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
-                          std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1), throttle_period)
+    : Node("point_sensor_model_node")
+    , throttled_callback_(
+        std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
+        std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1),
+        throttle_period,
+        false,
+        std::make_shared<
+          fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Clock>
+        >(*this)
+      )
   {
-    subscriber_ = node_handle_.subscribe<geometry_msgs::Point>(
-        "point", 10, &PointThrottledCallback::callback, &throttled_callback_);
+    subscription_ = this->create_subscription<geometry_msgs::msg::Point>(
+      "point", 10,
+      [&](const geometry_msgs::msg::Point::ConstSharedPtr& msg) {
+        this->throttled_callback_.callback(msg);
+      }
+    );
+  }
+
+  /**
+   * @brief Get the internal node pointer
+   *
+   * @return the node pointer
+   */
+  rclcpp::Node::SharedPtr getNode()
+  {
+    return shared_from_this();
   }
 
   /**
@@ -142,7 +175,7 @@ public:
    *
    * @return The last message kept. It would be nullptr if no message has been kept so far
    */
-  const geometry_msgs::Point::ConstPtr getLastKeptMessage() const
+  const geometry_msgs::msg::Point::ConstSharedPtr getLastKeptMessage() const
   {
     return last_kept_message_;
   }
@@ -151,9 +184,9 @@ private:
   /**
    * @brief Keep callback, that counts the number of times it has been called and caches the last message received
    *
-   * @param[in] msg A geometry_msgs::Point message
+   * @param[in] msg A geometry_msgs::msg::Point message
    */
-  void keepCallback(const geometry_msgs::Point::ConstPtr& msg)
+  void keepCallback(const geometry_msgs::msg::Point::ConstSharedPtr& msg)
   {
     ++kept_messages_;
     last_kept_message_ = msg;
@@ -162,56 +195,93 @@ private:
   /**
    * @brief Drop callback, that counts the number of times it has been called
    *
-   * @param[in] msg A geometry_msgs::Point message (not used)
+   * @param[in] msg A geometry_msgs::msg::Point message (not used)
    */
-  void dropCallback(const geometry_msgs::Point::ConstPtr& /*msg*/)
+  // NOTE(CH3): The ConstSharedPtr here is necessary to allow binding the throttled callback
+  void dropCallback(const geometry_msgs::msg::Point::ConstSharedPtr& /*msg*/)
   {
     ++dropped_messages_;
   }
 
-  ros::NodeHandle node_handle_;  //!< The node handle
-  ros::Subscriber subscriber_;   //!< The subscriber
+  rclcpp::Subscription<geometry_msgs::msg::Point>::SharedPtr subscription_;   //!< The subscription
 
-  using PointThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::Point>;
+  using PointThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point>;
   PointThrottledCallback throttled_callback_;  //!< The throttled callback
 
   size_t kept_messages_{ 0 };                         //!< Messages kept
   size_t dropped_messages_{ 0 };                      //!< Messages dropped
-  geometry_msgs::Point::ConstPtr last_kept_message_;  //!< The last message kept
+  geometry_msgs::msg::Point::ConstSharedPtr last_kept_message_;  //!< The last message kept
 };
 
-
-TEST(ThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
+class TestThrottledCallback : public ::testing::Test
 {
-  // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
-  // TODO(CH3): Refactor this with a passed in node
-  // ASSERT_TRUE(fuse_core::wait_for_valid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
+public:
+  void SetUp() override
+  {
+    rclcpp::init(0, nullptr);
+    exec_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+
+    spinning_ = true;
+    spinner_ = std::thread([&](){
+      auto context = rclcpp::contexts::get_global_default_context();
+      while(context->is_valid() && spinning_) {
+        exec_->spin_some();
+      }
+    });
+  }
+
+  void TearDown() override
+  {
+    spinning_ = false;
+    rclcpp::shutdown();
+    if (spinner_.joinable()) {
+      spinner_.join();
+    }
+
+    exec_.reset();
+  }
+
+  std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr exec_;
+};
+
+TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
+{
+  rclcpp::executors::SingleThreadedExecutor exec;
 
   // Start sensor model to listen to messages:
-  const rclcpp::Duration throttled_period(0.0);
-  PointSensorModel sensor_model(throttled_period);
+  const rclcpp::Duration throttled_period(0, 0);
+  auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
+  exec_->add_node(sensor_model);
+
+  // Time should be valid after the context is initialized. But it doesn't hurt to verify.
+  ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
+                                        rclcpp::Duration::from_seconds(1.0)));
 
   // Publish some messages:
   const size_t num_messages = 10;
   const double frequency = 10.0;
 
-  PointPublisher publisher(frequency);
-  publisher.publish(num_messages);
+  auto publisher = std::make_shared<PointPublisher>(frequency);
+  exec_->add_node(publisher);
+  publisher->publish(num_messages);
 
   // Check all messages are kept and none are dropped, because when the throttle period is zero, throttling is disabled:
-  EXPECT_EQ(num_messages, sensor_model.getKeptMessages());
-  EXPECT_EQ(0u, sensor_model.getDroppedMessages());
+  EXPECT_EQ(num_messages, sensor_model->getKeptMessages());
+  EXPECT_EQ(0u, sensor_model->getDroppedMessages());
 }
 
-TEST(ThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
+TEST_F(TestThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
 {
-  // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
-  // TODO(CH3): Refactor this with a passed in node
-  // ASSERT_TRUE(fuse_core::wait_for_valid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
-
   // Start sensor model to listen to messages:
-  const rclcpp::Duration throttled_period(0.2);
-  PointSensorModel sensor_model(throttled_period);
+  const rclcpp::Duration throttled_period(0, RCUTILS_S_TO_NS(0.2));
+  auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
+  exec_->add_node(sensor_model);
+
+  // Time should be valid after the context is initialized. But it doesn't hurt to verify.
+  ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
+                                        rclcpp::Duration::from_seconds(1.0)));
 
   // Publish some messages at half the throttled period:
   const size_t num_messages = 10;
@@ -219,43 +289,46 @@ TEST(ThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
   const double period = period_factor * throttled_period.seconds();
   const double frequency = 1.0 / period;
 
-  PointPublisher publisher(frequency);
-  publisher.publish(num_messages);
+  auto publisher = std::make_shared<PointPublisher>(frequency);
+  exec_->add_node(publisher);
+  publisher->publish(num_messages);
 
   // Check the number of kept and dropped callbacks:
   const auto expected_kept_messages = period_factor * num_messages;
   const auto expected_dropped_messages = num_messages - expected_kept_messages;
 
-  EXPECT_NEAR(expected_kept_messages, sensor_model.getKeptMessages(), 1.0);
-  EXPECT_NEAR(expected_dropped_messages, sensor_model.getDroppedMessages(), 1.0);
+  EXPECT_NEAR(expected_kept_messages, sensor_model->getKeptMessages(), 1.0);
+  EXPECT_NEAR(expected_dropped_messages, sensor_model->getDroppedMessages(), 1.0);
 }
 
-TEST(ThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLarge)
+TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLarge)
 {
-  // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
-  // TODO(CH3): Refactor this with a passed in node
-  // ASSERT_TRUE(fuse_core::wait_for_valid(<NODE_HERE>->get_clock(), rclcpp::Duration::from_seconds(1.0)));
-
   // Start sensor model to listen to messages:
-  const rclcpp::Duration throttled_period(10.0);
-  PointSensorModel sensor_model(throttled_period);
+  const rclcpp::Duration throttled_period(10, 0);
+  auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
+  exec_->add_node(sensor_model);
 
-  ASSERT_EQ(nullptr, sensor_model.getLastKeptMessage());
+  // Time should be valid after the context is initialized. But it doesn't hurt to verify.
+  ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
+                                        rclcpp::Duration::from_seconds(1.0)));
+
+  ASSERT_EQ(nullptr, sensor_model->getLastKeptMessage());
 
   // Publish some messages:
   const size_t num_messages = 10;
   const double period = 0.1 * num_messages / throttled_period.seconds();
   const double frequency = 1.0 / period;
 
-  PointPublisher publisher(frequency);
-  publisher.publish(num_messages);
+  auto publisher = std::make_shared<PointPublisher>(frequency);
+  publisher->publish(num_messages);
+  exec_->add_node(publisher);
 
   // Check that regardless of the large throttled period, at least one message is ketpt:
-  EXPECT_EQ(1u, sensor_model.getKeptMessages());
-  EXPECT_EQ(num_messages - 1u, sensor_model.getDroppedMessages());
+  EXPECT_EQ(1u, sensor_model->getKeptMessages());
+  EXPECT_EQ(num_messages - 1u, sensor_model->getDroppedMessages());
 
   // Check the message kept was the first message:
-  const auto last_kept_message = sensor_model.getLastKeptMessage();
+  const auto last_kept_message = sensor_model->getLastKeptMessage();
   ASSERT_NE(nullptr, last_kept_message);
   EXPECT_EQ(0.0, last_kept_message->x);
 }
@@ -263,11 +336,5 @@ TEST(ThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLarge)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "throttled_callback_test");
-  auto spinner = ros::AsyncSpinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
+  return RUN_ALL_TESTS();
 }

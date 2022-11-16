@@ -53,6 +53,8 @@ namespace fuse_core
 /**
  * @brief Compatibility wrapper for ros2 params in ros1 syntax
  *
+ * Declare a parameter if not declared, otherwise, get its value.
+ *
  * This is needed because the node parameters interface does not do the type conversions to and
  * from ParameterValue for us.
  *
@@ -65,7 +67,7 @@ namespace fuse_core
  * @throws if the parameter has already been declared
  */
 template <class T>
-T declareParam(
+T getParam(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
   const std::string& parameter_name,
   const T& default_value,
@@ -73,17 +75,25 @@ T declareParam(
   rcl_interfaces::msg::ParameterDescriptor(),
   bool ignore_override = false)
 {
-  try {
-    return interfaces.get_node_parameters_interface()->declare_parameter(
-      parameter_name, rclcpp::ParameterValue(default_value), parameter_descriptor, ignore_override
-    ).get<T>();
-  } catch (const rclcpp::ParameterTypeException & ex) {
-    throw rclcpp::exceptions::InvalidParameterTypeException(parameter_name, ex.what());
+  auto params_interface = interfaces.get_node_parameters_interface();
+  if (params_interface->has_parameter(parameter_name)) {
+    return params_interface->get_parameter(parameter_name).get_parameter_value().get<T>();
+  } else {
+    try {
+      return params_interface->declare_parameter(
+        parameter_name, rclcpp::ParameterValue(default_value), parameter_descriptor, ignore_override
+      ).get<T>();
+    } catch (const rclcpp::ParameterTypeException & ex) {
+      throw rclcpp::exceptions::InvalidParameterTypeException(parameter_name, ex.what());
+    }
   }
 }
 
+
 /**
  * @brief Compatibility wrapper for ros2 params in ros1 syntax
+ *
+ * Declare a parameter if not declared, otherwise, get its value.
  *
  * This is needed because the node parameters interface does not do the type conversions to and
  * from ParameterValue for us.
@@ -96,7 +106,7 @@ T declareParam(
  * @throws if the parameter has already been declared
  */
 template <class T>
-T declareParam(
+T getParam(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
   const std::string& parameter_name,
   const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
@@ -105,6 +115,7 @@ T declareParam(
 {
   // get advantage of parameter value template magic to get
   // the correct rclcpp::ParameterType from T
+  // NOTE(CH3): For the same reason we can't defer to the overload of getParam
   rclcpp::ParameterValue value{T{}};
   try {
     return interfaces.get_node_parameters_interface()->declare_parameter(
@@ -124,7 +135,7 @@ T declareParam(
  * @throws std::runtime_error if the parameter does not exist
  */
 inline
-void declareParamRequired(
+void getParamRequired(
   node_interfaces::NodeInterfaces<
     node_interfaces::Base,
     node_interfaces::Logging,
@@ -134,7 +145,7 @@ void declareParamRequired(
   std::string& value
 ){
   std::string default_value = "";
-  value = declareParam(interfaces, key, default_value);
+  value = getParam(interfaces, key, default_value);
 
   if (value == default_value)
   {
@@ -158,7 +169,7 @@ void declareParamRequired(
  */
 template <typename T,
           typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
-void declarePositiveParam(
+void getPositiveParam(
   node_interfaces::NodeInterfaces<
     node_interfaces::Logging,
     node_interfaces::Parameters
@@ -167,7 +178,7 @@ void declarePositiveParam(
   T& default_value,
   const bool strict = true
 ){
-  T value = declareParam(interfaces, parameter_name, default_value);
+  T value = getParam(interfaces, parameter_name, default_value);
   if (value < 0 || (strict && value == 0))
   {
     RCLCPP_WARN_STREAM(interfaces.get_node_logging_interface()->get_logger(),
@@ -189,7 +200,7 @@ void declarePositiveParam(
  *                                 has the loaded (or default) value
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  */
-inline void declarePositiveParam(
+inline void getPositiveParam(
   node_interfaces::NodeInterfaces<
     node_interfaces::Logging,
     node_interfaces::Parameters
@@ -198,7 +209,7 @@ inline void declarePositiveParam(
   rclcpp::Duration& default_value, const bool strict = true)
 {
   double default_value_sec = default_value.seconds();
-  declarePositiveParam(interfaces, parameter_name, default_value_sec, strict);
+  getPositiveParam(interfaces, parameter_name, default_value_sec, strict);
   default_value = rclcpp::Duration::from_seconds(default_value_sec);
 }
 
@@ -227,7 +238,7 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
   using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
 
   std::vector<Scalar> diagonal(Size, default_value);
-  diagonal = declareParam(interfaces, parameter_name, diagonal);
+  diagonal = getParam(interfaces, parameter_name, diagonal);
 
   const auto diagonal_size = diagonal.size();
   if (diagonal_size != Size)
@@ -261,7 +272,7 @@ inline fuse_core::Loss::SharedPtr loadLossConfig(
   const std::string& name
 ){
   std::string loss_type;
-  declareParamRequired(interfaces, name + "/type", loss_type);
+  getParamRequired(interfaces, name + "/type", loss_type);
 
   auto loss = fuse_core::createUniqueLoss(loss_type);
   loss->initialize(interfaces.get_node_base_interface()->get_fully_qualified_name());

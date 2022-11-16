@@ -90,7 +90,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~AsyncSensorModel() = default;
+  virtual ~AsyncSensorModel();
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -178,6 +178,8 @@ protected:
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   TransactionCallback transaction_callback_;  //!< The function to be executed every time a Transaction is "published"
   size_t executor_thread_count_;
+  std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
 
   /**
    * @brief Constructor

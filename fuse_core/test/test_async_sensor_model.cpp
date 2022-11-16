@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_sensor_model.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
@@ -47,7 +47,7 @@ static bool received_transaction = false;
  */
 void transactionCallback(fuse_core::Transaction::SharedPtr /*transaction*/)
 {
-  rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
+  rclcpp::sleep_for(std::chrono::milliseconds(1000));
   received_transaction = true;
 }
 
@@ -72,7 +72,7 @@ public:
 
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
+    rclcpp::sleep_for(std::chrono::milliseconds(1000));
     graph_received = true;
   }
 
@@ -80,14 +80,28 @@ public:
   bool initialized;
 };
 
-TEST(AsyncSensorModel, OnInit)
+class TestAsyncSensorModel : public ::testing::Test
+{
+public:
+  static void SetUpTestCase()
+  {
+    rclcpp::init(0, nullptr);
+  }
+
+  static void TearDownTestCase()
+  {
+    rclcpp::shutdown();
+  }
+};
+
+TEST_F(TestAsyncSensorModel, OnInit)
 {
   MySensor sensor;
   sensor.initialize("my_sensor", &transactionCallback);
   EXPECT_TRUE(sensor.initialized);
 }
 
-TEST(AsyncSensorModel, OnGraphUpdate)
+TEST_F(TestAsyncSensorModel, OnGraphUpdate)
 {
   MySensor sensor;
   sensor.initialize("my_sensor", &transactionCallback);
@@ -99,15 +113,16 @@ TEST(AsyncSensorModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   sensor.graphCallback(graph);
   EXPECT_FALSE(sensor.graph_received);
-  rclcpp::Time wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  rclcpp::Time wait_time_elapsed =
+    rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
   while (!sensor.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(sensor.graph_received);
 }
 
-TEST(AsyncSensorModel, SendTransaction)
+TEST_F(TestAsyncSensorModel, SendTransaction)
 {
   MySensor sensor;
   sensor.initialize("my_sensor", &transactionCallback);
@@ -121,12 +136,5 @@ TEST(AsyncSensorModel, SendTransaction)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_async_sensor_model");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
+  return RUN_ALL_TESTS();
 }

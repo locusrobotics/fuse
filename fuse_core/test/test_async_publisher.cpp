@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_publisher.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
@@ -58,7 +58,7 @@ public:
     fuse_core::Transaction::ConstSharedPtr /*transaction*/,
     fuse_core::Graph::ConstSharedPtr /*graph*/)
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
+    rclcpp::sleep_for(std::chrono::milliseconds(1000));
     callback_processed = true;
   }
 
@@ -71,14 +71,28 @@ public:
   bool initialized;
 };
 
-TEST(AsyncPublisher, OnInit)
+class TestAsyncPublisher : public ::testing::Test
+{
+public:
+  static void SetUpTestCase()
+  {
+    rclcpp::init(0, nullptr);
+  }
+
+  static void TearDownTestCase()
+  {
+    rclcpp::shutdown();
+  }
+};
+
+TEST_F(TestAsyncPublisher, OnInit)
 {
   MyPublisher publisher;
   publisher.initialize("my_publisher");
   EXPECT_TRUE(publisher.initialized);
 }
 
-TEST(AsyncPublisher, notifyCallback)
+TEST_F(TestAsyncPublisher, notifyCallback)
 {
   MyPublisher publisher;
   publisher.initialize("my_publisher");
@@ -91,10 +105,12 @@ TEST(AsyncPublisher, notifyCallback)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   publisher.notify(transaction, graph);
   EXPECT_FALSE(publisher.callback_processed);
-  rclcpp::Time wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
-  while (!publisher.callback_processed && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
+  rclcpp::Time wait_time_elapsed =
+    rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
+  while (!publisher.callback_processed
+         && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(publisher.callback_processed);
 }
@@ -102,12 +118,5 @@ TEST(AsyncPublisher, notifyCallback)
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_async_publisher");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
+  return RUN_ALL_TESTS();
 }

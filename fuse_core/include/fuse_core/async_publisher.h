@@ -73,7 +73,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~AsyncPublisher() = default;
+  virtual ~AsyncPublisher();
 
   /**
    * @brief Initialize the AsyncPublisher object
@@ -143,6 +143,8 @@ protected:
   rclcpp::Node::SharedPtr node_;  //!< The node for this publisher
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   size_t executor_thread_count_;
+  std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
 
   /**
    * @brief Constructor

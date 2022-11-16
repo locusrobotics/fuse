@@ -204,7 +204,7 @@ T declareCeresParam(
   const std::string default_string_value{ ToString(default_value) };
 
   std::string string_value;
-  string_value = declareParam(interfaces, parameter_name, default_string_value);
+  string_value = getParam(interfaces, parameter_name, default_string_value);
 
   T value;
   if (!FromString(string_value, &value))
@@ -224,6 +224,7 @@ T declareCeresParam(
  *
  * @param[in] interfaces - Node interfaces for a node in a namespace containing ceres::Covariance::Options settings
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadCovarianceOptionsFromROS(
   node_interfaces::NodeInterfaces<
@@ -231,27 +232,38 @@ void loadCovarianceOptionsFromROS(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  ceres::Covariance::Options& covariance_options);
+  ceres::Covariance::Options& covariance_options,
+  const std::string& namespace_string = std::string());
 
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
  *
- * interfaces - Node interfaces for a node in a namespace containing ceres::Problem::Options settings
+ * @param[in] interfaces - Node interfaces for a node in a namespace containing ceres::Problem::Options settings
  * @param[out] problem_options - The ceres::Problem::Options object to update
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadProblemOptionsFromROS(
   node_interfaces::NodeInterfaces<
     node_interfaces::Parameters
   > interfaces,
-  ceres::Problem::Options& problem_options);
+  ceres::Problem::Options& problem_options,
+  const std::string& namespace_string = std::string());
 
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
  *
- * interfaces - Node interfaces for a node in a namespace containing ceres::Solver::Options settings
+ * @param[in] interfaces - Node interfaces for a node in a namespace containing ceres::Solver::Options settings
  * @param[out] solver_options - The ceres::Solver::Options object to update
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
-void loadSolverOptionsFromROS(rclcpp::Node& nh, ceres::Solver::Options& solver_options);
+void loadSolverOptionsFromROS(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Logging,
+    node_interfaces::Parameters
+  > interfaces,
+  ceres::Solver::Options& solver_options,
+  const std::string& namespace_string = std::string());
 
 }  // namespace fuse_core
 

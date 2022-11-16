@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 project(fuse_core)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
-#set(CMAKE_BUILD_TYPE Debug)
 
 # Default to C++17
 if(NOT CMAKE_CXX_STANDARD)

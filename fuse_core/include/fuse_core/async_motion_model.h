@@ -42,6 +42,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <atomic>
 #include <string>
 
 
@@ -90,7 +91,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~AsyncMotionModel() = default;
+  virtual ~AsyncMotionModel();
 
   /**
    * @brief Augment a transaction object such that all involved timestamps are connected by motion model constraints.
@@ -175,6 +176,9 @@ protected:
   rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   size_t executor_thread_count_;
+  std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
+
   /**
    * @brief Constructor
    *
