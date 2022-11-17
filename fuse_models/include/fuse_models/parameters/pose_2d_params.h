@@ -91,7 +91,7 @@ struct Pose2DParams : public ParameterBase
         }
       }
 
-      loss = fuse_core::loadLossConfig(nh, "loss");
+      loss = fuse_core::loadLossConfig(interfaces, "loss");
     }
 
     bool differential { false };

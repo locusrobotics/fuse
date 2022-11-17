@@ -112,7 +112,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         initial_state.swap(state_vector);
       }
 
-      loss = fuse_core::loadLossConfig(nh, "loss");
+      loss = fuse_core::loadLossConfig(interfaces, "loss");
     }
 
 

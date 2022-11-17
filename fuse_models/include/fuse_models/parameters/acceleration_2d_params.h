@@ -77,7 +77,7 @@ struct Acceleration2DParams : public ParameterBase
       fuse_core::getParamRequired(nh, "topic", topic);
       fuse_core::getParamRequired(nh, "target_frame", target_frame);
 
-      loss = fuse_core::loadLossConfig(nh, "loss");
+      loss = fuse_core::loadLossConfig(interfaces, "loss");
     }
 
     bool disable_checks { false };

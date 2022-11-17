@@ -1,5 +1,4 @@
 # CORE GTESTS ======================================================================================
-# Might have to link Ceres
 ament_add_gtest(test_loss_function test_loss_function.cpp)
 target_link_libraries(test_loss_function ${PROJECT_NAME})
 

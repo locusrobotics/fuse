@@ -99,9 +99,9 @@ struct Odometry2DParams : public ParameterBase
             fuse_core::getCovarianceDiagonalParam<3>(nh, "twist_covariance_offset_diagonal", 0.0);
       }
 
-      pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
-      linear_velocity_loss = fuse_core::loadLossConfig(nh, "linear_velocity_loss");
-      angular_velocity_loss = fuse_core::loadLossConfig(nh, "angular_velocity_loss");
+      pose_loss = fuse_core::loadLossConfig(interfaces, "pose_loss");
+      linear_velocity_loss = fuse_core::loadLossConfig(interfaces, "linear_velocity_loss");
+      angular_velocity_loss = fuse_core::loadLossConfig(interfaces, "angular_velocity_loss");
     }
 
     bool differential { false };
