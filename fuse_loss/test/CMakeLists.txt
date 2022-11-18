@@ -22,7 +22,7 @@ if(BUILD_WITH_PLOT_TESTS)
   # Find Qwt using FindQwt.cmake copied from:
   # https://gitlab.kitware.com/cmake/community/-/wikis/contrib/modules/FindQwt
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-  find_package(Qwt REQUIRED)
+  find_package(QWT REQUIRED)
 
   ament_add_gtest(test_qwt_loss_plot test_qwt_loss_plot.cpp)
   target_link_libraries(test_qwt_loss_plot ${PROJECT_NAME})
@@ -41,5 +41,5 @@ if(BUILD_WITH_PLOT_TESTS)
   option(BUILD_WITH_INTERACTIVE_TESTS "Build with interactive tests" OFF)
   if(BUILD_WITH_INTERACTIVE_TESTS)
     target_compile_definitions(test_qwt_loss_plot PUBLIC INTERACTIVE_TESTS)
-  endif(BUILD_WITH_INTERACTIVE_TESTS)
-endif(BUILD_WITH_PLOT_TESTS)
+  endif()
+endif()
