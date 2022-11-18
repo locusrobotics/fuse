@@ -38,8 +38,6 @@
 
 #include <gtest/gtest.h>
 
-#include <atomic>
-
 /**
  * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given frequency.
  *
@@ -93,9 +91,7 @@ public:
     {
       geometry_msgs::msg::Point point_message;
       point_message.x = i;
-
       publisher_->publish(point_message);
-
       rate.sleep();
     }
   }
@@ -125,11 +121,7 @@ public:
     , throttled_callback_(
         std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
         std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1),
-        throttle_period,
-        false,
-        std::make_shared<
-          fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Clock>
-        >(*this)
+        throttle_period
       )
   {
     subscription_ = this->create_subscription<geometry_msgs::msg::Point>(
@@ -219,31 +211,24 @@ public:
   void SetUp() override
   {
     rclcpp::init(0, nullptr);
-    exec_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-
-    spinning_ = true;
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     spinner_ = std::thread([&](){
-      auto context = rclcpp::contexts::get_global_default_context();
-      while(context->is_valid() && spinning_) {
-        exec_->spin_some();
-      }
+      executor_->spin();
     });
   }
 
   void TearDown() override
   {
-    spinning_ = false;
+    executor_->cancel();
     rclcpp::shutdown();
     if (spinner_.joinable()) {
       spinner_.join();
     }
-
-    exec_.reset();
+    executor_.reset();
   }
 
   std::thread spinner_;  //!< Internal thread for spinning the executor
-  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
-  rclcpp::executors::SingleThreadedExecutor::SharedPtr exec_;
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
 
 TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
@@ -253,7 +238,7 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(0, 0);
   auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
-  exec_->add_node(sensor_model);
+  executor_->add_node(sensor_model);
 
   // Time should be valid after the context is initialized. But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
@@ -264,7 +249,7 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
   const double frequency = 10.0;
 
   auto publisher = std::make_shared<PointPublisher>(frequency);
-  exec_->add_node(publisher);
+  executor_->add_node(publisher);
   publisher->publish(num_messages);
 
   // Check all messages are kept and none are dropped, because when the throttle period is zero, throttling is disabled:
@@ -277,7 +262,7 @@ TEST_F(TestThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPe
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(0, RCUTILS_S_TO_NS(0.2));
   auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
-  exec_->add_node(sensor_model);
+  executor_->add_node(sensor_model);
 
   // Time should be valid after the context is initialized. But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
@@ -290,7 +275,7 @@ TEST_F(TestThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPe
   const double frequency = 1.0 / period;
 
   auto publisher = std::make_shared<PointPublisher>(frequency);
-  exec_->add_node(publisher);
+  executor_->add_node(publisher);
   publisher->publish(num_messages);
 
   // Check the number of kept and dropped callbacks:
@@ -306,7 +291,7 @@ TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLar
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(10, 0);
   auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
-  exec_->add_node(sensor_model);
+  executor_->add_node(sensor_model);
 
   // Time should be valid after the context is initialized. But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
@@ -321,7 +306,7 @@ TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLar
 
   auto publisher = std::make_shared<PointPublisher>(frequency);
   publisher->publish(num_messages);
-  exec_->add_node(publisher);
+  executor_->add_node(publisher);
 
   // Check that regardless of the large throttled period, at least one message is ketpt:
   EXPECT_EQ(1u, sensor_model->getKeptMessages());

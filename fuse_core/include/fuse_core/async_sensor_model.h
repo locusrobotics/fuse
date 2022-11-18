@@ -179,7 +179,6 @@ protected:
   TransactionCallback transaction_callback_;  //!< The function to be executed every time a Transaction is "published"
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
-  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
 
   /**
    * @brief Constructor

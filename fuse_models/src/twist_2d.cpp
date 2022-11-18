@@ -64,7 +64,10 @@ void Twist2D::onInit()
   params_.loadFromROS(private_node_handle_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
-  throttled_callback_.setUseWallTime(params_.throttle_use_wall_time);
+
+  if (!params_.throttle_use_wall_time) {
+    throttled_callback_.setClock(node_->get_clock());
+  }
 
   if (params_.linear_indices.empty() &&
       params_.angular_indices.empty())

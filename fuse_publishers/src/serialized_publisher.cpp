@@ -74,7 +74,10 @@ void SerializedPublisher::onInit()
   private_node_handle_.getParam("graph_throttle_use_wall_time", graph_throttle_use_wall_time);
 
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
-  graph_publisher_throttled_callback_.setUseWallTime(graph_throttle_use_wall_time);
+
+  if (!graph_throttle_use_wall_time) {
+    graph_publisher_throttled_callback_.setClock(node_->get_clock());
+  }
 
   // Advertise the topics
   graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1, latch);

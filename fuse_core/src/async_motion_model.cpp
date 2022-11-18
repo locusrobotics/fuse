@@ -56,7 +56,7 @@ AsyncMotionModel::AsyncMotionModel(size_t thread_count) :
 
 AsyncMotionModel::~AsyncMotionModel()
 {
-  spinning_ = false;
+  executor_->cancel();
   if (spinner_.joinable()) {
     spinner_.join();
   }
@@ -107,12 +107,8 @@ void AsyncMotionModel::initialize(const std::string& name)
   executor_->add_node(node_);
 
   // TODO(CH3): Remove this if the internal node is removed
-  spinning_ = true;
   spinner_ = std::thread([&](){
-    auto context = node_->get_node_base_interface()->get_context();
-    while(context->is_valid() && spinning_) {
-      executor_->spin_some();
-    }
+    executor_->spin();
   });
 }
 
@@ -153,7 +149,7 @@ void AsyncMotionModel::stop()
     executor_->remove_node(node_);
 
     // TODO(CH3): Remove this if the internal node is removed
-    spinning_ = false;
+    executor_->cancel();
     if (spinner_.joinable()) {
       spinner_.join();
     }
