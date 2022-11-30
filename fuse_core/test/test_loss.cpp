@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <test/example_loss.h>
+#include "example_loss.h"
 
 #include <gtest/gtest.h>
 
@@ -50,10 +50,4 @@ TEST(Loss, Constructor)
   {
     delete loss_function;
   }
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_motion_model.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
@@ -53,14 +53,14 @@ public:
 
   bool applyCallback(fuse_core::Transaction& /*transaction*/)
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
+    rclcpp::sleep_for(std::chrono::milliseconds(1000));
     transaction_received = true;
     return true;
   }
 
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(1.0));
+    rclcpp::sleep_for(std::chrono::milliseconds(1000));
     graph_received = true;
   }
 
@@ -69,19 +69,33 @@ public:
     initialized = true;
   }
 
-  bool graph_received;
-  bool initialized;
-  bool transaction_received;
+  bool graph_received = false;
+  bool initialized = false;
+  bool transaction_received = false;
 };
 
-TEST(AsyncMotionModel, OnInit)
+class TestAsyncMotionModel : public ::testing::Test
+{
+public:
+  static void SetUpTestCase()
+  {
+    rclcpp::init(0, nullptr);
+  }
+
+  static void TearDownTestCase()
+  {
+    rclcpp::shutdown();
+  }
+};
+
+TEST_F(TestAsyncMotionModel, OnInit)
 {
   MyMotionModel motion_model;
   motion_model.initialize("my_motion_model");
   EXPECT_TRUE(motion_model.initialized);
 }
 
-TEST(AsyncMotionModel, OnGraphUpdate)
+TEST_F(TestAsyncMotionModel, OnGraphUpdate)
 {
   MyMotionModel motion_model;
   motion_model.initialize("my_motion_model");
@@ -93,15 +107,17 @@ TEST(AsyncMotionModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   motion_model.graphCallback(graph);
   EXPECT_FALSE(motion_model.graph_received);
-  rclcpp::Time wait_time_elapsed = rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
-  while (!motion_model.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
+
+  auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
+  rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
+  while (!motion_model.graph_received && clock.now() < wait_time_elapsed)
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.1));
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(motion_model.graph_received);
 }
 
-TEST(AsyncMotionModel, ApplyCallback)
+TEST_F(TestAsyncMotionModel, ApplyCallback)
 {
   MyMotionModel motion_model;
   motion_model.initialize("my_motion_model");
@@ -110,22 +126,10 @@ TEST(AsyncMotionModel, ApplyCallback)
   // will then inject a call to applyCallback() into the motion model's callback queue. There is a time delay there, so
   // this call should block for *at least* 1.0 second. Once it returns, the "received_transaction" flag should be set.
   fuse_core::Transaction transaction;
-  rclcpp::Time before_apply = rclcpp::Clock(RCL_SYSTEM_TIME).now();
+  auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
+  rclcpp::Time before_apply = clock.now();
   motion_model.apply(transaction);
-  rclcpp::Time after_apply = rclcpp::Clock(RCL_SYSTEM_TIME).now();
+  rclcpp::Time after_apply = clock.now();
   EXPECT_TRUE(motion_model.transaction_received);
   EXPECT_LE(rclcpp::Duration::from_seconds(1.0), after_apply - before_apply);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_async_motion_model");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
 }

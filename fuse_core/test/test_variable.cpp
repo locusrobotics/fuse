@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <test/example_variable.h>
+#include "example_variable.h"
 
 #include <gtest/gtest.h>
 
@@ -40,10 +40,4 @@ TEST(Variable, Type)
 {
   ExampleVariable variable;
   ASSERT_EQ("ExampleVariable", variable.type());
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

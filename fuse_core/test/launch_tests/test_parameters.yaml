@@ -1,0 +1,28 @@
+test_parameters_node:
+  ros__parameters:
+    # Covariance diagonal with expected size (3) and valid:
+    covariance_diagonal: [1.0e-3, 1.0e-3, 1.0e-3]
+
+    # Covariance diagonal with negative values:
+    covariance_diagonal_with_negative_values: [1.0e-3, 1.0e-3, -1.0e-3]
+
+    # Covariance diagonal with size 2, smaller than expected (3):
+    covariance_diagonal_with_size_2: [1.0e-3, 1.0e-3]
+
+    # Covariance diagonal with size 4, larger than expected (3):
+    covariance_diagonal_with_size_4: [1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3]
+
+    # Covariance diagonal with invalid element type:
+    covariance_diagonal_with_strings: ["NaN", "NaN", "NaN"]
+
+    # Covariance diagonal with invalid type:
+    covariance_diagonal_with_string: "NaN"
+
+    # Positive parameter:
+    positive_parameter: 3.0
+
+    # Negative parameter:
+    negative_parameter: -3.0
+
+    # Zero parameter:
+    zero_parameter: 0.0

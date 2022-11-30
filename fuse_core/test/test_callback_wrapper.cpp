@@ -32,13 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/callback_wrapper.h>
-#include <ros/callback_queue.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <boost/shared_ptr.hpp>
 #include <gtest/gtest.h>
 
 #include <functional>
+#include <memory>
 #include <numeric>
 #include <vector>
 
@@ -57,42 +56,63 @@ public:
   }
 };
 
-TEST(CallbackWrapper, Double)
+class TestCallbackWrapper : public ::testing::Test
+{
+public:
+  static void SetUpTestCase()
+  {
+    rclcpp::init(0, nullptr);
+  }
+
+  static void TearDownTestCase()
+  {
+    rclcpp::shutdown();
+  }
+};
+
+TEST_F(TestCallbackWrapper, Double)
 {
   MyClass my_object;
   std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0};
-  auto callback = boost::make_shared<fuse_core::CallbackWrapper<double>>(
+
+  auto node = rclcpp::Node::make_shared("callback_wrapper_double_test_node");
+  auto callback_queue =
+    std::make_shared<fuse_core::CallbackAdapter>(node->get_node_base_interface()->get_context());
+  node->get_node_waitables_interface()->add_waitable(
+    callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+
+  auto callback = std::make_shared<fuse_core::CallbackWrapper<double>>(
     std::bind(&MyClass::processData, &my_object, std::ref(data)));
   auto result = callback->getFuture();
-  ros::getGlobalCallbackQueue()->addCallback(callback);
-  result.wait();
 
+  callback_queue->addCallback(callback);
+  rclcpp::spin_until_future_complete(node, result);
+
+  // This is technically redundant but this is here to mimic how the callbacks are actually used
+  EXPECT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_EQ(15.0, result.get());
 }
 
-TEST(CallbackWrapper, Void)
+TEST_F(TestCallbackWrapper, Void)
 {
   MyClass my_object;
   std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0};
   double output;
-  auto callback = boost::make_shared<fuse_core::CallbackWrapper<void>>(
+
+  auto node = rclcpp::Node::make_shared("callback_wrapper_void_test_node");
+  auto callback_queue =
+    std::make_shared<fuse_core::CallbackAdapter>(node->get_node_base_interface()->get_context());
+  node->get_node_waitables_interface()->add_waitable(
+    callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+
+  auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
     std::bind(&MyClass::processDataInPlace, &my_object, std::ref(data), std::ref(output)));
   auto result = callback->getFuture();
-  ros::getGlobalCallbackQueue()->addCallback(callback);
-  result.wait();
 
+  callback_queue->addCallback(callback);
+  rclcpp::spin_until_future_complete(node, result);
+
+  // This is technically redundant but this is here to mimic how the callbacks are actually used
+  EXPECT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_EQ(15.0, output);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "callback_wrapper_test");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
 }

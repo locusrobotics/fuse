@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/uuid.h>
-#include <test/example_constraint.h>
+#include "example_constraint.h"
 
 #include <gtest/gtest.h>
 
@@ -95,10 +95,4 @@ TEST(Constraint, Type)
   fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
   ExampleConstraint constraint("test", {variable_uuid1});  // NOLINT
   ASSERT_EQ("ExampleConstraint", constraint.type());
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

@@ -37,6 +37,9 @@
 #include <functional>
 #include <utility>
 
+#include <rclcpp/clock.hpp>
+#include <rclcpp/duration.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {
@@ -52,29 +55,23 @@ template <class Callback>
 class ThrottledCallback
 {
 public:
-  // TODO(CH3): Keep the use of "use_wall_time", but pass in a clock as appropriate to use
-  // non-wall-time.
-  //
-  // TODO(CH3): Add getters into any class that could add ThrottledCallbacks to obtain their
-  // NodeClockInterface to then get the clock to pass into this!
   /**
    * @brief Constructor
    *
    * @param[in] keep_callback   The callback to call when kept, i.e. not dropped. Defaults to nullptr
    * @param[in] drop_callback   The callback to call when dropped because of the throttling. Defaults to nullptr
    * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
-   * @param[in] use_wall_time   Whether to use wall time or not. Defaults to false
+   * @param[in] clock           The clock to throttle against. Defaults to using RCL_SYSTEM_TIME
    */
   ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
                     Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
                     const rclcpp::Duration& throttle_period = rclcpp::Duration(0,0),
-                    const bool use_wall_time = false)
+                    rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>())
     : keep_callback_(keep_callback)
     , drop_callback_(drop_callback)
     , throttle_period_(throttle_period)
-    , use_wall_time_(use_wall_time)
-  {
-  }
+    , clock_(clock)
+  {}
 
   /**
    * @brief Throttle period getter
@@ -87,13 +84,16 @@ public:
   }
 
   /**
-   * @brief Use wall time flag getter
+   * @brief Set the clock to throttle against
    *
-   * @return True if using wall time, false otherwise
+   * @param[in] clock The clock to set
    */
-  bool getUseWallTime() const
+  void setClock(rclcpp::Clock::SharedPtr clock)
   {
-    return use_wall_time_;
+    clock_ = clock;
+
+    // Reset since we changed the clock
+    last_called_time_ = rclcpp::Time();
   }
 
   /**
@@ -104,17 +104,6 @@ public:
   void setThrottlePeriod(const rclcpp::Duration& throttle_period)
   {
     throttle_period_ = throttle_period;
-  }
-
-  // TODO(CH3): REFACTOR THIS OUT!!!! Take a clock type param instead
-  /**
-   * @brief Use wall time flag setter
-   *
-   * @param[in] use_wall_time Whether to use rclcpp::WallTime or not
-   */
-  void setUseWallTime(const bool use_wall_time)
-  {
-    use_wall_time_ = use_wall_time;
   }
 
   /**
@@ -161,9 +150,11 @@ public:
     // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
     // (b) The throttle period is zero, so we should always keep the callbacks
     // (c) The elpased time between now and the last called time is greater than the throttle period
-    #warn "using a valid time value as a flag"
-    const rclcpp::Time now = use_wall_time_ ? rclcpp::Clock::Clock(RCL_SYSTEM_TIME).now() : node->now();
-    if ((last_called_time_.nanoseconds() == 0) || (throttle_period_.nanoseconds() == 0) || now - last_called_time_ > throttle_period_)
+    rclcpp::Time now = clock_->now();
+
+    if ((last_called_time_.nanoseconds() == 0)
+        || (throttle_period_.nanoseconds() == 0)
+        || now - last_called_time_ > throttle_period_)
     {
       if (keep_callback_)
       {
@@ -200,8 +191,7 @@ private:
   Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
   Callback drop_callback_;         //!< The callback to call when dropped because of throttling
   rclcpp::Duration throttle_period_;  //!< The throttling period duration in seconds
-  bool use_wall_time_;             //<! The flag to indicate whether to use wall time or not
-
+  rclcpp::Clock::SharedPtr clock_; //!< The clock to throttle against
   rclcpp::Time last_called_time_;  //!< The last time the keep callback was called
 };
 

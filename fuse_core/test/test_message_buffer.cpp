@@ -200,9 +200,3 @@ TEST_F(MessageBufferTestFixture, Purge)
     EXPECT_EQ(rclcpp::Time(1000, 0), *stamps_range_iter);
   }
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

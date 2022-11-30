@@ -34,8 +34,8 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
-#include <test/example_constraint.h>
-#include <test/example_variable.h>
+#include "example_constraint.h"
+#include "example_variable.h"
 
 #include <gtest/gtest.h>
 
@@ -911,10 +911,4 @@ TEST(Transaction, Serialize)
   EXPECT_TRUE(testRemovedConstraints(expected.removedConstraints(), actual));
   EXPECT_TRUE(testAddedVariables(expected.addedVariables(), actual));
   EXPECT_TRUE(testRemovedVariables(expected.removedVariables(), actual));
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

@@ -45,6 +45,14 @@ AsyncPublisher::AsyncPublisher(size_t thread_count) :
 {
 }
 
+AsyncPublisher::~AsyncPublisher()
+{
+  executor_->cancel();
+  if (spinner_.joinable()) {
+    spinner_.join();
+  }
+}
+
 void AsyncPublisher::initialize(const std::string& name)
 {
   // Initialize internal state
@@ -71,6 +79,11 @@ void AsyncPublisher::initialize(const std::string& name)
   onInit();
 
   executor_->add_node(node_);
+
+  // TODO(CH3): Remove this if the internal node is removed
+  spinner_ = std::thread([&](){
+    executor_->spin();
+  });
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
@@ -103,6 +116,11 @@ void AsyncPublisher::stop()
   {
     executor_->cancel();
     executor_->remove_node(node_);
+
+    // TODO(CH3): Remove this if the internal node is removed
+    if (spinner_.joinable()) {
+      spinner_.join();
+    }
 
     onStop();
   }

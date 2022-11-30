@@ -32,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/util.h>
-#include <ros/ros.h>
 
 #include <gtest/gtest.h>
 
@@ -70,10 +69,4 @@ TEST(Util, wrapAngle2D)
     const double angle = 0.5;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle - 3.0 * 2.0 * M_PI));
   }
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

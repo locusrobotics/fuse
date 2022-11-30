@@ -40,8 +40,6 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/callback_wrapper.h>
 
-//#include <fuse_core/fuse_macros.h>
-
 #include <functional>
 #include <string>
 
@@ -92,7 +90,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~AsyncSensorModel() = default;
+  virtual ~AsyncSensorModel();
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -179,8 +177,8 @@ protected:
   rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   TransactionCallback transaction_callback_;  //!< The function to be executed every time a Transaction is "published"
-  rclcpp::node_interfaces::NodeWaitablesInterface::SharedPtr waitables_interface_;
   size_t executor_thread_count_;
+  std::thread spinner_;  //!< Internal thread for spinning the executor
 
   /**
    * @brief Constructor

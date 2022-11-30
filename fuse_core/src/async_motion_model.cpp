@@ -54,6 +54,14 @@ AsyncMotionModel::AsyncMotionModel(size_t thread_count) :
 {
 }
 
+AsyncMotionModel::~AsyncMotionModel()
+{
+  executor_->cancel();
+  if (spinner_.joinable()) {
+    spinner_.join();
+  }
+}
+
 bool AsyncMotionModel::apply(Transaction& transaction)
 {
   // Insert a call to the motion model's queryCallback() function into the motion model's callback queue. While this
@@ -97,6 +105,11 @@ void AsyncMotionModel::initialize(const std::string& name)
   onInit();
 
   executor_->add_node(node_);
+
+  // TODO(CH3): Remove this if the internal node is removed
+  spinner_ = std::thread([&](){
+    executor_->spin();
+  });
 }
 
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
@@ -134,6 +147,12 @@ void AsyncMotionModel::stop()
   {
     executor_->cancel();
     executor_->remove_node(node_);
+
+    // TODO(CH3): Remove this if the internal node is removed
+    executor_->cancel();
+    if (spinner_.joinable()) {
+      spinner_.join();
+    }
 
     onStop();
   }

@@ -52,6 +52,13 @@ AsyncSensorModel::AsyncSensorModel(size_t thread_count) :
 {
 }
 
+AsyncSensorModel::~AsyncSensorModel()
+{
+  executor_->cancel();
+  if (spinner_.joinable()) {
+    spinner_.join();
+  }
+}
 
 void AsyncSensorModel::initialize(
   const std::string& name,
@@ -84,6 +91,11 @@ void AsyncSensorModel::initialize(
 
   // Start the async spinner to service the local callback queue
   executor_->add_node(node_);
+
+  // TODO(CH3): Remove this if the internal node is removed
+  spinner_ = std::thread([&](){
+    executor_->spin();
+  });
 }
 
 void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
@@ -124,6 +136,11 @@ void AsyncSensorModel::stop()
   {
     executor_->cancel();
     executor_->remove_node(node_);
+
+    // TODO(CH3): Remove this if the internal node is removed
+    if (spinner_.joinable()) {
+      spinner_.join();
+    }
 
     onStop();
   }
