@@ -49,7 +49,6 @@
 #include <string>
 
 
-
 namespace fuse_core
 {
 
@@ -84,12 +83,12 @@ public:
    *
    * @param[in] name A unique name to give this plugin instance
    */
-  void initialize(const std::string& name) override;
+  void initialize(const std::string & name) override;
 
   /**
    * @brief Get the unique name of this publisher
    */
-  const std::string& name() const override { return name_; }
+  const std::string & name() const override {return name_;}
 
   /**
    * @brief Notify the publisher that an optimization cycle is complete, and about changes to the Graph.
@@ -176,7 +175,9 @@ protected:
    * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
    */
-  virtual void notifyCallback(Transaction::ConstSharedPtr /*transaction*/, Graph::ConstSharedPtr /*graph*/) {}
+  virtual void notifyCallback(
+    Transaction::ConstSharedPtr /*transaction*/,
+    Graph::ConstSharedPtr /*graph*/) {}
 
   /**
    * @brief Perform any required operations to prepare for servicing calls to notify()

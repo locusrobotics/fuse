@@ -68,7 +68,7 @@ public:
    * @param[in,out] transaction The transaction object that should be augmented with motion model constraints
    * @return                    True if the motion models were generated successfully, false otherwise
    */
-  virtual bool apply(Transaction& transaction) = 0;
+  virtual bool apply(Transaction & transaction) = 0;
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -94,12 +94,12 @@ public:
    *
    * @param[in] name A unique name to give this plugin instance
    */
-  virtual void initialize(const std::string& name) = 0;
+  virtual void initialize(const std::string & name) = 0;
 
   /**
    * @brief Get the unique name of this motion model
    */
-  virtual const std::string& name() const  = 0;
+  virtual const std::string & name() const = 0;
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions

@@ -40,33 +40,30 @@
 namespace fuse_core
 {
 
-MessageBufferStreamSource::MessageBufferStreamSource(const std::vector<unsigned char>& data) :
-  data_(data),
+MessageBufferStreamSource::MessageBufferStreamSource(const std::vector<unsigned char> & data)
+: data_(data),
   index_(0)
 {
 }
 
-std::streamsize MessageBufferStreamSource::read(char_type* s, std::streamsize n)
+std::streamsize MessageBufferStreamSource::read(char_type * s, std::streamsize n)
 {
   std::streamsize result = std::min(n, static_cast<std::streamsize>(data_.size() - index_));
-  if (result != 0)
-  {
+  if (result != 0) {
     std::copy(data_.begin() + index_, data_.begin() + index_ + result, s);
     index_ += result;
     return result;
-  }
-  else
-  {
+  } else {
     return -1;  // EOF
   }
 }
 
-MessageBufferStreamSink::MessageBufferStreamSink(std::vector<unsigned char>& data) :
-  data_(data)
+MessageBufferStreamSink::MessageBufferStreamSink(std::vector<unsigned char> & data)
+: data_(data)
 {
 }
 
-std::streamsize MessageBufferStreamSink::write(const char_type* s, std::streamsize n)
+std::streamsize MessageBufferStreamSink::write(const char_type * s, std::streamsize n)
 {
   data_.insert(data_.end(), s, s + n);
   return n;

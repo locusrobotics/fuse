@@ -57,21 +57,25 @@ public:
 
   ExampleConstraint() = default;
 
-  ExampleConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-    fuse_core::Constraint(source, variable_uuid_list),
+  ExampleConstraint(
+    const std::string & source,
+    std::initializer_list<fuse_core::UUID> variable_uuid_list)
+  : fuse_core::Constraint(source, variable_uuid_list),
     data(0.0)
   {
   }
 
   template<typename VariableUuidIterator>
-  ExampleConstraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last) :
-    fuse_core::Constraint(source, first, last),
+  ExampleConstraint(
+    const std::string & source, VariableUuidIterator first,
+    VariableUuidIterator last)
+  : fuse_core::Constraint(source, first, last),
     data(0.0)
   {
   }
 
-  void print(std::ostream& /*stream = std::cout*/) const override {}
-  ceres::CostFunction* costFunction() const override { return nullptr; }
+  void print(std::ostream & /*stream = std::cout*/) const override {}
+  ceres::CostFunction * costFunction() const override {return nullptr;}
 
   double data;  // Public member variable just for testing
 
@@ -86,7 +90,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & data;

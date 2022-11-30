@@ -108,19 +108,19 @@ public:
   /**
    * @brief Read-only access to this transaction's timestamp
    */
-  const rclcpp::Time& stamp() const { return stamp_; }
+  const rclcpp::Time & stamp() const {return stamp_;}
 
   /**
    * @brief Write access to this transaction's timestamp
    */
-  void stamp(const rclcpp::Time& stamp) { stamp_ = stamp; }
+  void stamp(const rclcpp::Time & stamp) {stamp_ = stamp;}
 
   /**
    * @brief Read-only access to the set of timestamps involved in this transaction
    *
    * @return An iterator range containing all involved timestamps, ordered oldest to newest
    */
-  const_stamp_range involvedStamps() const { return involved_stamps_; }
+  const_stamp_range involvedStamps() const {return involved_stamps_;}
 
   /**
    * @brief Read-only access to the minimum (oldest), timestamp among the transaction's stamp and all involved
@@ -128,7 +128,7 @@ public:
    *
    * @return The minimum (oldest) timestamp.
    */
-  const rclcpp::Time& minStamp() const;
+  const rclcpp::Time & minStamp() const;
 
   /**
    * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all involved
@@ -136,7 +136,7 @@ public:
    *
    * @return The maximum (newest) timestamp.
    */
-  const rclcpp::Time& maxStamp() const;
+  const rclcpp::Time & maxStamp() const;
 
   /**
    * @brief Read-only access to the added constraints
@@ -150,7 +150,7 @@ public:
    *
    * @return  An iterator range containing all removed constraint UUIDs
    */
-  const_uuid_range removedConstraints() const { return removed_constraints_; }
+  const_uuid_range removedConstraints() const {return removed_constraints_;}
 
   /**
    * @brief Read-only access to the added variables
@@ -164,7 +164,7 @@ public:
    *
    * @return  An iterator range containing all removed variable UUIDs
    */
-  const_uuid_range removedVariables() const { return removed_variables_; }
+  const_uuid_range removedVariables() const {return removed_variables_;}
 
   /**
    * @brief Check if the transaction is empty, i.e. it has no added or removed constraints or variables, and no involved
@@ -181,7 +181,7 @@ public:
    *
    * @param[in] stamp The timestamp to be added
    */
-  void addInvolvedStamp(const rclcpp::Time& stamp);
+  void addInvolvedStamp(const rclcpp::Time & stamp);
 
   /**
    * @brief Add a constraint to this transaction
@@ -204,7 +204,7 @@ public:
    *
    * @param[in] constraint_uuid The UUID of the constraint to remove
    */
-  void removeConstraint(const UUID& constraint_uuid);
+  void removeConstraint(const UUID & constraint_uuid);
 
   /**
    * @brief Add a variable to this transaction
@@ -227,7 +227,7 @@ public:
    *
    * @param[in] variable_uuid The UUID of the variable to remove
    */
-  void removeVariable(const UUID& variable_uuid);
+  void removeVariable(const UUID & variable_uuid);
 
   /**
    * @brief Merge the contents of another transaction into this one.
@@ -236,14 +236,14 @@ public:
    * @param[in] overwrite Flag indicating that variables and constraints in \p other should overwrite existing
    *                      variables and constraints with the UUIDs.
    */
-  void merge(const Transaction& other, bool overwrite = false);
+  void merge(const Transaction & other, bool overwrite = false);
 
   /**
    * @brief Print a human-readable description of the transaction to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const;
+  void print(std::ostream & stream = std::cout) const;
 
   /**
    * @brief Perform a deep copy of the Transaction and return a unique pointer to the copy
@@ -259,28 +259,28 @@ public:
    *
    * @param[out] archive - The archive to serialize this constraint into
    */
-  void serialize(fuse_core::BinaryOutputArchive& /* archive */) const;
+  void serialize(fuse_core::BinaryOutputArchive & /* archive */) const;
 
   /**
    * @brief Serialize this Constraint into the provided text archive
    *
    * @param[out] archive - The archive to serialize this constraint into
    */
-  void serialize(fuse_core::TextOutputArchive& /* archive */) const;
+  void serialize(fuse_core::TextOutputArchive & /* archive */) const;
 
   /**
    * @brief Deserialize data from the provided binary archive into this Constraint
    *
    * @param[in] archive - The archive holding serialized Constraint data
    */
-  void deserialize(fuse_core::BinaryInputArchive& /* archive */);
+  void deserialize(fuse_core::BinaryInputArchive & /* archive */);
 
   /**
    * @brief Deserialize data from the provided text archive into this Constraint
    *
    * @param[in] archive - The archive holding serialized Constraint data
    */
-  void deserialize(fuse_core::TextInputArchive& /* archive */);
+  void deserialize(fuse_core::TextInputArchive & /* archive */);
 
 private:
   rclcpp::Time stamp_;  //!< The transaction message timestamp
@@ -300,7 +300,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & stamp_;
     archive & added_constraints_;
@@ -314,7 +314,7 @@ private:
 /**
  * Stream operator for printing Transaction objects.
  */
-std::ostream& operator <<(std::ostream& stream, const Transaction& transaction);
+std::ostream & operator<<(std::ostream & stream, const Transaction & transaction);
 
 }  // namespace fuse_core
 

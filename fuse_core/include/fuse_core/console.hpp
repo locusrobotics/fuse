@@ -45,8 +45,8 @@ namespace fuse_core
   #define FUSE_LIKELY(x)       (x)
   #define FUSE_UNLIKELY(x)     (x)
 #else
-  #define FUSE_LIKELY(x)       __builtin_expect((x),1)
-  #define FUSE_UNLIKELY(x)     __builtin_expect((x),0)
+  #define FUSE_LIKELY(x)       __builtin_expect((x), 1)
+  #define FUSE_UNLIKELY(x)     __builtin_expect((x), 0)
 #endif
 
 /**
@@ -83,14 +83,12 @@ public:
     using namespace std::chrono;
     const auto now = time_point_cast<milliseconds>(system_clock::now());
 
-    if (last_hit_.time_since_epoch().count() < 0.0)
-    {
+    if (last_hit_.time_since_epoch().count() < 0.0) {
       last_hit_ = now;
       return true;
     }
 
-    if (FUSE_UNLIKELY(last_hit_ + period_ <= now) || FUSE_UNLIKELY(now < last_hit_))
-    {
+    if (FUSE_UNLIKELY(last_hit_ + period_ <= now) || FUSE_UNLIKELY(now < last_hit_)) {
       last_hit_ = now;
       return true;
     }

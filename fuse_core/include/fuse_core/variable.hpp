@@ -80,19 +80,19 @@
  * @endcode
  */
 #define FUSE_VARIABLE_SERIALIZE_DEFINITION(...) \
-  void serialize(fuse_core::BinaryOutputArchive& archive) const override \
+  void serialize(fuse_core::BinaryOutputArchive & archive) const override \
   { \
     archive << *this; \
   }  /* NOLINT */ \
-  void serialize(fuse_core::TextOutputArchive& archive) const override \
+  void serialize(fuse_core::TextOutputArchive & archive) const override \
   { \
     archive << *this; \
   }  /* NOLINT */ \
-  void deserialize(fuse_core::BinaryInputArchive& archive) override \
+  void deserialize(fuse_core::BinaryInputArchive & archive) override \
   { \
     archive >> *this; \
   }  /* NOLINT */ \
-  void deserialize(fuse_core::TextInputArchive& archive) override \
+  void deserialize(fuse_core::TextInputArchive & archive) override \
   { \
     archive >> *this; \
   }
@@ -211,7 +211,7 @@ public:
    *
    * @param[in] uuid The unique ID number for this variable
    */
-  explicit Variable(const UUID& uuid);
+  explicit Variable(const UUID & uuid);
 
   /**
    * @brief Destructor
@@ -221,7 +221,7 @@ public:
   /**
    * @brief Returns a UUID for this variable.
    */
-  const UUID& uuid() const { return uuid_; }
+  const UUID & uuid() const {return uuid_;}
 
   /**
    * @brief Returns a unique name for this variable type.
@@ -254,7 +254,7 @@ public:
    * If you override the \p localParameterization() method, it is good practice to also override the \p localSize()
    * method. By default, the \p size() method is used for \p localSize() as well.
    */
-  virtual size_t localSize() const { return size(); }
+  virtual size_t localSize() const {return size();}
 
   /**
    * @brief Read-only access to the variable data
@@ -263,7 +263,7 @@ public:
    * contain at least Variable::size() elements. Only Variable::size() elements will be accessed externally. This
    * interface is provided for integration with Ceres, which uses raw pointers.
    */
-  virtual const double* data() const = 0;
+  virtual const double * data() const = 0;
 
   /**
    * @brief Read-write access to the variable data
@@ -272,14 +272,14 @@ public:
    * contain at least Variable::size() elements. Only Variable::size() elements will be accessed externally. This
    * interface is provided for integration with Ceres, which uses raw pointers.
    */
-  virtual double* data() = 0;
+  virtual double * data() = 0;
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  virtual void print(std::ostream& stream = std::cout) const = 0;
+  virtual void print(std::ostream & stream = std::cout) const = 0;
 
   /**
    * @brief Perform a deep copy of the Variable and return a unique pointer to the copy
@@ -312,7 +312,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  virtual fuse_core::LocalParameterization* localParameterization() const
+  virtual fuse_core::LocalParameterization * localParameterization() const
   {
     return nullptr;
   }
@@ -361,7 +361,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this variable into
    */
-  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
+  virtual void serialize(fuse_core::BinaryOutputArchive & /* archive */) const = 0;
 
   /**
    * @brief Serialize this Variable into the provided text archive
@@ -373,7 +373,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this variable into
    */
-  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
+  virtual void serialize(fuse_core::TextOutputArchive & /* archive */) const = 0;
 
   /**
    * @brief Deserialize data from the provided binary archive into this Variable
@@ -385,7 +385,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Variable data
    */
-  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
+  virtual void deserialize(fuse_core::BinaryInputArchive & /* archive */) = 0;
 
   /**
    * @brief Deserialize data from the provided text archive into this Variable
@@ -397,7 +397,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Variable data
    */
-  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
+  virtual void deserialize(fuse_core::TextInputArchive & /* archive */) = 0;
 
 private:
   fuse_core::UUID uuid_;  //!< The unique ID number for this variable
@@ -416,7 +416,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & uuid_;
   }
@@ -425,7 +425,7 @@ private:
 /**
  * Stream operator implementation used for all derived Variable classes.
  */
-std::ostream& operator <<(std::ostream& stream, const Variable& variable);
+std::ostream & operator<<(std::ostream & stream, const Variable & variable);
 
 }  // namespace fuse_core
 

@@ -100,15 +100,15 @@
  */
 #if __cpp_aligned_new
   #define FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(...) \
-    FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__)
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__)
 #else
   #define FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(...) \
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW \
-    __FUSE_SHARED_PTR_ALIAS(__VA_ARGS__) \
-    __FUSE_MAKE_SHARED_ALIGNED_DEFINITION(__VA_ARGS__) \
-    __FUSE_WEAK_PTR_ALIAS(__VA_ARGS__) \
-    __FUSE_UNIQUE_PTR_ALIAS(__VA_ARGS__) \
-    __FUSE_MAKE_UNIQUE_DEFINITION(__VA_ARGS__)
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW \
+  __FUSE_SHARED_PTR_ALIAS(__VA_ARGS__) \
+  __FUSE_MAKE_SHARED_ALIGNED_DEFINITION(__VA_ARGS__) \
+  __FUSE_WEAK_PTR_ALIAS(__VA_ARGS__) \
+  __FUSE_UNIQUE_PTR_ALIAS(__VA_ARGS__) \
+  __FUSE_MAKE_UNIQUE_DEFINITION(__VA_ARGS__)
 #endif
 
 /**
@@ -142,7 +142,9 @@
   static std::shared_ptr<__VA_ARGS__> \
   make_shared(Args && ... args) \
   { \
-    return std::allocate_shared<__VA_ARGS__>(Eigen::aligned_allocator<__VA_ARGS__>(), std::forward<Args>(args) ...); \
+    return std::allocate_shared<__VA_ARGS__>( \
+      Eigen::aligned_allocator<__VA_ARGS__>(), \
+      std::forward<Args>(args) ...); \
   }
 
 #define __FUSE_WEAK_PTR_ALIAS(...) \

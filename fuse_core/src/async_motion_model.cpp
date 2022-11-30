@@ -48,8 +48,8 @@
 namespace fuse_core
 {
 
-AsyncMotionModel::AsyncMotionModel(size_t thread_count) :
-  name_("uninitialized"),
+AsyncMotionModel::AsyncMotionModel(size_t thread_count)
+: name_("uninitialized"),
   executor_thread_count_(thread_count)
 {
 }
@@ -62,7 +62,7 @@ AsyncMotionModel::~AsyncMotionModel()
   }
 }
 
-bool AsyncMotionModel::apply(Transaction& transaction)
+bool AsyncMotionModel::apply(Transaction & transaction)
 {
   // Insert a call to the motion model's queryCallback() function into the motion model's callback queue. While this
   // makes this particular function more difficult to write, it does simplify the threading model on all derived
@@ -79,7 +79,7 @@ bool AsyncMotionModel::apply(Transaction& transaction)
   return result.get();
 }
 
-void AsyncMotionModel::initialize(const std::string& name)
+void AsyncMotionModel::initialize(const std::string & name)
 {
   // Initialize internal state
   name_ = name;
@@ -95,7 +95,9 @@ void AsyncMotionModel::initialize(const std::string& name)
 
   auto executor_options = rclcpp::ExecutorOptions();
   executor_options.context = ros_context;
-  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(executor_options, executor_thread_count_);
+  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
+    executor_options,
+    executor_thread_count_);
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
   node_->get_node_waitables_interface()->add_waitable(
@@ -107,9 +109,10 @@ void AsyncMotionModel::initialize(const std::string& name)
   executor_->add_node(node_);
 
   // TODO(CH3): Remove this if the internal node is removed
-  spinner_ = std::thread([&](){
-    executor_->spin();
-  });
+  spinner_ = std::thread(
+    [&]() {
+      executor_->spin();
+    });
 }
 
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
@@ -134,17 +137,14 @@ void AsyncMotionModel::start()
 
 void AsyncMotionModel::stop()
 {
-  if (node_->get_node_base_interface()->get_context()->is_valid())
-  {
+  if (node_->get_node_base_interface()->get_context()->is_valid()) {
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncMotionModel::onStop, this)
     );
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();
-  }
-  else
-  {
+  } else {
     executor_->cancel();
     executor_->remove_node(node_);
 

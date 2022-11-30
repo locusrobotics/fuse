@@ -66,11 +66,11 @@ namespace fuse_core
  * \return The value of the parameter.
  * @throws if the parameter has already been declared
  */
-template <class T>
+template<class T>
 T getParam(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  const std::string& parameter_name,
-  const T& default_value,
+  const std::string & parameter_name,
+  const T & default_value,
   const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
   rcl_interfaces::msg::ParameterDescriptor(),
   bool ignore_override = false)
@@ -105,10 +105,10 @@ T getParam(
  * \return The value of the parameter.
  * @throws if the parameter has already been declared
  */
-template <class T>
+template<class T>
 T getParam(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  const std::string& parameter_name,
+  const std::string & parameter_name,
   const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
   rcl_interfaces::msg::ParameterDescriptor(),
   bool ignore_override = false)
@@ -141,17 +141,17 @@ void getParamRequired(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  const std::string& key,
-  std::string& value
-){
+  const std::string & key,
+  std::string & value
+)
+{
   std::string default_value = "";
   value = getParam(interfaces, key, default_value);
 
-  if (value == default_value)
-  {
+  if (value == default_value) {
     const std::string error =
-      "Could not find required parameter " + key + " in namespace "
-      + interfaces.get_node_base_interface()->get_namespace();
+      "Could not find required parameter " + key + " in namespace " +
+      interfaces.get_node_base_interface()->get_namespace();
 
     RCLCPP_FATAL_STREAM(interfaces.get_node_logging_interface()->get_logger(), error);
     throw std::runtime_error(error);
@@ -167,26 +167,25 @@ void getParamRequired(
  *                                 has the loaded (or default) value
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0 is accepted or not
  */
-template <typename T,
-          typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
+template<typename T,
+  typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
 void getPositiveParam(
   node_interfaces::NodeInterfaces<
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  const std::string& parameter_name,
-  T& default_value,
+  const std::string & parameter_name,
+  T & default_value,
   const bool strict = true
-){
+)
+{
   T value = getParam(interfaces, parameter_name, default_value);
-  if (value < 0 || (strict && value == 0))
-  {
-    RCLCPP_WARN_STREAM(interfaces.get_node_logging_interface()->get_logger(),
-                       "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "")
+  if (value < 0 || (strict && value == 0)) {
+    RCLCPP_WARN_STREAM(
+      interfaces.get_node_logging_interface()->get_logger(),
+      "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "")
                        << " 0. Using the default value (" << default_value << ") instead.");
-  }
-  else
-  {
+  } else {
     default_value = value;
   }
 }
@@ -205,8 +204,8 @@ inline void getPositiveParam(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  const std::string& parameter_name,
-  rclcpp::Duration& default_value, const bool strict = true)
+  const std::string & parameter_name,
+  rclcpp::Duration & default_value, const bool strict = true)
 {
   double default_value_sec = default_value.seconds();
   getPositiveParam(interfaces, parameter_name, default_value_sec, strict);
@@ -226,31 +225,35 @@ inline void getPositiveParam(
  *                            not exist
  * @return The loaded (or default) covariance matrix, generated from the diagonal vector
  */
-template <int Size, typename Scalar = double>
+template<int Size, typename Scalar = double>
 fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
   node_interfaces::NodeInterfaces<
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  const std::string& parameter_name,
+  const std::string & parameter_name,
   Scalar default_value
-){
+)
+{
   using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
 
   std::vector<Scalar> diagonal(Size, default_value);
   diagonal = getParam(interfaces, parameter_name, diagonal);
 
   const auto diagonal_size = diagonal.size();
-  if (diagonal_size != Size)
-  {
-    throw std::invalid_argument("Invalid size of " + std::to_string(diagonal_size) + ", expected " +
-                                std::to_string(Size));
+  if (diagonal_size != Size) {
+    throw std::invalid_argument(
+            "Invalid size of " + std::to_string(diagonal_size) + ", expected " +
+            std::to_string(Size));
   }
 
-  if (std::any_of(diagonal.begin(), diagonal.end(),
-                  [](const auto& value) { return value < Scalar(0); }))  // NOLINT(whitespace/braces)
+  if (std::any_of(
+      diagonal.begin(), diagonal.end(),
+      [](const auto & value) {return value < Scalar(0);}))               // NOLINT(whitespace/braces)
   {
-    throw std::invalid_argument("Invalid negative diagonal values in " + fuse_core::to_string(Vector(diagonal.data())));
+    throw std::invalid_argument(
+            "Invalid negative diagonal values in " +
+            fuse_core::to_string(Vector(diagonal.data())));
   }
 
   return Vector(diagonal.data()).asDiagonal();
@@ -269,8 +272,9 @@ inline fuse_core::Loss::SharedPtr loadLossConfig(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  const std::string& name
-){
+  const std::string & name
+)
+{
   std::string loss_type;
   getParamRequired(interfaces, name + "/type", loss_type);
 

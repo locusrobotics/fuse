@@ -43,14 +43,14 @@
 namespace fuse_core
 {
 
-Constraint::Constraint(const std::string& source, std::initializer_list<UUID> variable_uuid_list) :
-  source_(source),
+Constraint::Constraint(const std::string & source, std::initializer_list<UUID> variable_uuid_list)
+: source_(source),
   uuid_(uuid::generate()),
   variables_(variable_uuid_list)
 {
 }
 
-std::ostream& operator <<(std::ostream& stream, const Constraint& constraint)
+std::ostream & operator<<(std::ostream & stream, const Constraint & constraint)
 {
   constraint.print(stream);
   return stream;

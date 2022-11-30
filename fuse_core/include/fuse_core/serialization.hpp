@@ -79,12 +79,12 @@ public:
    *
    * @param[in] data A byte vector from a ROS message
    */
-  explicit MessageBufferStreamSource(const std::vector<unsigned char>& data);
+  explicit MessageBufferStreamSource(const std::vector<unsigned char> & data);
 
   /**
    * @brief The stream source is non-copyable
    */
-  MessageBufferStreamSource operator=(const MessageBufferStreamSource&) = delete;
+  MessageBufferStreamSource operator=(const MessageBufferStreamSource &) = delete;
 
   /**
    * @brief Read up to n characters from the data vector
@@ -95,10 +95,10 @@ public:
    * @param[in] n The number of bytes to read from the stream
    * @return The number of bytes read, or -1 to indicate EOF
    */
-  std::streamsize read(char_type* s, std::streamsize n);
+  std::streamsize read(char_type * s, std::streamsize n);
 
 private:
-  const std::vector<unsigned char>& data_;  //!< Reference to the source container
+  const std::vector<unsigned char> & data_;  //!< Reference to the source container
   size_t index_;  //!< The next vector index to read
 };
 
@@ -118,12 +118,12 @@ public:
    *
    * @param[in] data A byte vector from a ROS message
    */
-  explicit MessageBufferStreamSink(std::vector<unsigned char>& data);
+  explicit MessageBufferStreamSink(std::vector<unsigned char> & data);
 
   /**
    * @brief The stream sink is non-copyable
    */
-  MessageBufferStreamSink operator=(const MessageBufferStreamSink&) = delete;
+  MessageBufferStreamSink operator=(const MessageBufferStreamSink &) = delete;
 
   /**
    * @brief Write n characters to the data vector
@@ -134,10 +134,10 @@ public:
    * @param[in] n The number of bytes to write to the stream
    * @return The number of bytes written
    */
-  std::streamsize write(const char_type* s, std::streamsize n);
+  std::streamsize write(const char_type * s, std::streamsize n);
 
 private:
-  std::vector<unsigned char>& data_;  //!< Reference to the destination container
+  std::vector<unsigned char> & data_;  //!< Reference to the destination container
 };
 
 }  // namespace fuse_core
@@ -151,7 +151,7 @@ namespace serialization
  * @brief Serialize a rclcpp::Time variable using Boost Serialization
  */
 template<class Archive>
-void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* version */)
+void serialize(Archive & archive, rclcpp::Time & stamp, const unsigned int /* version */)
 {
   auto nanoseconds = stamp.nanoseconds();
   auto clock_type = stamp.get_clock_type();
@@ -165,22 +165,20 @@ void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* vers
  *
  * https://stackoverflow.com/questions/54534047/eigen-matrix-boostserialization-c17/54535484#54535484
  */
-template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+template<class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 inline void serialize(
-  Archive& archive,
-  Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>& matrix,
+  Archive & archive,
+  Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols> & matrix,
   const unsigned int /* version */)
 {
   Eigen::Index rows = matrix.rows();
   Eigen::Index cols = matrix.cols();
   archive & rows;
   archive & cols;
-  if (rows != matrix.rows() || cols != matrix.cols())
-  {
+  if (rows != matrix.rows() || cols != matrix.cols()) {
     matrix.resize(rows, cols);
   }
-  if (matrix.size() != 0)
-  {
+  if (matrix.size() != 0) {
     archive & boost::serialization::make_array(matrix.data(), rows * cols);
   }
 }

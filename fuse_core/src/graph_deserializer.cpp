@@ -41,7 +41,7 @@
 namespace fuse_core
 {
 
-void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::msg::SerializedGraph& msg)
+void serializeGraph(const fuse_core::Graph & graph, fuse_msgs::msg::SerializedGraph & msg)
 {
   // Serialize the graph into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
@@ -54,8 +54,8 @@ void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::msg::SerializedGra
   msg.plugin_name = graph.type();
 }
 
-GraphDeserializer::GraphDeserializer() :
-  variable_loader_("fuse_core", "fuse_core::Variable"),
+GraphDeserializer::GraphDeserializer()
+: variable_loader_("fuse_core", "fuse_core::Variable"),
   constraint_loader_("fuse_core", "fuse_core::Constraint"),
   loss_loader_("fuse_core", "fuse_core::Loss"),
   graph_loader_("fuse_core", "fuse_core::Graph")
@@ -63,21 +63,19 @@ GraphDeserializer::GraphDeserializer() :
   // Load all known plugin libraries
   // I believe the library containing a given Variable or Constraint type must be loaded in order to deserialize
   // an object of that type. But I haven't actually tested that theory.
-  for (const auto& class_name : variable_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : variable_loader_.getDeclaredClasses()) {
     variable_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto& class_name : constraint_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : constraint_loader_.getDeclaredClasses()) {
     constraint_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto& class_name : loss_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : loss_loader_.getDeclaredClasses()) {
     loss_loader_.loadLibraryForClass(class_name);
   }
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph& msg) const
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(
+  const fuse_msgs::msg::SerializedGraph & msg) const
 {
   // Create a Graph object using pluginlib. This will throw if the plugin name is not found.
   // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return

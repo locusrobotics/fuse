@@ -35,7 +35,8 @@
 #ifndef FUSE_CORE__AUTODIFF_LOCAL_PARAMETERIZATION_H_
 #define FUSE_CORE__AUTODIFF_LOCAL_PARAMETERIZATION_H_
 
-#warning This header is obsolete, please include fuse_core/autodiff_local_parameterization.hpp instead
+#warning \
+  This header is obsolete, please include fuse_core/autodiff_local_parameterization.hpp instead
 
 #include <fuse_core/autodiff_local_parameterization.hpp>
 

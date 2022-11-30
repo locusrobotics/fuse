@@ -58,17 +58,17 @@ public:
    *
    * @return Loss loader singleton instance
    */
-  static LossLoader& getInstance()
+  static LossLoader & getInstance()
   {
     static LossLoader instance;
     return instance;
   }
 
   // Delete copy and move constructors and assign operators
-  LossLoader(const LossLoader&) = delete;
-  LossLoader(LossLoader&&) = delete;
-  LossLoader& operator=(const LossLoader&) = delete;
-  LossLoader& operator=(LossLoader&&) = delete;
+  LossLoader(const LossLoader &) = delete;
+  LossLoader(LossLoader &&) = delete;
+  LossLoader & operator=(const LossLoader &) = delete;
+  LossLoader & operator=(LossLoader &&) = delete;
 
   /**
    * @brief Create unique instance of a loss function loaded with pluginlib
@@ -76,7 +76,7 @@ public:
    * @param[in] lookup_name Loss function lookup name
    * @return Loss function instance handled by an std::unique_ptr<>
    */
-  pluginlib::UniquePtr<fuse_core::Loss> createUniqueInstance(const std::string& lookup_name)
+  pluginlib::UniquePtr<fuse_core::Loss> createUniqueInstance(const std::string & lookup_name)
   {
     return loss_loader_.createUniqueInstance(lookup_name);
   }
@@ -86,7 +86,7 @@ protected:
    * @brief Constructor
    */
   LossLoader()
-    : loss_loader_("fuse_core", "fuse_core::Loss")
+  : loss_loader_("fuse_core", "fuse_core::Loss")
   {
   }
 
@@ -100,7 +100,7 @@ private:
  * @param[in] lookup_name Loss function lookup name
  * @return Loss function instance handled by an std::unique_ptr<>
  */
-inline pluginlib::UniquePtr<fuse_core::Loss> createUniqueLoss(const std::string& lookup_name)
+inline pluginlib::UniquePtr<fuse_core::Loss> createUniqueLoss(const std::string & lookup_name)
 {
   return LossLoader::getInstance().createUniqueInstance(lookup_name);
 }

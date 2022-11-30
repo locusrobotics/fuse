@@ -41,7 +41,7 @@
 struct Plus
 {
   template<typename T>
-  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+  bool operator()(const T * x, const T * delta, T * x_plus_delta) const
   {
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
     x_plus_delta[1] = x[1] + 5.0 * delta[1];
@@ -53,7 +53,7 @@ struct Plus
 struct Minus
 {
   template<typename T>
-  bool operator()(const T* x1, const T* x2, T* delta) const
+  bool operator()(const T * x1, const T * x2, T * delta) const
   {
     delta[0] = (x2[0] - x1[0]) / 2.0;
     delta[1] = (x2[1] - x1[1]) / 5.0;
@@ -89,8 +89,8 @@ TEST(LocalParameterization, PlusJacobian)
 
   fuse_core::MatrixXd expected(3, 2);
   expected << 2.0, 0.0,
-              0.0, 5.0,
-              0.0, 0.0;
+    0.0, 5.0,
+    0.0, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
@@ -120,7 +120,7 @@ TEST(LocalParameterization, MinusJacobian)
 
   fuse_core::MatrixXd expected(2, 3);
   expected << 0.5, 0.0, 0.0,
-              0.0, 0.2, 0.0;
+    0.0, 0.2, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);

@@ -49,13 +49,13 @@ namespace fuse_core
 {
 
 template<class Message>
-MessageBuffer<Message>::MessageBuffer(const rclcpp::Duration& buffer_length) :
-  buffer_length_(buffer_length)
+MessageBuffer<Message>::MessageBuffer(const rclcpp::Duration & buffer_length)
+: buffer_length_(buffer_length)
 {
 }
 
 template<class Message>
-void MessageBuffer<Message>::insert(const rclcpp::Time& stamp, const Message& msg)
+void MessageBuffer<Message>::insert(const rclcpp::Time & stamp, const Message & msg)
 {
   buffer_.emplace_back(stamp, msg);
   purgeHistory();
@@ -63,58 +63,60 @@ void MessageBuffer<Message>::insert(const rclcpp::Time& stamp, const Message& ms
 
 template<class Message>
 typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
-  const rclcpp::Time& beginning_stamp,
-  const rclcpp::Time& ending_stamp,
+  const rclcpp::Time & beginning_stamp,
+  const rclcpp::Time & ending_stamp,
   bool extended_range)
 {
   // Verify the query is valid
-  if (ending_stamp < beginning_stamp)
-  {
+  if (ending_stamp < beginning_stamp) {
     std::stringstream beginning_time_ss;
     beginning_time_ss << beginning_stamp.seconds();
     std::stringstream ending_time_ss;
     ending_time_ss << ending_stamp.seconds();
-    throw std::invalid_argument("The beginning_stamp (" + beginning_time_ss.str() + ") must be less than or equal to "
-                                "the ending_stamp (" + ending_time_ss.str() + ").");
+    throw std::invalid_argument(
+            "The beginning_stamp (" + beginning_time_ss.str() + ") must be less than or equal to "
+            "the ending_stamp (" + ending_time_ss.str() + ").");
   }
   // Verify the query is within the bounds of the buffer
-  if (buffer_.empty() || (beginning_stamp < buffer_.front().first) || (ending_stamp > buffer_.back().first))
+  if (buffer_.empty() || (beginning_stamp < buffer_.front().first) ||
+    (ending_stamp > buffer_.back().first))
   {
     std::stringstream requested_time_range_ss;
-    requested_time_range_ss << "(" << beginning_stamp.seconds() << ", " << ending_stamp.seconds() << ")";
+    requested_time_range_ss << "(" << beginning_stamp.seconds() << ", " << ending_stamp.seconds() <<
+      ")";
     std::stringstream available_time_range_ss;
-    if (buffer_.empty())
-    {
+    if (buffer_.empty()) {
       available_time_range_ss << "(EMPTY)";
-    }
-    else
-    {
+    } else {
       available_time_range_ss << "(" << buffer_.front().first.seconds() << ", "
                               << buffer_.back().first.seconds() << ")";
     }
-    throw std::out_of_range("The requested time range " + requested_time_range_ss.str() + " is outside the available "
-                            "time range " + available_time_range_ss.str() + ".");
+    throw std::out_of_range(
+            "The requested time range " + requested_time_range_ss.str() + " is outside the available "
+            "time range " + available_time_range_ss.str() + ".");
   }
   // Find the entry that is strictly greater than the requested beginning stamp. If the extended range flag is true,
   // we will then back up one entry.
-  auto upper_bound_comparison = [](const auto& stamp, const auto& element) -> bool
-  {
-    return (element.first > stamp);
-  };
-  auto beginning_iter = std::upper_bound(buffer_.begin(), buffer_.end(), beginning_stamp, upper_bound_comparison);
-  if (extended_range)
-  {
+  auto upper_bound_comparison = [](const auto & stamp, const auto & element) -> bool
+    {
+      return element.first > stamp;
+    };
+  auto beginning_iter = std::upper_bound(
+    buffer_.begin(),
+    buffer_.end(), beginning_stamp, upper_bound_comparison);
+  if (extended_range) {
     --beginning_iter;
   }
   // Find the entry that is greater than or equal to the ending stamp. If the extended range flag is false, we will
   // back up one entry.
-  auto lower_bound_comparison = [](const auto& element, const auto& stamp) -> bool
-  {
-    return (element.first < stamp);
-  };
-  auto ending_iter = std::lower_bound(buffer_.begin(), buffer_.end(), ending_stamp, lower_bound_comparison);
-  if (extended_range && (ending_iter != buffer_.end()))
-  {
+  auto lower_bound_comparison = [](const auto & element, const auto & stamp) -> bool
+    {
+      return element.first < stamp;
+    };
+  auto ending_iter = std::lower_bound(
+    buffer_.begin(),
+    buffer_.end(), ending_stamp, lower_bound_comparison);
+  if (extended_range && (ending_iter != buffer_.end())) {
     ++ending_iter;
   }
   // Return the beginning and ending iterators as an iterator range with the correct deference type
@@ -124,8 +126,9 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
 template<class Message>
 typename MessageBuffer<Message>::stamp_range MessageBuffer<Message>::stamps() const
 {
-  return stamp_range(boost::make_transform_iterator(buffer_.begin(), extractStamp),
-                     boost::make_transform_iterator(buffer_.end(), extractStamp));
+  return stamp_range(
+    boost::make_transform_iterator(buffer_.begin(), extractStamp),
+    boost::make_transform_iterator(buffer_.end(), extractStamp));
 }
 
 template<class Message>
@@ -134,13 +137,12 @@ void MessageBuffer<Message>::purgeHistory()
   // Purge any messages that are more than buffer_length_ seconds older than the most recent entry
   // A setting of rclcpp::Duration::max() means "keep everything"
   // And we want to keep at least two entries in buffer at all times, regardless of the stamps.
-  if ((buffer_length_ == rclcpp::Duration::max()) || (buffer_.size() <= 2))
-  {
+  if ((buffer_length_ == rclcpp::Duration::max()) || (buffer_.size() <= 2)) {
     return;
   }
 
   // Compute the expiration time carefully, as ROS can't handle negative times
-  const auto& ending_stamp = buffer_.back().first;
+  const auto & ending_stamp = buffer_.back().first;
 
   rclcpp::Time expiration_time;
   if (ending_stamp.seconds() > buffer_length_.seconds()) {
@@ -154,13 +156,14 @@ void MessageBuffer<Message>::purgeHistory()
   // Be careful to ensure that:
   //  - at least two entries remains at all times
   //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
-  auto is_greater = [](const auto& stamp, const auto& element) -> bool
-  {
-    return (element.first > stamp);
-  };
-  auto expiration_iter = std::upper_bound(buffer_.begin(), buffer_.end(), expiration_time, is_greater);
-  if (expiration_iter != buffer_.begin())
-  {
+  auto is_greater = [](const auto & stamp, const auto & element) -> bool
+    {
+      return element.first > stamp;
+    };
+  auto expiration_iter = std::upper_bound(
+    buffer_.begin(),
+    buffer_.end(), expiration_time, is_greater);
+  if (expiration_iter != buffer_.begin()) {
     // expiration_iter points to the first element > expiration_time.
     // Back up one entry, to a point that is <= expiration_time
     buffer_.erase(buffer_.begin(), std::prev(expiration_iter));

@@ -45,8 +45,8 @@
 class MyPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  MyPublisher() :
-    fuse_core::AsyncPublisher(1),
+  MyPublisher()
+  : fuse_core::AsyncPublisher(1),
     callback_processed(false),
     initialized(false)
   {
@@ -109,8 +109,7 @@ TEST_F(TestAsyncPublisher, notifyCallback)
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
 
   rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!publisher.callback_processed && clock.now() < wait_time_elapsed)
-  {
+  while (!publisher.callback_processed && clock.now() < wait_time_elapsed) {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(publisher.callback_processed);

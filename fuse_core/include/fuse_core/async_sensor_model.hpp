@@ -117,7 +117,7 @@ public:
    * @param[in] transaction_callback The function to call every time a transaction is published
    */
   void initialize(
-    const std::string& name,
+    const std::string & name,
     TransactionCallback transaction_callback) override;
 
   /**
@@ -138,7 +138,7 @@ public:
   /**
    * @brief Get the unique name of this sensor
    */
-  const std::string& name() const override { return name_; }
+  const std::string & name() const override {return name_;}
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions

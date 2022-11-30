@@ -74,9 +74,9 @@ public:
    * @return True if successful, false otherwise
    */
   virtual bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const = 0;
+    const double * x1,
+    const double * x2,
+    double * delta) const = 0;
 
   /**
    * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
@@ -86,8 +86,8 @@ public:
    * @return True if successful, false otherwise
    */
   virtual bool ComputeMinusJacobian(
-    const double* x,
-    double* jacobian) const = 0;
+    const double * x,
+    double * jacobian) const = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -100,7 +100,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  void serialize(Archive & /* archive */, const unsigned int /* version */)
   {
   }
 };

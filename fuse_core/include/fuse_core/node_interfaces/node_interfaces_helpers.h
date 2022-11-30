@@ -35,7 +35,8 @@
 #ifndef FUSE_CORE__NODE_INTERFACES__NODE_INTERFACES_HELPERS_H_
 #define FUSE_CORE__NODE_INTERFACES__NODE_INTERFACES_HELPERS_H_
 
-#warning This header is obsolete, please include fuse_core/node_interfaces/node_interfaces_helpers.hpp instead
+#warning \
+  This header is obsolete, please include fuse_core/node_interfaces/node_interfaces_helpers.hpp instead
 
 #include <fuse_core/node_interfaces/node_interfaces_helpers.hpp>
 

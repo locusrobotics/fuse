@@ -73,11 +73,13 @@ namespace fuse_core
  *
  * For more information on local parameterizations, see fuse_core::LocalParameterization
  */
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
 class AutoDiffLocalParameterization : public LocalParameterization
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>)
+  FUSE_SMART_PTR_DEFINITIONS(
+    AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize,
+    kLocalSize>)
 
   /**
    * @brief Constructs new PlusFunctor and MinusFunctor instances
@@ -87,7 +89,7 @@ public:
   /**
    * @brief Takes ownership of the provided PlusFunctor and MinusFunctor instances
    */
-  AutoDiffLocalParameterization(PlusFunctor* plus_functor, MinusFunctor* minus_functor);
+  AutoDiffLocalParameterization(PlusFunctor * plus_functor, MinusFunctor * minus_functor);
 
   /**
    * @brief Generalization of the addition operation, implemented by the provided PlusFunctor
@@ -98,9 +100,9 @@ public:
    * @return True if successful, false otherwise
    */
   bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override;
+    const double * x,
+    const double * delta,
+    double * x_plus_delta) const override;
 
   /**
    * @brief The Jacobian of Plus(x, delta) w.r.t delta at delta = 0, computed using automatic differentiation
@@ -110,8 +112,8 @@ public:
    * @return True is successful, false otherwise
    */
   bool ComputeJacobian(
-    const double* x,
-    double* jacobian) const override;
+    const double * x,
+    double * jacobian) const override;
 
   /**
    * @brief Generalization of the subtraction operation, implemented by the provided MinusFunctor
@@ -122,9 +124,9 @@ public:
    * @return True if successful, false otherwise
    */
   bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const override;
+    const double * x1,
+    const double * x2,
+    double * delta) const override;
 
   /**
    * @brief The Jacobian of Minus(x1, x2) w.r.t x2 evaluated at x1 = x2 = x, computed using automatic differentiation
@@ -133,93 +135,98 @@ public:
    * @return True is successful, false otherwise
    */
   bool ComputeMinusJacobian(
-    const double* x,
-    double* jacobian) const override;
+    const double * x,
+    double * jacobian) const override;
 
   /**
    * @brief The size of the variable parameterization in the nonlinear manifold
    */
-  int GlobalSize() const override { return kGlobalSize; }
+  int GlobalSize() const override {return kGlobalSize;}
 
   /**
    * @brief The size of a delta vector in the linear tangent space to the nonlinear manifold
    */
-  int LocalSize() const override { return kLocalSize; }
+  int LocalSize() const override {return kLocalSize;}
 
 private:
   std::unique_ptr<PlusFunctor> plus_functor_;
   std::unique_ptr<MinusFunctor> minus_functor_;
 };
 
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
-AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::AutoDiffLocalParameterization() :
-  plus_functor_(new PlusFunctor()),
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize,
+  kLocalSize>::AutoDiffLocalParameterization()
+: plus_functor_(new PlusFunctor()),
   minus_functor_(new MinusFunctor())
 {
 }
 
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
-AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::AutoDiffLocalParameterization(
-  PlusFunctor* plus_functor,
-  MinusFunctor* minus_functor) :
-    plus_functor_(plus_functor),
-    minus_functor_(minus_functor)
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize,
+  kLocalSize>::AutoDiffLocalParameterization(
+  PlusFunctor * plus_functor,
+  MinusFunctor * minus_functor)
+: plus_functor_(plus_functor),
+  minus_functor_(minus_functor)
 {
 }
 
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
 bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::Plus(
-  const double* x,
-  const double* delta,
-  double* x_plus_delta) const
+  const double * x,
+  const double * delta,
+  double * x_plus_delta) const
 {
   return (*plus_functor_)(x, delta, x_plus_delta);
 }
 
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
-bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::ComputeJacobian(
-  const double* x,
-  double* jacobian) const
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize,
+  kLocalSize>::ComputeJacobian(
+  const double * x,
+  double * jacobian) const
 {
   double zero_delta[kLocalSize] = {};  // zero-initialize
   double x_plus_delta[kGlobalSize];
 
-  const double* parameter_ptrs[2] = {x, zero_delta};
-  double* jacobian_ptrs[2] = {NULL, jacobian};
+  const double * parameter_ptrs[2] = {x, zero_delta};
+  double * jacobian_ptrs[2] = {NULL, jacobian};
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
   return ceres::internal::AutoDiff<PlusFunctor, double, kGlobalSize, kLocalSize>
-    ::Differentiate(*plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
+         ::Differentiate(*plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
 #else
-  return ceres::internal::AutoDifferentiate<kGlobalSize, ceres::internal::StaticParameterDims<kGlobalSize, kLocalSize>>(
-      *plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
+  return ceres::internal::AutoDifferentiate<kGlobalSize,
+           ceres::internal::StaticParameterDims<kGlobalSize, kLocalSize>>(
+    *plus_functor_, parameter_ptrs, kGlobalSize, x_plus_delta, jacobian_ptrs);
 #endif
 }
 
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
 bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::Minus(
-  const double* x1,
-  const double* x2,
-  double* delta) const
+  const double * x1,
+  const double * x2,
+  double * delta) const
 {
   return (*minus_functor_)(x1, x2, delta);
 }
 
-template <typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
-bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLocalSize>::ComputeMinusJacobian(
-  const double* x,
-  double* jacobian) const
+template<typename PlusFunctor, typename MinusFunctor, int kGlobalSize, int kLocalSize>
+bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize,
+  kLocalSize>::ComputeMinusJacobian(
+  const double * x,
+  double * jacobian) const
 {
   double delta[kLocalSize] = {};  // zero-initialize
 
-  const double* parameter_ptrs[2] = {x, x};
-  double* jacobian_ptrs[2] = {NULL, jacobian};
+  const double * parameter_ptrs[2] = {x, x};
+  double * jacobian_ptrs[2] = {NULL, jacobian};
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
   return ceres::internal::AutoDiff<MinusFunctor, double, kGlobalSize, kGlobalSize>
-    ::Differentiate(*minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
+         ::Differentiate(*minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
 #else
   using StaticParameters = ceres::internal::StaticParameterDims<kGlobalSize, kGlobalSize>;
   return ceres::internal::AutoDifferentiate<kLocalSize, StaticParameters>(
-      *minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
+    *minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);
 #endif
 }
 

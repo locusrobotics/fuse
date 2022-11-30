@@ -43,15 +43,15 @@
 class MyMotionModel : public fuse_core::AsyncMotionModel
 {
 public:
-  MyMotionModel() :
-    fuse_core::AsyncMotionModel(1),
+  MyMotionModel()
+  : fuse_core::AsyncMotionModel(1),
     initialized(false)
   {
   }
 
   virtual ~MyMotionModel() = default;
 
-  bool applyCallback(fuse_core::Transaction& /*transaction*/)
+  bool applyCallback(fuse_core::Transaction & /*transaction*/)
   {
     rclcpp::sleep_for(std::chrono::milliseconds(1000));
     transaction_received = true;
@@ -110,8 +110,7 @@ TEST_F(TestAsyncMotionModel, OnGraphUpdate)
 
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
   rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!motion_model.graph_received && clock.now() < wait_time_elapsed)
-  {
+  while (!motion_model.graph_received && clock.now() < wait_time_elapsed) {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(motion_model.graph_received);

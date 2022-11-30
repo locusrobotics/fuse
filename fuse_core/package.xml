@@ -9,8 +9,8 @@
   </description>
 
   <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
-  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
   <license>BSD</license>
+  <author email="swilliams@locusrobotics.com">Stephen Williams</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

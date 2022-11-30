@@ -54,20 +54,21 @@ class ExampleLoss : public fuse_core::Loss
 public:
   FUSE_LOSS_DEFINITIONS(ExampleLoss)
 
-  explicit ExampleLoss(const double a = 1.0) : a(a)
+  explicit ExampleLoss(const double a = 1.0)
+  : a(a)
   {
   }
 
-  void initialize(const std::string& /*name*/) override {}
+  void initialize(const std::string & /*name*/) override {}
 
-  void print(std::ostream& /*stream = std::cout*/) const override {}
+  void print(std::ostream & /*stream = std::cout*/) const override {}
 
-  ceres::LossFunction* lossFunction() const override
+  ceres::LossFunction * lossFunction() const override
   {
     return new ceres::HuberLoss(a);
   }
 
-  double a{ 1.0 };  //!< Public member variable just for testing
+  double a{1.0};    //!< Public member variable just for testing
 
 private:
   // Allow Boost Serialization access to private methods
@@ -80,7 +81,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
     archive & a;

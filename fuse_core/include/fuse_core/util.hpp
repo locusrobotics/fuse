@@ -54,18 +54,15 @@ namespace fuse_core
  * @param[in] z The quaternion x-axis component
  * @return      The quaternion's Euler pitch angle component
  */
-template <typename T>
+template<typename T>
 static inline T getPitch(const T w, const T x, const T y, const T z)
 {
   // Adapted from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   const T sin_pitch = T(2.0) * (w * y - z * x);
 
-  if (ceres::abs(sin_pitch) >= T(1.0))
-  {
+  if (ceres::abs(sin_pitch) >= T(1.0)) {
     return (sin_pitch >= T(0.0) ? T(1.0) : T(-1.0)) * T(M_PI / 2.0);
-  }
-  else
-  {
+  } else {
     return ceres::asin(sin_pitch);
   }
 }
@@ -79,7 +76,7 @@ static inline T getPitch(const T w, const T x, const T y, const T z)
  * @param[in] z The quaternion x-axis component
  * @return      The quaternion's Euler roll angle component
  */
-template <typename T>
+template<typename T>
 static inline T getRoll(const T w, const T x, const T y, const T z)
 {
   // Adapted from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -97,7 +94,7 @@ static inline T getRoll(const T w, const T x, const T y, const T z)
  * @param[in] z The quaternion x-axis component
  * @return      The quaternion's Euler yaw angle component
  */
-template <typename T>
+template<typename T>
 static inline T getYaw(const T w, const T x, const T y, const T z)
 {
   // Adapted from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -111,8 +108,8 @@ static inline T getYaw(const T w, const T x, const T y, const T z)
  *
  * @param[in/out] angle Input angle to be wrapped to the [-Pi, +Pi) range. Angle is updated by this function.
  */
-template <typename T>
-void wrapAngle2D(T& angle)
+template<typename T>
+void wrapAngle2D(T & angle)
 {
   // Define some necessary variations of PI with the correct type (double or Jet)
   static const T PI = T(M_PI);
@@ -128,8 +125,8 @@ void wrapAngle2D(T& angle)
  * @param[in] angle Input angle to be wrapped to the (-Pi, +Pi] range.
  * @return The equivalent wrapped angle
  */
-template <typename T>
-T wrapAngle2D(const T& angle)
+template<typename T>
+T wrapAngle2D(const T & angle)
 {
   T wrapped = angle;
   wrapAngle2D(wrapped);
@@ -142,7 +139,7 @@ T wrapAngle2D(const T& angle)
  * @param[in] angle The rotation angle, in radians
  * @return          The equivalent 2x2 rotation matrix
  */
-template <typename T>
+template<typename T>
 Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
 {
   const T cos_angle = ceres::cos(angle);

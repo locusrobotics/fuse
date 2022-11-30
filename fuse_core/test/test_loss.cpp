@@ -38,7 +38,7 @@
 
 TEST(Loss, Constructor)
 {
-  const double a{ 0.3 };
+  const double a{0.3};
   ExampleLoss loss(a);
   ASSERT_EQ(a, loss.a);
 
@@ -46,8 +46,7 @@ TEST(Loss, Constructor)
 
   ASSERT_NE(nullptr, loss_function);
 
-  if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP)
-  {
+  if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP) {
     delete loss_function;
   }
 }

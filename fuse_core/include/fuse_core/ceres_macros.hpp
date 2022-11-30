@@ -39,8 +39,8 @@
 /**
  * Check for at least Ceres Solver version x.y.z, where: x = major, y = minor and z = revision.
  */
-#define CERES_VERSION_AT_LEAST(x, y, z) (CERES_VERSION_MAJOR > x || (CERES_VERSION_MAJOR    >= x && \
-                                        (CERES_VERSION_MINOR > y || (CERES_VERSION_MINOR    >= y && \
-                                                                     CERES_VERSION_REVISION >= z))))
+#define CERES_VERSION_AT_LEAST(x, y, z) (CERES_VERSION_MAJOR > x || (CERES_VERSION_MAJOR >= x && \
+  (CERES_VERSION_MINOR > y || (CERES_VERSION_MINOR >= y && \
+  CERES_VERSION_REVISION >= z))))
 
 #endif  // FUSE_CORE__CERES_MACROS_HPP_

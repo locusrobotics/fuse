@@ -45,8 +45,8 @@
 class MessageBufferTestFixture : public ::testing::Test
 {
 public:
-  MessageBufferTestFixture() :
-    buffer(rclcpp::Duration::max())
+  MessageBufferTestFixture()
+  : buffer(rclcpp::Duration::max())
   {
   }
 
@@ -65,7 +65,9 @@ public:
 TEST_F(MessageBufferTestFixture, Exceptions)
 {
   // Call the query with the parameters in the wrong order. This should throw.
-  EXPECT_THROW(buffer.query(rclcpp::Time(20, 0), rclcpp::Time(10, 0), false), std::invalid_argument);
+  EXPECT_THROW(
+    buffer.query(rclcpp::Time(20, 0), rclcpp::Time(10, 0), false),
+    std::invalid_argument);
 
   // Call the query when the buffer is empty. This should throw.
   EXPECT_THROW(buffer.query(rclcpp::Time(10, 0), rclcpp::Time(25, 0), false), std::out_of_range);

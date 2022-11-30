@@ -39,8 +39,8 @@
 namespace fuse_core
 {
 
-AsyncPublisher::AsyncPublisher(size_t thread_count) :
-  name_("uninitialized"),
+AsyncPublisher::AsyncPublisher(size_t thread_count)
+: name_("uninitialized"),
   executor_thread_count_(thread_count)
 {
 }
@@ -53,7 +53,7 @@ AsyncPublisher::~AsyncPublisher()
   }
 }
 
-void AsyncPublisher::initialize(const std::string& name)
+void AsyncPublisher::initialize(const std::string & name)
 {
   // Initialize internal state
   name_ = name;
@@ -69,7 +69,9 @@ void AsyncPublisher::initialize(const std::string& name)
 
   auto executor_options = rclcpp::ExecutorOptions();
   executor_options.context = ros_context;
-  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(executor_options, executor_thread_count_);
+  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
+    executor_options,
+    executor_thread_count_);
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
   node_->get_node_waitables_interface()->add_waitable(
@@ -81,9 +83,10 @@ void AsyncPublisher::initialize(const std::string& name)
   executor_->add_node(node_);
 
   // TODO(CH3): Remove this if the internal node is removed
-  spinner_ = std::thread([&](){
-    executor_->spin();
-  });
+  spinner_ = std::thread(
+    [&]() {
+      executor_->spin();
+    });
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
@@ -97,7 +100,8 @@ void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::Cons
 
 void AsyncPublisher::start()
 {
-  auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStart, this));
+  auto callback =
+    std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStart, this));
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
@@ -105,15 +109,13 @@ void AsyncPublisher::start()
 
 void AsyncPublisher::stop()
 {
-  if (node_->get_node_base_interface()->get_context()->is_valid())
-  {
-    auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStop, this));
+  if (node_->get_node_base_interface()->get_context()->is_valid()) {
+    auto callback =
+      std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStop, this));
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();
-  }
-  else
-  {
+  } else {
     executor_->cancel();
     executor_->remove_node(node_);
 

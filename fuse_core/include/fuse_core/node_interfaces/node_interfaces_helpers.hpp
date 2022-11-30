@@ -189,7 +189,8 @@ public:
   /// Set the bound NodeParametersInterface
   inline
   void
-  set_node_parameters_interface(rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface)
+  set_node_parameters_interface(
+    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface)
   {
     impl_ = interface;
   }
@@ -253,7 +254,8 @@ public:
   /// Set the bound NodeTimeSourceInterface
   inline
   void
-  set_node_time_source_interface(rclcpp::node_interfaces::NodeTimeSourceInterface::SharedPtr interface)
+  set_node_time_source_interface(
+    rclcpp::node_interfaces::NodeTimeSourceInterface::SharedPtr interface)
   {
     impl_ = interface;
   }

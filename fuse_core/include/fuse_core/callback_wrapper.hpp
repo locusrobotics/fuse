@@ -101,7 +101,7 @@ public:
 
 };
 
-template <typename T>
+template<typename T>
 class CallbackWrapper : public CallbackWrapperBase
 {
 public:
@@ -112,8 +112,8 @@ public:
    *
    * @param[in] callback The function to be called from the callback queue
    */
-  explicit CallbackWrapper(CallbackFunction callback) :
-    callback_(callback)
+  explicit CallbackWrapper(CallbackFunction callback)
+  : callback_(callback)
   {
   }
 
@@ -140,7 +140,7 @@ private:
 
 // Specialization to handle 'void' return types
 // Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
-template <>
+template<>
 inline void CallbackWrapper<void>::call()
 {
   callback_();
@@ -151,7 +151,6 @@ inline void CallbackWrapper<void>::call()
 class CallbackAdapter : public rclcpp::Waitable
 {
 public:
-
   CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
 
   /**
@@ -173,23 +172,22 @@ public:
    */
   void add_to_wait_set(rcl_wait_set_t * wait_set) override;
 
-  std::shared_ptr< void > take_data() override;
+  std::shared_ptr<void> take_data() override;
 
   // TODO(CH3): check this against the threading model of the multi-threaded executor.
   void execute(std::shared_ptr<void> & data) override;
 
-  void addCallback(const std::shared_ptr<CallbackWrapperBase> &callback);
+  void addCallback(const std::shared_ptr<CallbackWrapperBase> & callback);
 
   void addCallback(std::shared_ptr<CallbackWrapperBase> && callback);
 
   void removeAllCallbacks();
 
-
 private:
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
 
   std::mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
-  std::deque<std::shared_ptr<CallbackWrapperBase> > callback_queue_;
+  std::deque<std::shared_ptr<CallbackWrapperBase>> callback_queue_;
 };
 
 

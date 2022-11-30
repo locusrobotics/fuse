@@ -66,8 +66,8 @@ void loadCovarianceOptionsFromROS(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  ceres::Covariance::Options& covariance_options,
-  const std::string& namespace_string)
+  ceres::Covariance::Options & covariance_options,
+  const std::string & namespace_string)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -79,7 +79,9 @@ void loadCovarianceOptionsFromROS(
     interfaces, ns + "sparse_linear_algebra_library_type",
     covariance_options.sparse_linear_algebra_library_type);
   covariance_options.algorithm_type =
-    fuse_core::declareCeresParam(interfaces, ns + "algorithm_type", covariance_options.algorithm_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "algorithm_type",
+    covariance_options.algorithm_type);
 
   tmp_descr.description = (
     "If DENSE_SVD is used, this parameter sets the threshold for determining if a Jacobian matrix "
@@ -119,8 +121,8 @@ void loadCovarianceOptionsFromROS(
 
 void loadProblemOptionsFromROS(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  ceres::Problem::Options& problem_options,
-  const std::string& namespace_string)
+  ceres::Problem::Options & problem_options,
+  const std::string & namespace_string)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -154,8 +156,8 @@ void loadSolverOptionsFromROS(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  ceres::Solver::Options& solver_options,
-  const std::string& namespace_string)
+  ceres::Solver::Options & solver_options,
+  const std::string & namespace_string)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -167,7 +169,9 @@ void loadSolverOptionsFromROS(
   solver_options.line_search_direction_type = fuse_core::declareCeresParam(
     interfaces, ns + "line_search_direction_type", solver_options.line_search_direction_type);
   solver_options.line_search_type =
-    fuse_core::declareCeresParam(interfaces, ns + "line_search_type", solver_options.line_search_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "line_search_type",
+    solver_options.line_search_type);
   solver_options.nonlinear_conjugate_gradient_type = fuse_core::declareCeresParam(
     interfaces, ns + "nonlinear_conjugate_gradient_type",
     solver_options.nonlinear_conjugate_gradient_type);
@@ -337,7 +341,8 @@ void loadSolverOptionsFromROS(
     tmp_descr
   );
 
-  tmp_descr.description = "The window size used by the step selection algorithm to accept non-monotonic steps";
+  tmp_descr.description =
+    "The window size used by the step selection algorithm to accept non-monotonic steps";
   solver_options.max_consecutive_nonmonotonic_steps = fuse_core::getParam(
     interfaces,
     ns + "max_consecutive_nonmonotonic_steps",
@@ -468,15 +473,24 @@ void loadSolverOptionsFromROS(
   );
 
   solver_options.linear_solver_type =
-      fuse_core::declareCeresParam(interfaces, ns + "linear_solver_type", solver_options.linear_solver_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "linear_solver_type",
+    solver_options.linear_solver_type);
   solver_options.preconditioner_type =
-      fuse_core::declareCeresParam(interfaces, ns + "preconditioner_type", solver_options.preconditioner_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "preconditioner_type",
+    solver_options.preconditioner_type);
   solver_options.visibility_clustering_type =
-      fuse_core::declareCeresParam(interfaces, ns + "visibility_clustering_type", solver_options.visibility_clustering_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "visibility_clustering_type",
+    solver_options.visibility_clustering_type);
   solver_options.dense_linear_algebra_library_type =
-      fuse_core::declareCeresParam(interfaces, ns + "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "dense_linear_algebra_library_type",
+    solver_options.dense_linear_algebra_library_type);
   solver_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
-      interfaces, ns + "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
+    interfaces, ns + "sparse_linear_algebra_library_type",
+    solver_options.sparse_linear_algebra_library_type);
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
 
@@ -613,7 +627,7 @@ void loadSolverOptionsFromROS(
       iterations_to_dump_tmp.begin(),
       iterations_to_dump_tmp.end(),
       std::back_inserter(solver_options.trust_region_minimizer_iterations_to_dump),
-      [](int64_t val){ return val; });
+      [](int64_t val) {return val;});
   }
 
   tmp_descr.description = (
@@ -629,10 +643,10 @@ void loadSolverOptionsFromROS(
   );
   solver_options.trust_region_problem_dump_format_type =
     fuse_core::declareCeresParam(
-      interfaces,
-      ns + "trust_region_problem_dump_format_type",
-      solver_options.trust_region_problem_dump_format_type
-  );
+    interfaces,
+    ns + "trust_region_problem_dump_format_type",
+    solver_options.trust_region_problem_dump_format_type
+    );
 
   // Finite differences options
   tmp_descr.description = (
@@ -677,12 +691,11 @@ void loadSolverOptionsFromROS(
   );
 
   std::string error;
-  if (!solver_options.IsValid(&error))
-  {
+  if (!solver_options.IsValid(&error)) {
     throw std::invalid_argument(
-      "Invalid solver options in parameter "
-      + std::string(interfaces.get_node_base_interface()->get_namespace())
-      + ". Error: " + error);
+            "Invalid solver options in parameter " +
+            std::string(interfaces.get_node_base_interface()->get_namespace()) +
+            ". Error: " + error);
   }
 }
 
