@@ -32,11 +32,11 @@ ament_add_gtest_executable(test_load_device_id launch_tests/test_load_device_id.
 target_link_libraries(test_load_device_id ${PROJECT_NAME})
 
 ament_add_pytest_test(test_load_device_id_py "launch_tests/test_load_device_id.py"
-  PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
-install(
-  DIRECTORY launch_tests
-  DESTINATION share/${PROJECT_NAME}/test
+configure_file(
+  "launch_tests/test_load_device_id.yaml"
+  "launch_tests/test_load_device_id.yaml"
+  COPYONLY
 )

@@ -107,9 +107,3 @@ TEST(FixedSizeVariable, Array)
   EXPECT_NO_THROW(success = success && const_variable.array().back() == 4.0);
   EXPECT_TRUE(success);
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

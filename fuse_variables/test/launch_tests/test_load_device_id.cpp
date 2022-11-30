@@ -46,30 +46,23 @@ class TestLoadDeviceId : public ::testing::Test
 public:
   void SetUp() override
   {
-    exec_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-
-    spinning_ = true;
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     spinner_ = std::thread([&](){
-      auto context = rclcpp::contexts::get_global_default_context();
-      while(context->is_valid() && spinning_) {
-        exec_->spin_some();
-      }
+        executor_->spin();
     });
   }
 
   void TearDown() override
   {
-    spinning_ = false;
+    executor_->cancel();
     if (spinner_.joinable()) {
       spinner_.join();
     }
-
-    exec_.reset();
+    executor_.reset();
   }
 
   std::thread spinner_;  //!< Internal thread for spinning the executor
-  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
-  rclcpp::executors::SingleThreadedExecutor::SharedPtr exec_;
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
 
 TEST_F(TestLoadDeviceId, LoadDeviceId)
@@ -178,6 +171,8 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   }
 }
 
+
+// NOTE(CH3): This main is required because the test is manually run by a launch test
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);

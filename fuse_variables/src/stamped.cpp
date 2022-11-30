@@ -46,7 +46,6 @@ namespace fuse_variables
 fuse_core::UUID loadDeviceId(
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces)
 {
-  fuse_core::UUID device_id;
   std::string device_str;
 
   device_str = fuse_core::getParam(interfaces, "device_id", std::string());

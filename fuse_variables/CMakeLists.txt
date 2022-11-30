@@ -11,7 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(fuse_core REQUIRED)
 find_package(pluginlib REQUIRED)
 
@@ -22,7 +22,7 @@ find_package(Ceres REQUIRED)
 ###########
 
 ## fuse_variables library
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   src/acceleration_angular_2d_stamped.cpp
   src/acceleration_angular_3d_stamped.cpp
   src/acceleration_linear_2d_stamped.cpp
@@ -76,10 +76,7 @@ install(DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
 
-install(
-  FILES fuse_plugins.xml
-  DESTINATION share/${PROJECT_NAME}
-)
+pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
 ament_export_dependencies(
