@@ -105,18 +105,13 @@ TEST_F(TestAsyncPublisher, notifyCallback)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   publisher.notify(transaction, graph);
   EXPECT_FALSE(publisher.callback_processed);
-  rclcpp::Time wait_time_elapsed =
-    rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
-  while (!publisher.callback_processed
-         && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
+
+  auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
+
+  rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
+  while (!publisher.callback_processed && clock.now() < wait_time_elapsed)
   {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(publisher.callback_processed);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

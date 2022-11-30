@@ -76,8 +76,8 @@ public:
     graph_received = true;
   }
 
-  bool graph_received;
-  bool initialized;
+  bool graph_received = false;
+  bool initialized = false;
 };
 
 class TestAsyncSensorModel : public ::testing::Test
@@ -113,9 +113,9 @@ TEST_F(TestAsyncSensorModel, OnGraphUpdate)
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
   sensor.graphCallback(graph);
   EXPECT_FALSE(sensor.graph_received);
-  rclcpp::Time wait_time_elapsed =
-    rclcpp::Clock(RCL_SYSTEM_TIME).now() + rclcpp::Duration::from_seconds(10.0);
-  while (!sensor.graph_received && rclcpp::Clock(RCL_SYSTEM_TIME).now() < wait_time_elapsed)
+  auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
+  rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
+  while (!sensor.graph_received && clock.now() < wait_time_elapsed)
   {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
@@ -131,10 +131,4 @@ TEST_F(TestAsyncSensorModel, SendTransaction)
   fuse_core::Transaction::SharedPtr transaction;  // nullptr, okay because we don't actually use it for anything
   sensor.sendTransaction(transaction);
   EXPECT_TRUE(received_transaction);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

@@ -41,9 +41,3 @@ TEST(Variable, Type)
   ExampleVariable variable;
   ASSERT_EQ("ExampleVariable", variable.type());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

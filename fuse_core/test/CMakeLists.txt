@@ -55,11 +55,7 @@ ament_add_gtest_executable(test_parameters launch_tests/test_parameters.cpp)
 target_link_libraries(test_parameters ${PROJECT_NAME})
 
 ament_add_pytest_test(test_parameters_py "launch_tests/test_parameters.py"
-  PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
-install(
-  DIRECTORY launch_tests
-  DESTINATION share/${PROJECT_NAME}/test
-)
+configure_file("launch_tests/test_parameters.yaml" "launch_tests/test_parameters.yaml" COPYONLY)

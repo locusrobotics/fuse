@@ -42,9 +42,23 @@
 #include <stdexcept>
 #include <string>
 
+// NOTE(CH3): Most of the parameter descriptions here were adapted from the parameter descriptions
+//            in the Ceres source code.
+//
+// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/solver.h
+// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/covariance.h
+// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/problem.h
+// ...
 
 namespace fuse_core
 {
+
+// Helper function to get a namespace string with a '.' suffix, but only if not empty
+static std::string get_well_formatted_namespace_string(std::string ns)
+{
+  return ns.empty() || ns.back() == '.' ? ns : ns + ".";
+}
+
 
 void loadCovarianceOptionsFromROS(
   node_interfaces::NodeInterfaces<
@@ -57,41 +71,40 @@ void loadCovarianceOptionsFromROS(
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string namespace_;
-  if (namespace_string.empty()) {
-    namespace_ = namespace_string;
-  } else {
-    namespace_ = namespace_string + ".";
-  }
+  std::string ns = get_well_formatted_namespace_string(namespace_string);
 
-#if CERES_VERSION_AT_LEAST(1, 13, 0)
   // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
   // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
   covariance_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
-    interfaces, namespace_ + "sparse_linear_algebra_library_type",
+    interfaces, ns + "sparse_linear_algebra_library_type",
     covariance_options.sparse_linear_algebra_library_type);
-#endif
   covariance_options.algorithm_type =
-    fuse_core::declareCeresParam(interfaces, namespace_ + "algorithm_type", covariance_options.algorithm_type);
+    fuse_core::declareCeresParam(interfaces, ns + "algorithm_type", covariance_options.algorithm_type);
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "If DENSE_SVD is used, this parameter sets the threshold for determining if a Jacobian matrix "
+    "is rank deficient following the condition: "
+    "\n"
+    "min_sigma / max_sigma < sqrt(min_reciprocal_condition_number)"
+    "\n"
+    "Where min_sigma and max_sigma are the minimum and maximum singular values of J respectively.");
   covariance_options.min_reciprocal_condition_number = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number, tmp_descr
+    ns + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number, tmp_descr
   );
 
   tmp_descr.description =
-    "the number of singular dimensions to tolerate (-1 unbounded) no effect on `SPARSE_QR`";
+    "The number of singular dimensions to tolerate (-1 unbounded) no effect on `SPARSE_QR`";
   covariance_options.null_space_rank = fuse_core::getParam(
     interfaces,
-    namespace_ + "null_space_rank", covariance_options.null_space_rank, tmp_descr
+    ns + "null_space_rank", covariance_options.null_space_rank, tmp_descr
   );
 
   tmp_descr.description =
     "Number of threads to be used for evaluating the Jacobian and estimation of covariance";
   covariance_options.num_threads = fuse_core::getParam(
     interfaces,
-    namespace_ + "num_threads", covariance_options.num_threads, tmp_descr
+    ns + "num_threads", covariance_options.num_threads, tmp_descr
   );
 
   tmp_descr.description = (
@@ -100,7 +113,7 @@ void loadCovarianceOptionsFromROS(
     "functions)");
   covariance_options.apply_loss_function = fuse_core::getParam(
     interfaces,
-    namespace_ + "apply_loss_function", covariance_options.apply_loss_function, tmp_descr
+    ns + "apply_loss_function", covariance_options.apply_loss_function, tmp_descr
   );
 }
 
@@ -111,23 +124,27 @@ void loadProblemOptionsFromROS(
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string namespace_;
-  if (namespace_string.empty()) {
-    namespace_ = namespace_string;
-  } else {
-    namespace_ = namespace_string + ".";
-  }
+  std::string ns = get_well_formatted_namespace_string(namespace_string);
 
   tmp_descr.description = "trades memory for faster Problem::RemoveResidualBlock()";
   problem_options.enable_fast_removal = fuse_core::getParam(
     interfaces,
-    namespace_ + "enable_fast_removal", problem_options.enable_fast_removal, tmp_descr
+    ns + "enable_fast_removal", problem_options.enable_fast_removal, tmp_descr
   );
 
-  tmp_descr.description = "If true, trades memory for faster Problem::RemoveResidualBlock()";
+  tmp_descr.description = (
+    "By default, Ceres performs a variety of safety checks when constructing "
+    "the problem. There is a small but measurable performance penalty to these "
+    "checks, typically around 5% of construction time. If you are sure your "
+    "problem construction is correct, and 5% of the problem construction time "
+    "is truly an overhead you want to avoid, then you can set "
+    "disable_all_safety_checks to true."
+    "\n"
+    "WARNING: Do not set this to true, unless you are absolutely sure of what "
+    "you are doing");
   problem_options.disable_all_safety_checks = fuse_core::getParam(
     interfaces,
-    namespace_ + "disable_all_safety_checks", problem_options.disable_all_safety_checks, tmp_descr
+    ns + "disable_all_safety_checks", problem_options.disable_all_safety_checks, tmp_descr
   );
 }
 
@@ -142,112 +159,180 @@ void loadSolverOptionsFromROS(
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string namespace_;
-  if (namespace_string.empty()) {
-    namespace_ = namespace_string;
-  } else {
-    namespace_ = namespace_string + ".";
-  }
+  std::string ns = get_well_formatted_namespace_string(namespace_string);
 
   // Minimizer options
   solver_options.minimizer_type =
-    fuse_core::declareCeresParam(interfaces, namespace_ + "minimizer_type", solver_options.minimizer_type);
+    fuse_core::declareCeresParam(interfaces, ns + "minimizer_type", solver_options.minimizer_type);
   solver_options.line_search_direction_type = fuse_core::declareCeresParam(
-    interfaces, namespace_ + "line_search_direction_type", solver_options.line_search_direction_type);
+    interfaces, ns + "line_search_direction_type", solver_options.line_search_direction_type);
   solver_options.line_search_type =
-    fuse_core::declareCeresParam(interfaces, namespace_ + "line_search_type", solver_options.line_search_type);
+    fuse_core::declareCeresParam(interfaces, ns + "line_search_type", solver_options.line_search_type);
   solver_options.nonlinear_conjugate_gradient_type = fuse_core::declareCeresParam(
-    interfaces, namespace_ + "nonlinear_conjugate_gradient_type",
+    interfaces, ns + "nonlinear_conjugate_gradient_type",
     solver_options.nonlinear_conjugate_gradient_type);
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "The rank of the LBFGS hessian approximation. See: Nocedal, J. (1980). 'Updating Quasi-Newton "
+    "Matrices with Limited Storage'. Mathematics of Computation 35 (151): 773-782.");
   solver_options.max_lbfgs_rank = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_lbfgs_rank",
+    ns + "max_lbfgs_rank",
     solver_options.max_lbfgs_rank,
     tmp_descr
   );
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "As part of the (L)BFGS update step (BFGS) / right-multiply step (L-BFGS), "
+    "the initial inverse Hessian approximation is taken to be the Identity. "
+    "However, Oren showed that using instead I * \\gamma, where \\gamma is "
+    "chosen to approximate an eigenvalue of the true inverse Hessian can "
+    "result in improved convergence in a wide variety of cases. Setting "
+    "use_approximate_eigenvalue_bfgs_scaling to true enables this scaling.");
   solver_options.use_approximate_eigenvalue_bfgs_scaling = fuse_core::getParam(
     interfaces,
-    namespace_ + "use_approximate_eigenvalue_bfgs_scaling",
+    ns + "use_approximate_eigenvalue_bfgs_scaling",
     solver_options.use_approximate_eigenvalue_bfgs_scaling,
     tmp_descr
   );
 
+  tmp_descr.description = (
+    "Degree of the polynomial used to approximate the objective function. Valid values are "
+    "BISECTION, QUADRATIC and CUBIC.");
   solver_options.line_search_interpolation_type = fuse_core::declareCeresParam(
-    interfaces, namespace_ + "line_search_interpolation_type", solver_options.line_search_interpolation_type);
+    interfaces,
+    ns + "line_search_interpolation_type",
+    solver_options.line_search_interpolation_type);
 
-  tmp_descr.description = "";
+  tmp_descr.description =
+    "If during the line search, the step_size falls below this value, it is truncated to zero.";
   solver_options.min_line_search_step_size = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_line_search_step_size",
+    ns + "min_line_search_step_size",
     solver_options.min_line_search_step_size,
     tmp_descr
   );
 
   // Line search parameters
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "Solving the line search problem exactly is computationally "
+    "prohibitive. Fortunately, line search based optimization "
+    "algorithms can still guarantee convergence if instead of an "
+    "exact solution, the line search algorithm returns a solution "
+    "which decreases the value of the objective function "
+    "sufficiently. More precisely, we are looking for a step_size: "
+    "s.t. "
+    "f(step_size) <= f(0) + sufficient_decrease * f'(0) * step_size");
   solver_options.line_search_sufficient_function_decrease = fuse_core::getParam(
     interfaces,
-    namespace_ + "line_search_sufficient_function_decrease",
+    ns + "line_search_sufficient_function_decrease",
     solver_options.line_search_sufficient_function_decrease,
     tmp_descr
   );
-  tmp_descr.description = "";
+
+  tmp_descr.description = (
+    "In each iteration of the line search, "
+    "new_step_size >= max_line_search_step_contraction * step_size"
+    "\n"
+    "Note that by definition, for contraction: "
+    "0 < max_step_contraction < min_step_contraction < 1");
   solver_options.max_line_search_step_contraction = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_line_search_step_contraction",
+    ns + "max_line_search_step_contraction",
     solver_options.max_line_search_step_contraction,
     tmp_descr
   );
-  tmp_descr.description = "";
+
+  tmp_descr.description = (
+    "In each iteration of the line search, "
+    "new_step_size <= min_line_search_step_contraction * step_size"
+    "\n"
+    "Note that by definition, for contraction: "
+    "0 < max_step_contraction < min_step_contraction < 1");
   solver_options.min_line_search_step_contraction = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_line_search_step_contraction",
+    ns + "min_line_search_step_contraction",
     solver_options.min_line_search_step_contraction,
     tmp_descr
   );
-  tmp_descr.description = "";
+
+  tmp_descr.description = (
+    "Maximum number of trial step size iterations during each line "
+    "search, if a step size satisfying the search conditions cannot "
+    "be found within this number of trials, the line search will "
+    "terminate. "
+
+    "The minimum allowed value is 0 for trust region minimizer and 1 "
+    "otherwise. If 0 is specified for the trust region minimizer, "
+    "then line search will not be used when solving constrained "
+    "optimization problems. ");
   solver_options.max_num_line_search_step_size_iterations = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_num_line_search_step_size_iterations",
+    ns + "max_num_line_search_step_size_iterations",
     solver_options.max_num_line_search_step_size_iterations,
     tmp_descr
   );
-  tmp_descr.description = "";
+
+  tmp_descr.description = (
+    "Maximum number of restarts of the line search direction algorithm before "
+    "terminating the optimization. Restarts of the line search direction "
+    "algorithm occur when the current algorithm fails to produce a new descent "
+    "direction. This typically indicates a numerical failure, or a breakdown "
+    "in the validity of the approximations used. ");
   solver_options.max_num_line_search_direction_restarts = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_num_line_search_direction_restarts",
+    ns + "max_num_line_search_direction_restarts",
     solver_options.max_num_line_search_direction_restarts,
     tmp_descr
   );
-  tmp_descr.description = "";
+
+  tmp_descr.description = (
+    "The strong Wolfe conditions consist of the Armijo sufficient "
+    "decrease condition, and an additional requirement that the "
+    "step-size be chosen s.t. the _magnitude_ ('strong' Wolfe "
+    "conditions) of the gradient along the search direction "
+    "decreases sufficiently. Precisely, this second condition "
+    "is that we seek a step_size s.t. "
+    "\n"
+    "   |f'(step_size)| <= sufficient_curvature_decrease * |f'(0)|"
+    "\n"
+    "Where f() is the line search objective and f'() is the derivative of f "
+    "w.r.t step_size (d f / d step_size).");
   solver_options.line_search_sufficient_curvature_decrease = fuse_core::getParam(
     interfaces,
-    namespace_ + "line_search_sufficient_curvature_decrease",
+    ns + "line_search_sufficient_curvature_decrease",
     solver_options.line_search_sufficient_curvature_decrease,
     tmp_descr
   );
-  tmp_descr.description = "";
+
+  tmp_descr.description = (
+    "During the bracketing phase of the Wolfe search, the step size is "
+    "increased until either a point satisfying the Wolfe conditions is "
+    "found, or an upper bound for a bracket containing a point satisfying "
+    "the conditions is found. Precisely, at each iteration of the expansion:"
+    "\n"
+    "   new_step_size <= max_step_expansion * step_size."
+    "\n"
+    "By definition for expansion, max_step_expansion > 1.0.");
   solver_options.max_line_search_step_expansion = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_line_search_step_expansion",
+    ns + "max_line_search_step_expansion",
     solver_options.max_line_search_step_expansion,
     tmp_descr
   );
 
   solver_options.trust_region_strategy_type = fuse_core::declareCeresParam(
-    interfaces, namespace_ + "trust_region_strategy_type", solver_options.trust_region_strategy_type);
+    interfaces, ns + "trust_region_strategy_type", solver_options.trust_region_strategy_type);
   solver_options.dogleg_type = fuse_core::declareCeresParam(
-    interfaces, namespace_ + "dogleg_type", solver_options.dogleg_type);
+    interfaces, ns + "dogleg_type", solver_options.dogleg_type);
 
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "Enables the non-monotonic trust region algorithm as described by Conn, "
+    "Gould & Toint in 'Trust Region Methods', Section 10.1");
   solver_options.use_nonmonotonic_steps = fuse_core::getParam(
     interfaces,
-    namespace_ + "use_nonmonotonic_steps",
+    ns + "use_nonmonotonic_steps",
     solver_options.use_nonmonotonic_steps,
     tmp_descr
   );
@@ -255,7 +340,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "The window size used by the step selection algorithm to accept non-monotonic steps";
   solver_options.max_consecutive_nonmonotonic_steps = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_consecutive_nonmonotonic_steps",
+    ns + "max_consecutive_nonmonotonic_steps",
     solver_options.max_consecutive_nonmonotonic_steps,
     tmp_descr
   );
@@ -264,7 +349,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Maximum number of iterations for which the solver should run";
   solver_options.max_num_iterations = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_num_iterations",
+    ns + "max_num_iterations",
     solver_options.max_num_iterations,
     tmp_descr
   );
@@ -272,15 +357,15 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Maximum amount of time for which the solver should run";
   solver_options.max_solver_time_in_seconds = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_solver_time_in_seconds",
+    ns + "max_solver_time_in_seconds",
     solver_options.max_solver_time_in_seconds,
     tmp_descr
   );
 
-  tmp_descr.description = "Maximum number of iterations for which the solver should run";
+  tmp_descr.description = "Number of threads used by Ceres for evaluating the cost and jacobians";
   solver_options.num_threads = fuse_core::getParam(
     interfaces,
-    namespace_ + "num_threads",
+    ns + "num_threads",
     solver_options.num_threads,
     tmp_descr
   );
@@ -290,7 +375,7 @@ void loadSolverOptionsFromROS(
     "reciprocal of this number is the initial regularization parameter");
   solver_options.initial_trust_region_radius = fuse_core::getParam(
     interfaces,
-    namespace_ + "initial_trust_region_radius",
+    ns + "initial_trust_region_radius",
     solver_options.initial_trust_region_radius,
     tmp_descr
   );
@@ -298,7 +383,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "The trust region radius is not allowed to grow beyond this value";
   solver_options.max_trust_region_radius = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_trust_region_radius",
+    ns + "max_trust_region_radius",
     solver_options.max_trust_region_radius,
     tmp_descr
   );
@@ -307,7 +392,7 @@ void loadSolverOptionsFromROS(
     "The solver terminates when the trust region becomes smaller than this value";
   solver_options.min_trust_region_radius = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_trust_region_radius",
+    ns + "min_trust_region_radius",
     solver_options.min_trust_region_radius,
     tmp_descr
   );
@@ -316,7 +401,7 @@ void loadSolverOptionsFromROS(
     "Lower threshold for relative decrease before a trust-region step is accepted";
   solver_options.min_relative_decrease = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_relative_decrease",
+    ns + "min_relative_decrease",
     solver_options.min_relative_decrease,
     tmp_descr
   );
@@ -326,7 +411,7 @@ void loadSolverOptionsFromROS(
     "This is the lower bound on the values of this diagonal matrix");
   solver_options.min_lm_diagonal = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_lm_diagonal",
+    ns + "min_lm_diagonal",
     solver_options.min_lm_diagonal,
     tmp_descr
   );
@@ -336,7 +421,7 @@ void loadSolverOptionsFromROS(
     "This is the upper bound on the values of this diagonal matrix");
   solver_options.max_lm_diagonal = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_lm_diagonal",
+    ns + "max_lm_diagonal",
     solver_options.max_lm_diagonal,
     tmp_descr
   );
@@ -348,97 +433,108 @@ void loadSolverOptionsFromROS(
     " This parameter sets the number of consecutive retries before the minimizer gives up");
   solver_options.max_num_consecutive_invalid_steps = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_num_consecutive_invalid_steps",
+    ns + "max_num_consecutive_invalid_steps",
     solver_options.max_num_consecutive_invalid_steps,
     tmp_descr
   );
 
-  tmp_descr.description = "";
+  tmp_descr.description =
+    "Minimizer terminates when: (new_cost - old_cost) < function_tolerance * old_cost;";
   solver_options.function_tolerance = fuse_core::getParam(
     interfaces,
-    namespace_ + "function_tolerance",
+    ns + "function_tolerance",
     solver_options.function_tolerance,
     tmp_descr
   );
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "Minimizer terminates when: max_i |x - Project(Plus(x, -g(x))| < gradient_tolerance"
+    "\n"
+    "This value should typically be 1e-4 * function_tolerance");
   solver_options.gradient_tolerance = fuse_core::getParam(
     interfaces,
-    namespace_ + "gradient_tolerance",
+    ns + "gradient_tolerance",
     solver_options.gradient_tolerance,
     tmp_descr
   );
 
-  tmp_descr.description = "";
+  tmp_descr.description =
+    "Minimizer terminates when: |step|_2 <= parameter_tolerance * ( |x|_2 +  parameter_tolerance)";
   solver_options.parameter_tolerance = fuse_core::getParam(
     interfaces,
-    namespace_ + "parameter_tolerance",
+    ns + "parameter_tolerance",
     solver_options.parameter_tolerance,
     tmp_descr
   );
 
   solver_options.linear_solver_type =
-      fuse_core::declareCeresParam(interfaces, namespace_ + "linear_solver_type", solver_options.linear_solver_type);
+      fuse_core::declareCeresParam(interfaces, ns + "linear_solver_type", solver_options.linear_solver_type);
   solver_options.preconditioner_type =
-      fuse_core::declareCeresParam(interfaces, namespace_ + "preconditioner_type", solver_options.preconditioner_type);
+      fuse_core::declareCeresParam(interfaces, ns + "preconditioner_type", solver_options.preconditioner_type);
   solver_options.visibility_clustering_type =
-      fuse_core::declareCeresParam(interfaces, namespace_ + "visibility_clustering_type", solver_options.visibility_clustering_type);
+      fuse_core::declareCeresParam(interfaces, ns + "visibility_clustering_type", solver_options.visibility_clustering_type);
   solver_options.dense_linear_algebra_library_type =
-      fuse_core::declareCeresParam(interfaces, namespace_ + "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
+      fuse_core::declareCeresParam(interfaces, ns + "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
   solver_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
-      interfaces, namespace_ + "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
+      interfaces, ns + "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
 
 
-  tmp_descr.description = "";
+  tmp_descr.description =
+    "Enabling this option tells ITERATIVE_SCHUR to use an explicitly computed Schur complement.";
   solver_options.use_explicit_schur_complement = fuse_core::getParam(
     interfaces,
-    namespace_ + "use_explicit_schur_complement",
+    ns + "use_explicit_schur_complement",
     solver_options.use_explicit_schur_complement,
     tmp_descr
   );
 
-  tmp_descr.description = "";
-  solver_options.use_postordering = fuse_core::getParam(
-    interfaces,
-    namespace_ + "use_postordering",
-    solver_options.use_postordering,
-    tmp_descr
-  );
+  // Solved::Options::use_postordering was removed in:
+  // https://github.com/ceres-solver/ceres-solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
 
-  tmp_descr.description = "";
+  tmp_descr.description = "This settings only affects the SPARSE_NORMAL_CHOLESKY solver.";
   solver_options.dynamic_sparsity = fuse_core::getParam(
     interfaces,
-    namespace_ + "dynamic_sparsity",
+    ns + "dynamic_sparsity",
     solver_options.dynamic_sparsity,
     tmp_descr
   );
 
 #if CERES_VERSION_AT_LEAST(2, 0, 0)
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "NOTE1: EXPERIMENTAL FEATURE, UNDER DEVELOPMENT, USE AT YOUR OWN RISK. "
+    "\n"
+    "If use_mixed_precision_solves is true, the Gauss-Newton matrix "
+    "is computed in double precision, but its factorization is "
+    "computed in single precision. This can result in significant "
+    "time and memory savings at the cost of some accuracy in the "
+    "Gauss-Newton step. Iterative refinement is used to recover some "
+    "of this accuracy back.");
   solver_options.use_mixed_precision_solves = fuse_core::getParam(
     interfaces,
-    namespace_ + "use_mixed_precision_solves",
+    ns + "use_mixed_precision_solves",
     solver_options.use_mixed_precision_solves,
     tmp_descr
   );
 
-  tmp_descr.description = "";
+  tmp_descr.description =
+    "Number steps of the iterative refinement process to run when computing the Gauss-Newton step.";
   solver_options.max_num_refinement_iterations = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_num_refinement_iterations",
+    ns + "max_num_refinement_iterations",
     solver_options.max_num_refinement_iterations,
     tmp_descr
   );
 #endif
 
 
-  tmp_descr.description = "";
+  tmp_descr.description =
+    "Enable the use of the non-linear generalization of Ruhe & Wedin's Algorithm II";
   solver_options.use_inner_iterations = fuse_core::getParam(
     interfaces,
-    namespace_ + "use_inner_iterations",
+    ns + "use_inner_iterations",
     solver_options.use_inner_iterations,
     tmp_descr
   );
@@ -446,10 +542,14 @@ void loadSolverOptionsFromROS(
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> inner_iteration_ordering;
 
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "Once the relative decrease in the objective function due to "
+    "inner iterations drops below inner_iteration_tolerance, the use "
+    "of inner iterations in subsequent trust region minimizer "
+    "iterations is disabled.");
   solver_options.inner_iteration_tolerance = fuse_core::getParam(
     interfaces,
-    namespace_ + "inner_iteration_tolerance",
+    ns + "inner_iteration_tolerance",
     solver_options.inner_iteration_tolerance,
     tmp_descr
   );
@@ -457,7 +557,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Minimum number of iterations used by the linear iterative solver";
   solver_options.min_linear_solver_iterations = fuse_core::getParam(
     interfaces,
-    namespace_ + "min_linear_solver_iterations",
+    ns + "min_linear_solver_iterations",
     solver_options.min_linear_solver_iterations,
     tmp_descr
   );
@@ -465,40 +565,45 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Maximum number of iterations used by the linear iterative solver";
   solver_options.max_linear_solver_iterations = fuse_core::getParam(
     interfaces,
-    namespace_ + "max_linear_solver_iterations",
+    ns + "max_linear_solver_iterations",
     solver_options.max_linear_solver_iterations,
     tmp_descr
   );
 
-  tmp_descr.description = "Forcing sequence parameter. The truncated Newton solver uses this number to control the relative accuracy with which the Newton step is computed";
+  tmp_descr.description = (
+    "Forcing sequence parameter. The truncated Newton solver uses this number to control the "
+    "relative accuracy with which the Newton step is computed");
   solver_options.eta = fuse_core::getParam(
     interfaces,
-    namespace_ + "eta",
+    ns + "eta",
     solver_options.eta,
     tmp_descr
   );
 
 
-  tmp_descr.description = "true means that the Jacobian is scaled by the norm of its columns before being passed to the linear solver. This improves the numerical conditioning of the normal equations";
+  tmp_descr.description = (
+    "True means that the Jacobian is scaled by the norm of its columns before being passed to the "
+    "linear solver. This improves the numerical conditioning of the normal equations");
   solver_options.jacobi_scaling = fuse_core::getParam(
     interfaces,
-    namespace_ + "jacobi_scaling",
+    ns + "jacobi_scaling",
     solver_options.jacobi_scaling,
     tmp_descr
   );
 
   // Logging options
-  solver_options.logging_type = fuse_core::declareCeresParam(interfaces, namespace_ + "logging_type", solver_options.logging_type);
+  solver_options.logging_type =
+    fuse_core::declareCeresParam(interfaces, ns + "logging_type", solver_options.logging_type);
 
-  tmp_descr.description = "";
+  tmp_descr.description = "If logging_type is not SILENT, sends the logging output to STDOUT";
   solver_options.minimizer_progress_to_stdout = fuse_core::getParam(
     interfaces,
-    namespace_ + "minimizer_progress_to_stdout",
+    ns + "minimizer_progress_to_stdout",
     solver_options.minimizer_progress_to_stdout,
     tmp_descr
   );
   fuse_core::getParam<std::vector<int64_t>>(
-    interfaces, namespace_ + "trust_region_minimizer_iterations_to_dump");
+    interfaces, ns + "trust_region_minimizer_iterations_to_dump");
   std::vector<int64_t> iterations_to_dump_tmp = interfaces.get_node_parameters_interface()
     ->get_parameter("trust_region_minimizer_iterations_to_dump")
     .get_value<std::vector<int64_t>>();
@@ -511,42 +616,62 @@ void loadSolverOptionsFromROS(
       [](int64_t val){ return val; });
   }
 
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "Directory to which the problems should be written to. Should be "
+    "non-empty if trust_region_minimizer_iterations_to_dump is "
+    "non-empty and trust_region_problem_dump_format_type is not "
+    "CONSOLE.");
   solver_options.trust_region_problem_dump_directory = fuse_core::getParam(
     interfaces,
-    namespace_ + "trust_region_problem_dump_directory",
+    ns + "trust_region_problem_dump_directory",
     solver_options.trust_region_problem_dump_directory,
     tmp_descr
   );
-  solver_options.trust_region_problem_dump_format_type = fuse_core::declareCeresParam(
-      interfaces, namespace_ + "trust_region_problem_dump_format_type", solver_options.trust_region_problem_dump_format_type);
+  solver_options.trust_region_problem_dump_format_type =
+    fuse_core::declareCeresParam(
+      interfaces,
+      ns + "trust_region_problem_dump_format_type",
+      solver_options.trust_region_problem_dump_format_type
+  );
 
   // Finite differences options
-  tmp_descr.description = "Check all Jacobians computed by each residual block with finite differences, abort if numeric and analytic gradients differ substantially)";
+  tmp_descr.description = (
+    "Check all Jacobians computed by each residual block with finite differences, abort if numeric "
+    "and analytic gradients differ substantially)");
   solver_options.check_gradients = fuse_core::getParam(
     interfaces,
-    namespace_ + "check_gradients",
+    ns + "check_gradients",
     solver_options.check_gradients,
     tmp_descr
   );
-  tmp_descr.description = "Precision to check for in the gradient checker. If the relative difference between an element in a Jacobian exceeds this number, then the Jacobian for that cost term is dumped";
+  tmp_descr.description = (
+    "Precision to check for in the gradient checker. If the relative "
+    "difference between an element in a Jacobian exceeds this number, then the Jacobian for that "
+    "cost term is dumped");
   solver_options.gradient_check_relative_precision = fuse_core::getParam(
     interfaces,
-    namespace_ + "gradient_check_relative_precision",
+    ns + "gradient_check_relative_precision",
     solver_options.gradient_check_relative_precision,
     tmp_descr
   );
-  tmp_descr.description = "";
+  tmp_descr.description = (
+    "Relative shift used for taking numeric derivatives when "
+    "Solver::Options::check_gradients is true.");
   solver_options.gradient_check_numeric_derivative_relative_step_size = fuse_core::getParam(
     interfaces,
-    namespace_ + "gradient_check_numeric_derivative_relative_step_size",
+    ns + "gradient_check_numeric_derivative_relative_step_size",
     solver_options.gradient_check_numeric_derivative_relative_step_size,
     tmp_descr
   );
-  tmp_descr.description = "If update_state_every_iteration is true, then Ceres Solver will guarantee that at the end of every iteration and before any user IterationCallback is called, the parameter blocks are updated to the current best solution found by the solver. Thus the IterationCallback can inspect the values of the parameter blocks for purposes of computation, visualization or termination";
+  tmp_descr.description = (
+    "If update_state_every_iteration is true, then Ceres Solver will guarantee that at the end of "
+    "every iteration and before any user IterationCallback is called, the parameter blocks are "
+    "updated to the current best solution found by the solver. Thus the IterationCallback can "
+    "inspect the values of the parameter blocks for purposes of computation, visualization or "
+    "termination");
   solver_options.update_state_every_iteration = fuse_core::getParam(
     interfaces,
-    namespace_ + "update_state_every_iteration",
+    ns + "update_state_every_iteration",
     solver_options.update_state_every_iteration,
     tmp_descr
   );

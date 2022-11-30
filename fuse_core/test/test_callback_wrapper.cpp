@@ -116,9 +116,3 @@ TEST_F(TestCallbackWrapper, Void)
   EXPECT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_EQ(15.0, output);
 }
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

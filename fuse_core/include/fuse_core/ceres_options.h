@@ -199,12 +199,14 @@ T declareCeresParam(
     node_interfaces::Parameters
   > interfaces,
   const std::string& parameter_name,
-  const T& default_value)
+  const T& default_value,
+  const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
+  rcl_interfaces::msg::ParameterDescriptor())
 {
   const std::string default_string_value{ ToString(default_value) };
 
   std::string string_value;
-  string_value = getParam(interfaces, parameter_name, default_string_value);
+  string_value = getParam(interfaces, parameter_name, default_string_value, parameter_descriptor);
 
   T value;
   if (!FromString(string_value, &value))

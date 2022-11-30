@@ -126,9 +126,9 @@ public:
   {
     subscription_ = this->create_subscription<geometry_msgs::msg::Point>(
       "point", 10,
-      [&](const geometry_msgs::msg::Point::ConstSharedPtr& msg) {
-        this->throttled_callback_.callback(msg);
-      }
+      std::bind(
+        &PointThrottledCallback::callback<const geometry_msgs::msg::Point::ConstSharedPtr&>,
+        &throttled_callback_, std::placeholders::_1)
     );
   }
 
@@ -233,8 +233,6 @@ public:
 
 TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
 {
-  rclcpp::executors::SingleThreadedExecutor exec;
-
   // Start sensor model to listen to messages:
   const rclcpp::Duration throttled_period(0, 0);
   auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
@@ -316,10 +314,4 @@ TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLar
   const auto last_kept_message = sensor_model->getLastKeptMessage();
   ASSERT_NE(nullptr, last_kept_message);
   EXPECT_EQ(0.0, last_kept_message->x);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

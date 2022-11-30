@@ -855,9 +855,3 @@ TEST_F(TimestampManagerTestFixture, SplitSameMultiple)
   EXPECT_EQ(rclcpp::Time(29, 0), generated_time_spans[4].first);
   EXPECT_EQ(rclcpp::Time(30, 0), generated_time_spans[4].second);
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

@@ -81,7 +81,6 @@ void AsyncPublisher::initialize(const std::string& name)
   executor_->add_node(node_);
 
   // TODO(CH3): Remove this if the internal node is removed
-  spinning_ = true;
   spinner_ = std::thread([&](){
     executor_->spin();
   });

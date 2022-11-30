@@ -11,7 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(fuse_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rcl_interfaces REQUIRED)
@@ -28,7 +28,7 @@ include(boost-extras.cmake)
 ###########
 
 ## fuse_core library
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   src/async_motion_model.cpp
   src/async_publisher.cpp
   src/async_sensor_model.cpp

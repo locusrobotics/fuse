@@ -16,53 +16,33 @@
 
 import os
 
-import unittest
+from launch import LaunchDescription
+from launch.actions import ExecuteProcess
 
-from ament_index_python.packages import get_package_prefix
-
-from launch import LaunchContext, LaunchDescription, LaunchService
-from launch.actions import EmitEvent, ExecuteProcess
-from launch.events import Shutdown
-from launch_testing.actions import GTest, ReadyToTest
-
-import launch_testing
-import launch_testing.actions
-import launch_testing.asserts
-import launch_testing.util
-import launch_testing.markers
-import launch_testing_ros
-from launch_ros.substitutions import FindPackageShare
+import launch_pytest
+from launch_pytest.actions import ReadyToTest
+from launch_pytest.tools import process as process_tools
 
 import pytest
 
-@pytest.mark.launch_test
-@launch_testing.markers.keep_alive
-def generate_test_description():
-    ls = LaunchContext()
 
-    param_path = os.path.join(
-        FindPackageShare('fuse_core').perform(ls),
-        'test',
-        'launch_tests',
-        'test_parameters.yaml'
-    )
+@pytest.fixture
+def test_proc():
+    test_root = '.'
 
-    test_path = os.path.join(
-        get_package_prefix('fuse_core'),
-        '..', '..', 'build', 'fuse_core', 'test', 'test_parameters'
-    )
+    param_path = os.path.join(test_root, 'launch_tests', 'test_parameters.yaml')
+    test_path = os.path.join(test_root, 'test_parameters')
 
     cmd = [test_path, '--ros-args', '--params-file', param_path]
-    test_parameters_process = ExecuteProcess(cmd=cmd, shell=True, output='both')
-
-    ld = LaunchDescription([
-        test_parameters_process,
-        ReadyToTest()
-    ])
-
-    return ld, {'test_parameters_process': test_parameters_process}
+    return ExecuteProcess(cmd=cmd, shell=True, output='screen', cached_output=True)
 
 
-class TestNoFailedTests(unittest.TestCase):
-    def test_no_failed_gtests(self, proc_output):
-        proc_output.assertWaitFor('[  PASSED  ] 2 tests.', timeout=10, stream='stdout')
+@launch_pytest.fixture
+def generate_test_description(test_proc):
+    return LaunchDescription([test_proc, ReadyToTest()])
+
+
+@pytest.mark.launch(fixture=generate_test_description)
+async def test_no_failed_gtests(test_proc, launch_context):
+    await process_tools.wait_for_exit(launch_context, test_proc, timeout=10)
+    assert test_proc.return_code == 0, "GTests failed"

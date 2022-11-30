@@ -144,7 +144,6 @@ protected:
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
-  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
 
   /**
    * @brief Constructor

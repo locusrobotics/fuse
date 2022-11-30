@@ -912,9 +912,3 @@ TEST(Transaction, Serialize)
   EXPECT_TRUE(testAddedVariables(expected.addedVariables(), actual));
   EXPECT_TRUE(testRemovedVariables(expected.removedVariables(), actual));
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

@@ -96,9 +96,3 @@ TEST(Constraint, Type)
   ExampleConstraint constraint("test", {variable_uuid1});  // NOLINT
   ASSERT_EQ("ExampleConstraint", constraint.type());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
