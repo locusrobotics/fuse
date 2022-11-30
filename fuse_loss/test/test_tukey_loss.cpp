@@ -204,9 +204,3 @@ TEST(TukeyLoss, Serialization)
   EXPECT_NEAR(0.0, rho[1], 1e-6);
   EXPECT_NEAR(0.0, rho[2], 1e-6);
 }
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

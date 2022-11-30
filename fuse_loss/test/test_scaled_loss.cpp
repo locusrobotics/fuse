@@ -211,9 +211,3 @@ TEST(ScaledLoss, Serialization)
   EXPECT_GT(a, rho[1]);
   EXPECT_GT(0.0, rho[2]);
 }
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

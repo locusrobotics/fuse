@@ -31,7 +31,6 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <fuse_core plugin="${prefix}/fuse_plugins.xml" />
     <rosdoc config="rosdoc.yaml" />
   </export>
 </package>

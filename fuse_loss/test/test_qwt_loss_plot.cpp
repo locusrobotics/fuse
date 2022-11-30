@@ -49,6 +49,7 @@
 
 #include <QApplication>
 
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -194,12 +195,11 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
 
 #ifdef INTERACTIVE_TESTS
   // Run application:
+  // NOTE(CH3): This will block indefinitely until the test windows are closed!
+  //            Since the tests are meant to be interactive you MUST close the windows for them to
+  //            pass!!
+  std::cout << "Interactive test active. If test does a timeout, and you did not manually close the"
+            << "windows that popped up, the timeout is expected!" << std::endl;
   app.exec();
 #endif
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

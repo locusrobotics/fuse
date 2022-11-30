@@ -182,9 +182,3 @@ TEST(HuberLoss, Serialization)
   EXPECT_GT(1.0, rho[1]);
   EXPECT_GT(0.0, rho[2]);
 }
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

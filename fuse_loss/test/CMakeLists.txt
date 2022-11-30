@@ -21,7 +21,7 @@ if(BUILD_WITH_PLOT_TESTS)
 
   # Find Qwt using FindQwt.cmake copied from:
   # https://gitlab.kitware.com/cmake/community/-/wikis/contrib/modules/FindQwt
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
   find_package(QWT REQUIRED)
 
   ament_add_gtest(test_qwt_loss_plot test_qwt_loss_plot.cpp)
