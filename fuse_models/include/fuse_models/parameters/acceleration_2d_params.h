@@ -34,8 +34,8 @@
 #ifndef FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
 #define FUSE_MODELS_PARAMETERS_ACCELERATION_2D_PARAMS_H
 
-#include <fuse_core/loss.h>
-#include <fuse_core/parameter.h>
+#include <fuse_core/loss.hpp>
+#include <fuse_core/parameter.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_models/parameters/parameter_base.h>
 

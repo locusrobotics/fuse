@@ -32,10 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/eigen_gtest.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/Quaternion.h>
 

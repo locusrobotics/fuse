@@ -33,8 +33,8 @@
  */
 #include <fuse_variables/point_2d_fixed_landmark.h>
 
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_variables/fixed_size_variable.h>
 #include <pluginlib/class_list_macros.h>
 

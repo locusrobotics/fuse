@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020 Clearpath Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_CERES_MACROS_H
-#define FUSE_CORE_CERES_MACROS_H
 
-#include <ceres/version.h>
+#ifndef FUSE_CORE__CERES_MACROS_H_
+#define FUSE_CORE__CERES_MACROS_H_
 
-/**
- * Check for at least Ceres Solver version x.y.z, where: x = major, y = minor and z = revision.
- */
-#define CERES_VERSION_AT_LEAST(x, y, z) (CERES_VERSION_MAJOR > x || (CERES_VERSION_MAJOR    >= x && \
-                                        (CERES_VERSION_MINOR > y || (CERES_VERSION_MINOR    >= y && \
-                                                                     CERES_VERSION_REVISION >= z))))
+#warning This header is obsolete, please include fuse_core/ceres_macros.hpp instead
 
-#endif  // FUSE_CORE_CERES_MACROS_H
+#include <fuse_core/ceres_macros.hpp>
+
+#endif  // FUSE_CORE__CERES_MACROS_H_

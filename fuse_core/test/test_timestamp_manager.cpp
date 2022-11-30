@@ -31,12 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.h>
-#include <fuse_core/timestamp_manager.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/timestamp_manager.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/variable.hpp>
 #include <rclcpp/duration.hpp>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <gtest/gtest.h>
 

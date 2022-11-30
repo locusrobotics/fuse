@@ -33,7 +33,7 @@
  */
 #include <fuse_loss/tukey_loss.h>
 
-#include <fuse_core/ceres_macros.h>
+#include <fuse_core/ceres_macros.hpp>
 
 #include <pluginlib/class_list_macros.h>
 #include <ros/node_handle.h>

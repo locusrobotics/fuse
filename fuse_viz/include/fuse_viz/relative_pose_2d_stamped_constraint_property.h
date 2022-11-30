@@ -37,7 +37,7 @@
 
 #include <OgreColourValue.h>
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 #include <rviz/properties/bool_property.h>
 
 #include <memory>

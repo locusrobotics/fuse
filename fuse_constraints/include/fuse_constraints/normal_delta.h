@@ -34,7 +34,7 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_DELTA_H
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_H
 
-#include <fuse_core/eigen.h>
+#include <fuse_core/eigen.hpp>
 
 #include <ceres/cost_function.h>
 

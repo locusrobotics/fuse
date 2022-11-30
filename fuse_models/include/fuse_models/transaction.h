@@ -37,8 +37,8 @@
 
 #include <fuse_models/parameters/transaction_params.h>
 
-#include <fuse_core/async_sensor_model.h>
-#include <fuse_core/transaction_deserializer.h>
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/transaction_deserializer.hpp>
 
 #include <fuse_msgs/SerializedTransaction.h>
 #include <ros/ros.h>

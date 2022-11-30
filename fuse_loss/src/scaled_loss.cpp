@@ -33,7 +33,7 @@
  */
 #include <fuse_loss/scaled_loss.h>
 
-#include <fuse_core/parameter.h>
+#include <fuse_core/parameter.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/node_handle.h>
 

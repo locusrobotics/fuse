@@ -34,8 +34,8 @@
 #include <fuse_models/common/sensor_proc.h>
 #include <fuse_models/odometry_2d.h>
 
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>

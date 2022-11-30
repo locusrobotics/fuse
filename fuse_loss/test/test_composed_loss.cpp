@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.h>
+#include <fuse_core/serialization.hpp>
 #include <fuse_loss/composed_loss.h>
 #include <fuse_loss/huber_loss.h>
 #include <fuse_loss/scaled_loss.h>

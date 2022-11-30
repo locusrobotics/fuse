@@ -36,12 +36,12 @@
 
 #include <fuse_models/parameters/odometry_2d_publisher_params.h>
 
-#include <fuse_core/async_publisher.h>
-#include <fuse_core/console.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/async_publisher.hpp>
+#include <fuse_core/console.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_publishers/stamped_variable_synchronizer.h>
 
 #include <geometry_msgs/AccelWithCovarianceStamped.h>

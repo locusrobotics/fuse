@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,65 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
-#define FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#ifndef FUSE_CORE__LOCAL_PARAMETERIZATION_HPP_
+#define FUSE_CORE__LOCAL_PARAMETERIZATION_HPP_
 
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#include <ceres/local_parameterization.h>
 
+
+namespace fuse_core
+{
 
 /**
- * @brief Dummy variable implementation for testing
+ * @brief The LocalParameterization interface definition.
+ *
+ * This class extends the Ceres LocalParameterization class, adding the additional requirement of a
+ * \p Minus() method, the conceptual inverse of the already required \p Plus() method.
+ *
+ * If Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
+ *
+ * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#localparameterization
  */
-class ExampleVariable : public fuse_core::Variable
+class LocalParameterization : public ceres::LocalParameterization
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
+  FUSE_SMART_PTR_ALIASES_ONLY(LocalParameterization)
 
-  ExampleVariable() :
-    fuse_core::Variable(fuse_core::uuid::generate()),
-    data_(0.0)
-  {
-  }
+  /**
+   * @brief Generalization of the subtraction operation
+   *
+   * Minus(x1, x2) -> delta
+   *
+   * with the conditions that:
+   *  - Minus(x, x) -> 0
+   *  - if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
+   *
+   * @param[in]  x1    The value of the first variable, of size \p GlobalSize()
+   * @param[in]  x2    The value of the second variable, of size \p GlobalSize()
+   * @param[out] delta The difference between the second variable and the first, of size \p LocalSize()
+   * @return True if successful, false otherwise
+   */
+  virtual bool Minus(
+    const double* x1,
+    const double* x2,
+    double* delta) const = 0;
 
-  size_t size() const override { return 1; }
-  const double* data() const override { return &data_; };
-  double* data() override { return &data_; };
-  void print(std::ostream& /*stream = std::cout*/) const override {}
+  /**
+   * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
+   *
+   * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
+   * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize() x \p GlobalSize()
+   * @return True if successful, false otherwise
+   */
+  virtual bool ComputeMinusJacobian(
+    const double* x,
+    double* jacobian) const = 0;
 
 private:
-  double data_;
-
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -76,13 +100,11 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleVariable);
+}  // namespace fuse_core
 
-#endif  // FUSE_CORE_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#endif  // FUSE_CORE__LOCAL_PARAMETERIZATION_HPP_

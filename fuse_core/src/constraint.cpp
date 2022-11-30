@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.h>
+#include <fuse_core/constraint.hpp>
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 
 #include <initializer_list>
 #include <ostream>

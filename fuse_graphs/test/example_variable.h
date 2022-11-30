@@ -34,9 +34,9 @@
 #ifndef FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 #define FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

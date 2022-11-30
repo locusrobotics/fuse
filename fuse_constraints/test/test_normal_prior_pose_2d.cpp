@@ -37,7 +37,7 @@
 #include "cost_function_gtest.h"
 
 #include <gtest/gtest.h>
-#include <fuse_core/eigen_gtest.h>
+#include <fuse_core/eigen_gtest.hpp>
 
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>

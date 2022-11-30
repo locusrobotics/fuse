@@ -33,10 +33,10 @@
  */
 #include <fuse_msgs/msg/serialized_graph.h>
 #include <fuse_msgs/msg/serialized_transaction.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/graph_deserializer.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/transaction_deserializer.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/graph_deserializer.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/transaction_deserializer.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/clock.hpp>
 

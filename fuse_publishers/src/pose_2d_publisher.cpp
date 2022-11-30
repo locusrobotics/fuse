@@ -33,11 +33,11 @@
  */
 #include <fuse_publishers/pose_2d_publisher.h>
 
-#include <fuse_core/async_publisher.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/time.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/async_publisher.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <geometry_msgs/PoseStamped.h>

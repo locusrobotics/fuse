@@ -34,11 +34,11 @@
 #ifndef FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
 #define FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
 
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <unordered_map>
 #include <unordered_set>

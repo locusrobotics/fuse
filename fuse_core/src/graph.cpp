@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/graph.h>
+#include <fuse_core/graph.hpp>
 
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 

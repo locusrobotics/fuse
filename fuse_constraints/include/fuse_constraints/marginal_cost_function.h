@@ -34,8 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_MARGINAL_COST_FUNCTION_H
 #define FUSE_CONSTRAINTS_MARGINAL_COST_FUNCTION_H
 
-#include <fuse_core/eigen.h>
-#include <fuse_core/local_parameterization.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/local_parameterization.hpp>
 
 #include <ceres/cost_function.h>
 

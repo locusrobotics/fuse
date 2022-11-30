@@ -31,13 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
-#define FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#ifndef FUSE_CORE__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#define FUSE_CORE__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/constraint.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -95,4 +95,4 @@ private:
 
 BOOST_CLASS_EXPORT(ExampleConstraint);
 
-#endif  // FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#endif  // FUSE_CORE__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}

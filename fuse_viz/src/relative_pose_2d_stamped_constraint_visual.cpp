@@ -38,7 +38,7 @@
 #include <fuse_viz/relative_pose_2d_stamped_constraint_visual.h>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
-#include <fuse_core/graph.h>
+#include <fuse_core/graph.hpp>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <rviz/ogre_helpers/axes.h>
 #include <rviz/ogre_helpers/billboard_line.h>

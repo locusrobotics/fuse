@@ -33,7 +33,7 @@
  */
 #include <fuse_publishers/stamped_variable_synchronizer.h>
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>

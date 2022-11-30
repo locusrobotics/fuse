@@ -31,11 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_MESSAGE_BUFFER_IMPL_H
-#define FUSE_CORE_MESSAGE_BUFFER_IMPL_H
+#ifndef FUSE_CORE__MESSAGE_BUFFER_IMPL_HPP_
+#define FUSE_CORE__MESSAGE_BUFFER_IMPL_HPP_
 
 #include <rclcpp/duration.hpp>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 
@@ -169,4 +169,4 @@ void MessageBuffer<Message>::purgeHistory()
 
 }  // namespace fuse_core
 
-#endif  // FUSE_CORE_MESSAGE_BUFFER_IMPL_H
+#endif  // FUSE_CORE__MESSAGE_BUFFER_IMPL_HPP_

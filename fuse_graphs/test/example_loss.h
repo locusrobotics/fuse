@@ -34,9 +34,9 @@
 #ifndef FUSE_GRAPHS_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
 #define FUSE_GRAPHS_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/loss.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
+#include <fuse_core/loss.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

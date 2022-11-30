@@ -35,10 +35,10 @@
 #define FUSE_MODELS_TWIST_2D_H
 
 #include <fuse_models/parameters/twist_2d_params.h>
-#include <fuse_core/throttled_callback.h>
+#include <fuse_core/throttled_callback.hpp>
 
-#include <fuse_core/async_sensor_model.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/uuid.hpp>
 
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <ros/ros.h>

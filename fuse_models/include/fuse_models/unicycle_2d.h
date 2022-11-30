@@ -34,14 +34,14 @@
 #ifndef FUSE_MODELS_UNICYCLE_2D_H
 #define FUSE_MODELS_UNICYCLE_2D_H
 
-#include <fuse_core/async_motion_model.h>
-#include <fuse_core/constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/timestamp_manager.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/async_motion_model.hpp>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/timestamp_manager.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/variable.hpp>
 #include <ros/ros.h>
 #include <tf2_2d/tf2_2d.h>
 

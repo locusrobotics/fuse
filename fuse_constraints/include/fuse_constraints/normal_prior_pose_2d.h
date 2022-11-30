@@ -34,7 +34,7 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_H
 
-#include <fuse_core/eigen.h>
+#include <fuse_core/eigen.hpp>
 
 #include <ceres/sized_cost_function.h>
 

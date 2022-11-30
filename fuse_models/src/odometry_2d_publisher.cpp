@@ -35,9 +35,9 @@
 #include <fuse_models/unicycle_2d_predict.h>
 #include <fuse_models/common/sensor_proc.h>
 
-#include <fuse_core/async_publisher.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/async_publisher.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/uuid.hpp>
 
 #include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>

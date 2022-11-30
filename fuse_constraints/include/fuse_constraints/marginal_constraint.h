@@ -34,12 +34,12 @@
 #ifndef FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H
 #define FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H
 
-#include <fuse_core/constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/local_parameterization.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/variable.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/zip_iterator.hpp>

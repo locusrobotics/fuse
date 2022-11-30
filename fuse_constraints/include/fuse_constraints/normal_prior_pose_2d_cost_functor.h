@@ -34,9 +34,9 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H
 
-#include <fuse_core/eigen.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/util.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/util.hpp>
 
 #include <Eigen/Core>
 

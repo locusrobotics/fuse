@@ -37,7 +37,7 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
-#include <fuse_core/parameter.h>
+#include <fuse_core/parameter.hpp>
 #include <ros/node_handle.h>
 
 #include <string>

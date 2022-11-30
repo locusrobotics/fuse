@@ -36,9 +36,9 @@
 
 #include <fuse_models/unicycle_2d_predict.h>
 
-#include <fuse_core/eigen.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/util.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/util.hpp>
 
 
 namespace fuse_models

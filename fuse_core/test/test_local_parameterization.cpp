@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/autodiff_local_parameterization.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/eigen_gtest.h>
+#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
 
 #include <gtest/gtest.h>
 

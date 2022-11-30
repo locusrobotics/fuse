@@ -34,9 +34,9 @@
 #ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/transaction.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/transaction.hpp>
 #include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <ros/ros.h>

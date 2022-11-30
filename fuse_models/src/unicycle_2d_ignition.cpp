@@ -34,12 +34,12 @@
 #include <fuse_models/unicycle_2d_ignition.h>
 
 #include <fuse_constraints/absolute_constraint.h>
-#include <fuse_core/async_sensor_model.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/sensor_model.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/util.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/sensor_model.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/util.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_models/SetPose.h>
 #include <fuse_models/SetPoseDeprecated.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>

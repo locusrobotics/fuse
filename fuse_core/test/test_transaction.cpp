@@ -31,11 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/transaction.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
-#include "example_constraint.h"
-#include "example_variable.h"
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include "example_constraint.hpp"
+#include "example_variable.hpp"
 
 #include <gtest/gtest.h>
 

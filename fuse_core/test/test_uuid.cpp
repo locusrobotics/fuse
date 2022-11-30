@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
-#include <fuse_core/time.h>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/time.hpp>
 
 #include <gtest/gtest.h>
 

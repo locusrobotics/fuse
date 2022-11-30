@@ -35,7 +35,7 @@
 #include <fuse_constraints/marginalize_variables.h>
 #include <fuse_constraints/uuid_ordering.h>
 #include <fuse_constraints/variable_constraints.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/empty.hpp>

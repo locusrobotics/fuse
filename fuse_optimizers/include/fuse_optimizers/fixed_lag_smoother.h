@@ -34,8 +34,8 @@
 #ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
 #define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/transaction.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/transaction.hpp>
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>

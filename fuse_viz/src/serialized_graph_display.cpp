@@ -51,8 +51,8 @@
 #include <fuse_viz/serialized_graph_display.h>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 

@@ -36,7 +36,7 @@
 #include <fuse_viz/pose_2d_stamped_visual.h>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 
 #include <rviz/properties/color_property.h>
 #include <rviz/properties/float_property.h>

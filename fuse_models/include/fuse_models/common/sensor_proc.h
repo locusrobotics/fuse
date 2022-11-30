@@ -37,10 +37,10 @@
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_constraints/absolute_constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/loss.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/loss.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>

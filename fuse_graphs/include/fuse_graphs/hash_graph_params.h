@@ -34,7 +34,7 @@
 #ifndef FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 #define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 
-#include <fuse_core/ceres_options.h>
+#include <fuse_core/ceres_options.hpp>
 #include <ros/node_handle.h>
 
 #include <ceres/problem.h>

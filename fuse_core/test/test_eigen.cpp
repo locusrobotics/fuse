@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/eigen.h>
+#include <fuse_core/eigen.hpp>
 
 #include <gtest/gtest.h>
 

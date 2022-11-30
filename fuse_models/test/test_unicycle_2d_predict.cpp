@@ -35,7 +35,7 @@
 
 #include <gtest/gtest.h>
 #include <tf2_2d/tf2_2d.h>
-#include <fuse_core/eigen_gtest.h>
+#include <fuse_core/eigen_gtest.hpp>
 
 #include <array>
 #include <limits>

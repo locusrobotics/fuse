@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_core/callback_wrapper.h>
+#include <fuse_core/callback_wrapper.hpp>
 
 namespace fuse_core
 {
