@@ -106,9 +106,9 @@ TEST_F(TestAsyncSensorModel, OnGraphUpdate)
   sensor.initialize("my_sensor", &transactionCallback);
 
   // Execute the graph callback in this thread. This should push a call to MySensor::onGraphUpdate()
-  // into MySensor's callback queue, which will get executed by MySensor's async spinner. There is a
-  // time delay there. So, this call should return almost immediately, then we have to wait a bit
-  // before the "received_graph" flag gets flipped.
+  // into MySensor's callback queue, which will get executed by MySensor's async spinner.
+  // There is a time delay there. So, this call should return almost immediately, then we have to
+  // wait a bit before the "received_graph" flag gets flipped.
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
   sensor.graphCallback(graph);
   EXPECT_FALSE(sensor.graph_received);

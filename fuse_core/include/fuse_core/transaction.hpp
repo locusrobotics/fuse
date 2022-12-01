@@ -56,8 +56,8 @@ namespace fuse_core
 {
 
 /**
- * @brief A transaction is a group of variable and constraint additions and subtractions that
- *        should all be processed at the same time.
+ * @brief A transaction is a group of variable and constraint additions and subtractions that should
+ *        all be processed at the same time.
  *
  * This arises most often with graph edits, when you want to remove an existing constraint and
  * replace it with one or more new constraints. You don't want the removal to happen
@@ -127,16 +127,16 @@ public:
   const_stamp_range involvedStamps() const {return involved_stamps_;}
 
   /**
-   * @brief Read-only access to the minimum (oldest), timestamp among the transaction's stamp
-   *        and all involved timestamps, if any
+   * @brief Read-only access to the minimum (oldest), timestamp among the transaction's stamp and
+   *        all involved timestamps, if any
    *
    * @return The minimum (oldest) timestamp.
    */
   const rclcpp::Time & minStamp() const;
 
   /**
-   * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp
-   *        and all involved timestamps, if any
+   * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all
+   *        involved timestamps, if any
    *
    * @return The maximum (newest) timestamp.
    */

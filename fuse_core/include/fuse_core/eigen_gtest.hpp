@@ -105,7 +105,8 @@ AssertionResult AssertMatrixNearHelper(
                             << "Difference is:\n" << (v1 - v2).format(clean) << "\n";
 }
 
-// Internal macro for implementing {EXPECT|ASSERT}_MATRIX_EQ. Don't use this in your code.
+// Internal macro for implementing {EXPECT|ASSERT}_MATRIX_EQ.
+// Don't use this in your code.
 #define GTEST_MATRIX_EQUAL_(v1, v2, on_failure) \
   GTEST_ASSERT_( \
     ::testing::AssertMatrixEqualHelper( \
@@ -114,7 +115,8 @@ AssertionResult AssertMatrixNearHelper(
       v1, \
       v2), on_failure)
 
-// Internal macro for implementing {EXPECT|ASSERT}_MATRIX_NEAR. Don't use this in your code.
+// Internal macro for implementing {EXPECT|ASSERT}_MATRIX_NEAR.
+// Don't use this in your code.
 #define GTEST_MATRIX_NEAR_(v1, v2, tol, on_failure) \
   GTEST_ASSERT_( \
     ::testing::AssertMatrixNearHelper( \

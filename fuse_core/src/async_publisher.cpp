@@ -89,8 +89,8 @@ void AsyncPublisher::initialize(const std::string & name)
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
 {
-  // Insert a call to the `notifyCallback` method into the internal callback queue. This minimizes
-  // the time spent by the optimizer's thread calling this function.
+  // Insert a call to the `notifyCallback` method into the internal callback queue.
+  // This minimizes the time spent by the optimizer's thread calling this function.
   auto callback = std::make_shared<CallbackWrapper<void>>(
     std::bind(&AsyncPublisher::notifyCallback, this, std::move(transaction), std::move(graph)));
   callback_queue_->addCallback(callback);

@@ -87,9 +87,12 @@ TEST(LocalParameterization, PlusJacobian)
   bool success = parameterization.ComputeJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(3, 2);
+
+  /* *INDENT-OFF* */  // Bypass uncrustify
   expected << 2.0, 0.0,
-    0.0, 5.0,
-    0.0, 0.0;
+              0.0, 5.0,
+              0.0, 0.0;
+  /* *INDENT-ON* */
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
@@ -118,8 +121,11 @@ TEST(LocalParameterization, MinusJacobian)
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(2, 3);
+
+  /* *INDENT-OFF* */  // Bypass uncrustify
   expected << 0.5, 0.0, 0.0,
-    0.0, 0.2, 0.0;
+              0.0, 0.2, 0.0;
+  /* *INDENT-ON* */
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);

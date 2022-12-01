@@ -86,9 +86,9 @@ public:
   /**
    * Constructor
    *
-   * @param[in] buffer_length The length of the message buffer history. If queries arrive
-   *                          involving timestamps that are older than the buffer length, an
-   *                          exception will be thrown.
+   * @param[in] buffer_length The length of the message buffer history. If queries arrive involving
+   *                          timestamps that are older than the buffer length, an exception will be
+   *                          thrown.
    */
   explicit MessageBuffer(const rclcpp::Duration & buffer_length = rclcpp::Duration::max());
 
@@ -129,16 +129,16 @@ public:
    *
    * The "edge behavior" is controlled by the \p extended_range flag.
    *
-   * @param[in] beginning_stamp The beginning timestamp of the constraint. \p beginning_stamp
-   *                            must be less than or equal to \p ending_stamp.
+   * @param[in] beginning_stamp The beginning timestamp of the constraint. \p beginning_stamp must
+   *                            be less than or equal to \p ending_stamp.
    * @param[in] ending_stamp    The ending timestamp of the constraint. \p ending_stamp must be
    *                            greater than or or equal to \p beginning_stamp.
-   * @param[in] extended_range  A flag indicating if the message range should be extended to
-   *                            include one message with a stamp less than or equal to the \p
-   *                            beginning_stamp and one message with a stamp greater than or
-   *                            equal to the \p ending_stamp. If false, the returned range only
-   *                            includes messages with stamps greater than \p beginning_stamp
-   *                            and less than \p ending_stamp.
+   * @param[in] extended_range  A flag indicating if the message range should be extended to include
+   *                            one message with a stamp less than or equal to the \p
+   *                            beginning_stamp and one message with a stamp greater than or equal
+   *                            to the \p ending_stamp. If false, the returned range only includes
+   *                            messages with stamps greater than \p beginning_stamp and less than
+   *                            \p ending_stamp.
    * @return                    An iterator range containing all of the messages between the
    *                            specified stamps.
    */

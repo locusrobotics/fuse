@@ -94,8 +94,8 @@ std::string to_string(const Eigen::DenseBase<Derived> & m, const int precision =
  * @brief Check if a matrix is symmetric.
  *
  * @param[in] m - Square matrix to check symmetry on
- * @param[in] precision - Precision used to compared the matrix m with its transpose, which is
- *                        the property used to check for symmetry.
+ * @param[in] precision - Precision used to compared the matrix m with its transpose, which is the
+ *                        property used to check for symmetry.
  * @return True if the matrix m is symmetric; False, otherwise.
  */
 template<typename Derived>

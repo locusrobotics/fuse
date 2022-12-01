@@ -50,9 +50,9 @@ namespace fuse_core
 #endif
 
 /**
- * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to
- *        reset the last time the message was print, so the delayed and throttle conditions are
- *        computed from the initial state again.
+ * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to reset
+ *        the last time the message was print, so the delayed and throttle conditions are computed
+ *        from the initial state again.
  */
 class DelayedThrottleFilter
 {
@@ -77,12 +77,12 @@ public:
    *
    * @param[in] now - The current ROS time at which to check if logging should fire
    *
-   * @return True if the filter condition is hit (signalling that the message should print),
-   *         false otherwise
+   * @return True if the filter condition is hit (signalling that the message should print), false
+   *         otherwise
    */
   bool isEnabled()
   {
-    const auto now = time_point_cast<milliseconds>(std::chrono::system_clock::now());
+    const auto now = time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
 
     if (last_hit_.time_since_epoch().count() < 0.0) {
       last_hit_ = now;
@@ -102,7 +102,8 @@ public:
    */
   void reset()
   {
-    last_hit_ = time_point_cast<milliseconds>(std::chrono::system_clock::from_time_t(-1));
+    last_hit_ =
+      time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::from_time_t(-1));
   }
 
 private:

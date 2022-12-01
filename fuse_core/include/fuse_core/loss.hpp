@@ -64,8 +64,7 @@
   }
 
 /**
- * @brief Implementation of the serialize() and deserialize() member functions for derived
- *        classes
+ * @brief Implementation of the serialize() and deserialize() member functions for derived classes
  *
  * Usage:
  * @code{.cpp}
@@ -124,8 +123,8 @@
   }
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and
- *        type() method
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
+ *        method
  *
  * Usage:
  * @code{.cpp}
@@ -193,8 +192,8 @@ public:
    *
    * This will be called on each plugin after construction.
    *
-   * @param[in] name A unique name to initialize this plugin instance, such as from the
-   *                 parameter server.
+   * @param[in] name A unique name to initialize this plugin instance, such as from the parameter
+   *                 server.
    */
   virtual void initialize(const std::string & name) = 0;
 

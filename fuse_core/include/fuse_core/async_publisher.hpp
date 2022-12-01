@@ -50,17 +50,17 @@ namespace fuse_core
 {
 
 /**
- * @brief A publisher base class that provides node handles attached to an internal callback
- *        queue serviced by a local thread (or threads) using a spinner.
+ * @brief A publisher base class that provides node handles attached to an internal callback queue
+ *        serviced by a local thread (or threads) using a spinner.
  *
  * This allows publishers derived from this base class to operate similarly to a stand alone node
  * -- any subscription or service callbacks will be executed within an independent thread. The
- * notable differences include:
+ *    notable differences include:
  *  - a default constructor is required (because this is a plugin)
- *  - subscriptions, services, parameter server interactions, etc. should be placed in the
- *    onInit() call instead of in the constructor
- *  - a global node handle and private node handle have already been created and attached to a
- *    local callback queue
+ *  - subscriptions, services, parameter server interactions, etc. should be placed in the onInit()
+ *    call instead of in the constructor
+ *  - a global node handle and private node handle have already been created and attached to a local
+ *    callback queue
  *  - a special callback, notifyCallback(), will be fired every time the optimizer completes an
  *    optimization cycle
  */
@@ -92,8 +92,8 @@ public:
   const std::string & name() const override {return name_;}
 
   /**
-   * @brief Notify the publisher that an optimization cycle is complete, and about changes to
-   *        the Graph.
+   * @brief Notify the publisher that an optimization cycle is complete, and about changes to the
+   *        Graph.
    *
    * This function is called by the optimizer (and in the optimizer's thread) after every
    * optimization cycle is complete. To minimize the time spent by the optimizer, this function
@@ -102,8 +102,8 @@ public:
    * publisher will be executed from the same thread (or group of threads if a \p thread_count
    * > 1 is used in the constructor).
    *
-   * @param[in] transaction A Transaction object, describing the set of variables that have
-   *                        been added and/or removed
+   * @param[in] transaction A Transaction object, describing the set of variables that have been
+   *                        added and/or removed
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
@@ -180,14 +180,14 @@ protected:
   virtual void onInit() {}
 
   /**
-   * @brief Callback method executed in response to the optimizer completing an optimization
-   *        cycle. All variables will now have updated values.
+   * @brief Callback method executed in response to the optimizer completing an optimization cycle.
+   *        All variables will now have updated values.
    *
    * This method is executed using the internal callback queue and local thread(s). Derived
    * classes should override this method to implement the desired publisher behavior.
    *
-   * @param[in] transaction A Transaction object, describing the set of variables that have
-   *                        been added and/or removed
+   * @param[in] transaction A Transaction object, describing the set of variables that have been
+   *                        added and/or removed
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */

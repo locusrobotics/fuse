@@ -58,8 +58,7 @@
 #include <rclcpp/duration.hpp>
 
 /**
- * @brief Implementation of the serialize() and deserialize() member functions for derived
- *        classes
+ * @brief Implementation of the serialize() and deserialize() member functions for derived classes
  *
  * Usage:
  * @code{.cpp}
@@ -323,9 +322,9 @@ public:
    * \p hold_constant parameter set to false.
    *
    * @param[in] variable_uuid The variable to adjust
-   * @param[in] hold_constant Flag indicating if the variable's value should be held constant
-   *                          during optimization, or if the variable's value is allowed to
-   *                          change during optimization.
+   * @param[in] hold_constant Flag indicating if the variable's value should be held constant during
+   *                          optimization, or if the variable's value is allowed to change during
+   *                          optimization.
    */
   virtual void holdVariable(const UUID & variable_uuid, bool hold_constant = true) = 0;
 
@@ -346,14 +345,14 @@ public:
    * faster than calling this function for each pair individually. The marginal covariances can
    * only be computed after calling Graph::computeUpdates() or Graph::optimize().
    *
-   * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal
-   *                                 covariance is desired.
+   * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal covariance
+   *                                 is desired.
    * @param[out] covariance_matrices The dense covariance blocks of the requests.
-   * @param[in]  options             A Ceres Covariance Options structure that controls the
-   *                                 method and settings used to compute the covariance blocks.
-   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in
-   *                                 the variable's tangent space/local coordinates. Otherwise
-   *                                 it is computed in the variable's parameter space.
+   * @param[in]  options             A Ceres Covariance Options structure that controls the method
+   *                                 and settings used to compute the covariance blocks.
+   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in the
+   *                                 variable's tangent space/local coordinates. Otherwise it is
+   *                                 computed in the variable's parameter space.
    */
   virtual void getCovariance(
     const std::vector<std::pair<UUID, UUID>> & covariance_requests,
@@ -374,8 +373,8 @@ public:
    *
    * After the call, the values in the graph will be updated to the latest values.
    *
-   * @param[in] options An optional Ceres Solver::Options object that controls various aspects
-   *                    of the optimizer. See https://ceres-solver.googlesource.com/ceres-
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of
+   *                    the optimizer. See https://ceres-solver.googlesource.com/ceres-
    *                    solver/+/master/include/ceres/solver.h#59
    * @return            A Ceres Solver Summary structure containing information about the
    *                    optimization process
@@ -392,8 +391,8 @@ public:
    * the graph will be updated to the latest values.
    *
    * @param[in] max_optimization_time The maximum allowed duration of the optimization call
-   * @param[in] options An optional Ceres Solver::Options object that controls various aspects
-   *                    of the optimizer. See https://ceres-solver.googlesource.com/ceres-
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of
+   *                    the optimizer. See https://ceres-solver.googlesource.com/ceres-
    *                    solver/+/master/include/ceres/solver.h#59
    * @return            A Ceres Solver Summary structure containing information about the
    *                    optimization process
@@ -412,16 +411,16 @@ public:
    * ceres::Problem::Evaluate method API. Here all output arguments default to nullptr except
    * for the cost.
    *
-   * TODO(efernandez) support jacobian output argument The jacobian output argument is not
-   * exposed at the moment because its type is a CRSMatrix, that probably needs to be converted
-   * to another type.
+   * TODO(efernandez) support jacobian output argument
+   *                  The jacobian output argument is not exposed at the moment because its type is
+   *                  a CRSMatrix, that probably needs to be converted to another type.
    *
    * @param[out] cost      The cost of the entire problem represented by the graph.
    * @param[out] residuals The residuals of all constraints.
-   * @param[out] gradient  The gradient for all constraints evaluated at the values of the
-   *                       current set of variables.
-   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls
-   *                       various aspects of the problem evaluation. See https://ceres-
+   * @param[out] gradient  The gradient for all constraints evaluated at the values of the current
+   *                       set of variables.
+   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls various
+   *                       aspects of the problem evaluation. See https://ceres-
    *                       solver.googlesource.com/ceres-
    *                       solver/+/master/include/ceres/problem.h#401
    * @return True if the problem evaluation was successful; False, otherwise.
@@ -449,8 +448,7 @@ public:
    * If any of the requested constraints does not exist, an exception will be thrown.
    *
    * @param[in]  first   An iterator pointing to the first UUID of the desired constraints
-   * @param[in]  last    An iterator pointing to one passed the last UUID of the desired
-   *                     constraints
+   * @param[in]  last    An iterator pointing to one passed the last UUID of the desired constraints
    * @param[out] output  An output iterator capable of assignment to a ConstraintCost object
    */
   template<class UuidForwardIterator, class OutputIterator>

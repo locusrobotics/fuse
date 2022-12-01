@@ -174,8 +174,8 @@ public:
 
 private:
   /**
-   * @brief Keep callback, that counts the number of times it has been called and caches the
-   *        last message received
+   * @brief Keep callback, that counts the number of times it has been called and caches the last
+   *        message received
    *
    * @param[in] msg A geometry_msgs::msg::Point message
    */

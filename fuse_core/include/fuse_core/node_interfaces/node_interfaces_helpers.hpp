@@ -36,8 +36,8 @@ namespace node_interfaces
 
 /// TODO(CH3): Remove this once https://github.com/ros2/rclcpp/pull/2041 is merged and released
 
-// Helper classes to be inherited by NodeInterfaces to support node interface aggregation via
-// multiple inheritance.
+// Helper classes to be inherited by NodeInterfaces to support node interface aggregation
+// via multiple inheritance.
 
 // These also provide a more terse way to configure the supported interfaces!
 

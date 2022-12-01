@@ -105,8 +105,8 @@ static inline T getYaw(const T w, const T x, const T y, const T z)
 /**
  * @brief Wrap a 2D angle to the standard [-Pi, +Pi) range.
  *
- * @param[in/out] angle Input angle to be wrapped to the [-Pi, +Pi) range. Angle is updated by
- *                      this function.
+ * @param[in/out] angle Input angle to be wrapped to the [-Pi, +Pi) range. Angle is updated by this
+ *                      function.
  */
 template<typename T>
 void wrapAngle2D(T & angle)
@@ -114,8 +114,8 @@ void wrapAngle2D(T & angle)
   // Define some necessary variations of PI with the correct type (double or Jet)
   static const T PI = T(M_PI);
   static const T TAU = T(2 * M_PI);
-  // Handle the 1*Tau roll-over (https://tauday.com/tau-manifesto) Use ceres::floor because it is
-  // specialized for double and Jet types.
+  // Handle the 1*Tau roll-over (https://tauday.com/tau-manifesto)
+  // Use ceres::floor because it is specialized for double and Jet types.
   angle -= TAU * ceres::floor((angle + PI) / TAU);
 }
 

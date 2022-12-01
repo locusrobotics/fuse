@@ -46,7 +46,8 @@
 //
 // https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/solver.h
 // https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/covariance.h
-// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/problem.h ...
+// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/problem.h
+// ...
 
 namespace fuse_core
 {
@@ -504,8 +505,10 @@ void loadSolverOptionsFromROS(
     tmp_descr
   );
 
-  // Solved::Options::use_postordering was removed in: https://github.com/ceres-solver/ceres-
-  // solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
+  // NOTE(CH3): Solved::Options::use_postordering was removed in:
+  // https://github.com/ceres-solver/ceres-solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
+  //
+  // So it is also not included here
 
   tmp_descr.description = "This settings only affects the SPARSE_NORMAL_CHOLESKY solver.";
   solver_options.dynamic_sparsity = fuse_core::getParam(

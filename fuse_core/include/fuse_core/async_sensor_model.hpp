@@ -70,22 +70,22 @@ namespace fuse_core
  *
  * Derived classes:
  * - _must_ implement the onInit() method. This method is used to configure the sensor model for
- *    operation. This includes things like accessing the parameter server and subscribing to
- *    sensor topics.
- * - may _optionally_ implement the onGraphUpdate() method. This should only be done if the
- *   derived sensor needs access to the latest values of the state variables. In many cases,
- *   sensors will simply not need that information. If the sensor does need access to the graph,
- *   the most common implementation will simply be to move the provided pointer into a class
- *   member variable, for use in other callbacks.
+ *    operation. This includes things like accessing the parameter server and subscribing to sensor
+ *    topics.
+ * - may _optionally_ implement the onGraphUpdate() method. This should only be done if the derived
+ *   sensor needs access to the latest values of the state variables. In many cases, sensors will
+ *   simply not need that information. If the sensor does need access to the graph, the most common
+ *   implementation will simply be to move the provided pointer into a class member variable, for
+ *   use in other callbacks.
  *   @code{.cpp}
  *   void onGraphUpdate(Graph::ConstSharedPtr graph) override { this->graph_ = std::move(graph); }
  *   @endcode
  * - will _probably_ subscribe to a sensor message topic and write a custom message callback
  *   function. Within that function, the derived class will generate new constraints based on the
  *   received sensor data.
- * - _must_ call sendTransaction() every time new constraints are generated. This is how
- *    constraints are sent to the optimizer. Otherwise, the optimizer will not know about the
- *    derived sensor's constraints, and the sensor will have no effect.
+ * - _must_ call sendTransaction() every time new constraints are generated. This is how constraints
+ *    are sent to the optimizer. Otherwise, the optimizer will not know about the derived sensor's
+ *    constraints, and the sensor will have no effect.
  */
 class AsyncSensorModel : public SensorModel
 {
@@ -114,8 +114,8 @@ public:
   void graphCallback(Graph::ConstSharedPtr graph) override;
 
   /**
-   * @brief Perform any required post-construction initialization, such as subscribing to
-   *        topics or reading from the parameter server.
+   * @brief Perform any required post-construction initialization, such as subscribing to topics or
+   *        reading from the parameter server.
    *
    * This will be called for each plugin after construction and after the ROS node has been
    * initialized. The provided private node handle will be in a namespace based on the plugin's
@@ -212,8 +212,8 @@ protected:
   explicit AsyncSensorModel(size_t thread_count = 1);
 
   /**
-   * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is
-   *        received from the optimizer
+   * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received
+   *        from the optimizer
    *
    * Receiving a new Graph object generally means that new variables have been inserted into
    * the Graph, and new optimized values are available. To simplify synchronization between the
@@ -243,8 +243,7 @@ protected:
   virtual void onInit() {}
 
   /**
-   * @brief Perform any required operations to prepare for sending transactions to the
-   *        optimizer
+   * @brief Perform any required operations to prepare for sending transactions to the optimizer
    *
    * This function will be called once after initialize(). It may also be called at any time
    * after a call to stop().

@@ -61,8 +61,9 @@ namespace fuse_core
  * @param[in] parameter_name - The ROS parameter name
  * @param[out] default_value - The default value for this parameter
  * @param[in] parameter_descriptor - An optional, custom description for the parameter.
- * @param[in] When `true`, the parameter override is ignored. Default to `false`. \return The
- *                  value of the parameter. @throws if the parameter has already been declared
+ * @param[in] ignore_override When `true`, the parameter override is ignored. Default to `false`.
+ * @return The value of the parameter.
+ * @throws rclcpp::exceptions::InvalidParameterTypeException if the parameter type does not match
  */
 template<class T>
 T getParam(
@@ -99,8 +100,9 @@ T getParam(
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The ROS parameter name
  * @param[in] parameter_descriptor - An optional, custom description for the parameter.
- * @param[in] When `true`, the parameter override is ignored. Default to `false`. \return The
- *                  value of the parameter. @throws if the parameter has already been declared
+ * @param[in] ignore_override When `true`, the parameter override is ignored. Default to `false`.
+ * @return The value of the parameter.
+ * @throws rclcpp::exceptions::InvalidParameterTypeException if the parameter type does not match
  */
 template<class T>
 T getParam(
@@ -127,8 +129,8 @@ T getParam(
  *
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] key - The ROS parameter key for the required parameter
- * @param[out] value - The ROS parameter value for the \p key @throws std::runtime_error if the
- *                     parameter does not exist
+ * @param[out] value - The ROS parameter value for the \p key
+ * @throws std::runtime_error if the parameter does not exist
  */
 inline
 void getParamRequired(
@@ -155,15 +157,15 @@ void getParamRequired(
 }
 
 /**
- * @brief Helper function that loads positive integral or floating point values from the
- *        parameter server
+ * @brief Helper function that loads positive integral or floating point values from the parameter
+ *        server
  *
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not
  *                 exist. As output it has the loaded (or default) value
- * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e.
- *                     whether 0 is accepted or not
+ * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0
+ *                     is accepted or not
  */
 template<typename T,
   typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
@@ -195,8 +197,8 @@ void getPositiveParam(
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not
  *                 exist. As output it has the loaded (or default) value
- * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e.
- *                     whether 0 is accepted or not
+ * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0
+ *                     is accepted or not
  */
 inline void getPositiveParam(
   node_interfaces::NodeInterfaces<
@@ -212,17 +214,17 @@ inline void getPositiveParam(
 }
 
 /**
- * @brief Helper function that loads a covariance matrix diagonal vector from the parameter
- *        server and checks the size and the values are invalid, i.e. they are positive.
+ * @brief Helper function that loads a covariance matrix diagonal vector from the parameter server
+ *        and checks the size and the values are invalid, i.e. they are positive.
  *
  * @tparam Scalar - A scalar type, defaults to double
- * @tparam Size - An int size that specifies the expected size of the covariance matrix
- *                (rows and columns)
+ * @tparam Size - An int size that specifies the expected size of the covariance matrix (rows and
+ *                columns)
  *
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
- * @param[in] default_value - A default value to use for all the diagonal elements if the
- *                            provided parameter name does not exist
+ * @param[in] default_value - A default value to use for all the diagonal elements if the provided
+ *                            parameter name does not exist
  * @return The loaded (or default) covariance matrix, generated from the diagonal vector
  */
 template<int Size, typename Scalar = double>

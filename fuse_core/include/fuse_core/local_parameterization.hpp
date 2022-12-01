@@ -83,8 +83,8 @@ public:
    * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
-   * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize()
-   *                      x \p GlobalSize()
+   * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize() x \p
+   *                      GlobalSize()
    * @return True if successful, false otherwise
    */
   virtual bool ComputeMinusJacobian(

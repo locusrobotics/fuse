@@ -73,8 +73,7 @@
   }
 
 /**
- * @brief Implementation of the serialize() and deserialize() member functions for derived
- *        classes
+ * @brief Implementation of the serialize() and deserialize() member functions for derived classes
  *
  * Usage:
  * @code{.cpp}
@@ -133,8 +132,8 @@
   }
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and
- *        type() method
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
+ *        method
  *
  * Usage:
  * @code{.cpp}
@@ -153,9 +152,8 @@
   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and
- *        type() method for derived Constraint classes that have fixed-sized Eigen member
- *        objects.
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
+ *        method for derived Constraint classes that have fixed-sized Eigen member objects.
  *
  * Usage:
  * @code{.cpp}

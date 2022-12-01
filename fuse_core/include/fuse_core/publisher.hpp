@@ -72,8 +72,8 @@ public:
   virtual ~Publisher() = default;
 
   /**
-   * @brief Perform any required post-construction initialization, such as advertising
-   *        publishers or reading from the parameter server.
+   * @brief Perform any required post-construction initialization, such as advertising publishers or
+   *        reading from the parameter server.
    *
    * This will be called on each plugin after construction, and after the ros node has been
    * initialized. Plugins are encouraged to subnamespace any of their parameters to prevent
@@ -90,8 +90,8 @@ public:
   virtual const std::string & name() const = 0;
 
   /**
-   * @brief Notify the publisher that an optimization cycle is complete, and about changes to
-   *        the Graph.
+   * @brief Notify the publisher that an optimization cycle is complete, and about changes to the
+   *        Graph.
    *
    * Most publishers will only publish new data whenever the Graph values have been updated.
    * The Publisher::notify() method will be called by the optimizer (and in the optimizer's
@@ -100,8 +100,8 @@ public:
    * the publisher. In many cases this should prevent the plugins from searching through the
    * entire graph, looking for the variables of interest.
    *
-   * @param[in] transaction A Transaction object, describing the set of variables that have
-   *                        been added and/or removed
+   * @param[in] transaction A Transaction object, describing the set of variables that have been
+   *                        added and/or removed
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */

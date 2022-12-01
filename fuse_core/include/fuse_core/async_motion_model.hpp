@@ -69,18 +69,18 @@ namespace fuse_core
  * will be executed from the same callback queue as any other subscriptions or service callbacks.
  *
  * Derived classes:
- * - _probably_ need to implement the onInit() method. This method is used to configure the
- *    motion model for operation. This includes things like accessing the parameter server and
- *    subscribing to sensor topics.
+ * - _probably_ need to implement the onInit() method. This method is used to configure the motion
+ *    model for operation. This includes things like accessing the parameter server and subscribing
+ *    to sensor topics.
  * - _must_ implement the applyCallback() method. This is the communication mechanism between the
  *    parent/optimizer and the derived motion model. This is how the optimizer tells the motion
- *    model what timestamps have been added, and how the motion model sends motion model
- *    constraints to the optimizer.
- * - may _optionally_ implement the onGraphUpdate() method. This should only be done if the
- *   derived motion model needs access to the latest values of the state variables. In many
- *   cases, motion models will simply not need that information. If the motion model does need
- *   access the to graph, the most common implementation will simply be to move the provided
- *   pointer into a class memebr variable, for use in other callbacks.
+ *    model what timestamps have been added, and how the motion model sends motion model constraints
+ *    to the optimizer.
+ * - may _optionally_ implement the onGraphUpdate() method. This should only be done if the derived
+ *   motion model needs access to the latest values of the state variables. In many cases, motion
+ *   models will simply not need that information. If the motion model does need access the to
+ *   graph, the most common implementation will simply be to move the provided pointer into a class
+ *   memebr variable, for use in other callbacks.
  *   @code{.cpp}
  *   void onGraphUpdate(Graph::ConstSharedPtr graph) override { this->graph_ = std::move(graph); }
  *   @endcode
@@ -96,8 +96,8 @@ public:
   virtual ~AsyncMotionModel();
 
   /**
-   * @brief Augment a transaction object such that all involved timestamps are connected by
-   *        motion model constraints.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion
+   *        model constraints.
    *
    * This method will be called by the optimizer, in the optimizer's thread, before each sensor
    * transaction is applied to the Graph. This implementation packages a call to the pure
@@ -107,8 +107,8 @@ public:
    * in a different thread than this function, this function blocks until the query callback
    * returns.
    *
-   * @param[in,out] transaction The transaction object that should be augmented with motion
-   *                            model constraints
+   * @param[in,out] transaction The transaction object that should be augmented with motion model
+   *                            constraints
    * @return                    True if the motion models were generated successfully, false
    *                            otherwise
    */
@@ -131,8 +131,8 @@ public:
   void graphCallback(Graph::ConstSharedPtr graph) override;
 
   /**
-   * @brief Perform any required post-construction initialization, such as subscribing to
-   *        topics or reading from the parameter server.
+   * @brief Perform any required post-construction initialization, such as subscribing to topics or
+   *        reading from the parameter server.
    *
    * This will be called for each plugin after construction and after the ros node has been
    * initialized. The provided private node handle will be in a namespace based on the plugin's
@@ -208,8 +208,8 @@ protected:
   explicit AsyncMotionModel(size_t thread_count = 1);
 
   /**
-   * @brief Augment a transaction object such that all involved timestamps are connected by
-   *        motion model constraints.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion
+   *        model constraints.
    *
    * This is not as straightforward as it would seem. Depending on the history of previously
    * generated constraints, fulfilling the request may require removing previously generated
@@ -220,16 +220,16 @@ protected:
    * service callback, where the caller makes a request and blocks until the request is
    * completed.
    *
-   * @param[in,out] transaction The transaction object that should be augmented with motion
-   *                            model constraints
+   * @param[in,out] transaction The transaction object that should be augmented with motion model
+   *                            constraints
    * @return                    True if the motion models were generated successfully, false
    *                            otherwise
    */
   virtual bool applyCallback(Transaction & transaction) = 0;
 
   /**
-   * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is
-   *        received from the optimizer
+   * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received
+   *        from the optimizer
    *
    * Receiving a new Graph object generally means that new variables have been inserted into
    * the Graph, and new optimized values are available. To simplify synchronization between the

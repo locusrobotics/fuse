@@ -46,19 +46,18 @@ namespace fuse_core
 {
 
 /**
- * @brief Create a local parameterization with the Jacobians computed via automatic
- *        differentiation.
+ * @brief Create a local parameterization with the Jacobians computed via automatic differentiation.
  *
  * To get an auto differentiated local parameterization, you must define two classes with a
  * templated operator() (a.k.a. a functor).
  *
  * The first functor should compute:
  *
- * Plus(x, delta) -> x_plus_delta
+ *  Plus(x, delta) -> x_plus_delta
  *
  * And the second functor should compute the inverse operation:
  *
- * Minus(x1, x2) -> delta
+ *  Minus(x1, x2) -> delta
  *
  * Minus() should be defined such that if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
  *
@@ -110,8 +109,7 @@ public:
    *        differentiation
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size GloblaSize()
-   * @param[out] jacobian The Jacobian in row-major order, of size \p GlobalSize() x \p
-   *                      LocalSize()
+   * @param[out] jacobian The Jacobian in row-major order, of size \p GlobalSize() x \p LocalSize()
    * @return True is successful, false otherwise
    */
   bool ComputeJacobian(
@@ -119,8 +117,7 @@ public:
     double * jacobian) const override;
 
   /**
-   * @brief Generalization of the subtraction operation, implemented by the provided
-   *        MinusFunctor
+   * @brief Generalization of the subtraction operation, implemented by the provided MinusFunctor
    *
    * @param[in]  x1    The value of the first variable, of size \p GlobalSize()
    * @param[in]  x2    The value of the second variable, of size \p GlobalSize()
@@ -137,8 +134,7 @@ public:
    * @brief The Jacobian of Minus(x1, x2) w.r.t x2 evaluated at x1 = x2 = x, computed using
    *        automatic differentiation
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
-   * @param[out] jacobian The Jacobian in row-major order, of size \p LocalSize() x \p
-   *                      GlobalSize()
+   * @param[out] jacobian The Jacobian in row-major order, of size \p LocalSize() x \p GlobalSize()
    * @return True is successful, false otherwise
    */
   bool ComputeMinusJacobian(

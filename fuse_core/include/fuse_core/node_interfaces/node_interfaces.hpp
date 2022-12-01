@@ -69,9 +69,8 @@ public:
    * Usage example:
    *   - ```NodeInterfaces<rclcpp::node_interfaces::Base>(node)``` will bind just the
    *        NodeBaseInterface.
-   *   - ```NodeInterfaces< rclcpp::node_interfaces::Base,
-   *        rclcpp::node_interfaces::Clock>(node)``` will bind both the NodeBaseInterface and
-   *        NodeClockInterface.
+   *   - ```NodeInterfaces< rclcpp::node_interfaces::Base, rclcpp::node_interfaces::Clock>(node)```
+   *        will bind both the NodeBaseInterface and NodeClockInterface.
    *
    * \param[in] node Node-like object to bind the interfaces of.
    */

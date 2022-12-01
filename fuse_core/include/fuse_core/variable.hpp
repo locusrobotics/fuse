@@ -65,8 +65,7 @@
   }
 
 /**
- * @brief Implementation of the serialize() and deserialize() member functions for derived
- *        classes
+ * @brief Implementation of the serialize() and deserialize() member functions for derived classes
  *
  * Usage:
  * @code{.cpp}
@@ -125,8 +124,8 @@
   }
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and
- *        type() method
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
+ *        method
  *
  * Usage:
  * @code{.cpp}
@@ -145,8 +144,8 @@
   FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and
- *        type() method for derived Variable classes that have fixed-sized Eigen member objects.
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
+ *        method for derived Variable classes that have fixed-sized Eigen member objects.
  *
  * Usage:
  * @code{.cpp}
@@ -310,8 +309,7 @@ public:
   virtual Variable::UniquePtr clone() const = 0;
 
   /**
-   * @brief Create a new Ceres local parameterization object to apply to updates of this
-   *        variable
+   * @brief Create a new Ceres local parameterization object to apply to updates of this variable
    *
    * If a local parameterization is not needed, a null pointer should be returned. If a local
    * parameterization is needed, remember to also override the \p localSize() method to return

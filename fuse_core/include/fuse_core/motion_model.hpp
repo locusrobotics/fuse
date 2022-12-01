@@ -60,14 +60,14 @@ public:
   virtual ~MotionModel() = default;
 
   /**
-   * @brief Augment a transaction object such that all involved timestamps are connected by
-   *        motion model constraints.
+   * @brief Augment a transaction object such that all involved timestamps are connected by motion
+   *        model constraints.
    *
    * This function will be called by the optimizer (in the Optimizer's thread) for each
    * received transaction.
    *
-   * @param[in,out] transaction The transaction object that should be augmented with motion
-   *                            model constraints
+   * @param[in,out] transaction The transaction object that should be augmented with motion model
+   *                            constraints
    * @return                    True if the motion models were generated successfully, false
    *                            otherwise
    */
@@ -90,8 +90,8 @@ public:
   virtual void graphCallback(Graph::ConstSharedPtr /*graph*/) {}
 
   /**
-   * @brief Perform any required post-construction initialization, such as subscribing to
-   *        topics or reading from the parameter server.
+   * @brief Perform any required post-construction initialization, such as subscribing to topics or
+   *        reading from the parameter server.
    *
    * This will be called on each plugin after construction, and after the ros node has been
    * initialized. Plugins are encouraged to subnamespace any of their parameters to prevent

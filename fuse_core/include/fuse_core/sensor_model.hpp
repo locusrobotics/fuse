@@ -94,8 +94,8 @@ public:
   virtual void graphCallback(Graph::ConstSharedPtr /*graph*/) {}
 
   /**
-  * @brief Perform any required post-construction initialization, such as subscribing to topics
-  *        or reading from the parameter server.
+  * @brief Perform any required post-construction initialization, such as subscribing to topics or
+  *        reading from the parameter server.
   *
   * This will be called on each plugin after construction, and after the ROS node has been
   * initialized. Plugins are encouraged to subnamespace any of their parameters to prevent

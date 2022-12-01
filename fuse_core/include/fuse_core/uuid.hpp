@@ -110,10 +110,8 @@ inline UUID generate(const std::string & data)
 /**
    * @brief Generate a UUID from a namespace string and a raw data buffer
    *
-   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping
-   *                             UUIDs
-   * @param[in] data             A data buffer containing information that makes this item
-   *                             unique
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
+   * @param[in] data             A data buffer containing information that makes this item unique
    * @param[in] byte_count       The number of bytes in the data buffer
    * @return                     A repeatable UUID specific to the provided namespace and data
    */
@@ -125,8 +123,7 @@ inline UUID generate(const std::string & namespace_string, const void * data, si
 /**
    * @brief Generate a UUID from a namespace string and C-style string
    *
-   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping
-   *                             UUIDs
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
    * @param[in] data             A data buffer held in a C-style string
    * @return                     A repeatable UUID specific to the provided namespace and data
    */
@@ -138,8 +135,7 @@ inline UUID generate(const std::string & namespace_string, const char * data)
 /**
    * @brief Generate a UUID from a namespace string and a C++ string
    *
-   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping
-   *                             UUIDs
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
    * @param[in] data             A data buffer held in a C++-style string
    * @return                     A repeatable UUID specific to the provided namespace and data
    */
@@ -153,11 +149,9 @@ inline UUID generate(const std::string & namespace_string, const std::string & d
    *
    * Every unique timestamp will generate a unique UUID
    *
-   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping
-   *                             UUIDs
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
    * @param[in] stamp            An rclcpp::Time timestamp
-   * @return                     A repeatable UUID specific to the provided namespace and
-   *                             timestamp
+   * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
 UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp);
 
@@ -166,12 +160,10 @@ UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp);
    *
    * Every unique timestamp and id pair will generate a unique UUID
    *
-   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping
-   *                             UUIDs
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
    * @param[in] stamp            A rclcpp::Time timestamp
    * @param[in] id               A UUID
-   * @return                     A repeatable UUID specific to the provided namespace and
-   *                             timestamp
+   * @return                     A repeatable UUID specific to the provided namespace and timestamp
    */
 UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp, const UUID & id);
 
@@ -180,11 +172,9 @@ UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp, 
    *
    * Every unique user id will generate a unique UUID
    *
-   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping
-   *                             UUIDs
+   * @param[in] namespace_string A namespace or parent string used to generate non-overlapping UUIDs
    * @param[in] user_id          A uint64_t user generated id
-   * @return                     A repeatable UUID specific to the provided namespace and user
-   *                             id
+   * @return                     A repeatable UUID specific to the provided namespace and user id
    */
 UUID generate(const std::string & namespace_string, const uint64_t & user_id);
 }  // namespace uuid
@@ -195,8 +185,8 @@ namespace std
 {
 
 /**
- * @brief Define a hash specialization for the UUID to make it easier to use in unordered_maps
- *        and unordered_sets
+ * @brief Define a hash specialization for the UUID to make it easier to use in unordered_maps and
+ *        unordered_sets
  */
 template<>
 struct hash<fuse_core::UUID>

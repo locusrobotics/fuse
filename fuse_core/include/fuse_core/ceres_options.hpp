@@ -185,8 +185,7 @@ CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
  *
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
- * @param[in] default_value - A default value to use if the provided parameter name does not
- *                            exist
+ * @param[in] default_value - A default value to use if the provided parameter name does not exist
  * @return The loaded (or default) value
  */
 template<class T>
@@ -225,8 +224,7 @@ T declareCeresParam(
  * @param[in] interfaces - Node interfaces for a node in a namespace containing
  *                         ceres::Covariance::Options settings
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
- * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters'
- *                               names
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadCovarianceOptionsFromROS(
   node_interfaces::NodeInterfaces<
@@ -243,8 +241,7 @@ void loadCovarianceOptionsFromROS(
  * @param[in] interfaces - Node interfaces for a node in a namespace containing
  *                         ceres::Problem::Options settings
  * @param[out] problem_options - The ceres::Problem::Options object to update
- * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters'
- *                               names
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadProblemOptionsFromROS(
   node_interfaces::NodeInterfaces<
@@ -259,8 +256,7 @@ void loadProblemOptionsFromROS(
  * @param[in] interfaces - Node interfaces for a node in a namespace containing
  *                         ceres::Solver::Options settings
  * @param[out] solver_options - The ceres::Solver::Options object to update
- * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters'
- *                               names
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadSolverOptionsFromROS(
   node_interfaces::NodeInterfaces<

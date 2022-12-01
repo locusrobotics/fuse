@@ -132,9 +132,9 @@ typename MessageBuffer<Message>::stamp_range MessageBuffer<Message>::stamps() co
 template<class Message>
 void MessageBuffer<Message>::purgeHistory()
 {
-  // Purge any messages that are more than buffer_length_ seconds older than the most recent entry A
-  // setting of rclcpp::Duration::max() means "keep everything" And we want to keep at least two
-  // entries in buffer at all times, regardless of the stamps.
+  // Purge any messages that are more than buffer_length_ seconds older than the most recent entry
+  // A setting of rclcpp::Duration::max() means "keep everything"
+  // And we want to keep at least two entries in buffer at all times, regardless of the stamps.
   if ((buffer_length_ == rclcpp::Duration::max()) || (buffer_.size() <= 2)) {
     return;
   }
@@ -150,9 +150,10 @@ void MessageBuffer<Message>::purgeHistory()
     expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type());
   }
 
-  // Remove buffer elements before the expiration time. Be careful to ensure that:  - at least two
-  // entries remains at all times  - the buffer covers *at least* until the expiration time. Longer
-  // is acceptable.
+  // Remove buffer elements before the expiration time.
+  // Be careful to ensure that:
+  //  - at least two entries remains at all times
+  //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
   auto is_greater = [](const auto & stamp, const auto & element) -> bool
     {
       return element.first > stamp;
@@ -161,8 +162,8 @@ void MessageBuffer<Message>::purgeHistory()
     buffer_.begin(),
     buffer_.end(), expiration_time, is_greater);
   if (expiration_iter != buffer_.begin()) {
-    // expiration_iter points to the first element > expiration_time. Back up one entry, to a point
-    // that is <= expiration_time
+    // expiration_iter points to the first element > expiration_time.
+    // Back up one entry, to a point that is <= expiration_time
     buffer_.erase(buffer_.begin(), std::prev(expiration_iter));
   }
 }

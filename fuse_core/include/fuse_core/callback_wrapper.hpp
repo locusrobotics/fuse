@@ -46,8 +46,8 @@ namespace fuse_core
 {
 
 /**
- * @brief Object that wraps a generic function call so that it may be inserted into a ROS
- *        callback queue.
+ * @brief Object that wraps a generic function call so that it may be inserted into a ROS callback
+ *        queue.
  *
  * Once inserted, the function will be called from within the thread that services that callback
  * queue. It will be intermingled with any other standard ROS callbacks (message subscription
@@ -142,8 +142,8 @@ private:
   std::promise<T> promise_;  //!< Promise/Future used to return data after the callback is executed
 };
 
-// Specialization to handle 'void' return types Specifically, promise_.set_value(callback_()) does
-// not work if callback_() returns void.
+// Specialization to handle 'void' return types
+// Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
 template<>
 inline void CallbackWrapper<void>::call()
 {
