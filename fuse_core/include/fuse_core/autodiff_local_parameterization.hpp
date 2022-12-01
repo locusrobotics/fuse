@@ -47,29 +47,31 @@ namespace fuse_core
 {
 
 /**
- * @brief Create a local parameterization with the Jacobians computed via automatic differentiation.
+ * @brief Create a local parameterization with the Jacobians computed via automatic
+ *        differentiation.
  *
- * To get an auto differentiated local parameterization, you must define two classes with a templated operator()
- * (a.k.a. a functor).
+ * To get an auto differentiated local parameterization, you must define two classes with a
+ * templated operator() (a.k.a. a functor).
  *
  * The first functor should compute:
  *
- *   Plus(x, delta) -> x_plus_delta
+ * Plus(x, delta) -> x_plus_delta
  *
  * And the second functor should compute the inverse operation:
  *
- *   Minus(x1, x2) -> delta
+ * Minus(x1, x2) -> delta
  *
  * Minus() should be defined such that if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
  *
- * The autodiff framework substitutes appropriate "Jet" objects for the template parameter T in order to compute
- * the derivative when necessary, but this is hidden, and you should write the function as if T were a scalar type
- * (e.g. a double-precision floating point number).
+ * The autodiff framework substitutes appropriate "Jet" objects for the template parameter T in
+ * order to compute the derivative when necessary, but this is hidden, and you should write the
+ * function as if T were a scalar type (e.g. a double-precision floating point number).
  *
  * Additionally the GlobalSize and LocalSize must be specified as template parameters.
- * - GlobalSize is the size of the variables x1 and x2. If this is a quaternion, the GloblaSize would be 4.
- * - LocalSize is the size of delta, and may be different from GlobalSize. For quaternions, there are only 3 degrees
- *   of freedom, so the LocalSize is 3.
+ * - GlobalSize is the size of the variables x1 and x2. If this is a quaternion, the GloblaSize
+ *   would be 4.
+ * - LocalSize is the size of delta, and may be different from GlobalSize. For quaternions, there
+ *   are only 3 degrees of freedom, so the LocalSize is 3.
  *
  * For more information on local parameterizations, see fuse_core::LocalParameterization
  */
@@ -105,10 +107,12 @@ public:
     double * x_plus_delta) const override;
 
   /**
-   * @brief The Jacobian of Plus(x, delta) w.r.t delta at delta = 0, computed using automatic differentiation
+   * @brief The Jacobian of Plus(x, delta) w.r.t delta at delta = 0, computed using automatic
+   *        differentiation
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size GloblaSize()
-   * @param[out] jacobian The Jacobian in row-major order, of size \p GlobalSize() x \p LocalSize()
+   * @param[out] jacobian The Jacobian in row-major order, of size \p GlobalSize() x \p
+   *                      LocalSize()
    * @return True is successful, false otherwise
    */
   bool ComputeJacobian(
@@ -116,11 +120,13 @@ public:
     double * jacobian) const override;
 
   /**
-   * @brief Generalization of the subtraction operation, implemented by the provided MinusFunctor
+   * @brief Generalization of the subtraction operation, implemented by the provided
+   *        MinusFunctor
    *
    * @param[in]  x1    The value of the first variable, of size \p GlobalSize()
    * @param[in]  x2    The value of the second variable, of size \p GlobalSize()
-   * @param[out] delta The difference between the second variable and the first, of size \p LocalSize()
+   * @param[out] delta The difference between the second variable and the first, of size \p
+   *                   LocalSize()
    * @return True if successful, false otherwise
    */
   bool Minus(
@@ -129,9 +135,11 @@ public:
     double * delta) const override;
 
   /**
-   * @brief The Jacobian of Minus(x1, x2) w.r.t x2 evaluated at x1 = x2 = x, computed using automatic differentiation
+   * @brief The Jacobian of Minus(x1, x2) w.r.t x2 evaluated at x1 = x2 = x, computed using
+   *        automatic differentiation
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
-   * @param[out] jacobian The Jacobian in row-major order, of size \p LocalSize() x \p GlobalSize()
+   * @param[out] jacobian The Jacobian in row-major order, of size \p LocalSize() x \p
+   *                      GlobalSize()
    * @return True is successful, false otherwise
    */
   bool ComputeMinusJacobian(

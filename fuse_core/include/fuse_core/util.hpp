@@ -106,7 +106,8 @@ static inline T getYaw(const T w, const T x, const T y, const T z)
 /**
  * @brief Wrap a 2D angle to the standard [-Pi, +Pi) range.
  *
- * @param[in/out] angle Input angle to be wrapped to the [-Pi, +Pi) range. Angle is updated by this function.
+ * @param[in/out] angle Input angle to be wrapped to the [-Pi, +Pi) range. Angle is updated by
+ *                      this function.
  */
 template<typename T>
 void wrapAngle2D(T & angle)

@@ -66,13 +66,16 @@
 #include <Eigen/Core>
 
 /**
- * Creates a custom new() implementation that ensures memory is allocated with proper byte alignment. This should
- * be added to the public section of classes or structs that contain fixed-sized vectorable Eigen objects.
+ * Creates a custom new() implementation that ensures memory is allocated with proper byte
+ * alignment. This should be added to the public section of classes or structs that contain
+ * fixed-sized vectorable Eigen objects.
  *
- * For examples of vectorable types, see: https://eigen.tuxfamily.org/dox-devel/group__TopicFixedSizeVectorizable.html
+ * For examples of vectorable types, see: https://eigen.tuxfamily.org/dox-
+ * devel/group__TopicFixedSizeVectorizable.html
  *
- * This function is called internally by the SMART_PTR_DEFINITIONS_WITH_EIGEN below. You only need to call this
- * function manually if the class or struct is not adding the smart pointer definitions.
+ * This function is called internally by the SMART_PTR_DEFINITIONS_WITH_EIGEN below. You only
+ * need to call this function manually if the class or struct is not adding the smart pointer
+ * definitions.
  */
 #if __cpp_aligned_new
   #define FUSE_MAKE_ALIGNED_OPERATOR_NEW()
@@ -93,11 +96,12 @@
   __MAKE_UNIQUE_DEFINITION(__VA_ARGS__)
 
 /**
- * Defines smart pointer aliases and static functions for a class that contains fixed-sized vectorable Eigen member
- * variables.
+ * Defines smart pointer aliases and static functions for a class that contains fixed-sized
+ * vectorable Eigen member variables.
  *
- * Same as SMART_PTR_DEFINITIONS except it ensures that shared ptr memory is allocated with proper byte alignment.
- * For examples of vectorable types, see: https://eigen.tuxfamily.org/dox-devel/group__TopicFixedSizeVectorizable.html
+ * Same as SMART_PTR_DEFINITIONS except it ensures that shared ptr memory is allocated with
+ * proper byte alignment. For examples of vectorable types, see: https://eigen.tuxfamily.org/dox-
+ * devel/group__TopicFixedSizeVectorizable.html
  *
  * Use in the public section of the class.
  */
@@ -117,9 +121,8 @@
 /**
  * Defines smart pointers aliases only for abstract classes.
  *
- * Same as SMART_PTR_DEFINITIONS except it excludes the static
- * method definitions which do not work on pure virtual classes and classes
- * which are not CopyConstructable.
+ * Same as SMART_PTR_DEFINITIONS except it excludes the static method definitions which do not
+ * work on pure virtual classes and classes which are not CopyConstructable.
  *
  * Use in the public section of the class.
  */

@@ -52,15 +52,18 @@ namespace fuse_core
 {
 
 /**
- * @brief A utility class that manages the set of timestamps that have been used to generate motion model constraints.
+ * @brief A utility class that manages the set of timestamps that have been used to generate
+ *        motion model constraints.
  *
- * This class keeps track of the timestamps of the previously generated motion model chain, and determines the
- * required start/stop timestamp pairs needed to update the motion model chain to span the queried time range. If the
- * queried time range does not line up with existing constraints, this class with mark some prior constraints for
- * removal and will generate new start/stop timestamp pairs that split the previous range and the requested time. All
- * of the details and bookkeeping needed for creating a proper motion model implementation are handled by this class;
- * derived motion models simply need to include a TimestampManager object and provide a function capable of generating
- * motion model constraints between arbitrary timestamps.
+ * This class keeps track of the timestamps of the previously generated motion model chain, and
+ * determines the required start/stop timestamp pairs needed to update the motion model chain to
+ * span the queried time range. If the queried time range does not line up with existing
+ * constraints, this class with mark some prior constraints for removal and will generate new
+ * start/stop timestamp pairs that split the previous range and the requested time. All of the
+ * details and bookkeeping needed for creating a proper motion model implementation are handled
+ * by this class; derived motion models simply need to include a TimestampManager object and
+ * provide a function capable of generating motion model constraints between arbitrary
+ * timestamps.
  */
 class TimestampManager
 {
@@ -70,15 +73,20 @@ public:
   /**
    * @brief Function that generates motion model constraints between the requested timestamps
    *
-   * If the motion models cannot be generated for whatever reason, this function should throw an exception.
+   * If the motion models cannot be generated for whatever reason, this function should throw
+   * an exception.
    *
-   * @param[in]  beginning_stamp The beginning timestamp of the motion model constraints to be generated.
-   *                             \p beginning_stamp is guaranteed to be less than \p ending_stamp.
-   * @param[in]  ending_stamp    The ending timestamp of the motion model constraints to be generated.
-   *                             \p ending_stamp is guaranteed to be greater than \p beginning_stamp.
-   * @param[out] constraints     One or more motion model constraints between the requested timestamps.
-   * @param[out] variables       One or more variables at both the \p beginning_stamp and \p ending_stamp. The
-   *                             variables should include initial values for the optimizer.
+   * @param[in]  beginning_stamp The beginning timestamp of the motion model constraints to be
+   *                             generated. \p beginning_stamp is guaranteed to be less than \p
+   *                             ending_stamp.
+   * @param[in]  ending_stamp    The ending timestamp of the motion model constraints to be
+   *                             generated. \p ending_stamp is guaranteed to be greater than \p
+   *                             beginning_stamp.
+   * @param[out] constraints     One or more motion model constraints between the requested
+   *                             timestamps.
+   * @param[out] variables       One or more variables at both the \p beginning_stamp and \p
+   *                             ending_stamp. The variables should include initial values for
+   *                             the optimizer.
    */
   using MotionModelFunction = std::function<void (const rclcpp::Time & beginning_stamp,
       const rclcpp::Time & ending_stamp,
@@ -88,34 +96,40 @@ public:
   /**
    * @brief A range of timestamps
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const rclcpp::Time&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const rclcpp::Time&.
    */
   using const_stamp_range = boost::any_range<const rclcpp::Time, boost::forward_traversal_tag>;
 
   /**
-   * @brief Constructor that accepts the motion model generator as a std::function object, probably constructed using
-   * std::bind()
+   * @brief Constructor that accepts the motion model generator as a std::function object,
+   *        probably constructed using std::bind()
    *
-   * @param[in] generator     A function that generates motion model constraints between the requested timestamps.
-   * @param[in] buffer_length The length of the motion model history. If queries arrive involving timestamps
-   *                          that are older than the buffer length, an exception will be thrown.
+   * @param[in] generator     A function that generates motion model constraints between the
+   *                          requested timestamps.
+   * @param[in] buffer_length The length of the motion model history. If queries arrive
+   *                          involving timestamps that are older than the buffer length, an
+   *                          exception will be thrown.
    */
   explicit TimestampManager(
     MotionModelFunction generator,
     const rclcpp::Duration & buffer_length = rclcpp::Duration::max());
 
   /**
-   * @brief Constructor that accepts the motion model generator as a member function pointer and object pointer
+   * @brief Constructor that accepts the motion model generator as a member function pointer
+   *        and object pointer
    *
    * i.e. TimestampManager(&SomeClass::generatorMethod, &some_class_instance)
    *
-   * @param[in] fp            A function pointer to a class method that generates motion model constraints between
-   *                          the requested timestamps.
-   * @param[in] obj           A pointer to the object to be used to generate motion model constraints
-   * @param[in] buffer_length The length of the motion model history. If queries arrive involving timestamps
-   *                          that are older than the buffer length, an exception will be thrown.
+   * @param[in] fp            A function pointer to a class method that generates motion model
+   *                          constraints between the requested timestamps.
+   * @param[in] obj           A pointer to the object to be used to generate motion model
+   *                          constraints
+   * @param[in] buffer_length The length of the motion model history. If queries arrive
+   *                          involving timestamps that are older than the buffer length, an
+   *                          exception will be thrown.
    */
   template<class T>
   TimestampManager(
@@ -128,15 +142,18 @@ public:
     const rclcpp::Duration & buffer_length = rclcpp::Duration::max());
 
   /**
-   * @brief Constructor that accepts the motion model generator as a const member function pointer and object pointer
+   * @brief Constructor that accepts the motion model generator as a const member function
+   *        pointer and object pointer
    *
    * i.e. TimestampManager(&SomeClass::constGeneratorMethod, &some_class_instance)
    *
-   * @param[in] fp            A function pointer to class method that generates motion model constraints between
-   *                          the requested timestamps.
-   * @param[in] obj           A pointer to the object to be used to generate motion model constraints
-   * @param[in] buffer_length The length of the motion model history. If queries arrive involving timestamps
-   *                          that are older than the buffer length, an exception will be thrown.
+   * @param[in] fp            A function pointer to class method that generates motion model
+   *                          constraints between the requested timestamps.
+   * @param[in] obj           A pointer to the object to be used to generate motion model
+   *                          constraints
+   * @param[in] buffer_length The length of the motion model history. If queries arrive
+   *                          involving timestamps that are older than the buffer length, an
+   *                          exception will be thrown.
    */
   template<class T>
   TimestampManager(
@@ -178,18 +195,22 @@ public:
   }
 
   /**
-   * @brief Update a transaction structure such that the involved timestamps are connected by motion model constraints.
+   * @brief Update a transaction structure such that the involved timestamps are connected by
+   *        motion model constraints.
    *
-   * This is not as straightforward as it would seem. Depending on the history of previously generated constraints,
-   * fulfilling the request may require removing previously generated constraints and creating several new
-   * constraints, such that all timestamps are linked together in a sequential chain. This function calls
-   * the \p generator function provided in the constructor to generate the correct set of constraints based on history.
-   * This function is designed to be used in the derived MotionModel::applyCallback() implementation -- however this
-   * method may throw an exception if it is unable to generate the requested motion models.
+   * This is not as straightforward as it would seem. Depending on the history of previously
+   * generated constraints, fulfilling the request may require removing previously generated
+   * constraints and creating several new constraints, such that all timestamps are linked
+   * together in a sequential chain. This function calls the \p generator function provided in
+   * the constructor to generate the correct set of constraints based on history. This function
+   * is designed to be used in the derived MotionModel::applyCallback() implementation --
+   * however this method may throw an exception if it is unable to generate the requested
+   * motion models.
    *
-   * @param[in,out] transaction      The transaction object that should be augmented with motion model constraints
-   * @param[in]     update_variables Update the values of any existing variables with the newly generated values
-   * @throws
+   * @param[in,out] transaction      The transaction object that should be augmented with
+   *                                 motion model constraints
+   * @param[in]     update_variables Update the values of any existing variables with the newly
+   *                                 generated values @throws
    */
   void query(Transaction & transaction, bool update_variables = false);
 
@@ -229,8 +250,9 @@ protected:
   /**
    * @brief The set of previously generated motion model segments, sorted by beginning time.
    *
-   * The MotionModelHistory will always contain all represented timestamps; the very last entry will be the ending
-   * time of the previous MotionModelSegment, and the very last entry will be an empty MotionModelSegment.
+   * The MotionModelHistory will always contain all represented timestamps; the very last entry
+   * will be the ending time of the previous MotionModelSegment, and the very last entry will
+   * be an empty MotionModelSegment.
    */
   using MotionModelHistory = std::map<rclcpp::Time, MotionModelSegment>;
 
@@ -246,7 +268,8 @@ protected:
    *
    * @param[in]  beginning_stamp The beginning timestamp of the new segment
    * @param[in]  ending_stamp    The ending timestamp of the new segment
-   * @param[out] transaction     A transaction object to be updated with the changes caused by addSegment
+   * @param[out] transaction     A transaction object to be updated with the changes caused by
+   *                             addSegment
    */
   void addSegment(
     const rclcpp::Time & beginning_stamp,
@@ -258,22 +281,26 @@ protected:
    *
    * The motion_model_history_ container will be updated.
    *
-   * @param[in]  iter        An iterator to the MotionModelSegment to remove. The iterator will be invalid afterwards.
-   * @param[out] transaction A transaction object to be updated with the changes caused by removeSegment
+   * @param[in]  iter        An iterator to the MotionModelSegment to remove. The iterator will
+   *                         be invalid afterwards.
+   * @param[out] transaction A transaction object to be updated with the changes caused by
+   *                         removeSegment
    */
   void removeSegment(
     MotionModelHistory::iterator & iter,
     Transaction & transaction);
 
   /**
-   * @brief Split an existing MotionModelSegment into two pieces at the provided timestamp, updating the provided
-   * transaction.
+   * @brief Split an existing MotionModelSegment into two pieces at the provided timestamp,
+   *        updating the provided transaction.
    *
    * The motion_model_history_ container will be updated.
    *
-   * @param[in]  iter        An iterator to the MotionModelSegment to split. The iterator will be invalid afterwards.
+   * @param[in]  iter        An iterator to the MotionModelSegment to split. The iterator will
+   *                         be invalid afterwards.
    * @param[in]  stamp       The timestamp where the MotionModelSegment should be split
-   * @param[out] transaction A transaction object to be updated with the changes caused by splitSegment
+   * @param[out] transaction A transaction object to be updated with the changes caused by
+   *                         splitSegment
    */
   void splitSegment(
     MotionModelHistory::iterator & iter,

@@ -45,9 +45,10 @@ namespace fuse_core
 {
 
 /**
- * @brief A throttled callback that encapsulates the logic to throttle a callback so it is only called after a given
- * period in seconds (or more). The dropped calls can optionally be received in a dropped callback, that could be used
- * to count the number of calls dropped.
+ * @brief A throttled callback that encapsulates the logic to throttle a callback so it is only
+ *        called after a given period in seconds (or more). The dropped calls can optionally be
+ *        received in a dropped callback, that could be used to count the number of calls
+ *        dropped.
  *
  * @tparam Callback The std::function callback
  */
@@ -58,10 +59,14 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] keep_callback   The callback to call when kept, i.e. not dropped. Defaults to nullptr
-   * @param[in] drop_callback   The callback to call when dropped because of the throttling. Defaults to nullptr
-   * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0, i.e. no throttling
-   * @param[in] clock           The clock to throttle against. Defaults to using RCL_SYSTEM_TIME
+   * @param[in] keep_callback   The callback to call when kept, i.e. not dropped. Defaults to
+   *                            nullptr
+   * @param[in] drop_callback   The callback to call when dropped because of the throttling.
+   *                            Defaults to nullptr
+   * @param[in] throttle_period The throttling period duration in seconds. Defaults to 0.0,
+   *                            i.e. no throttling
+   * @param[in] clock           The clock to throttle against. Defaults to using
+   *                            RCL_SYSTEM_TIME
    */
   ThrottledCallback(
     Callback && keep_callback = nullptr,                 // NOLINT(whitespace/operators)
@@ -138,8 +143,8 @@ public:
   }
 
   /**
-   * @brief Callback that throttles the calls to the keep callback provided. When dropped because
-   * of throttling, the drop callback is called instead.
+   * @brief Callback that throttles the calls to the keep callback provided. When dropped
+   *        because of throttling, the drop callback is called instead.
    *
    * @param[in] args The input arguments
    */

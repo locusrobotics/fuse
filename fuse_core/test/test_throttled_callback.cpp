@@ -39,10 +39,11 @@
 #include <gtest/gtest.h>
 
 /**
- * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given frequency.
+ * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given
+ *        frequency.
  *
- * The messages published are geometry_msgs::msg::Point because it is simple. The 'x' field is set to the number of messages
- * published so far, starting at 0.
+ * The messages published are geometry_msgs::msg::Point because it is simple. The 'x' field is
+ * set to the number of messages published so far, starting at 0.
  */
 class PointPublisher : public rclcpp::Node
 {
@@ -100,11 +101,12 @@ private:
 };
 
 /**
- * @brief A dummy point sensor model that uses a fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point> with a keep
- * and drop callback.
+ * @brief A dummy point sensor model that uses a
+ *        fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point> with a keep and drop
+ *        callback.
  *
- * The callbacks simply count the number of times they are called, for testing purposes. The keep callback also caches
- * the last message received, also for testing purposes.
+ * The callbacks simply count the number of times they are called, for testing purposes. The keep
+ * callback also caches the last message received, also for testing purposes.
  */
 class PointSensorModel : public rclcpp::Node
 {
@@ -172,7 +174,8 @@ public:
 
 private:
   /**
-   * @brief Keep callback, that counts the number of times it has been called and caches the last message received
+   * @brief Keep callback, that counts the number of times it has been called and caches the
+   *        last message received
    *
    * @param[in] msg A geometry_msgs::msg::Point message
    */

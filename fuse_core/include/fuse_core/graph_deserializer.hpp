@@ -52,9 +52,10 @@ void serializeGraph(const fuse_core::Graph & graph, fuse_msgs::msg::SerializedGr
 /**
  * @brief Deserialize a graph
  *
- * The deserializer object loads all of the known Variable and Constraint libraries, allowing derived types contained
- * within the graph to be properly deserialized. The libraries will be unloaded on destruction. As a consequence, the
- * deserializer object must outlive any created graph instances.
+ * The deserializer object loads all of the known Variable and Constraint libraries, allowing
+ * derived types contained within the graph to be properly deserialized. The libraries will be
+ * unloaded on destruction. As a consequence, the deserializer object must outlive any created
+ * graph instances.
  */
 class GraphDeserializer
 {
@@ -67,8 +68,8 @@ public:
   /**
    * @brief Deserialize a SerializedGraph message into a fuse Graph object.
    *
-   * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
-   * an exception is thrown.
+   * If no plugin is available for a contained Variable or Constraint, or an error occurs
+   * during deserialization, an exception is thrown.
    *
    * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
@@ -82,8 +83,8 @@ public:
   /**
    * @brief Deserialize a SerializedGraph message into a fuse Graph object.
    *
-   * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
-   * an exception is thrown.
+   * If no plugin is available for a contained Variable or Constraint, or an error occurs
+   * during deserialization, an exception is thrown.
    *
    * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object

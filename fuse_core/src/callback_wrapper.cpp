@@ -67,7 +67,8 @@ bool CallbackAdapter::is_ready(rcl_wait_set_t * wait_set)
 }
 
 /**
-   * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and CallbackGroup::add_waitable()
+   * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and
+   *        CallbackGroup::add_waitable()
     waitable_ptr = std::make_shared<CallbackAdapter>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */

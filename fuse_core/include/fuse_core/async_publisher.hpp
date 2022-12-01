@@ -53,16 +53,19 @@ namespace fuse_core
 {
 
 /**
- * @brief A publisher base class that provides node handles attached to an internal callback queue serviced by
- * a local thread (or threads) using a spinner.
+ * @brief A publisher base class that provides node handles attached to an internal callback
+ *        queue serviced by a local thread (or threads) using a spinner.
  *
- * This allows publishers derived from this base class to operate similarly to a stand alone node -- any subscription
- * or service callbacks will be executed within an independent thread. The notable differences include:
+ * This allows publishers derived from this base class to operate similarly to a stand alone node
+ * -- any subscription or service callbacks will be executed within an independent thread. The
+ * notable differences include:
  *  - a default constructor is required (because this is a plugin)
- *  - subscriptions, services, parameter server interactions, etc. should be placed in the onInit() call instead
- *    of in the constructor
- *  - a global node handle and private node handle have already been created and attached to a local callback queue
- *  - a special callback, notifyCallback(), will be fired every time the optimizer completes an optimization cycle
+ *  - subscriptions, services, parameter server interactions, etc. should be placed in the
+ *    onInit() call instead of in the constructor
+ *  - a global node handle and private node handle have already been created and attached to a
+ *    local callback queue
+ *  - a special callback, notifyCallback(), will be fired every time the optimizer completes an
+ *    optimization cycle
  */
 class AsyncPublisher : public Publisher
 {
@@ -77,9 +80,10 @@ public:
   /**
    * @brief Initialize the AsyncPublisher object
    *
-   * This will store the provided name and graph object, and create a global and private node handle that both use an
-   * internal callback queue serviced by a local thread. The AsyncPublisher::onInit() method will be called from
-   * here, once the node handles are properly configured.
+   * This will store the provided name and graph object, and create a global and private node
+   * handle that both use an internal callback queue serviced by a local thread. The
+   * AsyncPublisher::onInit() method will be called from here, once the node handles are
+   * properly configured.
    *
    * @param[in] name A unique name to give this plugin instance
    */
@@ -91,48 +95,57 @@ public:
   const std::string & name() const override {return name_;}
 
   /**
-   * @brief Notify the publisher that an optimization cycle is complete, and about changes to the Graph.
+   * @brief Notify the publisher that an optimization cycle is complete, and about changes to
+   *        the Graph.
    *
-   * This function is called by the optimizer (and in the optimizer's thread) after every optimization cycle is
-   * complete. To minimize the time spent by the optimizer, this function merely injects a call to
-   * AsyncPublisher::notifyCallback() into the internal callback queue. This has the added benefit of simplifying
-   * threading, as all callbacks made by this publisher will be executed from the same thread (or group of threads if
-   * a \p thread_count > 1 is used in the constructor).
+   * This function is called by the optimizer (and in the optimizer's thread) after every
+   * optimization cycle is complete. To minimize the time spent by the optimizer, this function
+   * merely injects a call to AsyncPublisher::notifyCallback() into the internal callback
+   * queue. This has the added benefit of simplifying threading, as all callbacks made by this
+   * publisher will be executed from the same thread (or group of threads if a \p thread_count
+   * > 1 is used in the constructor).
    *
-   * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
-   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
+   * @param[in] transaction A Transaction object, describing the set of variables that have
+   *                        been added and/or removed
+   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
+   *                        performed whenever needed
    */
   void notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph) override;
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions
    *
-   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer has been initialized
-   * and is ready to receive transactions. It may also be called as part of a stop-start cycle when the optimizer
-   * has been requested to reset itself. This allows the publisher to reset any internal state before the
-   * optimizer begins processing after a reset. No calls to notify() will happen before the optimizer calls start().
+   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer
+   * has been initialized and is ready to receive transactions. It may also be called as part
+   * of a stop-start cycle when the optimizer has been requested to reset itself. This allows
+   * the publisher to reset any internal state before the optimizer begins processing after a
+   * reset. No calls to notify() will happen before the optimizer calls start().
    *
-   * This implementation inserts a call to onStart() into this publisher's callback queue. This method then blocks
-   * until the call to onStart() has completed. This is meant to simplify thread synchronization. If this publisher
-   * uses a single-threaded spinner, then all callbacks will fire sequentially and no semaphores are needed. If this
-   * publisher uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
-   * one place should be guarded.
+   * This implementation inserts a call to onStart() into this publisher's callback queue. This
+   * method then blocks until the call to onStart() has completed. This is meant to simplify
+   * thread synchronization. If this publisher uses a single-threaded spinner, then all
+   * callbacks will fire sequentially and no semaphores are needed. If this publisher uses a
+   * multithreaded spinner, then normal multithreading rules apply and data accessed in more
+   * than one place should be guarded.
    */
   void start() override;
 
   /**
-   * @brief Function to be executed whenever the optimizer is no longer ready to receive transactions
+   * @brief Function to be executed whenever the optimizer is no longer ready to receive
+   *        transactions
    *
-   * This method will be called by the optimizer, in the optimizer's thread, before the optimizer shutdowns. It may
-   * also be called as part of a stop-start cycle when the optimizer has been requested to reset itself. This allows
-   * the publisher to reset any internal state before the optimizer begins processing after a reset. No calls
-   * to notify() will happen until start() has been called again.
+   * This method will be called by the optimizer, in the optimizer's thread, before the
+   * optimizer shutdowns. It may also be called as part of a stop-start cycle when the
+   * optimizer has been requested to reset itself. This allows the publisher to reset any
+   * internal state before the optimizer begins processing after a reset. No calls to notify()
+   * will happen until start() has been called again.
    *
-   * This implementation inserts a call to onStop() into this publisher's callback queue. This method then blocks
-   * until the call to onStop() has completed. This is meant to simplify thread synchronization. If this publisher
-   * uses a single-threaded spinner, then all callbacks will fire sequentially and no semaphores are needed. If this
-   * publisher uses a multithreaded spinner, then normal multithreading rules apply and data accessed in more than
-   * one place should be guarded.
+   * This implementation inserts a call to onStop() into this publisher's callback queue. This
+   * method then blocks until the call to onStop() has completed. This is meant to simplify
+   * thread synchronization. If this publisher uses a single-threaded spinner, then all
+   * callbacks will fire sequentially and no semaphores are needed. If this publisher uses a
+   * multithreaded spinner, then normal multithreading rules apply and data accessed in more
+   * than one place should be guarded.
    */
   void stop() override;
 
@@ -156,24 +169,26 @@ protected:
   /**
    * @brief Perform any required initialization for the publisher
    *
-   * The node_ and member variables will be completely initialized before this
-   * call occurs. Spinning of the callback queue will not begin until after the call to AsyncPublisher::onInit()
-   * completes.
+   * The node_ and member variables will be completely initialized before this call occurs.
+   * Spinning of the callback queue will not begin until after the call to
+   * AsyncPublisher::onInit() completes.
    *
-   * Derived classes should override this method to implement any additional initialization steps needed (access the
-   * parameter server, advertise, subscribe, etc.).
+   * Derived classes should override this method to implement any additional initialization
+   * steps needed (access the parameter server, advertise, subscribe, etc.).
    */
   virtual void onInit() {}
 
   /**
-   * @brief Callback method executed in response to the optimizer completing an optimization cycle. All variables
-   * will now have updated values.
+   * @brief Callback method executed in response to the optimizer completing an optimization
+   *        cycle. All variables will now have updated values.
    *
-   * This method is executed using the internal callback queue and local thread(s). Derived classes should override
-   * this method to implement the desired publisher behavior.
+   * This method is executed using the internal callback queue and local thread(s). Derived
+   * classes should override this method to implement the desired publisher behavior.
    *
-   * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
-   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
+   * @param[in] transaction A Transaction object, describing the set of variables that have
+   *                        been added and/or removed
+   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
+   *                        performed whenever needed
    */
   virtual void notifyCallback(
     Transaction::ConstSharedPtr /*transaction*/,
@@ -182,16 +197,17 @@ protected:
   /**
    * @brief Perform any required operations to prepare for servicing calls to notify()
    *
-   * This function will be called once after initialize() but before any calls to notify(). It may also be called
-   * at any time after a call to stop().
+   * This function will be called once after initialize() but before any calls to notify(). It
+   * may also be called at any time after a call to stop().
    */
   virtual void onStart() {}
 
   /**
    * @brief Perform any required operations to clean up the internal state
    *
-   * This function will be called once before destruction. It may also be called at any time after a call to start().
-   * No calls to notify() will occur after stop() is called, but before start() is called.
+   * This function will be called once before destruction. It may also be called at any time
+   * after a call to start(). No calls to notify() will occur after stop() is called, but
+   * before start() is called.
    */
   virtual void onStop() {}
 };

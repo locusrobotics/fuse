@@ -45,22 +45,26 @@ namespace fuse_core
 {
 
 /**
- * @brief Object that wraps a generic function call so that it may be inserted into a ROS callback queue.
+ * @brief Object that wraps a generic function call so that it may be inserted into a ROS
+ *        callback queue.
  *
- * Once inserted, the function will be called from within the thread that services that callback queue. It will be
- * intermingled with any other standard ROS callbacks (message subscription callbacks, service callbacks, timer
- * callbacks, etc.), analogous to adding callbacks for an additional topic subscriber.
+ * Once inserted, the function will be called from within the thread that services that callback
+ * queue. It will be intermingled with any other standard ROS callbacks (message subscription
+ * callbacks, service callbacks, timer callbacks, etc.), analogous to adding callbacks for an
+ * additional topic subscriber.
  *
- * boost::bind/std::bind can be used to provide input arguments. Note that bind() uses a pass-by-value mechanism. If
- * arguments should be passed by reference instead (i.e. copies are expensive or the function modifies the input in
- * place), wrap the input arguments with boost::ref() or std::ref().
+ * boost::bind/std::bind can be used to provide input arguments. Note that bind() uses a pass-by-
+ * value mechanism. If arguments should be passed by reference instead (i.e. copies are expensive
+ * or the function modifies the input in place), wrap the input arguments with boost::ref() or
+ * std::ref().
  *
- * The CallbackWrapper class uses the C++11 promise/future mechanism to provide the return data after the callback has
- * been executed in the callback queue's thread. This is done by getting a future<T> from the CallbackWrapper before it
- * is inserted into the callback queue. You can then block until the return value is ready by calling future.wait(),
- * and the value can be retrieved using future.get(). Even if the function returns void, it can still be useful to get
- * a copy of the CallbackWrapper's future. The future.wait() function is still valid for void types, thus allowing you
- * to block until the callback function has been executed.
+ * The CallbackWrapper class uses the C++11 promise/future mechanism to provide the return data
+ * after the callback has been executed in the callback queue's thread. This is done by getting a
+ * future<T> from the CallbackWrapper before it is inserted into the callback queue. You can then
+ * block until the return value is ready by calling future.wait(), and the value can be retrieved
+ * using future.get(). Even if the function returns void, it can still be useful to get a copy of
+ * the CallbackWrapper's future. The future.wait() function is still valid for void types, thus
+ * allowing you to block until the callback function has been executed.
  *
  * See C++11 documentation for more details on promises and futures:
  * - http://en.cppreference.com/w/cpp/thread/promise
@@ -166,7 +170,8 @@ public:
 
 
   /**
-   * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and CallbackGroup::add_waitable()
+   * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and
+   *        CallbackGroup::add_waitable()
     waitable_ptr = std::make_shared<CallbackWrapper>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */

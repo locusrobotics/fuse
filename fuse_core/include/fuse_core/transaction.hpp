@@ -57,12 +57,13 @@ namespace fuse_core
 {
 
 /**
- * @brief A transaction is a group of variable and constraint additions and subtractions that should all be
- *        processed at the same time.
+ * @brief A transaction is a group of variable and constraint additions and subtractions that
+ *        should all be processed at the same time.
  *
- * This arises most often with graph edits, when you want to remove an existing constraint and replace it with one
- * or more new constraints. You don't want the removal to happen independently of the additions. All graph operations
- * are contained within a Transaction object so that all operations are treated equally.
+ * This arises most often with graph edits, when you want to remove an existing constraint and
+ * replace it with one or more new constraints. You don't want the removal to happen
+ * independently of the additions. All graph operations are contained within a Transaction object
+ * so that all operations are treated equally.
  */
 class Transaction
 {
@@ -72,36 +73,40 @@ public:
   /**
    * @brief A range of Constraint::SharedPtr objects
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const Constraint&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const Constraint&.
    */
   using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of rclcpp::Time objects
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const rclcpp::Time&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const rclcpp::Time&.
    */
   using const_stamp_range = boost::any_range<const rclcpp::Time, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of UUID objects
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const UUID&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const UUID&.
    */
   using const_uuid_range = boost::any_range<const UUID, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of Variable::SharedPtr objects
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const Variable&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const Variable&.
    */
   using const_variable_range = boost::any_range<const Variable, boost::forward_traversal_tag>;
 
@@ -123,16 +128,16 @@ public:
   const_stamp_range involvedStamps() const {return involved_stamps_;}
 
   /**
-   * @brief Read-only access to the minimum (oldest), timestamp among the transaction's stamp and all involved
-   * timestamps, if any
+   * @brief Read-only access to the minimum (oldest), timestamp among the transaction's stamp
+   *        and all involved timestamps, if any
    *
    * @return The minimum (oldest) timestamp.
    */
   const rclcpp::Time & minStamp() const;
 
   /**
-   * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all involved
-   * timestamps, if any
+   * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp
+   *        and all involved timestamps, if any
    *
    * @return The maximum (newest) timestamp.
    */
@@ -167,8 +172,8 @@ public:
   const_uuid_range removedVariables() const {return removed_variables_;}
 
   /**
-   * @brief Check if the transaction is empty, i.e. it has no added or removed constraints or variables, and no involved
-   * stamps
+   * @brief Check if the transaction is empty, i.e. it has no added or removed constraints or
+   *        variables, and no involved stamps
    *
    * @return  True if the transaction is empty, false otherwise
    */
@@ -177,7 +182,8 @@ public:
   /**
    * @brief Add a timestamp to the "involved stamps" collection
    *
-   * Duplicate timestamps will be ignored, so adding a stamp multiple times will have no effect.
+   * Duplicate timestamps will be ignored, so adding a stamp multiple times will have no
+   * effect.
    *
    * @param[in] stamp The timestamp to be added
    */
@@ -186,21 +192,23 @@ public:
   /**
    * @brief Add a constraint to this transaction
    *
-   * The transaction will shared ownership of the provided constraint. This function also performs several checks
-   * to ensure the same constraint is not added twice, or added and removed.
+   * The transaction will shared ownership of the provided constraint. This function also
+   * performs several checks to ensure the same constraint is not added twice, or added and
+   * removed.
    *
    * @param[in] constraint The constraint to be added
-   * @param[in] overwrite  Flag indicating the provided constraint should overwrite an existing constraint with
-   *                       the same UUID
+   * @param[in] overwrite  Flag indicating the provided constraint should overwrite an existing
+   *                       constraint with the same UUID
    */
   void addConstraint(Constraint::SharedPtr constraint, bool overwrite = false);
 
   /**
-   * @brief Remove a constraint from this transaction if it was previously added, or mark the constraint for removal
-   *        from the graph.
+   * @brief Remove a constraint from this transaction if it was previously added, or mark the
+   *        constraint for removal from the graph.
    *
-   * The constraint UUID is marked to be removed by the receiver of this Transaction. This function also performs
-   * several checks to ensure the same constraint is not removed twice, or added and removed.
+   * The constraint UUID is marked to be removed by the receiver of this Transaction. This
+   * function also performs several checks to ensure the same constraint is not removed twice,
+   * or added and removed.
    *
    * @param[in] constraint_uuid The UUID of the constraint to remove
    */
@@ -209,21 +217,23 @@ public:
   /**
    * @brief Add a variable to this transaction
    *
-   * The transaction will shared ownership of the provided variable. This function also performs several checks
-   * to ensure the same variable is not added twice, or added and removed.
+   * The transaction will shared ownership of the provided variable. This function also
+   * performs several checks to ensure the same variable is not added twice, or added and
+   * removed.
    *
    * @param[in] variable  The variable to be added
-   * @param[in] overwrite Flag indicating the provided variable should overwrite an existing variable with the
-   *                      same UUID
+   * @param[in] overwrite Flag indicating the provided variable should overwrite an existing
+   *                      variable with the same UUID
    */
   void addVariable(Variable::SharedPtr variable, bool overwrite = false);
 
   /**
-   * @brief Remove the variable from this transaction if it was previously added, or mark the variable for removal
-   *        from the graph.
+   * @brief Remove the variable from this transaction if it was previously added, or mark the
+   *        variable for removal from the graph.
    *
-   * The variable UUID is marked to be removed by the receiver of this Transaction. This function also performs
-   * several checks to ensure the same variable is not removed twice, or added and removed.
+   * The variable UUID is marked to be removed by the receiver of this Transaction. This
+   * function also performs several checks to ensure the same variable is not removed twice, or
+   * added and removed.
    *
    * @param[in] variable_uuid The UUID of the variable to remove
    */
@@ -233,8 +243,8 @@ public:
    * @brief Merge the contents of another transaction into this one.
    *
    * @param[in] other     The transaction to merge in
-   * @param[in] overwrite Flag indicating that variables and constraints in \p other should overwrite existing
-   *                      variables and constraints with the UUIDs.
+   * @param[in] overwrite Flag indicating that variables and constraints in \p other should
+   *                      overwrite existing variables and constraints with the UUIDs.
    */
   void merge(const Transaction & other, bool overwrite = false);
 
@@ -294,7 +304,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

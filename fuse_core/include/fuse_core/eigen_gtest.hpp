@@ -40,8 +40,8 @@
 /**
  * @file eigen_gtest.h
  *
- * @brief Provides ASSERT_MATRIX_EQ()/EXPECT_MATRIX_EQ() and ASSERT_MATRIX_NEAR()/EXPECT_MATRIX_NEAR()
- *        gtest macros
+ * @brief Provides ASSERT_MATRIX_EQ()/EXPECT_MATRIX_EQ() and
+ *        ASSERT_MATRIX_NEAR()/EXPECT_MATRIX_NEAR() gtest macros
  */
 
 namespace testing

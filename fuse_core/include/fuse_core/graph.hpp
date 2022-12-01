@@ -59,7 +59,8 @@
 
 
 /**
- * @brief Implementation of the serialize() and deserialize() member functions for derived classes
+ * @brief Implementation of the serialize() and deserialize() member functions for derived
+ *        classes
  *
  * Usage:
  * @code{.cpp}
@@ -140,12 +141,12 @@ namespace fuse_core
 {
 
 /**
- * @brief This is an interface definition describing the collection of constraints and variables that form the factor
- * graph, a graphical model of a nonlinear least-squares problem.
+ * @brief This is an interface definition describing the collection of constraints and variables
+ *        that form the factor graph, a graphical model of a nonlinear least-squares problem.
  *
- * Methods are provided to add, remove, and access the constraints and variables by several criteria, as well as to
- * optimize the variable values. Derived classes may store the constraints and variables using any mechanism, but the
- * same interface must be provided.
+ * Methods are provided to add, remove, and access the constraints and variables by several
+ * criteria, as well as to optimize the variable values. Derived classes may store the
+ * constraints and variables using any mechanism, but the same interface must be provided.
  */
 class Graph
 {
@@ -155,18 +156,20 @@ public:
   /**
    * @brief A range of fuse_core::Constraint objects
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const Constraint&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const Constraint&.
    */
   using const_constraint_range = boost::any_range<const Constraint, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of fuse_core::Variable objects
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const Variable&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const Variable&.
    */
   using const_variable_range = boost::any_range<const Variable, boost::forward_traversal_tag>;
 
@@ -184,15 +187,16 @@ public:
   /**
    * @brief Returns a unique name for this graph type.
    *
-   * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
-   * choice for the type string.
+   * The constraint type string must be unique for each class. As such, the fully-qualified
+   * class name is an excellent choice for the type string.
    */
   virtual std::string type() const = 0;
 
   /**
    * @brief Clear all variables and constraints from the graph object.
    *
-   * The object should be equivalent to a newly constructed object after clear() has been called.
+   * The object should be equivalent to a newly constructed object after clear() has been
+   * called.
    */
   virtual void clear() = 0;
 
@@ -214,8 +218,9 @@ public:
   /**
    * @brief Add a new constraint to the graph
    *
-   * Any referenced variables must exist in the graph before the constraint is added. The Graph will share ownership
-   * of the constraint. If this constraint already exists in the graph, the function will return false.
+   * Any referenced variables must exist in the graph before the constraint is added. The Graph
+   * will share ownership of the constraint. If this constraint already exists in the graph,
+   * the function will return false.
    *
    * @param[in] constraint The new constraint to be added
    * @return               True if the constraint was added, false otherwise
@@ -248,10 +253,12 @@ public:
   virtual const_constraint_range getConstraints() const = 0;
 
   /**
-   * @brief Read-only access to the subset of constraints that are connected to the specified variable
+   * @brief Read-only access to the subset of constraints that are connected to the specified
+   *        variable
    *
    * @param[in] variable_uuid The UUID of the variable of interest
-   * @return A read-only iterator range containing all constraints that involve the specified variable
+   * @return A read-only iterator range containing all constraints that involve the specified
+   *         variable
    */
   virtual const_constraint_range getConnectedConstraints(const UUID & variable_uuid) const = 0;
 
@@ -266,8 +273,8 @@ public:
   /**
    * @brief Add a new variable to the graph
    *
-   * The Graph will share ownership of the Variable. If this variable already exists in the graph, the function will
-   * return false.
+   * The Graph will share ownership of the Variable. If this variable already exists in the
+   * graph, the function will return false.
    *
    * @param[in] variable The new variable to be added
    * @return             True if the variable was added, false otherwise
@@ -300,22 +307,26 @@ public:
   virtual const_variable_range getVariables() const = 0;
 
   /**
-   * @brief Read-only access to the subset of variables that are connected to the specified constraint
+   * @brief Read-only access to the subset of variables that are connected to the specified
+   *        constraint
    *
    * @param[in] constraint_uuid The UUID of the constraint of interest
-   * @return A read-only iterator range containing all variables that involve the specified constraint
+   * @return A read-only iterator range containing all variables that involve the specified
+   *         constraint
    */
   virtual const_variable_range getConnectedVariables(const UUID & constraint_uuid) const;
 
   /**
    * @brief Configure a variable to hold its current value constant during optimization
    *
-   * Once set, the specified variable's value will no longer change during any subsequent optimization. To 'unhold'
-   * a previously held variable, call Graph::holdVariable() with the \p hold_constant parameter set to false.
+   * Once set, the specified variable's value will no longer change during any subsequent
+   * optimization. To 'unhold' a previously held variable, call Graph::holdVariable() with the
+   * \p hold_constant parameter set to false.
    *
    * @param[in] variable_uuid The variable to adjust
-   * @param[in] hold_constant Flag indicating if the variable's value should be held constant during optimization,
-   *                          or if the variable's value is allowed to change during optimization.
+   * @param[in] hold_constant Flag indicating if the variable's value should be held constant
+   *                          during optimization, or if the variable's value is allowed to
+   *                          change during optimization.
    */
   virtual void holdVariable(const UUID & variable_uuid, bool hold_constant = true) = 0;
 
@@ -330,18 +341,20 @@ public:
   /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
    *
-   * To compute the marginal variance of a single variable, simply supply the same variable UUID for both members of
-   * of the request pair. Computing the marginal covariance is an expensive operation; grouping multiple
-   * variable pairs into a single call will be much faster than calling this function for each pair individually. The
-   * marginal covariances can only be computed after calling Graph::computeUpdates() or Graph::optimize().
+   * To compute the marginal variance of a single variable, simply supply the same variable
+   * UUID for both members of of the request pair. Computing the marginal covariance is an
+   * expensive operation; grouping multiple variable pairs into a single call will be much
+   * faster than calling this function for each pair individually. The marginal covariances can
+   * only be computed after calling Graph::computeUpdates() or Graph::optimize().
    *
-   * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal covariance is desired.
+   * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal
+   *                                 covariance is desired.
    * @param[out] covariance_matrices The dense covariance blocks of the requests.
-   * @param[in]  options             A Ceres Covariance Options structure that controls the method and settings used
-   *                                 to compute the covariance blocks.
-   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in the variable's tangent
-   *                                 space/local coordinates. Otherwise it is computed in the variable's parameter
-   *                                 space.
+   * @param[in]  options             A Ceres Covariance Options structure that controls the
+   *                                 method and settings used to compute the covariance blocks.
+   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in
+   *                                 the variable's tangent space/local coordinates. Otherwise
+   *                                 it is computed in the variable's parameter space.
    */
   virtual void getCovariance(
     const std::vector<std::pair<UUID, UUID>> & covariance_requests,
@@ -357,51 +370,61 @@ public:
   void update(const Transaction & transaction);
 
   /**
-   * @brief Optimize the values of the current set of variables, given the current set of constraints.
+   * @brief Optimize the values of the current set of variables, given the current set of
+   *        constraints.
    *
    * After the call, the values in the graph will be updated to the latest values.
    *
-   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of the optimizer.
-   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
-   * @return            A Ceres Solver Summary structure containing information about the optimization process
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects
+   *                    of the optimizer. See https://ceres-solver.googlesource.com/ceres-
+   *                    solver/+/master/include/ceres/solver.h#59
+   * @return            A Ceres Solver Summary structure containing information about the
+   *                    optimization process
    */
   virtual ceres::Solver::Summary optimize(
     const ceres::Solver::Options & options = ceres::Solver::Options()) = 0;
 
   /**
-   * @brief Optimize the values of the current set of variables, given the current set of constraints for a maximum
-   * amount of time.
+   * @brief Optimize the values of the current set of variables, given the current set of
+   *        constraints for a maximum amount of time.
    *
-   * The \p max_optimization_time should be viewed as a "best effort" limit, and the actual optimization time may
-   * exceed this limit by a small amount. After the call, the values in the graph will be updated to the latest values.
+   * The \p max_optimization_time should be viewed as a "best effort" limit, and the actual
+   * optimization time may exceed this limit by a small amount. After the call, the values in
+   * the graph will be updated to the latest values.
    *
    * @param[in] max_optimization_time The maximum allowed duration of the optimization call
-   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of the optimizer.
-   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
-   * @return            A Ceres Solver Summary structure containing information about the optimization process
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects
+   *                    of the optimizer. See https://ceres-solver.googlesource.com/ceres-
+   *                    solver/+/master/include/ceres/solver.h#59
+   * @return            A Ceres Solver Summary structure containing information about the
+   *                    optimization process
    */
   virtual ceres::Solver::Summary optimizeFor(
     const rclcpp::Duration & max_optimization_time,
     const ceres::Solver::Options & options = ceres::Solver::Options()) = 0;
 
   /**
-   * @brief Evalute the values of the current set of variables, given the current set of constraints.
+   * @brief Evalute the values of the current set of variables, given the current set of
+   *        constraints.
    *
    * The values in the graph do not change after the call.
    *
-   * If any of the output arguments is nullptr, it will not be evaluated. This mimics the ceres::Problem::Evaluate
-   * method API. Here all output arguments default to nullptr except for the cost.
+   * If any of the output arguments is nullptr, it will not be evaluated. This mimics the
+   * ceres::Problem::Evaluate method API. Here all output arguments default to nullptr except
+   * for the cost.
    *
-   * TODO(efernandez) support jacobian output argument
-   * The jacobian output argument is not exposed at the moment because its type is a CRSMatrix, that probably needs to
-   * be converted to another type.
+   * TODO(efernandez) support jacobian output argument The jacobian output argument is not
+   * exposed at the moment because its type is a CRSMatrix, that probably needs to be converted
+   * to another type.
    *
    * @param[out] cost      The cost of the entire problem represented by the graph.
    * @param[out] residuals The residuals of all constraints.
-   * @param[out] gradient  The gradient for all constraints evaluated at the values of the current set of variables.
-   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls various aspects of the
-   *                       problem evaluation.
-   *                       See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#401
+   * @param[out] gradient  The gradient for all constraints evaluated at the values of the
+   *                       current set of variables.
+   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls
+   *                       various aspects of the problem evaluation. See https://ceres-
+   *                       solver.googlesource.com/ceres-
+   *                       solver/+/master/include/ceres/problem.h#401
    * @return True if the problem evaluation was successful; False, otherwise.
    */
   virtual bool evaluate(
@@ -425,7 +448,8 @@ public:
    * If any of the requested constraints does not exist, an exception will be thrown.
    *
    * @param[in]  first   An iterator pointing to the first UUID of the desired constraints
-   * @param[in]  last    An iterator pointing to one passed the last UUID of the desired constraints
+   * @param[in]  last    An iterator pointing to one passed the last UUID of the desired
+   *                     constraints
    * @param[out] output  An output iterator capable of assignment to a ConstraintCost object
    */
   template<class UuidForwardIterator, class OutputIterator>
@@ -494,10 +518,12 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
-   * This method, or a combination of save() and load() methods, must be implemented by all derived classes. See
-   * documentation on Boost Serialization for information on how to implement the serialize() method.
+   * This method, or a combination of save() and load() methods, must be implemented by all
+   * derived classes. See documentation on Boost Serialization for information on how to
+   * implement the serialize() method.
    * https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/
    *
    * @param[in/out] archive - The archive object that holds the serialized class members

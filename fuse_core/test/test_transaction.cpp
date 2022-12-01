@@ -48,11 +48,13 @@ using fuse_core::UUID;
 
 
 /**
- * @brief Test that a collection of stamps exist in a Transaction object's involved stamps container
+ * @brief Test that a collection of stamps exist in a Transaction object's involved stamps
+ *        container
  *
  * Order of the stamps is not important. Extra stamps in the Transaction will return False.
  *
- * @tparam TimeRange   A range or container with objects compatible with a "const rclcpp::Time&" signature
+ * @tparam TimeRange   A range or container with objects compatible with a "const rclcpp::Time&"
+ * signature
  * @param expected     The set of expected stamps
  * @param transaction  The transaction to test
  * @return             True if the expected stamps, and only the expected stamps, exist in the
@@ -92,13 +94,15 @@ bool testInvolvedStamps(const TimeRange & expected, const Transaction & transact
 /**
  * @brief Test that a collection of constraints exist in a Transaction object's added container
  *
- * Order of the constraints is not important. Extra constraints in the Transaction will return False.
+ * Order of the constraints is not important. Extra constraints in the Transaction will return
+ * False.
  *
- * @tparam ConstraintRange  A range or container with objects compatible with a "const ExampleConstraint&" signature
+ * @tparam ConstraintRange  A range or container with objects compatible with a "const
+ * ExampleConstraint&" signature
  * @param expected          The set of expected added constraints
  * @param transaction       The transaction to test
- * @return                  True if the expected constraints, and only the expected constraints, exist in the
- *                          transaction, False otherwise.
+ * @return                  True if the expected constraints, and only the expected constraints,
+ *                          exist in the transaction, False otherwise.
  */
 template<typename ConstraintRange>
 bool testAddedConstraints(const ConstraintRange & expected, const Transaction & transaction)
@@ -146,15 +150,18 @@ bool testAddedConstraints(const ConstraintRange & expected, const Transaction & 
 }
 
 /**
- * @brief Test that a collection of constraint UUIDs exist in a Transaction object's removed container
+ * @brief Test that a collection of constraint UUIDs exist in a Transaction object's removed
+ *        container
  *
- * Order of the constraint UUIDs is not important. Extra constraint UUIDs in the Transaction will return False.
+ * Order of the constraint UUIDs is not important. Extra constraint UUIDs in the Transaction will
+ * return False.
  *
- * @tparam UuidRange   A range or container with objects compatible with a "const fuse_core::UUID&" signature
+ * @tparam UuidRange   A range or container with objects compatible with a "const
+ * fuse_core::UUID&" signature
  * @param expected     The set of expected removed constraint UUIDs
  * @param transaction  The transaction to test
- * @return             True if the expected constraints, and only the expected constraints, exist in the
- *                     transaction, False otherwise.
+ * @return             True if the expected constraints, and only the expected constraints, exist
+ *                     in the transaction, False otherwise.
  */
 template<typename UuidRange>
 bool testRemovedConstraints(const UuidRange & expected, const Transaction & transaction)
@@ -192,11 +199,12 @@ bool testRemovedConstraints(const UuidRange & expected, const Transaction & tran
  *
  * Order of the variables is not important. Extra variables in the Transaction will return False.
  *
- * @tparam VariableRange  A range or container with objects compatible with a "const ExampleVariable&" signature
+ * @tparam VariableRange  A range or container with objects compatible with a "const
+ * ExampleVariable&" signature
  * @param expected        The set of expected added variables
  * @param transaction     The transaction to test
- * @return                True if the expected variables, and only the expected variables, exist in the
- *                        transaction, False otherwise.
+ * @return                True if the expected variables, and only the expected variables, exist
+ *                        in the transaction, False otherwise.
  */
 template<typename VariableRange>
 bool testAddedVariables(const VariableRange & expected, const Transaction & transaction)
@@ -237,15 +245,18 @@ bool testAddedVariables(const VariableRange & expected, const Transaction & tran
 }
 
 /**
- * @brief Test that a collection of variable UUIDs exist in a Transaction object's removed container
+ * @brief Test that a collection of variable UUIDs exist in a Transaction object's removed
+ *        container
  *
- * Order of the variable UUIDs is not important. Extra variable UUIDs in the Transaction will return False.
+ * Order of the variable UUIDs is not important. Extra variable UUIDs in the Transaction will
+ * return False.
  *
- * @tparam UuidRange   A range or container with objects compatible with a "const fuse_core::UUID&" signature
+ * @tparam UuidRange   A range or container with objects compatible with a "const
+ * fuse_core::UUID&" signature
  * @param expected     The set of expected removed variable UUIDs
  * @param transaction  The transaction to test
- * @return             True if the expected variables, and only the expected variables, exist in the
- *                     transaction, False otherwise.
+ * @return             True if the expected variables, and only the expected variables, exist in
+ *                     the transaction, False otherwise.
  */
 template<typename UuidRange>
 bool testRemovedVariables(const UuidRange & expected, const Transaction & transaction)

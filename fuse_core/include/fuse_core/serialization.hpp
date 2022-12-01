@@ -64,7 +64,8 @@ using TextInputArchive = boost::archive::text_iarchive;
 using TextOutputArchive = boost::archive::text_oarchive;
 
 /**
- * @brief A Boost IOStreams source device designed to read bytes directly from a ROS message byte array ('uint8[]')
+ * @brief A Boost IOStreams source device designed to read bytes directly from a ROS message byte
+ *        array ('uint8[]')
  */
 class MessageBufferStreamSource
 {
@@ -103,7 +104,8 @@ private:
 };
 
 /**
- * @brief A Boost IOStreams sink device designed to write bytes directly from a ROS message byte array ('uint8[]')
+ * @brief A Boost IOStreams sink device designed to write bytes directly from a ROS message byte
+ *        array ('uint8[]')
  */
 class MessageBufferStreamSink
 {
@@ -163,7 +165,8 @@ void serialize(Archive & archive, rclcpp::Time & stamp, const unsigned int /* ve
 /**
  * @brief Serialize an Eigen Matrix using Boost Serialization
  *
- * https://stackoverflow.com/questions/54534047/eigen-matrix-boostserialization-c17/54535484#54535484
+ * https://stackoverflow.com/questions/54534047/eigen-matrix-
+ * boostserialization-c17/54535484#54535484
  */
 template<class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 inline void serialize(

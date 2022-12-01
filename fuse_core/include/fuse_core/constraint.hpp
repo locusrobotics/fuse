@@ -74,7 +74,8 @@
   }
 
 /**
- * @brief Implementation of the serialize() and deserialize() member functions for derived classes
+ * @brief Implementation of the serialize() and deserialize() member functions for derived
+ *        classes
  *
  * Usage:
  * @code{.cpp}
@@ -133,7 +134,8 @@
   }
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and
+ *        type() method
  *
  * Usage:
  * @code{.cpp}
@@ -152,8 +154,9 @@
   FUSE_CONSTRAINT_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
- * @brief Convenience function that creates the required pointer aliases, clone() method, and type() method
- *        for derived Constraint classes that have fixed-sized Eigen member objects.
+ * @brief Convenience function that creates the required pointer aliases, clone() method, and
+ *        type() method for derived Constraint classes that have fixed-sized Eigen member
+ *        objects.
  *
  * Usage:
  * @code{.cpp}
@@ -178,18 +181,20 @@ namespace fuse_core
 /**
  * @brief The Constraint interface definition.
  *
- * A Constraint defines a cost function that is connected to one or more variables. This base class defines the
- * required interface of all Constraint objects, and holds the ordered list of involved variable UUIDs. All other
- * functionality is left to the derived classes to implement.
+ * A Constraint defines a cost function that is connected to one or more variables. This base
+ * class defines the required interface of all Constraint objects, and holds the ordered list of
+ * involved variable UUIDs. All other functionality is left to the derived classes to implement.
  *
- * Most importantly, the implementation of the cost function is left to the derived classes, allowing arbitrarily
- * complex sensor models to be implemented outside of the core fuse packages. The cost function must be a valid
- * ceres::CostFunction object. Ceres provides many nice features to make implementing the cost function easier,
- * including an automatic differentiation system. Please see the Ceres documentation for details on creating valid
- * ceres::CostFunction objects (http://ceres-solver.org/nnls_modeling.html). In addition to the cost function itself,
- * an optional loss function may be provided. Loss functions provide a mechanism for reducing the impact of outlier
- * measurements on the final optimization results. Again, see the Ceres documentation for details
- * (http://ceres-solver.org/nnls_modeling.html#lossfunction).
+ * Most importantly, the implementation of the cost function is left to the derived classes,
+ * allowing arbitrarily complex sensor models to be implemented outside of the core fuse
+ * packages. The cost function must be a valid ceres::CostFunction object. Ceres provides many
+ * nice features to make implementing the cost function easier, including an automatic
+ * differentiation system. Please see the Ceres documentation for details on creating valid
+ * ceres::CostFunction objects (http://ceres-solver.org/nnls_modeling.html). In addition to the
+ * cost function itself, an optional loss function may be provided. Loss functions provide a
+ * mechanism for reducing the impact of outlier measurements on the final optimization results.
+ * Again, see the Ceres documentation for details (http://ceres-
+ * solver.org/nnls_modeling.html#lossfunction).
  */
 class Constraint
 {
@@ -229,8 +234,8 @@ public:
   /**
    * @brief Returns a unique name for this constraint type.
    *
-   * The constraint type string must be unique for each class. As such, the fully-qualified class name is an excellent
-   * choice for the type string.
+   * The constraint type string must be unique for each class. As such, the fully-qualified
+   * class name is an excellent choice for the type string.
    */
   virtual std::string type() const = 0;
 
@@ -256,10 +261,11 @@ public:
   /**
    * @brief Create a new Ceres cost function and return a raw pointer to it.
    *
-   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
-   * delete the cost function when it is done. Additionally, fuse promises that the Constraint object will outlive any
-   * generated cost functions (i.e. the Ceres objects will be destroyed before the Constraint objects). This guarantee
-   * may allow optimizations for the creation of the cost function objects.
+   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and
+   * promises to properly delete the cost function when it is done. Additionally, fuse promises
+   * that the Constraint object will outlive any generated cost functions (i.e. the Ceres
+   * objects will be destroyed before the Constraint objects). This guarantee may allow
+   * optimizations for the creation of the cost function objects.
    *
    * @return A base pointer to an instance of a derived ceres::CostFunction.
    */
@@ -268,7 +274,8 @@ public:
   /**
    * @brief Read-only access to the loss.
    *
-   * The loss interfaces wraps a ceres::LossFunction that can be accessed directly with lossFunction().
+   * The loss interfaces wraps a ceres::LossFunction that can be accessed directly with
+   * lossFunction().
    *
    * @return A base shared pointer to an instance of a derived Loss.
    */
@@ -372,10 +379,12 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
-   * This method, or a combination of save() and load() methods, must be implemented by all derived classes. See
-   * documentation on Boost Serialization for information on how to implement the serialize() method.
+   * This method, or a combination of save() and load() methods, must be implemented by all
+   * derived classes. See documentation on Boost Serialization for information on how to
+   * implement the serialize() method.
    * https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/
    *
    * @param[in/out] archive - The archive object that holds the serialized class members

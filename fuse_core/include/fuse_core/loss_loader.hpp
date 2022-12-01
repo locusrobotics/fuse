@@ -46,9 +46,10 @@ namespace fuse_core
 /**
  * @brief Load a loss function using pluginlib::ClassLoader
  *
- * The loader objects loads a loss function using pluginlib::ClassLoader. This is typically run from a sensor or motion
- * model on initialization, so the loss functions are later passed to the constraints they create. Since the class
- * loader must outlive the loss objects it creates, this class implements the singleton pattern.
+ * The loader objects loads a loss function using pluginlib::ClassLoader. This is typically run
+ * from a sensor or motion model on initialization, so the loss functions are later passed to the
+ * constraints they create. Since the class loader must outlive the loss objects it creates, this
+ * class implements the singleton pattern.
  */
 class LossLoader
 {

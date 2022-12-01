@@ -54,9 +54,10 @@ void serializeTransaction(
 /**
  * @brief Deserialize a Transaction
  *
- * The deserializer object loads all of the known Variable and Constraint libraries, allowing derived types contained
- * within the transaction to be properly deserialized. The libraries will be unloaded on destruction. As a consequence,
- * the deserializer object must outlive any created transaction instances.
+ * The deserializer object loads all of the known Variable and Constraint libraries, allowing
+ * derived types contained within the transaction to be properly deserialized. The libraries will
+ * be unloaded on destruction. As a consequence, the deserializer object must outlive any created
+ * transaction instances.
  */
 class TransactionDeserializer
 {
@@ -69,8 +70,8 @@ public:
   /**
    * @brief Deserialize a SerializedTransaction message into a fuse Transaction object.
    *
-   * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
-   * an exception is thrown.
+   * If no plugin is available for a contained Variable or Constraint, or an error occurs
+   * during deserialization, an exception is thrown.
    *
    * @param[IN]  msg  The SerializedTransaction message to be deserialized
    * @return          A fuse Transaction object
@@ -81,8 +82,8 @@ public:
   /**
    * @brief Deserialize a SerializedTransaction message into a fuse Transaction object.
    *
-   * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
-   * an exception is thrown.
+   * If no plugin is available for a contained Variable or Constraint, or an error occurs
+   * during deserialization, an exception is thrown.
    *
    * @param[IN]  msg  The SerializedTransaction message to be deserialized
    * @return          A fuse Transaction object

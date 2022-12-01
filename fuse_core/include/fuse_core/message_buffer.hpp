@@ -48,12 +48,13 @@ namespace fuse_core
 {
 
 /**
- * @brief A utility class that maintains a history of received messages, and allows a range of messages to be easily
- * queried by timestamp.
+ * @brief A utility class that maintains a history of received messages, and allows a range of
+ *        messages to be easily queried by timestamp.
  *
- * For motion models that rely on integrating multiple measurements together to form the requested constraint, this
- * message buffer allows the received messages within a given time range to be easily extracted. It is then a matter
- * of processing the messages to form the constraint.
+ * For motion models that rely on integrating multiple measurements together to form the
+ * requested constraint, this message buffer allows the received messages within a given time
+ * range to be easily extracted. It is then a matter of processing the messages to form the
+ * constraint.
  *
  * It is assumed that all messages are received sequentially.
  */
@@ -66,9 +67,10 @@ public:
   /**
    * @brief A range of messages
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a std::pair<rclcpp::Time, MESSAGE>&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * std::pair<rclcpp::Time, MESSAGE>&.
    */
   using message_range = boost::any_range<const std::pair<rclcpp::Time, Message>,
       boost::forward_traversal_tag>;
@@ -76,17 +78,19 @@ public:
   /**
    * @brief A range of timestamps
    *
-   * An object representing a range defined by two iterators. It has begin() and end() methods (which means it can
-   * be used in range-based for loops), an empty() method, and a front() method for directly accessing the first
-   * member. When dereferenced, an iterator returns a const rclcpp::Time&.
+   * An object representing a range defined by two iterators. It has begin() and end() methods
+   * (which means it can be used in range-based for loops), an empty() method, and a front()
+   * method for directly accessing the first member. When dereferenced, an iterator returns a
+   * const rclcpp::Time&.
    */
   using stamp_range = boost::any_range<const rclcpp::Time, boost::forward_traversal_tag>;
 
   /**
    * Constructor
    *
-   * @param[in] buffer_length The length of the message buffer history. If queries arrive involving timestamps
-   *                          that are older than the buffer length, an exception will be thrown.
+   * @param[in] buffer_length The length of the message buffer history. If queries arrive
+   *                          involving timestamps that are older than the buffer length, an
+   *                          exception will be thrown.
    */
   explicit MessageBuffer(const rclcpp::Duration & buffer_length = rclcpp::Duration::max());
 
@@ -114,7 +118,8 @@ public:
   /**
    * @brief Insert a message to the buffer, using the provided timestamp
    *
-   * The provided timestamp is assigned to the message and used to sort the messages in the buffer.
+   * The provided timestamp is assigned to the message and used to sort the messages in the
+   * buffer.
    *
    * @param[in] stamp The stamp to assign to the message
    * @param[in] msg   A message
@@ -126,16 +131,18 @@ public:
    *
    * The "edge behavior" is controlled by the \p extended_range flag.
    *
-   * @param[in] beginning_stamp The beginning timestamp of the constraint. \p beginning_stamp must be less than or
-   *                            equal to \p ending_stamp.
-   * @param[in] ending_stamp    The ending timestamp of the constraint. \p ending_stamp must be greater than or
-   *                            or equal to \p beginning_stamp.
-   * @param[in] extended_range  A flag indicating if the message range should be extended to include one message
-   *                            with a stamp less than or equal to the \p beginning_stamp and one message with a
-   *                            stamp greater than or equal to the \p ending_stamp. If false, the returned range
-   *                            only includes messages with stamps greater than \p beginning_stamp and less than
-   *                            \p ending_stamp.
-   * @return                    An iterator range containing all of the messages between the specified stamps.
+   * @param[in] beginning_stamp The beginning timestamp of the constraint. \p beginning_stamp
+   *                            must be less than or equal to \p ending_stamp.
+   * @param[in] ending_stamp    The ending timestamp of the constraint. \p ending_stamp must be
+   *                            greater than or or equal to \p beginning_stamp.
+   * @param[in] extended_range  A flag indicating if the message range should be extended to
+   *                            include one message with a stamp less than or equal to the \p
+   *                            beginning_stamp and one message with a stamp greater than or
+   *                            equal to the \p ending_stamp. If false, the returned range only
+   *                            includes messages with stamps greater than \p beginning_stamp
+   *                            and less than \p ending_stamp.
+   * @return                    An iterator range containing all of the messages between the
+   *                            specified stamps.
    */
   message_range query(
     const rclcpp::Time & beginning_stamp, const rclcpp::Time & ending_stamp,
@@ -155,8 +162,8 @@ protected:
                                     //!< will be removed from the motion model history
 
   /**
-   * @brief Helper function used with boost::transform_iterators to convert the internal Buffer value type
-   * into a const rclcpp::Time& iterator compatible with stamp_range
+   * @brief Helper function used with boost::transform_iterators to convert the internal Buffer
+   *        value type into a const rclcpp::Time& iterator compatible with stamp_range
    */
   static const rclcpp::Time & extractStamp(const typename Buffer::value_type & element)
   {
@@ -166,8 +173,8 @@ protected:
   /**
    * @brief Remove any motion model segments that are older than \p buffer_length_
    *
-   * The span of the buffer will be *at least* the requested buffer length, but it may be longer depending on the
-   * specific stamps of received messages.
+   * The span of the buffer will be *at least* the requested buffer length, but it may be
+   * longer depending on the specific stamps of received messages.
    */
   void purgeHistory();
 };

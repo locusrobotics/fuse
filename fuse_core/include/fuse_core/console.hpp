@@ -50,8 +50,9 @@ namespace fuse_core
 #endif
 
 /**
- * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to reset the last time the
- * message was print, so the delayed and throttle conditions are computed from the initial state again.
+ * @brief a log filter that provides a condition to RCLCPP_*_STREAM_EXPRESSION and allows to
+ *        reset the last time the message was print, so the delayed and throttle conditions are
+ *        computed from the initial state again.
  */
 class DelayedThrottleFilter
 {
@@ -68,15 +69,16 @@ public:
   }
 
   /**
-   * @brief Returns whether or not the log statement should be printed. Called before the log arguments are evaluated
-   * and the message is formatted.
+   * @brief Returns whether or not the log statement should be printed. Called before the log
+   *        arguments are evaluated and the message is formatted.
    *
-   * This borrows logic from ROS 1's delayed throttle logging, but the last time the filter condition was hit is handled by this filter, so
-   * it can be reset.
+   * This borrows logic from ROS 1's delayed throttle logging, but the last time the filter
+   * condition was hit is handled by this filter, so it can be reset.
    *
    * @param[in] now - The current ROS time at which to check if logging should fire
    *
-   * @return True if the filter condition is hit (signalling that the message should print), false otherwise
+   * @return True if the filter condition is hit (signalling that the message should print),
+   *         false otherwise
    */
   bool isEnabled()
   {

@@ -39,8 +39,8 @@
 
 
 /**
- * Test fixture that adds a known set of entries to the timestamp manager.
- * Used to test the interactions with existing entries.
+ * Test fixture that adds a known set of entries to the timestamp manager. Used to test the
+ * interactions with existing entries.
  */
 class MessageBufferTestFixture : public ::testing::Test
 {

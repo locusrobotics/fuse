@@ -81,7 +81,8 @@
 
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
 /**
- * Patch Ceres versions before 2.0.0 that miss the LoggingType and DumpFormatType ToString and StringTo functions.
+ * Patch Ceres versions before 2.0.0 that miss the LoggingType and DumpFormatType ToString and
+ * StringTo functions.
  */
 #include <algorithm>
 
@@ -140,8 +141,8 @@ inline bool StringToDumpFormatType(std::string value, DumpFormatType * type)
 }  // namespace ceres
 #else
 /**
- * Patch Ceres version 2.0.0 that uses lower case for the LoggingType and DumpFormatType StringTo function.
- * See https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/types.h
+ * Patch Ceres version 2.0.0 that uses lower case for the LoggingType and DumpFormatType StringTo
+ * function. See https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/types.h
  */
 namespace ceres
 {
@@ -182,11 +183,13 @@ CERES_OPTION_STRING_DEFINITIONS(TrustRegionStrategyType)
 CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
 
 /**
- * @brief Helper function that loads and validates a Ceres Option (e.g. ceres::LinearSolverType) value from the parameter server
+ * @brief Helper function that loads and validates a Ceres Option (e.g. ceres::LinearSolverType)
+ *        value from the parameter server
  *
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
- * @param[in] default_value - A default value to use if the provided parameter name does not exist
+ * @param[in] default_value - A default value to use if the provided parameter name does not
+ *                            exist
  * @return The loaded (or default) value
  */
 template<class T>
@@ -222,9 +225,11 @@ T declareCeresParam(
 /**
  * @brief Populate a ceres::Covariance::Options object with information from the parameter server
  *
- * @param[in] interfaces - Node interfaces for a node in a namespace containing ceres::Covariance::Options settings
+ * @param[in] interfaces - Node interfaces for a node in a namespace containing
+ *                         ceres::Covariance::Options settings
  * @param[out] covariance_options - The ceres::Covariance::Options object to update
- * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters'
+ *                               names
  */
 void loadCovarianceOptionsFromROS(
   node_interfaces::NodeInterfaces<
@@ -238,9 +243,11 @@ void loadCovarianceOptionsFromROS(
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
  *
- * @param[in] interfaces - Node interfaces for a node in a namespace containing ceres::Problem::Options settings
+ * @param[in] interfaces - Node interfaces for a node in a namespace containing
+ *                         ceres::Problem::Options settings
  * @param[out] problem_options - The ceres::Problem::Options object to update
- * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters'
+ *                               names
  */
 void loadProblemOptionsFromROS(
   node_interfaces::NodeInterfaces<
@@ -252,9 +259,11 @@ void loadProblemOptionsFromROS(
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
  *
- * @param[in] interfaces - Node interfaces for a node in a namespace containing ceres::Solver::Options settings
+ * @param[in] interfaces - Node interfaces for a node in a namespace containing
+ *                         ceres::Solver::Options settings
  * @param[out] solver_options - The ceres::Solver::Options object to update
- * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
+ * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters'
+ *                               names
  */
 void loadSolverOptionsFromROS(
   node_interfaces::NodeInterfaces<
