@@ -35,8 +35,8 @@
 #ifndef FUSE_VIZ_CONVERSIONS_H
 #define FUSE_VIZ_CONVERSIONS_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 

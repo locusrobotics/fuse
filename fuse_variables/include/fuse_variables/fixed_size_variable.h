@@ -34,9 +34,9 @@
 #ifndef FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
 #define FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
 
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

@@ -31,16 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/ceres_options.h>
-
-#include <rclcpp/node.hpp>
-
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 
 #include <stdexcept>
 #include <string>
+
+#include <fuse_core/ceres_options.hpp>
+#include <rclcpp/node.hpp>
 
 // NOTE(CH3): Most of the parameter descriptions here were adapted from the parameter descriptions
 //            in the Ceres source code.
@@ -66,20 +65,23 @@ void loadCovarianceOptionsFromROS(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  ceres::Covariance::Options& covariance_options,
-  const std::string& namespace_string)
+  ceres::Covariance::Options & covariance_options,
+  const std::string & namespace_string)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
   std::string ns = get_well_formatted_namespace_string(namespace_string);
 
-  // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
-  // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
+  // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version
+  // 1.13.0, see https://github.com/ceres-solver/ceres-
+  // solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
   covariance_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
     interfaces, ns + "sparse_linear_algebra_library_type",
     covariance_options.sparse_linear_algebra_library_type);
   covariance_options.algorithm_type =
-    fuse_core::declareCeresParam(interfaces, ns + "algorithm_type", covariance_options.algorithm_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "algorithm_type",
+    covariance_options.algorithm_type);
 
   tmp_descr.description = (
     "If DENSE_SVD is used, this parameter sets the threshold for determining if a Jacobian matrix "
@@ -90,7 +92,8 @@ void loadCovarianceOptionsFromROS(
     "Where min_sigma and max_sigma are the minimum and maximum singular values of J respectively.");
   covariance_options.min_reciprocal_condition_number = fuse_core::getParam(
     interfaces,
-    ns + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number, tmp_descr
+    ns + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number,
+    tmp_descr
   );
 
   tmp_descr.description =
@@ -119,8 +122,8 @@ void loadCovarianceOptionsFromROS(
 
 void loadProblemOptionsFromROS(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  ceres::Problem::Options& problem_options,
-  const std::string& namespace_string)
+  ceres::Problem::Options & problem_options,
+  const std::string & namespace_string)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -154,8 +157,8 @@ void loadSolverOptionsFromROS(
     node_interfaces::Logging,
     node_interfaces::Parameters
   > interfaces,
-  ceres::Solver::Options& solver_options,
-  const std::string& namespace_string)
+  ceres::Solver::Options & solver_options,
+  const std::string & namespace_string)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -167,7 +170,9 @@ void loadSolverOptionsFromROS(
   solver_options.line_search_direction_type = fuse_core::declareCeresParam(
     interfaces, ns + "line_search_direction_type", solver_options.line_search_direction_type);
   solver_options.line_search_type =
-    fuse_core::declareCeresParam(interfaces, ns + "line_search_type", solver_options.line_search_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "line_search_type",
+    solver_options.line_search_type);
   solver_options.nonlinear_conjugate_gradient_type = fuse_core::declareCeresParam(
     interfaces, ns + "nonlinear_conjugate_gradient_type",
     solver_options.nonlinear_conjugate_gradient_type);
@@ -337,7 +342,8 @@ void loadSolverOptionsFromROS(
     tmp_descr
   );
 
-  tmp_descr.description = "The window size used by the step selection algorithm to accept non-monotonic steps";
+  tmp_descr.description =
+    "The window size used by the step selection algorithm to accept non-monotonic steps";
   solver_options.max_consecutive_nonmonotonic_steps = fuse_core::getParam(
     interfaces,
     ns + "max_consecutive_nonmonotonic_steps",
@@ -468,15 +474,24 @@ void loadSolverOptionsFromROS(
   );
 
   solver_options.linear_solver_type =
-      fuse_core::declareCeresParam(interfaces, ns + "linear_solver_type", solver_options.linear_solver_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "linear_solver_type",
+    solver_options.linear_solver_type);
   solver_options.preconditioner_type =
-      fuse_core::declareCeresParam(interfaces, ns + "preconditioner_type", solver_options.preconditioner_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "preconditioner_type",
+    solver_options.preconditioner_type);
   solver_options.visibility_clustering_type =
-      fuse_core::declareCeresParam(interfaces, ns + "visibility_clustering_type", solver_options.visibility_clustering_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "visibility_clustering_type",
+    solver_options.visibility_clustering_type);
   solver_options.dense_linear_algebra_library_type =
-      fuse_core::declareCeresParam(interfaces, ns + "dense_linear_algebra_library_type", solver_options.dense_linear_algebra_library_type);
+    fuse_core::declareCeresParam(
+    interfaces, ns + "dense_linear_algebra_library_type",
+    solver_options.dense_linear_algebra_library_type);
   solver_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
-      interfaces, ns + "sparse_linear_algebra_library_type", solver_options.sparse_linear_algebra_library_type);
+    interfaces, ns + "sparse_linear_algebra_library_type",
+    solver_options.sparse_linear_algebra_library_type);
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
 
@@ -490,8 +505,10 @@ void loadSolverOptionsFromROS(
     tmp_descr
   );
 
-  // Solved::Options::use_postordering was removed in:
+  // NOTE(CH3): Solved::Options::use_postordering was removed in:
   // https://github.com/ceres-solver/ceres-solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
+  //
+  // So it is also not included here
 
   tmp_descr.description = "This settings only affects the SPARSE_NORMAL_CHOLESKY solver.";
   solver_options.dynamic_sparsity = fuse_core::getParam(
@@ -613,7 +630,7 @@ void loadSolverOptionsFromROS(
       iterations_to_dump_tmp.begin(),
       iterations_to_dump_tmp.end(),
       std::back_inserter(solver_options.trust_region_minimizer_iterations_to_dump),
-      [](int64_t val){ return val; });
+      [](int64_t val) {return val;});
   }
 
   tmp_descr.description = (
@@ -629,10 +646,10 @@ void loadSolverOptionsFromROS(
   );
   solver_options.trust_region_problem_dump_format_type =
     fuse_core::declareCeresParam(
-      interfaces,
-      ns + "trust_region_problem_dump_format_type",
-      solver_options.trust_region_problem_dump_format_type
-  );
+    interfaces,
+    ns + "trust_region_problem_dump_format_type",
+    solver_options.trust_region_problem_dump_format_type
+    );
 
   // Finite differences options
   tmp_descr.description = (
@@ -677,12 +694,11 @@ void loadSolverOptionsFromROS(
   );
 
   std::string error;
-  if (!solver_options.IsValid(&error))
-  {
+  if (!solver_options.IsValid(&error)) {
     throw std::invalid_argument(
-      "Invalid solver options in parameter "
-      + std::string(interfaces.get_node_base_interface()->get_namespace())
-      + ". Error: " + error);
+            "Invalid solver options in parameter " +
+            std::string(interfaces.get_node_base_interface()->get_namespace()) +
+            ". Error: " + error);
   }
 }
 

@@ -31,22 +31,21 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/message_buffer.h>
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.h>
-
 #include <gtest/gtest.h>
 
+#include <fuse_core/message_buffer.hpp>
+#include <fuse_core/time.hpp>
+#include <rclcpp/duration.hpp>
 
 /**
- * Test fixture that adds a known set of entries to the timestamp manager.
- * Used to test the interactions with existing entries.
+ * Test fixture that adds a known set of entries to the timestamp manager. Used to test the
+ * interactions with existing entries.
  */
 class MessageBufferTestFixture : public ::testing::Test
 {
 public:
-  MessageBufferTestFixture() :
-    buffer(rclcpp::Duration::max())
+  MessageBufferTestFixture()
+  : buffer(rclcpp::Duration::max())
   {
   }
 
@@ -65,7 +64,9 @@ public:
 TEST_F(MessageBufferTestFixture, Exceptions)
 {
   // Call the query with the parameters in the wrong order. This should throw.
-  EXPECT_THROW(buffer.query(rclcpp::Time(20, 0), rclcpp::Time(10, 0), false), std::invalid_argument);
+  EXPECT_THROW(
+    buffer.query(rclcpp::Time(20, 0), rclcpp::Time(10, 0), false),
+    std::invalid_argument);
 
   // Call the query when the buffer is empty. This should throw.
   EXPECT_THROW(buffer.query(rclcpp::Time(10, 0), rclcpp::Time(25, 0), false), std::out_of_range);
@@ -81,7 +82,8 @@ TEST_F(MessageBufferTestFixture, Exceptions)
 
 TEST_F(MessageBufferTestFixture, StandardRangeAligned)
 {
-  // Query the buffer with the standard range flag, where the query boundaries line up exactly with existing elements
+  // Query the buffer with the standard range flag, where the query boundaries line up exactly with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(10, 0), rclcpp::Time(30, 0), false);
   // Verify the returned message range contains the correct entries
@@ -93,7 +95,8 @@ TEST_F(MessageBufferTestFixture, StandardRangeAligned)
 
 TEST_F(MessageBufferTestFixture, StandardRangeUnaligned)
 {
-  // Query the buffer with the standard range flag, where the query boundaries do not line up with existing elements
+  // Query the buffer with the standard range flag, where the query boundaries do not line up with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(15, 0), rclcpp::Time(25, 0), false);
   // Verify the returned message range contains the correct entries
@@ -105,7 +108,8 @@ TEST_F(MessageBufferTestFixture, StandardRangeUnaligned)
 
 TEST_F(MessageBufferTestFixture, ExtendedRangeAligned)
 {
-  // Query the buffer with the extended range flag, where the query boundaries line up exactly with existing elements
+  // Query the buffer with the extended range flag, where the query boundaries line up exactly with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(10, 0), rclcpp::Time(30, 0), true);
   // Verify the returned message range contains the correct entries
@@ -123,7 +127,8 @@ TEST_F(MessageBufferTestFixture, ExtendedRangeAligned)
 
 TEST_F(MessageBufferTestFixture, ExtendedRangeUnaligned)
 {
-  // Query the buffer with the extended range flag, where the query boundaries do not line up with existing elements
+  // Query the buffer with the extended range flag, where the query boundaries do not line up with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(15, 0), rclcpp::Time(25, 0), true);
   // Verify the returned message range contains the correct entries

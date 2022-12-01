@@ -12,7 +12,7 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <rclcpp/duration.hpp>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <gtest/gtest.h>
 

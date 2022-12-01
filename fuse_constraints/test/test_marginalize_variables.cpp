@@ -35,13 +35,13 @@
 #include <fuse_constraints/marginalize_variables.h>
 #include <fuse_constraints/relative_orientation_3d_stamped_constraint.h>
 #include <fuse_constraints/uuid_ordering.h>
-#include <fuse_core/constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/eigen_gtest.h>
-#include <fuse_core/macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 

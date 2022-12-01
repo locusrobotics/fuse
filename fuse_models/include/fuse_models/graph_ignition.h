@@ -38,9 +38,9 @@
 #include <fuse_models/SetGraph.h>
 #include <fuse_models/parameters/graph_ignition_params.h>
 
-#include <fuse_core/async_sensor_model.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/graph_deserializer.h>
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/graph_deserializer.hpp>
 
 #include <fuse_msgs/SerializedGraph.h>
 #include <ros/ros.h>

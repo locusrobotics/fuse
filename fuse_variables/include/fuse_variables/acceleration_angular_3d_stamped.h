@@ -34,12 +34,12 @@
 #ifndef FUSE_VARIABLES_ACCELERATION_ANGULAR_3D_STAMPED_H
 #define FUSE_VARIABLES_ACCELERATION_ANGULAR_3D_STAMPED_H
 
-#include <fuse_core/uuid.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

@@ -31,13 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.h>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <numeric>
 #include <string>
+
+#include <fuse_core/parameter.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 class TestParameters : public ::testing::Test
 {
@@ -194,7 +194,8 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
   }
 
 
-  // A covariance diagonal with an invalid element should throw rclcpp::exceptions::InvalidParameterTypeException:
+  // A covariance diagonal with an invalid element should throw
+  // rclcpp::exceptions::InvalidParameterTypeException:
   {
     const std::string parameter_name{"covariance_diagonal_with_strings"};
 
@@ -211,7 +212,8 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
     // See: https://github.com/locusrobotics/fuse/pull/286#discussion_r1035302941
   }
 
-  // A covariance diagonal with an invalid element should throw rclcpp::exceptions::InvalidParameterTypeException:
+  // A covariance diagonal with an invalid element should throw
+  // rclcpp::exceptions::InvalidParameterTypeException:
   {
     const std::string parameter_name{"covariance_diagonal_with_string"};
 

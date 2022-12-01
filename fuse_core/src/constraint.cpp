@@ -31,26 +31,24 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.h>
-
-#include <fuse_core/uuid.h>
-
 #include <initializer_list>
 #include <ostream>
 #include <string>
 
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/uuid.hpp>
 
 namespace fuse_core
 {
 
-Constraint::Constraint(const std::string& source, std::initializer_list<UUID> variable_uuid_list) :
-  source_(source),
+Constraint::Constraint(const std::string & source, std::initializer_list<UUID> variable_uuid_list)
+: source_(source),
   uuid_(uuid::generate()),
   variables_(variable_uuid_list)
 {
 }
 
-std::ostream& operator <<(std::ostream& stream, const Constraint& constraint)
+std::ostream & operator<<(std::ostream & stream, const Constraint & constraint)
 {
   constraint.print(stream);
   return stream;

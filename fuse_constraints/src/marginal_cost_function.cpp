@@ -33,8 +33,8 @@
  */
 #include <fuse_constraints/marginal_cost_function.h>
 
-#include <fuse_core/eigen.h>
-#include <fuse_core/local_parameterization.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/local_parameterization.hpp>
 
 #include <Eigen/Core>
 

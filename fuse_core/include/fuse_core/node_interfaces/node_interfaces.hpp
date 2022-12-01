@@ -67,11 +67,10 @@ public:
    *   - set_node_<interface_name>_interface()
    *
    * Usage example:
-   *   - ```NodeInterfaces<rclcpp::node_interfaces::Base>(node)```
-   *     will bind just the NodeBaseInterface.
-   *   - ```NodeInterfaces<
-   *          rclcpp::node_interfaces::Base, rclcpp::node_interfaces::Clock>(node)```
-   *     will bind both the NodeBaseInterface and NodeClockInterface.
+   *   - ```NodeInterfaces<rclcpp::node_interfaces::Base>(node)``` will bind just the
+   *        NodeBaseInterface.
+   *   - ```NodeInterfaces< rclcpp::node_interfaces::Base, rclcpp::node_interfaces::Clock>(node)```
+   *        will bind both the NodeBaseInterface and NodeClockInterface.
    *
    * \param[in] node Node-like object to bind the interfaces of.
    */
@@ -98,8 +97,8 @@ public:
  *
  * \sa rclcpp::node_interfaces::NodeInterfaces
  * \param[in] node Node-like object to bind the interfaces of.
- * \returns a NodeInterfaces::SharedPtr supporting the stated interfaces, but bound with none
- *          of them
+ * \returns a NodeInterfaces::SharedPtr supporting the stated interfaces, but bound with none of
+ *          them
  */
 template<typename ... InterfaceTs>
 typename NodeInterfaces<InterfaceTs...>::SharedPtr

@@ -34,7 +34,7 @@
 #include <fuse_loss/composed_loss.h>
 #include <fuse_loss/trivial_loss.h>
 
-#include <fuse_core/parameter.h>
+#include <fuse_core/parameter.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/node_handle.h>
 

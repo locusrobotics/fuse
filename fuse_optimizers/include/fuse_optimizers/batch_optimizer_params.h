@@ -34,8 +34,8 @@
 #ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
 #define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
 
-#include <fuse_core/ceres_options.h>
-#include <fuse_core/parameter.h>
+#include <fuse_core/ceres_options.hpp>
+#include <fuse_core/parameter.hpp>
 #include <rclcpp/duration.hpp>
 #include <ros/node_handle.h>
 

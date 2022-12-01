@@ -34,8 +34,8 @@
 #ifndef FUSE_TUTORIALS_RANGE_SENSOR_MODEL_H
 #define FUSE_TUTORIALS_RANGE_SENSOR_MODEL_H
 
-#include <fuse_core/async_sensor_model.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/uuid.hpp>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 

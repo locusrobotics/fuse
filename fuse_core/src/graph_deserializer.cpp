@@ -31,58 +31,55 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/graph_deserializer.h>
-
-#include <fuse_core/serialization.h>
-
 #include <boost/iostreams/stream.hpp>
-
+#include <fuse_core/graph_deserializer.hpp>
+#include <fuse_core/serialization.hpp>
 
 namespace fuse_core
 {
 
-void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::msg::SerializedGraph& msg)
+void serializeGraph(const fuse_core::Graph & graph, fuse_msgs::msg::SerializedGraph & msg)
 {
   // Serialize the graph into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
-  // Scope the archive object. The archive is not guaranteed to write to the stream until the archive goes out of scope.
+  // Scope the archive object. The archive is not guaranteed to write to the stream until the
+  // archive goes out of scope.
   {
     BinaryOutputArchive archive(stream);
     graph.serialize(archive);
   }
-  // Set the plugin name using the graph's type() member function (blindly assuming these are the same thing)
+  // Set the plugin name using the graph's type() member function (blindly assuming these are the
+  // same thing)
   msg.plugin_name = graph.type();
 }
 
-GraphDeserializer::GraphDeserializer() :
-  variable_loader_("fuse_core", "fuse_core::Variable"),
+GraphDeserializer::GraphDeserializer()
+: variable_loader_("fuse_core", "fuse_core::Variable"),
   constraint_loader_("fuse_core", "fuse_core::Constraint"),
   loss_loader_("fuse_core", "fuse_core::Loss"),
   graph_loader_("fuse_core", "fuse_core::Graph")
 {
   // Load all known plugin libraries
-  // I believe the library containing a given Variable or Constraint type must be loaded in order to deserialize
-  // an object of that type. But I haven't actually tested that theory.
-  for (const auto& class_name : variable_loader_.getDeclaredClasses())
-  {
+  // I believe the library containing a given Variable or Constraint type must be loaded in order to
+  // deserialize an object of that type. But I haven't actually tested that theory.
+  for (const auto & class_name : variable_loader_.getDeclaredClasses()) {
     variable_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto& class_name : constraint_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : constraint_loader_.getDeclaredClasses()) {
     constraint_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto& class_name : loss_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : loss_loader_.getDeclaredClasses()) {
     loss_loader_.loadLibraryForClass(class_name);
   }
 }
 
-fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(const fuse_msgs::msg::SerializedGraph& msg) const
+fuse_core::Graph::UniquePtr GraphDeserializer::deserialize(
+  const fuse_msgs::msg::SerializedGraph & msg) const
 {
   // Create a Graph object using pluginlib. This will throw if the plugin name is not found.
   // The unique ptr returned by pluginlib has a custom deleter. This makes it annoying to return
-  // back to the user as the output is not equivalent to fuse_core::Graph::UniquePtr. Instead, wrap an
-  // unmanaged raw pointer in a unique_ptr, and handle the library unloading in the destructor.
+  // back to the user as the output is not equivalent to fuse_core::Graph::UniquePtr. Instead, wrap
+  // an unmanaged raw pointer in a unique_ptr, and handle the library unloading in the destructor.
   auto graph = fuse_core::Graph::UniquePtr(graph_loader_.createUnmanagedInstance(msg.plugin_name));
   // Deserialize the msg.data field into the graph.
   // This will throw if something goes wrong in the deserialization.

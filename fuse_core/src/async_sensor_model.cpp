@@ -31,23 +31,21 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/async_sensor_model.h>
-
-#include <fuse_core/callback_wrapper.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/transaction.h>
-
 #include <functional>
-#include <utility>
 #include <string>
+#include <utility>
 
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/callback_wrapper.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/transaction.hpp>
 #include <rclcpp/contexts/default_context.hpp>
 
 namespace fuse_core
 {
 
-AsyncSensorModel::AsyncSensorModel(size_t thread_count) :
-  name_("uninitialized"),
+AsyncSensorModel::AsyncSensorModel(size_t thread_count)
+: name_("uninitialized"),
   executor_thread_count_(thread_count)
 {
 }
@@ -61,7 +59,7 @@ AsyncSensorModel::~AsyncSensorModel()
 }
 
 void AsyncSensorModel::initialize(
-  const std::string& name,
+  const std::string & name,
   TransactionCallback transaction_callback)
 {
   // Initialize internal state
@@ -71,14 +69,16 @@ void AsyncSensorModel::initialize(
   // TODO(CH3): Pass in the context or a node to get the context from
   rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
-  node_options.context(ros_context); //set a context to generate the node in
+  node_options.context(ros_context);  // set a context to generate the node in
 
   // TODO(CH3): Potentially pass in the optimizer node instead of spinning a new one
   node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);
 
   auto executor_options = rclcpp::ExecutorOptions();
   executor_options.context = ros_context;
-  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(executor_options, executor_thread_count_);
+  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
+    executor_options,
+    executor_thread_count_);
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
   node_->get_node_waitables_interface()->add_waitable(
@@ -93,9 +93,10 @@ void AsyncSensorModel::initialize(
   executor_->add_node(node_);
 
   // TODO(CH3): Remove this if the internal node is removed
-  spinner_ = std::thread([&](){
-    executor_->spin();
-  });
+  spinner_ = std::thread(
+    [&]() {
+      executor_->spin();
+    });
 }
 
 void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
@@ -123,17 +124,14 @@ void AsyncSensorModel::start()
 
 void AsyncSensorModel::stop()
 {
-  if (node_->get_node_base_interface()->get_context()->is_valid())
-  {
+  if (node_->get_node_base_interface()->get_context()->is_valid()) {
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncSensorModel::onStop, this)
     );
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();
-  }
-  else
-  {
+  } else {
     executor_->cancel();
     executor_->remove_node(node_);
 

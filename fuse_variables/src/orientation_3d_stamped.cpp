@@ -33,12 +33,12 @@
  */
 #include <fuse_variables/orientation_3d_stamped.h>
 
-#include <fuse_core/local_parameterization.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <pluginlib/class_list_macros.h>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <boost/serialization/export.hpp>
 

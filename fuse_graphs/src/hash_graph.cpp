@@ -33,7 +33,7 @@
  */
  #include <fuse_graphs/hash_graph.h>
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>

@@ -35,12 +35,12 @@
 #define FUSE_OPTIMIZERS_OPTIMIZER_H
 
 #include <diagnostic_updater/diagnostic_updater.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/motion_model.h>
-#include <fuse_core/publisher.h>
-#include <fuse_core/sensor_model.h>
-#include <fuse_core/transaction.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/motion_model.hpp>
+#include <fuse_core/publisher.hpp>
+#include <fuse_core/sensor_model.hpp>
+#include <fuse_core/transaction.hpp>
 #include <pluginlib/class_loader.hpp>
 #include <rclcpp/rclcpp.hpp>
 

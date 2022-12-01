@@ -31,13 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
-#include "example_constraint.h"
-
 #include <gtest/gtest.h>
 
 #include <vector>
 
+#include "example_constraint.hpp"
+#include <fuse_core/uuid.hpp>
 
 TEST(Constraint, Constructor)
 {
@@ -68,8 +67,7 @@ TEST(Constraint, Constructor)
     variable_uuids.push_back(fuse_core::uuid::generate());
     ExampleConstraint constraint("test", variable_uuids.begin(), variable_uuids.end());
     ASSERT_EQ(variable_uuids.size(), constraint.variables().size());
-    for (size_t i = 0; i < variable_uuids.size(); ++i)
-    {
+    for (size_t i = 0; i < variable_uuids.size(); ++i) {
       ASSERT_EQ(variable_uuids.at(i), constraint.variables().at(i));
     }
   }
@@ -83,8 +81,7 @@ TEST(Constraint, Constructor)
 
     ASSERT_EQ(constraint1.uuid(), constraint2.uuid());
     ASSERT_EQ(constraint1.variables().size(), constraint2.variables().size());
-    for (size_t i = 0; i < constraint1.variables().size(); ++i)
-    {
+    for (size_t i = 0; i < constraint1.variables().size(); ++i) {
       ASSERT_EQ(constraint1.variables().at(i), constraint2.variables().at(i));
     }
   }

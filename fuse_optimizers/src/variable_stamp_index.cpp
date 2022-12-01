@@ -33,11 +33,11 @@
  */
 #include <fuse_optimizers/variable_stamp_index.h>
 
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/stamped.h>
 
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <algorithm>
 #include <stdexcept>

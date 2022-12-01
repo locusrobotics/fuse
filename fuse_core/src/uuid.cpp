@@ -31,18 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.h>
-
-#include <rclcpp/time.hpp>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include <algorithm>
 #include <array>
 #include <mutex>
 #include <random>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <fuse_core/uuid.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {
@@ -64,7 +61,7 @@ UUID generate()
   return uuid;
 }
 
-UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
+UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp)
 {
   const auto nanoseconds = stamp.nanoseconds();
   constexpr size_t buffer_size = sizeof(nanoseconds);
@@ -80,7 +77,7 @@ UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
-UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id)
+UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp, const UUID & id)
 {
   const auto nanoseconds = stamp.nanoseconds();
   constexpr size_t buffer_size = sizeof(nanoseconds) + UUID::static_size();
@@ -99,9 +96,11 @@ UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, co
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
-UUID generate(const std::string& namespace_string, const uint64_t& user_id)
+UUID generate(const std::string & namespace_string, const uint64_t & user_id)
 {
-  return generate(namespace_string, reinterpret_cast<const unsigned char*>(&user_id), sizeof(user_id));
+  return generate(
+    namespace_string, reinterpret_cast<const unsigned char *>(&user_id),
+    sizeof(user_id));
 }
 
 }  // namespace uuid

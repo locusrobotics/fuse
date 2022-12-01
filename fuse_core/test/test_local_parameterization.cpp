@@ -31,17 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/autodiff_local_parameterization.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/eigen_gtest.h>
-
 #include <gtest/gtest.h>
 
+#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
 
 struct Plus
 {
   template<typename T>
-  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+  bool operator()(const T * x, const T * delta, T * x_plus_delta) const
   {
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
     x_plus_delta[1] = x[1] + 5.0 * delta[1];
@@ -53,7 +52,7 @@ struct Plus
 struct Minus
 {
   template<typename T>
-  bool operator()(const T* x1, const T* x2, T* delta) const
+  bool operator()(const T * x1, const T * x2, T * delta) const
   {
     delta[0] = (x2[0] - x1[0]) / 2.0;
     delta[1] = (x2[1] - x1[1]) / 5.0;
@@ -88,9 +87,12 @@ TEST(LocalParameterization, PlusJacobian)
   bool success = parameterization.ComputeJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(3, 2);
+
+  /* *INDENT-OFF* */  // Bypass uncrustify
   expected << 2.0, 0.0,
               0.0, 5.0,
               0.0, 0.0;
+  /* *INDENT-ON* */
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
@@ -119,8 +121,11 @@ TEST(LocalParameterization, MinusJacobian)
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(2, 3);
+
+  /* *INDENT-OFF* */  // Bypass uncrustify
   expected << 0.5, 0.0, 0.0,
               0.0, 0.2, 0.0;
+  /* *INDENT-ON* */
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);

@@ -31,57 +31,57 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/transaction_deserializer.h>
-
-#include <fuse_core/serialization.h>
-
 #include <boost/iostreams/stream.hpp>
-
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/transaction_deserializer.hpp>
 
 namespace fuse_core
 {
 
-void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::msg::SerializedTransaction& msg)
+void serializeTransaction(
+  const fuse_core::Transaction & transaction,
+  fuse_msgs::msg::SerializedTransaction & msg)
 {
   // Serialize the transaction into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
-  // Scope the archive object. The archive is not guaranteed to write to the stream until the archive goes out of scope.
+  // Scope the archive object. The archive is not guaranteed to write to the stream until the
+  // archive goes out of scope.
   {
     BinaryOutputArchive archive(stream);
     transaction.serialize(archive);
   }
 }
 
-TransactionDeserializer::TransactionDeserializer() :
-  variable_loader_("fuse_core", "fuse_core::Variable"),
+TransactionDeserializer::TransactionDeserializer()
+: variable_loader_("fuse_core", "fuse_core::Variable"),
   constraint_loader_("fuse_core", "fuse_core::Constraint"),
   loss_loader_("fuse_core", "fuse_core::Loss")
 {
   // Load all known plugin libraries
-  // I believe the library containing a given Variable or Constraint must be loaded in order to deserialize
-  // an object of that type. But I haven't actually tested that theory.
-  for (const auto& class_name : variable_loader_.getDeclaredClasses())
-  {
+  // I believe the library containing a given Variable or Constraint must be loaded in order to
+  // deserialize an object of that type. But I haven't actually tested that theory.
+  for (const auto & class_name : variable_loader_.getDeclaredClasses()) {
     variable_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto& class_name : constraint_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : constraint_loader_.getDeclaredClasses()) {
     constraint_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto& class_name : loss_loader_.getDeclaredClasses())
-  {
+  for (const auto & class_name : loss_loader_.getDeclaredClasses()) {
     loss_loader_.loadLibraryForClass(class_name);
   }
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const
+fuse_core::Transaction TransactionDeserializer::deserialize(
+  const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const
 {
   return deserialize(*msg);
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::msg::SerializedTransaction& msg) const
+fuse_core::Transaction TransactionDeserializer::deserialize(
+  const fuse_msgs::msg::SerializedTransaction & msg) const
 {
-  // The Transaction object is not a plugin and has no derived types. That makes it much easier to use.
+  // The Transaction object is not a plugin and has no derived types. That makes it much easier to
+  // use.
   auto transaction = fuse_core::Transaction();
   // Deserialize the msg.data field into the transaction.
   // This will throw if something goes wrong in the deserialization.

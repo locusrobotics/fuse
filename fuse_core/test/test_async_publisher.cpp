@@ -31,13 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/async_publisher.h>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <set>
 
+#include <fuse_core/async_publisher.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 /**
  * @brief Derived AsyncPublisher used to verify the functions get called when expected
@@ -45,8 +44,8 @@
 class MyPublisher : public fuse_core::AsyncPublisher
 {
 public:
-  MyPublisher() :
-    fuse_core::AsyncPublisher(1),
+  MyPublisher()
+  : fuse_core::AsyncPublisher(1),
     callback_processed(false),
     initialized(false)
   {
@@ -97,20 +96,19 @@ TEST_F(TestAsyncPublisher, notifyCallback)
   MyPublisher publisher;
   publisher.initialize("my_publisher");
 
-  // Execute the notify() method in this thread. This should push a call to MyPublisher::notifyCallback()
-  // into MyPublisher's callback queue, which will get executed by MyPublisher's async spinner.
-  // There is a time delay there. So, this call should return almost immediately, then we have to wait
-  // a bit before the "callback_processed" flag gets flipped.
-  fuse_core::Transaction::ConstSharedPtr transaction;  // nullptr...which is fine because we do not actually use it
-  fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
+  // Execute the notify() method in this thread. This should push a call to
+  // MyPublisher::notifyCallback() into MyPublisher's callback queue, which will get executed by
+  // MyPublisher's async spinner. There is a time delay there. So, this call should return almost
+  // immediately, then we have to wait a bit before the "callback_processed" flag gets flipped.
+  fuse_core::Transaction::ConstSharedPtr transaction;  // nullptr is ok as we don't actually use it
+  fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
   publisher.notify(transaction, graph);
   EXPECT_FALSE(publisher.callback_processed);
 
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
 
   rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!publisher.callback_processed && clock.now() < wait_time_elapsed)
-  {
+  while (!publisher.callback_processed && clock.now() < wait_time_elapsed) {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(publisher.callback_processed);

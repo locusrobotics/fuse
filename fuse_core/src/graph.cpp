@@ -31,65 +31,58 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/graph.h>
-
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
-
-#include <boost/iterator/transform_iterator.hpp>
-
 #include <functional>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 
 namespace fuse_core
 {
 
-std::ostream& operator <<(std::ostream& stream, const Graph& graph)
+std::ostream & operator<<(std::ostream & stream, const Graph & graph)
 {
   graph.print(stream);
   return stream;
 }
 
-Graph::const_variable_range Graph::getConnectedVariables(const UUID& constraint_uuid) const
+Graph::const_variable_range Graph::getConnectedVariables(const UUID & constraint_uuid) const
 {
-  std::function<const fuse_core::Variable&(const UUID& variable_uuid)> uuid_to_variable_ref =
-    [this](const UUID& variable_uuid) -> const Variable&
+  std::function<const fuse_core::Variable & (const UUID & variable_uuid)> uuid_to_variable_ref =
+    [this](const UUID & variable_uuid) -> const Variable &
     {
       return this->getVariable(variable_uuid);
     };
 
-  const auto& constraint = getConstraint(constraint_uuid);
-  const auto& variable_uuids = constraint.variables();
+  const auto & constraint = getConstraint(constraint_uuid);
+  const auto & variable_uuids = constraint.variables();
 
   return const_variable_range(
     boost::make_transform_iterator(variable_uuids.cbegin(), uuid_to_variable_ref),
     boost::make_transform_iterator(variable_uuids.cend(), uuid_to_variable_ref));
 }
 
-void Graph::update(const Transaction& transaction)
+void Graph::update(const Transaction & transaction)
 {
-  // Update the graph with a new transaction. In order to keep the graph consistent, variables are added first,
-  // followed by the constraints which might use the newly added variables. Then constraints are removed so that
-  // the variable usage is updated. Finally, variables are removed.
+  // Update the graph with a new transaction. In order to keep the graph consistent, variables are
+  // added first, followed by the constraints which might use the newly added variables. Then
+  // constraints are removed so that the variable usage is updated. Finally, variables are removed.
 
   // Insert the new variables into the graph
-  for (const auto& variable : transaction.addedVariables())
-  {
+  for (const auto & variable : transaction.addedVariables()) {
     addVariable(variable.clone());
   }
   // Insert the new constraints into the graph
-  for (const auto& constraint : transaction.addedConstraints())
-  {
+  for (const auto & constraint : transaction.addedConstraints()) {
     addConstraint(constraint.clone());
   }
   // Delete constraints from the graph
-  for (const auto& constraint_uuid : transaction.removedConstraints())
-  {
+  for (const auto & constraint_uuid : transaction.removedConstraints()) {
     removeConstraint(constraint_uuid);
   }
   // Delete variables from the graph
-  for (const auto& variable_uuid : transaction.removedVariables())
-  {
+  for (const auto & variable_uuid : transaction.removedVariables()) {
     removeVariable(variable_uuid);
   }
 }

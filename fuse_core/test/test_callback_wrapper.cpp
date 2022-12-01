@@ -31,9 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/callback_wrapper.h>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <functional>
@@ -41,16 +38,18 @@
 #include <numeric>
 #include <vector>
 
+#include <fuse_core/callback_wrapper.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 class MyClass
 {
 public:
-  double processData(const std::vector<double>& data)
+  double processData(const std::vector<double> & data)
   {
     return std::accumulate(data.begin(), data.end(), 0.0);
   }
 
-  void processDataInPlace(const std::vector<double>& data, double& output)
+  void processDataInPlace(const std::vector<double> & data, double & output)
   {
     output = std::accumulate(data.begin(), data.end(), 0.0);
   }

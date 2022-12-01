@@ -31,13 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.h>
-#include <fuse_core/timestamp_manager.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.h>
-
 #include <gtest/gtest.h>
 
 #include <functional>
@@ -45,22 +38,28 @@
 #include <utility>
 #include <vector>
 
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/timestamp_manager.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/variable.hpp>
+#include <rclcpp/duration.hpp>
 
 /**
- * Test fixture that adds a known set of entries to the timestamp manager.
- * Used to test the interactions with existing entries.
+ * Test fixture that adds a known set of entries to the timestamp manager. Used to test the
+ * interactions with existing entries.
  */
 class TimestampManagerTestFixture : public ::testing::Test
 {
 public:
-  TimestampManagerTestFixture() :
-    manager(std::bind(&TimestampManagerTestFixture::generator,
-                      this,
-                      std::placeholders::_1,
-                      std::placeholders::_2,
-                      std::placeholders::_3,
-                      std::placeholders::_4),
-            rclcpp::Duration::max())
+  TimestampManagerTestFixture()
+  : manager(std::bind(&TimestampManagerTestFixture::generator,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2,
+      std::placeholders::_3,
+      std::placeholders::_4),
+      rclcpp::Duration::max())
   {
   }
 
@@ -77,16 +76,16 @@ public:
   }
 
   void generator(
-    const rclcpp::Time& beginning_stamp,
-    const rclcpp::Time& ending_stamp,
-    std::vector<fuse_core::Constraint::SharedPtr>& /*constraints*/,
-    std::vector<fuse_core::Variable::SharedPtr>& /*variables*/)
+    const rclcpp::Time & beginning_stamp,
+    const rclcpp::Time & ending_stamp,
+    std::vector<fuse_core::Constraint::SharedPtr> & /*constraints*/,
+    std::vector<fuse_core::Variable::SharedPtr> & /*variables*/)
   {
     generated_time_spans.emplace_back(beginning_stamp, ending_stamp);
   }
 
   fuse_core::TimestampManager manager;
-  std::vector<std::pair<rclcpp::Time, rclcpp::Time> > generated_time_spans;
+  std::vector<std::pair<rclcpp::Time, rclcpp::Time>> generated_time_spans;
 };
 
 
@@ -158,8 +157,8 @@ TEST_F(TimestampManagerTestFixture, Exceptions)
     transaction.addInvolvedStamp(rclcpp::Time(35, 0));
     EXPECT_NO_THROW(manager.query(transaction));
   }
-  // Call the query with a timestamp outside of the buffer length, but within the current timespan of the history
-  // This should not throw, as it is safe to perform this operation.
+  // Call the query with a timestamp outside of the buffer length, but within the current timespan
+  // of the history This should not throw, as it is safe to perform this operation.
   {
     fuse_core::Transaction transaction;
     transaction.addInvolvedStamp(rclcpp::Time(11, 0));

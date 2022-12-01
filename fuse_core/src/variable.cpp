@@ -31,20 +31,19 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/variable.h>
-
 #include <ostream>
 
+#include <fuse_core/variable.hpp>
 
 namespace fuse_core
 {
 
-Variable::Variable(const UUID& uuid) :
-  uuid_(uuid)
+Variable::Variable(const UUID & uuid)
+: uuid_(uuid)
 {
 }
 
-std::ostream& operator <<(std::ostream& stream, const Variable& variable)
+std::ostream & operator<<(std::ostream & stream, const Variable & variable)
 {
   variable.print(stream);
   return stream;

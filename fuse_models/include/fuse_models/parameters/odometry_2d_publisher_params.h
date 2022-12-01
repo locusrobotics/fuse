@@ -36,9 +36,9 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
-#include <fuse_core/ceres_options.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/parameter.h>
+#include <fuse_core/ceres_options.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/parameter.hpp>
 
 #include <rclcpp/logging.hpp>
 #include <ros/node_handle.h>

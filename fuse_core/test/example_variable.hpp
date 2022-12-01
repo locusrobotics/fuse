@@ -31,68 +31,57 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
-#define FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
-
-#include <fuse_core/constraint.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
+#ifndef FUSE_CORE__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#define FUSE_CORE__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <initializer_list>
-#include <string>
-
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 
 /**
- * @brief Dummy constraint implementation for testing
+ * @brief Dummy variable implementation for testing
  */
-class ExampleConstraint : public fuse_core::Constraint
+class ExampleVariable : public fuse_core::Variable
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  ExampleConstraint() = default;
-
-  ExampleConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuid_list) :
-    fuse_core::Constraint(source, variable_uuid_list),
-    data(0.0)
+  ExampleVariable()
+  : fuse_core::Variable(fuse_core::uuid::generate()),
+    data_(0.0)
   {
   }
 
-  template<typename VariableUuidIterator>
-  ExampleConstraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last) :
-    fuse_core::Constraint(source, first, last),
-    data(0.0)
-  {
-  }
-
-  void print(std::ostream& /*stream = std::cout*/) const override {}
-  ceres::CostFunction* costFunction() const override { return nullptr; }
-
-  double data;  // Public member variable just for testing
+  size_t size() const override {return 1;}
+  const double * data() const override {return &data_;}
+  double * data() override {return &data_;}
+  void print(std::ostream & /*stream = std::cout*/) const override {}
 
 private:
+  double data_;
+
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & data;
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleConstraint);
+BOOST_CLASS_EXPORT(ExampleVariable);
 
-#endif  // FUSE_CORE_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#endif  // FUSE_CORE__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}

@@ -37,7 +37,7 @@
 
 #include <rviz/properties/bool_property.h>
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 
 #include <memory>
 #include <unordered_map>

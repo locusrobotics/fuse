@@ -100,7 +100,7 @@ of the Ceres Solver documentation.
 ## Constraint API
 
 Like basically everything in fuse, the Constraint system is designed to be extensible. The
-[`fuse_core::Constraint`](../fuse_core/include/fuse_core/constraint.h) base class defines the minimum interface
+[`fuse_core::Constraint`](../fuse_core/include/fuse_core/constraint.hpp) base class defines the minimum interface
 required for all derived Constraints.
 
 * `Constraint::uuid() -> fuse_core::UUID`

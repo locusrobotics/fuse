@@ -31,18 +31,19 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/throttled_callback.h>
-#include <fuse_core/time.h>
+#include <gtest/gtest.h>
+
+#include <fuse_core/throttled_callback.hpp>
+#include <fuse_core/time.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <gtest/gtest.h>
-
 /**
- * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given frequency.
+ * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given
+ *        frequency.
  *
- * The messages published are geometry_msgs::msg::Point because it is simple. The 'x' field is set to the number of messages
- * published so far, starting at 0.
+ * The messages published are geometry_msgs::msg::Point because it is simple. The 'x' field is
+ * set to the number of messages published so far, starting at 0.
  */
 class PointPublisher : public rclcpp::Node
 {
@@ -53,7 +54,7 @@ public:
    * @param[in] frequency The publishing frequency in Hz
    */
   explicit PointPublisher(const double frequency)
-    : Node("point_publisher_node")
+  : Node("point_publisher_node")
     , frequency_(frequency)
   {
     publisher_ = this->create_publisher<geometry_msgs::msg::Point>("point", 1);
@@ -78,8 +79,7 @@ public:
   {
     // Wait for the subscriptions to be ready before sending them data:
     rclcpp::Time subscription_timeout = this->now() + rclcpp::Duration::from_seconds(1.0);
-    while (publisher_->get_subscription_count() < 1u && this->now() < subscription_timeout)
-    {
+    while (publisher_->get_subscription_count() < 1u && this->now() < subscription_timeout) {
       rclcpp::sleep_for(std::chrono::milliseconds(10));
     }
 
@@ -87,8 +87,7 @@ public:
 
     // Send data:
     rclcpp::Rate rate(frequency_);
-    for (size_t i = 0; i < num_messages; ++i)
-    {
+    for (size_t i = 0; i < num_messages; ++i) {
       geometry_msgs::msg::Point point_message;
       point_message.x = i;
       publisher_->publish(point_message);
@@ -98,15 +97,16 @@ public:
 
 private:
   rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr publisher_;     //!< The publisher
-  double frequency_{ 10.0 };     //!< The publish rate frequency
+  double frequency_{10.0};       //!< The publish rate frequency
 };
 
 /**
- * @brief A dummy point sensor model that uses a fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point> with a keep
- * and drop callback.
+ * @brief A dummy point sensor model that uses a
+ *        fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point> with a keep and drop
+ *        callback.
  *
- * The callbacks simply count the number of times they are called, for testing purposes. The keep callback also caches
- * the last message received, also for testing purposes.
+ * The callbacks simply count the number of times they are called, for testing purposes. The keep
+ * callback also caches the last message received, also for testing purposes.
  */
 class PointSensorModel : public rclcpp::Node
 {
@@ -116,18 +116,18 @@ public:
    *
    * @param[in] throttle_period The throttle period duration in seconds
    */
-  explicit PointSensorModel(const rclcpp::Duration& throttle_period)
-    : Node("point_sensor_model_node")
+  explicit PointSensorModel(const rclcpp::Duration & throttle_period)
+  : Node("point_sensor_model_node")
     , throttled_callback_(
-        std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
-        std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1),
-        throttle_period
-      )
+      std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
+      std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1),
+      throttle_period
+    )
   {
     subscription_ = this->create_subscription<geometry_msgs::msg::Point>(
       "point", 10,
       std::bind(
-        &PointThrottledCallback::callback<const geometry_msgs::msg::Point::ConstSharedPtr&>,
+        &PointThrottledCallback::callback<const geometry_msgs::msg::Point::ConstSharedPtr &>,
         &throttled_callback_, std::placeholders::_1)
     );
   }
@@ -174,11 +174,12 @@ public:
 
 private:
   /**
-   * @brief Keep callback, that counts the number of times it has been called and caches the last message received
+   * @brief Keep callback, that counts the number of times it has been called and caches the last
+   *        message received
    *
    * @param[in] msg A geometry_msgs::msg::Point message
    */
-  void keepCallback(const geometry_msgs::msg::Point::ConstSharedPtr& msg)
+  void keepCallback(const geometry_msgs::msg::Point::ConstSharedPtr & msg)
   {
     ++kept_messages_;
     last_kept_message_ = msg;
@@ -190,7 +191,7 @@ private:
    * @param[in] msg A geometry_msgs::msg::Point message (not used)
    */
   // NOTE(CH3): The ConstSharedPtr here is necessary to allow binding the throttled callback
-  void dropCallback(const geometry_msgs::msg::Point::ConstSharedPtr& /*msg*/)
+  void dropCallback(const geometry_msgs::msg::Point::ConstSharedPtr & /*msg*/)
   {
     ++dropped_messages_;
   }
@@ -200,8 +201,8 @@ private:
   using PointThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::Point>;
   PointThrottledCallback throttled_callback_;  //!< The throttled callback
 
-  size_t kept_messages_{ 0 };                         //!< Messages kept
-  size_t dropped_messages_{ 0 };                      //!< Messages dropped
+  size_t kept_messages_{0};                           //!< Messages kept
+  size_t dropped_messages_{0};                        //!< Messages dropped
   geometry_msgs::msg::Point::ConstSharedPtr last_kept_message_;  //!< The last message kept
 };
 
@@ -212,9 +213,10 @@ public:
   {
     rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    spinner_ = std::thread([&](){
-      executor_->spin();
-    });
+    spinner_ = std::thread(
+      [&]() {
+        executor_->spin();
+      });
   }
 
   void TearDown() override
@@ -239,8 +241,10 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
   executor_->add_node(sensor_model);
 
   // Time should be valid after the context is initialized. But it doesn't hurt to verify.
-  ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
-                                        rclcpp::Duration::from_seconds(1.0)));
+  ASSERT_TRUE(
+    fuse_core::wait_for_valid(
+      sensor_model->getNode()->get_clock(),
+      rclcpp::Duration::from_seconds(1.0)));
 
   // Publish some messages:
   const size_t num_messages = 10;
@@ -250,7 +254,8 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
   executor_->add_node(publisher);
   publisher->publish(num_messages);
 
-  // Check all messages are kept and none are dropped, because when the throttle period is zero, throttling is disabled:
+  // Check all messages are kept and none are dropped, because when the throttle period is zero,
+  // throttling is disabled:
   EXPECT_EQ(num_messages, sensor_model->getKeptMessages());
   EXPECT_EQ(0u, sensor_model->getDroppedMessages());
 }
@@ -263,8 +268,10 @@ TEST_F(TestThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPe
   executor_->add_node(sensor_model);
 
   // Time should be valid after the context is initialized. But it doesn't hurt to verify.
-  ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
-                                        rclcpp::Duration::from_seconds(1.0)));
+  ASSERT_TRUE(
+    fuse_core::wait_for_valid(
+      sensor_model->getNode()->get_clock(),
+      rclcpp::Duration::from_seconds(1.0)));
 
   // Publish some messages at half the throttled period:
   const size_t num_messages = 10;
@@ -292,8 +299,10 @@ TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLar
   executor_->add_node(sensor_model);
 
   // Time should be valid after the context is initialized. But it doesn't hurt to verify.
-  ASSERT_TRUE(fuse_core::wait_for_valid(sensor_model->getNode()->get_clock(),
-                                        rclcpp::Duration::from_seconds(1.0)));
+  ASSERT_TRUE(
+    fuse_core::wait_for_valid(
+      sensor_model->getNode()->get_clock(),
+      rclcpp::Duration::from_seconds(1.0)));
 
   ASSERT_EQ(nullptr, sensor_model->getLastKeptMessage());
 

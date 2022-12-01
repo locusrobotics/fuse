@@ -34,11 +34,11 @@
 #ifndef FUSE_VARIABLES_STAMPED_H
 #define FUSE_VARIABLES_STAMPED_H
 
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 #include <ros/node_handle.h>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 

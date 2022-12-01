@@ -31,11 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/async_sensor_model.h>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
+#include <fuse_core/async_sensor_model.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 /**
  * @brief Flag used to track the execution of the transaction callback
@@ -57,8 +56,8 @@ void transactionCallback(fuse_core::Transaction::SharedPtr /*transaction*/)
 class MySensor : public fuse_core::AsyncSensorModel
 {
 public:
-  MySensor() :
-    fuse_core::AsyncSensorModel(1),
+  MySensor()
+  : fuse_core::AsyncSensorModel(1),
     initialized(false)
   {
   }
@@ -108,15 +107,14 @@ TEST_F(TestAsyncSensorModel, OnGraphUpdate)
 
   // Execute the graph callback in this thread. This should push a call to MySensor::onGraphUpdate()
   // into MySensor's callback queue, which will get executed by MySensor's async spinner.
-  // There is a time delay there. So, this call should return almost immediately, then we have to wait
-  // a bit before the "received_graph" flag gets flipped.
-  fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
+  // There is a time delay there. So, this call should return almost immediately, then we have to
+  // wait a bit before the "received_graph" flag gets flipped.
+  fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
   sensor.graphCallback(graph);
   EXPECT_FALSE(sensor.graph_received);
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
   rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!sensor.graph_received && clock.now() < wait_time_elapsed)
-  {
+  while (!sensor.graph_received && clock.now() < wait_time_elapsed) {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
   }
   EXPECT_TRUE(sensor.graph_received);
@@ -127,8 +125,9 @@ TEST_F(TestAsyncSensorModel, SendTransaction)
   MySensor sensor;
   sensor.initialize("my_sensor", &transactionCallback);
 
-  // Use the sensor "sendTransaction()" method to execute the transaction callback. This will get executed immediately.
-  fuse_core::Transaction::SharedPtr transaction;  // nullptr, okay because we don't actually use it for anything
+  // Use the sensor "sendTransaction()" method to execute the transaction callback. This will get
+  // executed immediately.
+  fuse_core::Transaction::SharedPtr transaction;  // nullptr is ok as we don't actually use it
   sensor.sendTransaction(transaction);
   EXPECT_TRUE(received_transaction);
 }

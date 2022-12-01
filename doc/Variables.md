@@ -91,7 +91,7 @@ of common, reusable 2D and 3D Variables. And submissions of new Variables are al
 ## Variable API
 
 Like basically everything in fuse, the Variable system is designed to be extensible. The
-[`fuse_core::Variable`](../fuse_core/include/fuse_core/variable.h) base class defines the minimum interface required
+[`fuse_core::Variable`](../fuse_core/include/fuse_core/variable.hpp) base class defines the minimum interface required
 for all derived Variables.
 
 * `Derived::type() -> std::string`
@@ -113,7 +113,7 @@ for all derived Variables.
 * `Derived::uuid() -> fuse_core::UUID`
 
   Each derived class is required to return a unique ID to act as the identity of the Variable. Some functions for
-  generating UUIDs are provided [here](../fuse_core/include/fuse_core/uuid.h).
+  generating UUIDs are provided [here](../fuse_core/include/fuse_core/uuid.hpp).
 
 * `Derived::print(std::ostream& stream)`
 
@@ -225,7 +225,7 @@ Our Variable also needs to hold the identity information. For this Variable we w
 scenarios as well as time-varying processes, so we need some sort of "robot id" and a timestamp. Since this is a
 ROS library, we will use a `rclcpp::Time` (which subclasses `rclcpp::Time`) to hold the timestamp.
 And we will choose a `fuse_core::UUID` to act as a generic "robot id". fuse ships with several functions
-for converting strings and other types into a UUID ([UUID functions](../fuse_core/include/fuse_core/uuid.h)),
+for converting strings and other types into a UUID ([UUID functions](../fuse_core/include/fuse_core/uuid.hpp)),
 so this choice should support most use-cases.
 
 ```C++

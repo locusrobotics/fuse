@@ -31,15 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/loss.h>
-
 #include <ostream>
 
+#include <fuse_core/loss.hpp>
 
 namespace fuse_core
 {
 
-std::ostream& operator <<(std::ostream& stream, const Loss& loss)
+std::ostream & operator<<(std::ostream & stream, const Loss & loss)
 {
   loss.print(stream);
   return stream;

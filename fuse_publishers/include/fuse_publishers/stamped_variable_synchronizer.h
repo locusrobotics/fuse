@@ -34,14 +34,14 @@
 #ifndef FUSE_PUBLISHERS_STAMPED_VARIABLE_SYNCHRONIZER_H
 #define FUSE_PUBLISHERS_STAMPED_VARIABLE_SYNCHRONIZER_H
 
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/time.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_variables/stamped.h>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <type_traits>
 

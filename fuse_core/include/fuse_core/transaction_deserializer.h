@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,67 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TRANSACTION_DESERIALIZER_H
-#define FUSE_CORE_TRANSACTION_DESERIALIZER_H
 
-#include <fuse_msgs/msg/serialized_transaction.hpp>
-#include <fuse_core/constraint.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
-#include <pluginlib/class_loader.hpp>
+#ifndef FUSE_CORE__TRANSACTION_DESERIALIZER_H_
+#define FUSE_CORE__TRANSACTION_DESERIALIZER_H_
 
+#warning This header is obsolete, please include fuse_core/transaction_deserializer.hpp instead
 
-namespace fuse_core
-{
+#include <fuse_core/transaction_deserializer.hpp>
 
-/**
- * @brief Serialize a transaction into a message
- */
-void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::msg::SerializedTransaction& msg);
-
-/**
- * @brief Deserialize a Transaction
- *
- * The deserializer object loads all of the known Variable and Constraint libraries, allowing derived types contained
- * within the transaction to be properly deserialized. The libraries will be unloaded on destruction. As a consequence,
- * the deserializer object must outlive any created transaction instances.
- */
-class TransactionDeserializer
-{
-public:
-  /**
-   * @brief Constructor
-   */
-  TransactionDeserializer();
-
-  /**
-   * @brief Deserialize a SerializedTransaction message into a fuse Transaction object.
-   *
-   * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
-   * an exception is thrown.
-   *
-   * @param[IN]  msg  The SerializedTransaction message to be deserialized
-   * @return          A fuse Transaction object
-   */
-  fuse_core::Transaction deserialize(const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const;
-
-  /**
-   * @brief Deserialize a SerializedTransaction message into a fuse Transaction object.
-   *
-   * If no plugin is available for a contained Variable or Constraint, or an error occurs during deserialization,
-   * an exception is thrown.
-   *
-   * @param[IN]  msg  The SerializedTransaction message to be deserialized
-   * @return          A fuse Transaction object
-   */
-  fuse_core::Transaction deserialize(const fuse_msgs::msg::SerializedTransaction& msg) const;
-
-private:
-  pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;      //!< Pluginlib class loader for Variable types
-  pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader for Constraint types
-  pluginlib::ClassLoader<fuse_core::Loss> loss_loader_;              //!< Pluginlib class loader for Loss types
-};
-
-}  // namespace fuse_core
-
-#endif  // FUSE_CORE_TRANSACTION_DESERIALIZER_H
+#endif  // FUSE_CORE__TRANSACTION_DESERIALIZER_H_

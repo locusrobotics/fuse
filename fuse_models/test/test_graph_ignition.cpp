@@ -32,10 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_core/constraint.h>
-#include <fuse_core/graph_deserializer.h>
-#include <fuse_core/transaction.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/graph_deserializer.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_models/SetGraph.h>
 #include <fuse_models/graph_ignition.h>

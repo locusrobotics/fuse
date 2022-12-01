@@ -31,14 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example_loss.h"
-
 #include <gtest/gtest.h>
 
+#include "example_loss.hpp"
 
 TEST(Loss, Constructor)
 {
-  const double a{ 0.3 };
+  const double a{0.3};
   ExampleLoss loss(a);
   ASSERT_EQ(a, loss.a);
 
@@ -46,8 +45,7 @@ TEST(Loss, Constructor)
 
   ASSERT_NE(nullptr, loss_function);
 
-  if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP)
-  {
+  if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP) {
     delete loss_function;
   }
 }

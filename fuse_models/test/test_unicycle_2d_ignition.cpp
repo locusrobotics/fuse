@@ -32,9 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/absolute_constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/eigen_gtest.h>
-#include <fuse_core/transaction.h>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/transaction.hpp>
 #include <fuse_models/unicycle_2d_ignition.h>
 #include <fuse_models/SetPose.h>
 #include <fuse_models/SetPoseDeprecated.h>

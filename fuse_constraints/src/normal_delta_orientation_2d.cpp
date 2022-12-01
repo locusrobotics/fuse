@@ -33,7 +33,7 @@
  */
 #include <fuse_constraints/normal_delta_orientation_2d.h>
 
-#include <fuse_core/util.h>
+#include <fuse_core/util.hpp>
 
 
 namespace fuse_constraints

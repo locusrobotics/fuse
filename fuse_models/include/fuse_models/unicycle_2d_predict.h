@@ -35,8 +35,8 @@
 #define FUSE_MODELS_UNICYCLE_2D_PREDICT_H
 
 #include <ceres/jet.h>
-#include <fuse_core/util.h>
-#include <fuse_core/eigen.h>
+#include <fuse_core/util.hpp>
+#include <fuse_core/eigen.hpp>
 #include <tf2_2d/tf2_2d.h>
 
 #include <array>

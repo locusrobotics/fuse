@@ -34,7 +34,7 @@
 #ifndef FUSE_CONSTRAINTS_UUID_ORDERING_H
 #define FUSE_CONSTRAINTS_UUID_ORDERING_H
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 
 #include <boost/bimap/bimap.hpp>
 #include <boost/bimap/unordered_set_of.hpp>

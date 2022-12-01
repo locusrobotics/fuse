@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Clearpath Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,62 +31,71 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
-#define FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
+#ifndef FUSE_CORE__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#define FUSE_CORE__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/loss.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
+#include <initializer_list>
+#include <string>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <ostream>
-#include <string>
-
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 
 /**
- * @brief Dummy loss implementation for testing
+ * @brief Dummy constraint implementation for testing
  */
-class ExampleLoss : public fuse_core::Loss
+class ExampleConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ExampleLoss)
+  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
 
-  explicit ExampleLoss(const double a = 1.0) : a(a)
+  ExampleConstraint() = default;
+
+  ExampleConstraint(
+    const std::string & source,
+    std::initializer_list<fuse_core::UUID> variable_uuid_list)
+  : fuse_core::Constraint(source, variable_uuid_list),
+    data(0.0)
   {
   }
 
-  void initialize(const std::string& /*name*/) override {}
-
-  void print(std::ostream& /*stream = std::cout*/) const override {}
-
-  ceres::LossFunction* lossFunction() const override
+  template<typename VariableUuidIterator>
+  ExampleConstraint(
+    const std::string & source, VariableUuidIterator first,
+    VariableUuidIterator last)
+  : fuse_core::Constraint(source, first, last),
+    data(0.0)
   {
-    return new ceres::HuberLoss(a);
   }
 
-  double a{ 1.0 };  //!< Public member variable just for testing
+  void print(std::ostream & /*stream = std::cout*/) const override {}
+  ceres::CostFunction * costFunction() const override {return nullptr;}
+
+  double data;  // Public member variable just for testing
 
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Loss>(*this);
-    archive & a;
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & data;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleLoss);
+BOOST_CLASS_EXPORT(ExampleConstraint);
 
-#endif  // FUSE_CORE_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
+#endif  // FUSE_CORE__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}

@@ -34,11 +34,11 @@
 #ifndef FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_H
 #define FUSE_CONSTRAINTS_ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_H
 
-#include <fuse_core/constraint.h>
-#include <fuse_core/eigen.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/serialization.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/Quaternion.h>

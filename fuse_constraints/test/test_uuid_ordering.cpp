@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/uuid_ordering.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/uuid.hpp>
 
 #include <gtest/gtest.h>
 

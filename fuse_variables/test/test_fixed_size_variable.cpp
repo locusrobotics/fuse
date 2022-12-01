@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.h>
-#include <fuse_core/variable.h>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/variable.hpp>
 #include <fuse_variables/fixed_size_variable.h>
 
 #include <boost/serialization/access.hpp>

@@ -31,12 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.h>
-#include <fuse_core/autodiff_local_parameterization.h>
-#include <fuse_core/eigen.h>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/eigen.hpp>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <fuse_core/time.h>
+#include <fuse_core/time.hpp>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/cost_function_to_functor.h>

@@ -34,7 +34,7 @@
 #ifndef FUSE_LOSS_HUBER_LOSS_H
 #define FUSE_LOSS_HUBER_LOSS_H
 
-#include <fuse_core/loss.h>
+#include <fuse_core/loss.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

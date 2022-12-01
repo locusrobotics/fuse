@@ -34,11 +34,11 @@
 #ifndef FUSE_PUBLISHERS_SERIALIZED_PUBLISHER_H
 #define FUSE_PUBLISHERS_SERIALIZED_PUBLISHER_H
 
-#include <fuse_core/async_publisher.h>
-#include <fuse_core/graph.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/throttled_callback.h>
-#include <fuse_core/transaction.h>
+#include <fuse_core/async_publisher.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/throttled_callback.hpp>
+#include <fuse_core/transaction.hpp>
 #include <ros/ros.h>
 
 #include <string>

@@ -36,8 +36,8 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
-#include <fuse_core/loss.h>
-#include <fuse_core/parameter.h>
+#include <fuse_core/loss.hpp>
+#include <fuse_core/parameter.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <fuse_variables/velocity_angular_2d_stamped.h>

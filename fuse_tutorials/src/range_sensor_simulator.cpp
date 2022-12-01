@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/util.h>
+#include <fuse_core/util.hpp>
 #include <fuse_models/SetPose.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>

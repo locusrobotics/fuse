@@ -34,9 +34,9 @@
 #ifndef FUSE_MODELS_UNICYCLE_2D_IGNITION_H
 #define FUSE_MODELS_UNICYCLE_2D_IGNITION_H
 
-#include <fuse_core/async_sensor_model.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/uuid.h>
+#include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_models/parameters/unicycle_2d_ignition_params.h>
 #include <fuse_models/SetPose.h>
 #include <fuse_models/SetPoseDeprecated.h>
