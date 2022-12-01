@@ -31,13 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <numeric>
 #include <string>
+
+#include <fuse_core/parameter.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 class TestParameters : public ::testing::Test
 {

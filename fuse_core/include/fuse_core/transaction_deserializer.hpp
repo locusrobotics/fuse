@@ -34,12 +34,11 @@
 #ifndef FUSE_CORE__TRANSACTION_DESERIALIZER_HPP_
 #define FUSE_CORE__TRANSACTION_DESERIALIZER_HPP_
 
-#include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
+#include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <pluginlib/class_loader.hpp>
-
 
 namespace fuse_core
 {

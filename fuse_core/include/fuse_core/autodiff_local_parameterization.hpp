@@ -34,14 +34,13 @@
 #ifndef FUSE_CORE__AUTODIFF_LOCAL_PARAMETERIZATION_HPP_
 #define FUSE_CORE__AUTODIFF_LOCAL_PARAMETERIZATION_HPP_
 
-#include <fuse_core/local_parameterization.hpp>
-#include <fuse_core/ceres_options.hpp>
-#include <fuse_core/fuse_macros.hpp>
-
 #include <ceres/internal/autodiff.h>
 
 #include <memory>
 
+#include <fuse_core/ceres_options.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/local_parameterization.hpp>
 
 namespace fuse_core
 {

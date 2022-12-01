@@ -31,13 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/async_publisher.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <set>
 
+#include <fuse_core/async_publisher.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 /**
  * @brief Derived AsyncPublisher used to verify the functions get called when expected

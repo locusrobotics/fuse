@@ -34,13 +34,12 @@
 #ifndef FUSE_CORE__UTIL_HPP_
 #define FUSE_CORE__UTIL_HPP_
 
-#include <rclcpp/logging.hpp>
-
 #include <ceres/jet.h>
 #include <Eigen/Core>
 
 #include <cmath>
 
+#include <rclcpp/logging.hpp>
 
 namespace fuse_core
 {

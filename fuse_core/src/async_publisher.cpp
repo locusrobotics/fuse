@@ -32,9 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/async_publisher.hpp>
-
 #include <rclcpp/contexts/default_context.hpp>
-
 
 namespace fuse_core
 {

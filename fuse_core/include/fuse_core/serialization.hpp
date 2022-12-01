@@ -34,27 +34,24 @@
 #ifndef FUSE_CORE__SERIALIZATION_HPP_
 #define FUSE_CORE__SERIALIZATION_HPP_
 
-#include <fuse_core/uuid.hpp>
+#include <Eigen/Core>
 
-#include <rclcpp/time.hpp>
+#include <ios>
+#include <vector>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/iostreams/categories.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
-#include <Eigen/Core>
-
-#include <boost/iostreams/categories.hpp>
-
-#include <ios>
-#include <vector>
-
+#include <fuse_core/uuid.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {

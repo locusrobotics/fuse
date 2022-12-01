@@ -31,15 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/time.hpp>
-
 #include <gtest/gtest.h>
 
 #include <string>
 #include <thread>
 #include <unordered_set>
 #include <vector>
+
+#include <fuse_core/time.hpp>
+#include <fuse_core/uuid.hpp>
 
 using fuse_core::UUID;
 using UUIDs = std::vector<fuse_core::UUID>;

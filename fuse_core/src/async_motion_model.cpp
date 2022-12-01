@@ -31,19 +31,17 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/async_motion_model.hpp>
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
 
+#include <fuse_core/async_motion_model.hpp>
 #include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>
 #include <rclcpp/contexts/default_context.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <functional>
-#include <memory>
-#include <utility>
-#include <string>
-
 
 namespace fuse_core
 {

@@ -31,10 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include "example_variable.hpp"
-
 #include <gtest/gtest.h>
 
+#include "example_variable.hpp"
 
 TEST(Variable, Type)
 {

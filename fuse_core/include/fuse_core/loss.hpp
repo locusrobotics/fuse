@@ -34,15 +34,15 @@
 #ifndef FUSE_CORE__LOSS_HPP_
 #define FUSE_CORE__LOSS_HPP_
 
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
-
-#include <boost/serialization/access.hpp>
-#include <boost/type_index/stl_type_index.hpp>
 #include <ceres/loss_function.h>
 
 #include <iostream>
 #include <string>
+
+#include <boost/serialization/access.hpp>
+#include <boost/type_index/stl_type_index.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
 
 /**
  * @brief Implementation of the clone() member function for derived classes

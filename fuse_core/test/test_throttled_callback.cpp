@@ -31,12 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <gtest/gtest.h>
+
 #include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/time.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <gtest/gtest.h>
 
 /**
  * @brief A helper class to publish a given number geometry_msgs::msg::Point messages at a given

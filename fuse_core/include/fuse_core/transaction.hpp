@@ -34,24 +34,23 @@
 #ifndef FUSE_CORE__TRANSACTION_HPP_
 #define FUSE_CORE__TRANSACTION_HPP_
 
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_core/time.hpp>
+#include <iostream>
+#include <ostream>
+#include <set>
+#include <vector>
 
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/range/any_range.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-
-#include <ostream>
-#include <iostream>
-#include <set>
-#include <vector>
-
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 
 namespace fuse_core
 {

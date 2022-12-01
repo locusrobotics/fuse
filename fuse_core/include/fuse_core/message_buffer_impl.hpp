@@ -34,16 +34,14 @@
 #ifndef FUSE_CORE__MESSAGE_BUFFER_IMPL_HPP_
 #define FUSE_CORE__MESSAGE_BUFFER_IMPL_HPP_
 
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.hpp>
-
-#include <boost/iterator/transform_iterator.hpp>
-
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <fuse_core/time.hpp>
+#include <rclcpp/duration.hpp>
 
 namespace fuse_core
 {

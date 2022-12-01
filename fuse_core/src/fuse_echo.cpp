@@ -33,13 +33,13 @@
  */
 #include <fuse_msgs/msg/serialized_graph.h>
 #include <fuse_msgs/msg/serialized_transaction.h>
+
 #include <fuse_core/graph.hpp>
 #include <fuse_core/graph_deserializer.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <rclcpp/clock.hpp>
-
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_core
 {
@@ -95,4 +95,5 @@ private:
 
 
 #include <rclcpp_components/register_node_macro.hpp>
+
 RCLCPP_COMPONENTS_REGISTER_NODE(fuse_core::FuseEcho)

@@ -31,16 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/timestamp_manager.hpp>
-
-#include <boost/iterator/transform_iterator.hpp>
-
 #include <algorithm>
 #include <iterator>
 #include <set>
 #include <stdexcept>
 #include <utility>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <fuse_core/timestamp_manager.hpp>
 
 namespace fuse_core
 {

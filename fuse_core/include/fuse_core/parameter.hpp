@@ -34,16 +34,15 @@
 #ifndef FUSE_CORE__PARAMETER_HPP_
 #define FUSE_CORE__PARAMETER_HPP_
 
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/loss_loader.hpp>
-#include <fuse_core/node_interfaces/node_interfaces.hpp>
-
-#include <rclcpp/logging.hpp>
-#include "rclcpp/parameter.hpp"
-
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/loss_loader.hpp>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
+#include <rclcpp/logging.hpp>
+#include "rclcpp/parameter.hpp"
 
 namespace fuse_core
 {

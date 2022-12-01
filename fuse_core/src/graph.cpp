@@ -31,15 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/graph.hpp>
-
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-
-#include <boost/iterator/transform_iterator.hpp>
-
 #include <functional>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
 
 namespace fuse_core
 {

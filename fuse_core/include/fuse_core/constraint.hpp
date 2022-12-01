@@ -34,25 +34,24 @@
 #ifndef FUSE_CORE__CONSTRAINT_HPP_
 #define FUSE_CORE__CONSTRAINT_HPP_
 
-#include <fuse_core/loss.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
-
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/type_index/stl_type_index.hpp>
 #include <ceres/cost_function.h>
 #include <ceres/loss_function.h>
 
 #include <initializer_list>
+#include <iostream>
 #include <memory>
 #include <ostream>
-#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/type_index/stl_type_index.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/loss.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 
 /**
  * @brief Implementation of the clone() member function for derived classes

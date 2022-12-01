@@ -34,18 +34,6 @@
 #ifndef FUSE_CORE__GRAPH_HPP_
 #define FUSE_CORE__GRAPH_HPP_
 
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
-#include <rclcpp/duration.hpp>
-
-#include <boost/core/demangle.hpp>
-#include <boost/range/any_range.hpp>
-#include <boost/serialization/access.hpp>
-#include <boost/type_index/stl_type_index.hpp>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -57,6 +45,17 @@
 #include <utility>
 #include <vector>
 
+#include <boost/core/demangle.hpp>
+#include <boost/range/any_range.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/type_index/stl_type_index.hpp>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
+#include <rclcpp/duration.hpp>
 
 /**
  * @brief Implementation of the serialize() and deserialize() member functions for derived

@@ -34,19 +34,17 @@
 #ifndef FUSE_CORE__TIMESTAMP_MANAGER_HPP_
 #define FUSE_CORE__TIMESTAMP_MANAGER_HPP_
 
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/variable.hpp>
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.hpp>
-
-#include <boost/range/any_range.hpp>
-
 #include <functional>
 #include <map>
 #include <vector>
 
+#include <boost/range/any_range.hpp>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/variable.hpp>
+#include <rclcpp/duration.hpp>
 
 namespace fuse_core
 {

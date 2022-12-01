@@ -56,8 +56,8 @@
 #define FUSE_CORE__FUSE_MACROS_HPP_
 
 #include <memory>
-#include <utility>
 #include <string>
+#include <utility>
 
 // Required by __MAKE_SHARED_ALIGNED_DEFINITION, that uses Eigen::aligned_allocator<T>().
 #include <Eigen/Core>

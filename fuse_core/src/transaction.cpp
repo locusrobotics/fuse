@@ -31,15 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/transaction.hpp>
-
-
-#include <boost/iterator/transform_iterator.hpp>
-#include <boost/range/empty.hpp>
-
 #include <algorithm>
 #include <utility>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/empty.hpp>
+#include <fuse_core/transaction.hpp>
 
 namespace fuse_core
 {

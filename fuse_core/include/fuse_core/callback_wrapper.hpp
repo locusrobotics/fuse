@@ -35,9 +35,9 @@
 #ifndef FUSE_CORE__CALLBACK_WRAPPER_HPP_
 #define FUSE_CORE__CALLBACK_WRAPPER_HPP_
 
+#include <deque>
 #include <functional>
 #include <future>
-#include <deque>
 
 #include <rclcpp/rclcpp.hpp>
 

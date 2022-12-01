@@ -34,11 +34,10 @@
 #ifndef FUSE_CORE__LOSS_LOADER_HPP_
 #define FUSE_CORE__LOSS_LOADER_HPP_
 
-#include <fuse_core/loss.hpp>
-#include <pluginlib/class_loader.hpp>
-
 #include <string>
 
+#include <fuse_core/loss.hpp>
+#include <pluginlib/class_loader.hpp>
 
 namespace fuse_core
 {

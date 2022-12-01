@@ -34,17 +34,15 @@
 #ifndef FUSE_CORE__TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
 #define FUSE_CORE__TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
 
-#include <fuse_core/loss.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
+#include <ostream>
+#include <string>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <ostream>
-#include <string>
-
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/loss.hpp>
+#include <fuse_core/serialization.hpp>
 
 /**
  * @brief Dummy loss implementation for testing

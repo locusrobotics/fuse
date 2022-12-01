@@ -34,20 +34,16 @@
 #ifndef FUSE_CORE__ASYNC_PUBLISHER_HPP_
 #define FUSE_CORE__ASYNC_PUBLISHER_HPP_
 
-#include <fuse_core/publisher.hpp>
-
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/graph.hpp>
-#include <fuse_core/callback_wrapper.hpp>
-
-#include <fuse_core/fuse_macros.hpp>
-
-#include <rclcpp/rclcpp.hpp>
-
 #include <functional>
-#include <utility>
 #include <string>
+#include <utility>
 
+#include <fuse_core/callback_wrapper.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/publisher.hpp>
+#include <fuse_core/transaction.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_core
 {

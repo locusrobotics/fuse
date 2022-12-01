@@ -31,13 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/timestamp_manager.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/variable.hpp>
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.hpp>
-
 #include <gtest/gtest.h>
 
 #include <functional>
@@ -45,6 +38,12 @@
 #include <utility>
 #include <vector>
 
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/timestamp_manager.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/variable.hpp>
+#include <rclcpp/duration.hpp>
 
 /**
  * Test fixture that adds a known set of entries to the timestamp manager. Used to test the

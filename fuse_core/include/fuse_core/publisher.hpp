@@ -34,12 +34,11 @@
 #ifndef FUSE_CORE__PUBLISHER_HPP_
 #define FUSE_CORE__PUBLISHER_HPP_
 
-#include <fuse_core/graph.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/transaction.hpp>
-
 #include <string>
 
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/transaction.hpp>
 
 namespace fuse_core
 {

@@ -34,16 +34,14 @@
 #ifndef FUSE_CORE__UUID_HPP_
 #define FUSE_CORE__UUID_HPP_
 
-#include <rclcpp/time.hpp>
+#include <functional>
+#include <string>
 
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-
-#include <functional>
-#include <string>
-
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {

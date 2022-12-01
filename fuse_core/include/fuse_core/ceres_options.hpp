@@ -34,19 +34,18 @@
 #ifndef FUSE_CORE__CERES_OPTIONS_HPP_
 #define FUSE_CORE__CERES_OPTIONS_HPP_
 
-#include <fuse_core/ceres_macros.hpp>
-#include <fuse_core/parameter.hpp>
-
-#include <rclcpp/logging.hpp>
-#include <rclcpp/node.hpp>
-
-#include <ceres/version.h>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 #include <ceres/types.h>
+#include <ceres/version.h>
 
 #include <string>
+
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/parameter.hpp>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/node.hpp>
 
 /**
  * Defines ToString overloaded function to Ceres Options.

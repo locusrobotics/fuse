@@ -31,12 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/message_buffer.hpp>
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.hpp>
-
 #include <gtest/gtest.h>
 
+#include <fuse_core/message_buffer.hpp>
+#include <fuse_core/time.hpp>
+#include <rclcpp/duration.hpp>
 
 /**
  * Test fixture that adds a known set of entries to the timestamp manager. Used to test the

@@ -44,7 +44,6 @@
  */
 
 #include <fuse_core/time.hpp>
-
 #include "rcl/time.h"
 #include <rclcpp/utilities.hpp>
 

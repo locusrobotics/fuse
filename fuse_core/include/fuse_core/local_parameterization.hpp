@@ -34,12 +34,11 @@
 #ifndef FUSE_CORE__LOCAL_PARAMETERIZATION_HPP_
 #define FUSE_CORE__LOCAL_PARAMETERIZATION_HPP_
 
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
-
-#include <boost/serialization/access.hpp>
 #include <ceres/local_parameterization.h>
 
+#include <boost/serialization/access.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/serialization.hpp>
 
 namespace fuse_core
 {

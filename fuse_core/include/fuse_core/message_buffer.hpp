@@ -34,15 +34,13 @@
 #ifndef FUSE_CORE__MESSAGE_BUFFER_HPP_
 #define FUSE_CORE__MESSAGE_BUFFER_HPP_
 
-#include <fuse_core/fuse_macros.hpp>
-#include <rclcpp/duration.hpp>
-#include <fuse_core/time.hpp>
-
-#include <boost/range/any_range.hpp>
-
 #include <deque>
 #include <utility>
 
+#include <boost/range/any_range.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/time.hpp>
+#include <rclcpp/duration.hpp>
 
 namespace fuse_core
 {

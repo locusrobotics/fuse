@@ -47,11 +47,10 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "rclcpp/contexts/default_context.hpp"
 #include <rclcpp/clock.hpp>
+#include "rclcpp/contexts/default_context.hpp"
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
-
 
 namespace fuse_core
 {
@@ -65,7 +64,7 @@ namespace fuse_core
  *
  * @return valid  true if time was or became valid
  */
-// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+// TODO(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
 bool is_valid(rclcpp::Time time);
 
 
@@ -76,7 +75,7 @@ bool is_valid(rclcpp::Time time);
  *
  * @return valid  true if clock was or became valid
  */
-// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+// TODO(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
 bool is_valid(rclcpp::Clock::SharedPtr clock);
 
 
@@ -88,7 +87,7 @@ bool is_valid(rclcpp::Clock::SharedPtr clock);
  *
  * @return valid  true if clock was or became valid
  */
-// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+// TODO(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
 bool wait_for_valid(
   rclcpp::Clock::SharedPtr clock,
   rclcpp::Context::SharedPtr context = rclcpp::contexts::get_global_default_context());
@@ -104,7 +103,7 @@ bool wait_for_valid(
  *
  * @return valid  true if clock was or became valid
  */
-// TOOD(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
+// TODO(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is in
 bool wait_for_valid(
   rclcpp::Clock::SharedPtr clock,
   const rclcpp::Duration & timeout,

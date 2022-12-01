@@ -34,16 +34,13 @@
 #ifndef FUSE_CORE__ASYNC_MOTION_MODEL_HPP_
 #define FUSE_CORE__ASYNC_MOTION_MODEL_HPP_
 
-#include <fuse_core/motion_model.hpp>
-
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/graph.hpp>
-#include <fuse_core/callback_wrapper.hpp>
-
-#include <rclcpp/rclcpp.hpp>
-
 #include <string>
 
+#include <fuse_core/callback_wrapper.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/motion_model.hpp>
+#include <fuse_core/transaction.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_core
 {

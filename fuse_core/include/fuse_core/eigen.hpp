@@ -40,7 +40,6 @@
 #include <sstream>
 #include <string>
 
-
 namespace fuse_core
 {
 

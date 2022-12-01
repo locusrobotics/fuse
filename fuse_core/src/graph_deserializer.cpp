@@ -31,12 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/graph_deserializer.hpp>
-
-#include <fuse_core/serialization.hpp>
-
 #include <boost/iostreams/stream.hpp>
-
+#include <fuse_core/graph_deserializer.hpp>
+#include <fuse_core/serialization.hpp>
 
 namespace fuse_core
 {

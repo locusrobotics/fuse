@@ -31,10 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/variable.hpp>
-
 #include <ostream>
 
+#include <fuse_core/variable.hpp>
 
 namespace fuse_core
 {

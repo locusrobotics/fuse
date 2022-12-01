@@ -31,18 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.hpp>
-
-#include <rclcpp/time.hpp>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include <algorithm>
 #include <array>
 #include <mutex>
 #include <random>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <fuse_core/uuid.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {

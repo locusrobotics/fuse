@@ -34,15 +34,13 @@
 #ifndef FUSE_CORE__ASYNC_SENSOR_MODEL_HPP_
 #define FUSE_CORE__ASYNC_SENSOR_MODEL_HPP_
 
-#include <fuse_core/sensor_model.hpp>
-
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/graph.hpp>
-#include <fuse_core/callback_wrapper.hpp>
-
 #include <functional>
 #include <string>
 
+#include <fuse_core/callback_wrapper.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/sensor_model.hpp>
+#include <fuse_core/transaction.hpp>
 
 namespace fuse_core
 {

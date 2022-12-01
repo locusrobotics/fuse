@@ -34,18 +34,16 @@
 #ifndef FUSE_CORE__VARIABLE_HPP_
 #define FUSE_CORE__VARIABLE_HPP_
 
-#include <fuse_core/local_parameterization.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
-
-#include <boost/serialization/access.hpp>
-#include <boost/type_index/stl_type_index.hpp>
-
 #include <iostream>
 #include <limits>
 #include <string>
 
+#include <boost/serialization/access.hpp>
+#include <boost/type_index/stl_type_index.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 
 /**
  * @brief Implementation of the clone() member function for derived classes

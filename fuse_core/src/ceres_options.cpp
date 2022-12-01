@@ -31,16 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/ceres_options.hpp>
-
-#include <rclcpp/node.hpp>
-
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 
 #include <stdexcept>
 #include <string>
+
+#include <fuse_core/ceres_options.hpp>
+#include <rclcpp/node.hpp>
 
 // NOTE(CH3): Most of the parameter descriptions here were adapted from the parameter descriptions
 //            in the Ceres source code.
