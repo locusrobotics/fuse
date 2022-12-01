@@ -79,8 +79,8 @@ Transaction::const_constraint_range Transaction::addedConstraints() const
 
 void Transaction::addConstraint(Constraint::SharedPtr constraint, bool overwrite)
 {
-  // If the constraint being added is in the 'removed' container, then delete it from
-  // the 'removed' container instead of adding it to the 'added' container.
+  // If the constraint being added is in the 'removed' container, then delete it from the 'removed'
+  // container instead of adding it to the 'added' container.
   UUID constraint_uuid = constraint->uuid();
   auto removed_constraints_iter = std::find(
     removed_constraints_.begin(),
@@ -107,8 +107,8 @@ void Transaction::addConstraint(Constraint::SharedPtr constraint, bool overwrite
 
 void Transaction::removeConstraint(const UUID & constraint_uuid)
 {
-  // If the constraint being removed is in the 'added' container, then delete it from
-  // the 'added' container instead of adding it to the 'removed' container.
+  // If the constraint being removed is in the 'added' container, then delete it from the 'added'
+  // container instead of adding it to the 'removed' container.
   auto is_constraint_added = [&constraint_uuid](const Constraint::SharedPtr & added_constraint)
     {
       return constraint_uuid == added_constraint->uuid();
@@ -152,8 +152,8 @@ bool Transaction::empty() const
 
 void Transaction::addVariable(Variable::SharedPtr variable, bool overwrite)
 {
-  // If the variable being added is in the 'removed' container, then delete it from
-  // the 'removed' container instead of adding it to the 'added' container.
+  // If the variable being added is in the 'removed' container, then delete it from the 'removed'
+  // container instead of adding it to the 'added' container.
 
   UUID variable_uuid = variable->uuid();
   auto removed_variables_iter = std::find(
@@ -181,8 +181,8 @@ void Transaction::addVariable(Variable::SharedPtr variable, bool overwrite)
 
 void Transaction::removeVariable(const UUID & variable_uuid)
 {
-  // If the variable being removed is in the 'added' container, then delete it from
-  // the 'added' container instead of adding it to the 'removed' container.
+  // If the variable being removed is in the 'added' container, then delete it from the 'added'
+  // container instead of adding it to the 'removed' container.
   auto is_variable_added = [&variable_uuid](const Variable::SharedPtr & added_variable)
     {
       return variable_uuid == added_variable->uuid();

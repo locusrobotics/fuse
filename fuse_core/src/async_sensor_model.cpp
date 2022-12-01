@@ -69,7 +69,7 @@ void AsyncSensorModel::initialize(
   // TODO(CH3): Pass in the context or a node to get the context from
   rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
-  node_options.context(ros_context); //set a context to generate the node in
+  node_options.context(ros_context);  // set a context to generate the node in
 
   // TODO(CH3): Potentially pass in the optimizer node instead of spinning a new one
   node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);

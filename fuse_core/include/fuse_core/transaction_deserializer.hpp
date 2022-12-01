@@ -90,9 +90,14 @@ public:
   fuse_core::Transaction deserialize(const fuse_msgs::msg::SerializedTransaction & msg) const;
 
 private:
-  pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;      //!< Pluginlib class loader for Variable types
-  pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;  //!< Pluginlib class loader for Constraint types
-  pluginlib::ClassLoader<fuse_core::Loss> loss_loader_;              //!< Pluginlib class loader for Loss types
+  //! Pluginlib class loader for Variable types
+  pluginlib::ClassLoader<fuse_core::Variable> variable_loader_;
+
+  //! Pluginlib class loader for Constraint types
+  pluginlib::ClassLoader<fuse_core::Constraint> constraint_loader_;
+
+  //! Pluginlib class loader for Loss types
+  pluginlib::ClassLoader<fuse_core::Loss> loss_loader_;
 };
 
 }  // namespace fuse_core

@@ -39,7 +39,6 @@ namespace fuse_core
 
 CallbackAdapter::CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr)
 {
-
   rcl_guard_condition_options_t guard_condition_options =
     rcl_guard_condition_get_default_options();
 

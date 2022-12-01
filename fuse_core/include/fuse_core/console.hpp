@@ -82,8 +82,7 @@ public:
    */
   bool isEnabled()
   {
-    using namespace std::chrono;
-    const auto now = time_point_cast<milliseconds>(system_clock::now());
+    const auto now = time_point_cast<milliseconds>(std::chrono::system_clock::now());
 
     if (last_hit_.time_since_epoch().count() < 0.0) {
       last_hit_ = now;
@@ -103,14 +102,15 @@ public:
    */
   void reset()
   {
-    using namespace std::chrono;
-    last_hit_ = time_point_cast<milliseconds>(system_clock::from_time_t(-1));
+    last_hit_ = time_point_cast<milliseconds>(std::chrono::system_clock::from_time_t(-1));
   }
 
 private:
-  std::chrono::duration<double, std::ratio<1>> period_;          //!< The throttle period in seconds
-  std::chrono::time_point<std::chrono::system_clock> last_hit_;  //!< The last time in milliseconds the filter condition was hit, and the
-                                                                 //!< message was printed. A negative value means it has never been hit
+  std::chrono::duration<double, std::ratio<1>> period_;  //!< The throttle period in seconds
+
+  //!< The last time in milliseconds the filter condition was hit, and the message was printed. A
+  //!< negative value means it has never been hit
+  std::chrono::time_point<std::chrono::system_clock> last_hit_;
 };
 
 }  // namespace fuse_core

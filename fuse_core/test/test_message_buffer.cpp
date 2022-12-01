@@ -82,7 +82,8 @@ TEST_F(MessageBufferTestFixture, Exceptions)
 
 TEST_F(MessageBufferTestFixture, StandardRangeAligned)
 {
-  // Query the buffer with the standard range flag, where the query boundaries line up exactly with existing elements
+  // Query the buffer with the standard range flag, where the query boundaries line up exactly with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(10, 0), rclcpp::Time(30, 0), false);
   // Verify the returned message range contains the correct entries
@@ -94,7 +95,8 @@ TEST_F(MessageBufferTestFixture, StandardRangeAligned)
 
 TEST_F(MessageBufferTestFixture, StandardRangeUnaligned)
 {
-  // Query the buffer with the standard range flag, where the query boundaries do not line up with existing elements
+  // Query the buffer with the standard range flag, where the query boundaries do not line up with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(15, 0), rclcpp::Time(25, 0), false);
   // Verify the returned message range contains the correct entries
@@ -106,7 +108,8 @@ TEST_F(MessageBufferTestFixture, StandardRangeUnaligned)
 
 TEST_F(MessageBufferTestFixture, ExtendedRangeAligned)
 {
-  // Query the buffer with the extended range flag, where the query boundaries line up exactly with existing elements
+  // Query the buffer with the extended range flag, where the query boundaries line up exactly with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(10, 0), rclcpp::Time(30, 0), true);
   // Verify the returned message range contains the correct entries
@@ -124,7 +127,8 @@ TEST_F(MessageBufferTestFixture, ExtendedRangeAligned)
 
 TEST_F(MessageBufferTestFixture, ExtendedRangeUnaligned)
 {
-  // Query the buffer with the extended range flag, where the query boundaries do not line up with existing elements
+  // Query the buffer with the extended range flag, where the query boundaries do not line up with
+  // existing elements
   populate();
   auto msg_range = buffer.query(rclcpp::Time(15, 0), rclcpp::Time(25, 0), true);
   // Verify the returned message range contains the correct entries

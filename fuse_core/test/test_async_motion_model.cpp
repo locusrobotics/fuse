@@ -99,11 +99,11 @@ TEST_F(TestAsyncMotionModel, OnGraphUpdate)
   MyMotionModel motion_model;
   motion_model.initialize("my_motion_model");
 
-  // Execute the graph callback in this thread. This should push a call to MyMotionModel::onGraphUpdate()
-  // into MyMotionModel's callback queue, which will get executed by MyMotionModel's async spinner.
-  // There is a time delay there. So, this call should return almost immediately, then we have to wait
-  // a bit before the "graph_received" flag gets flipped.
-  fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
+  // Execute the graph callback in this thread. This should push a call to
+  // MyMotionModel::onGraphUpdate() into MyMotionModel's callback queue, which will get executed by
+  // MyMotionModel's async spinner. There is a time delay there. So, this call should return almost
+  // immediately, then we have to wait a bit before the "graph_received" flag gets flipped.
+  fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
   motion_model.graphCallback(graph);
   EXPECT_FALSE(motion_model.graph_received);
 
@@ -120,9 +120,10 @@ TEST_F(TestAsyncMotionModel, ApplyCallback)
   MyMotionModel motion_model;
   motion_model.initialize("my_motion_model");
 
-  // Call the motion model base class "apply()" method to send a transaction to the derived model. The AsyncMotionModel
-  // will then inject a call to applyCallback() into the motion model's callback queue. There is a time delay there, so
-  // this call should block for *at least* 1.0 second. Once it returns, the "received_transaction" flag should be set.
+  // Call the motion model base class "apply()" method to send a transaction to the derived model.
+  // The AsyncMotionModel will then inject a call to applyCallback() into the motion model's
+  // callback queue. There is a time delay there, so this call should block for *at least* 1.0
+  // second. Once it returns, the "received_transaction" flag should be set.
   fuse_core::Transaction transaction;
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
   rclcpp::Time before_apply = clock.now();

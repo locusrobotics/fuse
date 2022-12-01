@@ -38,6 +38,7 @@
 #include <deque>
 #include <functional>
 #include <future>
+#include <memory>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -102,7 +103,6 @@ public:
    * @brief Call this function. This is used by the callback queue.
    */
   virtual void call() = 0;
-
 };
 
 template<typename T>
@@ -142,8 +142,8 @@ private:
   std::promise<T> promise_;  //!< Promise/Future used to return data after the callback is executed
 };
 
-// Specialization to handle 'void' return types
-// Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
+// Specialization to handle 'void' return types Specifically, promise_.set_value(callback_()) does
+// not work if callback_() returns void.
 template<>
 inline void CallbackWrapper<void>::call()
 {
@@ -155,7 +155,7 @@ inline void CallbackWrapper<void>::call()
 class CallbackAdapter : public rclcpp::Waitable
 {
 public:
-  CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
+  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
 
   /**
    * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
@@ -191,7 +191,8 @@ public:
 private:
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
 
-  std::mutex queue_mutex_;  //!< mutex to allow this callback to be added to multiple callback groups simultaneously
+  //! mutex to allow this callback to be added to multiple callback groups simultaneously
+  std::mutex queue_mutex_;
   std::deque<std::shared_ptr<CallbackWrapperBase>> callback_queue_;
 };
 

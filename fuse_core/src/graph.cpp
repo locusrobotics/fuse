@@ -65,9 +65,9 @@ Graph::const_variable_range Graph::getConnectedVariables(const UUID & constraint
 
 void Graph::update(const Transaction & transaction)
 {
-  // Update the graph with a new transaction. In order to keep the graph consistent, variables are added first,
-  // followed by the constraints which might use the newly added variables. Then constraints are removed so that
-  // the variable usage is updated. Finally, variables are removed.
+  // Update the graph with a new transaction. In order to keep the graph consistent, variables are
+  // added first, followed by the constraints which might use the newly added variables. Then
+  // constraints are removed so that the variable usage is updated. Finally, variables are removed.
 
   // Insert the new variables into the graph
   for (const auto & variable : transaction.addedVariables()) {

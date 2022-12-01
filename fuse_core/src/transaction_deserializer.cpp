@@ -44,7 +44,8 @@ void serializeTransaction(
 {
   // Serialize the transaction into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
-  // Scope the archive object. The archive is not guaranteed to write to the stream until the archive goes out of scope.
+  // Scope the archive object. The archive is not guaranteed to write to the stream until the
+  // archive goes out of scope.
   {
     BinaryOutputArchive archive(stream);
     transaction.serialize(archive);
@@ -56,9 +57,9 @@ TransactionDeserializer::TransactionDeserializer()
   constraint_loader_("fuse_core", "fuse_core::Constraint"),
   loss_loader_("fuse_core", "fuse_core::Loss")
 {
-  // Load all known plugin libraries
-  // I believe the library containing a given Variable or Constraint must be loaded in order to deserialize
-  // an object of that type. But I haven't actually tested that theory.
+  // Load all known plugin libraries I believe the library containing a given Variable or Constraint
+  // must be loaded in order to deserialize an object of that type. But I haven't actually tested
+  // that theory.
   for (const auto & class_name : variable_loader_.getDeclaredClasses()) {
     variable_loader_.loadLibraryForClass(class_name);
   }
@@ -79,10 +80,11 @@ fuse_core::Transaction TransactionDeserializer::deserialize(
 fuse_core::Transaction TransactionDeserializer::deserialize(
   const fuse_msgs::msg::SerializedTransaction & msg) const
 {
-  // The Transaction object is not a plugin and has no derived types. That makes it much easier to use.
+  // The Transaction object is not a plugin and has no derived types. That makes it much easier to
+  // use.
   auto transaction = fuse_core::Transaction();
-  // Deserialize the msg.data field into the transaction.
-  // This will throw if something goes wrong in the deserialization.
+  // Deserialize the msg.data field into the transaction. This will throw if something goes wrong in
+  // the deserialization.
   boost::iostreams::stream<fuse_core::MessageBufferStreamSource> stream(msg.data);
   {
     BinaryInputArchive archive(stream);

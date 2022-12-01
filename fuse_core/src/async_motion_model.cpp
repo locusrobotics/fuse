@@ -62,12 +62,13 @@ AsyncMotionModel::~AsyncMotionModel()
 
 bool AsyncMotionModel::apply(Transaction & transaction)
 {
-  // Insert a call to the motion model's queryCallback() function into the motion model's callback queue. While this
-  // makes this particular function more difficult to write, it does simplify the threading model on all derived
-  // MotionModel objects, as the queryCallback will run within the same callback queue as subscriptions, timers, etc.
-  // Thus, it is functionally similar to a service callback, and should be a familiar pattern for ROS developers.
-  // This function blocks until the queryCallback() call completes, thus enforcing that motion models are generated
-  // in order.
+  // Insert a call to the motion model's queryCallback() function into the motion model's callback
+  // queue. While this makes this particular function more difficult to write, it does simplify the
+  // threading model on all derived MotionModel objects, as the queryCallback will run within the
+  // same callback queue as subscriptions, timers, etc. Thus, it is functionally similar to a
+  // service callback, and should be a familiar pattern for ROS developers. This function blocks
+  // until the queryCallback() call completes, thus enforcing that motion models are generated in
+  // order.
   auto callback = std::make_shared<CallbackWrapper<bool>>(
     std::bind(&AsyncMotionModel::applyCallback, this, std::ref(transaction)));
   auto result = callback->getFuture();
@@ -86,7 +87,7 @@ void AsyncMotionModel::initialize(const std::string & name)
   // TODO(CH3): Pass in the context or a node to get the context from
   rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
-  node_options.context(ros_context); //set a context to generate the node in
+  node_options.context(ros_context);  // set a context to generate the node in
 
   // TODO(CH3): Potentially pass in the optimizer node instead of spinning a new one
   node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);

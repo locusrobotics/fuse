@@ -60,7 +60,7 @@ void AsyncPublisher::initialize(const std::string & name)
   // TODO(CH3): Pass in the context or a node to get the context from
   rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
   auto node_options = rclcpp::NodeOptions();
-  node_options.context(ros_context); //set a context to generate the node in
+  node_options.context(ros_context);  // set a context to generate the node in
 
   // TODO(CH3): Potentially pass in the optimizer node instead of spinning a new one
   node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);
@@ -89,8 +89,8 @@ void AsyncPublisher::initialize(const std::string & name)
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
 {
-  // Insert a call to the `notifyCallback` method into the internal callback queue.
-  // This minimizes the time spent by the optimizer's thread calling this function.
+  // Insert a call to the `notifyCallback` method into the internal callback queue. This minimizes
+  // the time spent by the optimizer's thread calling this function.
   auto callback = std::make_shared<CallbackWrapper<void>>(
     std::bind(&AsyncPublisher::notifyCallback, this, std::move(transaction), std::move(graph)));
   callback_queue_->addCallback(callback);

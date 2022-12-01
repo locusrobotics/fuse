@@ -34,6 +34,7 @@
 #ifndef FUSE_CORE__ASYNC_MOTION_MODEL_HPP_
 #define FUSE_CORE__ASYNC_MOTION_MODEL_HPP_
 
+#include <memory>
 #include <string>
 
 #include <fuse_core/callback_wrapper.hpp>
@@ -185,10 +186,15 @@ public:
   void stop() override;
 
 protected:
-  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_; //!< The callback queue used for fuse internal callbacks
+  //! The callback queue used for fuse internal callbacks
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
+
   std::string name_;  //!< The unique name for this motion model instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
-  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
+
+  //! A single/multi-threaded spinner assigned to the local callback queue
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
+
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
 

@@ -35,6 +35,7 @@
 #define FUSE_CORE__ASYNC_SENSOR_MODEL_HPP_
 
 #include <functional>
+#include <memory>
 #include <string>
 
 #include <fuse_core/callback_wrapper.hpp>
@@ -187,11 +188,17 @@ public:
   void stop() override;
 
 protected:
-  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_; //!< The callback queue used for fuse internal callbacks
+  //! The callback queue used for fuse internal callbacks
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
+
   std::string name_;  //!< The unique name for this sensor model instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model
-  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
-  TransactionCallback transaction_callback_;  //!< The function to be executed every time a Transaction is "published"
+
+  //! A single/multi-threaded spinner assigned to the local callback queue
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
+
+  //! The function to be executed every time a Transaction is "published"
+  TransactionCallback transaction_callback_;
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
 

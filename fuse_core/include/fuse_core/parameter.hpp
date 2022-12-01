@@ -110,8 +110,7 @@ T getParam(
   rcl_interfaces::msg::ParameterDescriptor(),
   bool ignore_override = false)
 {
-  // get advantage of parameter value template magic to get
-  // the correct rclcpp::ParameterType from T
+  // get advantage of parameter value template magic to get the correct rclcpp::ParameterType from T
   // NOTE(CH3): For the same reason we can't defer to the overload of getParam
   rclcpp::ParameterValue value{T{}};
   try {
@@ -216,8 +215,9 @@ inline void getPositiveParam(
  * @brief Helper function that loads a covariance matrix diagonal vector from the parameter
  *        server and checks the size and the values are invalid, i.e. they are positive.
  *
- * @tparam Scalar - A scalar type, defaults to double @tparam Size - An int size that specifies
- * the expected size of the covariance matrix (rows and columns)
+ * @tparam Scalar - A scalar type, defaults to double
+ * @tparam Size - An int size that specifies the expected size of the covariance matrix
+ *                (rows and columns)
  *
  * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
@@ -249,7 +249,7 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
 
   if (std::any_of(
       diagonal.begin(), diagonal.end(),
-      [](const auto & value) {return value < Scalar(0);}))               // NOLINT(whitespace/braces)
+      [](const auto & value) {return value < Scalar(0);}))  // NOLINT(whitespace/braces)
   {
     throw std::invalid_argument(
             "Invalid negative diagonal values in " +

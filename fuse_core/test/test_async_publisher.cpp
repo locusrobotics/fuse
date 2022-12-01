@@ -96,12 +96,12 @@ TEST_F(TestAsyncPublisher, notifyCallback)
   MyPublisher publisher;
   publisher.initialize("my_publisher");
 
-  // Execute the notify() method in this thread. This should push a call to MyPublisher::notifyCallback()
-  // into MyPublisher's callback queue, which will get executed by MyPublisher's async spinner.
-  // There is a time delay there. So, this call should return almost immediately, then we have to wait
-  // a bit before the "callback_processed" flag gets flipped.
-  fuse_core::Transaction::ConstSharedPtr transaction;  // nullptr...which is fine because we do not actually use it
-  fuse_core::Graph::ConstSharedPtr graph;  // nullptr...which is fine because we do not actually use it
+  // Execute the notify() method in this thread. This should push a call to
+  // MyPublisher::notifyCallback() into MyPublisher's callback queue, which will get executed by
+  // MyPublisher's async spinner. There is a time delay there. So, this call should return almost
+  // immediately, then we have to wait a bit before the "callback_processed" flag gets flipped.
+  fuse_core::Transaction::ConstSharedPtr transaction;  // nullptr is ok as we don't actually use it
+  fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
   publisher.notify(transaction, graph);
   EXPECT_FALSE(publisher.callback_processed);
 

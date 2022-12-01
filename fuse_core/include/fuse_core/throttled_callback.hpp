@@ -35,6 +35,7 @@
 #define FUSE_CORE__THROTTLED_CALLBACK_HPP_
 
 #include <functional>
+#include <memory>
 #include <utility>
 
 #include <rclcpp/clock.hpp>
@@ -153,7 +154,8 @@ public:
   {
     // Keep the callback if:
     //
-    // (a) This is the first call, i.e. the last called time is still invalid because it has not been set yet
+    // (a) This is the first call, i.e. the last called time is still invalid because it has not
+    //     been set yet
     // (b) The throttle period is zero, so we should always keep the callbacks
     // (c) The elpased time between now and the last called time is greater than the throttle period
     rclcpp::Time now = clock_->now();
@@ -191,7 +193,7 @@ private:
   Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
   Callback drop_callback_;         //!< The callback to call when dropped because of throttling
   rclcpp::Duration throttle_period_;  //!< The throttling period duration in seconds
-  rclcpp::Clock::SharedPtr clock_; //!< The clock to throttle against
+  rclcpp::Clock::SharedPtr clock_;  //!< The clock to throttle against
   rclcpp::Time last_called_time_;  //!< The last time the keep callback was called
 };
 

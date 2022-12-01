@@ -91,10 +91,8 @@ public:
 
 TEST_F(TimestampManagerTestFixture, Empty)
 {
-  // Test:
-  // Existing: |-------------------------------------> t
-  // Adding:   |------********-----------------------> t
-  // Expected: |------********-----------------------> t
+  // Test: Existing: |-------------------------------------> t Adding:
+  // |------********-----------------------> t Expected: |------********-----------------------> t
 
   // Perform a single query
   fuse_core::Transaction transaction;
@@ -118,10 +116,8 @@ TEST_F(TimestampManagerTestFixture, Empty)
 
 TEST_F(TimestampManagerTestFixture, EmptySingleStamp)
 {
-  // Test:
-  // Existing: |-------------------------------------> t
-  // Adding:   |------*------------------------------> t
-  // Expected: |------*------------------------------> t
+  // Test: Existing: |-------------------------------------> t Adding:
+  // |------*------------------------------> t Expected: |------*------------------------------> t
 
   // Perform a single query
   fuse_core::Transaction transaction;
@@ -157,8 +153,8 @@ TEST_F(TimestampManagerTestFixture, Exceptions)
     transaction.addInvolvedStamp(rclcpp::Time(35, 0));
     EXPECT_NO_THROW(manager.query(transaction));
   }
-  // Call the query with a timestamp outside of the buffer length, but within the current timespan of the history
-  // This should not throw, as it is safe to perform this operation.
+  // Call the query with a timestamp outside of the buffer length, but within the current timespan
+  // of the history This should not throw, as it is safe to perform this operation.
   {
     fuse_core::Transaction transaction;
     transaction.addInvolvedStamp(rclcpp::Time(11, 0));
@@ -172,8 +168,8 @@ TEST_F(TimestampManagerTestFixture, Purge)
   manager.bufferLength(rclcpp::Duration::from_seconds(30.0));
   populate();
 
-  // The timespan is within the specified duration. All entries should still be present.
-  // Verify the timestamp manager contains the expected data.
+  // The timespan is within the specified duration. All entries should still be present. Verify the
+  // timestamp manager contains the expected data.
   {
     auto stamp_range = manager.stamps();
     ASSERT_EQ(4, std::distance(stamp_range.begin(), stamp_range.end()));
@@ -187,8 +183,8 @@ TEST_F(TimestampManagerTestFixture, Purge)
     EXPECT_EQ(rclcpp::Time(40, 0), *stamp_range_iter);
   }
 
-  // Add an entry right at the edge of the time range (calculations use the ending stamp).
-  // This should still keep all entries.
+  // Add an entry right at the edge of the time range (calculations use the ending stamp). This
+  // should still keep all entries.
   {
     fuse_core::Transaction transaction;
     transaction.addInvolvedStamp(rclcpp::Time(50, 0));
@@ -280,10 +276,8 @@ TEST_F(TimestampManagerTestFixture, Purge)
 
 TEST_F(TimestampManagerTestFixture, Existing)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--------------********---------------> t
-  // Expected: |------111111112222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--------------********---------------> t Expected: |------111111112222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -309,10 +303,8 @@ TEST_F(TimestampManagerTestFixture, Existing)
 
 TEST_F(TimestampManagerTestFixture, BeforeBeginningAligned)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--****-------------------------------> t
-  // Expected: |--****111111112222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--****-------------------------------> t Expected: |--****111111112222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -342,10 +334,8 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningAligned)
 
 TEST_F(TimestampManagerTestFixture, BeforeBeginningUnaligned)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--***--------------------------------> t
-  // Expected: |--***A111111112222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--***--------------------------------> t Expected: |--***A111111112222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -379,10 +369,8 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningUnaligned)
 
 TEST_F(TimestampManagerTestFixture, BeforeBeginningOverlap)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--********---------------------------> t
-  // Expected: |--AAAABBBBCCCC2222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--********---------------------------> t Expected: |--AAAABBBBCCCC2222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -418,10 +406,8 @@ TEST_F(TimestampManagerTestFixture, BeforeBeginningOverlap)
 
 TEST_F(TimestampManagerTestFixture, AfterEndAligned)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |------------------------------****---> t
-  // Expected: |------111111112222222233333333****---> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |------------------------------****---> t Expected: |------111111112222222233333333****---> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -450,10 +436,8 @@ TEST_F(TimestampManagerTestFixture, AfterEndAligned)
 
 TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |-------------------------------***---> t
-  // Expected: |------111111112222222233333333A***---> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |-------------------------------***---> t Expected: |------111111112222222233333333A***---> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -487,10 +471,8 @@ TEST_F(TimestampManagerTestFixture, AfterEndUnaligned)
 
 TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--------------------------********---> t
-  // Expected: |------1111111122222222AAAABBBBCCCC---> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--------------------------********---> t Expected: |------1111111122222222AAAABBBBCCCC---> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -526,10 +508,8 @@ TEST_F(TimestampManagerTestFixture, AfterEndOverlap)
 
 TEST_F(TimestampManagerTestFixture, MultiSegment)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |------************************-------> t
-  // Expected: |------111111112222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |------************************-------> t Expected: |------111111112222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -555,10 +535,8 @@ TEST_F(TimestampManagerTestFixture, MultiSegment)
 
 TEST_F(TimestampManagerTestFixture, MultiSegmentBeforeBeginning)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--****************************-------> t
-  // Expected: |--AAAA111111112222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--****************************-------> t Expected: |--AAAA111111112222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -588,10 +566,8 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentBeforeBeginning)
 
 TEST_F(TimestampManagerTestFixture, MultiSegmentPastEnd)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |------****************************---> t
-  // Expected: |------111111112222222233333333AAAA---> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |------****************************---> t Expected: |------111111112222222233333333AAAA---> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -621,10 +597,8 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastEnd)
 
 TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--********************************---> t
-  // Expected: |--AAAA111111112222222233333333BBBB---> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--********************************---> t Expected: |--AAAA111111112222222233333333BBBB---> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -658,10 +632,8 @@ TEST_F(TimestampManagerTestFixture, MultiSegmentPastBothEnds)
 
 TEST_F(TimestampManagerTestFixture, SplitBeginning)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |----------************---------------> t
-  // Expected: |------AAAABBBB2222222233333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |----------************---------------> t Expected: |------AAAABBBB2222222233333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -693,10 +665,8 @@ TEST_F(TimestampManagerTestFixture, SplitBeginning)
 
 TEST_F(TimestampManagerTestFixture, SplitEnd)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |--------------************-----------> t
-  // Expected: |------1111111122222222AAAABBBB-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |--------------************-----------> t Expected: |------1111111122222222AAAABBBB-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -728,10 +698,8 @@ TEST_F(TimestampManagerTestFixture, SplitEnd)
 
 TEST_F(TimestampManagerTestFixture, SplitBoth)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |----------****************-----------> t
-  // Expected: |------AAAABBBB22222222CCCCDDDD-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |----------****************-----------> t Expected: |------AAAABBBB22222222CCCCDDDD-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -769,10 +737,8 @@ TEST_F(TimestampManagerTestFixture, SplitBoth)
 
 TEST_F(TimestampManagerTestFixture, SplitSame)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |----------------****-----------------> t
-  // Expected: |------11111111AABBBBCC33333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |----------------****-----------------> t Expected: |------11111111AABBBBCC33333333-------> t
 
   populate();
   fuse_core::Transaction transaction;
@@ -808,10 +774,8 @@ TEST_F(TimestampManagerTestFixture, SplitSame)
 
 TEST_F(TimestampManagerTestFixture, SplitSameMultiple)
 {
-  // Test:
-  // Existing: |------111111112222222233333333-------> t
-  // Adding:   |----------------**%%#----------------> t
-  // Expected: |------11111111AABBCCDE33333333-------> t
+  // Test: Existing: |------111111112222222233333333-------> t Adding:
+  // |----------------**%%#----------------> t Expected: |------11111111AABBCCDE33333333-------> t
 
   populate();
   fuse_core::Transaction transaction;

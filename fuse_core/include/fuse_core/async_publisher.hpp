@@ -35,6 +35,7 @@
 #define FUSE_CORE__ASYNC_PUBLISHER_HPP_
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -146,10 +147,14 @@ public:
   void stop() override;
 
 protected:
-  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_; //!< The callback queue used for fuse internal callbacks
+  //! The callback queue used for fuse internal callbacks
+  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
+
   std::string name_;  //!< The unique name for this publisher instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this publisher
-  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;  //!< A single/multi-threaded spinner assigned to the local callback queue
+
+  //! A single/multi-threaded spinner assigned to the local callback queue
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
 

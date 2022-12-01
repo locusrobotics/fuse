@@ -91,7 +91,7 @@ private:
   }
 };
 
-} // namespace fuse_core
+}  // namespace fuse_core
 
 
 #include <rclcpp_components/register_node_macro.hpp>

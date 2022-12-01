@@ -156,8 +156,9 @@ public:
 protected:
   using Buffer = std::deque<std::pair<rclcpp::Time, Message>>;
   Buffer buffer_;  //!< The container of received messages, sorted by timestamp
-  rclcpp::Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
-                                    //!< will be removed from the motion model history
+  rclcpp::Duration buffer_length_;  //!< The length of the motion model history. Segments older than
+                                    //!< \p buffer_length_ will be removed from the motion model
+                                    //!< history
 
   /**
    * @brief Helper function used with boost::transform_iterators to convert the internal Buffer

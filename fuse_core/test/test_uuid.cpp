@@ -47,8 +47,8 @@ using UUIDs = std::vector<fuse_core::UUID>;
 
 TEST(UUID, Generate)
 {
-  // These tests are mostly just calling the different generate() signatures to verify they compile and work.
-  // It's hard to validate that the "correct" random number has been generated. :)
+  // These tests are mostly just calling the different generate() signatures to verify they compile
+  // and work. It's hard to validate that the "correct" random number has been generated. :)
 
   // Just get a random number
   {
@@ -56,7 +56,8 @@ TEST(UUID, Generate)
     UUID id2 = fuse_core::uuid::generate();
     ASSERT_NE(id1, id2);
   }
-  // Generate a UUID from a data buffer. The same buffer contents should always generate the same UUID.
+  // Generate a UUID from a data buffer. The same buffer contents should always generate the same
+  // UUID.
   {
     std::string buffer1 = "Curse your sudden but inevitable betrayal!";
     std::string buffer2 =
@@ -81,7 +82,8 @@ TEST(UUID, Generate)
     ASSERT_EQ(id7, id8);
     ASSERT_NE(id7, id9);
   }
-  // Generate a UUID from a namespace and a data buffer. The same name and buffer should always generate the same UUID.
+  // Generate a UUID from a namespace and a data buffer. The same name and buffer should always
+  // generate the same UUID.
   {
     std::string name1 = "Jayne";
     std::string name2 = "Hoban";

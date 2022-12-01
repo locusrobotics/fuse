@@ -40,6 +40,7 @@
 #include <ceres/types.h>
 #include <ceres/version.h>
 
+#include <algorithm>
 #include <string>
 
 #include <fuse_core/ceres_macros.hpp>
@@ -83,7 +84,6 @@
  * Patch Ceres versions before 2.0.0 that miss the LoggingType and DumpFormatType ToString and
  * StringTo functions.
  */
-#include <algorithm>
 
 namespace ceres
 {
@@ -93,9 +93,7 @@ namespace ceres
 
 static void UpperCase(std::string * input)
 {
-  // The NOLINT below it's because std::transform requires <algorithm>, which is included inside the #if above, but
-  // roslint still complains
-  std::transform(input->begin(), input->end(), input->begin(), ::toupper);  // NOLINT(build/include_what_you_use)
+  std::transform(input->begin(), input->end(), input->begin(), ::toupper);
 }
 
 inline const char * LoggingTypeToString(LoggingType type)

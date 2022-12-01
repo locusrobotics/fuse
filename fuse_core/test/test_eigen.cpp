@@ -63,8 +63,8 @@ TEST(Eigen, isSymmetric)
     << "Matrix\n"
     << non_symmetric_matrix << "\n expected to be symmetric with precision " << precision << ".";
 
-  // fuse_core::isSymmetric is not defined for non-square matrices. The following will simply fail to compile because it
-  // is not allowed, as intended:
+  // fuse_core::isSymmetric is not defined for non-square matrices. The following will simply fail
+  // to compile because it is not allowed, as intended:
   //
   // const auto non_square_matrix = fuse_core::Matrix<double, 2, 3>::Random().eval();
   //
@@ -91,8 +91,8 @@ TEST(Eigen, isPositiveDefinite)
     << "Matrix\n"
     << non_psd_matrix << "\n expected to not be Positive Definite.";
 
-  // fuse_core::isPositiveDefinite is not defined for non-square matrices. The following will simply fail to compile
-  // because it is allowed, as intended:
+  // fuse_core::isPositiveDefinite is not defined for non-square matrices. The following will simply
+  // fail to compile because it is allowed, as intended:
   //
   // const auto non_square_matrix = fuse_core::Matrix<double, 2, 3>::Random().eval();
   //

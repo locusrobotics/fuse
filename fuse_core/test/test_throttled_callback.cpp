@@ -254,7 +254,8 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
   executor_->add_node(publisher);
   publisher->publish(num_messages);
 
-  // Check all messages are kept and none are dropped, because when the throttle period is zero, throttling is disabled:
+  // Check all messages are kept and none are dropped, because when the throttle period is zero,
+  // throttling is disabled:
   EXPECT_EQ(num_messages, sensor_model->getKeptMessages());
   EXPECT_EQ(0u, sensor_model->getDroppedMessages());
 }

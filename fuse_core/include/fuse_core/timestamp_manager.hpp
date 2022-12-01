@@ -254,10 +254,13 @@ protected:
    */
   using MotionModelHistory = std::map<rclcpp::Time, MotionModelSegment>;
 
-  MotionModelFunction generator_;  //!< Users upplied function that generates motion model constraints
-  rclcpp::Duration buffer_length_;  //!< The length of the motion model history. Segments older than \p buffer_length_
-                                    //!< will be removed from the motion model history
-  MotionModelHistory motion_model_history_;  //!< Container that stores all previously generated motion models
+  MotionModelFunction generator_;  //!< Users upplied function that generates motion model
+                                   //!< constraints
+  rclcpp::Duration buffer_length_;  //!< The length of the motion model history. Segments older than
+                                    //!< \p buffer_length_ will be removed from the motion model
+                                    //!< history
+  MotionModelHistory motion_model_history_;  //!< Container that stores all previously generated
+                                             //!< motion models
 
   /**
    * @brief Create a new MotionModelSegment, updating the provided transaction.

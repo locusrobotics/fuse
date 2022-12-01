@@ -46,8 +46,7 @@
 //
 // https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/solver.h
 // https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/covariance.h
-// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/problem.h
-// ...
+// https://github.com/ceres-solver/ceres-solver/blob/master/include/ceres/problem.h ...
 
 namespace fuse_core
 {
@@ -72,8 +71,9 @@ void loadCovarianceOptionsFromROS(
 
   std::string ns = get_well_formatted_namespace_string(namespace_string);
 
-  // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version 1.13.0, see
-  // https://github.com/ceres-solver/ceres-solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
+  // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version
+  // 1.13.0, see https://github.com/ceres-solver/ceres-
+  // solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
   covariance_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
     interfaces, ns + "sparse_linear_algebra_library_type",
     covariance_options.sparse_linear_algebra_library_type);
@@ -91,7 +91,8 @@ void loadCovarianceOptionsFromROS(
     "Where min_sigma and max_sigma are the minimum and maximum singular values of J respectively.");
   covariance_options.min_reciprocal_condition_number = fuse_core::getParam(
     interfaces,
-    ns + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number, tmp_descr
+    ns + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number,
+    tmp_descr
   );
 
   tmp_descr.description =
@@ -503,8 +504,8 @@ void loadSolverOptionsFromROS(
     tmp_descr
   );
 
-  // Solved::Options::use_postordering was removed in:
-  // https://github.com/ceres-solver/ceres-solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
+  // Solved::Options::use_postordering was removed in: https://github.com/ceres-solver/ceres-
+  // solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
 
   tmp_descr.description = "This settings only affects the SPARSE_NORMAL_CHOLESKY solver.";
   solver_options.dynamic_sparsity = fuse_core::getParam(

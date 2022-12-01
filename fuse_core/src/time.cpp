@@ -130,4 +130,4 @@ bool wait_for_valid(
   return is_valid(clock);
 }
 
-}
+}  // namespace fuse_core

@@ -110,7 +110,8 @@ bool isSymmetric(
   //
   // because it does not play well when `m` is close to zero.
   //
-  // See: https://eigen.tuxfamily.org/dox/classEigen_1_1DenseBase.html#ae8443357b808cd393be1b51974213f9c
+  // See:
+  // https://eigen.tuxfamily.org/dox/classEigen_1_1DenseBase.html#ae8443357b808cd393be1b51974213f9c
   const auto & derived = m.derived();
   return (derived - derived.transpose()).cwiseAbs().maxCoeff() < precision;
 }

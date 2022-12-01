@@ -436,8 +436,10 @@ public:
    */
   struct ConstraintCost
   {
-    double cost {};  //!< The pre-loss-function cost of the constraint, computed as the norm of the residuals
-    double loss {};  //!< The final cost of the constraint after any loss functions have been applied
+    double cost {};  //!< The pre-loss-function cost of the constraint, computed as the norm of the
+                     //!< residuals
+    double loss {};  //!< The final cost of the constraint after any loss functions have been
+                     //!< applied
     std::vector<double> residuals;  //!< The individual residuals for the constraint
   };
 
@@ -546,9 +548,10 @@ void Graph::getConstraintCosts(
   UuidForwardIterator last,
   OutputIterator output)
 {
-  // @todo(swilliams) When I eventually refactor the Graph class to implement more of the requirements in the base
-  //                  class, it should be possible to make better use of the Problem object and avoid creating and
-  //                  deleting the cost and loss functions.
+  // @todo(swilliams) When I eventually refactor the Graph class to implement more of the
+  //                  requirements in the base class, it should be possible to make better use of
+  //                  the Problem object and avoid creating and deleting the cost and loss
+  //                  functions.
   while (first != last) {
     // Get the next requested constraint
     const auto & constraint = getConstraint(*first);
@@ -573,7 +576,8 @@ void Graph::getConstraintCosts(
     // Apply the loss function, if one is configured
     auto loss_function = std::unique_ptr<ceres::LossFunction>(constraint.lossFunction());
     if (loss_function) {
-      double loss_result[3];  // The Loss function returns the loss-adjusted cost plus the first and second derivative
+      double loss_result[3];  // The Loss function returns the loss-adjusted cost plus the first and
+                              // second derivative
       loss_function->Evaluate(cost.cost, loss_result);
       cost.loss = loss_result[0];
     } else {
