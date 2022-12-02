@@ -76,7 +76,7 @@ public:
    * @return          A fuse Transaction object
    */
   inline fuse_core::Transaction::UniquePtr deserialize(
-    const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const
+    const fuse_msgs::msg::SerializedTransaction::ConstSharedPtr msg) const
   {
     return deserialize(*msg);
   }

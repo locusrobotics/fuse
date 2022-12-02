@@ -39,7 +39,7 @@
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_core/graph.hpp>
-#include <geometry_msgs/msg/pose_with_covariance.hpp>
+#include <geometry_msgs/PoseWithCovariance.h>
 #include <rviz/ogre_helpers/axes.h>
 #include <rviz/ogre_helpers/billboard_line.h>
 #include <rviz/ogre_helpers/movable_text.h>
@@ -48,7 +48,7 @@
 
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
-#include <OgreSceneNode.hpp>
+#include <OgreSceneNode.h>
 
 #include <rclcpp/clock.hpp>
 #include <rclcpp/logging.hpp>
@@ -142,7 +142,7 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
   relative_pose_line_->addPoint(absolute_position_ogre);
 
   // Update constraint covariance:
-  geometry_msgs::msg::PoseWithCovariance relative_pose_msg;
+  geometry_msgs::PoseWithCovariance relative_pose_msg;
   tf2::toMsg(absolute_pose, relative_pose_msg.pose);
   tf2::toMsg(constraint.covariance(), relative_pose_msg.covariance);
 

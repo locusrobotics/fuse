@@ -72,7 +72,7 @@ RelativeOrientation3DStampedConstraint::RelativeOrientation3DStampedConstraint(
   const std::string& source,
   const fuse_variables::Orientation3DStamped& orientation1,
   const fuse_variables::Orientation3DStamped& orientation2,
-  const geometry_msgs::msg::Quaternion& delta,
+  const geometry_msgs::Quaternion& delta,
   const std::array<double, 9>& covariance) :
     RelativeOrientation3DStampedConstraint(source, orientation1, orientation2, toEigen(delta), toEigen(covariance))
 {
@@ -113,7 +113,7 @@ fuse_core::Vector4d RelativeOrientation3DStampedConstraint::toEigen(const Eigen:
   return eigen_quaternion_vector;
 }
 
-fuse_core::Vector4d RelativeOrientation3DStampedConstraint::toEigen(const geometry_msgs::msg::Quaternion& quaternion)
+fuse_core::Vector4d RelativeOrientation3DStampedConstraint::toEigen(const geometry_msgs::Quaternion& quaternion)
 {
   fuse_core::Vector4d eigen_quaternion_vector;
   eigen_quaternion_vector << quaternion.w, quaternion.x, quaternion.y, quaternion.z;

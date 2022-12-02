@@ -40,8 +40,8 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_3d_stamped.h>
-#include <geometry_msgs/msg/pose_with_covariance.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/PoseWithCovariance.h>
+#include <geometry_msgs/Quaternion.h>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -116,7 +116,7 @@ public:
     const std::string& source,
     const fuse_variables::Orientation3DStamped& orientation1,
     const fuse_variables::Orientation3DStamped& orientation2,
-    const geometry_msgs::msg::Quaternion& delta,
+    const geometry_msgs::Quaternion& delta,
     const std::array<double, 9>& covariance);
 
   /**
@@ -178,7 +178,7 @@ protected:
    * @param[in] quaternion The input ROS quaternion message
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static fuse_core::Vector4d toEigen(const geometry_msgs::msg::Quaternion& quaternion);
+  static fuse_core::Vector4d toEigen(const geometry_msgs::Quaternion& quaternion);
 
   /**
    * @brief Utility method to convert a flat 1D array to a 3x3 Eigen matrix

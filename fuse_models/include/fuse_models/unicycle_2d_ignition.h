@@ -41,7 +41,7 @@
 #include <fuse_models/SetPose.h>
 #include <fuse_models/SetPoseDeprecated.h>
 
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <ros/ros.h>
 
 #include <atomic>
@@ -116,7 +116,7 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
+  void subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
@@ -144,7 +144,7 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
+  void process(const geometry_msgs::PoseWithCovarianceStamped& pose);
 
   /**
    * @brief Create and send a prior transaction based on the supplied pose
@@ -154,7 +154,7 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
+  void sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose);
 
   std::atomic_bool started_;  //!< Flag indicating the sensor has been started
 

@@ -182,14 +182,7 @@ private:
   void keepCallback(const geometry_msgs::msg::Point & msg)
   {
     ++kept_messages_;
-
-    if (!last_kept_message_) {
-      last_kept_message_ = std::make_shared<geometry_msgs::msg::Point>();
-    }
-
-    last_kept_message_->x = msg.x;
-    last_kept_message_->y = msg.y;
-    last_kept_message_->z = msg.z;
+    last_kept_message_ = std::make_shared<geometry_msgs::msg::Point>(msg);
   }
 
   /**
