@@ -74,7 +74,7 @@ public:
    * @return          A unique_ptr to a derived Graph object
    */
   inline fuse_core::Graph::UniquePtr deserialize(
-    const fuse_msgs::msg::SerializedGraph::ConstSharedPtr msg) const
+    const fuse_msgs::msg::SerializedGraph::SharedPtr msg) const
   {
     return deserialize(*msg);
   }

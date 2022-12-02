@@ -117,7 +117,7 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::msg::PointCloud2::ConstSharedPtr beaconsToPointcloud(
+sensor_msgs::msg::PointCloud2 beaconsToPointcloud(
   const std::vector<Beacon>& beacons,
   const rclcpp::Clock& clock)
 {
@@ -148,13 +148,13 @@ sensor_msgs::msg::PointCloud2::ConstSharedPtr beaconsToPointcloud(
     *id_it = id;
     ++x_it; ++y_it; ++z_it; ++sigma_it, ++id_it;
   }
-  return sensor_msgs::msg::PointCloud2::ConstSharedPtr(msg);
+  return sensor_msgs::msg::PointCloud2(msg);
 }
 
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry::ConstSharedPtr robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry robotToOdometry(const Robot& state)
 {
   auto msg = nav_msgs::msg::Odometry::SharedPtr();
   msg->header.stamp = state.stamp;
@@ -185,7 +185,7 @@ nav_msgs::msg::Odometry::ConstSharedPtr robotToOdometry(const Robot& state)
   msg->twist.covariance[21] = 0.1;
   msg->twist.covariance[28] = 0.1;
   msg->twist.covariance[35] = 0.1;
-  return nav_msgs::msg::Odometry::ConstSharedPtr(msg);
+  return nav_msgs::msg::Odometry(msg);
 }
 
 /**
@@ -244,7 +244,7 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu::ConstSharedPtr simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu simulateImu(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
@@ -257,13 +257,13 @@ sensor_msgs::msg::Imu::ConstSharedPtr simulateImu(const Robot& robot)
   msg->angular_velocity.z = robot.vyaw + noise(generator);
   msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
   msg->linear_acceleration_covariance[0] = -1;  // Simulated IMU does not provide acceleration
-  return sensor_msgs::msg::Imu::ConstSharedPtr(msg);
+  return sensor_msgs::msg::Imu(msg);
 }
 
 /**
  * @brief Create a simulated Odometry measurement from the current state
  */
-nav_msgs::msg::Odometry::ConstSharedPtr simulateWheelOdometry(const Robot& robot)
+nav_msgs::msg::Odometry simulateWheelOdometry(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
@@ -280,10 +280,10 @@ nav_msgs::msg::Odometry::ConstSharedPtr simulateWheelOdometry(const Robot& robot
   msg->twist.covariance[0] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[7] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[35] = ODOM_VYAW_SIGMA * ODOM_VYAW_SIGMA;
-  return nav_msgs::msg::Odometry::ConstSharedPtr(msg);
+  return nav_msgs::msg::Odometry(msg);
 }
 
-sensor_msgs::msg::PointCloud2::ConstSharedPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
+sensor_msgs::msg::PointCloud2 simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
@@ -317,7 +317,7 @@ sensor_msgs::msg::PointCloud2::ConstSharedPtr simulateRangeSensor(const Robot& r
     *sigma_it = RANGE_SIGMA;
     ++id_it; ++range_it; ++sigma_it;
   }
-  return sensor_msgs::msg::PointCloud2::ConstSharedPtr(msg);
+  return sensor_msgs::msg::PointCloud2(msg);
 }
 
 /**

@@ -96,8 +96,8 @@ public:
   }
 
 private:
-  rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr publisher_;     //!< The publisher
-  double frequency_{10.0};       //!< The publish rate frequency
+  rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr publisher_;  //!< The publisher
+  double frequency_{10.0};  //!< The publish rate frequency
 };
 
 /**
@@ -127,7 +127,7 @@ public:
     subscription_ = this->create_subscription<geometry_msgs::msg::Point>(
       "point", 10,
       std::bind(
-        &PointThrottledCallback::callback<const geometry_msgs::msg::Point::ConstSharedPtr &>,
+        &PointThrottledCallback::callback<const geometry_msgs::msg::Point &>,
         &throttled_callback_, std::placeholders::_1)
     );
   }
@@ -167,7 +167,7 @@ public:
    *
    * @return The last message kept. It would be nullptr if no message has been kept so far
    */
-  const geometry_msgs::msg::Point::ConstSharedPtr getLastKeptMessage() const
+  const geometry_msgs::msg::Point::SharedPtr getLastKeptMessage() const
   {
     return last_kept_message_;
   }
@@ -179,10 +179,17 @@ private:
    *
    * @param[in] msg A geometry_msgs::msg::Point message
    */
-  void keepCallback(const geometry_msgs::msg::Point::ConstSharedPtr & msg)
+  void keepCallback(const geometry_msgs::msg::Point & msg)
   {
     ++kept_messages_;
-    last_kept_message_ = std::move(msg);
+
+    if (!last_kept_message_) {
+      last_kept_message_ = std::make_shared<geometry_msgs::msg::Point>();
+    }
+
+    last_kept_message_->x = msg.x;
+    last_kept_message_->y = msg.y;
+    last_kept_message_->z = msg.z;
   }
 
   /**
@@ -190,8 +197,8 @@ private:
    *
    * @param[in] msg A geometry_msgs::msg::Point message (not used)
    */
-  // NOTE(CH3): The ConstSharedPtr here is necessary to allow binding the throttled callback
-  void dropCallback(const geometry_msgs::msg::Point::ConstSharedPtr & /*msg*/)
+  // NOTE(CH3): The msg arg here is necessary to allow binding the throttled callback
+  void dropCallback(const geometry_msgs::msg::Point & /*msg*/)
   {
     ++dropped_messages_;
   }
@@ -203,7 +210,9 @@ private:
 
   size_t kept_messages_{0};                           //!< Messages kept
   size_t dropped_messages_{0};                        //!< Messages dropped
-  geometry_msgs::msg::Point::ConstSharedPtr last_kept_message_;  //!< The last message kept
+
+  // We use a SharedPtr to check for nullptr just for this test
+  geometry_msgs::msg::Point::SharedPtr last_kept_message_;  //!< The last message kept
 };
 
 class TestThrottledCallback : public ::testing::Test

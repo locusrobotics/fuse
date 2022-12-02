@@ -198,11 +198,11 @@ private:
 /**
  * @brief Throttled callback for ROS messages
  *
- * @tparam M The ROS message type, which should have the M::ConstPtr nested type
+ * @tparam M The ROS message type
  */
 template<class M>
 using ThrottledMessageCallback =
-  ThrottledCallback<std::function<void (const typename M::ConstPtr &)>>;
+  ThrottledCallback<std::function<void (const M &)>>;
 
 }  // namespace fuse_core
 

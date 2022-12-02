@@ -34,6 +34,8 @@
 #ifndef FUSE_MODELS_POSE_2D_H
 #define FUSE_MODELS_POSE_2D_H
 
+#include <memory>
+
 #include <fuse_models/parameters/pose_2d_params.h>
 
 #include <fuse_core/async_sensor_model.hpp>
@@ -124,7 +126,7 @@ protected:
 
   ParameterType params_;
 
-  geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr previous_pose_msg_;
+  geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr previous_pose_msg_;
 
   tf2_ros::Buffer tf_buffer_;
 
@@ -132,7 +134,8 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using PoseThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::PoseWithCovarianceStamped>;
+  using PoseThrottledCallback =
+    fuse_core::ThrottledMessageCallback<geometry_msgs::msg::PoseWithCovarianceStamped>;
   PoseThrottledCallback throttled_callback_;
 };
 

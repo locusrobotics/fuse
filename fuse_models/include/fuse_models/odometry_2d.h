@@ -137,7 +137,7 @@ protected:
 
   ParameterType params_;
 
-  std::unique_ptr<geometry_msgs::msg::PoseWithCovarianceStamped> previous_pose_;
+  geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr previous_pose_;
 
   tf2_ros::Buffer tf_buffer_;
 

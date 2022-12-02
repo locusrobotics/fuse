@@ -113,27 +113,27 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // Wait for the optimizer to process all queued transactions
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
-  auto odom_msg = nav_msgs::msg::Odometry::ConstSharedPtr();
-  while ((!odom_msg || odom_msg->header.stamp != rclcpp::Time(3, 0)) &&
+  auto odom_msg = nav_msgs::msg::Odometry();
+  while ((!odom_msg || odom_msg.header.stamp != rclcpp::Time(3, 0)) &&
          (node->now() < result_timeout))
   {
-    // TODO(CH3): Oh no, there's no equivalent rclcpp method I think...
-    //            Probably just wait a bit?? It's in a test anyway
+    // TODO(CH3): Replace with rclcpp::wait_for_message
     //
-    //            Maybe wrap the test method in a lambda? Does that even work with gtest??
-    //            Or in an object that exposes the latest message or something...
+    // https://github.com/ros2/rclcpp/blob/rolling/rclcpp/include/rclcpp/wait_for_message.hpp
+    //
+    // It might be a rabbit hole though. If that fails, just wait on a condition variable...
     odom_msg = ros::topic::waitForMessage<nav_msgs::msg::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
   }
   ASSERT_TRUE(static_cast<bool>(odom_msg));
-  ASSERT_EQ(odom_msg->header.stamp, rclcpp::Time(3, 0));
+  ASSERT_EQ(odom_msg.header.stamp, rclcpp::Time(3, 0));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call state, give or
   // take the motion model forward prediction.
-  EXPECT_NEAR(100.1, odom_msg->pose.pose.position.x, 0.10);
-  EXPECT_NEAR(100.2, odom_msg->pose.pose.position.y, 0.10);
-  EXPECT_NEAR(0.8660, odom_msg->pose.pose.orientation.z, 0.10);
-  EXPECT_NEAR(0.5000, odom_msg->pose.pose.orientation.w, 0.10);
+  EXPECT_NEAR(100.1, odom_msg.pose.pose.position.x, 0.10);
+  EXPECT_NEAR(100.2, odom_msg.pose.pose.position.y, 0.10);
+  EXPECT_NEAR(0.8660, odom_msg.pose.pose.orientation.z, 0.10);
+  EXPECT_NEAR(0.5000, odom_msg.pose.pose.orientation.w, 0.10);
 }
 
 int main(int argc, char** argv)

@@ -87,7 +87,7 @@ private:
     std::cout << "TRANSACTION:" << std::endl;
     std::cout << "received at: " << this->now().seconds() << std::endl;
     auto transaction = transaction_deserializer_.deserialize(msg);
-    transaction.print();
+    transaction->print();
   }
 };
 
