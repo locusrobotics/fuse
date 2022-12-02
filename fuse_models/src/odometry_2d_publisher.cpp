@@ -39,8 +39,8 @@
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
-#include <nav_msgs/msg/Odometry.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <tf2_2d/tf2_2d.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>

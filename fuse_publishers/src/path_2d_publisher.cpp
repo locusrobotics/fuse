@@ -38,9 +38,9 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/msg/PoseArray.hpp>
-#include <geometry_msgs/msg/PoseStamped.hpp>
-#include <nav_msgs/msg/Path.hpp>
+#include <geometry_msgs/msg/pose_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <nav_msgs/msg/path.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <tf2/utils.h>

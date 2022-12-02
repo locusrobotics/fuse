@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_models/SetPose.h>
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
-#include <nav_msgs/msg/Odometry.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
 
 #include <gtest/gtest.h>

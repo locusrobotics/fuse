@@ -40,7 +40,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/TwistWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 

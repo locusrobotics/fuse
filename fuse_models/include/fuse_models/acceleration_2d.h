@@ -40,7 +40,7 @@
 #include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 

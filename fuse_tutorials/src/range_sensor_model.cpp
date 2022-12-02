@@ -41,7 +41,7 @@
 #include <fuse_variables/point_2d_landmark.h>
 #include <fuse_variables/position_2d_stamped.h>
 #include <pluginlib/class_list_macros.h>
-#include <sensor_msgs/msg/PointCloud2.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
 // Register this sensor model with ROS as a plugin.

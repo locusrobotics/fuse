@@ -49,7 +49,7 @@
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <std_srvs/srv/Empty.h>
 #include <tf2/convert.h>

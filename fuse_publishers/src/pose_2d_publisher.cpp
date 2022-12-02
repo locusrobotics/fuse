@@ -40,9 +40,9 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
-#include <geometry_msgs/msg/PoseStamped.hpp>
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
-#include <geometry_msgs/msg/TransformStamped.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <rclcpp/clock.hpp>
 #include <ros/ros.h>

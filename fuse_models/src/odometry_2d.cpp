@@ -37,9 +37,9 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
-#include <geometry_msgs/msg/TwistWithCovarianceStamped.hpp>
-#include <nav_msgs/msg/Odometry.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 

@@ -42,7 +42,7 @@
 #include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 

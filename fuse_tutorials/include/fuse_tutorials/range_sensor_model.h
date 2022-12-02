@@ -37,7 +37,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 #include <ros/ros.h>
-#include <sensor_msgs/msg/PointCloud2.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <memory>
 #include <unordered_map>

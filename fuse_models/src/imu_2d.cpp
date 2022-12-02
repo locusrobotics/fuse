@@ -37,12 +37,12 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
-#include <geometry_msgs/msg/TwistWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
-#include <sensor_msgs/msg/Imu.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 
 #include <memory>
 #include <utility>

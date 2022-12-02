@@ -40,8 +40,8 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
-#include <nav_msgs/msg/Odometry.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 

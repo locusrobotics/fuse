@@ -44,8 +44,8 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_publishers/stamped_variable_synchronizer.h>
 
-#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
-#include <nav_msgs/msg/Odometry.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>

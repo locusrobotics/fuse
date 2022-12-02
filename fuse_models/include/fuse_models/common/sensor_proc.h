@@ -48,10 +48,10 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/stamped.h>
 
-#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
-#include <geometry_msgs/msg/PoseWithCovarianceStamped.hpp>
-#include <geometry_msgs/msg/TransformStamped.hpp>
-#include <geometry_msgs/msg/TwistWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <rclcpp/clock.hpp>
 #include <ros/ros.h>
 #include <tf2/LinearMath/Transform.h>

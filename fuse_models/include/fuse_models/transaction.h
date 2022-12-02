@@ -40,7 +40,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
 
-#include <fuse_msgs/msg/SerializedTransaction.hpp>
+#include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <ros/ros.h>
 
 namespace fuse_models

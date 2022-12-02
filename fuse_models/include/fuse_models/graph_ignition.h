@@ -42,7 +42,7 @@
 #include <fuse_core/graph.hpp>
 #include <fuse_core/graph_deserializer.hpp>
 
-#include <fuse_msgs/msg/SerializedGraph.hpp>
+#include <fuse_msgs/msg/serialized_graph.hpp>
 #include <ros/ros.h>
 
 #include <atomic>

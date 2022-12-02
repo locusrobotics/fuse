@@ -38,7 +38,7 @@
 #ifndef Q_MOC_RUN
 #include <fuse_core/graph_deserializer.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_msgs/msg/SerializedGraph.hpp>
+#include <fuse_msgs/msg/serialized_graph.hpp>
 
 #include <rviz/message_filter_display.h>
 

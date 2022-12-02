@@ -33,10 +33,10 @@
  */
 #include <fuse_core/util.hpp>
 #include <fuse_models/SetPose.h>
-#include <nav_msgs/msg/Odometry.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
-#include <sensor_msgs/msg/Imu.hpp>
-#include <sensor_msgs/msg/PointCloud2.hpp>
+#include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
 

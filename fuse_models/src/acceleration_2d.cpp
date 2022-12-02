@@ -37,7 +37,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/msg/AccelWithCovarianceStamped.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
