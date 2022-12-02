@@ -34,6 +34,7 @@
 #include <fuse_loss/tukey_loss.h>
 
 #include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/parameter.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 

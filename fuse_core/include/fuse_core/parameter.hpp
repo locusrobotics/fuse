@@ -281,7 +281,7 @@ inline fuse_core::Loss::SharedPtr loadLossConfig(
   getParamRequired(interfaces, name + "/type", loss_type);
 
   auto loss = fuse_core::createUniqueLoss(loss_type);
-  loss->initialize(interfaces.get_node_base_interface()->get_fully_qualified_name());
+  loss->initialize(interfaces, interfaces.get_node_base_interface()->get_fully_qualified_name());
 
   return loss;
 }

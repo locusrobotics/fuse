@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.h>
+#include <fuse_core/parameter.hpp>
 #include <fuse_loss/softlone_loss.h>
 
 #include <pluginlib/class_list_macros.hpp>
