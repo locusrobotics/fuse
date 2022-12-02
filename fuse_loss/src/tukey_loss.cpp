@@ -35,7 +35,7 @@
 
 #include <fuse_core/ceres_macros.hpp>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
