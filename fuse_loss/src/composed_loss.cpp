@@ -31,12 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/parameter.h>
 #include <fuse_loss/composed_loss.h>
 #include <fuse_loss/trivial_loss.h>
 
-#include <fuse_core/parameter.hpp>
 #include <pluginlib/class_list_macros.hpp>
-#include <ros/node_handle.h>
 
 #include <boost/serialization/export.hpp>
 
@@ -54,12 +53,16 @@ ComposedLoss::ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss,
 {
 }
 
-void ComposedLoss::initialize(const std::string& name)
+void ComposedLoss::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters
+  > interfaces,
+  const std::string& name)
 {
-  ros::NodeHandle private_node_handle(name);
-
-  f_loss_ = fuse_core::loadLossConfig(private_node_handle, "f_loss");
-  g_loss_ = fuse_core::loadLossConfig(private_node_handle, "g_loss");
+  f_loss_ = fuse_core::loadLossConfig(interfaces, name + ".f_loss");
+  g_loss_ = fuse_core::loadLossConfig(interfaces, name + ".g_loss");
 }
 
 void ComposedLoss::print(std::ostream& stream) const
