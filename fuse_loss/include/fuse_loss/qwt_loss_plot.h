@@ -218,7 +218,7 @@ class QwtLossPlot
 {
 public:
   QwtLossPlot(const std::vector<double>& residuals, const HSVColormap& colormap)
-    : residuals_(QVector<double>::fromStdVector(residuals))
+    : residuals_(QVector<double>(residuals.begin(), residuals.end()))
     , loss_evaluator_(residuals)
     , colormap_(colormap)
     , magnifier_(plot_.canvas())
@@ -251,7 +251,7 @@ public:
   {
     QwtPlotCurve* curve = new QwtPlotCurve(name.c_str());
 
-    curve->setSamples(residuals_, QVector<double>::fromStdVector(values));
+    curve->setSamples(residuals_, QVector<double>(values.begin(), values.end()));
 
     curve->setPen(colormap_[curves_.size()]);
     curve->attach(&plot_);

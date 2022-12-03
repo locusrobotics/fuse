@@ -166,9 +166,3 @@ TEST(LossFunction, WelschLoss)
   ASSERT_NEAR(rho[1], 1.0, 1e-6);
   ASSERT_NEAR(rho[2], -1 / (a * a), 1e-6);
 }
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

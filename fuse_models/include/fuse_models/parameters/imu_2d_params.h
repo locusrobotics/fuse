@@ -100,9 +100,9 @@ struct Imu2DParams : public ParameterBase
       nh.getParam("orientation_target_frame", orientation_target_frame);
       nh.getParam("twist_target_frame", twist_target_frame);
 
-      pose_loss = fuse_core::loadLossConfig(nh, "pose_loss");
-      angular_velocity_loss = fuse_core::loadLossConfig(nh, "angular_velocity_loss");
-      linear_acceleration_loss = fuse_core::loadLossConfig(nh, "linear_acceleration_loss");
+      pose_loss = fuse_core::loadLossConfig(interfaces, "pose_loss");
+      angular_velocity_loss = fuse_core::loadLossConfig(interfaces, "angular_velocity_loss");
+      linear_acceleration_loss = fuse_core::loadLossConfig(interfaces, "linear_acceleration_loss");
     }
 
     bool differential { false };

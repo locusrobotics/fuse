@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/parameter.hpp>
 #include <fuse_loss/trivial_loss.h>
 
-#include <pluginlib/class_list_macros.h>
-#include <ros/node_handle.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 

@@ -79,8 +79,8 @@ struct Twist2DParams : public ParameterBase
       fuse_core::getParamRequired(nh, "topic", topic);
       fuse_core::getParamRequired(nh, "target_frame", target_frame);
 
-      linear_loss = fuse_core::loadLossConfig(nh, "linear_loss");
-      angular_loss = fuse_core::loadLossConfig(nh, "angular_loss");
+      linear_loss = fuse_core::loadLossConfig(interfaces, "linear_loss");
+      angular_loss = fuse_core::loadLossConfig(interfaces, "angular_loss");
     }
 
     bool disable_checks { false };

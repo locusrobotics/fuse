@@ -42,6 +42,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 #include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/serialization.hpp>
 
 /**
@@ -195,7 +196,13 @@ public:
    * @param[in] name A unique name to initialize this plugin instance, such as from the parameter
    *                 server.
    */
-  virtual void initialize(const std::string & name) = 0;
+  virtual void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string & name) = 0;
 
   /**
    * @brief Returns a unique name for this loss function type.

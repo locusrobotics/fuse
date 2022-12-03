@@ -34,8 +34,7 @@
 #include <fuse_loss/scaled_loss.h>
 
 #include <fuse_core/parameter.hpp>
-#include <pluginlib/class_list_macros.h>
-#include <ros/node_handle.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 
@@ -51,13 +50,16 @@ ScaledLoss::ScaledLoss(const double a, const std::shared_ptr<fuse_core::Loss>& l
 {
 }
 
-void ScaledLoss::initialize(const std::string& name)
+void ScaledLoss::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters
+  > interfaces,
+  const std::string& name)
 {
-  ros::NodeHandle private_node_handle(name);
-
-  private_node_handle.param("a", a_, a_);
-
-  loss_ = fuse_core::loadLossConfig(private_node_handle, "loss");
+  a_ = fuse_core::getParam(interfaces, name + ".a", a_);
+  loss_ = fuse_core::loadLossConfig(interfaces, name + ".loss");
 }
 
 void ScaledLoss::print(std::ostream& stream) const
