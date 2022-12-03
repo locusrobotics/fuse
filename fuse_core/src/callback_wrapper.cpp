@@ -112,11 +112,15 @@ void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase> & c
 {
   std::lock_guard<std::mutex> lock(queue_mutex_);
   callback_queue_.push_back(callback);
+
+  // NOTE(CH3): Do we need to keep triggering guard conditions if the queue size is > 1?
+  //            Is there a chance that the queue grows because multiple guard condition triggers
+  //            happen in the time the executor takes to pull one callback off the queue?
   if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
     RCLCPP_WARN(
       rclcpp::get_logger("fuse"),
       "Could not trigger guard condition for callback, pulling callback off the queue.");
-    callback_queue_.pop_back();    // Undo
+    callback_queue_.pop_back();  // Undo
   }
 }
 
@@ -124,11 +128,15 @@ void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase> && callba
 {
   std::lock_guard<std::mutex> lock(queue_mutex_);
   callback_queue_.push_back(std::move(callback));
+
+  // NOTE(CH3): Do we need to keep triggering guard conditions if the queue size is > 1?
+  //            Is there a chance that the queue grows because multiple guard condition triggers
+  //            happen in the time the executor takes to pull one callback off the queue?
   if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
     RCLCPP_WARN(
       rclcpp::get_logger("fuse"),
       "Could not trigger guard condition for callback, pulling callback off the queue.");
-    callback_queue_.pop_back();    // Undo
+    callback_queue_.pop_back();  // Undo
   }
 }
 
@@ -138,5 +146,13 @@ void CallbackAdapter::removeAllCallbacks()
   callback_queue_.clear();
 }
 
+void CallbackAdapter::triggerGuardCondition()
+{
+  if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("fuse"),
+      "Could not trigger guard condition for callback.");
+  }
+}
 
 }  // namespace fuse_core

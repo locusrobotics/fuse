@@ -47,7 +47,7 @@ namespace fuse_core
 {
 
 /**
- * @brief A motion model base class that provides node handles and a private callback queue.
+ * @brief A motion model base class that provides an internal node and an internal callback queue.
  *
  * A model model plugin is responsible for generating constraints that link together timestamps
  * introduced by other sensors in the system. The AsyncMotionModel class is designed similar to a
@@ -56,11 +56,11 @@ namespace fuse_core
  * There are a few notable differences between the AsyncMotionModel class and a standard ROS
  * node. First and most obvious, the AsyncMotionModel class is designed as a plugin, with all of
  * the stipulations and requirements that come with all ROS plugins (must be derived from a known
- * base class, will be default constructed). Second, the AsyncMotionModel class provides a global
- * and private node handle, both hooked to a local callback queue and local spinner. This makes
+ * base class, will be default constructed). Second, the AsyncMotionModel class provides an internal
+ * node that is hooked to a local callback queue and local executor on init. This makes
  * it act like a full ROS node -- subscriptions trigger message callbacks, callbacks will fire
  * sequentially, etc. However, authors of derived classes should be aware of this fact and avoid
- * creating additional node handles, or at least take care when creating new node handles and
+ * creating additional sub-nodes, or at least take care when creating new sub-nodes and
  * additional callback queues. Finally, the interaction of motion model nodes is best compared to
  * a service call -- an external actor will provide a set of timestamps and wait for the motion
  * model to respond with the required set of constraints to link the timestamps together (along
@@ -120,9 +120,9 @@ public:
    * This method will be called by the optimizer, in the optimizer's thread, after each Graph
    * update is complete. This implementation repackages the provided \p graph, and inserts a
    * call to onGraphUpdate() into this motion model's callback queue. This is meant to simplify
-   * thread synchronization. If this motion model uses a single-threaded spinner, then all
+   * thread synchronization. If this motion model uses a single-threaded executor, then all
    * callbacks will fire sequentially and no semaphores are needed. If this motion model uses a
-   * multi-threaded spinner, then normal multithreading rules apply and data accessed in more
+   * multi-threaded executor, then normal multithreading rules apply and data accessed in more
    * than one place should be guarded.
    *
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
@@ -135,9 +135,9 @@ public:
    *        reading from the parameter server.
    *
    * This will be called for each plugin after construction and after the ros node has been
-   * initialized. The provided private node handle will be in a namespace based on the plugin's
-   * name. This should prevent conflicts and allow the same plugin to be used multiple times
-   * with different settings and topics.
+   * initialized. The provided node will be in a namespace based on the plugin's name. This should
+   * prevent conflicts and allow the same plugin to be used multiple times with different settings
+   * and topics.
    *
    * @param[in] name A unique name to give this plugin instance
    */
@@ -159,9 +159,9 @@ public:
    *
    * This implementation inserts a call to onStart() into this motion model's callback queue.
    * This method then blocks until the call to onStart() has completed. This is meant to
-   * simplify thread synchronization. If this motion model uses a single-threaded spinner, then
+   * simplify thread synchronization. If this motion model uses a single-threaded executor, then
    * all callbacks will fire sequentially and no semaphores are needed. If this motion model
-   * uses a multithreaded spinner, then normal multithreading rules apply and data accessed in
+   * uses a multithreaded executor, then normal multithreading rules apply and data accessed in
    * more than one place should be guarded.
    */
   void start() override;
@@ -178,9 +178,9 @@ public:
    *
    * This implementation inserts a call to onStop() into this motion model's callback queue.
    * This method then blocks until the call to onStop() has completed. This is meant to
-   * simplify thread synchronization. If this motion model uses a single-threaded spinner, then
+   * simplify thread synchronization. If this motion model uses a single-threaded executor, then
    * all callbacks will fire sequentially and no semaphores are needed. If this motion model
-   * uses a multithreaded spinner, then normal multithreading rules apply and data accessed in
+   * uses a multithreaded executor, then normal multithreading rules apply and data accessed in
    * more than one place should be guarded.
    */
   void stop() override;
@@ -192,16 +192,17 @@ protected:
   std::string name_;  //!< The unique name for this motion model instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
 
-  //! A single/multi-threaded spinner assigned to the local callback queue
+  //! A single/multi-threaded executor assigned to the local callback queue
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
 
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
   /**
    * @brief Constructor
    *
-   * Construct a new motion model and create a local callback queue and thread spinner.
+   * Construct a new motion model and create a local callback queue and internal executor.
    *
    * @param[in] thread_count The number of threads used to service the local callback queue
    */
@@ -250,7 +251,7 @@ protected:
    * @brief Perform any required initialization for the motion model
    *
    * This could include things like reading from the parameter server or subscribing to topics.
-   * The class's node handles will be properly initialized before onInit() is called. Spinning
+   * The class's node will be properly initialized before onInit() is called. Spinning
    * of the callback queue will not begin until after the call to onInit() completes.
    */
   virtual void onInit() {}

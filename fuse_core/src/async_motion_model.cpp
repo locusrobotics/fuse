@@ -80,6 +80,13 @@ bool AsyncMotionModel::apply(Transaction & transaction)
 
 void AsyncMotionModel::initialize(const std::string & name)
 {
+  if (initialized_) {
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(),
+      "Calling initialize on an already initialized AsyncMotionModel!");
+    return;
+  }
+
   // Initialize internal state
   name_ = name;
   std::string node_namespace = "";
@@ -96,7 +103,10 @@ void AsyncMotionModel::initialize(const std::string & name)
   executor_options.context = ros_context;
   executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
     executor_options,
-    executor_thread_count_);
+    executor_thread_count_,
+    false,
+    std::chrono::milliseconds(1000)  // Timeout if stuck on waitable
+  );
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
   node_->get_node_waitables_interface()->add_waitable(
@@ -105,13 +115,40 @@ void AsyncMotionModel::initialize(const std::string & name)
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
-  executor_->add_node(node_);
-
   // TODO(CH3): Remove this if the internal node is removed
-  spinner_ = std::thread(
-    [&]() {
-      executor_->spin();
-    });
+  executor_->add_node(node_);
+  spinner_ = std::thread([&]() {executor_->spin();});
+
+  // We must first ensure that the callback queue is "active" before we can be confident in using it
+  // outside of this initialize method...
+  std::mutex mtx;
+  std::condition_variable cv;
+
+  callback_queue_->addCallback(
+    std::make_shared<CallbackWrapper<void>>(
+      [&]() {
+        // NOTE(CH3): Causes random deadlocks if left in
+        //            Also technically unecessary because of wait_for used below
+        // std::unique_lock lk(mtx);
+        initialized_ = true;
+        cv.notify_one();
+      }));
+  // Wait a tiny while for the callback to be added
+  // Without this the condition variable ALWAYS times out on the first loop
+  rclcpp::sleep_for(std::chrono::milliseconds(1));
+
+  // ...And so we continually trigger the callback_queue's guard condition until it is serviced.
+  while (!initialized_) {
+    std::unique_lock lk(mtx);
+    callback_queue_->triggerGuardCondition();
+    cv.wait_for(lk, std::chrono::milliseconds(100));
+
+    if (!initialized_) {
+      RCLCPP_WARN_STREAM(
+        node_->get_logger(),
+        "Waiting for callback queue to be added to node waitables...");
+    }
+  }
 }
 
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)

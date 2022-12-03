@@ -188,6 +188,8 @@ public:
 
   void removeAllCallbacks();
 
+  void triggerGuardCondition();
+
 private:
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
 
