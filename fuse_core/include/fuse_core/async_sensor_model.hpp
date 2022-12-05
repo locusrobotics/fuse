@@ -262,6 +262,9 @@ protected:
    * The sensor model must not send any transactions to the optimizer after stop() is called.
    */
   virtual void onStop() {}
+
+private:
+  void internal_stop();
 };
 
 }  // namespace fuse_core

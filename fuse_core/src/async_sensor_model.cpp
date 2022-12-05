@@ -52,10 +52,7 @@ AsyncSensorModel::AsyncSensorModel(size_t thread_count)
 
 AsyncSensorModel::~AsyncSensorModel()
 {
-  executor_->cancel();
-  if (spinner_.joinable()) {
-    spinner_.join();
-  }
+  internal_stop();
 }
 
 void AsyncSensorModel::initialize(
@@ -124,24 +121,25 @@ void AsyncSensorModel::start()
 
 void AsyncSensorModel::stop()
 {
-  if (node_->get_node_base_interface()->get_context()->is_valid()) {
-    auto callback = std::make_shared<CallbackWrapper<void>>(
-      std::bind(&AsyncSensorModel::onStop, this)
-    );
-    auto result = callback->getFuture();
-    callback_queue_->addCallback(callback);
-    result.wait();
-  } else {
-    executor_->cancel();
-    executor_->remove_node(node_);
+  internal_stop();
+  onStop();
+}
 
-    // TODO(CH3): Remove this if the internal node is removed
-    if (spinner_.joinable()) {
-      spinner_.join();
-    }
+void AsyncSensorModel::internal_stop()
+{
+  // Try to cancel ASAP
+  executor_->cancel();
+  // Just in case the executor wasn't spinning, schedule a call to "stop"
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+      [&](){executor_->cancel();}
+  );
+  callback_queue_->addCallback(callback);
 
-    onStop();
+  if (spinner_.joinable()) {
+    spinner_.join();
   }
+  // Reset callback queue, which also removes maybe-unused call to cancel()
+  callback_queue_->removeAllCallbacks();
 }
 
 }  // namespace fuse_core
