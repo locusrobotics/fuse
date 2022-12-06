@@ -102,6 +102,14 @@ TEST_F(TestAsyncSensorModel, OnInit)
   }
 }
 
+TEST_F(TestAsyncSensorModel, DoubleInit)
+{
+  MySensor sensor_model;
+  sensor_model.initialize("my_sensor_model", &transactionCallback);
+  EXPECT_TRUE(sensor_model.initialized);
+  EXPECT_THROW(sensor_model.initialize("test", &transactionCallback), std::runtime_error);
+}
+
 TEST_F(TestAsyncSensorModel, OnGraphUpdate)
 {
   MySensor sensor;

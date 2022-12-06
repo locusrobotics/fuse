@@ -77,6 +77,10 @@ bool AsyncMotionModel::apply(Transaction & transaction)
 
 void AsyncMotionModel::initialize(const std::string & name)
 {
+  if (initialized_) {
+    throw std::runtime_error("Calling initialize on an already initialized AsyncMotionModel!");
+  }
+
   // Initialize internal state
   name_ = name;
   std::string node_namespace = "";
@@ -112,6 +116,8 @@ void AsyncMotionModel::initialize(const std::string & name)
     [&]() {
       executor_->spin();
     });
+
+  initialized_ = true;
 }
 
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)

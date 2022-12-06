@@ -202,6 +202,7 @@ protected:
   TransactionCallback transaction_callback_;
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
   /**
    * @brief Constructor

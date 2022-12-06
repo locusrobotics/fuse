@@ -93,6 +93,14 @@ TEST_F(TestAsyncPublisher, OnInit)
   }
 }
 
+TEST_F(TestAsyncPublisher, DoubleInit)
+{
+  MyPublisher publisher;
+  publisher.initialize("my_publisher");
+  EXPECT_TRUE(publisher.initialized);
+  EXPECT_THROW(publisher.initialize("test"), std::runtime_error);
+}
+
 TEST_F(TestAsyncPublisher, notifyCallback)
 {
   MyPublisher publisher;

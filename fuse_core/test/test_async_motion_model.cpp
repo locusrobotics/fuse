@@ -96,6 +96,14 @@ TEST_F(TestAsyncMotionModel, OnInit)
   }
 }
 
+TEST_F(TestAsyncMotionModel, DoubleInit)
+{
+  MyMotionModel motion_model;
+  motion_model.initialize("my_motion_model");
+  EXPECT_TRUE(motion_model.initialized);
+  EXPECT_THROW(motion_model.initialize("test"), std::runtime_error);
+}
+
 TEST_F(TestAsyncMotionModel, OnGraphUpdate)
 {
   MyMotionModel motion_model;

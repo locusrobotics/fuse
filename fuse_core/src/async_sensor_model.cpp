@@ -59,6 +59,10 @@ void AsyncSensorModel::initialize(
   const std::string & name,
   TransactionCallback transaction_callback)
 {
+  if (initialized_) {
+    throw std::runtime_error("Calling initialize on an already initialized AsyncSensorModel!");
+  }
+
   // Initialize internal state
   name_ = name;
   std::string node_namespace = "";
@@ -95,6 +99,8 @@ void AsyncSensorModel::initialize(
     [&]() {
       executor_->spin();
     });
+
+  initialized_ = true;
 }
 
 void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)

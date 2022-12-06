@@ -50,6 +50,10 @@ AsyncPublisher::~AsyncPublisher()
 
 void AsyncPublisher::initialize(const std::string & name)
 {
+  if (initialized_) {
+    throw std::runtime_error("Calling initialize on an already initialized AsyncPublisher!");
+  }
+
   // Initialize internal state
   name_ = name;
   std::string node_namespace = "";
@@ -84,6 +88,8 @@ void AsyncPublisher::initialize(const std::string & name)
     [&]() {
       executor_->spin();
     });
+
+  initialized_ = true;
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
