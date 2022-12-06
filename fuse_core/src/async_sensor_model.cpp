@@ -78,18 +78,19 @@ void AsyncSensorModel::initialize(
     executor_thread_count_);
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
+
+  // This callback group MUST be re-entrant in order to support parallelization
+  cb_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
   node_->get_node_waitables_interface()->add_waitable(
-    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+    callback_queue_, cb_group_);
 
   transaction_callback_ = transaction_callback;
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
-  // Start the async spinner to service the local callback queue
+  // Start the executor to service the local callback queue
   executor_->add_node(node_);
-
-  // TODO(CH3): Remove this if the internal node is removed
   spinner_ = std::thread(
     [&]() {
       executor_->spin();
@@ -121,23 +122,39 @@ void AsyncSensorModel::start()
 
 void AsyncSensorModel::stop()
 {
-  internal_stop();
-  onStop();
+  // Optimizers can sometimes ask the models to stop -> start without initializing.
+  // So we only fully wrap up if the context is no longer valid.
+  // Otherwise, we only reset the internal state by clearing the callback queue and calling onStop()
+  if (node_->get_node_base_interface()->get_context()->is_valid()) {
+    callback_queue_->removeAllCallbacks();
+
+    auto callback = std::make_shared<CallbackWrapper<void>>(
+      std::bind(&AsyncSensorModel::onStop, this)
+    );
+    auto result = callback->getFuture();
+    callback_queue_->addCallback(callback);
+    result.wait();
+  } else {
+    internal_stop();
+    onStop();
+  }
 }
 
 void AsyncSensorModel::internal_stop()
 {
-  // Try to cancel ASAP
-  executor_->cancel();
+  executor_->cancel();  // Try to cancel ASAP
+
   // Just in case the executor wasn't spinning, schedule a call to "stop"
   auto callback = std::make_shared<CallbackWrapper<void>>(
-      [&](){executor_->cancel();}
+    [&]() {executor_->cancel();}
   );
   callback_queue_->addCallback(callback);
 
   if (spinner_.joinable()) {
     spinner_.join();
   }
+  executor_->remove_node(node_);
+
   // Reset callback queue, which also removes maybe-unused call to cancel()
   callback_queue_->removeAllCallbacks();
 }

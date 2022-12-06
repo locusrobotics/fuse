@@ -54,10 +54,7 @@ AsyncMotionModel::AsyncMotionModel(size_t thread_count)
 
 AsyncMotionModel::~AsyncMotionModel()
 {
-  executor_->cancel();
-  if (spinner_.joinable()) {
-    spinner_.join();
-  }
+  internal_stop();
 }
 
 bool AsyncMotionModel::apply(Transaction & transaction)
@@ -96,18 +93,21 @@ void AsyncMotionModel::initialize(const std::string & name)
   executor_options.context = ros_context;
   executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
     executor_options,
-    executor_thread_count_);
+    executor_thread_count_
+  );
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
+
+  // This callback group MUST be re-entrant in order to support parallelization
+  cb_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
   node_->get_node_waitables_interface()->add_waitable(
-    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+    callback_queue_, cb_group_);
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
+  // Start the executor to service the local callback queue
   executor_->add_node(node_);
-
-  // TODO(CH3): Remove this if the internal node is removed
   spinner_ = std::thread(
     [&]() {
       executor_->spin();
@@ -136,7 +136,12 @@ void AsyncMotionModel::start()
 
 void AsyncMotionModel::stop()
 {
+  // Optimizers can sometimes ask the models to stop -> start without initializing.
+  // So we only fully wrap up if the context is no longer valid.
+  // Otherwise, we only reset the internal state by clearing the callback queue and calling onStop()
   if (node_->get_node_base_interface()->get_context()->is_valid()) {
+    callback_queue_->removeAllCallbacks();
+
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncMotionModel::onStop, this)
     );
@@ -144,17 +149,30 @@ void AsyncMotionModel::stop()
     callback_queue_->addCallback(callback);
     result.wait();
   } else {
-    executor_->cancel();
-    executor_->remove_node(node_);
-
-    // TODO(CH3): Remove this if the internal node is removed
-    executor_->cancel();
-    if (spinner_.joinable()) {
-      spinner_.join();
-    }
-
+    internal_stop();
     onStop();
   }
+}
+
+void AsyncMotionModel::internal_stop()
+{
+  executor_->cancel();  // Try to cancel ASAP
+
+  // Just in case the executor wasn't spinning, schedule a call to "stop"
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+    [&]() {
+      executor_->cancel();
+    }
+  );
+  callback_queue_->addCallback(callback);
+
+  if (spinner_.joinable()) {
+    spinner_.join();
+  }
+  executor_->remove_node(node_);
+
+  // Reset callback queue, which also removes maybe-unused call to cancel()
+  callback_queue_->removeAllCallbacks();
 }
 
 }  // namespace fuse_core

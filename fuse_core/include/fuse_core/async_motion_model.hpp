@@ -191,6 +191,7 @@ protected:
 
   std::string name_;  //!< The unique name for this motion model instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this motion model
+  rclcpp::CallbackGroup::SharedPtr cb_group_;  //!< Internal re-entrant callback group
 
   //! A single/multi-threaded spinner assigned to the local callback queue
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
@@ -271,6 +272,10 @@ protected:
    * start() is called.
    */
   virtual void onStop() {}
+
+private:
+  //! Stop the internal executor thread (in order to use this again it must be re-initialized)
+  void internal_stop();
 };
 
 }  // namespace fuse_core

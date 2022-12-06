@@ -57,7 +57,7 @@ class MySensor : public fuse_core::AsyncSensorModel
 {
 public:
   MySensor()
-  : fuse_core::AsyncSensorModel(1),
+  : fuse_core::AsyncSensorModel(0),
     initialized(false)
   {
   }
@@ -71,7 +71,7 @@ public:
 
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
-    rclcpp::sleep_for(std::chrono::milliseconds(1000));
+    rclcpp::sleep_for(std::chrono::milliseconds(10));
     graph_received = true;
   }
 
@@ -82,12 +82,12 @@ public:
 class TestAsyncSensorModel : public ::testing::Test
 {
 public:
-  static void SetUpTestCase()
+  void SetUp()
   {
     rclcpp::init(0, nullptr);
   }
 
-  static void TearDownTestCase()
+  void TearDown()
   {
     rclcpp::shutdown();
   }
@@ -95,9 +95,11 @@ public:
 
 TEST_F(TestAsyncSensorModel, OnInit)
 {
-  MySensor sensor;
-  sensor.initialize("my_sensor", &transactionCallback);
-  EXPECT_TRUE(sensor.initialized);
+  for (int i = 0; i < 250; i++) {
+    MySensor sensor;
+    sensor.initialize("my_sensor_" + std::to_string(i), &transactionCallback);
+    EXPECT_TRUE(sensor.initialized);
+  }
 }
 
 TEST_F(TestAsyncSensorModel, OnGraphUpdate)
@@ -110,14 +112,19 @@ TEST_F(TestAsyncSensorModel, OnGraphUpdate)
   // There is a time delay there. So, this call should return almost immediately, then we have to
   // wait a bit before the "received_graph" flag gets flipped.
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
-  sensor.graphCallback(graph);
-  EXPECT_FALSE(sensor.graph_received);
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
-  rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!sensor.graph_received && clock.now() < wait_time_elapsed) {
-    rclcpp::sleep_for(std::chrono::milliseconds(100));
+
+  // Test for multiple cycles of graphCallback to be sure
+  for (int i = 0; i < 50; i++) {
+    sensor.graph_received = false;
+    sensor.graphCallback(graph);
+    EXPECT_FALSE(sensor.graph_received);
+    rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10);
+    while (!sensor.graph_received && clock.now() < wait_time_elapsed) {
+      rclcpp::sleep_for(std::chrono::milliseconds(10));
+    }
+    EXPECT_TRUE(sensor.graph_received);
   }
-  EXPECT_TRUE(sensor.graph_received);
 }
 
 TEST_F(TestAsyncSensorModel, SendTransaction)
