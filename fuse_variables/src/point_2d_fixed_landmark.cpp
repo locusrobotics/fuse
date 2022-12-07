@@ -36,7 +36,7 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_variables/fixed_size_variable.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 

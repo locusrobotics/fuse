@@ -36,7 +36,7 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <fuse_core/time.hpp>
 
 #include <boost/serialization/export.hpp>
@@ -58,7 +58,7 @@ void Position3DStamped::print(std::ostream& stream) const
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
          << "  device_id: " << deviceId() << "\n"
-         << "  stamp: " << stamp() << "\n"
+         << "  stamp: " << stamp().nanoseconds() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
          << "  - x: " << x() << "\n"

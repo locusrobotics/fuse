@@ -33,20 +33,51 @@
  */
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/stamped.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
 #include <stdexcept>
 #include <string>
+#include <thread>
 
+class TestLoadDeviceId : public ::testing::Test
+{
+public:
+  void SetUp() override
+  {
+    exec_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
-TEST(Stamped, LoadDeviceId)
+    spinning_ = true;
+    spinner_ = std::thread([&](){
+      auto context = rclcpp::contexts::get_global_default_context();
+      while(context->is_valid() && spinning_) {
+        exec_->spin_some();
+      }
+    });
+  }
+
+  void TearDown() override
+  {
+    spinning_ = false;
+    if (spinner_.joinable()) {
+      spinner_.join();
+    }
+
+    exec_.reset();
+  }
+
+  std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> spinning_;  //!< Flag for spinning the spin thread
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr exec_;
+};
+
+TEST_F(TestLoadDeviceId, LoadDeviceId)
 {
   // Test loading a device id from each test namespace
   {
-    ros::NodeHandle node_handle("/id1");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("id1_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -58,8 +89,8 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/id2");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("id2_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -71,8 +102,8 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/id3");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("id3_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -84,8 +115,8 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/id4");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("id4_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -97,8 +128,8 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/id5");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("id5_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -110,8 +141,8 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/id6");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("id6_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -123,12 +154,12 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/id7");
-    EXPECT_THROW(fuse_variables::loadDeviceId(node_handle), std::runtime_error);
+    auto node = rclcpp::Node::make_shared("id7_node");
+    EXPECT_THROW(fuse_variables::loadDeviceId(node), std::runtime_error);
   }
   {
-    ros::NodeHandle node_handle("/name");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("name_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected =
     {
       0x5B, 0x23, 0x43, 0x6D,
@@ -140,8 +171,8 @@ TEST(Stamped, LoadDeviceId)
     EXPECT_EQ(expected, actual);
   }
   {
-    ros::NodeHandle node_handle("/none");
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node_handle);
+    auto node = rclcpp::Node::make_shared("none_node");
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
     fuse_core::UUID expected = fuse_core::uuid::NIL;
     EXPECT_EQ(expected, actual);
   }
@@ -149,13 +180,9 @@ TEST(Stamped, LoadDeviceId)
 
 int main(int argc, char** argv)
 {
+  rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_load_device_id");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
   int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
+  rclcpp::shutdown();
   return ret;
 }
