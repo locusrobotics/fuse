@@ -82,14 +82,27 @@ void AsyncPublisher::initialize(const std::string & name)
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
-  // Start the executor to service the local callback queue
+  // Make sure the executor will service the given node
+  // TODO(sloretz) add just the callback group here when using Optimizer's Node
   executor_->add_node(node_);
+
+  // Start the executor
   spinner_ = std::thread(
     [&]() {
       executor_->spin();
     });
 
-  initialized_ = true;
+  // Wait for the executor to start spinning.
+  // This avoids a race where the destructor blocks waiting for the spinner_
+  // thread to be joined when the class is destroyed before the thread is ever
+  // scheduled.
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+    [&]() {
+      initialized_ = true;
+    });
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
+  result.wait();
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
@@ -112,12 +125,9 @@ void AsyncPublisher::start()
 
 void AsyncPublisher::stop()
 {
-  // Optimizers can sometimes ask the models to stop -> start without initializing.
-  // So we only fully wrap up if the context is no longer valid.
-  // Otherwise, we only reset the internal state by clearing the callback queue and calling onStop()
+  // Prefer to call onStop in executor's thread so downstream users don't have
+  // to worry about threads in ROS callbacks when there's only 1 thread.
   if (node_->get_node_base_interface()->get_context()->is_valid()) {
-    callback_queue_->removeAllCallbacks();
-
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncPublisher::onStop, this)
     );
@@ -125,6 +135,9 @@ void AsyncPublisher::stop()
     callback_queue_->addCallback(callback);
     result.wait();
   } else {
+    // Can't run in executor's thread because the executor won't service more
+    // callbacks after the context is shutdown.
+    // Join executor's threads right away.
     internal_stop();
     onStop();
   }
@@ -132,20 +145,12 @@ void AsyncPublisher::stop()
 
 void AsyncPublisher::internal_stop()
 {
-  executor_->cancel();  // Try to cancel ASAP
-
-  // Just in case the executor wasn't spinning, schedule a call to "stop"
-  auto callback = std::make_shared<CallbackWrapper<void>>(
-    [&]() {executor_->cancel();}
-  );
-  callback_queue_->addCallback(callback);
-
   if (spinner_.joinable()) {
+    executor_->cancel();
     spinner_.join();
   }
-  executor_->remove_node(node_);
 
-  // Reset callback queue, which also removes maybe-unused call to cancel()
+  // Reset callback queue
   callback_queue_->removeAllCallbacks();
 }
 
