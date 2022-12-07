@@ -53,8 +53,9 @@ namespace fuse_loss
 {
 
 /**
- * @brief HSV colormap that varies the hue H in the [0, 1) range with equidistant points for the given size.
- * The hue H interval is open because the hue is the same for 0 and 1. Therefore, we never take hue == 1.
+ * @brief HSV colormap that varies the hue H in the [0, 1) range with equidistant points for the
+ *        given size. The hue H interval is open because the hue is the same for 0 and 1. Therefore,
+ *        we never take hue == 1.
  */
 class HSVColormap
 {

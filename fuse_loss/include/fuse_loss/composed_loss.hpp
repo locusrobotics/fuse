@@ -51,9 +51,11 @@ namespace fuse_loss
 /**
  * @brief The ComposedLoss loss function.
  *
- * This class encapsulates the ceres::ComposedLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::ComposedLoss class, adding the ability to serialize it and
+ * load it dynamically.
  *
- * See the Ceres documentation for more details: http://ceres-solver.org/nnls_modeling.html#lossfunction
+ * See the Ceres documentation for more details: http://ceres-
+ * solver.org/nnls_modeling.html#lossfunction
  */
 class ComposedLoss : public fuse_core::Loss
 {
@@ -63,10 +65,12 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] f_loss The 'f' loss function, which is evaluated last to yield the composition 'f(g(s))'. If it is
-   *                   nullptr the fuse_loss::TrivialLoss is used. Defaults to nullptr.
-   * @param[in] g_loss The 'g' loss function, which is evaluated first to yield the composition 'f(g(s))'. If it is
-   *                   nullptr the fuse_loss::TrivialLoss is used. Defaults to nullptr.
+   * @param[in] f_loss The 'f' loss function, which is evaluated last to yield the composition
+   *                   'f(g(s))'. If it is nullptr the fuse_loss::TrivialLoss is used. Defaults to
+   *                   nullptr.
+   * @param[in] g_loss The 'g' loss function, which is evaluated first to yield the composition
+   *                   'f(g(s))'. If it is nullptr the fuse_loss::TrivialLoss is used. Defaults to
+   *                   nullptr.
    */
   explicit ComposedLoss(
     const std::shared_ptr<fuse_core::Loss> & f_loss = nullptr,
@@ -78,12 +82,14 @@ public:
   ~ComposedLoss() override = default;
 
   /**
-   * @brief Perform any required post-construction initialization, such as reading from the parameter server.
+   * @brief Perform any required post-construction initialization, such as reading from the
+   *        parameter server.
    *
    * This will be called on each plugin after construction.
    *
    * @param[in] interfaces - The node interfaces used to load the parameter
-   * @param[in] name A unique name to initialize this plugin instance, such as from the parameter server.
+   * @param[in] name A unique name to initialize this plugin instance, such as from the parameter
+   *                 server.
    */
   void initialize(
     fuse_core::node_interfaces::NodeInterfaces<
@@ -103,10 +109,11 @@ public:
   /**
    * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
    *
-   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
-   * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
-   * generated loss functions (i.e. the Ceres objects will be destroyed before the Loss Function objects). This
-   * guarantee may allow optimizations for the creation of the loss function objects.
+   * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and
+   * promises to properly delete the loss function when it is done. Additionally, Fuse promises that
+   * the Loss object will outlive any generated loss functions (i.e. the Ceres objects will be
+   * destroyed before the Loss Function objects). This guarantee may allow optimizations for the
+   * creation of the loss function objects.
    *
    * @return A base pointer to an instance of a derived ceres::LossFunction.
    */
@@ -162,7 +169,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
