@@ -34,15 +34,15 @@
 #ifndef FUSE_LOSS__COMPOSED_LOSS_HPP_
 #define FUSE_LOSS__COMPOSED_LOSS_HPP_
 
+#include <memory>
+#include <ostream>
+#include <string>
+
 #include <fuse_core/loss.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <memory>
-#include <ostream>
-#include <string>
 
 
 namespace fuse_loss
@@ -160,10 +160,12 @@ public:
   }
 
 private:
-  std::shared_ptr<fuse_core::Loss> f_loss_{nullptr};    //!< The 'f' loss function, which is evaluated last to yield the
+  std::shared_ptr<fuse_core::Loss> f_loss_{nullptr};    //!< The 'f' loss function, which is
+                                                        //!< evaluated last to yield the composition
+                                                        //!< 'f(g(s))'
+  std::shared_ptr<fuse_core::Loss> g_loss_{nullptr};    //!< The 'g' loss function, which is
+                                                        //!< evaluated first to yield the
                                                         //!< composition 'f(g(s))'
-  std::shared_ptr<fuse_core::Loss> g_loss_{nullptr};    //!< The 'g' loss function, which is evaluated first to yield
-                                                        //!< the composition 'f(g(s))'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

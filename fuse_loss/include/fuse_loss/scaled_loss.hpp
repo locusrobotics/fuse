@@ -34,15 +34,15 @@
 #ifndef FUSE_LOSS__SCALED_LOSS_HPP_
 #define FUSE_LOSS__SCALED_LOSS_HPP_
 
+#include <memory>
+#include <ostream>
+#include <string>
+
 #include <fuse_core/loss.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <memory>
-#include <ostream>
-#include <string>
 
 
 namespace fuse_loss
