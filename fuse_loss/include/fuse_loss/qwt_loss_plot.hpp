@@ -111,7 +111,8 @@ public:
     //
     // where s = r^2, being r the residual.
     //
-    // See: https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L165
+    // See: https://github.com/ceres-solver/ceres-
+    // solver/blob/master/internal/ceres/residual_block.cc#L165
     std::transform(
       residuals_.begin(), residuals_.end(), std::back_inserter(rhos),
       [&loss_function](const auto & r) {              // NOLINT(whitespace/braces)
@@ -134,8 +135,8 @@ public:
     //   \phi(r) = ---------
     //                dr
     //
-    // However, the loss functions we use are like Ceres solver ones, i.e. they compute the first derivative of rho(s)
-    // wrt s = r^2 in rho[1] as:
+    // However, the loss functions we use are like Ceres solver ones, i.e. they compute the first
+    // derivative of rho(s) wrt s = r^2 in rho[1] as:
     //
     //             d rho(s)
     //   \phi(s) = --------
@@ -143,11 +144,16 @@ public:
     //
     // Therefore, we have the following equivalence:
     //
-    //             d \rho(r)   d 0.5 * rho(r^2)         d rho(s)   d r^2                 d rho(s)       d rho(s)
-    //   \phi(r) = --------- = ---------------- = 0.5 * -------- * ----- = 0.5 * 2 * r * -------- = r * --------
-    //                dr             dr                    ds       dr                      ds             ds
+    //             d \rho(r)   d 0.5 * rho(r^2)         d rho(s)   d r^2
+    //   \phi(r) = --------- = ---------------- = 0.5 * -------- * -----
+    //                dr             dr                    ds       dr
     //
-    // where \rho(r) = 0.5 * rho(r^2) is the inverse of rho(s) = 2 * \rho(sqrt(s)), because s = r^2 and r = sqrt(s).
+    //                           d rho(s)       d rho(s)
+    //           = 0.5 * 2 * r * -------- = r * --------
+    //                              ds             ds
+    //
+    // where \rho(r) = 0.5 * rho(r^2) is the inverse of rho(s) = 2 * \rho(sqrt(s)),
+    // because s = r^2 and r = sqrt(s).
     std::transform(
       residuals_.begin(), residuals_.end(), std::back_inserter(influence),
       [&loss_function](const auto & r) {              // NOLINT(whitespace/braces)
@@ -311,8 +317,8 @@ private:
   LossEvaluator loss_evaluator_;
 
   HSVColormap colormap_;
-  // We don't use an std::shared_ptr<QwtPlotCurve> because QwtPlot takes ownership of the curves attached to it and
-  // deletes them on destruction
+  // We don't use an std::shared_ptr<QwtPlotCurve> because QwtPlot takes ownership of the curves
+  // attached to it and deletes them on destruction
   std::vector<QwtPlotCurve *> curves_;
 
   QwtPlot plot_;

@@ -94,7 +94,8 @@ TEST(ComposedLoss, Constructor)
     // Make sure 'f(s) != s', i.e. it is not an inlier, which would be a trivial case
     ASSERT_NE(s, f_rho[0]);
 
-    // Check that 'f(g(s)) == f(s)' and the same for the first and second derivatives, since g is the TrivialLoss
+    // Check that 'f(g(s)) == f(s)' and the same for the first and second derivatives, since g is
+    // the TrivialLoss
     for (size_t i = 0; i < 3; ++i) {
       EXPECT_EQ(f_rho[i], rho[i]);
     }
@@ -127,7 +128,8 @@ TEST(ComposedLoss, Constructor)
     // Make sure 'g(s) != s', i.e. it is not an inlier, which would be a trivial case
     ASSERT_NE(s, g_rho[0]);
 
-    // Check that 'f(g(s)) == g(s)' and the same for the first and second derivatives, since f is the TrivialLoss
+    // Check that 'f(g(s)) == g(s)' and the same for the first and second derivatives, since f is
+    // the TrivialLoss
     for (size_t i = 0; i < 3; ++i) {
       EXPECT_EQ(g_rho[i], rho[i]);
     }
@@ -216,8 +218,9 @@ TEST(ComposedLoss, Optimization)
   std::shared_ptr<fuse_loss::ScaledLoss> g_loss{new fuse_loss::ScaledLoss(scaled_a)};
 
   // Create a composed loss, which illustrates the case of scaling the residuals by a factor with a
-  // fuse_loss::ScaledLoss in the 'g' loss and applies a fuse_loss::HuberLoss loss function robust to outliers in the
-  // 'f' loss, which are used in the composition 'f(g(s))' for the squared residuals 's'
+  // fuse_loss::ScaledLoss in the 'g' loss and applies a fuse_loss::HuberLoss loss function robust
+  // to outliers in the 'f' loss, which are used in the composition 'f(g(s))' for the squared
+  // residuals 's'
   fuse_loss::ComposedLoss composed_loss(f_loss, g_loss);
 
   // Build the problem.

@@ -176,7 +176,8 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
   second_derivative_plot.show();
 #endif
 
-  // Save as an SVG image, that can be converted to PNG with (e.g. for the weight function SVG image file):
+  // Save as an SVG image, that can be converted to PNG with (e.g. for the weight function SVG image
+  // file):
   //
   //   inkscape -z -e weight.png weight.svg
   //
@@ -190,9 +191,8 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
 
 #ifdef INTERACTIVE_TESTS
   // Run application:
-  // NOTE(CH3): This will block indefinitely until the test windows are closed!
-  //            Since the tests are meant to be interactive you MUST close the windows for them to
-  //            pass!!
+  // NOTE(CH3): This will block indefinitely until the test windows are closed! Since the tests are
+  //            meant to be interactive you MUST close the windows for them to pass!!
   std::cout << "Interactive test active. If test does a timeout, and you did not manually close the"
             << "windows that popped up, the timeout is expected!" << std::endl;
   app.exec();

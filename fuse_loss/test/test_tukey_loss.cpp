@@ -98,8 +98,8 @@ TEST(TukeyLoss, Optimization)
   ceres::CostFunction * cost_function_outlier =
     new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
 
-  // Create loss with a = x, so the initial value of x is not handled in the outlier region, in which case the
-  // optimization does not convergence and the initial solution does not change
+  // Create loss with a = x, so the initial value of x is not handled in the outlier region, in
+  // which case the optimization does not convergence and the initial solution does not change
   fuse_loss::TukeyLoss loss(x);
 
   // Build the problem.

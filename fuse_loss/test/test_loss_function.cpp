@@ -48,7 +48,8 @@
 //
 // * Check rho'(s) >= 0, which is required by the corrector in:
 //
-//     https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+// https://github.com/ceres-solver/ceres-
+// solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
 //
 //   which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
 //
@@ -73,14 +74,15 @@ void AssertLossFunctionIsValid(const ceres::LossFunction & loss, double s)
 
   // The corrector in:
   //
-  //   https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+  // https://github.com/ceres-solver/ceres-
+  // solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
   //
   // which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
   //
   //   https://hal.inria.fr/inria-00548290/document
   //
-  // requires that rho'(s) >=0 because it is used to compute sqrt(rho'(s)) in the equations that correct the residuals
-  // and jacobian.
+  // requires that rho'(s) >=0 because it is used to compute sqrt(rho'(s)) in the equations that
+  // correct the residuals and jacobian.
   ASSERT_GE(rho[1], 0);
 
   // Use symmetric finite differencing to estimate rho'(s) and
