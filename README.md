@@ -86,7 +86,7 @@ out to ROS. In order to publish data to ROS, we derive a `fuse_core::Publisher` 
 optimizer. Derived publishers have access to the optimized values of all state variables. The specific publisher
 implementation determines what type of messages are published and at what frequency. For our example system,
 we would like visualize the current pose of the robot in RViz, so we create a `fuse` publisher that finds the most
-recent pose and converts it into a `geometry_msgs::PoseStamped` message, then publishes the message to a topic.
+recent pose and converts it into a `geometry_msgs::msg::PoseStamped` message, then publishes the message to a topic.
 
 ![fuse optimizer](doc/fuse_optimizer_2.png)
 
@@ -117,7 +117,7 @@ from the configured plugins whenever new states are created by the sensor models
 
 Nothing about the `fuse` framework limits you to having a single publisher. What if you want to visualize the entire
 robot trajectory, instead of just the most recent pose? Well, we can create a new derived `fuse_core::Publisher` class
-that publishes all of the robot poses using a `nav_msgs::Path` message.
+that publishes all of the robot poses using a `nav_msgs::msg::Path` message.
 
 ![fuse optimizer](doc/fuse_optimizer_4.png)
 

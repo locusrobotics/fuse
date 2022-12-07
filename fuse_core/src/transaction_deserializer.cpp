@@ -71,24 +71,18 @@ TransactionDeserializer::TransactionDeserializer()
   }
 }
 
-fuse_core::Transaction TransactionDeserializer::deserialize(
-  const fuse_msgs::msg::SerializedTransaction::SharedPtr msg) const
-{
-  return deserialize(*msg);
-}
-
-fuse_core::Transaction TransactionDeserializer::deserialize(
+fuse_core::Transaction::UniquePtr TransactionDeserializer::deserialize(
   const fuse_msgs::msg::SerializedTransaction & msg) const
 {
   // The Transaction object is not a plugin and has no derived types. That makes it much easier to
   // use.
-  auto transaction = fuse_core::Transaction();
+  auto transaction = fuse_core::Transaction::UniquePtr();
   // Deserialize the msg.data field into the transaction.
   // This will throw if something goes wrong in the deserialization.
   boost::iostreams::stream<fuse_core::MessageBufferStreamSource> stream(msg.data);
   {
     BinaryInputArchive archive(stream);
-    transaction.deserialize(archive);
+    transaction->deserialize(archive);
   }
   return transaction;
 }
