@@ -47,7 +47,8 @@
 namespace fuse_loss
 {
 
-TukeyLoss::TukeyLoss(const double a) : a_(a)
+TukeyLoss::TukeyLoss(const double a)
+: a_(a)
 {
 }
 
@@ -57,18 +58,18 @@ void TukeyLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void TukeyLoss::print(std::ostream& stream) const
+void TukeyLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction* TukeyLoss::lossFunction() const
+ceres::LossFunction * TukeyLoss::lossFunction() const
 {
 #if CERES_VERSION_AT_LEAST(2, 0, 0)
   return new ceres::TukeyLoss(a_);

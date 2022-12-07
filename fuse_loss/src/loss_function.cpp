@@ -42,8 +42,7 @@ namespace ceres
 
 void DCSLoss::Evaluate(double s, double rho[3]) const
 {
-  if (s > a_)
-  {
+  if (s > a_) {
     // Outlier region
     const double inv = 1.0 / (a_ + s);
     const double scale = 2.0 * a_ * inv;
@@ -51,9 +50,7 @@ void DCSLoss::Evaluate(double s, double rho[3]) const
     rho[0] = a_ * (3.0 * s - a_) * inv;
     rho[1] = scale * scale;
     rho[2] = -2.0 * inv * rho[1];
-  }
-  else
-  {
+  } else {
     // Inlier region
     rho[0] = s;
     rho[1] = 1.0;

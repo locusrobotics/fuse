@@ -46,7 +46,8 @@
 namespace fuse_loss
 {
 
-WelschLoss::WelschLoss(const double a) : a_(a)
+WelschLoss::WelschLoss(const double a)
+: a_(a)
 {
 }
 
@@ -56,18 +57,18 @@ void WelschLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void WelschLoss::print(std::ostream& stream) const
+void WelschLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction* WelschLoss::lossFunction() const
+ceres::LossFunction * WelschLoss::lossFunction() const
 {
   return new ceres::WelschLoss(a_);
 }

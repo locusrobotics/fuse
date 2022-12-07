@@ -44,12 +44,12 @@
 namespace fuse_loss
 {
 
-void TrivialLoss::print(std::ostream& stream) const
+void TrivialLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n";
 }
 
-ceres::LossFunction* TrivialLoss::lossFunction() const
+ceres::LossFunction * TrivialLoss::lossFunction() const
 {
   return new ceres::TrivialLoss();
 }

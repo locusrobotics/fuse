@@ -46,7 +46,8 @@
 namespace fuse_loss
 {
 
-DCSLoss::DCSLoss(const double a) : a_(a)
+DCSLoss::DCSLoss(const double a)
+: a_(a)
 {
 }
 
@@ -56,18 +57,18 @@ void DCSLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void DCSLoss::print(std::ostream& stream) const
+void DCSLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction* DCSLoss::lossFunction() const
+ceres::LossFunction * DCSLoss::lossFunction() const
 {
   return new ceres::DCSLoss(a_);
 }

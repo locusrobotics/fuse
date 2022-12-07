@@ -40,7 +40,7 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
-#include<memory>
+#include <memory>
 
 
 TEST(ScaledLoss, Constructor)
@@ -54,7 +54,7 @@ TEST(ScaledLoss, Constructor)
 
   // Create a loss with a parameter
   {
-    const double a{ 0.3 };
+    const double a{0.3};
     fuse_loss::ScaledLoss scaled_loss(a);
     EXPECT_EQ(a, scaled_loss.a());
     EXPECT_EQ(nullptr, scaled_loss.loss());
@@ -62,9 +62,9 @@ TEST(ScaledLoss, Constructor)
 
   // Create a loss with a parameter and loss function to scale
   {
-    std::shared_ptr<fuse_loss::HuberLoss> loss{ new fuse_loss::HuberLoss };
+    std::shared_ptr<fuse_loss::HuberLoss> loss{new fuse_loss::HuberLoss};
 
-    const double a{ 0.3 };
+    const double a{0.3};
     fuse_loss::ScaledLoss scaled_loss(a, loss);
     EXPECT_EQ(a, scaled_loss.a());
     EXPECT_NE(nullptr, scaled_loss.loss());
@@ -75,37 +75,37 @@ TEST(ScaledLoss, Constructor)
 struct CostFunctor
 {
   explicit CostFunctor(const double data)
-    : data(data)
+  : data(data)
   {}
 
-  template <typename T> bool operator()(const T* const x, T* residual) const
+  template<typename T> bool operator()(const T * const x, T * residual) const
   {
     residual[0] = x[0] - T(data);
     return true;
   }
 
-  double data{ 0.0 };
+  double data{0.0};
 };
 
 TEST(ScaledLoss, Optimization)
 {
   // Create a simple parameter
-  double x{ 5.0 };
+  double x{5.0};
 
   // Create a simple inlier constraint
-  const double inlier{ 1.0 };
+  const double inlier{1.0};
 
   // Create a simple outlier constraint
-  const double outlier{ 10.0 };
-  ceres::CostFunction* cost_function_outlier =
-      new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
+  const double outlier{10.0};
+  ceres::CostFunction * cost_function_outlier =
+    new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
 
   // Create loss
-  const double a{ 0.1 };
-  std::shared_ptr<fuse_loss::HuberLoss> loss{ new fuse_loss::HuberLoss(a) };
+  const double a{0.1};
+  std::shared_ptr<fuse_loss::HuberLoss> loss{new fuse_loss::HuberLoss(a)};
 
   // Create a scaled loss, which should not have a significant impact in this test
-  const double scaled_a{ 0.7 };
+  const double scaled_a{0.7};
   fuse_loss::ScaledLoss scaled_loss(scaled_a, loss);
 
   // Build the problem.
@@ -114,9 +114,8 @@ TEST(ScaledLoss, Optimization)
 
   ceres::Problem problem(problem_options);
 
-  const size_t num_inliers{ 1000 };
-  for (size_t i = 0; i < num_inliers; ++i)
-  {
+  const size_t num_inliers{1000};
+  for (size_t i = 0; i < num_inliers; ++i) {
     problem.AddResidualBlock(
       new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(inlier)),
       scaled_loss.lossFunction(),  // A nullptr here would produce a slightly better solution
@@ -124,9 +123,8 @@ TEST(ScaledLoss, Optimization)
   }
 
   // Add outlier constraints
-  const size_t num_outliers{ 9 };
-  for (size_t i = 0; i < num_outliers; ++i)
-  {
+  const size_t num_outliers{9};
+  for (size_t i = 0; i < num_outliers; ++i) {
     problem.AddResidualBlock(
       cost_function_outlier,
       scaled_loss.lossFunction(),
@@ -159,11 +157,11 @@ TEST(ScaledLoss, Optimization)
 TEST(ScaledLoss, Serialization)
 {
   // Construct a loss
-  const double loss_a{ 0.3 };
-  std::shared_ptr<fuse_loss::HuberLoss> loss{ new fuse_loss::HuberLoss(loss_a) };
+  const double loss_a{0.3};
+  std::shared_ptr<fuse_loss::HuberLoss> loss{new fuse_loss::HuberLoss(loss_a)};
 
   // Construct a scaled loss
-  const double a{ 0.7 };
+  const double a{0.7};
   fuse_loss::ScaledLoss expected(a, loss);
 
   // Serialize the loss into an archive

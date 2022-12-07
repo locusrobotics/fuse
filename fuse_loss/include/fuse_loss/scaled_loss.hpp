@@ -66,7 +66,9 @@ public:
    * @param[in] a ScaledLoss parameter 'a'. See Ceres documentation for more details.
    * @param[in] loss The loss function to scale. Its output is scaled/multiplied by 'a'.
    */
-  explicit ScaledLoss(const double a = 1.0, const std::shared_ptr<fuse_core::Loss>& loss = nullptr);
+  explicit ScaledLoss(
+    const double a = 1.0,
+    const std::shared_ptr<fuse_core::Loss> & loss = nullptr);
 
   /**
    * @brief Destructor
@@ -81,20 +83,20 @@ public:
    * @param[in] interfaces - The node interfaces used to load the parameter
    * @param[in] name A unique name to initialize this plugin instance, such as from the parameter server.
    */
-void initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > interfaces,
-  const std::string& name) override;
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string & name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
   /**
    * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
@@ -106,7 +108,7 @@ void initialize(
    *
    * @return A base pointer to an instance of a derived ceres::LossFunction.
    */
-  ceres::LossFunction* lossFunction() const override;
+  ceres::LossFunction * lossFunction() const override;
 
   /**
    * @brief Parameter 'a' accessor.
@@ -143,14 +145,14 @@ void initialize(
    *
    * @param[in] loss Parameter 'loss'.
    */
-  void loss(const std::shared_ptr<fuse_core::Loss>& loss)
+  void loss(const std::shared_ptr<fuse_core::Loss> & loss)
   {
     loss_ = loss;
   }
 
 private:
-  double a_{ 1.0 };  //!< ScaledLoss parameter 'a'. See Ceres documentation for more details
-  std::shared_ptr<fuse_core::Loss> loss_{ nullptr };  //!< The loss function to scale
+  double a_{1.0};    //!< ScaledLoss parameter 'a'. See Ceres documentation for more details
+  std::shared_ptr<fuse_core::Loss> loss_{nullptr};    //!< The loss function to scale
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -162,7 +164,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
     archive & a_;
