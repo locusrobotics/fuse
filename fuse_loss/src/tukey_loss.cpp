@@ -31,18 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/tukey_loss.hpp>
-
-#include <fuse_core/ceres_macros.hpp>
-#include <fuse_core/parameter.hpp>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <ostream>
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/tukey_loss.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {

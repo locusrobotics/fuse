@@ -31,19 +31,19 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_loss/composed_loss.hpp>
-#include <fuse_loss/huber_loss.hpp>
-#include <fuse_loss/scaled_loss.hpp>
-#include <fuse_loss/tolerant_loss.hpp>
-#include <fuse_loss/trivial_loss.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
 #include <memory>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_loss/composed_loss.hpp>
+#include <fuse_loss/huber_loss.hpp>
+#include <fuse_loss/scaled_loss.hpp>
+#include <fuse_loss/tolerant_loss.hpp>
+#include <fuse_loss/trivial_loss.hpp>
 
 TEST(ComposedLoss, Constructor)
 {

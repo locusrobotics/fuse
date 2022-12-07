@@ -31,28 +31,25 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/arctan_loss.hpp>
-#include <fuse_loss/cauchy_loss.hpp>
-#include <fuse_loss/dcs_loss.hpp>
-#include <fuse_loss/fair_loss.hpp>
-#include <fuse_loss/geman_mcclure_loss.hpp>
-#include <fuse_loss/huber_loss.hpp>
-#include <fuse_loss/softlone_loss.hpp>
-#include <fuse_loss/tolerant_loss.hpp>
-#include <fuse_loss/trivial_loss.hpp>
-#include <fuse_loss/tukey_loss.hpp>
-#include <fuse_loss/welsch_loss.hpp>
-
-#include <fuse_loss/qwt_loss_plot.hpp>
-
 #include <gtest/gtest.h>
-
 #include <QApplication>
 
 #include <iostream>
 #include <memory>
 #include <vector>
 
+#include <fuse_loss/arctan_loss.hpp>
+#include <fuse_loss/cauchy_loss.hpp>
+#include <fuse_loss/dcs_loss.hpp>
+#include <fuse_loss/fair_loss.hpp>
+#include <fuse_loss/geman_mcclure_loss.hpp>
+#include <fuse_loss/huber_loss.hpp>
+#include <fuse_loss/qwt_loss_plot.hpp>
+#include <fuse_loss/softlone_loss.hpp>
+#include <fuse_loss/tolerant_loss.hpp>
+#include <fuse_loss/trivial_loss.hpp>
+#include <fuse_loss/tukey_loss.hpp>
+#include <fuse_loss/welsch_loss.hpp>
 
 class QwtLossPlotTest : public testing::Test
 {

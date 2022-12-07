@@ -31,11 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/loss_function.hpp>
-
 #include <cmath>
 #include <limits>
 
+#include <fuse_loss/loss_function.hpp>
 
 namespace ceres
 {
