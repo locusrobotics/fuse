@@ -152,6 +152,7 @@ void AsyncPublisher::internal_stop()
 
   // Reset callback queue
   callback_queue_->removeAllCallbacks();
+  initialized_ = false;
 }
 
 }  // namespace fuse_core
