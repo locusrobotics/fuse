@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_CAUCHY_LOSS_HPP_
-#define FUSE_LOSS_CAUCHY_LOSS_HPP_
+#ifndef FUSE_LOSS__CAUCHY_LOSS_HPP_
+#define FUSE_LOSS__CAUCHY_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -156,4 +156,4 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(fuse_loss::CauchyLoss);
 
-#endif  // FUSE_LOSS_CAUCHY_LOSS_HPP_
+#endif  // FUSE_LOSS__CAUCHY_LOSS_HPP_

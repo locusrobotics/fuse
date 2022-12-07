@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_HUBER_LOSS_HPP_
-#define FUSE_LOSS_HUBER_LOSS_HPP_
+#ifndef FUSE_LOSS__HUBER_LOSS_HPP_
+#define FUSE_LOSS__HUBER_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -156,4 +156,4 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(fuse_loss::HuberLoss);
 
-#endif  // FUSE_LOSS_HUBER_LOSS_HPP_
+#endif  // FUSE_LOSS__HUBER_LOSS_HPP_
