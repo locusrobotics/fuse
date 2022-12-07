@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Clearpath Robotics
+ *  Copyright (c) 2020, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_TUKEY_LOSS_H
-#define FUSE_LOSS_TUKEY_LOSS_H
+#ifndef FUSE_LOSS_GEMAN_MCCLURE_LOSS_HPP_
+#define FUSE_LOSS_GEMAN_MCCLURE_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,28 +48,32 @@ namespace fuse_loss
 {
 
 /**
- * @brief The TukeyLoss loss function.
+ * @brief The GemanMcClureLoss loss function.
  *
- * This class encapsulates the ceres::TukeyLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::GemanMcClureLoss class, adding the ability to serialize it and load it
+ * dynamically.
+ *
+ * The Geman-McClure loss is not provided by the Ceres solver, so it is implemented here, based on table #1 from:
+ * http://www.audentia-gestion.fr/research.microsoft/ZhangIVC-97-01.pdf (p. 24)
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class TukeyLoss : public fuse_core::Loss
+class GemanMcClureLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(TukeyLoss)
+  FUSE_LOSS_DEFINITIONS(GemanMcClureLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a TukeyLoss parameter 'a'. See Ceres documentation for more details
+   * @param[in] a GemanMcClureLoss parameter 'a'
    */
-  explicit TukeyLoss(const double a = 1.0);
+  explicit GemanMcClureLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~TukeyLoss() override = default;
+  ~GemanMcClureLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -79,13 +83,13 @@ public:
    * @param[in] interfaces - The node interfaces used to load the parameter
    * @param[in] name A unique name to initialize this plugin instance, such as from the parameter server.
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string& name) override;
+void initialize(
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters
+  > interfaces,
+  const std::string& name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
@@ -127,7 +131,7 @@ public:
   }
 
 private:
-  double a_{ 1.0 };  //!< TukeyLoss parameter 'a'. See Ceres documentation for more details
+  double a_{ 1.0 };  //!< GemanMcClureLoss parameter 'a'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -148,6 +152,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::TukeyLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::GemanMcClureLoss);
 
-#endif  // FUSE_LOSS_TUKEY_LOSS_H
+#endif  // FUSE_LOSS_GEMAN_MCCLURE_LOSS_HPP_

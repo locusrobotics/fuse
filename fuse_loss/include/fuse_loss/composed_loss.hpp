@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Clearpath Robotics
+ *  Copyright (c) 2020, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_CAUCHY_LOSS_H
-#define FUSE_LOSS_CAUCHY_LOSS_H
+#ifndef FUSE_LOSS_COMPOSED_LOSS_HPP_
+#define FUSE_LOSS_COMPOSED_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -40,6 +40,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+#include <memory>
 #include <ostream>
 #include <string>
 
@@ -48,28 +49,32 @@ namespace fuse_loss
 {
 
 /**
- * @brief The CauchyLoss loss function.
+ * @brief The ComposedLoss loss function.
  *
- * This class encapsulates the ceres::CauchyLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::ComposedLoss class, adding the ability to serialize it and load it dynamically.
  *
- * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
+ * See the Ceres documentation for more details: http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class CauchyLoss : public fuse_core::Loss
+class ComposedLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(CauchyLoss)
+  FUSE_LOSS_DEFINITIONS(ComposedLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a CauchyLoss parameter 'a'. See Ceres documentation for more details
+   * @param[in] f_loss The 'f' loss function, which is evaluated last to yield the composition 'f(g(s))'. If it is
+   *                   nullptr the fuse_loss::TrivialLoss is used. Defaults to nullptr.
+   * @param[in] g_loss The 'g' loss function, which is evaluated first to yield the composition 'f(g(s))'. If it is
+   *                   nullptr the fuse_loss::TrivialLoss is used. Defaults to nullptr.
    */
-  explicit CauchyLoss(const double a = 1.0);
+  explicit ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss = nullptr,
+                        const std::shared_ptr<fuse_core::Loss>& g_loss = nullptr);
 
   /**
    * @brief Destructor
    */
-  ~CauchyLoss() override = default;
+  ~ComposedLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -95,7 +100,7 @@ void initialize(
   void print(std::ostream& stream = std::cout) const override;
 
   /**
-   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
+   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
    *
    * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
    * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
@@ -107,27 +112,50 @@ void initialize(
   ceres::LossFunction* lossFunction() const override;
 
   /**
-   * @brief Parameter 'a' accessor.
+   * @brief Parameter 'f_loss' accessor.
    *
-   * @return Parameter 'a'.
+   * @return Parameter 'f_loss'.
    */
-  double a() const
+  std::shared_ptr<fuse_core::Loss> fLoss() const
   {
-    return a_;
+    return f_loss_;
   }
 
   /**
-   * @brief Parameter 'a' mutator.
+   * @brief Parameter 'g_loss' accessor.
    *
-   * @param[in] a Parameter 'a'.
+   * @return Parameter 'g_loss'.
    */
-  void a(const double a)
+  std::shared_ptr<fuse_core::Loss> gLoss() const
   {
-    a_ = a;
+    return g_loss_;
+  }
+
+  /**
+   * @brief Parameter 'f_loss' mutator.
+   *
+   * @param[in] loss Parameter 'f_loss'.
+   */
+  void fLoss(const std::shared_ptr<fuse_core::Loss>& f_loss)
+  {
+    f_loss_ = f_loss;
+  }
+
+  /**
+   * @brief Parameter 'g_loss' mutator.
+   *
+   * @param[in] loss Parameter 'g_loss'.
+   */
+  void gLoss(const std::shared_ptr<fuse_core::Loss>& g_loss)
+  {
+    g_loss_ = g_loss;
   }
 
 private:
-  double a_{ 1.0 };  //!< CauchyLoss parameter 'a'. See Ceres documentation for more details
+  std::shared_ptr<fuse_core::Loss> f_loss_{ nullptr };  //!< The 'f' loss function, which is evaluated last to yield the
+                                                        //!< composition 'f(g(s))'
+  std::shared_ptr<fuse_core::Loss> g_loss_{ nullptr };  //!< The 'g' loss function, which is evaluated first to yield
+                                                        //!< the composition 'f(g(s))'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -142,12 +170,13 @@ private:
   void serialize(Archive& archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
-    archive & a_;
+    archive & f_loss_;
+    archive & g_loss_;
   }
 };
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::CauchyLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::ComposedLoss);
 
-#endif  // FUSE_LOSS_CAUCHY_LOSS_H
+#endif  // FUSE_LOSS_COMPOSED_LOSS_HPP_

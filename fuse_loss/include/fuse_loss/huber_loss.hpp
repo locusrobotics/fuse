@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2019, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_COMPOSED_LOSS_H
-#define FUSE_LOSS_COMPOSED_LOSS_H
+#ifndef FUSE_LOSS_HUBER_LOSS_HPP_
+#define FUSE_LOSS_HUBER_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -40,7 +40,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-#include <memory>
 #include <ostream>
 #include <string>
 
@@ -49,32 +48,28 @@ namespace fuse_loss
 {
 
 /**
- * @brief The ComposedLoss loss function.
+ * @brief The HuberLoss loss function.
  *
- * This class encapsulates the ceres::ComposedLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::HuberLoss class, adding the ability to serialize it and load it dynamically.
  *
- * See the Ceres documentation for more details: http://ceres-solver.org/nnls_modeling.html#lossfunction
+ * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class ComposedLoss : public fuse_core::Loss
+class HuberLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ComposedLoss)
+  FUSE_LOSS_DEFINITIONS(HuberLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] f_loss The 'f' loss function, which is evaluated last to yield the composition 'f(g(s))'. If it is
-   *                   nullptr the fuse_loss::TrivialLoss is used. Defaults to nullptr.
-   * @param[in] g_loss The 'g' loss function, which is evaluated first to yield the composition 'f(g(s))'. If it is
-   *                   nullptr the fuse_loss::TrivialLoss is used. Defaults to nullptr.
+   * @param[in] a HuberLoss parameter 'a'. See Ceres documentation for more details
    */
-  explicit ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss = nullptr,
-                        const std::shared_ptr<fuse_core::Loss>& g_loss = nullptr);
+  explicit HuberLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~ComposedLoss() override = default;
+  ~HuberLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -100,7 +95,7 @@ void initialize(
   void print(std::ostream& stream = std::cout) const override;
 
   /**
-   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
+   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
    *
    * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
    * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
@@ -112,50 +107,27 @@ void initialize(
   ceres::LossFunction* lossFunction() const override;
 
   /**
-   * @brief Parameter 'f_loss' accessor.
+   * @brief Parameter 'a' accessor.
    *
-   * @return Parameter 'f_loss'.
+   * @return Parameter 'a'.
    */
-  std::shared_ptr<fuse_core::Loss> fLoss() const
+  double a() const
   {
-    return f_loss_;
+    return a_;
   }
 
   /**
-   * @brief Parameter 'g_loss' accessor.
+   * @brief Parameter 'a' mutator.
    *
-   * @return Parameter 'g_loss'.
+   * @param[in] a Parameter 'a'.
    */
-  std::shared_ptr<fuse_core::Loss> gLoss() const
+  void a(const double a)
   {
-    return g_loss_;
-  }
-
-  /**
-   * @brief Parameter 'f_loss' mutator.
-   *
-   * @param[in] loss Parameter 'f_loss'.
-   */
-  void fLoss(const std::shared_ptr<fuse_core::Loss>& f_loss)
-  {
-    f_loss_ = f_loss;
-  }
-
-  /**
-   * @brief Parameter 'g_loss' mutator.
-   *
-   * @param[in] loss Parameter 'g_loss'.
-   */
-  void gLoss(const std::shared_ptr<fuse_core::Loss>& g_loss)
-  {
-    g_loss_ = g_loss;
+    a_ = a;
   }
 
 private:
-  std::shared_ptr<fuse_core::Loss> f_loss_{ nullptr };  //!< The 'f' loss function, which is evaluated last to yield the
-                                                        //!< composition 'f(g(s))'
-  std::shared_ptr<fuse_core::Loss> g_loss_{ nullptr };  //!< The 'g' loss function, which is evaluated first to yield
-                                                        //!< the composition 'f(g(s))'
+  double a_{ 1.0 };  //!< HuberLoss parameter 'a'. See Ceres documentation for more details
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -170,13 +142,12 @@ private:
   void serialize(Archive& archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
-    archive & f_loss_;
-    archive & g_loss_;
+    archive & a_;
   }
 };
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::ComposedLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::HuberLoss);
 
-#endif  // FUSE_LOSS_COMPOSED_LOSS_H
+#endif  // FUSE_LOSS_HUBER_LOSS_HPP_

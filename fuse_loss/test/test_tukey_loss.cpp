@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/serialization.hpp>
-#include <fuse_loss/tukey_loss.h>
+#include <fuse_loss/tukey_loss.hpp>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>

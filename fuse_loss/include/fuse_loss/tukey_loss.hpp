@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_TRIVIAL_LOSS_H
-#define FUSE_LOSS_TRIVIAL_LOSS_H
+#ifndef FUSE_LOSS_TUKEY_LOSS_HPP_
+#define FUSE_LOSS_TUKEY_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,26 +48,28 @@ namespace fuse_loss
 {
 
 /**
- * @brief The TrivialLoss loss function.
+ * @brief The TukeyLoss loss function.
  *
- * This class encapsulates the ceres::TrivialLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::TukeyLoss class, adding the ability to serialize it and load it dynamically.
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class TrivialLoss : public fuse_core::Loss
+class TukeyLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(TrivialLoss)
+  FUSE_LOSS_DEFINITIONS(TukeyLoss)
 
   /**
    * @brief Constructor
+   *
+   * @param[in] a TukeyLoss parameter 'a'. See Ceres documentation for more details
    */
-  TrivialLoss() = default;
+  explicit TukeyLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~TrivialLoss() override = default;
+  ~TukeyLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -77,15 +79,13 @@ public:
    * @param[in] interfaces - The node interfaces used to load the parameter
    * @param[in] name A unique name to initialize this plugin instance, such as from the parameter server.
    */
-   void initialize(
-     fuse_core::node_interfaces::NodeInterfaces<
-       fuse_core::node_interfaces::Base,
-       fuse_core::node_interfaces::Logging,
-       fuse_core::node_interfaces::Parameters
-     > /*interfaces*/,
-     const std::string& /*name*/) override
-   {
-   }
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string& name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
@@ -106,7 +106,29 @@ public:
    */
   ceres::LossFunction* lossFunction() const override;
 
+  /**
+   * @brief Parameter 'a' accessor.
+   *
+   * @return Parameter 'a'.
+   */
+  double a() const
+  {
+    return a_;
+  }
+
+  /**
+   * @brief Parameter 'a' mutator.
+   *
+   * @param[in] a Parameter 'a'.
+   */
+  void a(const double a)
+  {
+    a_ = a;
+  }
+
 private:
+  double a_{ 1.0 };  //!< TukeyLoss parameter 'a'. See Ceres documentation for more details
+
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -120,11 +142,12 @@ private:
   void serialize(Archive& archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
+    archive & a_;
   }
 };
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::TrivialLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::TukeyLoss);
 
-#endif  // FUSE_LOSS_TRIVIAL_LOSS_H
+#endif  // FUSE_LOSS_TUKEY_LOSS_HPP_

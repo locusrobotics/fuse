@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Clearpath Robotics
+ *  Copyright (c) 2020, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_HUBER_LOSS_H
-#define FUSE_LOSS_HUBER_LOSS_H
+#ifndef FUSE_LOSS_DCS_LOSS_HPP_
+#define FUSE_LOSS_DCS_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,28 +48,32 @@ namespace fuse_loss
 {
 
 /**
- * @brief The HuberLoss loss function.
+ * @brief The DCS (Dynamic Covariance Scaling) loss function.
  *
- * This class encapsulates the ceres::HuberLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::DCSLoss class, adding the ability to serialize it and load it
+ * dynamically.
+ *
+ * The DCS loss is not provided by the Ceres solver, so it is implemented here, based on equation #315 from:
+ * http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p. 3)
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class HuberLoss : public fuse_core::Loss
+class DCSLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(HuberLoss)
+  FUSE_LOSS_DEFINITIONS(DCSLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a HuberLoss parameter 'a'. See Ceres documentation for more details
+   * @param[in] a DCSLoss parameter 'a'
    */
-  explicit HuberLoss(const double a = 1.0);
+  explicit DCSLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~HuberLoss() override = default;
+  ~DCSLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -127,7 +131,7 @@ void initialize(
   }
 
 private:
-  double a_{ 1.0 };  //!< HuberLoss parameter 'a'. See Ceres documentation for more details
+  double a_{ 1.0 };  //!< DCSLoss parameter 'a'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -148,6 +152,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::HuberLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::DCSLoss);
 
-#endif  // FUSE_LOSS_HUBER_LOSS_H
+#endif  // FUSE_LOSS_DCS_LOSS_HPP_

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2019, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_WELSCH_LOSS_H
-#define FUSE_LOSS_WELSCH_LOSS_H
+#ifndef FUSE_LOSS_TRIVIAL_LOSS_HPP_
+#define FUSE_LOSS_TRIVIAL_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,32 +48,26 @@ namespace fuse_loss
 {
 
 /**
- * @brief The Welsch loss function.
+ * @brief The TrivialLoss loss function.
  *
- * This class encapsulates the ceres::WelschLoss class, adding the ability to serialize it and load it
- * dynamically.
- *
- * The Welsch loss is not provided by the Ceres solver, so it is implemented here, based on table #1 from:
- * http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p. 3)
+ * This class encapsulates the ceres::TrivialLoss class, adding the ability to serialize it and load it dynamically.
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class WelschLoss : public fuse_core::Loss
+class TrivialLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(WelschLoss)
+  FUSE_LOSS_DEFINITIONS(TrivialLoss)
 
   /**
    * @brief Constructor
-   *
-   * @param[in] a WelschLoss parameter 'a'
    */
-  explicit WelschLoss(const double a = 1.0);
+  TrivialLoss() = default;
 
   /**
    * @brief Destructor
    */
-  ~WelschLoss() override = default;
+  ~TrivialLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -83,13 +77,15 @@ public:
    * @param[in] interfaces - The node interfaces used to load the parameter
    * @param[in] name A unique name to initialize this plugin instance, such as from the parameter server.
    */
-void initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > interfaces,
-  const std::string& name) override;
+   void initialize(
+     fuse_core::node_interfaces::NodeInterfaces<
+       fuse_core::node_interfaces::Base,
+       fuse_core::node_interfaces::Logging,
+       fuse_core::node_interfaces::Parameters
+     > /*interfaces*/,
+     const std::string& /*name*/) override
+   {
+   }
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
@@ -110,29 +106,7 @@ void initialize(
    */
   ceres::LossFunction* lossFunction() const override;
 
-  /**
-   * @brief Parameter 'a' accessor.
-   *
-   * @return Parameter 'a'.
-   */
-  double a() const
-  {
-    return a_;
-  }
-
-  /**
-   * @brief Parameter 'a' mutator.
-   *
-   * @param[in] a Parameter 'a'.
-   */
-  void a(const double a)
-  {
-    a_ = a;
-  }
-
 private:
-  double a_{ 1.0 };  //!< WelschLoss parameter 'a'
-
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -146,12 +120,11 @@ private:
   void serialize(Archive& archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
-    archive & a_;
   }
 };
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::WelschLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::TrivialLoss);
 
-#endif  // FUSE_LOSS_WELSCH_LOSS_H
+#endif  // FUSE_LOSS_TRIVIAL_LOSS_HPP_

@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/parameter.hpp>
-#include <fuse_loss/welsch_loss.h>
-#include <fuse_loss/loss_function.h>
+#include <fuse_loss/welsch_loss.hpp>
+#include <fuse_loss/loss_function.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 

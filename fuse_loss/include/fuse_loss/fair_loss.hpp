@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_DCS_LOSS_H
-#define FUSE_LOSS_DCS_LOSS_H
+#ifndef FUSE_LOSS_FAIR_LOSS_HPP_
+#define FUSE_LOSS_FAIR_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,32 +48,32 @@ namespace fuse_loss
 {
 
 /**
- * @brief The DCS (Dynamic Covariance Scaling) loss function.
+ * @brief The Fair loss function.
  *
- * This class encapsulates the ceres::DCSLoss class, adding the ability to serialize it and load it
+ * This class encapsulates the ceres::FairLoss class, adding the ability to serialize it and load it
  * dynamically.
  *
- * The DCS loss is not provided by the Ceres solver, so it is implemented here, based on equation #315 from:
+ * The Fair loss is not provided by the Ceres solver, so it is implemented here, based on table #1 from:
  * http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p. 3)
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class DCSLoss : public fuse_core::Loss
+class FairLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(DCSLoss)
+  FUSE_LOSS_DEFINITIONS(FairLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a DCSLoss parameter 'a'
+   * @param[in] a FairLoss parameter 'a'
    */
-  explicit DCSLoss(const double a = 1.0);
+  explicit FairLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~DCSLoss() override = default;
+  ~FairLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -131,7 +131,7 @@ void initialize(
   }
 
 private:
-  double a_{ 1.0 };  //!< DCSLoss parameter 'a'
+  double a_{ 1.0 };  //!< FairLoss parameter 'a'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -152,6 +152,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::DCSLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::FairLoss);
 
-#endif  // FUSE_LOSS_DCS_LOSS_H
+#endif  // FUSE_LOSS_FAIR_LOSS_HPP_

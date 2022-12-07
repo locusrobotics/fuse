@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2019, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_FAIR_LOSS_H
-#define FUSE_LOSS_FAIR_LOSS_H
+#ifndef FUSE_LOSS_SOFTLONE_LOSS_HPP_
+#define FUSE_LOSS_SOFTLONE_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,32 +48,28 @@ namespace fuse_loss
 {
 
 /**
- * @brief The Fair loss function.
+ * @brief The SoftLOneLoss loss function.
  *
- * This class encapsulates the ceres::FairLoss class, adding the ability to serialize it and load it
- * dynamically.
- *
- * The Fair loss is not provided by the Ceres solver, so it is implemented here, based on table #1 from:
- * http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p. 3)
+ * This class encapsulates the ceres::SoftLOneLoss class, adding the ability to serialize it and load it dynamically.
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class FairLoss : public fuse_core::Loss
+class SoftLOneLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(FairLoss)
+  FUSE_LOSS_DEFINITIONS(SoftLOneLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a FairLoss parameter 'a'
+   * @param[in] a SoftLOneLoss parameter 'a'. See Ceres documentation for more details
    */
-  explicit FairLoss(const double a = 1.0);
+  explicit SoftLOneLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~FairLoss() override = default;
+  ~SoftLOneLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -131,7 +127,7 @@ void initialize(
   }
 
 private:
-  double a_{ 1.0 };  //!< FairLoss parameter 'a'
+  double a_{ 1.0 };  //!< SoftLOneLoss parameter 'a'. See Ceres documentation for more details
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -152,6 +148,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::FairLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::SoftLOneLoss);
 
-#endif  // FUSE_LOSS_FAIR_LOSS_H
+#endif  // FUSE_LOSS_SOFTLONE_LOSS_HPP_

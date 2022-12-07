@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_GEMAN_MCCLURE_LOSS_H
-#define FUSE_LOSS_GEMAN_MCCLURE_LOSS_H
+#ifndef FUSE_LOSS_WELSCH_LOSS_HPP_
+#define FUSE_LOSS_WELSCH_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -48,32 +48,32 @@ namespace fuse_loss
 {
 
 /**
- * @brief The GemanMcClureLoss loss function.
+ * @brief The Welsch loss function.
  *
- * This class encapsulates the ceres::GemanMcClureLoss class, adding the ability to serialize it and load it
+ * This class encapsulates the ceres::WelschLoss class, adding the ability to serialize it and load it
  * dynamically.
  *
- * The Geman-McClure loss is not provided by the Ceres solver, so it is implemented here, based on table #1 from:
- * http://www.audentia-gestion.fr/research.microsoft/ZhangIVC-97-01.pdf (p. 24)
+ * The Welsch loss is not provided by the Ceres solver, so it is implemented here, based on table #1 from:
+ * http://www2.informatik.uni-freiburg.de/~spinello/agarwalICRA13.pdf (p. 3)
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class GemanMcClureLoss : public fuse_core::Loss
+class WelschLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(GemanMcClureLoss)
+  FUSE_LOSS_DEFINITIONS(WelschLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a GemanMcClureLoss parameter 'a'
+   * @param[in] a WelschLoss parameter 'a'
    */
-  explicit GemanMcClureLoss(const double a = 1.0);
+  explicit WelschLoss(const double a = 1.0);
 
   /**
    * @brief Destructor
    */
-  ~GemanMcClureLoss() override = default;
+  ~WelschLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -131,7 +131,7 @@ void initialize(
   }
 
 private:
-  double a_{ 1.0 };  //!< GemanMcClureLoss parameter 'a'
+  double a_{ 1.0 };  //!< WelschLoss parameter 'a'
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -152,6 +152,6 @@ private:
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::GemanMcClureLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::WelschLoss);
 
-#endif  // FUSE_LOSS_GEMAN_MCCLURE_LOSS_H
+#endif  // FUSE_LOSS_WELSCH_LOSS_HPP_

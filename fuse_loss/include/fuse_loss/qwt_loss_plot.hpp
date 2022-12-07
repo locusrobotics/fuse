@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_LOSS_QWT_LOSS_PLOT_H
-#define FUSE_LOSS_QWT_LOSS_PLOT_H
+#ifndef FUSE_LOSS_QWT_LOSS_PLOT_HPP_
+#define FUSE_LOSS_QWT_LOSS_PLOT_HPP_
 
 #include <qwt_legend.h>
 #include <qwt_plot.h>
@@ -309,4 +309,4 @@ private:
 
 }  // namespace fuse_loss
 
-#endif  // FUSE_LOSS_QWT_LOSS_PLOT_H
+#endif  // FUSE_LOSS_QWT_LOSS_PLOT_HPP_

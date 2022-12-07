@@ -32,11 +32,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/serialization.hpp>
-#include <fuse_loss/composed_loss.h>
-#include <fuse_loss/huber_loss.h>
-#include <fuse_loss/scaled_loss.h>
-#include <fuse_loss/tolerant_loss.h>
-#include <fuse_loss/trivial_loss.h>
+#include <fuse_loss/composed_loss.hpp>
+#include <fuse_loss/huber_loss.hpp>
+#include <fuse_loss/scaled_loss.hpp>
+#include <fuse_loss/tolerant_loss.hpp>
+#include <fuse_loss/trivial_loss.hpp>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>

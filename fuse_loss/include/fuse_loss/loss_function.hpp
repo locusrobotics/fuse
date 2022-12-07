@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_LOSS_FUNCTION_H
-#define FUSE_LOSS_LOSS_FUNCTION_H
+#ifndef FUSE_LOSS_LOSS_FUNCTION_HPP_
+#define FUSE_LOSS_LOSS_FUNCTION_HPP_
 
 #include <ceres/loss_function.h>
 
@@ -242,4 +242,4 @@ private:
 
 }  // namespace ceres
 
-#endif  // FUSE_LOSS_LOSS_FUNCTION_H
+#endif  // FUSE_LOSS_LOSS_FUNCTION_HPP_

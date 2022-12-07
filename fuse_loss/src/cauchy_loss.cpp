@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/parameter.hpp>
-#include <fuse_loss/cauchy_loss.h>
+#include <fuse_loss/cauchy_loss.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 

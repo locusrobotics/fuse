@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2019, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_LOSS_SCALED_LOSS_H
-#define FUSE_LOSS_SCALED_LOSS_H
+#ifndef FUSE_LOSS_TOLERANT_LOSS_HPP_
+#define FUSE_LOSS_TOLERANT_LOSS_HPP_
 
 #include <fuse_core/loss.hpp>
 
@@ -40,7 +40,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-#include <memory>
 #include <ostream>
 #include <string>
 
@@ -49,29 +48,29 @@ namespace fuse_loss
 {
 
 /**
- * @brief The ScaledLoss loss function.
+ * @brief The TolerantLoss loss function.
  *
- * This class encapsulates the ceres::ScaledLoss class, adding the ability to serialize it and load it dynamically.
+ * This class encapsulates the ceres::TolerantLoss class, adding the ability to serialize it and load it dynamically.
  *
- * See the Ceres documentation for more details: http://ceres-solver.org/nnls_modeling.html#lossfunction
+ * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#lossfunction
  */
-class ScaledLoss : public fuse_core::Loss
+class TolerantLoss : public fuse_core::Loss
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ScaledLoss)
+  FUSE_LOSS_DEFINITIONS(TolerantLoss)
 
   /**
    * @brief Constructor
    *
-   * @param[in] a ScaledLoss parameter 'a'. See Ceres documentation for more details.
-   * @param[in] loss The loss function to scale. Its output is scaled/multiplied by 'a'.
+   * @param[in] a TolerantLoss parameter 'a'. See Ceres documentation for more details
+   * @param[in] b TolerantLoss parameter 'b'. See Ceres documentation for more details
    */
-  explicit ScaledLoss(const double a = 1.0, const std::shared_ptr<fuse_core::Loss>& loss = nullptr);
+  explicit TolerantLoss(const double a = 1.0, const double b = 0.1);
 
   /**
    * @brief Destructor
    */
-  ~ScaledLoss() override = default;
+  ~TolerantLoss() override = default;
 
   /**
    * @brief Perform any required post-construction initialization, such as reading from the parameter server.
@@ -97,7 +96,7 @@ void initialize(
   void print(std::ostream& stream = std::cout) const override;
 
   /**
-   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
+   * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
    *
    * The Ceres interface requires a raw pointer. Ceres will take ownership of the pointer and promises to properly
    * delete the loss function when it is done. Additionally, Fuse promises that the Loss object will outlive any
@@ -119,13 +118,13 @@ void initialize(
   }
 
   /**
-   * @brief Parameter 'loss' accessor.
+   * @brief Parameter 'b' accessor.
    *
-   * @return Parameter 'loss'.
+   * @return Parameter 'b'.
    */
-  std::shared_ptr<fuse_core::Loss> loss() const
+  double b() const
   {
-    return loss_;
+    return b_;
   }
 
   /**
@@ -139,18 +138,18 @@ void initialize(
   }
 
   /**
-   * @brief Parameter 'loss' mutator.
+   * @brief Parameter 'b' mutator.
    *
-   * @param[in] loss Parameter 'loss'.
+   * @param[in] b Parameter 'b'.
    */
-  void loss(const std::shared_ptr<fuse_core::Loss>& loss)
+  void b(const double b)
   {
-    loss_ = loss;
+    b_ = b;
   }
 
 private:
-  double a_{ 1.0 };  //!< ScaledLoss parameter 'a'. See Ceres documentation for more details
-  std::shared_ptr<fuse_core::Loss> loss_{ nullptr };  //!< The loss function to scale
+  double a_{ 1.0 };  //!< TolerantLoss parameter 'a'. See Ceres documentation for more details
+  double b_{ 0.1 };  //!< TolerantLoss parameter 'b'. See Ceres documentation for more details
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -166,12 +165,12 @@ private:
   {
     archive & boost::serialization::base_object<fuse_core::Loss>(*this);
     archive & a_;
-    archive & loss_;
+    archive & b_;
   }
 };
 
 }  // namespace fuse_loss
 
-BOOST_CLASS_EXPORT_KEY(fuse_loss::ScaledLoss);
+BOOST_CLASS_EXPORT_KEY(fuse_loss::TolerantLoss);
 
-#endif  // FUSE_LOSS_SCALED_LOSS_H
+#endif  // FUSE_LOSS_TOLERANT_LOSS_HPP_

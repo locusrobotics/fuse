@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/parameter.hpp>
-#include <fuse_loss/composed_loss.h>
-#include <fuse_loss/trivial_loss.h>
+#include <fuse_loss/composed_loss.hpp>
+#include <fuse_loss/trivial_loss.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 
