@@ -92,6 +92,13 @@ std::shared_ptr<void> CallbackAdapter::take_data()
       cb_wrapper = callback_queue_.front();
       callback_queue_.pop_front();
     }
+    if (!callback_queue_.empty()) {
+      // Trigger so executor wakes again
+      if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_)) {
+        RCLCPP_WARN(
+          rclcpp::get_logger("fuse"), "Could not trigger guard condition for callback");
+      }
+    }
   }
   return std::static_pointer_cast<void>(cb_wrapper);
 }

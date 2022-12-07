@@ -43,7 +43,7 @@ class MyMotionModel : public fuse_core::AsyncMotionModel
 {
 public:
   MyMotionModel()
-  : fuse_core::AsyncMotionModel(1),
+  : fuse_core::AsyncMotionModel(0),
     initialized(false)
   {
   }
@@ -59,7 +59,7 @@ public:
 
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
-    rclcpp::sleep_for(std::chrono::milliseconds(1000));
+    rclcpp::sleep_for(std::chrono::milliseconds(10));
     graph_received = true;
   }
 
@@ -76,12 +76,12 @@ public:
 class TestAsyncMotionModel : public ::testing::Test
 {
 public:
-  static void SetUpTestCase()
+  void SetUp()
   {
     rclcpp::init(0, nullptr);
   }
 
-  static void TearDownTestCase()
+  void TearDown()
   {
     rclcpp::shutdown();
   }
@@ -89,9 +89,19 @@ public:
 
 TEST_F(TestAsyncMotionModel, OnInit)
 {
+  for (int i = 0; i < 250; i++) {
+    MyMotionModel motion_model;
+    motion_model.initialize("my_motion_model_" + std::to_string(i));
+    EXPECT_TRUE(motion_model.initialized);
+  }
+}
+
+TEST_F(TestAsyncMotionModel, DoubleInit)
+{
   MyMotionModel motion_model;
   motion_model.initialize("my_motion_model");
   EXPECT_TRUE(motion_model.initialized);
+  EXPECT_THROW(motion_model.initialize("test"), std::runtime_error);
 }
 
 TEST_F(TestAsyncMotionModel, OnGraphUpdate)
@@ -104,15 +114,20 @@ TEST_F(TestAsyncMotionModel, OnGraphUpdate)
   // MyMotionModel's async spinner. There is a time delay there. So, this call should return almost
   // immediately, then we have to wait a bit before the "graph_received" flag gets flipped.
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
-  motion_model.graphCallback(graph);
-  EXPECT_FALSE(motion_model.graph_received);
-
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
-  rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!motion_model.graph_received && clock.now() < wait_time_elapsed) {
-    rclcpp::sleep_for(std::chrono::milliseconds(100));
+
+  // Test for multiple cycles of graphCallback to be sure
+  for (int i = 0; i < 50; i++) {
+    motion_model.graph_received = false;
+    motion_model.graphCallback(graph);
+    EXPECT_FALSE(motion_model.graph_received);
+
+    rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10);
+    while (!motion_model.graph_received && clock.now() < wait_time_elapsed) {
+      rclcpp::sleep_for(std::chrono::milliseconds(10));
+    }
+    EXPECT_TRUE(motion_model.graph_received);
   }
-  EXPECT_TRUE(motion_model.graph_received);
 }
 
 TEST_F(TestAsyncMotionModel, ApplyCallback)

@@ -54,10 +54,7 @@ AsyncMotionModel::AsyncMotionModel(size_t thread_count)
 
 AsyncMotionModel::~AsyncMotionModel()
 {
-  executor_->cancel();
-  if (spinner_.joinable()) {
-    spinner_.join();
-  }
+  internal_stop();
 }
 
 bool AsyncMotionModel::apply(Transaction & transaction)
@@ -80,6 +77,10 @@ bool AsyncMotionModel::apply(Transaction & transaction)
 
 void AsyncMotionModel::initialize(const std::string & name)
 {
+  if (initialized_) {
+    throw std::runtime_error("Calling initialize on an already initialized AsyncMotionModel!");
+  }
+
   // Initialize internal state
   name_ = name;
   std::string node_namespace = "";
@@ -96,22 +97,40 @@ void AsyncMotionModel::initialize(const std::string & name)
   executor_options.context = ros_context;
   executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
     executor_options,
-    executor_thread_count_);
+    executor_thread_count_
+  );
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
+
+  // This callback group MUST be re-entrant in order to support parallelization
+  cb_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
   node_->get_node_waitables_interface()->add_waitable(
-    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+    callback_queue_, cb_group_);
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
+  // Make sure the executor will service the given node
+  // TODO(sloretz) add just the callback group here when using Optimizer's Node
   executor_->add_node(node_);
 
-  // TODO(CH3): Remove this if the internal node is removed
+  // Start the executor
   spinner_ = std::thread(
     [&]() {
       executor_->spin();
     });
+
+  // Wait for the executor to start spinning.
+  // This avoids a race where the destructor blocks waiting for the spinner_
+  // thread to be joined when the class is destroyed before the thread is ever
+  // scheduled.
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+    [&]() {
+      initialized_ = true;
+    });
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
+  result.wait();
 }
 
 void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
@@ -119,9 +138,7 @@ void AsyncMotionModel::graphCallback(Graph::ConstSharedPtr graph)
   auto callback = std::make_shared<CallbackWrapper<void>>(
     std::bind(&AsyncMotionModel::onGraphUpdate, this, std::move(graph))
   );
-  // auto result = callback->getFuture();  // TODO(CH3): Circle back if we need this again
   callback_queue_->addCallback(callback);
-  // result.wait();
 }
 
 void AsyncMotionModel::start()
@@ -136,6 +153,8 @@ void AsyncMotionModel::start()
 
 void AsyncMotionModel::stop()
 {
+  // Prefer to call onStop in executor's thread so downstream users don't have
+  // to worry about threads in ROS callbacks when there's only 1 thread.
   if (node_->get_node_base_interface()->get_context()->is_valid()) {
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncMotionModel::onStop, this)
@@ -144,17 +163,24 @@ void AsyncMotionModel::stop()
     callback_queue_->addCallback(callback);
     result.wait();
   } else {
-    executor_->cancel();
-    executor_->remove_node(node_);
-
-    // TODO(CH3): Remove this if the internal node is removed
-    executor_->cancel();
-    if (spinner_.joinable()) {
-      spinner_.join();
-    }
-
+    // Can't run in executor's thread because the executor won't service more
+    // callbacks after the context is shutdown.
+    // Join executor's threads right away.
+    internal_stop();
     onStop();
   }
+}
+
+void AsyncMotionModel::internal_stop()
+{
+  if (spinner_.joinable()) {
+    executor_->cancel();
+    spinner_.join();
+  }
+
+  // Reset callback queue
+  callback_queue_->removeAllCallbacks();
+  initialized_ = false;
 }
 
 }  // namespace fuse_core

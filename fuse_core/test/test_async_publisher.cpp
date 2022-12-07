@@ -45,7 +45,7 @@ class MyPublisher : public fuse_core::AsyncPublisher
 {
 public:
   MyPublisher()
-  : fuse_core::AsyncPublisher(1),
+  : fuse_core::AsyncPublisher(0),
     callback_processed(false),
     initialized(false)
   {
@@ -57,7 +57,7 @@ public:
     fuse_core::Transaction::ConstSharedPtr /*transaction*/,
     fuse_core::Graph::ConstSharedPtr /*graph*/)
   {
-    rclcpp::sleep_for(std::chrono::milliseconds(1000));
+    rclcpp::sleep_for(std::chrono::milliseconds(10));
     callback_processed = true;
   }
 
@@ -73,12 +73,12 @@ public:
 class TestAsyncPublisher : public ::testing::Test
 {
 public:
-  static void SetUpTestCase()
+  void SetUp()
   {
     rclcpp::init(0, nullptr);
   }
 
-  static void TearDownTestCase()
+  void TearDown()
   {
     rclcpp::shutdown();
   }
@@ -86,9 +86,19 @@ public:
 
 TEST_F(TestAsyncPublisher, OnInit)
 {
+  for (int i = 0; i < 250; i++) {
+    MyPublisher publisher;
+    publisher.initialize("my_publisher_" + std::to_string(i));
+    EXPECT_TRUE(publisher.initialized);
+  }
+}
+
+TEST_F(TestAsyncPublisher, DoubleInit)
+{
   MyPublisher publisher;
   publisher.initialize("my_publisher");
   EXPECT_TRUE(publisher.initialized);
+  EXPECT_THROW(publisher.initialize("test"), std::runtime_error);
 }
 
 TEST_F(TestAsyncPublisher, notifyCallback)
@@ -102,14 +112,18 @@ TEST_F(TestAsyncPublisher, notifyCallback)
   // immediately, then we have to wait a bit before the "callback_processed" flag gets flipped.
   fuse_core::Transaction::ConstSharedPtr transaction;  // nullptr is ok as we don't actually use it
   fuse_core::Graph::ConstSharedPtr graph;  // nullptr is ok as we don't actually use it
-  publisher.notify(transaction, graph);
-  EXPECT_FALSE(publisher.callback_processed);
-
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
 
-  rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10.0);
-  while (!publisher.callback_processed && clock.now() < wait_time_elapsed) {
-    rclcpp::sleep_for(std::chrono::milliseconds(100));
+  // Test for multiple cycles of notify to be sure
+  for (int i = 0; i < 50; i++) {
+    publisher.callback_processed = false;
+    publisher.notify(transaction, graph);
+    EXPECT_FALSE(publisher.callback_processed);
+
+    rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10);
+    while (!publisher.callback_processed && clock.now() < wait_time_elapsed) {
+      rclcpp::sleep_for(std::chrono::milliseconds(10));
+    }
+    EXPECT_TRUE(publisher.callback_processed);
   }
-  EXPECT_TRUE(publisher.callback_processed);
 }

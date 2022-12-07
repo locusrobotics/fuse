@@ -50,8 +50,8 @@ namespace fuse_core
 {
 
 /**
- * @brief A publisher base class that provides node handles attached to an internal callback queue
- *        serviced by a local thread (or threads) using a spinner.
+ * @brief A publisher base class that provides an internal callback queue attached to a ROS 2 Node
+ *        serviced by a local executor.
  *
  * This allows publishers derived from this base class to operate similarly to a stand alone node
  * -- any subscription or service callbacks will be executed within an independent thread. The
@@ -59,8 +59,7 @@ namespace fuse_core
  *  - a default constructor is required (because this is a plugin)
  *  - subscriptions, services, parameter server interactions, etc. should be placed in the onInit()
  *    call instead of in the constructor
- *  - a global node handle and private node handle have already been created and attached to a local
- *    callback queue
+ *  - a node has already been created and attached to a local callback queue
  *  - a special callback, notifyCallback(), will be fired every time the optimizer completes an
  *    optimization cycle
  */
@@ -77,12 +76,13 @@ public:
   /**
    * @brief Initialize the AsyncPublisher object
    *
-   * This will store the provided name and graph object, and create a global and private node
-   * handle that both use an internal callback queue serviced by a local thread. The
-   * AsyncPublisher::onInit() method will be called from here, once the node handles are
-   * properly configured.
+   * This will store the provided name and graph object, and create an internal node for this
+   * instance that will use an internal callback queue serviced by a local thread. The
+   * AsyncPublisher::onInit() method will be called from here, once the internal node is properly
+   * configured.
    *
    * @param[in] name A unique name to give this plugin instance
+   * @throws runtime_error if already initialized
    */
   void initialize(const std::string & name) override;
 
@@ -120,9 +120,9 @@ public:
    *
    * This implementation inserts a call to onStart() into this publisher's callback queue. This
    * method then blocks until the call to onStart() has completed. This is meant to simplify
-   * thread synchronization. If this publisher uses a single-threaded spinner, then all
+   * thread synchronization. If this publisher uses a single-threaded executor, then all
    * callbacks will fire sequentially and no semaphores are needed. If this publisher uses a
-   * multithreaded spinner, then normal multithreading rules apply and data accessed in more
+   * multithreaded executor, then normal multithreading rules apply and data accessed in more
    * than one place should be guarded.
    */
   void start() override;
@@ -139,7 +139,7 @@ public:
    *
    * This implementation inserts a call to onStop() into this publisher's callback queue. This
    * method then blocks until the call to onStop() has completed. This is meant to simplify
-   * thread synchronization. If this publisher uses a single-threaded spinner, then all
+   * thread synchronization. If this publisher uses a single-threaded executor, then all
    * callbacks will fire sequentially and no semaphores are needed. If this publisher uses a
    * multithreaded spinner, then normal multithreading rules apply and data accessed in more
    * than one place should be guarded.
@@ -152,16 +152,18 @@ protected:
 
   std::string name_;  //!< The unique name for this publisher instance
   rclcpp::Node::SharedPtr node_;  //!< The node for this publisher
+  rclcpp::CallbackGroup::SharedPtr cb_group_;  //!< Internal re-entrant callback group
 
-  //! A single/multi-threaded spinner assigned to the local callback queue
+  //! A single/multi-threaded executor assigned to the local callback queue
   rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
   size_t executor_thread_count_;
   std::thread spinner_;  //!< Internal thread for spinning the executor
+  std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
   /**
    * @brief Constructor
    *
-   * Constructs a new publisher with node handles, a local callback queue, and thread spinner.
+   * Constructs a new publisher with a local node, a local callback queue, and internal executor.
    *
    * @param[in] thread_count The number of threads used to service the local callback queue
    */
@@ -211,6 +213,10 @@ protected:
    * before start() is called.
    */
   virtual void onStop() {}
+
+private:
+  //! Stop the internal executor thread (in order to use this class again it must be re-initialized)
+  void internal_stop();
 };
 
 }  // namespace fuse_core

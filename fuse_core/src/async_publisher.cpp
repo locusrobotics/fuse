@@ -45,14 +45,15 @@ AsyncPublisher::AsyncPublisher(size_t thread_count)
 
 AsyncPublisher::~AsyncPublisher()
 {
-  executor_->cancel();
-  if (spinner_.joinable()) {
-    spinner_.join();
-  }
+  internal_stop();
 }
 
 void AsyncPublisher::initialize(const std::string & name)
 {
+  if (initialized_) {
+    throw std::runtime_error("Calling initialize on an already initialized AsyncPublisher!");
+  }
+
   // Initialize internal state
   name_ = name;
   std::string node_namespace = "";
@@ -72,19 +73,36 @@ void AsyncPublisher::initialize(const std::string & name)
     executor_thread_count_);
 
   callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
+
+  // This callback group MUST be re-entrant in order to support parallelization
+  cb_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
   node_->get_node_waitables_interface()->add_waitable(
-    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+    callback_queue_, cb_group_);
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
+  // Make sure the executor will service the given node
+  // TODO(sloretz) add just the callback group here when using Optimizer's Node
   executor_->add_node(node_);
 
-  // TODO(CH3): Remove this if the internal node is removed
+  // Start the executor
   spinner_ = std::thread(
     [&]() {
       executor_->spin();
     });
+
+  // Wait for the executor to start spinning.
+  // This avoids a race where the destructor blocks waiting for the spinner_
+  // thread to be joined when the class is destroyed before the thread is ever
+  // scheduled.
+  auto callback = std::make_shared<CallbackWrapper<void>>(
+    [&]() {
+      initialized_ = true;
+    });
+  auto result = callback->getFuture();
+  callback_queue_->addCallback(callback);
+  result.wait();
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
@@ -107,23 +125,34 @@ void AsyncPublisher::start()
 
 void AsyncPublisher::stop()
 {
+  // Prefer to call onStop in executor's thread so downstream users don't have
+  // to worry about threads in ROS callbacks when there's only 1 thread.
   if (node_->get_node_base_interface()->get_context()->is_valid()) {
-    auto callback =
-      std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStop, this));
+    auto callback = std::make_shared<CallbackWrapper<void>>(
+      std::bind(&AsyncPublisher::onStop, this)
+    );
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();
   } else {
-    executor_->cancel();
-    executor_->remove_node(node_);
-
-    // TODO(CH3): Remove this if the internal node is removed
-    if (spinner_.joinable()) {
-      spinner_.join();
-    }
-
+    // Can't run in executor's thread because the executor won't service more
+    // callbacks after the context is shutdown.
+    // Join executor's threads right away.
+    internal_stop();
     onStop();
   }
+}
+
+void AsyncPublisher::internal_stop()
+{
+  if (spinner_.joinable()) {
+    executor_->cancel();
+    spinner_.join();
+  }
+
+  // Reset callback queue
+  callback_queue_->removeAllCallbacks();
+  initialized_ = false;
 }
 
 }  // namespace fuse_core
