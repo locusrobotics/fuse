@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(fuse_graphs)
 
-set(build_depends
-  fuse_core
-  pluginlib
-  roscpp
-)
-
 # Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -61,6 +55,7 @@ if(BUILD_TESTING)
   if(benchmark_FOUND)
     # Create Problem benchmark
     add_executable(benchmark_create_problem benchmark/benchmark_create_problem.cpp)
+    target_include_directories(benchmark_create_problem PRIVATE "test/")
     target_link_libraries(benchmark_create_problem
       ${PROJECT_NAME}
       benchmark::benchmark
