@@ -50,7 +50,7 @@
 
 /**
  * @brief Create a cost fuction that implements one of the Ceres unit tests
- * 
+ *
  * UnaryCostFunctions are added to all three variables
  * - https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/covariance_test.cc#L423
  * - https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/covariance_test.cc#L428
@@ -70,9 +70,10 @@ public:
     mutable_parameter_block_sizes()->push_back(1);
   }
 
-  bool Evaluate(double const* const* /*parameters*/,
-                double* residuals,
-                double** jacobians) const override
+  bool Evaluate(
+    double const * const * /*parameters*/,
+    double * residuals,
+    double ** jacobians) const override
   {
     residuals[0] = 1;
     residuals[1] = 1;
@@ -83,50 +84,46 @@ public:
     residuals[6] = 2;
     residuals[7] = 2;
 
-    if (jacobians != NULL)
-    {
-      if (jacobians[0] != NULL)
-      {
+    if (jacobians != NULL) {
+      if (jacobians[0] != NULL) {
         static const double jacobian0[] =
         {
-            1.0,  0.0,
-            0.0,  1.0,
-            0.0,  0.0,
-            0.0,  0.0,
-            0.0,  0.0,
-            0.0,  0.0,
+          1.0, 0.0,
+          0.0, 1.0,
+          0.0, 0.0,
+          0.0, 0.0,
+          0.0, 0.0,
+          0.0, 0.0,
           -5.0, -6.0,
-            3.0, -2.0
+          3.0, -2.0
         };
         std::copy(jacobian0, jacobian0 + 16, jacobians[0]);
       }
-      if (jacobians[1] != NULL)
-      {
+      if (jacobians[1] != NULL) {
         static const double jacobian1[] =
         {
-            0.0,  0.0,  0.0,
-            0.0,  0.0,  0.0,
-            2.0,  0.0,  0.0,
-            0.0,  2.0,  0.0,
-            0.0,  0.0,  2.0,
-            0.0,  0.0,  0.0,
-            1.0,  2.0,  3.0,
-            0.0,  0.0,  0.0
+          0.0, 0.0, 0.0,
+          0.0, 0.0, 0.0,
+          2.0, 0.0, 0.0,
+          0.0, 2.0, 0.0,
+          0.0, 0.0, 2.0,
+          0.0, 0.0, 0.0,
+          1.0, 2.0, 3.0,
+          0.0, 0.0, 0.0
         };
         std::copy(jacobian1, jacobian1 + 24, jacobians[1]);
       }
-      if (jacobians[2] != NULL)
-      {
+      if (jacobians[2] != NULL) {
         static const double jacobian2[] =
         {
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            5.0,
-            0.0,
-            2.0
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          5.0,
+          0.0,
+          2.0
         };
         std::copy(jacobian2, jacobian2 + 8, jacobians[2]);
       }
@@ -147,16 +144,16 @@ public:
   CovarianceConstraint() = default;
 
   CovarianceConstraint(
-    const std::string& source,
-    const fuse_core::UUID& variable1_uuid,
-    const fuse_core::UUID& variable2_uuid,
-    const fuse_core::UUID& variable3_uuid) :
-    fuse_core::Constraint(source, {variable1_uuid, variable2_uuid, variable3_uuid})
+    const std::string & source,
+    const fuse_core::UUID & variable1_uuid,
+    const fuse_core::UUID & variable2_uuid,
+    const fuse_core::UUID & variable3_uuid)
+  : fuse_core::Constraint(source, {variable1_uuid, variable2_uuid, variable3_uuid})
   {
   }
 
-  void print(std::ostream& /*stream = std::cout*/) const override {}
-  ceres::CostFunction* costFunction() const override { return new CovarianceCostFunction(); }
+  void print(std::ostream & /*stream = std::cout*/) const override {}
+  ceres::CostFunction * costFunction() const override {return new CovarianceCostFunction();}
 
 private:
   // Allow Boost Serialization access to private methods
@@ -169,7 +166,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
   }

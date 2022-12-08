@@ -82,14 +82,14 @@ public:
    *
    * @param[in] params HashGraph parameters.
    */
-  explicit HashGraph(const HashGraphParams& params = HashGraphParams());
+  explicit HashGraph(const HashGraphParams & params = HashGraphParams());
 
   /**
    * @brief Copy constructor
    *
    * Performs a deep copy of the graph
    */
-  HashGraph(const HashGraph& other);
+  HashGraph(const HashGraph & other);
 
   /**
    * @brief Destructor
@@ -101,7 +101,7 @@ public:
    *
    * Performs a deep copy of the graph
    */
-  HashGraph& operator=(const HashGraph& other);
+  HashGraph & operator=(const HashGraph & other);
 
   /**
    * @brief Clear all variables and constraints from the graph object.
@@ -126,7 +126,7 @@ public:
    * @param[in] constraint_uuid The UUID of the constraint being searched for
    * @return                    True if this constraint already exists, False otherwise
    */
-  bool constraintExists(const fuse_core::UUID& constraint_uuid) const noexcept override;
+  bool constraintExists(const fuse_core::UUID & constraint_uuid) const noexcept override;
 
   /**
    * @brief Add a new constraint to the graph
@@ -155,7 +155,7 @@ public:
    * @param[in] constraint_uuid The UUID of the constraint to be removed
    * @return                    True if the constraint was removed, false otherwise
    */
-  bool removeConstraint(const fuse_core::UUID& constraint_uuid) override;
+  bool removeConstraint(const fuse_core::UUID & constraint_uuid) override;
 
   /**
    * @brief Read-only access to a constraint from the graph by UUID
@@ -166,7 +166,8 @@ public:
    * @param[in] constraint_uuid The UUID of the requested constraint
    * @return                    The constraint in the graph with the specified UUID
    */
-  const fuse_core::Constraint& getConstraint(const fuse_core::UUID& constraint_uuid) const override;
+  const fuse_core::Constraint & getConstraint(const fuse_core::UUID & constraint_uuid) const
+  override;
 
   /**
    * @brief Read-only access to all of the constraints in the graph
@@ -187,7 +188,8 @@ public:
    * @param[in] variable_uuid The UUID of the variable of interest
    * @return A read-only iterator range containing all constraints that involve the specified variable
    */
-  fuse_core::Graph::const_constraint_range getConnectedConstraints(const fuse_core::UUID& variable_uuid) const override;
+  fuse_core::Graph::const_constraint_range getConnectedConstraints(
+    const fuse_core::UUID & variable_uuid) const override;
 
   /**
    * @brief Check if the variable already exists in the graph
@@ -198,7 +200,7 @@ public:
    * @param[in] variable_uuid The UUID of the variable being searched for
    * @return                  True if this variable already exists, False otherwise
    */
-  bool variableExists(const fuse_core::UUID& variable_uuid) const noexcept override;
+  bool variableExists(const fuse_core::UUID & variable_uuid) const noexcept override;
 
   /**
    * @brief Add a new variable to the graph
@@ -225,7 +227,7 @@ public:
    * @param[in] variable_uuid The UUID of the variable to be removed
    * @return                  True if the variable was removed, false otherwise
    */
-  bool removeVariable(const fuse_core::UUID& variable_uuid) override;
+  bool removeVariable(const fuse_core::UUID & variable_uuid) override;
 
   /**
    * @brief Read-only access to a variable in the graph by UUID
@@ -236,7 +238,7 @@ public:
    * @param[in] variable_uuid The UUID of the requested variable
    * @return                  The variable in the graph with the specified UUID
    */
-  const fuse_core::Variable& getVariable(const fuse_core::UUID& variable_uuid) const override;
+  const fuse_core::Variable & getVariable(const fuse_core::UUID & variable_uuid) const override;
 
   /**
    * @brief Read-only access to all of the variables in the graph
@@ -264,7 +266,7 @@ public:
    * @param[in] hold_constant Flag indicating if the variable's value should be held constant during optimization,
    *                          or if the variable's value is allowed to change during optimization.
    */
-  void holdVariable(const fuse_core::UUID& variable_uuid, bool hold_constant = true) override;
+  void holdVariable(const fuse_core::UUID & variable_uuid, bool hold_constant = true) override;
 
   /**
    * @brief Check whether a variable is on hold or not
@@ -272,7 +274,7 @@ public:
    * @param[in] variable_uuid The variable to test
    * @return True if the variable is on hold, false otherwise
    */
-  bool isVariableOnHold(const fuse_core::UUID& variable_uuid) const override;
+  bool isVariableOnHold(const fuse_core::UUID & variable_uuid) const override;
 
   /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
@@ -296,9 +298,9 @@ public:
    *                                 space.
    */
   void getCovariance(
-    const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>& covariance_requests,
-    std::vector<std::vector<double>>& covariance_matrices,
-    const ceres::Covariance::Options& options = ceres::Covariance::Options(),
+    const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> & covariance_requests,
+    std::vector<std::vector<double>> & covariance_matrices,
+    const ceres::Covariance::Options & options = ceres::Covariance::Options(),
     const bool use_tangent_space = true) const override;
 
   /**
@@ -314,7 +316,8 @@ public:
    *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
-  ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) override;
+  ceres::Solver::Summary optimize(const ceres::Solver::Options & options = ceres::Solver::Options())
+  override;
 
   /**
    * @brief Optimize the values of the current set of variables, given the current set of constraints for a maximum
@@ -329,8 +332,8 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the optimization process
    */
   ceres::Solver::Summary optimizeFor(
-    const rclcpp::Duration& max_optimization_time,
-    const ceres::Solver::Options& options = ceres::Solver::Options(),
+    const rclcpp::Duration & max_optimization_time,
+    const ceres::Solver::Options & options = ceres::Solver::Options(),
     rclcpp::Clock clock = rclcpp::Clock(RCL_STEADY_TIME)) override;
 
   /**
@@ -353,22 +356,28 @@ public:
    *                       See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#401
    * @return True if the problem evaluation was successful; False, otherwise.
    */
-  bool evaluate(double* cost, std::vector<double>* residuals = nullptr, std::vector<double>* gradient = nullptr,
-                const ceres::Problem::EvaluateOptions& options = ceres::Problem::EvaluateOptions()) const override;
+  bool evaluate(
+    double * cost, std::vector<double> * residuals = nullptr,
+    std::vector<double> * gradient = nullptr,
+    const ceres::Problem::EvaluateOptions & options = ceres::Problem::EvaluateOptions()) const
+  override;
 
   /**
    * @brief Print a human-readable description of the graph to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
 protected:
   // Define some helpful typedefs
-  using Constraints = std::unordered_map<fuse_core::UUID, fuse_core::Constraint::SharedPtr, fuse_core::uuid::hash>;
-  using Variables = std::unordered_map<fuse_core::UUID, fuse_core::Variable::SharedPtr, fuse_core::uuid::hash>;
+  using Constraints = std::unordered_map<fuse_core::UUID, fuse_core::Constraint::SharedPtr,
+      fuse_core::uuid::hash>;
+  using Variables = std::unordered_map<fuse_core::UUID, fuse_core::Variable::SharedPtr,
+      fuse_core::uuid::hash>;
   using VariableSet = std::unordered_set<fuse_core::UUID, fuse_core::uuid::hash>;
-  using CrossReference = std::unordered_map<fuse_core::UUID, std::vector<fuse_core::UUID>, fuse_core::uuid::hash>;
+  using CrossReference = std::unordered_map<fuse_core::UUID, std::vector<fuse_core::UUID>,
+      fuse_core::uuid::hash>;
 
   Constraints constraints_;  //!< The set of all constraints
   CrossReference constraints_by_variable_uuid_;  //!< Index all of the constraints by variable uuids
@@ -384,7 +393,7 @@ protected:
    *
    * @param[out] problem The ceres::Problem object to modify
    */
-  void createProblem(ceres::Problem& problem) const;
+  void createProblem(ceres::Problem & problem) const;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -397,7 +406,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Graph>(*this);
     archive & constraints_;
@@ -419,7 +428,9 @@ namespace serialization
  * @brief Serialize a ceres::Problem::Options object using Boost Serialization
  */
 template<class Archive>
-void serialize(Archive& archive, ceres::Problem::Options& options, const unsigned int /* version */)
+void serialize(
+  Archive & archive, ceres::Problem::Options & options,
+  const unsigned int /* version */)
 {
   archive & options.cost_function_ownership;
   archive & options.disable_all_safety_checks;
