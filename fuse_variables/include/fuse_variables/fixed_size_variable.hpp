@@ -34,6 +34,8 @@
 #ifndef FUSE_VARIABLES__FIXED_SIZE_VARIABLE_HPP_
 #define FUSE_VARIABLES__FIXED_SIZE_VARIABLE_HPP_
 
+#include <array>
+
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
@@ -41,8 +43,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/array.hpp>
-
-#include <array>
 
 
 namespace fuse_variables
@@ -118,7 +118,8 @@ public:
   std::array<double, N> & array() {return data_;}
 
 protected:
-  std::array<double, N> data_;  //!< Fixed-sized, contiguous memory for holding the variable data members
+  std::array<double, N> data_;  //!< Fixed-sized, contiguous memory for holding the variable data
+                                //!< members
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

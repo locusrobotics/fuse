@@ -37,6 +37,8 @@
 #ifndef FUSE_VARIABLES__POINT_3D_LANDMARK_HPP_
 #define FUSE_VARIABLES__POINT_3D_LANDMARK_HPP_
 
+#include <ostream>
+
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
@@ -45,7 +47,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-#include <ostream>
 
 namespace fuse_variables
 {

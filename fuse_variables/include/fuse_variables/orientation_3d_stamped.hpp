@@ -34,6 +34,10 @@
 #ifndef FUSE_VARIABLES__ORIENTATION_3D_STAMPED_HPP_
 #define FUSE_VARIABLES__ORIENTATION_3D_STAMPED_HPP_
 
+#include <ceres/rotation.h>
+
+#include <ostream>
+
 #include <fuse_core/local_parameterization.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/util.hpp>
@@ -46,9 +50,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <ceres/rotation.h>
-
-#include <ostream>
 
 
 namespace fuse_variables
@@ -108,10 +109,12 @@ public:
     double x1 = x[1] / 2;
     double x2 = x[2] / 2;
     double x3 = x[3] / 2;
-    jacobian[0] = -x1; jacobian[1] = -x2; jacobian[2] = -x3;    // NOLINT
-    jacobian[3] = x0; jacobian[4] = -x3; jacobian[5] = x2;      // NOLINT
-    jacobian[6] = x3; jacobian[7] = x0; jacobian[8] = -x1;      // NOLINT
-    jacobian[9] = -x2; jacobian[10] = x1; jacobian[11] = x0;    // NOLINT
+    /* *INDENT-OFF* */
+    jacobian[0] = -x1; jacobian[1]  = -x2; jacobian[2]  = -x3;  // NOLINT
+    jacobian[3] =  x0; jacobian[4]  = -x3; jacobian[5]  =  x2;  // NOLINT
+    jacobian[6] =  x3; jacobian[7]  =  x0; jacobian[8]  = -x1;  // NOLINT
+    jacobian[9] = -x2; jacobian[10] =  x1; jacobian[11] =  x0;  // NOLINT
+    /* *INDENT-ON* */
     return true;
   }
 
@@ -136,9 +139,11 @@ public:
     double x1 = x[1] * 2;
     double x2 = x[2] * 2;
     double x3 = x[3] * 2;
-    jacobian[0] = -x1; jacobian[1] = x0; jacobian[2] = x3;  jacobian[3] = -x2;       // NOLINT
-    jacobian[4] = -x2; jacobian[5] = -x3; jacobian[6] = x0;  jacobian[7] = x1;       // NOLINT
-    jacobian[8] = -x3; jacobian[9] = x2; jacobian[10] = -x1;  jacobian[11] = x0;     // NOLINT
+    /* *INDENT-OFF* */
+    jacobian[0] = -x1; jacobian[1] =  x0; jacobian[2]  = x3;  jacobian[3]  = -x2;  // NOLINT
+    jacobian[4] = -x2; jacobian[5] = -x3; jacobian[6]  = x0;  jacobian[7]  =  x1;  // NOLINT
+    jacobian[8] = -x3; jacobian[9] =  x2; jacobian[10] = -x1; jacobian[11] =  x0;  // NOLINT
+    /* *INDENT-ON* */
     return true;
   }
 

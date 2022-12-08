@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/position_3d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/position_3d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::Position3DStamped;
 
@@ -107,8 +107,7 @@ TEST(Position3DStamped, UUID)
 TEST(Position3DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = Position3DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Position3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());

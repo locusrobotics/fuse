@@ -34,6 +34,8 @@
 #ifndef FUSE_VARIABLES__ORIENTATION_2D_STAMPED_HPP_
 #define FUSE_VARIABLES__ORIENTATION_2D_STAMPED_HPP_
 
+#include <ostream>
+
 #include <fuse_core/local_parameterization.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/util.hpp>
@@ -46,8 +48,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <ostream>
 
 
 namespace fuse_variables

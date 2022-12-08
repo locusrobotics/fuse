@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/velocity_linear_3d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_variables/velocity_linear_3d_stamped.hpp>
 
 using fuse_variables::VelocityLinear3DStamped;
 
@@ -120,8 +120,8 @@ struct CostFunctor
 TEST(VelocityLinear3DStamped, Optimization)
 {
   // Create a VelocityLinear3DStamped
-  VelocityLinear3DStamped velocity(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  VelocityLinear3DStamped velocity(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   velocity.x() = 1.5;
   velocity.y() = -3.0;
   velocity.z() = 14.0;
@@ -157,8 +157,8 @@ TEST(VelocityLinear3DStamped, Optimization)
 TEST(VelocityLinear3DStamped, Serialization)
 {
   // Create a VelocityLinear3DStamped
-  VelocityLinear3DStamped expected(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  VelocityLinear3DStamped expected(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
   expected.z() = 14.0;

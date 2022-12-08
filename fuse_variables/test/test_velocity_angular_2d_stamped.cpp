@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/velocity_angular_2d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_variables/velocity_angular_2d_stamped.hpp>
 
 using fuse_variables::VelocityAngular2DStamped;
 
@@ -61,10 +61,10 @@ TEST(VelocityAngular2DStamped, UUID)
     VelocityAngular2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    VelocityAngular2DStamped variable3(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
-    VelocityAngular2DStamped variable4(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
+    VelocityAngular2DStamped variable3(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityAngular2DStamped variable4(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -80,10 +80,10 @@ TEST(VelocityAngular2DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    VelocityAngular2DStamped variable1(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("r2d2"));
-    VelocityAngular2DStamped variable2(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("bb8"));
+    VelocityAngular2DStamped variable1(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    VelocityAngular2DStamped variable2(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
@@ -91,8 +91,7 @@ TEST(VelocityAngular2DStamped, UUID)
 TEST(VelocityAngular2DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = VelocityAngular2DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<VelocityAngular2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -128,16 +127,10 @@ TEST(VelocityAngular2DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(
-    velocity.data(),
-    velocity.size(),
-    velocity.localParameterization());
+  problem.AddParameterBlock(velocity.data(), velocity.size(), velocity.localParameterization());
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(velocity.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;

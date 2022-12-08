@@ -31,13 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/autodiff_local_parameterization.hpp>
-#include <fuse_core/util.hpp>
-#include <fuse_variables/orientation_2d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -47,6 +40,12 @@
 #include <sstream>
 #include <vector>
 
+#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/util.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::Orientation2DStamped;
 
@@ -64,10 +63,10 @@ TEST(Orientation2DStamped, UUID)
     Orientation2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    Orientation2DStamped variable3(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
-    Orientation2DStamped variable4(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
+    Orientation2DStamped variable3(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    Orientation2DStamped variable4(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -83,10 +82,10 @@ TEST(Orientation2DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    Orientation2DStamped variable1(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("r2d2"));
-    Orientation2DStamped variable2(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("bb8"));
+    Orientation2DStamped variable1(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    Orientation2DStamped variable2(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
@@ -94,8 +93,7 @@ TEST(Orientation2DStamped, UUID)
 TEST(Orientation2DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = Orientation2DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -242,8 +240,8 @@ struct CostFunctor
 TEST(Orientation2DStamped, Optimization)
 {
   // Create a Orientation2DStamped
-  Orientation2DStamped orientation(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  Orientation2DStamped orientation(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   orientation.yaw() = 1.5;
 
   // Create a simple a constraint
@@ -253,15 +251,10 @@ TEST(Orientation2DStamped, Optimization)
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.localParameterization());
+    orientation.data(), orientation.size(), orientation.localParameterization());
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -275,8 +268,8 @@ TEST(Orientation2DStamped, Optimization)
 TEST(Orientation2DStamped, Serialization)
 {
   // Create a Orientation2DStamped
-  Orientation2DStamped expected(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  Orientation2DStamped expected(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.yaw() = 1.5;
 
   // Serialize the variable into an archive

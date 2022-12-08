@@ -31,16 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/point_2d_landmark.hpp>
+#include <ostream>
 
+#include <boost/serialization/export.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/point_2d_landmark.hpp>
 #include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
-#include <ostream>
 
 namespace fuse_variables
 {

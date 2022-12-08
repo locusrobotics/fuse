@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/acceleration_linear_3d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/acceleration_linear_3d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::AccelerationLinear3DStamped;
 
@@ -61,10 +61,10 @@ TEST(AccelerationLinear3DStamped, UUID)
     AccelerationLinear3DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    AccelerationLinear3DStamped variable3(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
-    AccelerationLinear3DStamped variable4(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
+    AccelerationLinear3DStamped variable3(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationLinear3DStamped variable4(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -80,10 +80,10 @@ TEST(AccelerationLinear3DStamped, UUID)
 
   // Verify two accelerations with different hardware IDs produce different UUIDs
   {
-    AccelerationLinear3DStamped variable1(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("8d8"));
-    AccelerationLinear3DStamped variable2(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("r4-p17"));
+    AccelerationLinear3DStamped variable1(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
+    AccelerationLinear3DStamped variable2(
+      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
@@ -91,8 +91,7 @@ TEST(AccelerationLinear3DStamped, UUID)
 TEST(AccelerationLinear3DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = AccelerationLinear3DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<AccelerationLinear3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -120,8 +119,8 @@ struct CostFunctor
 TEST(AccelerationLinear3DStamped, Optimization)
 {
   // Create a AccelerationLinear3DStamped
-  AccelerationLinear3DStamped acceleration(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  AccelerationLinear3DStamped acceleration(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   acceleration.x() = 1.5;
   acceleration.y() = -3.0;
   acceleration.z() = 14.0;
@@ -133,15 +132,10 @@ TEST(AccelerationLinear3DStamped, Optimization)
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(
-    acceleration.data(),
-    acceleration.size(),
-    acceleration.localParameterization());
+    acceleration.data(), acceleration.size(), acceleration.localParameterization());
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(acceleration.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -157,8 +151,8 @@ TEST(AccelerationLinear3DStamped, Optimization)
 TEST(AccelerationLinear3DStamped, Serialization)
 {
   // Create a AccelerationLinear3DStamped
-  AccelerationLinear3DStamped expected(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  AccelerationLinear3DStamped expected(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
   expected.z() = 14.0;

@@ -31,15 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <stdexcept>
 #include <string>
 #include <thread>
+
+#include <fuse_core/uuid.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 class TestLoadDeviceId : public ::testing::Test
 {

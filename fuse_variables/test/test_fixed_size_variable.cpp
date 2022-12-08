@@ -31,14 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.hpp>
+#include <gtest/gtest.h>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <gtest/gtest.h>
-
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/variable.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
 
 class TestVariable : public fuse_variables::FixedSizeVariable<2>
 {

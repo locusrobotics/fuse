@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/velocity_linear_2d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
 using fuse_variables::VelocityLinear2DStamped;
 
@@ -91,8 +91,7 @@ TEST(VelocityLinear2DStamped, UUID)
 TEST(VelocityLinear2DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = VelocityLinear2DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<VelocityLinear2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -119,8 +118,8 @@ struct CostFunctor
 TEST(VelocityLinear2DStamped, Optimization)
 {
   // Create a VelocityLinear2DStamped
-  VelocityLinear2DStamped velocity(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  VelocityLinear2DStamped velocity(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   velocity.x() = 1.5;
   velocity.y() = -3.0;
 
@@ -154,8 +153,8 @@ TEST(VelocityLinear2DStamped, Optimization)
 TEST(VelocityLinear2DStamped, Serialization)
 {
   // Create a VelocityLinear2DStamped
-  VelocityLinear2DStamped expected(rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("hal9000"));
+  VelocityLinear2DStamped expected(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
 

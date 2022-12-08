@@ -31,13 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/autodiff_local_parameterization.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_variables/orientation_3d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/cost_function_to_functor.h>
 #include <ceres/problem.h>
@@ -49,6 +42,12 @@
 #include <sstream>
 #include <vector>
 
+#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/orientation_3d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::Orientation3DStamped;
 
@@ -189,17 +188,21 @@ TEST(Orientation3DStamped, PlusJacobian)
 
         double x[4] = {qw, qx, qy, qz};
         fuse_core::MatrixXd actual(4, 3);
+        /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0;
+                  0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         bool success = parameterization->ComputeJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(4, 3);
+        /* *INDENT-OFF* */
         expected << 0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0;
+                    0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         reference.ComputeJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
@@ -208,10 +211,8 @@ TEST(Orientation3DStamped, PlusJacobian)
           expected.isApprox(
             actual,
             1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                     << "Actual is:\n" << actual.format(clean) <<
-          "\n"
-                     << "Difference is:\n" <<
-          (expected - actual).format(clean)
+                     << "Actual is:\n" << actual.format(clean) << "\n"
+                     << "Difference is:\n" << (expected - actual).format(clean)
                      << "\n";
       }
     }
@@ -232,15 +233,19 @@ TEST(Orientation3DStamped, MinusJacobian)
 
         double x[4] = {qw, qx, qy, qz};
         fuse_core::MatrixXd actual(3, 4);
+        /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0, 0.0;
+                  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(3, 4);
+        /* *INDENT-OFF* */
         expected << 0.0, 0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0, 0.0;
+                    0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         reference.ComputeMinusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
@@ -264,8 +269,7 @@ TEST(Orientation3DStamped, MinusJacobian)
 TEST(Orientation3DStamped, Stamped)
 {
   fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -339,15 +343,10 @@ TEST(Orientation3DStamped, Optimization)
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.localParameterization());
+    orientation.data(), orientation.size(), orientation.localParameterization());
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;

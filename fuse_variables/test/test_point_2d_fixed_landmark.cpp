@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/point_2d_fixed_landmark.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/point_2d_fixed_landmark.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::Point2DFixedLandmark;
 
@@ -96,15 +96,10 @@ TEST(Point2DFixedLandmark, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(
-    position.data(),
-    position.size());
+  problem.AddParameterBlock(position.data(), position.size());
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(position.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
   if (position.holdConstant()) {
     problem.SetParameterBlockConstant(position.data());
   }
