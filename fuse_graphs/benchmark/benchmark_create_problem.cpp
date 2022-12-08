@@ -31,24 +31,22 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_graphs/hash_graph.hpp>
-
-#include "example_variable.hpp"
-
 #include <benchmark/benchmark.h>
-
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 #include <ceres/dynamic_autodiff_cost_function.h>
 
 #include <algorithm>
 #include <iterator>
-#include <vector>
 #include <string>
+#include <vector>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include "example_variable.hpp"
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_graphs/hash_graph.hpp>
 
 /**
  * @brief Testable fuse_graphs::HashGraph that exposes the protected createProblem method as public

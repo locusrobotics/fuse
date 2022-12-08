@@ -31,15 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
- #include <fuse_graphs/hash_graph.hpp>
-
-#include <fuse_core/uuid.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/iterator/transform_iterator.hpp>
-#include <boost/serialization/export.hpp>
-#include <rclcpp/clock.hpp>
-
 #include <algorithm>
 #include <functional>
 #include <limits>
@@ -48,6 +39,12 @@
 #include <utility>
 #include <vector>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/serialization/export.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_graphs/hash_graph.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/clock.hpp>
 
 namespace fuse_graphs
 {

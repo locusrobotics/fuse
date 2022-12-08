@@ -34,10 +34,10 @@
 #ifndef FUSE_GRAPHS__HASH_GRAPH_PARAMS_HPP_
 #define FUSE_GRAPHS__HASH_GRAPH_PARAMS_HPP_
 
+#include <ceres/problem.h>
+
 #include <fuse_core/ceres_options.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
-
-#include <ceres/problem.h>
 
 
 namespace fuse_graphs

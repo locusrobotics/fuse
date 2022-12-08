@@ -34,6 +34,15 @@
 #ifndef FUSE_GRAPHS__HASH_GRAPH_HPP_
 #define FUSE_GRAPHS__HASH_GRAPH_HPP_
 
+#include <ceres/covariance.h>
+#include <ceres/problem.h>
+#include <ceres/solver.h>
+
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -48,14 +57,6 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/unordered_set.hpp>
-#include <ceres/covariance.h>
-#include <ceres/problem.h>
-#include <ceres/solver.h>
-
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
 
 
 namespace fuse_graphs
@@ -401,7 +402,8 @@ protected:
 
   Constraints constraints_;  //!< The set of all constraints
   CrossReference constraints_by_variable_uuid_;  //!< Index all of the constraints by variable uuids
-  ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all constructed ceres::Problems
+  ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all
+                                             //!< constructed ceres::Problems
   Variables variables_;  //!< The set of all variables
   VariableSet variables_on_hold_;  //!< The set of variables that should be held constant
 

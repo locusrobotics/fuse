@@ -31,16 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_graphs/hash_graph.hpp>
-#include "covariance_constraint.hpp"
-#include "example_constraint.hpp"
-#include "example_loss.hpp"
-#include "example_variable.hpp"
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -48,6 +38,16 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include "covariance_constraint.hpp"
+#include "example_constraint.hpp"
+#include "example_loss.hpp"
+#include "example_variable.hpp"
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
+#include <fuse_graphs/hash_graph.hpp>
 
 /**
  * @brief Test fixture for the HashGraph
@@ -145,7 +145,8 @@ public:
     return constraints_equal;
   }
 
-  std::string failure_description {""};    //!< The last failure description. Empty if no failure happened
+  std::string failure_description {""};    //!< The last failure description. Empty if no failure
+                                           //!< happened
 };
 
 TEST_F(HashGraphTestFixture, AddVariable)
@@ -765,8 +766,10 @@ TEST_F(HashGraphTestFixture, GetCovariance)
     std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> covariance_requests;
     covariance_requests.emplace_back(x->uuid(), x->uuid());
     covariance_requests.emplace_back(x->uuid(), y->uuid());
-    covariance_requests.emplace_back(y->uuid(), x->uuid());  // Adding both versions Cov(X,Y) and Cov(Y,X)
-    covariance_requests.emplace_back(x->uuid(), y->uuid());  // Adding a duplicate to verify everything still works.
+    covariance_requests.emplace_back(y->uuid(), x->uuid());  // Adding both versions Cov(X,Y) and
+                                                             // Cov(Y,X)
+    covariance_requests.emplace_back(x->uuid(), y->uuid());  // Adding a duplicate to verify
+                                                             // everything still works.
     covariance_requests.emplace_back(z->uuid(), y->uuid());
     std::vector<std::vector<double>> covariance_matrices;
     graph.getCovariance(covariance_requests, covariance_matrices);
@@ -791,12 +794,12 @@ TEST_F(HashGraphTestFixture, GetCovariance)
     // [ ZX (1x2), ZY(1x3), ZZ (1x1)]
     std::vector<double> expected0 = {7.0747e-02, -8.4923e-03, -8.4923e-03, 8.1352e-02};   // XX
     std::vector<double> expected1 =
-    {1.6821e-02, 3.3643e-02, 5.0464e-02, 2.4758e-02, 4.9517e-02, 7.4275e-02};                                     // XY
+    {1.6821e-02, 3.3643e-02, 5.0464e-02, 2.4758e-02, 4.9517e-02, 7.4275e-02};             // XY
     std::vector<double> expected2 =
-    {1.6821e-02, 2.4758e-02, 3.3643e-02, 4.9517e-02, 5.0464e-02, 7.4275e-02};                                     // YX
+    {1.6821e-02, 2.4758e-02, 3.3643e-02, 4.9517e-02, 5.0464e-02, 7.4275e-02};             // YX
     std::vector<double> expected3 =
-    {1.6821e-02, 3.3643e-02, 5.0464e-02, 2.4758e-02, 4.9517e-02, 7.4275e-02};                                     // XY
-    std::vector<double> expected4 = {-6.5325e-05, -1.3065e-04, -1.9598e-04};  // ZY
+    {1.6821e-02, 3.3643e-02, 5.0464e-02, 2.4758e-02, 4.9517e-02, 7.4275e-02};             // XY
+    std::vector<double> expected4 = {-6.5325e-05, -1.3065e-04, -1.9598e-04};              // ZY
 
     ASSERT_EQ(expected0.size(), actual0.size());
     for (size_t i = 0; i < expected0.size(); ++i) {

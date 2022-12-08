@@ -34,6 +34,11 @@
 #ifndef FUSE_GRAPHS__TEST_COVARIANCE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
 #define FUSE_GRAPHS__TEST_COVARIANCE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
 
+#include <ceres/cost_function.h>
+
+#include <algorithm>
+#include <string>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
@@ -42,10 +47,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <ceres/cost_function.h>
-
-#include <algorithm>
-#include <string>
 
 
 /**

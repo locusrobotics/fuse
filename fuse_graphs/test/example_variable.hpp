@@ -34,6 +34,8 @@
 #ifndef FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
 #define FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
 
+#include <vector>
+
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
@@ -42,8 +44,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/vector.hpp>
-
-#include <vector>
 
 
 /**
