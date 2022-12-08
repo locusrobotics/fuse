@@ -65,7 +65,8 @@ TEST(RelativePose3DStampedConstraint, Constructor)
   fuse_core::Vector7d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079, 0.094;
 
-  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the
+  // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
   cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
@@ -92,7 +93,8 @@ TEST(RelativePose3DStampedConstraint, Covariance)
   fuse_core::Vector7d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079, 0.094;
 
-  // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the
+  // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
   cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
@@ -340,7 +342,8 @@ TEST(RelativePose3DStampedConstraint, Serialization)
   fuse_core::Vector7d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079, 0.094;
 
-  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the
+  // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
   cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT

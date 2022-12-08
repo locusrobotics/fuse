@@ -47,8 +47,8 @@ namespace fuse_constraints
 /**
  * @brief Create a prior cost function on both the position and orientation variables at once.
  *
- * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost function that
- * applies a prior constraint on both the position and orientation variables at once.
+ * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost
+ * function that applies a prior constraint on both the position and orientation variables at once.
  *
  * The cost function is of the form:
  *
@@ -56,13 +56,14 @@ namespace fuse_constraints
  *   cost(x) = ||A * [  y - b(1)] ||
  *             ||    [yaw - b(2)] ||
  *
- * Here, the matrix A can be of variable size, thereby permitting the computation of errors for partial measurements.
- * The vector b is a fixed-size 3x1. In case the user is interested in implementing a cost function of the form:
+ * Here, the matrix A can be of variable size, thereby permitting the computation of errors for
+ * partial measurements. The vector b is a fixed-size 3x1. In case the user is interested in
+ * implementing a cost function of the form:
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance).
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance).
  */
 class NormalPriorPose2DCostFunctor
 {
@@ -70,12 +71,13 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * The residual weighting matrix can vary in size, as this cost functor can be used to compute costs for partial
-   * vectors. The number of rows of A will be the number of dimensions for which you want to compute the error, and the
-   * number of columns in A will be fixed at 3. For example, if we just want to use the values of x and yaw, then \p A
-   * will be of size 2x3.
+   * The residual weighting matrix can vary in size, as this cost functor can be used to compute
+   * costs for partial vectors. The number of rows of A will be the number of dimensions for which
+   * you want to compute the error, and the number of columns in A will be fixed at 3. For example,
+   * if we just want to use the values of x and yaw, then \p A will be of size 2x3.
    *
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix in
+   *              order (x, y, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, yaw)
    */
   NormalPriorPose2DCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b);

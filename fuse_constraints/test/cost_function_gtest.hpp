@@ -44,11 +44,13 @@
  *
  * This helper function is copied and slightly adapted from:
  *
- *   https://github.com/ceres-solver/ceres-solver/blob/27b71795/internal/ceres/cost_function_to_functor_test.cc#L46-L119
+ * https://github.com/ceres-solver/ceres-
+ * solver/blob/27b71795/internal/ceres/cost_function_to_functor_test.cc#L46-L119
  *
  * @param[in] cost_function The expected cost function
  * @param[in] actual_cost_function The actual cost function
- * @param[in] tolerance The tolerance to use when comparing the cost functions are equal. Defaults to 1e-18
+ * @param[in] tolerance The tolerance to use when comparing the cost functions are equal. Defaults
+ *                      to 1e-18
  */
 static void ExpectCostFunctionsAreEqual(
   const ceres::CostFunction & cost_function,

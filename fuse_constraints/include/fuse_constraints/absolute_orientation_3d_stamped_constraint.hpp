@@ -56,8 +56,8 @@ namespace fuse_constraints
 {
 
 /**
- * @brief A constraint that represents either prior information about a 3D orientation, or a direct measurement of the
- * 3D orientation.
+ * @brief A constraint that represents either prior information about a 3D orientation, or a direct
+ *        measurement of the 3D orientation.
  *
  * This constraint holds the measured 3D orientation and the measurement uncertainty/covariance.
  */
@@ -149,9 +149,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -187,7 +188,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

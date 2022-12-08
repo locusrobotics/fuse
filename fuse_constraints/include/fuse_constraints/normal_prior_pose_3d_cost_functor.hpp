@@ -48,22 +48,24 @@ namespace fuse_constraints
 /**
  * @brief Create a prior cost function on both the 3D position and orientation variables at once.
  *
- * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost function that
- * applies a prior constraint on both the 3D position and orientation variables at once.
+ * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost
+ * function that applies a prior constraint on both the 3D position and orientation variables at
+ * once.
  *
  * The cost function is of the form:
  *
  *   cost(x) = || A * [  p - b(0:2)               ] ||^2
  *             ||     [  AngleAxis(b(3:6)^-1 * q) ] ||
  *
- * where, the matrix A and the vector b are fixed, p is the position variable, and q is the orientation variable.
- * Note that the covariance submatrix for the quaternion is 3x3, representing errors in the orientation local
- * parameterization tangent space. In case the user is interested in implementing a cost function of the form
+ * where, the matrix A and the vector b are fixed, p is the position variable, and q is the
+ * orientation variable. Note that the covariance submatrix for the quaternion is 3x3, representing
+ * errors in the orientation local parameterization tangent space. In case the user is interested in
+ * implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance).
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance).
  */
 class NormalPriorPose3DCostFunctor
 {
@@ -73,8 +75,8 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (x, y, z, qx, qy, qz)
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix in
+   *              order (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
   NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);

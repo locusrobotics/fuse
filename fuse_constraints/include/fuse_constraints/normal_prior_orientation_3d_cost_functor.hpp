@@ -55,16 +55,17 @@ namespace fuse_constraints
  *   cost(x) = || A * AngleAxis(b^-1 * q) ||
  *             ||                         ||
  *
- * where the matrix A and the vector b are fixed, and q is the variable being measured, represented as a quaternion.
- * The AngleAxis function converts a quaternion into a 3-vector of the form theta*k, where k is the unit vector axis
- * of rotation and theta is the angle of rotation. The A matrix is applied to the angle-axis 3-vector.
+ * where the matrix A and the vector b are fixed, and q is the variable being measured, represented
+ * as a quaternion. The AngleAxis function converts a quaternion into a 3-vector of the form
+ * theta*k, where k is the unit vector axis of rotation and theta is the angle of rotation. The A
+ * matrix is applied to the angle-axis 3-vector.
  *
  * In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance).
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance).
  */
 class NormalPriorOrientation3DCostFunctor
 {
@@ -74,8 +75,8 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (quaternion_x, quaternion_y, quaternion_z)
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix in
+   *              order (quaternion_x, quaternion_y, quaternion_z)
    * @param[in] b The orientation measurement or prior in order (w, x, y, z)
    */
   NormalPriorOrientation3DCostFunctor(
@@ -115,7 +116,8 @@ public:
     ceres::QuaternionProduct(observation_inverse, variable, difference);
     ceres::QuaternionToAngleAxis(difference, residuals);
 
-    // Scale the residuals by the square root information matrix to account for the measurement uncertainty.
+    // Scale the residuals by the square root information matrix to account for the measurement
+    // uncertainty.
     Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_.template cast<T>());
 

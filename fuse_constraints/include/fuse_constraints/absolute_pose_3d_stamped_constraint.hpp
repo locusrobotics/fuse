@@ -56,13 +56,15 @@ namespace fuse_constraints
 {
 
 /**
- * @brief A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose.
+ * @brief A constraint that represents either prior information about a 3D pose, or a direct
+ *        measurement of the 3D pose.
  *
- * A 3D pose is the combination of a 3D position and a 3D orientation variable. As a convenience, this class applies
- * an absolute constraint on both variables at once. This type of constraint arises in many situations. In mapping
- * it is common to define the very first pose as the origin. Some sensors, such as GPS, provide direct measurements
- * of the robot's pose in the global frame. And localization systems often match laserscans or pointclouds to a prior
- * map (scan-to-map measurements). This constraint holds the measured 3D pose and the measurement
+ * A 3D pose is the combination of a 3D position and a 3D orientation variable. As a convenience,
+ * this class applies an absolute constraint on both variables at once. This type of constraint
+ * arises in many situations. In mapping it is common to define the very first pose as the origin.
+ * Some sensors, such as GPS, provide direct measurements of the robot's pose in the global frame.
+ * And localization systems often match laserscans or pointclouds to a prior map (scan-to-map
+ * measurements). This constraint holds the measured 3D pose and the measurement
  * uncertainty/covariance. Orientations are represented as quaternions.
  */
 class AbsolutePose3DStampedConstraint : public fuse_core::Constraint
@@ -81,7 +83,8 @@ public:
    * @param[in] source      The name of the sensor or motion model that generated this constraint
    * @param[in] position    The variable representing the position components of the pose
    * @param[in] orientation The variable representing the orientation components of the pose
-   * @param[in] mean        The measured/prior pose as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
+   * @param[in] mean        The measured/prior pose as a vector
+   *                        (7x1 vector: x, y, z, qw, qx, qy, qz)
    * @param[in] covariance  The measurement/prior covariance (6x6 matrix: x, y, z, qx, qy, qz)
    */
   AbsolutePose3DStampedConstraint(
@@ -130,9 +133,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -147,7 +151,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

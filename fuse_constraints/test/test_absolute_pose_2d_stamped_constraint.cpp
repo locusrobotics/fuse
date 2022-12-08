@@ -95,8 +95,8 @@ TEST(AbsolutePose2DStampedConstraint, Covariance)
 
 TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
 {
-  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a single pose and single constraint, verify the expected value and covariance are
+  // generated. Create the variables
   auto orientation_variable = Orientation2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->yaw() = 0.8;
@@ -180,8 +180,8 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
 
 TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
 {
-  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a single pose and single constraint, verify the expected value and covariance are
+  // generated. Create the variables
   auto orientation_variable = Orientation2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->yaw() = 0.8;

@@ -50,12 +50,12 @@ namespace fuse_constraints
  * This is designed for use when marginalizing out variables, but it may have other uses.
  *
  * Specifically, this class maps a UUID to a sequential index. Bidirectional access is possible.
- * If you have a UUID, the index can be retrieved in constant time. And if you have the index, the UUID
- * may be retrieved in constant (and fast) time. Also, iterating through the UUIDs in sequence is an
- * efficient operation.
+ * If you have a UUID, the index can be retrieved in constant time. And if you have the index, the
+ * UUID may be retrieved in constant (and fast) time. Also, iterating through the UUIDs in sequence
+ * is an efficient operation.
  *
- * The UuidOrdering is not designed to be highly dynamic. UUIDs can be added, but not removed. UUIDs are
- * assigned an index based on the order of insertion and cannot be modified.
+ * The UuidOrdering is not designed to be highly dynamic. UUIDs can be added, but not removed. UUIDs
+ * are assigned an index based on the order of insertion and cannot be modified.
  */
 class UuidOrdering
 {
@@ -80,8 +80,8 @@ public:
   /**
    * @brief Construct a UuidOrdering with the UUIDs from the provided collection
    *
-   * The \p UuidConstIterator class must meet the ForwardIterator requirements, and when dereferenced must
-   * be compatible with a \p const fuse_core::UUID&.
+   * The \p UuidConstIterator class must meet the ForwardIterator requirements, and when
+   * dereferenced must be compatible with a \p const fuse_core::UUID&.
    *
    * @param[in] first Iterator pointing to the first UUID to add to the ordering
    * @param[in] last  Iterator pointing to one past the last UUID to add to the ordering

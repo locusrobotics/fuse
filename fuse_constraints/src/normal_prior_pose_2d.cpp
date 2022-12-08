@@ -60,7 +60,8 @@ bool NormalPriorPose2D::Evaluate(
   full_residuals_vector[1] = parameters[0][1] - b_[1];  // position y
   full_residuals_vector[2] = fuse_core::wrapAngle2D(parameters[1][0] - b_[2]);  // orientation
 
-  // Scale the residuals by the square root information matrix to account for the measurement uncertainty.
+  // Scale the residuals by the square root information matrix to account for the measurement
+  // uncertainty.
   Eigen::Map<fuse_core::VectorXd> residuals_vector(residuals, num_residuals());
   residuals_vector = A_ * full_residuals_vector;
 

@@ -213,8 +213,8 @@ TEST(AbsoluteConstraint, Optimization)
 {
   // Test optimizing a full measurement
   {
-    // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
-    // Create a variable
+    // Optimize a single variable and single constraint, verify the expected value and covariance
+    // are generated. Create a variable
     auto variable = fuse_variables::AccelerationLinear2DStamped::make_shared(
       rclcpp::Time(1234, 5678),
       fuse_core::uuid::generate("t800"));
@@ -262,9 +262,9 @@ TEST(AbsoluteConstraint, Optimization)
     fuse_core::Matrix2d covariance_matrix(covariance_vector.data());
     EXPECT_TRUE(cov.isApprox(covariance_matrix, 1.0e-9));
   }
-  // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-deficient by
-  // definition, which cannot be optimized alone. Instead, we will simply add a partial measurement to our full
-  // measurement example.
+  // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-
+  // deficient by definition, which cannot be optimized alone. Instead, we will simply add a partial
+  // measurement to our full measurement example.
   {
     // Optimize a single variable with a full measurement and a partial measurement
     // Verify the expected value and covariance are generated.
@@ -410,8 +410,8 @@ TEST(AbsoluteConstraint, PartialOptimization)
 
 TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
 {
-  // Optimize a single variable and single constraint, verify the expected value and covariance are generated.
-  // Create a variable
+  // Optimize a single variable and single constraint, verify the expected value and covariance are
+  // generated. Create a variable
   auto variable = fuse_variables::Orientation2DStamped::make_shared(
     rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("tiktok"));

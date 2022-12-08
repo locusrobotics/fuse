@@ -54,12 +54,14 @@ namespace fuse_constraints
  *   cost(x) = || A1 * (x1 - x1_bar) + A2 * (x2 - x2_bar) + ... + An * (xn - xn_bar) + b ||
  *             ||                                                                        ||
  *
- * where, the A matrices and the b vector are fixed, x_bar is the linearization point used when calculating the A
- * matrices and b vector, and the minus operator in (x - x_bar) is provided by the variable's local parameterization.
+ * where, the A matrices and the b vector are fixed, x_bar is the linearization point used when
+ * calculating the A matrices and b vector, and the minus operator in (x - x_bar) is provided by the
+ * variable's local parameterization.
  *
- * The A matrices can have any number of rows, but they must all be the same. The number of columns of each A matrix
- * must match the associated variable's local parameterization size, and the number of rows of each x_bar must match
- * the associated variable's global size. The cost function will have the same number of residuals as the rows of A.
+ * The A matrices can have any number of rows, but they must all be the same. The number of columns
+ * of each A matrix must match the associated variable's local parameterization size, and the number
+ * of rows of each x_bar must match the associated variable's global size. The cost function will
+ * have the same number of residuals as the rows of A.
  */
 class MarginalCostFunction : public ceres::CostFunction
 {
@@ -67,8 +69,10 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * @param[in] A                       The A matrix of the marginal cost (of the form A*(x - x_bar) + b)
-   * @param[in] b                       The b vector of the marginal cost (of the form A*(x - x_bar) + b)
+   * @param[in] A                       The A matrix of the marginal cost
+   *                                    (of the form A*(x - x_bar) + b)
+   * @param[in] b                       The b vector of the marginal cost
+   *                                    (of the form A*(x - x_bar) + b)
    * @param[in] x_bar                   The linearization point of the involved variables
    * @param[in] local_parameterizations The local parameterization associated with the variable
    */
@@ -84,8 +88,8 @@ public:
   virtual ~MarginalCostFunction() = default;
 
   /**
-   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
-   *        values
+   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided
+   *        variable/parameter values
    */
   bool Evaluate(
     double const * const * parameters,
@@ -95,7 +99,10 @@ public:
 private:
   const std::vector<fuse_core::MatrixXd> & A_;  //!< The A matrices of the marginal cost
   const fuse_core::VectorXd & b_;  //!< The b vector of the marginal cost
-  const std::vector<fuse_core::LocalParameterization::SharedPtr> & local_parameterizations_;  //!< Parameterizations
+
+  //!< Parameterizations
+  const std::vector<fuse_core::LocalParameterization::SharedPtr> & local_parameterizations_;
+
   const std::vector<fuse_core::VectorXd> & x_bar_;  //!< The linearization point of each variable
 };
 

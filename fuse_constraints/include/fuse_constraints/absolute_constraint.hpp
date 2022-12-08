@@ -61,12 +61,14 @@ namespace fuse_constraints
 {
 
 /**
- * @brief A constraint that represents prior information about a variable or a direct measurement of the variable.
+ * @brief A constraint that represents prior information about a variable or a direct measurement of
+ *        the variable.
  *
- * This type of constraint arises in many situations. In mapping it is common to define the very first pose as the
- * origin. Some sensors, such as an IMU, provide direct measurements of certain state variables (e.g. linear
- * acceleration). And localization systems often match laserscans to a prior map (scan-to-map measurements).
- * This constraint holds the measured variable value and the measurement uncertainty/covariance.
+ * This type of constraint arises in many situations. In mapping it is common to define the very
+ * first pose as the origin. Some sensors, such as an IMU, provide direct measurements of certain
+ * state variables (e.g. linear acceleration). And localization systems often match laserscans to a
+ * prior map (scan-to-map measurements). This constraint holds the measured variable value and the
+ * measurement uncertainty/covariance.
  */
 template<class Variable>
 class AbsoluteConstraint : public fuse_core::Constraint
@@ -94,12 +96,16 @@ public:
     const fuse_core::MatrixXd & covariance);
 
   /**
-   * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the target variable
+   * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the
+   *        target variable
    *
-   * @param[in] source             The name of the sensor or motion model that generated this constraint
+   * @param[in] source             The name of the sensor or motion model that generated this
+   *                               constraint
    * @param[in] variable           An object derived from fuse_core::Variable.
-   * @param[in] partial_mean       The measured value of the subset of dimensions in the order defined by \p indices
-   * @param[in] partial_covariance The uncertainty of the subset of dimensions in the order defined by \p indices.
+   * @param[in] partial_mean       The measured value of the subset of dimensions in the order
+   *                               defined by \p indices
+   * @param[in] partial_covariance The uncertainty of the subset of dimensions in the order defined
+   *                               by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
   AbsoluteConstraint(
@@ -117,28 +123,29 @@ public:
   /**
    * @brief Read-only access to the measured/prior vector of mean values.
    *
-   * All dimensions are present, even if only a partial set of dimensions were measured. Dimensions are in the order
-   * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
-   * are set to zero.
+   * All dimensions are present, even if only a partial set of dimensions were measured. Dimensions
+   * are in the order defined by the variable, not the order defined by the \p indices parameter.
+   * All unmeasured variable dimensions are set to zero.
    */
   const fuse_core::VectorXd & mean() const {return mean_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
-   * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
-   * of dimensions are measured, then this matrix will not be square.
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices
+   * parameter. The square root information matrix will have size measured_dimensions X
+   * variable_dimensions. If only a partial set of dimensions are measured, then this matrix will
+   * not be square.
    */
   const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
-   * covariance matrix will always be square, with size variable_dimensions X variable_dimensions. If only a
-   * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
-   * covariance matrix. You have been warned.
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices
+   * parameter. The covariance matrix will always be square, with size variable_dimensions X
+   * variable_dimensions. If only a subset of dimensions are measured, then some rows/columns will
+   * be zero. This will result in a rank-deficient covariance matrix. You have been warned.
    */
   fuse_core::MatrixXd covariance() const;
 
@@ -152,9 +159,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -169,7 +177,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

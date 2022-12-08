@@ -79,13 +79,15 @@ RelativeConstraint<Variable>::RelativeConstraint(
   assert(partial_covariance.cols() == static_cast<int>(indices.size()));
   // Compute the sqrt information of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
-  // Assemble a mean vector and sqrt information matrix from the provided values, but in proper Variable order
+  // Assemble a mean vector and sqrt information matrix from the provided values, but in proper
+  // Variable order
+  //
   // What are we doing here?
   // The constraint equation is defined as: cost(x) = ||A * (x1 - x0 - b)||^2
-  // If we are measuring a subset of dimensions, we only want to produce costs for the measured dimensions.
-  // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
-  // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
-  // defined by the variable.
+  // If we are measuring a subset of dimensions, we only want to produce costs for
+  // the measured dimensions. But the variable vectors will be full sized. We can make this all work
+  // out by creating a non-square A matrix, where each row computes a cost for one measured
+  // dimensions, and the columns are in the order defined by the variable.
   delta_ = fuse_core::VectorXd::Zero(variable1.size());
   sqrt_information_ = fuse_core::MatrixXd::Zero(indices.size(), variable1.size());
   for (size_t i = 0; i < indices.size(); ++i) {

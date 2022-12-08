@@ -61,17 +61,18 @@ namespace fuse_constraints
 /**
  * @brief Compute an efficient elimination order for the marginalized variables
  *
- * The marginalized_variables are guaranteed to be placed before any additional connected variables. Each time a
- * variable is eliminated from the system, the resulting reduced system is independent of the eliminated variable.
- * By eliminating the "marginalized variables" first, all of the "additional connected variables" will remain in the
- * system, but they will not depend on any of the "marginalized variables"...which is what we want.
+ * The marginalized_variables are guaranteed to be placed before any additional connected variables.
+ * Each time a variable is eliminated from the system, the resulting reduced system is independent
+ * of the eliminated variable. By eliminating the "marginalized variables" first, all of the
+ * "additional connected variables" will remain in the system, but they will not depend on any of
+ * the "marginalized variables"...which is what we want.
  *
- * This function uses CCOLAMD to find a good elimination order that eliminates all the "marginalized variables"
- * first.
+ * This function uses CCOLAMD to find a good elimination order that eliminates all the "marginalized
+ * variables" first.
  *
  * @param[in] marginalized_variables The variable UUIDs to be marginalized out
- * @param[in] graph                  A graph containing, at least, all constraints that involve at least one
- *                                   marginalized variable
+ * @param[in] graph                  A graph containing, at least, all constraints that involve at
+ *                                   least one marginalized variable
  * @return The mapping from variable UUID to the computed elimination order
  */
 UuidOrdering computeEliminationOrder(
@@ -79,22 +80,24 @@ UuidOrdering computeEliminationOrder(
   const fuse_core::Graph & graph);
 
 /**
- * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested variables
+ * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested
+ *        variables
  *
- * This computes a linear approximation of the marginal information on the non-marginalized variables. The current
- * variable values in the graph are used as the linearization points for the linear approximation. Thus, marginalizing
- * out a variable will introduce linearization errors as the optimal values move away from the fixed linearization
- * points.
+ * This computes a linear approximation of the marginal information on the non-marginalized
+ * variables. The current variable values in the graph are used as the linearization points for the
+ * linear approximation. Thus, marginalizing out a variable will introduce linearization errors as
+ * the optimal values move away from the fixed linearization points.
  *
  * This version computes an efficient elimination order using computeEliminationOrder().
  *
- * @param[in] source                 The name of the sensor or motion model that generated this constraint
+ * @param[in] source                 The name of the sensor or motion model that generated this
+ *                                   constraint
  * @param[in] marginalized_variables The set of variable UUIDs to marginalize out
- * @param[in] graph                  A graph containing the variables and constraints that are connected to at least
- *                                   one marginalized variable. The graph may also contain additional variables and
- *                                   constraints.
- * @return A transaction object containing the computed marginal constraints to be added, as well as the set of
- *         variables and constraints to be removed.
+ * @param[in] graph                  A graph containing the variables and constraints that are
+ *                                   connected to at least one marginalized variable. The graph may
+ *                                   also contain additional variables and constraints.
+ * @return A transaction object containing the computed marginal constraints to be added, as well as
+ *         the set of variables and constraints to be removed.
  */
 fuse_core::Transaction marginalizeVariables(
   const std::string & source,
@@ -102,24 +105,26 @@ fuse_core::Transaction marginalizeVariables(
   const fuse_core::Graph & graph);
 
 /**
- * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested variables
+ * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested
+ *        variables
  *
- * This computes a linear approximation of the marginal information on the non-marginalized variables. The current
- * variable values in the graph are used as the linearization points for the linear approximation. Thus, marginalizing
- * out a variable will introduce linearization errors as the optimal values move away from the fixed linearization
- * points.
+ * This computes a linear approximation of the marginal information on the non-marginalized
+ * variables. The current variable values in the graph are used as the linearization points for the
+ * linear approximation. Thus, marginalizing out a variable will introduce linearization errors as
+ * the optimal values move away from the fixed linearization points.
  *
- * This version allows the user to provide their own elimination order. The marginalized_variables *must* occur
- * before any other variables in that elimination order.
+ * This version allows the user to provide their own elimination order. The marginalized_variables
+ * *must* occur before any other variables in that elimination order.
  *
- * @param[in] source                 The name of the sensor or motion model that generated this constraint
+ * @param[in] source                 The name of the sensor or motion model that generated this
+ *                                   constraint
  * @param[in] marginalized_variables The set of variable UUIDs to marginalize out
- * @param[in] graph                  A graph containing the variables and constraints that are connected to at least
- *                                   one marginalized variable. The graph may also contain additional variables and
- *                                   constraints.
+ * @param[in] graph                  A graph containing the variables and constraints that are
+ *                                   connected to at least one marginalized variable. The graph may
+ *                                   also contain additional variables and constraints.
  * @param[in] elimination_order      An sequential ordering of at least the marginalized variables
- * @return A transaction object containing the computed marginal constraints to be added, as well as the set of
- *         variables and constraints to be removed.
+ * @return A transaction object containing the computed marginal constraints to be added, as well as
+ *         the set of variables and constraints to be removed.
  */
 fuse_core::Transaction marginalizeVariables(
   const std::string & source,
@@ -145,13 +150,15 @@ struct LinearTerm
 /**
  * @brief Linearize the nonlinear constraint
  *
- * Variable UUIDs are converted into indices using the \p elimination_order. The variable linearization points are
- * extracted from the current variable values in the \p graph.
+ * Variable UUIDs are converted into indices using the \p elimination_order. The variable
+ * linearization points are extracted from the current variable values in the \p graph.
  *
  * @param[in] constraint        The constraint to linearize
- * @param[in] graph             A graph containing, at least, the variables involved in the constraint
+ * @param[in] graph             A graph containing, at least, the variables involved in the
+ *                              constraint
  * @param[in] elimination_order A mapping from variable UUID to elimination order
- * @return A LinearTerm consisting of Jacobian blocks associated with each involved variable in elimination order
+ * @return A LinearTerm consisting of Jacobian blocks associated with each involved variable in
+ *         elimination order
  */
 LinearTerm linearize(
   const fuse_core::Constraint & constraint,
@@ -161,10 +168,11 @@ LinearTerm linearize(
 /**
  * @brief Marginalize out the lowest-ordered variable from the provided set of linear terms
  *
- * A linear marginal term is returned. This represents the information on the remaining variables after marginalizing
- * out the lowest-ordered variable.
+ * A linear marginal term is returned. This represents the information on the remaining variables
+ * after marginalizing out the lowest-ordered variable.
  *
- * @param[in] linear_terms The set of LinearTerms that are connected to the lowest-ordered variable index
+ * @param[in] linear_terms The set of LinearTerms that are connected to the lowest-ordered variable
+ *                         index
  * @return A LinearTerm object containing the information on the remaining variables
  */
 LinearTerm marginalizeNext(const std::vector<LinearTerm> & linear_terms);
@@ -172,7 +180,8 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm> & linear_terms);
 /**
  * @brief Convert the provided linear term into a MarginalConstraint
  *
- * @param[in] source            The name of the sensor or motion model that generated this constraint
+ * @param[in] source            The name of the sensor or motion model that generated this
+ *                              constraint
  * @param[in] linear_term       The LinearTerm object to convert
  * @param[in] graph             The graph object containing the current variable values
  * @param[in] elimination_order The mapping from variable UUID to LinearTerm variable index

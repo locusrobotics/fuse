@@ -61,16 +61,21 @@ UuidOrdering computeEliminationOrder(
   const fuse_core::Graph & graph)
 {
   // COLAMD wants a somewhat weird structure
-  // Variables are numbered sequentially in some arbitrary order. We call this the "variable index" order.
-  // Similarly, the Constraints are numbered sequentially. We call this the "constraint index" order.
-  // 'A' contains the constraint index for each connected constraint to a specific variable. The connected
-  //     constraints are added to 'A' in variable index order.
+  // Variables are numbered sequentially in some arbitrary order. We call this the "variable index"
+  // order.
+  // Similarly, the Constraints are numbered sequentially. We call this the "constraint index"
+  // order.
+  //
+  // 'A' contains the constraint index for each connected constraint to a specific variable.
+  //     The connected constraints are added to 'A' in variable index order.
   // 'p' contains the boundary indices for each variable in 'A'. So variable #1 spans entries
   //     from A[p[0]] to A[p[1] - 1], and variable #2 is the range A[p[1]] to A[p[2] - 1], etc.
+  //
   // In order to compute A and p efficiently, we first construct a VariableConstraints object
-  // We will construct sequential indices for the variables and constraints while we populate the VariableConstraints
-  // object.
-  // For orphan variables, i.e. variables with no constraints, p[c] == p[c+1], which still satisfies CCOLAMD specs:
+  // We will construct sequential indices for the variables and constraints while we populate the
+  // VariableConstraints object.
+  // For orphan variables, i.e. variables with no constraints, p[c] == p[c+1], which still satisfies
+  // CCOLAMD specs:
   // https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/master/CCOLAMD/Source/ccolamd.c#L174
   auto variable_order = UuidOrdering();
   auto constraint_order = UuidOrdering();
@@ -79,8 +84,8 @@ UuidOrdering computeEliminationOrder(
     // Get all connected constraints to this variable
     const auto constraints = graph.getConnectedConstraints(variable_uuid);
 
-    // If the variable is orphan (it has no constraints), add it to the VariableConstraints object without constraints
-    // New variable index is automatically generated
+    // If the variable is orphan (it has no constraints), add it to the VariableConstraints object
+    // without constraints New variable index is automatically generated
     if (boost::empty(constraints)) {
       variable_constraints.insert(variable_order[variable_uuid]);
     } else {
@@ -114,8 +119,8 @@ UuidOrdering computeEliminationOrder(
     ++p_iter;
   }
 
-  // Define the variable groups used by CCOLAMD. All of the marginalized variables should be group0, all the
-  // rest should be group1.
+  // Define the variable groups used by CCOLAMD. All of the marginalized variables should be group0,
+  // all the rest should be group1.
   std::vector<int> variable_groups(variable_order.size(), 1);  // Default all variables to group1
   for (const auto & variable_uuid : marginalized_variables) {
     // Reassign the marginalized variables to group0
@@ -142,8 +147,8 @@ UuidOrdering computeEliminationOrder(
   }
 
   // Extract the elimination order from CCOLAMD.
-  // CCOLAMD returns the elimination order by updating the values stored in p with the variable index
-  // Remember that p is larger than variable_order.size()
+  // CCOLAMD returns the elimination order by updating the values stored in p with the variable
+  // index Remember that p is larger than variable_order.size()
   auto elimination_order = UuidOrdering();
   for (size_t i = 0ul; i < variable_order.size(); ++i) {
     elimination_order.push_back(variable_order[p[i]]);
@@ -170,11 +175,12 @@ fuse_core::Transaction marginalizeVariables(
   const fuse_core::Graph & graph,
   const fuse_constraints::UuidOrdering & elimination_order)
 {
-  // TODO(swilliams) The method used to marginalize variables assumes that all variables are fully constrained.
-  //                 However, with the introduction of "variables held constant", it is possible to have a well-behaved
-  //                 system that is not fully-constrained. Ceres handles this issue by removing constant variables from
-  //                 the problem before the linearization and solve steps. A similar approach should be implemented
-  //                 here, but that will require a major refactor.
+  // TODO(swilliams) The method used to marginalize variables assumes that all variables are fully
+  //                 constrained. However, with the introduction of "variables held constant", it is
+  //                 possible to have a well-behaved system that is not fully-constrained. Ceres
+  //                 handles this issue by removing constant variables from the problem before the
+  //                 linearization and solve steps. A similar approach should be implemented here,
+  //                 but that will require a major refactor.
 
   assert(
     std::all_of(
@@ -217,11 +223,13 @@ fuse_core::Transaction marginalizeVariables(
   }
 
   // Expand the linear_terms to include all the connected variables as well
-  // During the marginalize process, marginal variables may be associated with these higher-ordered variables
+  // During the marginalize process, marginal variables may be associated with these higher-ordered
+  // variables
   linear_terms.resize(variable_order.size());
 
   // Use the linearized constraints to marginalize each variable in order
-  // Place the resulting marginal in the linear constraint bucket associated with the lowest-ordered remaining variable
+  // Place the resulting marginal in the linear constraint bucket associated with the lowest-ordered
+  // remaining variable
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i) {
     auto linear_marginal = detail::marginalizeNext(linear_terms[i]);
     if (!linear_marginal.variables.empty()) {
@@ -245,15 +253,16 @@ fuse_core::Transaction marginalizeVariables(
 
 namespace detail
 {
-// TODO(swilliams) There are more graph lookups of each Variable than needed. Refactor so that each Variable is only
-//                 accessed once. This will mean storing the current variable value and local parameterization in
-//                 the LinearTerm.
+// TODO(swilliams) There are more graph lookups of each Variable than needed. Refactor so that each
+//                 Variable is only accessed once. This will mean storing the current variable value
+//                 and local parameterization in the LinearTerm.
 
 /**
- * In order for the linearize function to work correctly, it must perform the same operations as Google Ceres-Solver.
- * Unfortunately those functions are not callable from the public API, so we must replicate them here. The following
- * function is not identical to the Ceres-Solver code, but it was referenced heavily during the creation of this
- * function. As such, I'd like to acknowledge the original authors.
+ * In order for the linearize function to work correctly, it must perform the same operations as
+ * Google Ceres-Solver. Unfortunately those functions are not callable from the public API, so we
+ * must replicate them here. The following function is not identical to the Ceres-Solver code, but
+ * it was referenced heavily during the creation of this function. As such, I'd like to acknowledge
+ * the original authors.
  *
  * Ceres Solver - A fast non-linear least squares minimizer
  * http://ceres-solver.org/
@@ -310,11 +319,12 @@ LinearTerm linearize(
             "during the jacobian computation.");
   }
 
-  // Update the Jacobians with the local parameterizations. This potentially changes the size of the Jacobian block.
-  // The classic example is a quaternion parameter, which has 4 components but only 3 degrees of freedom. The Jacobian
-  // will be transformed from 4 columns to 3 columns after the local parameterization is applied.
-  // We also check for variables that have been marked as constants. Since these variables cannot change value, their
-  // derivatives/Jacobians should be zero.
+  // Update the Jacobians with the local parameterizations. This potentially changes the size of the
+  // Jacobian block. The classic example is a quaternion parameter, which has 4 components but only
+  // 3 degrees of freedom. The Jacobian will be transformed from 4 columns to 3 columns after the
+  // local parameterization is applied. We also check for variables that have been marked as
+  // constants. Since these variables cannot change value, their derivatives/Jacobians should be
+  // zero.
   for (size_t index = 0ul; index < variable_count; ++index) {
     const auto & variable_uuid = variable_uuids[index];
     const auto & variable = graph.getVariable(variable_uuid);
@@ -357,7 +367,8 @@ LinearTerm linearize(
       if (alpha == 0.0) {
         jacobian *= sqrt_rho1;
       } else {
-        // TODO(swilliams) This may be inefficient, at least according to notes in the Ceres codebase.
+        // TODO(swilliams) This may be inefficient, at least according to notes in the Ceres
+        //                 codebase.
         jacobian = sqrt_rho1 *
           (jacobian - (alpha / squared_norm) * result.b * (result.b.transpose() * jacobian));
       }
@@ -376,11 +387,12 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm> & linear_terms)
     return {};
   }
 
-  // We need to create a dense matrix from all of the provided linear terms, and that matrix must order the variables
-  // in the proper elimination order. The LinearTerms have the elimination order baked into the variable indices, but
-  // since not all variables are necessarily present, we need to remove any gaps from the variable indices.
-  // We use vector operations instead of a std::set because the number of variables is assumed to be small. You need
-  // 1000s of variables before the std::set outperforms the std::vector.
+  // We need to create a dense matrix from all of the provided linear terms, and that matrix must
+  // order the variables in the proper elimination order. The LinearTerms have the elimination order
+  // baked into the variable indices, but since not all variables are necessarily present, we need
+  // to remove any gaps from the variable indices. We use vector operations instead of a std::set
+  // because the number of variables is assumed to be small. You need 1000s of variables before the
+  // std::set outperforms the std::vector.
   auto dense_to_index = std::vector<unsigned int>();
   for (const auto & linear_term : linear_terms) {
     std::copy(
@@ -446,9 +458,10 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm> & linear_terms)
   }
 
   // Compute the QR decomposition
-  // I really want to do this "in place" instead of making a copy into the Eigen QR object and a second copy back out,
-  // but Eigen does not make it easy.
-  // https://eigen.tuxfamily.org/dox/HouseholderQR_8h_source.html Line 379 HouseholderQR<MatrixType>::computeInPlace()
+  // I really want to do this "in place" instead of making a copy into the Eigen QR object and a
+  // second copy back out, but Eigen does not make it easy.
+  // https://eigen.tuxfamily.org/dox/HouseholderQR_8h_source.html Line 379
+  // HouseholderQR<MatrixType>::computeInPlace()
   {
     using MatrixType = fuse_core::MatrixXd;
     using HCoeffsType = Eigen::internal::plain_diag_type<MatrixType>::type;

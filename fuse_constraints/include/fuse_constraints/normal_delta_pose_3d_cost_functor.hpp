@@ -48,22 +48,23 @@ namespace fuse_constraints
 /**
  * @brief Implements a cost function that models a difference between 3D pose variables.
  *
- * A single pose involves two variables: a 3D position and a 3D orientation. This cost function computes the difference
- * using standard 3D transformation math:
+ * A single pose involves two variables: a 3D position and a 3D orientation. This cost function
+ * computes the difference using standard 3D transformation math:
  *
  *   cost(x) = || A * [ q1^-1 * (p2 - p1) - b(0:2)        ] ||^2
  *             ||     [ AngleAxis(b(3:6)^-1 * q1^-1 * q2) ] ||
  *
- * where p1 and p2 are the position variables, q1 and q2 are the quaternion orientation variables, and the matrix A
- * and the vector b are fixed. In case the user is interested in implementing a cost function of
- * the form:
+ * where p1 and p2 are the position variables, q1 and q2 are the quaternion orientation variables,
+ * and the matrix A and the vector b are fixed. In case the user is interested in implementing a
+ * cost function of the form:
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance).
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance).
  *
- * Note that the cost function's quaternion components are only concerned with the imaginary components (qx, qy, qz).
+ * Note that the cost function's quaternion components are only concerned with the imaginary
+ * components (qx, qy, qz).
  */
 class NormalDeltaPose3DCostFunctor
 {
@@ -73,8 +74,8 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (dx, dy, dz, dqx, dqy, dqz)
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix in
+   *              order (dx, dy, dz, dqx, dqy, dqz)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, dqw, dqx, dqy, dqz)
    */
   NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);

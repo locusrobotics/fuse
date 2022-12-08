@@ -226,9 +226,9 @@ TEST(RelativeConstraint, Optimization)
 {
   // Test optimizing a full measurement
   {
-    // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
-    // Verify the expected value and covariance are generated.
-    // Create the variables
+    // Optimize a two-variable system with a prior on the first variable and a relative constraint
+    // connecting the two. Verify the expected value and covariance are generated. Create the
+    // variables
     auto x1 = fuse_variables::AccelerationLinear2DStamped::make_shared(
       rclcpp::Time(1234, 5678),
       fuse_core::uuid::generate("t800"));
@@ -316,13 +316,13 @@ TEST(RelativeConstraint, Optimization)
     x2_expected_covariance << 2.0, 0.1, 0.1, 4.0;
     EXPECT_TRUE(x2_expected_covariance.isApprox(x2_actual_covariance, 1.0e-9));
   }
-  // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-deficient by
-  // definition, which cannot be optimized alone. Instead, we will simply add a partial measurement to our full
-  // measurement example.
+  // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-
+  // deficient by definition, which cannot be optimized alone. Instead, we will simply add a partial
+  // measurement to our full measurement example.
   {
-    // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
-    // Verify the expected value and covariance are generated.
-    // Create the variables
+    // Optimize a two-variable system with a prior on the first variable and a relative constraint
+    // connecting the two. Verify the expected value and covariance are generated. Create the
+    // variables
     auto x1 = fuse_variables::Position3DStamped::make_shared(
       rclcpp::Time(1234, 5678),
       fuse_core::uuid::generate("t1000"));
@@ -438,9 +438,9 @@ TEST(RelativeConstraint, Optimization)
 
 TEST(RelativeConstraint, RelativeOrientation2DOptimization)
 {
-  // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
-  // Verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a two-variable system with a prior on the first variable and a relative constraint
+  // connecting the two. Verify the expected value and covariance are generated. Create the
+  // variables
   auto x1 = fuse_variables::Orientation2DStamped::make_shared(
     rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("t800"));

@@ -62,7 +62,8 @@ TEST(AbsolutePose3DStampedConstraint, Constructor)
   fuse_core::Vector7d mean;
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
-  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the
+  // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
   cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
@@ -89,7 +90,8 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
   fuse_core::Vector7d mean;
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
-  // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the
+  // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
   cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
@@ -122,8 +124,8 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
 
 TEST(AbsolutePose3DStampedConstraint, Optimization)
 {
-  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a single pose and single constraint, verify the expected value and covariance are
+  // generated. Create the variables
   auto position_variable = Position3DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
@@ -246,7 +248,8 @@ TEST(AbsolutePose3DStampedConstraint, Serialization)
   fuse_core::Vector7d mean;
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
-  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
+  // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the
+  // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
   cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT

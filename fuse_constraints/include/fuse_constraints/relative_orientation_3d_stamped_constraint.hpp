@@ -57,7 +57,8 @@ namespace fuse_constraints
 {
 
 /**
- * @brief A constraint that represents a measurement on the difference between 3D orientation variables.
+ * @brief A constraint that represents a measurement on the difference between 3D orientation
+ *        variables.
  *
  * This constraint holds the measured 3D orientation and the measurement uncertainty/covariance.
  */
@@ -77,7 +78,8 @@ public:
    * @param[in] source       The name of the sensor or motion model that generated this constraint
    * @param[in] orientation1 The variable representing the first orientation
    * @param[in] orientation2 The variable representing the second orientation
-   * @param[in] delta        The measured orientation change as a quaternion (4x1 vector: w, x, y, z)
+   * @param[in] delta        The measured orientation change as a quaternion
+   *                         (4x1 vector: w, x, y, z)
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
   RelativeOrientation3DStampedConstraint(
@@ -155,9 +157,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -196,7 +199,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

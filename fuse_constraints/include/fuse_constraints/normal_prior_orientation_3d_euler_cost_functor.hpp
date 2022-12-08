@@ -48,29 +48,30 @@ namespace fuse_constraints
 {
 
 /**
- * @brief Create a prior cost function on a 3D orientation variable using Euler roll, pitch, and yaw measurements
+ * @brief Create a prior cost function on a 3D orientation variable using Euler roll, pitch, and yaw
+ *        measurements
  *
- * The functor can compute the cost of a subset of the axes, in the event that we are not interested in all the Euler
- * angles in the variable.
+ * The functor can compute the cost of a subset of the axes, in the event that we are not interested
+ * in all the Euler angles in the variable.
  *
  * So, for example, if
  * b_ = [ measured_yaw  ]
- *      [ meausred_roll ]
+ *      [ measured_roll ]
  *
  * then the cost function is of the form:
  *
  *   cost(x) = || A * [ yaw(x)  - b_(0) ] ||^2
  *             ||     [ roll(x) - b_(1) ] ||
  *
- * where the matrix A and the vector b are fixed and (roll, pitch, yaw) are the components of the 3D orientation
- * variable.
+ * where the matrix A and the vector b are fixed and (roll, pitch, yaw) are the components of the 3D
+ * orientation variable.
  *
  * In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance).
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance).
  */
 class NormalPriorOrientation3DEulerCostFunctor
 {
@@ -80,8 +81,8 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix. Its order must match
-   *              the values in \p axes.
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix. Its
+   *              order must match the values in \p axes.
    * @param[in] b The orientation measurement or prior. Its order must match the values in \p axes.
    * @param[in] axes The Euler angle axes for which we want to compute errors. Defaults to all axes.
    */

@@ -89,7 +89,8 @@ TEST_F(NormalPriorPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
 
 TEST_F(NormalPriorPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForTwoResiduals)
 {
-  // Create cost function for each possible pair of two residuals, the ones in each possible pair of rows
+  // Create cost function for each possible pair of two residuals, the ones in each possible pair of
+  // rows
   using IndicesPair = std::array<int, 2>;
   std::array<IndicesPair,
     3> indices_pairs = {IndicesPair{0, 1}, IndicesPair{0, 2}, IndicesPair{1, 2}};

@@ -58,9 +58,9 @@ namespace fuse_constraints
 /**
  * @brief A constraint that represents a measurement on the difference between two 3D poses.
  *
- * This type of constraint arises in many situations. Many types of incremental odometry measurements (e.g., visual
- * odometry) measure the change in the pose, not the pose directly. This constraint holds the measured 3D pose change
- * and the measurement uncertainty/covariance.
+ * This type of constraint arises in many situations. Many types of incremental odometry
+ * measurements (e.g., visual odometry) measure the change in the pose, not the pose directly. This
+ * constraint holds the measured 3D pose change and the measurement uncertainty/covariance.
  */
 class RelativePose3DStampedConstraint : public fuse_core::Constraint
 {
@@ -80,7 +80,8 @@ public:
    * @param[in] orientation1 The variable representing the orientation components of the first pose
    * @param[in] position2    The variable representing the position components of the second pose
    * @param[in] orientation2 The variable representing the orientation components of the second pose
-   * @param[in] delta        The measured change in the pose (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
+   * @param[in] delta        The measured change in the pose
+   *                         (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
    * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, dqx, dqy, dqz)
    */
   RelativePose3DStampedConstraint(
@@ -125,9 +126,10 @@ public:
   /**
    * @brief Access the cost function for this constraint
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -135,14 +137,16 @@ public:
 
 protected:
   fuse_core::Vector7d delta_;  //!< The measured pose change (dx, dy, dz, dqw, dqx, dqy, dqz)
-  fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix (derived from the covariance matrix)
+  fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix (derived from the
+                                          //!< covariance matrix)
 
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

@@ -99,8 +99,8 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Covariance)
 
 TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
 {
-  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a single pose and single constraint, verify the expected value and covariance are
+  // generated. Create the variables
   auto orientation_variable = Orientation3DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->w() = 0.952;
@@ -158,8 +158,8 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
 
 TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
 {
-  // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a single pose and single constraint, verify the expected value and covariance are
+  // generated. Create the variables
   auto orientation_variable = Orientation3DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->w() = 0.952;

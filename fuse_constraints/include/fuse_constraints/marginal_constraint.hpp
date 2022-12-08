@@ -66,8 +66,8 @@ namespace fuse_constraints
  *
  * The marginal constraint cost function is of the form:
  *   cost = A1 * (x1 - x1_bar) + A2 * (x2 - x2_bar) + ... + b
- * where x_bar is the linearization point of the variable taken from the variable value at the time of construction,
- * and the minus operator in implemented in the variable's local parameterization.
+ * where x_bar is the linearization point of the variable taken from the variable value at the time
+ * of construction, and the minus operator in implemented in the variable's local parameterization.
  */
 class MarginalConstraint : public fuse_core::Constraint
 {
@@ -82,14 +82,16 @@ public:
   /**
    * @brief Create a linear/marginal constraint
    *
-   * The variable iterators and matrix iterators must be the same size. Further, all A matrices and the b vector must
-   * have the same number of rows, and the number of columns of each A matrix must match the \p localSize() of its
-   * associated variable.
+   * The variable iterators and matrix iterators must be the same size. Further, all A matrices and
+   * the b vector must have the same number of rows, and the number of columns of each A matrix must
+   * match the \p localSize() of its associated variable.
    *
    * @param[in] source         The name of the sensor or motion model that generated this constraint
    * @param[in] first_variable Iterator pointing to the first involved variable for this constraint
-   * @param[in] last_variable  Iterator pointing to one past the last involved variable for this constraint
-   * @param[in] first_A        Iterator pointing to the first A matrix, associated with the first variable
+   * @param[in] last_variable  Iterator pointing to one past the last involved variable for this
+   *                           constraint
+   * @param[in] first_A        Iterator pointing to the first A matrix, associated with the first
+   *                           variable
    * @param[in] last_A         Iterator pointing to one past the last A matrix
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
    */
@@ -140,9 +142,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will take ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will take ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -159,7 +162,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

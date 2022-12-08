@@ -58,7 +58,7 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   const std::vector<size_t> & angular_indices)
 : fuse_core::Constraint(
     source,
-    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})    // NOLINT(whitespace/braces)
+    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})  // NOLINT(whitespace/braces)
 {
   size_t total_variable_size = position1.size() + orientation1.size();
   size_t total_indices = linear_indices.size() + angular_indices.size();
@@ -70,13 +70,15 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   // Compute the sqrt information of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
 
-  // Assemble a mean vector and sqrt information matrix from the provided values, but in proper variable order
+  // Assemble a mean vector and sqrt information matrix from the provided values, but in proper
+  // variable order
+  //
   // What are we doing here?
   // The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
-  // If we are measuring a subset of dimensions, we only want to produce costs for the measured dimensions.
-  // But the variable vectors will be full sized. We can make this all work out by creating a non-square A
-  // matrix, where each row computes a cost for one measured dimensions, and the columns are in the order
-  // defined by the variable.
+  // If we are measuring a subset of dimensions, we only want to produce costs for the measured
+  // dimensions. But the variable vectors will be full sized. We can make this all work out by
+  // creating a non-square A matrix, where each row computes a cost for one measured dimensions,
+  // and the columns are in the order defined by the variable.
   delta_ = fuse_core::Vector3d::Zero();
   sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices, total_variable_size);
 

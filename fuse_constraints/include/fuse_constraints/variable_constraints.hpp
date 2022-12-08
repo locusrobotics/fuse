@@ -48,9 +48,9 @@ namespace fuse_constraints
 /**
  * @brief Holds the per-variable constraint list
  *
- * Each variable is represented by a unique index. The indices are expected to be "small and compact",
- * i.e. sequentially numbered starting from zero. Failure to meet this expectation will result in excess memory
- * allocation.
+ * Each variable is represented by a unique index. The indices are expected to be "small and
+ * compact", i.e. sequentially numbered starting from zero. Failure to meet this expectation will
+ * result in excess memory allocation.
  */
 class VariableConstraints
 {
@@ -101,7 +101,8 @@ public:
   void insert(const unsigned int variable);
 
   /**
-   * @brief Insert all of the constraints connected to the requested variable into the provided container
+   * @brief Insert all of the constraints connected to the requested variable into the provided
+   *        container
    *
    * Accessing a variable id that is not part of this container results in undefined behavior
    */

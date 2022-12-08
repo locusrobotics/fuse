@@ -58,10 +58,11 @@ namespace fuse_constraints
 /**
  * @brief A constraint that represents a measurement on the difference between two poses.
  *
- * This type of constraint arises in many situations. Many types of incremental odometry measurements (wheel encoders,
- * inertial strap-down, visual odometry) measure the change in the pose, not the pose directly. This constraint
- * holds the measured 2D pose change and the measurement uncertainty/covariance. It also permits measurement of a
- * subset of the relative pose provided in the position and orientation varables.
+ * This type of constraint arises in many situations. Many types of incremental odometry
+ * measurements (wheel encoders, inertial strap-down, visual odometry) measure the change in the
+ * pose, not the pose directly. This constraint holds the measured 2D pose change and the
+ * measurement uncertainty/covariance. It also permits measurement of a subset of the relative pose
+ * provided in the position and orientation varables.
  */
 class RelativePose2DStampedConstraint : public fuse_core::Constraint
 {
@@ -76,26 +77,32 @@ public:
   /**
    * @brief Constructor
    *
-   * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This signifies that you
-   * don't want to measure any of the quantities in that variable.
+   * Note that, when measuring subset of dimensions, empty axis vectors are permitted. This
+   * signifies that you don't want to measure any of the quantities in that variable.
    *
-   * The mean is given as a vector. The first components (if any) will be dictated, both in content and in ordering, by
-   * the value of the \p linear_indices. The final component (if any) is dictated by the \p angular_indices. The
-   * covariance matrix follows the same ordering.
+   * The mean is given as a vector. The first components (if any) will be dictated, both in content
+   * and in ordering, by the value of the \p linear_indices. The final component (if any) is
+   * dictated by the \p angular_indices. The covariance matrix follows the same ordering.
    *
-   * @param[in] source             The name of the sensor or motion model that generated this constraint
-   * @param[in] position1          The variable representing the position components of the first pose
-   * @param[in] orientation1       The variable representing the orientation components of the first pose
-   * @param[in] position2          The variable representing the position components of the second pose
-   * @param[in] orientation2       The variable representing the orientation components of the second pose
-   * @param[in] partial_delta      The measured change in the pose (max 3x1 vector, components are dictated by
-   *                               \p linear_indices and \p angular_indices)
-   * @param[in] partial_covariance The measurement covariance (max 3x3 matrix, components are dictated by
-   *                               \p linear_indices and \p angular_indices)
-   * @param[in] linear_indices     The set of indices corresponding to the measured position dimensions
-   *                               e.g., "{fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y}"
-   * @param[in] angular_indices    The set of indices corresponding to the measured orientation dimensions
-   *                               e.g., "{fuse_variables::Orientation2DStamped::Yaw}"
+   * @param[in] source             The name of the sensor or motion model that generated this
+   *                               constraint
+   * @param[in] position1          The variable representing the position components of the first
+   *                               pose
+   * @param[in] orientation1       The variable representing the orientation components of the first
+   *                               pose
+   * @param[in] position2          The variable representing the position components of the second
+   *                               pose
+   * @param[in] orientation2       The variable representing the orientation components of the
+   *                               second pose
+   * @param[in] partial_delta      The measured change in the pose (max 3x1 vector, components are
+   *                               dictated by \p linear_indices and \p angular_indices)
+   * @param[in] partial_covariance The measurement covariance (max 3x3 matrix, components are
+   *                               dictated by \p linear_indices and \p angular_indices)
+   * @param[in] linear_indices     The set of indices corresponding to the measured position
+   *                               dimensions e.g., "{fuse_variables::Position2DStamped::X,
+   *                               fuse_variables::Position2DStamped::Y}"
+   * @param[in] angular_indices    The set of indices corresponding to the measured orientation
+   *                               dimensions e.g., "{fuse_variables::Orientation2DStamped::Yaw}"
    */
   RelativePose2DStampedConstraint(
     const std::string & source,
@@ -117,23 +124,25 @@ public:
   /**
    * @brief Read-only access to the measured pose change.
    *
-   * Order is (dx, dy, dyaw). Note that the returned vector will be full sized (3x1) and in the stated order.
+   * Order is (dx, dy, dyaw). Note that the returned vector will be full sized (3x1) and in the
+   * stated order.
    */
   const fuse_core::Vector3d & delta() const {return delta_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * If only a partial covariance matrix was provided in the constructor, this covariance matrix will not be square.
+   * If only a partial covariance matrix was provided in the constructor, this covariance matrix
+   * will not be square.
    */
   const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (dx, dy, dyaw). Note that the returned covariance matrix will be full sized (3x3) and in the stated
-   * order. If only a partial covariance matrix was provided in the constructor, this covariance matrix may be a
-   * different size and in a different order than the constructor input.
+   * Order is (dx, dy, dyaw). Note that the returned covariance matrix will be full sized (3x3) and
+   * in the stated order. If only a partial covariance matrix was provided in the constructor, this
+   * covariance matrix may be a different size and in a different order than the constructor input.
    */
   fuse_core::Matrix3d covariance() const;
 
@@ -147,9 +156,10 @@ public:
   /**
    * @brief Access the cost function for this constraint
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -164,7 +174,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

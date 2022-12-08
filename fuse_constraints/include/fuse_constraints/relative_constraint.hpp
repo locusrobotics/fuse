@@ -63,13 +63,14 @@ namespace fuse_constraints
 /**
  * @brief A constraint that represents a measurement on the difference between two variables.
  *
- * This type of constraint arises in many situations. Some sensors, such as wheel encoders or inertial strap-down
- * systems, measure a change in the variable state instead of measuring the state directly. This constraint holds the
- * measured change between two variables and the measurement uncertainty/covariance.
+ * This type of constraint arises in many situations. Some sensors, such as wheel encoders or
+ * inertial strap-down systems, measure a change in the variable state instead of measuring the
+ * state directly. This constraint holds the measured change between two variables and the
+ * measurement uncertainty/covariance.
  *
- * The difference between the two variables is constructed element-wise. If element-wise subtraction is not the
- * correct operation for a specific variable type (e.g. 3D rotations), a custom constraint or template specialization
- * will be needed.
+ * The difference between the two variables is constructed element-wise. If element-wise subtraction
+ * is not the correct operation for a specific variable type (e.g. 3D rotations), a custom
+ * constraint or template specialization will be needed.
  */
 template<class Variable>
 class RelativeConstraint : public fuse_core::Constraint
@@ -101,13 +102,17 @@ public:
   /**
    * @brief Constructor
    *
-   * Create a constraint on the change of a partial set of dimensions between the two target variables
+   * Create a constraint on the change of a partial set of dimensions between the two target
+   * variables
    *
-   * @param[in] source             The name of the sensor or motion model that generated this constraint
+   * @param[in] source             The name of the sensor or motion model that generated this
+   *                               constraint
    * @param[in] variable1          The first variable
    * @param[in] variable2          The second variable
-   * @param[in] partial_delta      The measured change of the subset of dimensions in the order defined by \p indices
-   * @param[in] partial_covariance The uncertainty of the change of the subset of dimensions in the order defined by \p indices.
+   * @param[in] partial_delta      The measured change of the subset of dimensions in the order
+   *                               defined by \p indices
+   * @param[in] partial_covariance The uncertainty of the change of the subset of dimensions in the
+   *                               order defined by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
   RelativeConstraint(
@@ -126,28 +131,29 @@ public:
   /**
    * @brief Read-only access to the measured change between variables.
    *
-   * All dimensions are present, even if only a partial set of dimensions were measured. Dimensions are in the order
-   * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
-   * are set to zero.
+   * All dimensions are present, even if only a partial set of dimensions were measured. Dimensions
+   * are in the order defined by the variable, not the order defined by the \p indices parameter.
+   * All unmeasured variable dimensions are set to zero.
    */
   const fuse_core::VectorXd & delta() const {return delta_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
-   * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
-   * of dimensions are measured, then this matrix will not be square.
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices
+   * parameter. The square root information matrix will have size measured_dimensions X
+   * variable_dimensions. If only a partial set of dimensions are measured, then this matrix will
+   * not be square.
    */
   const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Dimensions are in the order defined by the variable, not the order defined by the \p indices parameter. The
-   * covariance matrix will always be square, with size variable_dimensions X variable_dimensions. If only a
-   * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
-   * covariance matrix. You have been warned.
+   * Dimensions are in the order defined by the variable, not the order defined by the \p indices
+   * parameter. The covariance matrix will always be square, with size variable_dimensions X
+   * variable_dimensions. If only a subset of dimensions are measured, then some rows/columns will
+   * be zero. This will result in a rank-deficient covariance matrix. You have been warned.
    */
   fuse_core::MatrixXd covariance() const;
 
@@ -161,9 +167,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -178,7 +185,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

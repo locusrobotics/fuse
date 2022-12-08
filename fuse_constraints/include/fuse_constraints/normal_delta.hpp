@@ -54,10 +54,11 @@ namespace fuse_constraints
  *
  *   cost(x) = ((x1 - x0) - mu)^T S^{-1} ((x1 - x0) - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance). There are however no restrictions on the shape of A. It
- * is free to be rectangular, which would be the case if the covariance matrix S is rank deficient. This could
- * arise, for example, if you are only measuring a subset of the variable dimensions.
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance). There are however no restrictions
+ * on the shape of A. It is free to be rectangular, which would be the case if the covariance matrix
+ * S is rank deficient. This could arise, for example, if you are only measuring a subset of the
+ * variable dimensions.
  */
 class NormalDelta : public ceres::CostFunction
 {
@@ -68,9 +69,9 @@ public:
    * The number of rows in vector b must be the same as the number of columns of matrix A.
    *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix
-   * @param[in] b The measured difference between variable x0 and variable x1. It is assumed that these are the same
-   *              type of variable. At a minimum, they must have the same dimensions and the per-element subtraction
-   *              operator must be valid.
+   * @param[in] b The measured difference between variable x0 and variable x1. It is assumed that
+   *              these are the same type of variable. At a minimum, they must have the same
+   *              dimensions and the per-element subtraction operator must be valid.
    */
   NormalDelta(const fuse_core::MatrixXd & A, const fuse_core::VectorXd & b);
 
@@ -80,8 +81,8 @@ public:
   virtual ~NormalDelta() = default;
 
   /**
-   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
-   *        values
+   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided
+   *        variable/parameter values
    */
   virtual bool Evaluate(
     double const * const * parameters,

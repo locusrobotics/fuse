@@ -89,7 +89,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -130,7 +131,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -166,7 +168,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -253,9 +256,10 @@ TEST(MarginalizeVariables, ComputeEliminationOrderWithOrphanVariables)
   graph.addConstraint(c5);
   graph.addConstraint(c6);
 
-  // Add orphan variables (with explicit UUID so it's easier to identify them if any of the checks fail)
-  // With 1 or 2 orphan variables computeEliminationOrder throws an std::runtime_error exception because CCOLAMD fails
-  // With 3 or more orphan variables computeEliminationOrder crashes with `free(): invalid next size (fast)`
+  // Add orphan variables (with explicit UUID so it's easier to identify them if any of the checks
+  // fail) With 1 or 2 orphan variables computeEliminationOrder throws an std::runtime_error
+  // exception because CCOLAMD fails With 3 or more orphan variables computeEliminationOrder crashes
+  // with `free(): invalid next size (fast)`
   auto o1 =
     GenericVariable::make_shared(
     fuse_core::uuid::from_string(
@@ -615,9 +619,10 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
   auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
     "test", *x1, mean1, cov1);
 
-  // Note that this prior on the landmark is required. The covariance of the prior has no impact on the solution, as
-  // the value of the landmark will be held constant. However, due to assumptions made in the marginalization code, the
-  // landmark variable must be fully-constrained. Hopefully this requirement will be removed in a future version.
+  // Note that this prior on the landmark is required. The covariance of the prior has no impact on
+  // the solution, as the value of the landmark will be held constant. However, due to assumptions
+  // made in the marginalization code, the landmark variable must be fully-constrained. Hopefully
+  // this requirement will be removed in a future version.
   fuse_core::Vector4d mean2;
   mean2 << 0.842614977, 0.2, 0.3, 0.4;
   fuse_core::Matrix3d cov2;
