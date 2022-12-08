@@ -107,7 +107,7 @@ install(DIRECTORY include/
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
 ament_export_dependencies(
-  ament_cmake
+  ament_cmake_ros
   fuse_msgs
   pluginlib
   rcl_interfaces
