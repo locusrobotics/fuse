@@ -429,7 +429,7 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
 ceres::Solver::Summary HashGraph::optimizeFor(
   const rclcpp::Duration& max_optimization_time,
   const ceres::Solver::Options& options,
-  const rclcpp::Clock& clock)
+  rclcpp::Clock clock)
 {
   auto start = clock.now();
 
