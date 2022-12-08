@@ -112,8 +112,9 @@ fuse_core::Graph::UniquePtr HashGraph::clone() const
 
 bool HashGraph::constraintExists(const fuse_core::UUID & constraint_uuid) const noexcept
 {
-  // map.find() does not itself throw exceptions, but may as a result of the key comparison operator. Because the UUID
-  // comparisons are marked as noexcept by Boost, I feel safe marking this function as noexcept as well.
+  // map.find() does not itself throw exceptions, but may as a result of the key comparison
+  // operator. Because the UUID comparisons are marked as noexcept by Boost, I feel safe marking
+  // this function as noexcept as well.
   auto constraints_iter = constraints_.find(constraint_uuid);
   return constraints_iter != constraints_.end();
 }
@@ -205,7 +206,8 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(
       boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
       boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref));
   } else if (variableExists(variable_uuid)) {
-    // User requested a valid variable, but there are no attached constraints. Return an empty range.
+    // User requested a valid variable, but there are no attached constraints. Return an empty
+    // range.
     return fuse_core::Graph::const_constraint_range();
   } else {
     // We only want to throw if the requested variable does not exist.
@@ -242,7 +244,8 @@ bool HashGraph::removeVariable(const fuse_core::UUID & variable_uuid)
   if (variables_iter == variables_.end()) {
     return false;
   }
-  // Check that this variable is not used by any constraint. Throw a logic_error if the variable is currently used.
+  // Check that this variable is not used by any constraint. Throw a logic_error if the variable is
+  // currently used.
   auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
   if (cross_reference_iter != constraints_by_variable_uuid_.end() &&
     !cross_reference_iter->second.empty())
@@ -315,19 +318,20 @@ void HashGraph::getCovariance(
   // Construct the ceres::Problem object from scratch
   ceres::Problem problem(problem_options_);
   createProblem(problem);
-  // The Ceres interface requires that the variable pairs not contain duplicates. Since the covariance matrix is
-  // symmetric, requesting Cov(A,B) and Cov(B,A) counts as a duplicate. Create an expression to test a pair of data
-  // pointers such that (A,B) == (A,B) OR (B,A)
+  // The Ceres interface requires that the variable pairs not contain duplicates. Since the
+  // covariance matrix is symmetric, requesting Cov(A,B) and Cov(B,A) counts as a duplicate. Create
+  // an expression to test a pair of data pointers such that (A,B) == (A,B) OR (B,A)
   auto symmetric_equal = [](const std::pair<const double *, const double *> & x,
       const std::pair<const double *, const double *> & y)
     {
       return ((x.first == y.first) && (x.second == y.second)) ||
              ((x.first == y.second) && (x.second == y.first));
     };
-  // Convert the covariance requests into the input structure needed by Ceres. Namely, we must convert the variable
-  // UUIDs into memory addresses. We create two containers of covariance blocks: one only contains the unique variable
-  // pairs that we give to Ceres, and a second that contains all requested variable pairs used to keep the output
-  // structure in sync with the request structure.
+  // Convert the covariance requests into the input structure needed by Ceres. Namely, we must
+  // convert the variable UUIDs into memory addresses. We create two containers of covariance
+  // blocks: one only contains the unique variable pairs that we give to Ceres, and a second that
+  // contains all requested variable pairs used to keep the output structure in sync with the
+  // request structure.
   std::vector<std::pair<const double *, const double *>> unique_covariance_blocks;
   std::vector<std::pair<const double *, const double *>> all_covariance_blocks;
   all_covariance_blocks.resize(covariance_requests.size());
@@ -356,13 +360,14 @@ void HashGraph::getCovariance(
         variable1_iter->second->size() *
         variable2_iter->second->size());
     }
-    // Add this covariance block to the container of all covariance blocks. This container is in sync with the
-    // covariance_requests vector.
+    // Add this covariance block to the container of all covariance blocks. This container is in
+    // sync with the covariance_requests vector.
     auto & block = all_covariance_blocks.at(i);
     block.first = variable1_iter->second->data();
     block.second = variable2_iter->second->data();
-    // Also maintain a container of unique covariance blocks. Since the covariance matrix is symmetric, requesting
-    // Cov(X,Y) and Cov(Y,X) counts as a duplicate, so we use our special symmetric_equal function to test.
+    // Also maintain a container of unique covariance blocks. Since the covariance matrix is
+    // symmetric, requesting Cov(X,Y) and Cov(Y,X) counts as a duplicate, so we use our special
+    // symmetric_equal function to test.
     if (std::none_of(
         unique_covariance_blocks.begin(),
         unique_covariance_blocks.end(),

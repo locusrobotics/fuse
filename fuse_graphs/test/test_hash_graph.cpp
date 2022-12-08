@@ -52,8 +52,8 @@
 /**
  * @brief Test fixture for the HashGraph
  *
- * This test fixture provides methods to compare variables and constraints, and allows to retrieve the last failure
- * description, if any.
+ * This test fixture provides methods to compare variables and constraints, and allows to retrieve
+ * the last failure description, if any.
  */
 class HashGraphTestFixture : public ::testing::Test
 {
@@ -184,8 +184,8 @@ TEST_F(HashGraphTestFixture, AddVariable)
   // Add variable1 again. This should return false -- the variable already exists
   EXPECT_FALSE(graph.addVariable(variable1));
 
-  // Add a newly-created but identical variable. This should also return false. Different instances of a variable
-  // with the same settings/uuid are considered the same variable.
+  // Add a newly-created but identical variable. This should also return false. Different instances
+  // of a variable with the same settings/uuid are considered the same variable.
   fuse_core::Variable::SharedPtr variable3 = variable1->clone();
   EXPECT_FALSE(graph.addVariable(variable3));
   // Variable3 should say it exists
@@ -237,8 +237,8 @@ TEST_F(HashGraphTestFixture, RemoveVariable)
   graph.addVariable(variable2);
   graph.addConstraint(constraint1);
 
-  // Attempt to remove variable1. This should throw a logic_error exception as the variable is still involved
-  // in a constraint.
+  // Attempt to remove variable1. This should throw a logic_error exception as the variable is still
+  // involved in a constraint.
   EXPECT_THROW(graph.removeVariable(variable1->uuid()), std::logic_error);
 
   // Verify both variables still exist
@@ -424,8 +424,8 @@ TEST_F(HashGraphTestFixture, AddConstraint)
   // Add constraint1 again. This should return false -- the constraint already exists
   EXPECT_FALSE(graph.addConstraint(constraint1));
 
-  // Add a newly-created but identical constraint. This should also return false. Different instances of a constraint
-  // with the same settings/uuid are considered the same constraint.
+  // Add a newly-created but identical constraint. This should also return false. Different
+  // instances of a constraint with the same settings/uuid are considered the same constraint.
   fuse_core::Constraint::SharedPtr constraint3 = constraint1->clone();
   EXPECT_FALSE(graph.addConstraint(constraint3));
   // constraint3 should say it exists
@@ -436,7 +436,8 @@ TEST_F(HashGraphTestFixture, AddConstraint)
   variable3->data()[0] = -1.2;
   auto constraint4 = ExampleConstraint::make_shared("test", variable3->uuid());
 
-  // Attempt to add constraint4. This should throw a logic_error, as the variable has not been added yet.
+  // Attempt to add constraint4. This should throw a logic_error, as the variable has not been added
+  // yet.
   EXPECT_THROW(graph.addConstraint(constraint4), std::logic_error);
 }
 
@@ -676,7 +677,8 @@ TEST_F(HashGraphTestFixture, Optimize)
 
 TEST_F(HashGraphTestFixture, HoldVariable)
 {
-  // Test placing a variable on hold. The value of the variable should remain constant even after the optimization
+  // Test placing a variable on hold. The value of the variable should remain constant even after
+  // the optimization
 
   // Create the graph
   fuse_graphs::HashGraph graph;
@@ -948,8 +950,9 @@ TEST_F(HashGraphTestFixture, Serialization)
 TEST_F(HashGraphTestFixture, GetConstraintCosts)
 {
   // Test the getConstraintCosts method by adding a few variables and constraints to the graph
-  // @todo(swilliams) Implement a more thorough test of the getConstraintCosts() method. Only single-variable
-  //                  constraints are used, and no loss functions are configured here.
+  // @todo(swilliams) Implement a more thorough test of the getConstraintCosts() method. Only
+  //                  single-variable constraints are used, and no loss functions are configured
+  //                  here.
 
   // Create the graph
   fuse_graphs::HashGraph graph;

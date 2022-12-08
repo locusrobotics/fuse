@@ -62,15 +62,17 @@ namespace fuse_graphs
 {
 
 /**
- * @brief This is a concrete implementation of the Graph interface using hashmaps to store the constraints and variables.
+ * @brief This is a concrete implementation of the Graph interface using hashmaps to store the
+ *        constraints and variables.
  *
- * This is reasonable graph implementation when a large number of variables and constraints are expected, such as with
- * full SLAM and mapping applications. The hashmap overhead may be too expensive for use in high-frequency systems with
- * a basically fixed graph size. Something base on a boost::flat_map or similar may perform better in those situations.
- * The final decision on the graph type should be based actual performance testing.
+ * This is reasonable graph implementation when a large number of variables and constraints are
+ * expected, such as with full SLAM and mapping applications. The hashmap overhead may be too
+ * expensive for use in high-frequency systems with a basically fixed graph size. Something base on
+ * a boost::flat_map or similar may perform better in those situations. The final decision on the
+ * graph type should be based actual performance testing.
  *
- * This class is not thread-safe. If used in a multi-threaded application, standard thread synchronization techniques
- * should be used to guard access to the graph.
+ * This class is not thread-safe. If used in a multi-threaded application, standard thread
+ * synchronization techniques should be used to guard access to the graph.
  */
 class HashGraph : public fuse_core::Graph
 {
@@ -131,11 +133,12 @@ public:
   /**
    * @brief Add a new constraint to the graph
    *
-   * Any referenced variables must exist in the graph before the constraint is added. The Graph will share ownership
-   * of the constraint.
+   * Any referenced variables must exist in the graph before the constraint is added. The Graph will
+   * share ownership of the constraint.
    *
    * Behavior: If this constraint already exists in the graph, the function will return false.
-   * Exceptions: If the constraint's variables do not exist in the graph, a std::logic_error exception will be thrown.
+   * Exceptions: If the constraint's variables do not exist in the graph, a std::logic_error
+   *             exception will be thrown.
    *             If any unexpected errors occur, an exception will be thrown.
    * Complexity: O(1) (average)
    *
@@ -148,8 +151,8 @@ public:
    * @brief Remove a constraint from the graph
    *
    * Behavior: If this constraint does not exist in the graph, the function will return false.
-   * Exceptions: If the constraint UUID does not exist, a std::out_of_range exception will be thrown.
-   *             If any unexpected errors occur, an exception will be thrown.
+   * Exceptions: If the constraint UUID does not exist, a std::out_of_range exception will be
+   *             thrown. If any unexpected errors occur, an exception will be thrown.
    * Complexity: O(1) (average)
    *
    * @param[in] constraint_uuid The UUID of the constraint to be removed
@@ -160,7 +163,8 @@ public:
   /**
    * @brief Read-only access to a constraint from the graph by UUID
    *
-   * Exceptions: If the constraint UUID does not exist, a std::out_of_range exception will be thrown.
+   * Exceptions: If the constraint UUID does not exist, a std::out_of_range exception will be
+   *             thrown.
    * Complexity: O(1) (average)
    *
    * @param[in] constraint_uuid The UUID of the requested constraint
@@ -172,21 +176,22 @@ public:
   /**
    * @brief Read-only access to all of the constraints in the graph
    *
-   * Behavior: This function returns iterators pointing to the beginning and end of the collection. No copies
-   *           of the constraints are performed at this time.
-   * Exceptions: None
-   * Complexity: O(1) This function returns in constant time. However, iterating through the returned
-   *                  range is naturally O(N).
+   * Behavior: This function returns iterators pointing to the beginning and end of the collection.
+   *           No copies of the constraints are performed at this time.
+   * Exceptions: None Complexity: O(1) This function returns in constant time. However, iterating
+   *             through the returned range is naturally O(N).
    *
    * @return A read-only iterator range containing all constraints
    */
   fuse_core::Graph::const_constraint_range getConstraints() const noexcept override;
 
   /**
-   * @brief Read-only access to the subset of constraints that are connected to the specified variable
+   * @brief Read-only access to the subset of constraints that are connected to the specified
+   *        variable
    *
    * @param[in] variable_uuid The UUID of the variable of interest
-   * @return A read-only iterator range containing all constraints that involve the specified variable
+   * @return A read-only iterator range containing all constraints that involve the specified
+   *         variable
    */
   fuse_core::Graph::const_constraint_range getConnectedConstraints(
     const fuse_core::UUID & variable_uuid) const override;
@@ -205,8 +210,8 @@ public:
   /**
    * @brief Add a new variable to the graph
    *
-   * The Graph will share ownership of the Variable. If this variable already exists in the graph, the function will
-   * return false.
+   * The Graph will share ownership of the Variable. If this variable already exists in the graph,
+   * the function will return false.
    *
    * Behavior: If this variable already exists in the graph, the function will return false.
    * Exceptions: If any unexpected errors occur, an exception will be thrown.
@@ -220,7 +225,8 @@ public:
   /**
    * @brief Remove a variable from the graph
    *
-   * Exceptions: If constraints still exist that refer to this variable, a std::logic_error exception will be thrown.
+   * Exceptions: If constraints still exist that refer to this variable, a std::logic_error
+   *             exception will be thrown.
    *             If an unexpected error occurs during the removal, an exception will be thrown.
    * Complexity: O(1) (average)
    *
@@ -243,11 +249,10 @@ public:
   /**
    * @brief Read-only access to all of the variables in the graph
    *
-   * Behavior: This function returns iterators pointing to the beginning and end of the collection. No copies
-   *           of the variables are performed at this time.
-   * Exceptions: None
-   * Complexity: O(1) This function returns in constant time. However, iterating through the returned
-   *                  range is naturally O(N).
+   * Behavior: This function returns iterators pointing to the beginning and end of the collection.
+   *           No copies of the variables are performed at this time.
+   * Exceptions: None Complexity: O(1) This function returns in constant time. However, iterating
+   *             through the returned range is naturally O(N).
    *
    * @return A read-only iterator range containing all variables
    */
@@ -256,15 +261,17 @@ public:
   /**
    * @brief Configure a variable to hold its current value during optimization
    *
-   * Once set, the specified variable's value will no longer change during any subsequent optimization. To 'unhold'
-   * a previously held variable, call Graph::holdVariable() with the \p hold_constant parameter set to false.
+   * Once set, the specified variable's value will no longer change during any subsequent
+   * optimization. To 'unhold' a previously held variable, call Graph::holdVariable() with the \p
+   * hold_constant parameter set to false.
    *
    * Exceptions: If the variable does not exist, a std::out_of_range exception will be thrown.
    * Complexity: O(1) (average)
    *
    * @param[in] variable_uuid The variable to adjust
-   * @param[in] hold_constant Flag indicating if the variable's value should be held constant during optimization,
-   *                          or if the variable's value is allowed to change during optimization.
+   * @param[in] hold_constant Flag indicating if the variable's value should be held constant during
+   *                          optimization, or if the variable's value is allowed to change during
+   *                          optimization.
    */
   void holdVariable(const fuse_core::UUID & variable_uuid, bool hold_constant = true) override;
 
@@ -279,23 +286,27 @@ public:
   /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
    *
-   * To compute the marginal variance of a single variable, simply supply the same variable UUID for both members of
-   * of the request pair. Computing the marginal covariance is an expensive operation; grouping multiple
-   * variable pairs into a single call will be much faster than calling this function for each pair individually.
+   * To compute the marginal variance of a single variable, simply supply the same variable UUID for
+   * both members of of the request pair. Computing the marginal covariance is an expensive
+   * operation; grouping multiple variable pairs into a single call will be much faster than calling
+   * this function for each pair individually.
    *
-   * Exceptions: If the request contains unknown variables, a std::out_of_range exception will be thrown.
+   * Exceptions: If the request contains unknown variables, a std::out_of_range exception will be
+   *             thrown.
    *             If the covariance calculation fails, a std::runtime_error exception will be thrown.
-   * Complexity: O(N) in the best case, O(N^3) in the worst case, where N is the total number of variables in
-   *             the graph. In practice, it is significantly cheaper than the worst-case bound, but it is still
-   *             an expensive operation.
+   * Complexity: O(N) in the best case, O(N^3) in the worst case, where N is the total number of
+   *             variables in the graph.
+   *             In practice, it is significantly cheaper than the worst-case bound, but it is
+   *             still an expensive operation.
    *
-   * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal covariance is desired.
+   * @param[in]  covariance_requests A set of variable UUID pairs for which the marginal covariance
+   *                                 is desired.
    * @param[out] covariance_matrices The dense covariance blocks of the requests.
-   * @param[in]  options             A Ceres Covariance Options structure that controls the method and settings used
-   *                                 to compute the covariance blocks.
-   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in the variable's tangent
-   *                                 space/local coordinates. Otherwise it is computed in the variable's parameter
-   *                                 space.
+   * @param[in]  options             A Ceres Covariance Options structure that controls the method
+   *                                 and settings used to compute the covariance blocks.
+   * @param[in]  use_tangent_space   Flag indicating if the covariance should be computed in the
+   *                                 variable's tangent space/local coordinates. Otherwise it is
+   *                                 computed in the variable's parameter space.
    */
   void getCovariance(
     const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> & covariance_requests,
@@ -304,32 +315,38 @@ public:
     const bool use_tangent_space = true) const override;
 
   /**
-   * @brief Optimize the values of the current set of variables, given the current set of constraints.
+   * @brief Optimize the values of the current set of variables, given the current set of
+   *        constraints.
    *
    * After the call, the values in the graph will be updated to the latest values. This is where the
    * "work" of the optimization system is performed. As such, it is often a long-running process.
    *
-   * Complexity: O(N) in the best case, O(M*N^3) in the worst case, where N is the total number of variables
-   *             in the graph, and M is the maximum number of allowed iterations.
+   * Complexity: O(N) in the best case, O(M*N^3) in the worst case, where N is the total number of
+   *             variables in the graph, and M is the maximum number of allowed iterations.
    *
-   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of the optimizer.
-   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
-   * @return            A Ceres Solver Summary structure containing information about the optimization process
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of
+   *                    the optimizer. See https://ceres-solver.googlesource.com/ceres-
+   *                    solver/+/master/include/ceres/solver.h#59
+   * @return            A Ceres Solver Summary structure containing information about the
+   *                    optimization process
    */
   ceres::Solver::Summary optimize(const ceres::Solver::Options & options = ceres::Solver::Options())
   override;
 
   /**
-   * @brief Optimize the values of the current set of variables, given the current set of constraints for a maximum
-   * amount of time.
+   * @brief Optimize the values of the current set of variables, given the current set of
+   *        constraints for a maximum amount of time.
    *
-   * The \p max_optimization_time should be viewed as a "best effort" limit, and the actual optimization time may
-   * exceed this limit by a small amount. After the call, the values in the graph will be updated to the latest values.
+   * The \p max_optimization_time should be viewed as a "best effort" limit, and the actual
+   * optimization time may exceed this limit by a small amount. After the call, the values in the
+   * graph will be updated to the latest values.
    *
    * @param[in] max_optimization_time The maximum allowed duration of the optimization call
-   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of the optimizer.
-   *                    See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/solver.h#59
-   * @return            A Ceres Solver Summary structure containing information about the optimization process
+   * @param[in] options An optional Ceres Solver::Options object that controls various aspects of
+   *                    the optimizer. See https://ceres-solver.googlesource.com/ceres-
+   *                    solver/+/master/include/ceres/solver.h#59
+   * @return            A Ceres Solver Summary structure containing information about the
+   *                    optimization process
    */
   ceres::Solver::Summary optimizeFor(
     const rclcpp::Duration & max_optimization_time,
@@ -337,23 +354,26 @@ public:
     rclcpp::Clock clock = rclcpp::Clock(RCL_STEADY_TIME)) override;
 
   /**
-   * @brief Evalute the values of the current set of variables, given the current set of constraints.
+   * @brief Evalute the values of the current set of variables, given the current set of
+   *        constraints.
    *
    * The values in the graph do not change after the call.
    *
-   * If any of the output arguments is nullptr, it will not be evaluated. This mimics the ceres::Problem::Evaluate
-   * method API. Here all output arguments default to nullptr except for the cost.
+   * If any of the output arguments is nullptr, it will not be evaluated. This mimics the
+   * ceres::Problem::Evaluate method API. Here all output arguments default to nullptr except for
+   * the cost.
    *
    * TODO(efernandez) support jacobian output argument
-   * The jacobian output argument is not exposed at the moment because its type is a CRSMatrix, that probably needs to
-   * be converted to another type.
+   * The jacobian output argument is not exposed at the moment because its type is a CRSMatrix, that
+   * probably needs to be converted to another type.
    *
    * @param[out] cost      The cost of the entire problem represented by the graph.
    * @param[out] residuals The residuals of all constraints.
-   * @param[out] gradient  The gradient for all constraints evaluated at the values of the current set of variables.
-   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls various aspects of the
-   *                       problem evaluation.
-   *                       See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#401
+   * @param[out] gradient  The gradient for all constraints evaluated at the values of the current
+   *                       set of variables.
+   * @param[in]  options   An optional Ceres Problem::EvaluateOptions object that controls various
+   *                       aspects of the problem evaluation. See https://ceres-
+   *                       solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#401
    * @return True if the problem evaluation was successful; False, otherwise.
    */
   bool evaluate(
@@ -388,8 +408,8 @@ protected:
   /**
    * @brief Populate a ceres::Problem object using the current set of variables and constraints
    *
-   * This function assumes the provided variables and constraints are consistent. No checks are performed for missing
-   * variables or constraints.
+   * This function assumes the provided variables and constraints are consistent. No checks are
+   * performed for missing variables or constraints.
    *
    * @param[out] problem The ceres::Problem object to modify
    */
@@ -400,7 +420,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
