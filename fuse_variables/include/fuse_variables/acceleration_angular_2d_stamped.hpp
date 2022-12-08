@@ -52,10 +52,12 @@ namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 2D angular acceleration at a specific time, with a specific piece of hardware.
+ * @brief Variable representing a 2D angular acceleration at a specific time, with a specific piece
+ *        of hardware.
  *
- * This is commonly used to represent a robot's acceleration. The UUID of this class is constant after construction.
- * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
+ * This is commonly used to represent a robot's acceleration. The UUID of this class is constant
+ * after construction. As such, the timestamp and device id cannot be modified. The value of the
+ * acceleration can be modified.
  */
 class AccelerationAngular2DStamped : public FixedSizeVariable<1>, public Stamped
 {
@@ -79,7 +81,8 @@ public:
    * @brief Construct a 2D acceleration at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this velocity.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   * @param[in] device_id An optional device id, for use when variables originate from multiple
+   *                      robots or devices
    */
   explicit AccelerationAngular2DStamped(
     const rclcpp::Time & stamp,
@@ -107,7 +110,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

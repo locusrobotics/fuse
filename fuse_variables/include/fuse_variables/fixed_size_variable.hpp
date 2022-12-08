@@ -51,12 +51,14 @@ namespace fuse_variables
 /**
  * @brief A Variable base class for fixed-sized variables
  *
- * The FixedSizeVariable class implements a statically sized array to hold the scalar values. The size of the variable
- * is provided as the template argument \p N when creating a derived class. The FixedSizeVariable class implements the
- * Variable::data() accessor methods, and provides access to the scalar values as a std::array. This allows easier
- * manipulation in C++ (iterators, range-based for loops, etc.). The FixedSizeVariable class is designed for variables
- * where the size of the state vector is known at compile time...which should be almost all variable types. The
- * dimension of typical variable types (points, poses, calibration parameters) are all known at design/compile time.
+ * The FixedSizeVariable class implements a statically sized array to hold the scalar values. The
+ * size of the variable is provided as the template argument \p N when creating a derived class. The
+ * FixedSizeVariable class implements the Variable::data() accessor methods, and provides access to
+ * the scalar values as a std::array. This allows easier manipulation in C++ (iterators, range-based
+ * for loops, etc.). The FixedSizeVariable class is designed for variables where the size of the
+ * state vector is known at compile time...which should be almost all variable types. The dimension
+ * of typical variable types (points, poses, calibration parameters) are all known at design/compile
+ * time.
  */
 template<size_t N>
 class FixedSizeVariable : public fuse_core::Variable
@@ -90,7 +92,8 @@ public:
   /**
    * @brief Returns the number of elements of this variable.
    *
-   * The number of scalar values contained by this variable type is defined by the class template parameter \p N.
+   * The number of scalar values contained by this variable type is defined by the class template
+   * parameter \p N.
    */
   size_t size() const override {return N;}
 
@@ -121,7 +124,8 @@ protected:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

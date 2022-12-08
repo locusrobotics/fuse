@@ -72,7 +72,8 @@ TEST(Position3DStamped, UUID)
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
-  // Verify two positions with the same timestamp but different hardware IDs generate different UUIDs
+  // Verify two positions with the same timestamp but different hardware IDs generate different
+  // UUIDs
   {
     Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Position3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
@@ -90,7 +91,8 @@ TEST(Position3DStamped, UUID)
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
-  // Verify two positions with different hardware IDs and different timestamps produce different UUIDs
+  // Verify two positions with different hardware IDs and different timestamps produce different
+  // UUIDs
   {
     Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Position3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);

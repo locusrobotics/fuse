@@ -49,9 +49,9 @@ namespace fuse_variables
 /**
  * @brief Variable representing a 3D point landmark that exists across time.
  *
- * This is commonly used to represent locations of visual features. The UUID of this class is constant after
- * construction and dependent on a user input database id. As such, the database id cannot be altered after
- * construction.
+ * This is commonly used to represent locations of visual features. The UUID of this class is
+ * constant after construction and dependent on a user input database id. As such, the database id
+ * cannot be altered after construction.
  */
 class Point3DFixedLandmark : public FixedSizeVariable<3>
 {
@@ -116,8 +116,7 @@ public:
   const uint64_t & id() const {return id_;}
 
   /**
-   * @brief Print a human-readable description of the variable to the provided
-   * stream.
+   * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
@@ -134,13 +133,11 @@ private:
   uint64_t id_ {0};
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members
-   * in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
-   * @param[in/out] archive - The archive object that holds the serialized class
-   * members
-   * @param[in] version - The version of the archive being read/written.
-   * Generally unused.
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
   void serialize(Archive & archive, const unsigned int /* version */)

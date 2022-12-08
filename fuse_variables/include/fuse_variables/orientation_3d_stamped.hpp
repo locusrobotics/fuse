@@ -57,9 +57,10 @@ namespace fuse_variables
 /**
  * @brief A LocalParameterization class for 3D Orientations.
  *
- * 3D orientations add and subtract nonlinearly. Additionally, the typcial 3D orientation representation is a
- * quaternion, which has 4 degrees of freedom to parameterize a 3D space. This local parameterization uses the
- * Rodrigues/angle-axis formulas to combine 3D rotations, along with the appropriate "analytic" derivatives.
+ * 3D orientations add and subtract nonlinearly. Additionally, the typcial 3D orientation
+ * representation is a quaternion, which has 4 degrees of freedom to parameterize a 3D space. This
+ * local parameterization uses the Rodrigues/angle-axis formulas to combine 3D rotations, along with
+ * the appropriate "analytic" derivatives.
  */
 class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
 {
@@ -146,7 +147,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -159,15 +161,15 @@ private:
 };
 
 /**
- * @brief Variable representing a 3D orientation as a quaternion at a specific time and for a specific piece of
- * hardware (e.g., robot)
+ * @brief Variable representing a 3D orientation as a quaternion at a specific time and for a
+ *        specific piece of hardware (e.g., robot)
  *
- * This is commonly used to represent a robot orientation in single or multi-robot systems. The UUID of this class is
- * static after construction. As such, the timestamp and device ID cannot be modified. The value of the orientation
- * can be modified.
+ * This is commonly used to represent a robot orientation in single or multi-robot systems. The UUID
+ * of this class is static after construction. As such, the timestamp and device ID cannot be
+ * modified. The value of the orientation can be modified.
  *
- * The internal representation for this is different from the typical ROS representation, as w is the first component.
- * This is necessary to use the Ceres local parameterization for quaternions.
+ * The internal representation for this is different from the typical ROS representation, as w is
+ * the first component. This is necessary to use the Ceres local parameterization for quaternions.
  */
 class Orientation3DStamped : public FixedSizeVariable<4>, public Stamped
 {
@@ -204,7 +206,8 @@ public:
    * @brief Construct a 3D orientation at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this velocity.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   * @param[in] device_id An optional device id, for use when variables originate from multiple
+   *                      robots or devices
    */
   explicit Orientation3DStamped(
     const rclcpp::Time & stamp,
@@ -275,15 +278,16 @@ public:
   /**
    * @brief Returns the number of elements of the local parameterization space.
    *
-   * While a quaternion has 4 parameters, a 3D rotation only has 3 degrees of freedom. Hence, the local
-   * parameterization space is only size 3.
+   * While a quaternion has 4 parameters, a 3D rotation only has 3 degrees of freedom. Hence, the
+   * local parameterization space is only size 3.
    */
   size_t localSize() const override {return 3u;}
 
   /**
    * @brief Provides a Ceres local parameterization for the quaternion
    *
-   * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
+   * @return A pointer to a local parameterization object that indicates how to "add" increments to
+   *         the quaternion
    */
   fuse_core::LocalParameterization * localParameterization() const override;
 
@@ -292,7 +296,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

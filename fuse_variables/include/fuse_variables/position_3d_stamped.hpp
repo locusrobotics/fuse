@@ -52,12 +52,12 @@ namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 3D position (x, y, z) at a specific time and for a specific piece of hardware
- * (e.g., robot)
+ * @brief Variable representing a 3D position (x, y, z) at a specific time and for a specific piece
+ *        of hardware (e.g., robot)
  *
- * This is commonly used to represent a robot position in single or multi-robot systems. The UUID of this class is
- * static after construction. As such, the timestamp and device ID cannot be modified. The value of the position
- * can be modified.
+ * This is commonly used to represent a robot position in single or multi-robot systems. The UUID of
+ * this class is static after construction. As such, the timestamp and device ID cannot be modified.
+ * The value of the position can be modified.
  */
 class Position3DStamped : public FixedSizeVariable<3>, public Stamped
 {
@@ -83,7 +83,8 @@ public:
    * @brief Construct a 3D position at a specific point in time.
    *
    * @param[in] stamp     The timestamp attached to this position.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   * @param[in] device_id An optional device id, for use when variables originate from multiple
+   *                      robots or devices
    */
   explicit Position3DStamped(
     const rclcpp::Time & stamp,
@@ -131,7 +132,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.

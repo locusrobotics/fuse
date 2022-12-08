@@ -77,14 +77,16 @@ TEST(Orientation3DStamped, UUID)
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
-  // Verify two orientations with the same timestamp but different hardware IDs generate different UUIDs
+  // Verify two orientations with the same timestamp but different hardware IDs generate different
+  // UUIDs
   {
     Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 
-  // Verify two orientations with the same hardware ID and different timestamps produce different UUIDs
+  // Verify two orientations with the same hardware ID and different timestamps produce different
+  // UUIDs
   {
     Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_1);
@@ -95,7 +97,8 @@ TEST(Orientation3DStamped, UUID)
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
-  // Verify two orientations with different hardware IDs and different timestamps produce different UUIDs
+  // Verify two orientations with different hardware IDs and different timestamps produce different
+  // UUIDs
   {
     Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
