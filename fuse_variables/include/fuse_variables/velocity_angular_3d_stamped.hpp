@@ -84,44 +84,46 @@ public:
    * @param[in] stamp     The timestamp attached to this angular velocity.
    * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
-  explicit VelocityAngular3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit VelocityAngular3DStamped(
+    const rclcpp::Time & stamp,
+    const fuse_core::UUID & device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the roll (X-axis) angular velocity.
    */
-  double& roll() { return data_[ROLL]; }
+  double & roll() {return data_[ROLL];}
 
   /**
    * @brief Read-only access to the roll (X-axis) angular velocity.
    */
-  const double& roll() const { return data_[ROLL]; }
+  const double & roll() const {return data_[ROLL];}
 
   /**
    * @brief Read-write access to the pitch (Y-axis) angular velocity.
    */
-  double& pitch() { return data_[PITCH]; }
+  double & pitch() {return data_[PITCH];}
 
   /**
    * @brief Read-only access to the pitch (Y-axis) angular velocity.
    */
-  const double& pitch() const { return data_[PITCH]; }
+  const double & pitch() const {return data_[PITCH];}
 
   /**
    * @brief Read-write access to the yaw (Z-axis) angular velocity.
    */
-  double& yaw() { return data_[YAW]; }
+  double & yaw() {return data_[YAW];}
 
   /**
    * @brief Read-only access to the yaw (Z-axis) angular velocity.
    */
-  const double& yaw() const { return data_[YAW]; }
+  const double & yaw() const {return data_[YAW];}
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -134,7 +136,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
     archive & boost::serialization::base_object<Stamped>(*this);

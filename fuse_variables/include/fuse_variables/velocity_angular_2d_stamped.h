@@ -35,7 +35,8 @@
 #ifndef FUSE_VARIABLES__VELOCITY_ANGULAR_2D_STAMPED_H_
 #define FUSE_VARIABLES__VELOCITY_ANGULAR_2D_STAMPED_H_
 
-#warning This header is obsolete, please include fuse_variables/velocity_angular_2d_stamped.hpp instead
+#warning \
+  This header is obsolete, please include fuse_variables/velocity_angular_2d_stamped.hpp instead
 
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 

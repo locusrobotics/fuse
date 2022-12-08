@@ -35,7 +35,8 @@
 #ifndef FUSE_VARIABLES__ACCELERATION_ANGULAR_3D_STAMPED_H_
 #define FUSE_VARIABLES__ACCELERATION_ANGULAR_3D_STAMPED_H_
 
-#warning This header is obsolete, please include fuse_variables/acceleration_angular_3d_stamped.hpp instead
+#warning \
+  This header is obsolete, please include fuse_variables/acceleration_angular_3d_stamped.hpp instead
 
 #include <fuse_variables/acceleration_angular_3d_stamped.hpp>
 

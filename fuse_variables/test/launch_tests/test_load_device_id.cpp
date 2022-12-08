@@ -47,9 +47,10 @@ public:
   void SetUp() override
   {
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    spinner_ = std::thread([&](){
+    spinner_ = std::thread(
+      [&]() {
         executor_->spin();
-    });
+      });
   }
 
   void TearDown() override
@@ -173,7 +174,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
 
 
 // NOTE(CH3): This main is required because the test is manually run by a launch test
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);

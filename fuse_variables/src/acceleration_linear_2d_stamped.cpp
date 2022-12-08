@@ -47,13 +47,15 @@
 namespace fuse_variables
 {
 
-AccelerationLinear2DStamped::AccelerationLinear2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+AccelerationLinear2DStamped::AccelerationLinear2DStamped(
+  const rclcpp::Time & stamp,
+  const fuse_core::UUID & device_id)
+: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
   Stamped(stamp, device_id)
 {
 }
 
-void AccelerationLinear2DStamped::print(std::ostream& stream) const
+void AccelerationLinear2DStamped::print(std::ostream & stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"

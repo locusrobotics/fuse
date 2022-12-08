@@ -62,7 +62,7 @@ TEST(Point3DLandmark, UUID)
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
-    // Verify two positions with the different landmark ids  produce different uuids
+  // Verify two positions with the different landmark ids  produce different uuids
   {
     Point3DLandmark variable1(0);
     Point3DLandmark variable2(1);
@@ -74,7 +74,7 @@ struct CostFunctor
 {
   CostFunctor() {}
 
-  template <typename T> bool operator()(const T* const x, T* residual) const
+  template<typename T> bool operator()(const T * const x, T * residual) const
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
@@ -92,14 +92,15 @@ TEST(Point3DLandmark, Optimization)
   position.z() = 0.8;
 
   // Create a simple a constraint
-  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(new CostFunctor());
+  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(
+    new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(
     position.data(),
     position.size());
-  std::vector<double*> parameter_blocks;
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(position.data());
   problem.AddResidualBlock(
     cost_function,

@@ -47,13 +47,15 @@
 namespace fuse_variables
 {
 
-VelocityLinear3DStamped::VelocityLinear3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+VelocityLinear3DStamped::VelocityLinear3DStamped(
+  const rclcpp::Time & stamp,
+  const fuse_core::UUID & device_id)
+: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
   Stamped(stamp, device_id)
 {
 }
 
-void VelocityLinear3DStamped::print(std::ostream& stream) const
+void VelocityLinear3DStamped::print(std::ostream & stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"

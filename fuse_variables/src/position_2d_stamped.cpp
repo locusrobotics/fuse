@@ -47,13 +47,13 @@
 namespace fuse_variables
 {
 
-Position2DStamped::Position2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+Position2DStamped::Position2DStamped(const rclcpp::Time & stamp, const fuse_core::UUID & device_id)
+: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
   Stamped(stamp, device_id)
 {
 }
 
-void Position2DStamped::print(std::ostream& stream) const
+void Position2DStamped::print(std::ostream & stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"

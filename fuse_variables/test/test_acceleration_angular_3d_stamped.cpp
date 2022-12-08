@@ -61,8 +61,10 @@ TEST(AccelerationAngular3DStamped, UUID)
     AccelerationAngular3DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    AccelerationAngular3DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    AccelerationAngular3DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationAngular3DStamped variable3(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("c3po"));
+    AccelerationAngular3DStamped variable4(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -78,16 +80,19 @@ TEST(AccelerationAngular3DStamped, UUID)
 
   // Verify two accelerations with different hardware IDs produce different UUIDs
   {
-    AccelerationAngular3DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
-    AccelerationAngular3DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
+    AccelerationAngular3DStamped variable1(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("8d8"));
+    AccelerationAngular3DStamped variable2(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(AccelerationAngular3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = AccelerationAngular3DStamped::make_shared(rclcpp::Time(12345678, 910111213),
-                                                                                  fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base = AccelerationAngular3DStamped::make_shared(
+    rclcpp::Time(12345678, 910111213),
+    fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<AccelerationAngular3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -103,7 +108,7 @@ struct CostFunctor
 {
   CostFunctor() {}
 
-  template <typename T> bool operator()(const T* const x, T* residual) const
+  template<typename T> bool operator()(const T * const x, T * residual) const
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
@@ -115,13 +120,15 @@ struct CostFunctor
 TEST(AccelerationAngular3DStamped, Optimization)
 {
   // Create a AccelerationAngular3DStamped
-  AccelerationAngular3DStamped acceleration(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationAngular3DStamped acceleration(rclcpp::Time(12345678, 910111213),
+    fuse_core::uuid::generate("hal9000"));
   acceleration.roll() = 1.5;
   acceleration.pitch() = -3.0;
   acceleration.yaw() = 14.0;
 
   // Create a simple a constraint
-  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(new CostFunctor());
+  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(
+    new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
@@ -129,7 +136,7 @@ TEST(AccelerationAngular3DStamped, Optimization)
     acceleration.data(),
     acceleration.size(),
     acceleration.localParameterization());
-  std::vector<double*> parameter_blocks;
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(acceleration.data());
   problem.AddResidualBlock(
     cost_function,
@@ -150,7 +157,8 @@ TEST(AccelerationAngular3DStamped, Optimization)
 TEST(AccelerationAngular3DStamped, Serialization)
 {
   // Create a AccelerationAngular3DStamped
-  AccelerationAngular3DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationAngular3DStamped expected(rclcpp::Time(12345678, 910111213),
+    fuse_core::uuid::generate("hal9000"));
   expected.roll() = 1.5;
   expected.pitch() = -3.0;
   expected.yaw() = 14.0;

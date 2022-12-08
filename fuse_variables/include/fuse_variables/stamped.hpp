@@ -67,8 +67,10 @@ public:
   /**
    * @brief Constructor
    */
-  explicit Stamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL) :
-    device_id_(device_id),
+  explicit Stamped(
+    const rclcpp::Time & stamp,
+    const fuse_core::UUID & device_id = fuse_core::uuid::NIL)
+  : device_id_(device_id),
     stamp_(stamp)
   {}
 
@@ -80,12 +82,12 @@ public:
   /**
    * @brief Read-only access to the associated timestamp.
    */
-  const rclcpp::Time& stamp() const { return stamp_; }
+  const rclcpp::Time & stamp() const {return stamp_;}
 
   /**
    * @brief Read-only access to the associated device ID.
    */
-  const fuse_core::UUID& deviceId() const { return device_id_; }
+  const fuse_core::UUID & deviceId() const {return device_id_;}
 
 private:
   fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
@@ -101,7 +103,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & device_id_;
     archive & stamp_;

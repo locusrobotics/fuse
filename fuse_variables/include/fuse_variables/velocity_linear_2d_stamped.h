@@ -35,7 +35,8 @@
 #ifndef FUSE_VARIABLES__VELOCITY_LINEAR_2D_STAMPED_H_
 #define FUSE_VARIABLES__VELOCITY_LINEAR_2D_STAMPED_H_
 
-#warning This header is obsolete, please include fuse_variables/velocity_linear_2d_stamped.hpp instead
+#warning \
+  This header is obsolete, please include fuse_variables/velocity_linear_2d_stamped.hpp instead
 
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
