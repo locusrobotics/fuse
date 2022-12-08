@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_HASH_GRAPH_H
-#define FUSE_GRAPHS_HASH_GRAPH_H
+#ifndef FUSE_GRAPHS__HASH_GRAPH_HPP_
+#define FUSE_GRAPHS__HASH_GRAPH_HPP_
 
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/graph.hpp>
@@ -40,7 +40,7 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_graphs/hash_graph_params.h>
+#include <fuse_graphs/hash_graph_params.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -433,4 +433,4 @@ void serialize(Archive& archive, ceres::Problem::Options& options, const unsigne
 
 BOOST_CLASS_EXPORT_KEY(fuse_graphs::HashGraph);
 
-#endif  // FUSE_GRAPHS_HASH_GRAPH_H
+#endif  // FUSE_GRAPHS__HASH_GRAPH_HPP_

@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
-#define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
+#ifndef FUSE_GRAPHS__HASH_GRAPH_PARAMS_HPP_
+#define FUSE_GRAPHS__HASH_GRAPH_PARAMS_HPP_
 
 #include <fuse_core/ceres_options.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
@@ -71,4 +71,4 @@ public:
 
 }  // namespace fuse_graphs
 
-#endif  // FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
+#endif  // FUSE_GRAPHS__HASH_GRAPH_PARAMS_HPP_

@@ -5,7 +5,7 @@
  ***************************************************************************/
 #include <fuse_models/unicycle_2d.h>
 
-#include <fuse_graphs/hash_graph.h>
+#include <fuse_graphs/hash_graph.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>

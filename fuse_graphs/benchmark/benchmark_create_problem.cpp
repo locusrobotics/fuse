@@ -34,9 +34,9 @@
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_graphs/hash_graph.h>
+#include <fuse_graphs/hash_graph.hpp>
 
-#include "example_variable.h"
+#include "example_variable.hpp"
 
 #include <benchmark/benchmark.h>
 

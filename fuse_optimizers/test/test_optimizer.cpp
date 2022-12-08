@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_graphs/hash_graph.h>
+#include <fuse_graphs/hash_graph.hpp>
 #include "example_optimizer.h"
 #include "common.h"
 

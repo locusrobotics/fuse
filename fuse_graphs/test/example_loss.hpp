@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,67 +31,49 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
-#define FUSE_GRAPHS_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#ifndef FUSE_GRAPHS__TEST_EXAMPLE_LOSS_HPP_  // NOLINT{build/header_guard}
+#define FUSE_GRAPHS__TEST_EXAMPLE_LOSS_HPP_  // NOLINT{build/header_guard}
 
-#include <fuse_core/constraint.hpp>
+#include <fuse_core/loss.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <ceres/autodiff_cost_function.h>
 
+#include <ostream>
 #include <string>
 
 
 /**
- * @brief Dummy cost function used for testing
+ * @brief Dummy loss implementation for testing
  */
-class ExampleFunctor
+class ExampleLoss : public fuse_core::Loss
 {
 public:
-  explicit ExampleFunctor(const double& b) :
-    b_(b)
+  FUSE_LOSS_DEFINITIONS(ExampleLoss)
+
+  explicit ExampleLoss(const double a = 1.0) : a(a)
   {
   }
 
-  template <typename T>
-  bool operator()(const T* const variable, T* residual) const
-  {
-    residual[0] = variable[0] - T(b_);
-    return true;
-  }
-
-private:
-  double b_;
-};
-
-/**
- * @brief Dummy constraint implementation for testing
- */
-class ExampleConstraint : public fuse_core::Constraint
-{
-public:
-  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
-
-  ExampleConstraint() = default;
-
-  explicit ExampleConstraint(const std::string& source, const fuse_core::UUID& variable_uuid) :
-    fuse_core::Constraint(source, {variable_uuid}),  // NOLINT
-    data(0.0)
-  {
-  }
+void initialize(
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters
+  > /*interfaces*/,
+  const std::string& /*name*/) override {}
 
   void print(std::ostream& /*stream = std::cout*/) const override {}
-  ceres::CostFunction* costFunction() const override
+
+  ceres::LossFunction* lossFunction() const override
   {
-    return new ceres::AutoDiffCostFunction<ExampleFunctor, 1, 1>(new ExampleFunctor(data));
+    return new ceres::HuberLoss(a);
   }
 
-  double data;  // Public member variable just for testing
+  double a{ 1.0 };  //!< Public member variable just for testing
 
 private:
   // Allow Boost Serialization access to private methods
@@ -106,11 +88,11 @@ private:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & data;
+    archive & boost::serialization::base_object<fuse_core::Loss>(*this);
+    archive & a;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleConstraint);
+BOOST_CLASS_EXPORT(ExampleLoss);
 
-#endif  // FUSE_GRAPHS_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#endif  // FUSE_GRAPHS__TEST_EXAMPLE_LOSS_HPP_  // NOLINT{build/header_guard}

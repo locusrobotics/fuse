@@ -35,11 +35,11 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_graphs/hash_graph.h>
-#include "covariance_constraint.h"
-#include "example_constraint.h"
-#include "example_loss.h"
-#include "example_variable.h"
+#include <fuse_graphs/hash_graph.hpp>
+#include "covariance_constraint.hpp"
+#include "example_constraint.hpp"
+#include "example_loss.hpp"
+#include "example_variable.hpp"
 
 #include <gtest/gtest.h>
 

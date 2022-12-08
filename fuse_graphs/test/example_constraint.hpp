@@ -31,43 +31,69 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
-#define FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#ifndef FUSE_GRAPHS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+#define FUSE_GRAPHS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
 
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/serialization/vector.hpp>
+#include <ceres/autodiff_cost_function.h>
 
-#include <vector>
+#include <string>
 
 
 /**
- * @brief Dummy variable implementation for testing
+ * @brief Dummy cost function used for testing
  */
-class ExampleVariable : public fuse_core::Variable
+class ExampleFunctor
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
-
-  explicit ExampleVariable(size_t N = 1) :
-    fuse_core::Variable(fuse_core::uuid::generate()),
-    data_(N, 0.0)
+  explicit ExampleFunctor(const double& b) :
+    b_(b)
   {
   }
 
-  size_t size() const override { return data_.size(); }
-  const double* data() const override { return data_.data(); };
-  double* data() override { return data_.data(); };
-  void print(std::ostream& /*stream = std::cout*/) const override {}
+  template <typename T>
+  bool operator()(const T* const variable, T* residual) const
+  {
+    residual[0] = variable[0] - T(b_);
+    return true;
+  }
 
 private:
-  std::vector<double> data_;
+  double b_;
+};
 
+/**
+ * @brief Dummy constraint implementation for testing
+ */
+class ExampleConstraint : public fuse_core::Constraint
+{
+public:
+  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
+
+  ExampleConstraint() = default;
+
+  explicit ExampleConstraint(const std::string& source, const fuse_core::UUID& variable_uuid) :
+    fuse_core::Constraint(source, {variable_uuid}),  // NOLINT
+    data(0.0)
+  {
+  }
+
+  void print(std::ostream& /*stream = std::cout*/) const override {}
+  ceres::CostFunction* costFunction() const override
+  {
+    return new ceres::AutoDiffCostFunction<ExampleFunctor, 1, 1>(new ExampleFunctor(data));
+  }
+
+  double data;  // Public member variable just for testing
+
+private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -80,11 +106,11 @@ private:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & data;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleVariable);
+BOOST_CLASS_EXPORT(ExampleConstraint);
 
-#endif  // FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#endif  // FUSE_GRAPHS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}

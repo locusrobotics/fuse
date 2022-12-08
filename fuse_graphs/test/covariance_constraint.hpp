@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_TEST_COVARIANCE_CONSTRAINT_H  // NOLINT{build/header_guard}
-#define FUSE_GRAPHS_TEST_COVARIANCE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#ifndef FUSE_GRAPHS__TEST_COVARIANCE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+#define FUSE_GRAPHS__TEST_COVARIANCE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
 
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -177,4 +177,4 @@ private:
 
 BOOST_CLASS_EXPORT(CovarianceConstraint);
 
-#endif  // FUSE_GRAPHS_TEST_COVARIANCE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#endif  // FUSE_GRAPHS__TEST_COVARIANCE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}

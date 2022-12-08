@@ -36,7 +36,7 @@
 #include <fuse_core/graph_deserializer.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_graphs/hash_graph.h>
+#include <fuse_graphs/hash_graph.hpp>
 #include <fuse_models/SetGraph.h>
 #include <fuse_models/graph_ignition.h>
 #include <ros/ros.h>

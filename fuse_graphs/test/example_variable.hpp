@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Clearpath Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,51 +31,43 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
-#define FUSE_GRAPHS_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
+#ifndef FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
+#define FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
 
-#include <fuse_core/loss.hpp>
-#include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
 
-#include <ostream>
-#include <string>
+#include <vector>
 
 
 /**
- * @brief Dummy loss implementation for testing
+ * @brief Dummy variable implementation for testing
  */
-class ExampleLoss : public fuse_core::Loss
+class ExampleVariable : public fuse_core::Variable
 {
 public:
-  FUSE_LOSS_DEFINITIONS(ExampleLoss)
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  explicit ExampleLoss(const double a = 1.0) : a(a)
+  explicit ExampleVariable(size_t N = 1) :
+    fuse_core::Variable(fuse_core::uuid::generate()),
+    data_(N, 0.0)
   {
   }
 
-void initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > /*interfaces*/,
-  const std::string& /*name*/) override {}
-
+  size_t size() const override { return data_.size(); }
+  const double* data() const override { return data_.data(); };
+  double* data() override { return data_.data(); };
   void print(std::ostream& /*stream = std::cout*/) const override {}
 
-  ceres::LossFunction* lossFunction() const override
-  {
-    return new ceres::HuberLoss(a);
-  }
-
-  double a{ 1.0 };  //!< Public member variable just for testing
-
 private:
+  std::vector<double> data_;
+
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -88,11 +80,11 @@ private:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Loss>(*this);
-    archive & a;
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleLoss);
+BOOST_CLASS_EXPORT(ExampleVariable);
 
-#endif  // FUSE_GRAPHS_TEST_EXAMPLE_LOSS_H  // NOLINT{build/header_guard}
+#endif  // FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
