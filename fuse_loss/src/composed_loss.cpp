@@ -31,25 +31,23 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.hpp>
-#include <fuse_loss/composed_loss.h>
-#include <fuse_loss/trivial_loss.h>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <memory>
 #include <ostream>
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/composed_loss.hpp>
+#include <fuse_loss/trivial_loss.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {
 
-ComposedLoss::ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss,
-                           const std::shared_ptr<fuse_core::Loss>& g_loss)
-  : f_loss_(f_loss), g_loss_(g_loss)
+ComposedLoss::ComposedLoss(
+  const std::shared_ptr<fuse_core::Loss> & f_loss,
+  const std::shared_ptr<fuse_core::Loss> & g_loss)
+: f_loss_(f_loss), g_loss_(g_loss)
 {
 }
 
@@ -59,31 +57,30 @@ void ComposedLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   f_loss_ = fuse_core::loadLossConfig(interfaces, name + ".f_loss");
   g_loss_ = fuse_core::loadLossConfig(interfaces, name + ".g_loss");
 }
 
-void ComposedLoss::print(std::ostream& stream) const
+void ComposedLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n";
 
-  if (f_loss_)
-  {
+  if (f_loss_) {
     stream << "  f_loss: " << f_loss_ << "\n";
   }
 
-  if (g_loss_)
-  {
+  if (g_loss_) {
     stream << "  g_loss: " << g_loss_ << "\n";
   }
 }
 
-ceres::LossFunction* ComposedLoss::lossFunction() const
+ceres::LossFunction * ComposedLoss::lossFunction() const
 {
-  return new ceres::ComposedLoss(f_loss_ ? f_loss_->lossFunction() : TrivialLoss().lossFunction(), Ownership,
-                                 g_loss_ ? g_loss_->lossFunction() : TrivialLoss().lossFunction(), Ownership);
+  return new ceres::ComposedLoss(
+    f_loss_ ? f_loss_->lossFunction() : TrivialLoss().lossFunction(), Ownership,
+    g_loss_ ? g_loss_->lossFunction() : TrivialLoss().lossFunction(), Ownership);
 }
 
 }  // namespace fuse_loss

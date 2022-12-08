@@ -31,19 +31,17 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/loss_function.h>
-
 #include <cmath>
 #include <limits>
 
+#include <fuse_loss/loss_function.hpp>
 
 namespace ceres
 {
 
 void DCSLoss::Evaluate(double s, double rho[3]) const
 {
-  if (s > a_)
-  {
+  if (s > a_) {
     // Outlier region
     const double inv = 1.0 / (a_ + s);
     const double scale = 2.0 * a_ * inv;
@@ -51,9 +49,7 @@ void DCSLoss::Evaluate(double s, double rho[3]) const
     rho[0] = a_ * (3.0 * s - a_) * inv;
     rho[1] = scale * scale;
     rho[2] = -2.0 * inv * rho[1];
-  }
-  else
-  {
+  } else {
     // Inlier region
     rho[0] = s;
     rho[1] = 1.0;

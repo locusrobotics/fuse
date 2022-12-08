@@ -31,11 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/loss_function.h>
-
 #include <gtest/gtest.h>
 
 #include <limits>
+
+#include <fuse_loss/loss_function.hpp>
 
 // The following function has been copied and adapted from:
 //
@@ -48,7 +48,8 @@
 //
 // * Check rho'(s) >= 0, which is required by the corrector in:
 //
-//     https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+// https://github.com/ceres-solver/ceres-
+// solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
 //
 //   which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
 //
@@ -63,7 +64,7 @@ namespace
 // Compares the values of rho'(s) and rho''(s) computed by the
 // callback with estimates obtained by symmetric finite differencing
 // of rho(s).
-void AssertLossFunctionIsValid(const ceres::LossFunction& loss, double s)
+void AssertLossFunctionIsValid(const ceres::LossFunction & loss, double s)
 {
   ASSERT_GT(s, 0);
 
@@ -73,14 +74,15 @@ void AssertLossFunctionIsValid(const ceres::LossFunction& loss, double s)
 
   // The corrector in:
   //
-  //   https://github.com/ceres-solver/ceres-solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
+  // https://github.com/ceres-solver/ceres-
+  // solver/blob/8e962f37d756272e7019a5d28394fc8f/internal/ceres/corrector.h#L60
   //
   // which is based on Eq. 10 and 11 from BAMS (Bundle Adjustment -- A Modern Synthesis):
   //
   //   https://hal.inria.fr/inria-00548290/document
   //
-  // requires that rho'(s) >=0 because it is used to compute sqrt(rho'(s)) in the equations that correct the residuals
-  // and jacobian.
+  // requires that rho'(s) >=0 because it is used to compute sqrt(rho'(s)) in the equations that
+  // correct the residuals and jacobian.
   ASSERT_GE(rho[1], 0);
 
   // Use symmetric finite differencing to estimate rho'(s) and
@@ -98,7 +100,7 @@ void AssertLossFunctionIsValid(const ceres::LossFunction& loss, double s)
   ASSERT_NEAR(fd_1, rho[1], 1e-6);
 
   // Second derivative.
-  const double fd_2 = (fwd[0] - 2*rho[0] + bwd[0]) / (kH * kH);
+  const double fd_2 = (fwd[0] - 2 * rho[0] + bwd[0]) / (kH * kH);
   ASSERT_NEAR(fd_2, rho[2], 1e-6);
 }
 

@@ -31,23 +31,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/tukey_loss.h>
-
-#include <fuse_core/ceres_macros.hpp>
-#include <fuse_core/parameter.hpp>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <ostream>
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/tukey_loss.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {
 
-TukeyLoss::TukeyLoss(const double a) : a_(a)
+TukeyLoss::TukeyLoss(const double a)
+: a_(a)
 {
 }
 
@@ -57,26 +54,27 @@ void TukeyLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void TukeyLoss::print(std::ostream& stream) const
+void TukeyLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction* TukeyLoss::lossFunction() const
+ceres::LossFunction * TukeyLoss::lossFunction() const
 {
 #if CERES_VERSION_AT_LEAST(2, 0, 0)
   return new ceres::TukeyLoss(a_);
 #else
-  // The Tukey loss function is incorrectly implemented in Ceres before the 2.* version because it must be multiplied by
-  // 2, so instead of dividing by 6 it should have divided by 3 in:
+  // The Tukey loss function is incorrectly implemented in Ceres before the 2.* version because it
+  // must be multiplied by 2, so instead of dividing by 6 it should have divided by 3 in:
   //
-  //   https://github.com/ceres-solver/ceres-solver/blob/4362a2169966e0839425209/include/ceres/loss_function.h#L281-L282
+  //   https://github.com/ceres-solver/ceres-
+  //   solver/blob/4362a2169966e0839425209/include/ceres/loss_function.h#L281-L282
   //
   // This was fix with the patch already sent and merged into Ceres in this PR:
   //
@@ -84,9 +82,11 @@ ceres::LossFunction* TukeyLoss::lossFunction() const
   //
   // See:
   //
-  //   https://github.com/ceres-solver/ceres-solver/commit/6da364713f5b78#diff-7f75c0abfe2c5756f744aa61097ca1c2L281-R283
+  //   https://github.com/ceres-solver/ceres-
+  //   solver/commit/6da364713f5b78#diff-7f75c0abfe2c5756f744aa61097ca1c2L281-R283
   //
-  // There is an easy workaround for this. We combine TukeyLoss with ScaledLoss, using a scaled factor of 2.
+  // There is an easy workaround for this. We combine TukeyLoss with ScaledLoss, using a scaled
+  // factor of 2.
   return new ceres::ScaledLoss(new ceres::TukeyLoss(a_), 2.0, Ownership);
 #endif
 }

@@ -31,19 +31,19 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_loss/composed_loss.h>
-#include <fuse_loss/huber_loss.h>
-#include <fuse_loss/scaled_loss.h>
-#include <fuse_loss/tolerant_loss.h>
-#include <fuse_loss/trivial_loss.h>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
 #include <memory>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_loss/composed_loss.hpp>
+#include <fuse_loss/huber_loss.hpp>
+#include <fuse_loss/scaled_loss.hpp>
+#include <fuse_loss/tolerant_loss.hpp>
+#include <fuse_loss/trivial_loss.hpp>
 
 TEST(ComposedLoss, Constructor)
 {
@@ -69,7 +69,7 @@ TEST(ComposedLoss, Constructor)
 
   // Create a loss with f_loss parameter only
   {
-    std::shared_ptr<fuse_loss::HuberLoss> f_loss{ new fuse_loss::HuberLoss };
+    std::shared_ptr<fuse_loss::HuberLoss> f_loss{new fuse_loss::HuberLoss};
 
     fuse_loss::ComposedLoss composed_loss(f_loss);
     EXPECT_NE(nullptr, composed_loss.fLoss().get());
@@ -94,16 +94,16 @@ TEST(ComposedLoss, Constructor)
     // Make sure 'f(s) != s', i.e. it is not an inlier, which would be a trivial case
     ASSERT_NE(s, f_rho[0]);
 
-    // Check that 'f(g(s)) == f(s)' and the same for the first and second derivatives, since g is the TrivialLoss
-    for (size_t i = 0; i < 3; ++i)
-    {
+    // Check that 'f(g(s)) == f(s)' and the same for the first and second derivatives, since g is
+    // the TrivialLoss
+    for (size_t i = 0; i < 3; ++i) {
       EXPECT_EQ(f_rho[i], rho[i]);
     }
   }
 
   // Create a loss with g_loss parameter only
   {
-    std::shared_ptr<fuse_loss::HuberLoss> g_loss{ new fuse_loss::HuberLoss };
+    std::shared_ptr<fuse_loss::HuberLoss> g_loss{new fuse_loss::HuberLoss};
 
     fuse_loss::ComposedLoss composed_loss(nullptr, g_loss);
     EXPECT_EQ(nullptr, composed_loss.fLoss());
@@ -128,17 +128,17 @@ TEST(ComposedLoss, Constructor)
     // Make sure 'g(s) != s', i.e. it is not an inlier, which would be a trivial case
     ASSERT_NE(s, g_rho[0]);
 
-    // Check that 'f(g(s)) == g(s)' and the same for the first and second derivatives, since f is the TrivialLoss
-    for (size_t i = 0; i < 3; ++i)
-    {
+    // Check that 'f(g(s)) == g(s)' and the same for the first and second derivatives, since f is
+    // the TrivialLoss
+    for (size_t i = 0; i < 3; ++i) {
       EXPECT_EQ(g_rho[i], rho[i]);
     }
   }
 
   // Create a loss with f_loss and g_loss parameters
   {
-    std::shared_ptr<fuse_loss::HuberLoss> f_loss{ new fuse_loss::HuberLoss };
-    std::shared_ptr<fuse_loss::TolerantLoss> g_loss{ new fuse_loss::TolerantLoss };
+    std::shared_ptr<fuse_loss::HuberLoss> f_loss{new fuse_loss::HuberLoss};
+    std::shared_ptr<fuse_loss::TolerantLoss> g_loss{new fuse_loss::TolerantLoss};
 
     fuse_loss::ComposedLoss composed_loss(f_loss, g_loss);
     EXPECT_NE(nullptr, composed_loss.fLoss().get());
@@ -184,42 +184,43 @@ TEST(ComposedLoss, Constructor)
 struct CostFunctor
 {
   explicit CostFunctor(const double data)
-    : data(data)
+  : data(data)
   {}
 
-  template <typename T> bool operator()(const T* const x, T* residual) const
+  template<typename T> bool operator()(const T * const x, T * residual) const
   {
     residual[0] = x[0] - T(data);
     return true;
   }
 
-  double data{ 0.0 };
+  double data{0.0};
 };
 
 TEST(ComposedLoss, Optimization)
 {
   // Create a simple parameter
-  double x{ 5.0 };
+  double x{5.0};
 
   // Create a simple inlier constraint
-  const double inlier{ 1.0 };
+  const double inlier{1.0};
 
   // Create a simple outlier constraint
-  const double outlier{ 10.0 };
-  ceres::CostFunction* cost_function_outlier =
-      new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
+  const double outlier{10.0};
+  ceres::CostFunction * cost_function_outlier =
+    new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
 
   // Create an 'f' loss
-  const double a{ 0.05 };
-  std::shared_ptr<fuse_loss::HuberLoss> f_loss{ new fuse_loss::HuberLoss(a) };
+  const double a{0.05};
+  std::shared_ptr<fuse_loss::HuberLoss> f_loss{new fuse_loss::HuberLoss(a)};
 
   // Create an 'g' loss
-  const double scaled_a{ 0.5 };
-  std::shared_ptr<fuse_loss::ScaledLoss> g_loss{ new fuse_loss::ScaledLoss(scaled_a) };
+  const double scaled_a{0.5};
+  std::shared_ptr<fuse_loss::ScaledLoss> g_loss{new fuse_loss::ScaledLoss(scaled_a)};
 
   // Create a composed loss, which illustrates the case of scaling the residuals by a factor with a
-  // fuse_loss::ScaledLoss in the 'g' loss and applies a fuse_loss::HuberLoss loss function robust to outliers in the
-  // 'f' loss, which are used in the composition 'f(g(s))' for the squared residuals 's'
+  // fuse_loss::ScaledLoss in the 'g' loss and applies a fuse_loss::HuberLoss loss function robust
+  // to outliers in the 'f' loss, which are used in the composition 'f(g(s))' for the squared
+  // residuals 's'
   fuse_loss::ComposedLoss composed_loss(f_loss, g_loss);
 
   // Build the problem.
@@ -228,9 +229,8 @@ TEST(ComposedLoss, Optimization)
 
   ceres::Problem problem(problem_options);
 
-  const size_t num_inliers{ 1000 };
-  for (size_t i = 0; i < num_inliers; ++i)
-  {
+  const size_t num_inliers{1000};
+  for (size_t i = 0; i < num_inliers; ++i) {
     problem.AddResidualBlock(
       new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(inlier)),
       composed_loss.lossFunction(),  // A nullptr here would produce a slightly better solution
@@ -238,9 +238,8 @@ TEST(ComposedLoss, Optimization)
   }
 
   // Add outlier constraints
-  const size_t num_outliers{ 9 };
-  for (size_t i = 0; i < num_outliers; ++i)
-  {
+  const size_t num_outliers{9};
+  for (size_t i = 0; i < num_outliers; ++i) {
     problem.AddResidualBlock(
       cost_function_outlier,
       composed_loss.lossFunction(),
@@ -273,13 +272,13 @@ TEST(ComposedLoss, Optimization)
 TEST(ComposedLoss, Serialization)
 {
   // Construct an 'f' loss
-  const double f_loss_a{ 0.3 };
-  std::shared_ptr<fuse_loss::HuberLoss> f_loss{ new fuse_loss::HuberLoss(f_loss_a) };
+  const double f_loss_a{0.3};
+  std::shared_ptr<fuse_loss::HuberLoss> f_loss{new fuse_loss::HuberLoss(f_loss_a)};
 
   // Construct a 'g' loss
-  const double g_loss_a{ 0.3 };
-  const double g_loss_b{ 0.6 };
-  std::shared_ptr<fuse_loss::TolerantLoss> g_loss{ new fuse_loss::TolerantLoss(g_loss_a, g_loss_b) };
+  const double g_loss_a{0.3};
+  const double g_loss_b{0.6};
+  std::shared_ptr<fuse_loss::TolerantLoss> g_loss{new fuse_loss::TolerantLoss(g_loss_a, g_loss_b)};
 
   // Construct a composed loss
   fuse_loss::ComposedLoss expected(f_loss, g_loss);
@@ -314,8 +313,7 @@ TEST(ComposedLoss, Serialization)
   double actual_rho[3] = {0.0};
   actual_loss_function->Evaluate(s, actual_rho);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     EXPECT_EQ(expected_rho[i], actual_rho[i]);
   }
 
@@ -325,8 +323,7 @@ TEST(ComposedLoss, Serialization)
   expected_loss_function->Evaluate(s_outlier, expected_rho);
   actual_loss_function->Evaluate(s_outlier, actual_rho);
 
-  for (size_t i = 0; i < 3; ++i)
-  {
+  for (size_t i = 0; i < 3; ++i) {
     EXPECT_EQ(expected_rho[i], actual_rho[i]);
   }
 }

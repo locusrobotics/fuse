@@ -31,25 +31,22 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.hpp>
-#include <fuse_loss/trivial_loss.h>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <ostream>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/trivial_loss.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {
 
-void TrivialLoss::print(std::ostream& stream) const
+void TrivialLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n";
 }
 
-ceres::LossFunction* TrivialLoss::lossFunction() const
+ceres::LossFunction * TrivialLoss::lossFunction() const
 {
   return new ceres::TrivialLoss();
 }

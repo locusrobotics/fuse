@@ -31,22 +31,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.hpp>
-#include <fuse_loss/fair_loss.h>
-#include <fuse_loss/loss_function.h>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <ostream>
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/fair_loss.hpp>
+#include <fuse_loss/loss_function.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {
 
-FairLoss::FairLoss(const double a) : a_(a)
+FairLoss::FairLoss(const double a)
+: a_(a)
 {
 }
 
@@ -56,18 +54,18 @@ void FairLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void FairLoss::print(std::ostream& stream) const
+void FairLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction* FairLoss::lossFunction() const
+ceres::LossFunction * FairLoss::lossFunction() const
 {
   return new ceres::FairLoss(a_);
 }

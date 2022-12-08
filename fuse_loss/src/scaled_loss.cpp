@@ -31,22 +31,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_loss/scaled_loss.h>
-
-#include <fuse_core/parameter.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <memory>
 #include <ostream>
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/scaled_loss.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {
 
-ScaledLoss::ScaledLoss(const double a, const std::shared_ptr<fuse_core::Loss>& loss) : a_(a), loss_(loss)
+ScaledLoss::ScaledLoss(const double a, const std::shared_ptr<fuse_core::Loss> & loss)
+: a_(a), loss_(loss)
 {
 }
 
@@ -56,24 +54,23 @@ void ScaledLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
   loss_ = fuse_core::loadLossConfig(interfaces, name + ".loss");
 }
 
-void ScaledLoss::print(std::ostream& stream) const
+void ScaledLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 
-  if (loss_)
-  {
+  if (loss_) {
     stream << "  loss: " << loss_ << "\n";
   }
 }
 
-ceres::LossFunction* ScaledLoss::lossFunction() const
+ceres::LossFunction * ScaledLoss::lossFunction() const
 {
   return new ceres::ScaledLoss(loss_ ? loss_->lossFunction() : nullptr, a_, Ownership);
 }

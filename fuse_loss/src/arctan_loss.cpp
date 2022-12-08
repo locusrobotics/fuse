@@ -31,21 +31,19 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/parameter.hpp>
-#include <fuse_loss/arctan_loss.h>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <ostream>
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_loss/arctan_loss.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_loss
 {
 
-ArctanLoss::ArctanLoss(const double a) : a_(a)
+ArctanLoss::ArctanLoss(const double a)
+: a_(a)
 {
 }
 
@@ -55,18 +53,18 @@ void ArctanLoss::initialize(
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters
   > interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void ArctanLoss::print(std::ostream& stream) const
+void ArctanLoss::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction* ArctanLoss::lossFunction() const
+ceres::LossFunction * ArctanLoss::lossFunction() const
 {
   return new ceres::ArctanLoss(a_);
 }
