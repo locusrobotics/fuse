@@ -34,7 +34,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
 
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
@@ -69,7 +69,7 @@ AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
 AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
   const std::string& source,
   const fuse_variables::Orientation3DStamped& orientation,
-  const geometry_msgs::Quaternion& mean,
+  const geometry_msgs::msg::Quaternion& mean,
   const std::array<double, 9>& covariance) :
     AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), toEigen(covariance))
 {
@@ -109,7 +109,7 @@ fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const Eigen:
   return eigen_quaternion_vector;
 }
 
-fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const geometry_msgs::Quaternion& quaternion)
+fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const geometry_msgs::msg::Quaternion& quaternion)
 {
   fuse_core::Vector4d eigen_quaternion_vector;
   eigen_quaternion_vector << quaternion.w, quaternion.x, quaternion.y, quaternion.z;

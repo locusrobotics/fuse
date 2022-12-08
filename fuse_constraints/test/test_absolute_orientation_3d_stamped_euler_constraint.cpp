@@ -36,7 +36,6 @@
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
-#include <geometry_msgs/Quaternion.h>
 
 #include <ceres/covariance.h>
 #include <ceres/problem.h>

@@ -14,21 +14,33 @@
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <depend>libceres-dev</depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
   <depend>eigen</depend>
-  <depend>fuse_core</depend>
-  <depend>fuse_graphs</depend>
-  <depend>fuse_variables</depend>
-  <depend>geometry_msgs</depend>
-  <depend>pluginlib</depend>
-  <depend>roscpp</depend>
+  <depend>libceres-dev</depend>
   <depend>suitesparse</depend>
-  <test_depend condition="$ROS_DISTRO >= melodic">benchmark</test_depend>
-  <test_depend>roslint</test_depend>
-  <test_depend>rostest</test_depend>
+
+  <build_depend>fuse_core</build_depend>
+  <build_depend>fuse_graphs</build_depend>
+  <build_depend>fuse_variables</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>rclcpp</build_depend>
+
+  <exec_depend>fuse_core</exec_depend>
+  <exec_depend>fuse_graphs</exec_depend>
+  <exec_depend>fuse_variables</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>benchmark</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
     <rosdoc config="rosdoc.yaml" />
   </export>
