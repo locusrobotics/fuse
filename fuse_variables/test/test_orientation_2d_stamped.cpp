@@ -292,9 +292,3 @@ TEST(Orientation2DStamped, Serialization)
   EXPECT_EQ(expected.stamp(), actual.stamp());
   EXPECT_EQ(expected.yaw(), actual.yaw());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

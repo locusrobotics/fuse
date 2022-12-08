@@ -176,9 +176,3 @@ TEST(VelocityLinear3DStamped, Serialization)
   EXPECT_EQ(expected.y(), actual.y());
   EXPECT_EQ(expected.z(), actual.z());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

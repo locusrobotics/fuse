@@ -37,7 +37,7 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <ros/node_handle.h>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -126,10 +126,11 @@ private:
  *
  * Will throw if the device_id parameter is not in an expected format.
  *
- * @param[in] node_handle A node handle in the desired parameter namespace
+ * @param[in] interfaces  The node interfaces used to load parameters
  * @return                A device UUID
  */
-fuse_core::UUID loadDeviceId(const ros::NodeHandle& node_handle);
+fuse_core::UUID loadDeviceId(
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces);
 
 }  // namespace fuse_variables
 

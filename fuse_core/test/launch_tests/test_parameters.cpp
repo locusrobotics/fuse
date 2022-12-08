@@ -35,6 +35,7 @@
 
 #include <numeric>
 #include <string>
+#include <thread>
 
 #include <fuse_core/parameter.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -239,6 +240,5 @@ int main(int argc, char ** argv)
   testing::InitGoogleTest(&argc, argv);
   int ret = RUN_ALL_TESTS();
   rclcpp::shutdown();
-
   return ret;
 }

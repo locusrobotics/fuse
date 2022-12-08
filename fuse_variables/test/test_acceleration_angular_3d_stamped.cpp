@@ -176,9 +176,3 @@ TEST(AccelerationAngular3DStamped, Serialization)
   EXPECT_EQ(expected.pitch(), actual.pitch());
   EXPECT_EQ(expected.yaw(), actual.yaw());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
