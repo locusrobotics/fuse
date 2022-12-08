@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/uuid.hpp>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>

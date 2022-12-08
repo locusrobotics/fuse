@@ -36,7 +36,7 @@
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>
-#include <fuse_variables/point_2d_landmark.h>
+#include <fuse_variables/point_2d_landmark.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>

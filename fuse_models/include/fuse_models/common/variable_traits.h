@@ -34,11 +34,11 @@
 #ifndef FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
 #define FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
 
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
-#include <fuse_variables/velocity_angular_2d_stamped.h>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
+#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/velocity_angular_2d_stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
 
 namespace fuse_models

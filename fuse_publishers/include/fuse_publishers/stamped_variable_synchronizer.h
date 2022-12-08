@@ -40,7 +40,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <type_traits>

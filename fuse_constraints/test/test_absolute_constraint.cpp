@@ -36,13 +36,13 @@
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_variables/acceleration_angular_2d_stamped.h>
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
-#include <fuse_variables/position_3d_stamped.h>
-#include <fuse_variables/velocity_angular_2d_stamped.h>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
+#include <fuse_variables/acceleration_angular_2d_stamped.hpp>
+#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/position_3d_stamped.hpp>
+#include <fuse_variables/velocity_angular_2d_stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
 #include <ceres/covariance.h>
 #include <ceres/problem.h>

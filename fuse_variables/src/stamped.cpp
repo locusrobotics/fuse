@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/stamped.hpp>
 
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/parameter.hpp>

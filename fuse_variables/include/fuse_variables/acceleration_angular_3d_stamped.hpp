@@ -31,14 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_VELOCITY_LINEAR_3D_STAMPED_H
-#define FUSE_VARIABLES_VELOCITY_LINEAR_3D_STAMPED_H
+#ifndef FUSE_VARIABLES__ACCELERATION_ANGULAR_3D_STAMPED_HPP_
+#define FUSE_VARIABLES__ACCELERATION_ANGULAR_3D_STAMPED_HPP_
 
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -52,70 +52,71 @@ namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 3D linear velocity (vx, vy, vz) at a specific time, with a specific piece of
- * hardware.
+ * @brief Variable representing a 3D angular acceleration (aroll, apitch, ayaw) at a specific time, with a specific
+ * piece of hardware.
  *
- * This is commonly used to represent a robot's velocity. The UUID of this class is static after construction.
- * As such, the timestamp and device id cannot be modified. The value of the velocity can be modified.
+ * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
+ * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
  */
-class VelocityLinear3DStamped : public FixedSizeVariable<3>, public Stamped
+class AccelerationAngular3DStamped : public FixedSizeVariable<3>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(VelocityLinear3DStamped)
+  FUSE_VARIABLE_DEFINITIONS(AccelerationAngular3DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array
    */
   enum : size_t
   {
-    X = 0,
-    Y = 1,
-    Z = 2
+    ROLL = 0,
+    PITCH = 1,
+    YAW = 2
   };
 
   /**
    * @brief Default constructor
    */
-  VelocityLinear3DStamped() = default;
+  AccelerationAngular3DStamped() = default;
 
   /**
-   * @brief Construct a 3D velocity at a specific point in time.
+   * @brief Construct a 3D angular acceleration at a specific point in time.
    *
-   * @param[in] stamp     The timestamp attached to this velocity.
+   * @param[in] stamp     The timestamp attached to this angular acceleration.
    * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
-   *
    */
-  explicit VelocityLinear3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_ids = fuse_core::uuid::NIL);
+  explicit AccelerationAngular3DStamped(
+    const rclcpp::Time& stamp,
+    const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Read-write access to the X-axis linear velocity.
+   * @brief Read-write access to the roll (X-axis) angular acceleration.
    */
-  double& x() { return data_[X]; }
+  double& roll() { return data_[ROLL]; }
 
   /**
-   * @brief Read-only access to the X-axis linear velocity.
+   * @brief Read-only access to the roll (X-axis) angular acceleration.
    */
-  const double& x() const { return data_[X]; }
+  const double& roll() const { return data_[ROLL]; }
 
   /**
-   * @brief Read-write access to the Y-axis linear velocity.
+   * @brief Read-write access to the pitch (Y-axis) angular acceleration.
    */
-  double& y() { return data_[Y]; }
+  double& pitch() { return data_[PITCH]; }
 
   /**
-   * @brief Read-only access to the Y-axis linear velocity.
+   * @brief Read-only access to the pitch (Y-axis) angular acceleration.
    */
-  const double& y() const { return data_[Y]; }
+  const double& pitch() const { return data_[PITCH]; }
 
   /**
-   * @brief Read-write access to the Z-axis linear velocity.
+   * @brief Read-write access to the yaw (Z-axis) angular acceleration.
    */
-  double& z() { return data_[Z]; }
+  double& yaw() { return data_[YAW]; }
 
   /**
-   * @brief Read-only access to the Z-axis linear velocity.
+   * @brief Read-only access to the yaw (Z-axis) angular acceleration.
    */
-  const double& z() const { return data_[Z]; }
+  const double& yaw() const { return data_[YAW]; }
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
@@ -144,6 +145,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityLinear3DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationAngular3DStamped);
 
-#endif  // FUSE_VARIABLES_VELOCITY_LINEAR_3D_STAMPED_H
+#endif  // FUSE_VARIABLES__ACCELERATION_ANGULAR_3D_STAMPED_HPP_

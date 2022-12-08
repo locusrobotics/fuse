@@ -31,99 +31,92 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_VELOCITY_ANGULAR_3D_STAMPED_H
-#define FUSE_VARIABLES_VELOCITY_ANGULAR_3D_STAMPED_H
+#ifndef FUSE_VARIABLES__FIXED_SIZE_VARIABLE_HPP_
+#define FUSE_VARIABLES__FIXED_SIZE_VARIABLE_HPP_
 
-#include <fuse_core/uuid.hpp>
+#include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#include <boost/serialization/array.hpp>
 
-#include <ostream>
+#include <array>
 
 
 namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 3D angular velocity (vroll, vpitch, vyaw) at a specific time, with a specific piece
- * of hardware.
+ * @brief A Variable base class for fixed-sized variables
  *
- * This is commonly used to represent a robot's velocity. The UUID of this class is static after construction.
- * As such, the timestamp and device ID cannot be modified. The value of the velocity can be modified.
+ * The FixedSizeVariable class implements a statically sized array to hold the scalar values. The size of the variable
+ * is provided as the template argument \p N when creating a derived class. The FixedSizeVariable class implements the
+ * Variable::data() accessor methods, and provides access to the scalar values as a std::array. This allows easier
+ * manipulation in C++ (iterators, range-based for loops, etc.). The FixedSizeVariable class is designed for variables
+ * where the size of the state vector is known at compile time...which should be almost all variable types. The
+ * dimension of typical variable types (points, poses, calibration parameters) are all known at design/compile time.
  */
-class VelocityAngular3DStamped : public FixedSizeVariable<3>, public Stamped
+template <size_t N>
+class FixedSizeVariable : public fuse_core::Variable
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(VelocityAngular3DStamped)
+  FUSE_SMART_PTR_ALIASES_ONLY(FixedSizeVariable<N>)
 
   /**
-   * @brief Can be used to directly index variables in the data array
+   * @brief A static version of the variable size
    */
-  enum : size_t
-  {
-    ROLL = 0,
-    PITCH = 1,
-    YAW = 2
-  };
+  constexpr static size_t SIZE = N;
 
   /**
    * @brief Default constructor
    */
-  VelocityAngular3DStamped() = default;
+  FixedSizeVariable() = default;
 
   /**
-   * @brief Construct a 3D angular velocity at a specific point in time.
+   * @brief Constructor
+   */
+  explicit FixedSizeVariable(const fuse_core::UUID& uuid) :
+    fuse_core::Variable(uuid),
+    data_{}  // zero-initialize the data array
+  {}
+
+  /**
+   * @brief Destructor
+   */
+  virtual ~FixedSizeVariable() = default;
+
+  /**
+   * @brief Returns the number of elements of this variable.
    *
-   * @param[in] stamp     The timestamp attached to this angular velocity.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   * The number of scalar values contained by this variable type is defined by the class template parameter \p N.
    */
-  explicit VelocityAngular3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  size_t size() const override { return N; }
 
   /**
-   * @brief Read-write access to the roll (X-axis) angular velocity.
+   * @brief Read-only access to the variable data
    */
-  double& roll() { return data_[ROLL]; }
+  const double* data() const override { return data_.data(); }
 
   /**
-   * @brief Read-only access to the roll (X-axis) angular velocity.
+   * @brief Read-write access to the variable data
    */
-  const double& roll() const { return data_[ROLL]; }
+  double* data() override { return data_.data(); }
 
   /**
-   * @brief Read-write access to the pitch (Y-axis) angular velocity.
+   * @brief Read-only access to the variable data as a std::array
    */
-  double& pitch() { return data_[PITCH]; }
+  const std::array<double, N>& array() const { return data_; }
 
   /**
-   * @brief Read-only access to the pitch (Y-axis) angular velocity.
+   * @brief Read-write access to the variable data as a std::array
    */
-  const double& pitch() const { return data_[PITCH]; }
+  std::array<double, N>& array() { return data_; }
 
-  /**
-   * @brief Read-write access to the yaw (Z-axis) angular velocity.
-   */
-  double& yaw() { return data_[YAW]; }
+protected:
+  std::array<double, N> data_;  //!< Fixed-sized, contiguous memory for holding the variable data members
 
-  /**
-   * @brief Read-only access to the yaw (Z-axis) angular velocity.
-   */
-  const double& yaw() const { return data_[YAW]; }
-
-  /**
-   * @brief Print a human-readable description of the variable to the provided stream.
-   *
-   * @param[out] stream The stream to write to. Defaults to stdout.
-   */
-  void print(std::ostream& stream = std::cout) const override;
-
-private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -136,13 +129,14 @@ private:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & boost::serialization::base_object<Stamped>(*this);
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
   }
 };
 
+// Define the constant that was declared above
+template <size_t N>
+constexpr size_t FixedSizeVariable<N>::SIZE;
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityAngular3DStamped);
-
-#endif  // FUSE_VARIABLES_VELOCITY_ANGULAR_3D_STAMPED_H
+#endif  // FUSE_VARIABLES__FIXED_SIZE_VARIABLE_HPP_

@@ -33,7 +33,7 @@
  */
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/fixed_size_variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

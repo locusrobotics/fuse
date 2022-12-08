@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/serialization.hpp>
-#include <fuse_variables/position_3d_stamped.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/position_3d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <ceres/autodiff_cost_function.h>

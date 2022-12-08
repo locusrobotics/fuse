@@ -42,12 +42,12 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_models/SetPose.h>
 #include <fuse_models/SetPoseDeprecated.h>
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
-#include <fuse_variables/velocity_angular_2d_stamped.h>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/velocity_angular_2d_stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <pluginlib/class_list_macros.h>

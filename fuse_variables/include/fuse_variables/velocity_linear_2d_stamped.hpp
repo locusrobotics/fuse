@@ -31,14 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_VELOCITY_LINEAR_2D_STAMPED_H
-#define FUSE_VARIABLES_VELOCITY_LINEAR_2D_STAMPED_H
+#ifndef FUSE_VARIABLES__VELOCITY_LINEAR_2D_STAMPED_HPP_
+#define FUSE_VARIABLES__VELOCITY_LINEAR_2D_STAMPED_HPP_
 
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -134,4 +134,4 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityLinear2DStamped);
 
-#endif  // FUSE_VARIABLES_VELOCITY_LINEAR_2D_STAMPED_H
+#endif  // FUSE_VARIABLES__VELOCITY_LINEAR_2D_STAMPED_HPP_

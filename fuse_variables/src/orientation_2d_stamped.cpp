@@ -31,12 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/orientation_2d_stamped.h>
+#include <fuse_variables/orientation_2d_stamped.hpp>
 
 #include <fuse_core/local_parameterization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <fuse_core/time.hpp>
 

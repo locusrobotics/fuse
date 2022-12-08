@@ -31,14 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H
-#define FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H
+#ifndef FUSE_VARIABLES__VELOCITY_ANGULAR_3D_STAMPED_HPP_
+#define FUSE_VARIABLES__VELOCITY_ANGULAR_3D_STAMPED_HPP_
 
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -52,46 +52,67 @@ namespace fuse_variables
 {
 
 /**
- * @brief Variable representing a 2D angular acceleration at a specific time, with a specific piece of hardware.
+ * @brief Variable representing a 3D angular velocity (vroll, vpitch, vyaw) at a specific time, with a specific piece
+ * of hardware.
  *
- * This is commonly used to represent a robot's acceleration. The UUID of this class is constant after construction.
- * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
+ * This is commonly used to represent a robot's velocity. The UUID of this class is static after construction.
+ * As such, the timestamp and device ID cannot be modified. The value of the velocity can be modified.
  */
-class AccelerationAngular2DStamped : public FixedSizeVariable<1>, public Stamped
+class VelocityAngular3DStamped : public FixedSizeVariable<3>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(AccelerationAngular2DStamped)
+  FUSE_VARIABLE_DEFINITIONS(VelocityAngular3DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array
    */
   enum : size_t
   {
-    YAW = 0
+    ROLL = 0,
+    PITCH = 1,
+    YAW = 2
   };
 
   /**
    * @brief Default constructor
    */
-  AccelerationAngular2DStamped() = default;
+  VelocityAngular3DStamped() = default;
 
   /**
-   * @brief Construct a 2D acceleration at a specific point in time.
+   * @brief Construct a 3D angular velocity at a specific point in time.
    *
-   * @param[in] stamp     The timestamp attached to this velocity.
+   * @param[in] stamp     The timestamp attached to this angular velocity.
    * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
-  explicit AccelerationAngular2DStamped(
-    const rclcpp::Time& stamp,
-    const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit VelocityAngular3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Read-write access to the angular acceleration.
+   * @brief Read-write access to the roll (X-axis) angular velocity.
+   */
+  double& roll() { return data_[ROLL]; }
+
+  /**
+   * @brief Read-only access to the roll (X-axis) angular velocity.
+   */
+  const double& roll() const { return data_[ROLL]; }
+
+  /**
+   * @brief Read-write access to the pitch (Y-axis) angular velocity.
+   */
+  double& pitch() { return data_[PITCH]; }
+
+  /**
+   * @brief Read-only access to the pitch (Y-axis) angular velocity.
+   */
+  const double& pitch() const { return data_[PITCH]; }
+
+  /**
+   * @brief Read-write access to the yaw (Z-axis) angular velocity.
    */
   double& yaw() { return data_[YAW]; }
 
   /**
-   * @brief Read-only access to the angular acceleration.
+   * @brief Read-only access to the yaw (Z-axis) angular velocity.
    */
   const double& yaw() const { return data_[YAW]; }
 
@@ -122,6 +143,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationAngular2DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityAngular3DStamped);
 
-#endif  // FUSE_VARIABLES_ACCELERATION_ANGULAR_2D_STAMPED_H
+#endif  // FUSE_VARIABLES__VELOCITY_ANGULAR_3D_STAMPED_HPP_

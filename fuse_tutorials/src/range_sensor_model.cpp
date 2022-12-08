@@ -38,8 +38,8 @@
 #include <fuse_core/sensor_model.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_tutorials/range_constraint.h>
-#include <fuse_variables/point_2d_landmark.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/point_2d_landmark.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>

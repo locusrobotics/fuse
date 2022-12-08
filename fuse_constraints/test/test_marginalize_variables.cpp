@@ -43,7 +43,7 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.h>
-#include <fuse_variables/orientation_3d_stamped.h>
+#include <fuse_variables/orientation_3d_stamped.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

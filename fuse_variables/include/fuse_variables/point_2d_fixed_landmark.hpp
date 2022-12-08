@@ -31,12 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_POINT_3D_FIXED_LANDMARK_H
-#define FUSE_VARIABLES_POINT_3D_FIXED_LANDMARK_H
+#ifndef FUSE_VARIABLES__POINT_2D_FIXED_LANDMARK_HPP_
+#define FUSE_VARIABLES__POINT_2D_FIXED_LANDMARK_HPP_
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_variables/fixed_size_variable.h>
+#include <fuse_variables/fixed_size_variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -47,16 +47,16 @@
 namespace fuse_variables
 {
 /**
- * @brief Variable representing a 3D point landmark that exists across time.
+ * @brief Variable representing a 2D point landmark that exists across time.
  *
  * This is commonly used to represent locations of visual features. The UUID of this class is constant after
  * construction and dependent on a user input database id. As such, the database id cannot be altered after
  * construction.
  */
-class Point3DFixedLandmark : public FixedSizeVariable<3>
+class Point2DFixedLandmark : public FixedSizeVariable<2>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Point3DFixedLandmark)
+  FUSE_VARIABLE_DEFINITIONS(Point2DFixedLandmark)
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -64,21 +64,20 @@ public:
   enum : size_t
   {
     X = 0,
-    Y = 1,
-    Z = 2
+    Y = 1
   };
 
   /**
    * @brief Default constructor
    */
-  Point3DFixedLandmark() = default;
+  Point2DFixedLandmark() = default;
 
   /**
-   * @brief Construct a point 3D variable given a landmarks id
+   * @brief Construct a point 2D variable given a landmarks id
    *
    * @param[in] landmark_id  The id associated to a landmark
    */
-  explicit Point3DFixedLandmark(const uint64_t& landmark_id);
+  explicit Point2DFixedLandmark(const uint64_t& landmark_id);
 
   /**
    * @brief Read-write access to the X-axis position.
@@ -99,16 +98,6 @@ public:
    * @brief Read-only access to the Y-axis position.
    */
   const double& y() const { return data_[Y]; }
-
-  /**
-   * @brief Read-write access to the Z-axis position.
-   */
-  double& z() { return data_[Z]; }
-
-  /**
-   * @brief Read-only access to the Z-axis position.
-   */
-  const double& z() const { return data_[Z]; }
 
   /**
    * @brief Read-only access to the id
@@ -152,6 +141,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Point3DFixedLandmark);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Point2DFixedLandmark);
 
-#endif  // FUSE_VARIABLES_POINT_3D_FIXED_LANDMARK_H
+#endif  // FUSE_VARIABLES__POINT_2D_FIXED_LANDMARK_HPP_

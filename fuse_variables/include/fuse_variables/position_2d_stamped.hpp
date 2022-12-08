@@ -31,92 +31,88 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
-#define FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
+#ifndef FUSE_VARIABLES__POSITION_2D_STAMPED_HPP_
+#define FUSE_VARIABLES__POSITION_2D_STAMPED_HPP_
 
-#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/variable.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/array.hpp>
+#include <boost/serialization/export.hpp>
 
-#include <array>
+#include <ostream>
 
 
 namespace fuse_variables
 {
 
 /**
- * @brief A Variable base class for fixed-sized variables
+ * @brief Variable representing a 2D position (x, y) at a specific time, with a specific piece of hardware.
  *
- * The FixedSizeVariable class implements a statically sized array to hold the scalar values. The size of the variable
- * is provided as the template argument \p N when creating a derived class. The FixedSizeVariable class implements the
- * Variable::data() accessor methods, and provides access to the scalar values as a std::array. This allows easier
- * manipulation in C++ (iterators, range-based for loops, etc.). The FixedSizeVariable class is designed for variables
- * where the size of the state vector is known at compile time...which should be almost all variable types. The
- * dimension of typical variable types (points, poses, calibration parameters) are all known at design/compile time.
+ * This is commonly used to represent a robot's position within a map. The UUID of this class is static after
+ * construction. As such, the timestamp and device id cannot be modified. The value of the position can be modified.
  */
-template <size_t N>
-class FixedSizeVariable : public fuse_core::Variable
+class Position2DStamped : public FixedSizeVariable<2>, public Stamped
 {
 public:
-  FUSE_SMART_PTR_ALIASES_ONLY(FixedSizeVariable<N>)
+  FUSE_VARIABLE_DEFINITIONS(Position2DStamped)
 
   /**
-   * @brief A static version of the variable size
+   * @brief Can be used to directly index variables in the data array
    */
-  constexpr static size_t SIZE = N;
+  enum : size_t
+  {
+    X = 0,
+    Y = 1
+  };
 
   /**
    * @brief Default constructor
    */
-  FixedSizeVariable() = default;
+  Position2DStamped() = default;
 
   /**
-   * @brief Constructor
-   */
-  explicit FixedSizeVariable(const fuse_core::UUID& uuid) :
-    fuse_core::Variable(uuid),
-    data_{}  // zero-initialize the data array
-  {}
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~FixedSizeVariable() = default;
-
-  /**
-   * @brief Returns the number of elements of this variable.
+   * @brief Construct a 2D position at a specific point in time.
    *
-   * The number of scalar values contained by this variable type is defined by the class template parameter \p N.
+   * @param[in] stamp     The timestamp attached to this position.
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   *
    */
-  size_t size() const override { return N; }
+  explicit Position2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Read-only access to the variable data
+   * @brief Read-write access to the X-axis position.
    */
-  const double* data() const override { return data_.data(); }
+  double& x() { return data_[X]; }
 
   /**
-   * @brief Read-write access to the variable data
+   * @brief Read-only access to the X-axis position.
    */
-  double* data() override { return data_.data(); }
+  const double& x() const { return data_[X]; }
 
   /**
-   * @brief Read-only access to the variable data as a std::array
+   * @brief Read-write access to the Y-axis position.
    */
-  const std::array<double, N>& array() const { return data_; }
+  double& y() { return data_[Y]; }
 
   /**
-   * @brief Read-write access to the variable data as a std::array
+   * @brief Read-only access to the Y-axis position.
    */
-  std::array<double, N>& array() { return data_; }
+  const double& y() const { return data_[Y]; }
 
-protected:
-  std::array<double, N> data_;  //!< Fixed-sized, contiguous memory for holding the variable data members
+  /**
+   * @brief Print a human-readable description of the variable to the provided stream.
+   *
+   * @param[out] stream The stream to write to. Defaults to stdout.
+   */
+  void print(std::ostream& stream = std::cout) const override;
 
+private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
@@ -129,14 +125,13 @@ protected:
   template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive & boost::serialization::base_object<Stamped>(*this);
   }
 };
 
-// Define the constant that was declared above
-template <size_t N>
-constexpr size_t FixedSizeVariable<N>::SIZE;
 }  // namespace fuse_variables
 
-#endif  // FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Position2DStamped);
+
+#endif  // FUSE_VARIABLES__POSITION_2D_STAMPED_HPP_

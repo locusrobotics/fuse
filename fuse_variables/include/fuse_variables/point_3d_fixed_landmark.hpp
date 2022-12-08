@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2021, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H
-#define FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H
+#ifndef FUSE_VARIABLES__POINT_3D_FIXED_LANDMARK_HPP_
+#define FUSE_VARIABLES__POINT_3D_FIXED_LANDMARK_HPP_
 
-#include <fuse_core/uuid.hpp>
+#include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -47,20 +44,19 @@
 
 #include <ostream>
 
-
 namespace fuse_variables
 {
-
 /**
- * @brief Variable representing a 2D linear acceleration (ax, ay) at a specific time, with a specific piece of hardware.
+ * @brief Variable representing a 3D point landmark that exists across time.
  *
- * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
- * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
+ * This is commonly used to represent locations of visual features. The UUID of this class is constant after
+ * construction and dependent on a user input database id. As such, the database id cannot be altered after
+ * construction.
  */
-class AccelerationLinear2DStamped : public FixedSizeVariable<2>, public Stamped
+class Point3DFixedLandmark : public FixedSizeVariable<3>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(AccelerationLinear2DStamped)
+  FUSE_VARIABLE_DEFINITIONS(Point3DFixedLandmark)
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -68,71 +64,94 @@ public:
   enum : size_t
   {
     X = 0,
-    Y = 1
+    Y = 1,
+    Z = 2
   };
 
   /**
    * @brief Default constructor
    */
-  AccelerationLinear2DStamped() = default;
+  Point3DFixedLandmark() = default;
 
   /**
-   * @brief Construct a 2D acceleration at a specific point in time.
+   * @brief Construct a point 3D variable given a landmarks id
    *
-   * @param[in] stamp     The timestamp attached to this acceleration.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   * @param[in] landmark_id  The id associated to a landmark
    */
-  explicit AccelerationLinear2DStamped(
-    const rclcpp::Time& stamp,
-    const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit Point3DFixedLandmark(const uint64_t& landmark_id);
 
   /**
-   * @brief Read-write access to the X-axis linear acceleration.
+   * @brief Read-write access to the X-axis position.
    */
   double& x() { return data_[X]; }
 
   /**
-   * @brief Read-only access to the X-axis linear acceleration.
+   * @brief Read-only access to the X-axis position.
    */
   const double& x() const { return data_[X]; }
 
   /**
-   * @brief Read-write access to the Y-axis linear acceleration.
+   * @brief Read-write access to the Y-axis position.
    */
   double& y() { return data_[Y]; }
 
   /**
-   * @brief Read-only access to the Y-axis linear acceleration.
+   * @brief Read-only access to the Y-axis position.
    */
   const double& y() const { return data_[Y]; }
 
   /**
-   * @brief Print a human-readable description of the variable to the provided stream.
+   * @brief Read-write access to the Z-axis position.
+   */
+  double& z() { return data_[Z]; }
+
+  /**
+   * @brief Read-only access to the Z-axis position.
+   */
+  const double& z() const { return data_[Z]; }
+
+  /**
+   * @brief Read-only access to the id
+   */
+  const uint64_t& id() const { return id_; }
+
+  /**
+   * @brief Print a human-readable description of the variable to the provided
+   * stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
 
+  /**
+   * @brief Specifies if the value of the variable should not be changed during optimization
+   */
+  bool holdConstant() const override;
+
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
+  uint64_t id_ { 0 };
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members
+   * in to/out of the archive
    *
-   * @param[in/out] archive - The archive object that holds the serialized class members
-   * @param[in] version - The version of the archive being read/written. Generally unused.
+   * @param[in/out] archive - The archive object that holds the serialized class
+   * members
+   * @param[in] version - The version of the archive being read/written.
+   * Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & boost::serialization::base_object<Stamped>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& id_;
   }
 };
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationLinear2DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Point3DFixedLandmark);
 
-#endif  // FUSE_VARIABLES_ACCELERATION_LINEAR_2D_STAMPED_H
+#endif  // FUSE_VARIABLES__POINT_3D_FIXED_LANDMARK_HPP_

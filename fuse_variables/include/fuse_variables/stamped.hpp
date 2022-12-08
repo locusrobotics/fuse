@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_STAMPED_H
-#define FUSE_VARIABLES_STAMPED_H
+#ifndef FUSE_VARIABLES__STAMPED_HPP_
+#define FUSE_VARIABLES__STAMPED_HPP_
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
@@ -134,4 +134,4 @@ fuse_core::UUID loadDeviceId(
 
 }  // namespace fuse_variables
 
-#endif  // FUSE_VARIABLES_STAMPED_H
+#endif  // FUSE_VARIABLES__STAMPED_HPP_

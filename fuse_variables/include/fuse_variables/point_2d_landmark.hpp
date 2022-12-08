@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2021, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_POSITION_3D_STAMPED_H
-#define FUSE_VARIABLES_POSITION_3D_STAMPED_H
+#ifndef FUSE_VARIABLES__POINT_2D_LANDMARK_HPP_
+#define FUSE_VARIABLES__POINT_2D_LANDMARK_HPP_
 
-#include <fuse_core/uuid.hpp>
+#include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -47,22 +44,19 @@
 
 #include <ostream>
 
-
 namespace fuse_variables
 {
-
 /**
- * @brief Variable representing a 3D position (x, y, z) at a specific time and for a specific piece of hardware
- * (e.g., robot)
+ * @brief Variable representing a 2D point landmark that exists across time.
  *
- * This is commonly used to represent a robot position in single or multi-robot systems. The UUID of this class is
- * static after construction. As such, the timestamp and device ID cannot be modified. The value of the position
- * can be modified.
+ * This is commonly used to represent locations of visual features. The UUID of this class is constant after
+ * construction and dependent on a user input database id. As such, the database id cannot be altered after
+ * construction.
  */
-class Position3DStamped : public FixedSizeVariable<3>, public Stamped
+class Point2DLandmark : public FixedSizeVariable<2>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Position3DStamped)
+  FUSE_VARIABLE_DEFINITIONS(Point2DLandmark)
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -70,22 +64,20 @@ public:
   enum : size_t
   {
     X = 0,
-    Y = 1,
-    Z = 2
+    Y = 1
   };
 
   /**
    * @brief Default constructor
    */
-  Position3DStamped() = default;
+  Point2DLandmark() = default;
 
   /**
-   * @brief Construct a 3D position at a specific point in time.
+   * @brief Construct a point 2D variable given a landmarks id
    *
-   * @param[in] stamp     The timestamp attached to this position.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
+   * @param[in] landmark_id  The id associated to a landmark
    */
-  explicit Position3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID &device_id = fuse_core::uuid::NIL);
+  explicit Point2DLandmark(const uint64_t& landmark_id);
 
   /**
    * @brief Read-write access to the X-axis position.
@@ -108,42 +100,42 @@ public:
   const double& y() const { return data_[Y]; }
 
   /**
-   * @brief Read-write access to the Z-axis position.
+   * @brief Read-only access to the id
    */
-  double& z() { return data_[Z]; }
+  const uint64_t& id() const { return id_; }
 
   /**
-   * @brief Read-only access to the Z-axis position.
-   */
-  const double& z() const { return data_[Z]; }
-
-  /**
-   * @brief Print a human-readable description of the variable to the provided stream.
+   * @brief Print a human-readable description of the variable to the provided
+   * stream.
    *
-   * @param  stream The stream to write to. Defaults to stdout.
+   * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
 
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
+  uint64_t id_ { 0 };
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members
+   * in to/out of the archive
    *
-   * @param[in/out] archive - The archive object that holds the serialized class members
-   * @param[in] version - The version of the archive being read/written. Generally unused.
+   * @param[in/out] archive - The archive object that holds the serialized class
+   * members
+   * @param[in] version - The version of the archive being read/written.
+   * Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & boost::serialization::base_object<Stamped>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& id_;
   }
 };
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Position3DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Point2DLandmark);
 
-#endif  // FUSE_VARIABLES_POSITION_3D_STAMPED_H
+#endif  // FUSE_VARIABLES__POINT_2D_LANDMARK_HPP_

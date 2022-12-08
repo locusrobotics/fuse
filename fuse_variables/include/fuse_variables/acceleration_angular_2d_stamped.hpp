@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021, Locus Robotics
+ *  Copyright (c) 2018, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_POINT_2D_LANDMARK_H
-#define FUSE_VARIABLES_POINT_2D_LANDMARK_H
+#ifndef FUSE_VARIABLES__ACCELERATION_ANGULAR_2D_STAMPED_HPP_
+#define FUSE_VARIABLES__ACCELERATION_ANGULAR_2D_STAMPED_HPP_
 
-#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_variables/fixed_size_variable.h>
+#include <fuse_core/variable.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -44,69 +47,56 @@
 
 #include <ostream>
 
+
 namespace fuse_variables
 {
+
 /**
- * @brief Variable representing a 2D point landmark that exists across time.
+ * @brief Variable representing a 2D angular acceleration at a specific time, with a specific piece of hardware.
  *
- * This is commonly used to represent locations of visual features. The UUID of this class is constant after
- * construction and dependent on a user input database id. As such, the database id cannot be altered after
- * construction.
+ * This is commonly used to represent a robot's acceleration. The UUID of this class is constant after construction.
+ * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
  */
-class Point2DLandmark : public FixedSizeVariable<2>
+class AccelerationAngular2DStamped : public FixedSizeVariable<1>, public Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(Point2DLandmark)
+  FUSE_VARIABLE_DEFINITIONS(AccelerationAngular2DStamped)
 
   /**
    * @brief Can be used to directly index variables in the data array
    */
   enum : size_t
   {
-    X = 0,
-    Y = 1
+    YAW = 0
   };
 
   /**
    * @brief Default constructor
    */
-  Point2DLandmark() = default;
+  AccelerationAngular2DStamped() = default;
 
   /**
-   * @brief Construct a point 2D variable given a landmarks id
+   * @brief Construct a 2D acceleration at a specific point in time.
    *
-   * @param[in] landmark_id  The id associated to a landmark
+   * @param[in] stamp     The timestamp attached to this velocity.
+   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
    */
-  explicit Point2DLandmark(const uint64_t& landmark_id);
+  explicit AccelerationAngular2DStamped(
+    const rclcpp::Time& stamp,
+    const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Read-write access to the X-axis position.
+   * @brief Read-write access to the angular acceleration.
    */
-  double& x() { return data_[X]; }
+  double& yaw() { return data_[YAW]; }
 
   /**
-   * @brief Read-only access to the X-axis position.
+   * @brief Read-only access to the angular acceleration.
    */
-  const double& x() const { return data_[X]; }
+  const double& yaw() const { return data_[YAW]; }
 
   /**
-   * @brief Read-write access to the Y-axis position.
-   */
-  double& y() { return data_[Y]; }
-
-  /**
-   * @brief Read-only access to the Y-axis position.
-   */
-  const double& y() const { return data_[Y]; }
-
-  /**
-   * @brief Read-only access to the id
-   */
-  const uint64_t& id() const { return id_; }
-
-  /**
-   * @brief Print a human-readable description of the variable to the provided
-   * stream.
+   * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
@@ -115,27 +105,23 @@ public:
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
-  uint64_t id_ { 0 };
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members
-   * in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
    *
-   * @param[in/out] archive - The archive object that holds the serialized class
-   * members
-   * @param[in] version - The version of the archive being read/written.
-   * Generally unused.
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template <class Archive>
+  template<class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive& id_;
+    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive & boost::serialization::base_object<Stamped>(*this);
   }
 };
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::Point2DLandmark);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationAngular2DStamped);
 
-#endif  // FUSE_VARIABLES_POINT_2D_LANDMARK_H
+#endif  // FUSE_VARIABLES__ACCELERATION_ANGULAR_2D_STAMPED_HPP_

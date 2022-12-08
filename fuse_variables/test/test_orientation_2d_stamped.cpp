@@ -34,8 +34,8 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/autodiff_local_parameterization.hpp>
 #include <fuse_core/util.hpp>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/stamped.h>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <ceres/autodiff_cost_function.h>
