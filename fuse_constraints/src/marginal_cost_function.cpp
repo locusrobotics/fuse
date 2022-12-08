@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_cost_function.h>
+#include <fuse_constraints/marginal_cost_function.hpp>
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/local_parameterization.hpp>

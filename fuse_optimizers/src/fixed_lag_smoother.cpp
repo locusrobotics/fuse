@@ -33,7 +33,7 @@
  */
 #include <fuse_optimizers/fixed_lag_smoother.h>
 
-#include <fuse_constraints/marginalize_variables.h>
+#include <fuse_constraints/marginalize_variables.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>

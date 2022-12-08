@@ -34,8 +34,8 @@
 #ifndef FUSE_CONSTRAINTS_MARGINALIZE_VARIABLES_H
 #define FUSE_CONSTRAINTS_MARGINALIZE_VARIABLES_H
 
-#include <fuse_constraints/marginal_constraint.h>
-#include <fuse_constraints/uuid_ordering.h>
+#include <fuse_constraints/marginal_constraint.hpp>
+#include <fuse_constraints/uuid_ordering.hpp>
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/graph.hpp>

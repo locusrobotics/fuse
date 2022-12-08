@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.h>
+#include <fuse_constraints/marginal_constraint.hpp>
 
-#include <fuse_constraints/marginal_cost_function.h>
+#include <fuse_constraints/marginal_cost_function.hpp>
 #include <fuse_core/constraint.hpp>
 #include <pluginlib/class_list_macros.hpp>
 

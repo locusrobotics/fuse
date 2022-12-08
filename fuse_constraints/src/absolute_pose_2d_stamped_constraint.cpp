@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
+#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 
-#include <fuse_constraints/normal_prior_pose_2d.h>
+#include <fuse_constraints/normal_prior_pose_2d.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>

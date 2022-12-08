@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_delta_pose_2d.h>
-#include <fuse_constraints/normal_delta_pose_2d_cost_functor.h>
+#include <fuse_constraints/normal_delta_pose_2d.hpp>
+#include <fuse_constraints/normal_delta_pose_2d_cost_functor.hpp>
 
 #include <benchmark/benchmark.h>
 

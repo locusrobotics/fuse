@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
-#include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
+#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
+#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>

@@ -33,7 +33,7 @@
  */
 #include <fuse_models/unicycle_2d_ignition.h>
 
-#include <fuse_constraints/absolute_constraint.h>
+#include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/sensor_model.hpp>

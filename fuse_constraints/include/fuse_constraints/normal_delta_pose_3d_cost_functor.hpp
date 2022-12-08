@@ -34,7 +34,7 @@
 #ifndef FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_3D_COST_FUNCTOR_H
 #define FUSE_CONSTRAINTS_NORMAL_DELTA_POSE_3D_COST_FUNCTOR_H
 
-#include <fuse_constraints/normal_delta_orientation_3d_cost_functor.h>
+#include <fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>

@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_prior_orientation_2d.h>
+#include <fuse_constraints/normal_prior_orientation_2d.hpp>
 
 #include <fuse_core/util.hpp>
 

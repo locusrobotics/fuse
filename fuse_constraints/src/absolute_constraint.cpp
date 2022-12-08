@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_constraint.h>
+#include <fuse_constraints/absolute_constraint.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 

@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.h>
-#include <fuse_constraints/marginalize_variables.h>
-#include <fuse_constraints/uuid_ordering.h>
-#include <fuse_constraints/variable_constraints.h>
+#include <fuse_constraints/marginal_constraint.hpp>
+#include <fuse_constraints/marginalize_variables.hpp>
+#include <fuse_constraints/uuid_ordering.hpp>
+#include <fuse_constraints/variable_constraints.hpp>
 #include <fuse_core/uuid.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>

@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_prior_pose_2d.h>
-#include <fuse_constraints/normal_prior_pose_2d_cost_functor.h>
+#include <fuse_constraints/normal_prior_pose_2d.hpp>
+#include <fuse_constraints/normal_prior_pose_2d_cost_functor.hpp>
 
-#include "cost_function_gtest.h"
+#include "cost_function_gtest.hpp"
 
 #include <gtest/gtest.h>
 #include <fuse_core/eigen_gtest.hpp>

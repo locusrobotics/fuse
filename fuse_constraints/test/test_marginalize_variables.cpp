@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_orientation_3d_stamped_constraint.h>
-#include <fuse_constraints/marginalize_variables.h>
-#include <fuse_constraints/relative_orientation_3d_stamped_constraint.h>
-#include <fuse_constraints/uuid_ordering.h>
+#include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
+#include <fuse_constraints/marginalize_variables.hpp>
+#include <fuse_constraints/relative_orientation_3d_stamped_constraint.hpp>
+#include <fuse_constraints/uuid_ordering.hpp>
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
