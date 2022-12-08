@@ -309,9 +309,3 @@ TEST(AbsolutePose2DStampedConstraint, Serialization)
   EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

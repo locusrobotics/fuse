@@ -725,9 +725,3 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
     EXPECT_NEAR(expected_x3_cov[i], actual_x3_cov[i], 1.0e-3);
   }
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

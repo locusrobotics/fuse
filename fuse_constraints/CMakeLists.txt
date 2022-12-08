@@ -11,7 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(fuse_core REQUIRED)
 find_package(fuse_graphs REQUIRED)
 find_package(fuse_variables REQUIRED)
@@ -31,7 +31,7 @@ include(suitesparse-extras.cmake)
 ###########
 
 # fuse_constraints library
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   src/absolute_constraint.cpp
   src/absolute_orientation_3d_stamped_constraint.cpp
   src/absolute_orientation_3d_stamped_euler_constraint.cpp
@@ -95,21 +95,11 @@ install(DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
 
-install(
-  FILES fuse_plugins.xml
-  DESTINATION share/${PROJECT_NAME}
-)
+pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 
-find_package(ament_cmake REQUIRED)
-find_package(fuse_core REQUIRED)
-find_package(fuse_graphs REQUIRED)
-find_package(fuse_variables REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(pluginlib REQUIRED)
-find_package(rclcpp REQUIRED)
-
+ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
 ament_export_dependencies(
-  ament_cmake
+  ament_cmake_ros
   fuse_core
   fuse_graphs
   fuse_variables
