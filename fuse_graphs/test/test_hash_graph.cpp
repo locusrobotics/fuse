@@ -1018,9 +1018,3 @@ TEST_F(HashGraphTestFixture, GetConstraintCosts)
   ASSERT_EQ(costs[1].residuals.size(), 1u);
   EXPECT_NEAR(costs[1].residuals[0], 1.0, 1.0e-5);
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

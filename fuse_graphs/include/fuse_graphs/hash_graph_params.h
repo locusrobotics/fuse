@@ -35,7 +35,7 @@
 #define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 
 #include <fuse_core/ceres_options.hpp>
-#include <ros/node_handle.h>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 
 #include <ceres/problem.h>
 
@@ -59,11 +59,13 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+   * @param[in] interfaces - The node interfaces with which to load parameters
    */
-  void loadFromROS(const ros::NodeHandle& nh)
+  void loadFromROS(fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Parameters
+  > interfaces)
   {
-    fuse_core::loadProblemOptionsFromROS(ros::NodeHandle(nh, "problem_options"), problem_options);
+    fuse_core::loadProblemOptionsFromROS(interfaces, problem_options, "problem_options");
   }
 };
 
