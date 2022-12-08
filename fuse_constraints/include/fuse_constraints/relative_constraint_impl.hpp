@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_RELATIVE_CONSTRAINT_IMPL_H
-#define FUSE_CONSTRAINTS_RELATIVE_CONSTRAINT_IMPL_H
+#ifndef FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_IMPL_HPP_
+#define FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_IMPL_HPP_
 
 #include <fuse_constraints/normal_delta.hpp>
 #include <fuse_constraints/normal_delta_orientation_2d.hpp>
@@ -189,4 +189,4 @@ inline std::string RelativeConstraint<fuse_variables::VelocityLinear2DStamped>::
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS_RELATIVE_CONSTRAINT_IMPL_H
+#endif  // FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_IMPL_HPP_

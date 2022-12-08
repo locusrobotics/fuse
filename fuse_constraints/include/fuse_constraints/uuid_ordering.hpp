@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_UUID_ORDERING_H
-#define FUSE_CONSTRAINTS_UUID_ORDERING_H
+#ifndef FUSE_CONSTRAINTS__UUID_ORDERING_HPP_
+#define FUSE_CONSTRAINTS__UUID_ORDERING_HPP_
 
 #include <fuse_core/uuid.hpp>
 
@@ -165,4 +165,4 @@ UuidOrdering::UuidOrdering(UuidConstIterator first, UuidConstIterator last)
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS_UUID_ORDERING_H
+#endif  // FUSE_CONSTRAINTS__UUID_ORDERING_HPP_

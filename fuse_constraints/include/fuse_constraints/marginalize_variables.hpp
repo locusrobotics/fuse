@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_MARGINALIZE_VARIABLES_H
-#define FUSE_CONSTRAINTS_MARGINALIZE_VARIABLES_H
+#ifndef FUSE_CONSTRAINTS__MARGINALIZE_VARIABLES_HPP_
+#define FUSE_CONSTRAINTS__MARGINALIZE_VARIABLES_HPP_
 
 #include <fuse_constraints/marginal_constraint.hpp>
 #include <fuse_constraints/uuid_ordering.hpp>
@@ -196,4 +196,4 @@ MarginalConstraint::SharedPtr createMarginalConstraint(
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS_MARGINALIZE_VARIABLES_H
+#endif  // FUSE_CONSTRAINTS__MARGINALIZE_VARIABLES_HPP_

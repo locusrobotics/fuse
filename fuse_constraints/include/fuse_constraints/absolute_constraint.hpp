@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H
-#define FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H
+#ifndef FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_HPP_
+#define FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_HPP_
 
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
@@ -218,4 +218,4 @@ BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition3DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
 
-#endif  // FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H
+#endif  // FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_HPP_

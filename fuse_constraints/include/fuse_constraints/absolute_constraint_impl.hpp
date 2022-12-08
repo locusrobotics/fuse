@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_IMPL_H
-#define FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_IMPL_H
+#ifndef FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_IMPL_HPP_
+#define FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_IMPL_HPP_
 
 #include <fuse_constraints/normal_prior_orientation_2d.hpp>
 
@@ -185,4 +185,4 @@ inline std::string AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>::
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_IMPL_H
+#endif  // FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_IMPL_HPP_

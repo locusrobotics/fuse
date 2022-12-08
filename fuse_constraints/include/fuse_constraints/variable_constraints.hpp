@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_VARIABLE_CONSTRAINTS_H
-#define FUSE_CONSTRAINTS_VARIABLE_CONSTRAINTS_H
+#ifndef FUSE_CONSTRAINTS__VARIABLE_CONSTRAINTS_HPP_
+#define FUSE_CONSTRAINTS__VARIABLE_CONSTRAINTS_HPP_
 
 #include <algorithm>
 #include <initializer_list>
@@ -149,4 +149,4 @@ std::ostream & operator<<(std::ostream & stream, const VariableConstraints & var
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS_VARIABLE_CONSTRAINTS_H
+#endif  // FUSE_CONSTRAINTS__VARIABLE_CONSTRAINTS_HPP_

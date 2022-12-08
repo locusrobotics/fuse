@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_TEST_COST_FUNTION_GTEST_H  // NOLINT{build/header_guard}
-#define FUSE_CONSTRAINTS_TEST_COST_FUNTION_GTEST_H  // NOLINT{build/header_guard}
+#ifndef FUSE_CONSTRAINTS__TEST_COST_FUNTION_GTEST_HPP_  // NOLINT{build/header_guard}
+#define FUSE_CONSTRAINTS__TEST_COST_FUNTION_GTEST_HPP_  // NOLINT{build/header_guard}
 
 #include <gtest/gtest.h>
 
@@ -119,4 +119,4 @@ static void ExpectCostFunctionsAreEqual(
   }
 }
 
-#endif  // FUSE_CONSTRAINTS_TEST_COST_FUNTION_GTEST_H  // NOLINT{build/header_guard}
+#endif  // FUSE_CONSTRAINTS__TEST_COST_FUNTION_GTEST_HPP_  // NOLINT{build/header_guard}
