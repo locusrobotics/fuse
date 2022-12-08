@@ -46,10 +46,24 @@ BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePosition3DStampedConstrai
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeVelocityAngular2DStampedConstraint);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeVelocityLinear2DStampedConstraint);
 
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint, fuse_core::Constraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint, fuse_core::Constraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativeOrientation2DStampedConstraint, fuse_core::Constraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePosition2DStampedConstraint, fuse_core::Constraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePosition3DStampedConstraint, fuse_core::Constraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativeVelocityAngular2DStampedConstraint, fuse_core::Constraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativeVelocityLinear2DStampedConstraint, fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint,
+  fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativeAccelerationLinear2DStampedConstraint,
+  fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativeOrientation2DStampedConstraint,
+  fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativePosition2DStampedConstraint,
+  fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativePosition3DStampedConstraint,
+  fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativeVelocityAngular2DStampedConstraint,
+  fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativeVelocityLinear2DStampedConstraint,
+  fuse_core::Constraint);

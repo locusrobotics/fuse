@@ -48,14 +48,14 @@ namespace fuse_constraints
 
 template<class Variable>
 RelativeConstraint<Variable>::RelativeConstraint(
-  const std::string& source,
-  const Variable& variable1,
-  const Variable& variable2,
-  const fuse_core::VectorXd& delta,
-  const fuse_core::MatrixXd& covariance) :
-    fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()}),  // NOLINT(whitespace/braces)
-    delta_(delta),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+  const std::string & source,
+  const Variable & variable1,
+  const Variable & variable2,
+  const fuse_core::VectorXd & delta,
+  const fuse_core::MatrixXd & covariance)
+: fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()}),    // NOLINT(whitespace/braces)
+  delta_(delta),
+  sqrt_information_(covariance.inverse().llt().matrixU())
 {
   assert(variable1.size() == variable2.size());
   assert(delta.rows() == static_cast<int>(variable1.size()));
@@ -65,13 +65,13 @@ RelativeConstraint<Variable>::RelativeConstraint(
 
 template<class Variable>
 RelativeConstraint<Variable>::RelativeConstraint(
-  const std::string& source,
-  const Variable& variable1,
-  const Variable& variable2,
-  const fuse_core::VectorXd& partial_delta,
-  const fuse_core::MatrixXd& partial_covariance,
-  const std::vector<size_t>& indices) :
-    fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()})  // NOLINT(whitespace/braces)
+  const std::string & source,
+  const Variable & variable1,
+  const Variable & variable2,
+  const fuse_core::VectorXd & partial_delta,
+  const fuse_core::MatrixXd & partial_covariance,
+  const std::vector<size_t> & indices)
+: fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()})    // NOLINT(whitespace/braces)
 {
   assert(variable1.size() == variable2.size());
   assert(partial_delta.rows() == static_cast<int>(indices.size()));
@@ -88,8 +88,7 @@ RelativeConstraint<Variable>::RelativeConstraint(
   // defined by the variable.
   delta_ = fuse_core::VectorXd::Zero(variable1.size());
   sqrt_information_ = fuse_core::MatrixXd::Zero(indices.size(), variable1.size());
-  for (size_t i = 0; i < indices.size(); ++i)
-  {
+  for (size_t i = 0; i < indices.size(); ++i) {
     delta_(indices[i]) = partial_delta(i);
     sqrt_information_.col(indices[i]) = partial_sqrt_information.col(i);
   }
@@ -111,7 +110,7 @@ fuse_core::MatrixXd RelativeConstraint<Variable>::covariance() const
 }
 
 template<class Variable>
-void RelativeConstraint<Variable>::print(std::ostream& stream) const
+void RelativeConstraint<Variable>::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -121,15 +120,14 @@ void RelativeConstraint<Variable>::print(std::ostream& stream) const
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss())
-  {
+  if (loss()) {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
 template<class Variable>
-ceres::CostFunction* RelativeConstraint<Variable>::costFunction() const
+ceres::CostFunction * RelativeConstraint<Variable>::costFunction() const
 {
   // Create a Gaussian/Normal Delta constraint
   return new fuse_constraints::NormalDelta(sqrt_information_, delta_);
@@ -137,7 +135,8 @@ ceres::CostFunction* RelativeConstraint<Variable>::costFunction() const
 
 // Specialization for Orientation2D
 template<>
-inline ceres::CostFunction* RelativeConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
+inline ceres::CostFunction * RelativeConstraint<fuse_variables::Orientation2DStamped>::costFunction()
+const
 {
   // Create a Gaussian/Normal Delta constraint
   return new NormalDeltaOrientation2D(sqrt_information_(0, 0), delta_(0));

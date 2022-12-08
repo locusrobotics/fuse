@@ -79,18 +79,18 @@ public:
    * @param[in] b The orientation measurement or prior in order (w, x, y, z)
    */
   NormalPriorOrientation3DCostFunctor(
-    const fuse_core::Matrix3d& A,
-    const fuse_core::Vector4d& b) :
-      A_(A),
-      b_(b)
+    const fuse_core::Matrix3d & A,
+    const fuse_core::Vector4d & b)
+  : A_(A),
+    b_(b)
   {
   }
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
-  template <typename T>
-  bool operator()(const T* const orientation, T* residuals) const
+  template<typename T>
+  bool operator()(const T * const orientation, T * residuals) const
   {
     using fuse_variables::Orientation3DStamped;
 

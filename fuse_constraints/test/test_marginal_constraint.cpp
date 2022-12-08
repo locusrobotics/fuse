@@ -77,10 +77,10 @@ TEST(MarginalConstraint, OneVariable)
   x1.y() = 6.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = {x1.data()};
+  std::vector<const double *> variable_values = {x1.data()};
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
-  std::vector<double*> actual_jacobians = {actual_jacobian1.data()};
+  std::vector<double *> actual_jacobians = {actual_jacobian1.data()};
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -139,11 +139,11 @@ TEST(MarginalConstraint, TwoVariables)
   x2.y() = 18.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = {x1.data(), x2.data()};
+  std::vector<const double *> variable_values = {x1.data(), x2.data()};
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
   fuse_core::MatrixXd actual_jacobian2(1, 2);
-  std::vector<double*> actual_jacobians = {actual_jacobian1.data(), actual_jacobian2.data()};
+  std::vector<double *> actual_jacobians = {actual_jacobian1.data(), actual_jacobian2.data()};
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -197,10 +197,10 @@ TEST(MarginalConstraint, LocalParameterization)
   x1.z() = 0.526043;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = {x1.data()};
+  std::vector<const double *> variable_values = {x1.data()};
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 4);
-  std::vector<double*> actual_jacobians = {actual_jacobian1.data()};
+  std::vector<double *> actual_jacobians = {actual_jacobian1.data()};
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -269,9 +269,9 @@ TEST(MarginalConstraint, Serialization)
   // The shared ptrs will not be the same instances, but they should point to the same types
   using ExpectedLocalParam = fuse_variables::Orientation3DLocalParameterization;
   ASSERT_EQ(expected.localParameterizations().size(), actual.localParameterizations().size());
-  for (auto i = 0u; i < actual.localParameterizations().size(); ++i)
-  {
-    auto actual_derived = std::dynamic_pointer_cast<ExpectedLocalParam>(actual.localParameterizations()[i]);
+  for (auto i = 0u; i < actual.localParameterizations().size(); ++i) {
+    auto actual_derived = std::dynamic_pointer_cast<ExpectedLocalParam>(
+      actual.localParameterizations()[i]);
     EXPECT_TRUE(static_cast<bool>(actual_derived));
   }
 }

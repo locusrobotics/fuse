@@ -47,18 +47,18 @@ namespace fuse_constraints
 {
 
 RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
-  const std::string& source,
-  const fuse_variables::Position2DStamped& position1,
-  const fuse_variables::Orientation2DStamped& orientation1,
-  const fuse_variables::Position2DStamped& position2,
-  const fuse_variables::Orientation2DStamped& orientation2,
-  const fuse_core::VectorXd& partial_delta,
-  const fuse_core::MatrixXd& partial_covariance,
-  const std::vector<size_t>& linear_indices,
-  const std::vector<size_t>& angular_indices) :
-    fuse_core::Constraint(
-      source,
-      {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})  // NOLINT(whitespace/braces)
+  const std::string & source,
+  const fuse_variables::Position2DStamped & position1,
+  const fuse_variables::Orientation2DStamped & orientation1,
+  const fuse_variables::Position2DStamped & position2,
+  const fuse_variables::Orientation2DStamped & orientation2,
+  const fuse_core::VectorXd & partial_delta,
+  const fuse_core::MatrixXd & partial_covariance,
+  const std::vector<size_t> & linear_indices,
+  const std::vector<size_t> & angular_indices)
+: fuse_core::Constraint(
+    source,
+    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})    // NOLINT(whitespace/braces)
 {
   size_t total_variable_size = position1.size() + orientation1.size();
   size_t total_indices = linear_indices.size() + angular_indices.size();
@@ -80,14 +80,12 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   delta_ = fuse_core::Vector3d::Zero();
   sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices, total_variable_size);
 
-  for (size_t i = 0; i < linear_indices.size(); ++i)
-  {
+  for (size_t i = 0; i < linear_indices.size(); ++i) {
     delta_(linear_indices[i]) = partial_delta(i);
     sqrt_information_.col(linear_indices[i]) = partial_sqrt_information.col(i);
   }
 
-  for (size_t i = linear_indices.size(); i < total_indices; ++i)
-  {
+  for (size_t i = linear_indices.size(); i < total_indices; ++i) {
     size_t final_index = position1.size() + angular_indices[i - linear_indices.size()];
     delta_(final_index) = partial_delta(i);
     sqrt_information_.col(final_index) = partial_sqrt_information.col(i);
@@ -108,7 +106,7 @@ fuse_core::Matrix3d RelativePose2DStampedConstraint::covariance() const
   return pinv * pinv.transpose();
 }
 
-void RelativePose2DStampedConstraint::print(std::ostream& stream) const
+void RelativePose2DStampedConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -120,14 +118,13 @@ void RelativePose2DStampedConstraint::print(std::ostream& stream) const
          << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss())
-  {
+  if (loss()) {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-ceres::CostFunction* RelativePose2DStampedConstraint::costFunction() const
+ceres::CostFunction * RelativePose2DStampedConstraint::costFunction() const
 {
   return new NormalDeltaPose2D(sqrt_information_, delta_);
 }

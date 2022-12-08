@@ -35,7 +35,8 @@
 #ifndef FUSE_CONSTRAINTS__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_H_
 #define FUSE_CONSTRAINTS__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_H_
 
-#warning This header is obsolete, please include fuse_constraints/relative_pose_2d_stamped_constraint.hpp instead
+#warning \
+  This header is obsolete, please include fuse_constraints/relative_pose_2d_stamped_constraint.hpp instead
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 

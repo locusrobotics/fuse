@@ -35,7 +35,8 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_3D_COST_FUNCTOR_H_
 #define FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_3D_COST_FUNCTOR_H_
 
-#warning This header is obsolete, please include fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp instead
+#warning \
+  This header is obsolete, please include fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp instead
 
 #include <fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp>
 

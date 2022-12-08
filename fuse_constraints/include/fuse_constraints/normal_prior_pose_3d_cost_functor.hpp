@@ -77,13 +77,13 @@ public:
    *              (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
-  NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
+  NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
-  template <typename T>
-  bool operator()(const T* const position, const T* const orientation, T* residual) const;
+  template<typename T>
+  bool operator()(const T * const position, const T * const orientation, T * residual) const;
 
 private:
   fuse_core::Matrix6d A_;
@@ -92,15 +92,19 @@ private:
   NormalPriorOrientation3DCostFunctor orientation_functor_;
 };
 
-NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
-  A_(A),
+NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(
+  const fuse_core::Matrix6d & A,
+  const fuse_core::Vector7d & b)
+: A_(A),
   b_(b),
   orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
 {
 }
 
-template <typename T>
-bool NormalPriorPose3DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
+template<typename T>
+bool NormalPriorPose3DCostFunctor::operator()(
+  const T * const position, const T * const orientation,
+  T * residual) const
 {
   // Compute the position error
   residual[0] = position[0] - T(b_(0));

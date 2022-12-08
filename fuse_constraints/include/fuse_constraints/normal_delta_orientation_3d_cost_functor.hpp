@@ -78,24 +78,24 @@ public:
    * @param[in] b The measured change between the two orientation variables
    */
   NormalDeltaOrientation3DCostFunctor(
-    const fuse_core::Matrix3d& A,
-    const fuse_core::Vector4d& b) :
-      A_(A),
-      b_(b)
+    const fuse_core::Matrix3d & A,
+    const fuse_core::Vector4d & b)
+  : A_(A),
+    b_(b)
   {
   }
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
-  template <typename T>
-  bool operator()(const T* const orientation1, const T* const orientation2, T* residuals) const
+  template<typename T>
+  bool operator()(const T * const orientation1, const T * const orientation2, T * residuals) const
   {
     using fuse_variables::Orientation3DStamped;
 
     T orientation1_inverse[4] =
     {
-       orientation1[0],
+      orientation1[0],
       -orientation1[1],
       -orientation1[2],
       -orientation1[3]

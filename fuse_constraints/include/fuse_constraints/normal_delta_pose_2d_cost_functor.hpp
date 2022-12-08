@@ -83,44 +83,47 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
    * @param[in] b The exposed pose difference in order (x, y, yaw)
    */
-  NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
+  NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
    */
-  template <typename T>
+  template<typename T>
   bool operator()(
-    const T* const position1,
-    const T* const orientation1,
-    const T* const position2,
-    const T* const orientation2,
-    T* residual) const;
+    const T * const position1,
+    const T * const orientation1,
+    const T * const position2,
+    const T * const orientation2,
+    T * residual) const;
 
 private:
   fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
   fuse_core::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
 };
 
-NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) :
-  A_(A),
+NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(
+  const fuse_core::MatrixXd & A,
+  const fuse_core::Vector3d & b)
+: A_(A),
   b_(b)
 {
 }
 
-template <typename T>
+template<typename T>
 bool NormalDeltaPose2DCostFunctor::operator()(
-  const T* const position1,
-  const T* const orientation1,
-  const T* const position2,
-  const T* const orientation2,
-  T* residual) const
+  const T * const position1,
+  const T * const orientation1,
+  const T * const position2,
+  const T * const orientation2,
+  T * residual) const
 {
   Eigen::Map<const Eigen::Matrix<T, 2, 1>> position1_vector(position1);
   Eigen::Map<const Eigen::Matrix<T, 2, 1>> position2_vector(position2);
   Eigen::Matrix<T, 3, 1> full_residuals_vector;
 
   full_residuals_vector.template head<2>() =
-    fuse_core::rotationMatrix2D(orientation1[0]).transpose() * (position2_vector - position1_vector) -
+    fuse_core::rotationMatrix2D(orientation1[0]).transpose() *
+    (position2_vector - position1_vector) -
     b_.head<2>().template cast<T>();
   full_residuals_vector(2) = fuse_core::wrapAngle2D(orientation2[0] - orientation1[0] - T(b_(2)));
 

@@ -81,16 +81,16 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
    * @param[in] b The exposed pose difference in order (x, y, yaw)
    */
-  NormalDeltaPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
+  NormalDeltaPose2D(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b);
 
   /**
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
    * values
    */
   virtual bool Evaluate(
-    double const* const* parameters,
-    double* residuals,
-    double** jacobians) const;
+    double const * const * parameters,
+    double * residuals,
+    double ** jacobians) const;
 
 private:
   fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix

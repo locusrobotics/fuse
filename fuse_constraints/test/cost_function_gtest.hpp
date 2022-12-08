@@ -50,25 +50,25 @@
  * @param[in] actual_cost_function The actual cost function
  * @param[in] tolerance The tolerance to use when comparing the cost functions are equal. Defaults to 1e-18
  */
-static void ExpectCostFunctionsAreEqual(const ceres::CostFunction& cost_function,
-                                        const ceres::CostFunction& actual_cost_function, double tolerance = 1e-18)
+static void ExpectCostFunctionsAreEqual(
+  const ceres::CostFunction & cost_function,
+  const ceres::CostFunction & actual_cost_function, double tolerance = 1e-18)
 {
   EXPECT_EQ(cost_function.num_residuals(), actual_cost_function.num_residuals());
   const size_t num_residuals = cost_function.num_residuals();
-  const std::vector<int32_t>& parameter_block_sizes = cost_function.parameter_block_sizes();
-  const std::vector<int32_t>& actual_parameter_block_sizes = actual_cost_function.parameter_block_sizes();
+  const std::vector<int32_t> & parameter_block_sizes = cost_function.parameter_block_sizes();
+  const std::vector<int32_t> & actual_parameter_block_sizes =
+    actual_cost_function.parameter_block_sizes();
   EXPECT_EQ(parameter_block_sizes.size(), actual_parameter_block_sizes.size());
 
   size_t num_parameters = 0;
-  for (size_t i = 0; i < parameter_block_sizes.size(); ++i)
-  {
+  for (size_t i = 0; i < parameter_block_sizes.size(); ++i) {
     EXPECT_EQ(parameter_block_sizes[i], actual_parameter_block_sizes[i]);
     num_parameters += parameter_block_sizes[i];
   }
 
   std::unique_ptr<double[]> parameters(new double[num_parameters]);
-  for (size_t i = 0; i < num_parameters; ++i)
-  {
+  for (size_t i = 0; i < num_parameters; ++i) {
     parameters[i] = static_cast<double>(i) + 1.0;
   }
 
@@ -78,13 +78,12 @@ static void ExpectCostFunctionsAreEqual(const ceres::CostFunction& cost_function
   std::unique_ptr<double[]> actual_residuals(new double[num_residuals]);
   std::unique_ptr<double[]> actual_jacobians(new double[num_parameters * num_residuals]);
 
-  std::unique_ptr<double* []> parameter_blocks(new double*[parameter_block_sizes.size()]);
-  std::unique_ptr<double* []> jacobian_blocks(new double*[parameter_block_sizes.size()]);
-  std::unique_ptr<double* []> actual_jacobian_blocks(new double*[parameter_block_sizes.size()]);
+  std::unique_ptr<double *[]> parameter_blocks(new double *[parameter_block_sizes.size()]);
+  std::unique_ptr<double *[]> jacobian_blocks(new double *[parameter_block_sizes.size()]);
+  std::unique_ptr<double *[]> actual_jacobian_blocks(new double *[parameter_block_sizes.size()]);
 
   num_parameters = 0;
-  for (size_t i = 0; i < parameter_block_sizes.size(); ++i)
-  {
+  for (size_t i = 0; i < parameter_block_sizes.size(); ++i) {
     parameter_blocks[i] = parameters.get() + num_parameters;
     jacobian_blocks[i] = jacobians.get() + num_parameters * num_residuals;
     actual_jacobian_blocks[i] = actual_jacobians.get() + num_parameters * num_residuals;
@@ -92,24 +91,29 @@ static void ExpectCostFunctionsAreEqual(const ceres::CostFunction& cost_function
   }
 
   EXPECT_TRUE(cost_function.Evaluate(parameter_blocks.get(), residuals.get(), nullptr));
-  EXPECT_TRUE(actual_cost_function.Evaluate(parameter_blocks.get(), actual_residuals.get(), nullptr));
-  for (size_t i = 0; i < num_residuals; ++i)
-  {
+  EXPECT_TRUE(
+    actual_cost_function.Evaluate(
+      parameter_blocks.get(), actual_residuals.get(),
+      nullptr));
+  for (size_t i = 0; i < num_residuals; ++i) {
     EXPECT_NEAR(residuals[i], actual_residuals[i], tolerance) << "residual id: " << i;
   }
 
-  EXPECT_TRUE(cost_function.Evaluate(parameter_blocks.get(), residuals.get(), jacobian_blocks.get()));
   EXPECT_TRUE(
-      actual_cost_function.Evaluate(parameter_blocks.get(), actual_residuals.get(), actual_jacobian_blocks.get()));
-  for (size_t i = 0; i < num_residuals; ++i)
-  {
+    cost_function.Evaluate(
+      parameter_blocks.get(), residuals.get(),
+      jacobian_blocks.get()));
+  EXPECT_TRUE(
+    actual_cost_function.Evaluate(
+      parameter_blocks.get(), actual_residuals.get(),
+      actual_jacobian_blocks.get()));
+  for (size_t i = 0; i < num_residuals; ++i) {
     EXPECT_NEAR(residuals[i], actual_residuals[i], tolerance) << "residual : " << i;
   }
 
-  for (size_t i = 0; i < num_residuals * num_parameters; ++i)
-  {
+  for (size_t i = 0; i < num_residuals * num_parameters; ++i) {
     EXPECT_NEAR(jacobians[i], actual_jacobians[i], tolerance)
-        << "jacobian : " << i << " " << jacobians[i] << " " << actual_jacobians[i];
+      << "jacobian : " << i << " " << jacobians[i] << " " << actual_jacobians[i];
   }
 }
 

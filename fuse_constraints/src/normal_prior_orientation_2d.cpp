@@ -39,24 +39,23 @@
 namespace fuse_constraints
 {
 
-NormalPriorOrientation2D::NormalPriorOrientation2D(const double A, const double b) :
-  A_(A),
+NormalPriorOrientation2D::NormalPriorOrientation2D(const double A, const double b)
+: A_(A),
   b_(b)
 {
 }
 
 bool NormalPriorOrientation2D::Evaluate(
-  double const* const* parameters,
-  double* residuals,
-  double** jacobians) const
+  double const * const * parameters,
+  double * residuals,
+  double ** jacobians) const
 {
   // The following lines should read as
   // r = A_ * (x - b_);
   // The wrap function handles the 2_pi wrap around issue with rotations
   double angle_diff = fuse_core::wrapAngle2D(parameters[0][0] - b_);
   residuals[0] = A_ * angle_diff;
-  if ((jacobians != nullptr) && (jacobians[0] != nullptr))
-  {
+  if ((jacobians != nullptr) && (jacobians[0] != nullptr)) {
     jacobians[0][0] = A_;
   }
   return true;

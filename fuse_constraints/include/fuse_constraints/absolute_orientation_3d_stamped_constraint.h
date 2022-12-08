@@ -35,7 +35,8 @@
 #ifndef FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_CONSTRAINT_H_
 #define FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_CONSTRAINT_H_
 
-#warning This header is obsolete, please include fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp instead
+#warning \
+  This header is obsolete, please include fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp instead
 
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
 

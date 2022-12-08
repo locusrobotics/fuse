@@ -55,31 +55,38 @@ using fuse_constraints::AbsolutePose2DStampedConstraint;
 TEST(AbsolutePose2DStampedConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
-  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678),
+    fuse_core::uuid::generate("walle"));
   Position2DStamped position_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
   EXPECT_NO_THROW(
-    AbsolutePose2DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov));
+    AbsolutePose2DStampedConstraint constraint(
+      "test", position_variable, orientation_variable,
+      mean, cov));
 }
 
 TEST(AbsolutePose2DStampedConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
-  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("mo"));
+  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate(
+      "mo"));
   Position2DStamped position_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  AbsolutePose2DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov);
+  AbsolutePose2DStampedConstraint constraint("test", position_variable, orientation_variable, mean,
+    cov);
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix3d expected_sqrt_info;
+  /* *INDENT-OFF* */
   expected_sqrt_info <<  1.008395589795798, -0.040950074712520, -0.063131365181801,
                          0.000000000000000,  0.712470499879096, -0.071247049987910,
                          0.000000000000000,  0.000000000000000,  0.577350269189626;
+  /* *INDENT-ON* */
   fuse_core::Matrix3d expected_cov = cov;
   // Compare
   EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
@@ -90,9 +97,11 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
-  auto orientation_variable = Orientation2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto orientation_variable = Orientation2DStamped::make_shared(
+    rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->yaw() = 0.8;
-  auto position_variable = Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto position_variable = Position2DStamped::make_shared(
+    rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
   position_variable->y() = -3.0;
   // Create an absolute pose constraint
@@ -118,7 +127,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
     position_variable->data(),
     position_variable->size(),
     position_variable->localParameterization());
-  std::vector<double*> parameter_blocks;
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
   problem.AddResidualBlock(
@@ -134,7 +143,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   EXPECT_NEAR(2.0, position_variable->y(), 1.0e-5);
   EXPECT_NEAR(3.0, orientation_variable->yaw(), 1.0e-5);
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double *, const double *>> covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
   covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
@@ -142,11 +151,18 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
   std::vector<double> covariance_vector1(position_variable->size() * position_variable->size());
-  covariance.GetCovarianceBlock(position_variable->data(), position_variable->data(), covariance_vector1.data());
+  covariance.GetCovarianceBlock(
+    position_variable->data(),
+    position_variable->data(), covariance_vector1.data());
   std::vector<double> covariance_vector2(position_variable->size() * orientation_variable->size());
-  covariance.GetCovarianceBlock(position_variable->data(), orientation_variable->data(), covariance_vector2.data());
-  std::vector<double> covariance_vector3(orientation_variable->size() * orientation_variable->size());
-  covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), covariance_vector3.data());
+  covariance.GetCovarianceBlock(
+    position_variable->data(),
+    orientation_variable->data(), covariance_vector2.data());
+  std::vector<double> covariance_vector3(orientation_variable->size() *
+    orientation_variable->size());
+  covariance.GetCovarianceBlock(
+    orientation_variable->data(),
+    orientation_variable->data(), covariance_vector3.data());
   // Assemble the full covariance from the covariance blocks
   fuse_core::Matrix3d actual_covariance;
   actual_covariance(0, 0) = covariance_vector1[0];
@@ -166,9 +182,11 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
-  auto orientation_variable = Orientation2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto orientation_variable = Orientation2DStamped::make_shared(
+    rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation_variable->yaw() = 0.8;
-  auto position_variable = Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto position_variable = Position2DStamped::make_shared(
+    rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
   position_variable->y() = -3.0;
 
@@ -217,7 +235,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
     orientation_variable->size(),
     orientation_variable->localParameterization());
 
-  std::vector<double*> parameter_blocks;
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
   problem.AddResidualBlock(
@@ -240,7 +258,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   EXPECT_NEAR(3.0, orientation_variable->yaw(), 1.0e-5);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double *, const double *>> covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
   covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
@@ -248,11 +266,18 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
   std::vector<double> covariance_vector1(position_variable->size() * position_variable->size());
-  covariance.GetCovarianceBlock(position_variable->data(), position_variable->data(), covariance_vector1.data());
+  covariance.GetCovarianceBlock(
+    position_variable->data(),
+    position_variable->data(), covariance_vector1.data());
   std::vector<double> covariance_vector2(position_variable->size() * orientation_variable->size());
-  covariance.GetCovarianceBlock(position_variable->data(), orientation_variable->data(), covariance_vector2.data());
-  std::vector<double> covariance_vector3(orientation_variable->size() * orientation_variable->size());
-  covariance.GetCovarianceBlock(orientation_variable->data(), orientation_variable->data(), covariance_vector3.data());
+  covariance.GetCovarianceBlock(
+    position_variable->data(),
+    orientation_variable->data(), covariance_vector2.data());
+  std::vector<double> covariance_vector3(orientation_variable->size() *
+    orientation_variable->size());
+  covariance.GetCovarianceBlock(
+    orientation_variable->data(),
+    orientation_variable->data(), covariance_vector3.data());
 
   // Assemble the full covariance from the covariance blocks
   fuse_core::Matrix3d actual_covariance;
@@ -281,13 +306,15 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
 TEST(AbsolutePose2DStampedConstraint, Serialization)
 {
   // Construct a constraint
-  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
+  Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678),
+    fuse_core::uuid::generate("walle"));
   Position2DStamped position_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   fuse_core::Vector3d mean;
   mean << 1.0, 2.0, 3.0;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-  AbsolutePose2DStampedConstraint expected("test", position_variable, orientation_variable, mean, cov);
+  AbsolutePose2DStampedConstraint expected("test", position_variable, orientation_variable, mean,
+    cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

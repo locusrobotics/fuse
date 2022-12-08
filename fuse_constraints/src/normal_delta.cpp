@@ -40,8 +40,8 @@
 namespace fuse_constraints
 {
 
-NormalDelta::NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b) :
-  A_(A),
+NormalDelta::NormalDelta(const fuse_core::MatrixXd & A, const fuse_core::VectorXd & b)
+: A_(A),
   b_(b)
 {
   CHECK_GT(b_.rows(), 0);
@@ -53,23 +53,24 @@ NormalDelta::NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd
 }
 
 bool NormalDelta::Evaluate(
-  double const* const* parameters,
-  double* residuals,
-  double** jacobians) const
+  double const * const * parameters,
+  double * residuals,
+  double ** jacobians) const
 {
   Eigen::Map<const fuse_core::VectorXd> x0(parameters[0], parameter_block_sizes()[0]);
   Eigen::Map<const fuse_core::VectorXd> x1(parameters[1], parameter_block_sizes()[1]);
   Eigen::Map<fuse_core::VectorXd> r(residuals, num_residuals());
   r = A_ * (x1 - x0 - b_);
-  if (jacobians != nullptr)
-  {
-    if (jacobians[0] != nullptr)
-    {
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), parameter_block_sizes()[0]) = -A_;
+  if (jacobians != nullptr) {
+    if (jacobians[0] != nullptr) {
+      Eigen::Map<fuse_core::MatrixXd>(
+        jacobians[0], num_residuals(),
+        parameter_block_sizes()[0]) = -A_;
     }
-    if (jacobians[1] != nullptr)
-    {
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), parameter_block_sizes()[1]) = A_;
+    if (jacobians[1] != nullptr) {
+      Eigen::Map<fuse_core::MatrixXd>(
+        jacobians[1], num_residuals(),
+        parameter_block_sizes()[1]) = A_;
     }
   }
   return true;

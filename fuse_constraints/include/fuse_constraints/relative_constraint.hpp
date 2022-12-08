@@ -92,11 +92,11 @@ public:
    * @param[in] covariance The measurement uncertainty
    */
   RelativeConstraint(
-    const std::string& source,
-    const Variable& variable1,
-    const Variable& variable2,
-    const fuse_core::VectorXd& delta,
-    const fuse_core::MatrixXd& covariance);
+    const std::string & source,
+    const Variable & variable1,
+    const Variable & variable2,
+    const fuse_core::VectorXd & delta,
+    const fuse_core::MatrixXd & covariance);
 
   /**
    * @brief Constructor
@@ -111,12 +111,12 @@ public:
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
   RelativeConstraint(
-    const std::string& source,
-    const Variable& variable1,
-    const Variable& variable2,
-    const fuse_core::VectorXd& delta,
-    const fuse_core::MatrixXd& covariance,
-    const std::vector<size_t>& indices);
+    const std::string & source,
+    const Variable & variable1,
+    const Variable & variable2,
+    const fuse_core::VectorXd & delta,
+    const fuse_core::MatrixXd & covariance,
+    const std::vector<size_t> & indices);
 
   /**
    * @brief Destructor
@@ -130,7 +130,7 @@ public:
    * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
    * are set to zero.
    */
-  const fuse_core::VectorXd& delta() const { return delta_; }
+  const fuse_core::VectorXd & delta() const {return delta_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -139,7 +139,7 @@ public:
    * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
    * of dimensions are measured, then this matrix will not be square.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -156,7 +156,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -167,7 +167,7 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction* costFunction() const override;
+  ceres::CostFunction * costFunction() const override;
 
 protected:
   fuse_core::VectorXd delta_;  //!< The measured change between the two variables
@@ -184,7 +184,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & delta_;
@@ -193,13 +193,18 @@ private:
 };
 
 // Define unique names for the different variations of the absolute constraint
-using RelativeAccelerationAngular2DStampedConstraint = RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>;
-using RelativeAccelerationLinear2DStampedConstraint = RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>;
-using RelativeOrientation2DStampedConstraint = RelativeConstraint<fuse_variables::Orientation2DStamped>;
+using RelativeAccelerationAngular2DStampedConstraint =
+  RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>;
+using RelativeAccelerationLinear2DStampedConstraint =
+  RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>;
+using RelativeOrientation2DStampedConstraint =
+  RelativeConstraint<fuse_variables::Orientation2DStamped>;
 using RelativePosition2DStampedConstraint = RelativeConstraint<fuse_variables::Position2DStamped>;
 using RelativePosition3DStampedConstraint = RelativeConstraint<fuse_variables::Position3DStamped>;
-using RelativeVelocityAngular2DStampedConstraint = RelativeConstraint<fuse_variables::VelocityAngular2DStamped>;
-using RelativeVelocityLinear2DStampedConstraint = RelativeConstraint<fuse_variables::VelocityLinear2DStamped>;
+using RelativeVelocityAngular2DStampedConstraint =
+  RelativeConstraint<fuse_variables::VelocityAngular2DStamped>;
+using RelativeVelocityLinear2DStampedConstraint =
+  RelativeConstraint<fuse_variables::VelocityLinear2DStamped>;
 }  // namespace fuse_constraints
 
 // Include the template implementation

@@ -35,7 +35,8 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_2D_H_
 #define FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_2D_H_
 
-#warning This header is obsolete, please include fuse_constraints/normal_delta_orientation_2d.hpp instead
+#warning \
+  This header is obsolete, please include fuse_constraints/normal_delta_orientation_2d.hpp instead
 
 #include <fuse_constraints/normal_delta_orientation_2d.hpp>
 

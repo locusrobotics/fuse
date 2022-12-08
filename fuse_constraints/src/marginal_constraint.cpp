@@ -46,32 +46,29 @@
 namespace fuse_constraints
 {
 
-void MarginalConstraint::print(std::ostream& stream) const
+void MarginalConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable:\n";
-  for (const auto& variable : variables())
-  {
+  for (const auto & variable : variables()) {
     stream << "   - " << variable << "\n";
   }
   Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A().size(); ++i)
-  {
+  for (size_t i = 0; i < A().size(); ++i) {
     stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
            << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
   }
   stream << "  b:\n" << b().format(indent) << "\n";
 
-  if (loss())
-  {
+  if (loss()) {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-ceres::CostFunction* MarginalConstraint::costFunction() const
+ceres::CostFunction * MarginalConstraint::costFunction() const
 {
   return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
 }

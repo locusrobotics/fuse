@@ -81,9 +81,9 @@ public:
    *        values
    */
   virtual bool Evaluate(
-    double const* const* parameters,
-    double* residuals,
-    double** jacobians) const;
+    double const * const * parameters,
+    double * residuals,
+    double ** jacobians) const;
 
 private:
   double A_;  //!< The residual weighting matrix, most likely the square root information matrix

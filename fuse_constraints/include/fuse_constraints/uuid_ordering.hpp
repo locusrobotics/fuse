@@ -86,7 +86,7 @@ public:
    * @param[in] first Iterator pointing to the first UUID to add to the ordering
    * @param[in] last  Iterator pointing to one past the last UUID to add to the ordering
    */
-  template <typename UuidConstIterator>
+  template<typename UuidConstIterator>
   UuidOrdering(UuidConstIterator first, UuidConstIterator last);
 
   /**
@@ -109,7 +109,7 @@ public:
   /**
    * @brief Return true if the UUID exists in the ordering
    */
-  bool exists(const fuse_core::UUID& uuid) const;
+  bool exists(const fuse_core::UUID & uuid) const;
 
   /**
    * @brief Add a new UUID to the back of the ordering
@@ -119,47 +119,46 @@ public:
    * @param[in] uuid The UUID to insert
    * @return True if the UUID was inserted, false if the UUID already existed
    */
-  bool push_back(const fuse_core::UUID& uuid);
+  bool push_back(const fuse_core::UUID & uuid);
 
   /**
    * @brief Access the UUID stored at the provided index
    *
    * Accessing an index that does not exist results in undefined behavior
    */
-  const fuse_core::UUID& operator[](const unsigned int index) const;
+  const fuse_core::UUID & operator[](const unsigned int index) const;
 
   /**
    * @brief Access the index associated with the provided UUID
    *
    * Accessing a UUID that does not exist results in the provided UUID being added to the ordering
    */
-  unsigned int operator[](const fuse_core::UUID& uuid);
+  unsigned int operator[](const fuse_core::UUID & uuid);
 
   /**
    * @brief Access the UUID stored at the provided index
    *
    * If the requested index does not exist, an out_of_range exception will be thrown.
    */
-  const fuse_core::UUID& at(const unsigned int index) const;
+  const fuse_core::UUID & at(const unsigned int index) const;
 
   /**
    * @brief Access the index associated with the provided UUID
    *
    * If the requested UUID does not exist, an out_of_range exception will be thrown.
    */
-  unsigned int at(const fuse_core::UUID& uuid) const;
+  unsigned int at(const fuse_core::UUID & uuid) const;
 
 private:
   using UuidOrderMapping = boost::bimaps::bimap<boost::bimaps::vector_of<unsigned int>,
-                                                boost::bimaps::unordered_set_of<fuse_core::UUID>>;
+      boost::bimaps::unordered_set_of<fuse_core::UUID>>;
   UuidOrderMapping order_;  //!< Collection that contains the Index<-->UUID mapping
 };
 
-template <typename UuidConstIterator>
+template<typename UuidConstIterator>
 UuidOrdering::UuidOrdering(UuidConstIterator first, UuidConstIterator last)
 {
-  for (; first != last; ++first)
-  {
+  for (; first != last; ++first) {
     order_.insert(order_.end(), UuidOrderMapping::value_type(order_.size(), *first));
   }
 }

@@ -87,11 +87,11 @@ public:
    *                        e.g. "{ Euler::ROLL, EULER::YAW }"
    */
   AbsoluteOrientation3DStampedEulerConstraint(
-    const std::string& source,
-    const fuse_variables::Orientation3DStamped& orientation,
-    const fuse_core::VectorXd& mean,
-    const fuse_core::MatrixXd& covariance,
-    const std::vector<Euler> &axes);
+    const std::string & source,
+    const fuse_variables::Orientation3DStamped & orientation,
+    const fuse_core::VectorXd & mean,
+    const fuse_core::MatrixXd & covariance,
+    const std::vector<Euler> & axes);
 
   /**
    * @brief Destructor
@@ -102,7 +102,7 @@ public:
    * @brief Read-only access to the vector that dictates the order of the Euler axes in the \p mean, \p covariance, and
    *        \p sqrtInformation.
    */
-  const std::vector<Euler> axes() const { return axes_; }
+  const std::vector<Euler> axes() const {return axes_;}
 
   /**
    * @brief Read-only access to the measured/prior vector of mean values.
@@ -110,7 +110,7 @@ public:
    * Order is defined by the provided \p axes parameter. This mean() function deviates from all other
    * currently implemented constraints in that the order does _not_ match the order defined in the variable.
    */
-  const fuse_core::VectorXd& mean() const { return mean_; }
+  const fuse_core::VectorXd & mean() const {return mean_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -118,7 +118,7 @@ public:
    * Order is defined by the provided \p axes parameter. This sqrtInformation() function deviates from all other
    * currently implemented constraints in that the order does _not_ match the order defined in the variable.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -133,7 +133,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -144,7 +144,7 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction* costFunction() const override;
+  ceres::CostFunction * costFunction() const override;
 
 protected:
   fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
@@ -162,7 +162,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & mean_;

@@ -84,13 +84,13 @@ public:
    * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, dqx, dqy, dqz)
    */
   RelativePose3DStampedConstraint(
-    const std::string& source,
-    const fuse_variables::Position3DStamped& position1,
-    const fuse_variables::Orientation3DStamped& orientation1,
-    const fuse_variables::Position3DStamped& position2,
-    const fuse_variables::Orientation3DStamped& orientation2,
-    const fuse_core::Vector7d& delta,
-    const fuse_core::Matrix6d& covariance);
+    const std::string & source,
+    const fuse_variables::Position3DStamped & position1,
+    const fuse_variables::Orientation3DStamped & orientation1,
+    const fuse_variables::Position3DStamped & position2,
+    const fuse_variables::Orientation3DStamped & orientation2,
+    const fuse_core::Vector7d & delta,
+    const fuse_core::Matrix6d & covariance);
 
   /**
    * @brief Destructor
@@ -100,24 +100,27 @@ public:
   /**
    * @brief Read-only access to the measured pose change.
    */
-  const fuse_core::Vector7d& delta() const { return delta_; }
+  const fuse_core::Vector7d & delta() const {return delta_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
    */
-  const fuse_core::Matrix6d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::Matrix6d & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    */
-  fuse_core::Matrix6d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
+  fuse_core::Matrix6d covariance() const
+  {
+    return (sqrt_information_.transpose() * sqrt_information_).inverse();
+  }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
   /**
    * @brief Access the cost function for this constraint
@@ -128,7 +131,7 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction* costFunction() const override;
+  ceres::CostFunction * costFunction() const override;
 
 protected:
   fuse_core::Vector7d delta_;  //!< The measured pose change (dx, dy, dz, dqw, dqx, dqy, dqz)
@@ -145,7 +148,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & delta_;

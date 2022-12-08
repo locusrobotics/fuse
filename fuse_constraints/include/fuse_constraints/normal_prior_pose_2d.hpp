@@ -76,7 +76,7 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order (x, y, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, yaw)
    */
-  NormalPriorPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
+  NormalPriorPose2D(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b);
 
   /**
    * @brief Destructor
@@ -88,9 +88,9 @@ public:
    *        values
    */
   virtual bool Evaluate(
-    double const* const* parameters,
-    double* residuals,
-    double** jacobians) const;
+    double const * const * parameters,
+    double * residuals,
+    double ** jacobians) const;
 
 private:
   fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix

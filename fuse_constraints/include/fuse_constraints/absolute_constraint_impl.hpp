@@ -48,13 +48,13 @@ namespace fuse_constraints
 
 template<class Variable>
 AbsoluteConstraint<Variable>::AbsoluteConstraint(
-  const std::string& source,
-  const Variable& variable,
-  const fuse_core::VectorXd& mean,
-  const fuse_core::MatrixXd& covariance) :
-    fuse_core::Constraint(source, {variable.uuid()}),  // NOLINT(whitespace/braces)
-    mean_(mean),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+  const std::string & source,
+  const Variable & variable,
+  const fuse_core::VectorXd & mean,
+  const fuse_core::MatrixXd & covariance)
+: fuse_core::Constraint(source, {variable.uuid()}),    // NOLINT(whitespace/braces)
+  mean_(mean),
+  sqrt_information_(covariance.inverse().llt().matrixU())
 {
   assert(mean.rows() == static_cast<int>(variable.size()));
   assert(covariance.rows() == static_cast<int>(variable.size()));
@@ -63,12 +63,12 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
 
 template<class Variable>
 AbsoluteConstraint<Variable>::AbsoluteConstraint(
-  const std::string& source,
-  const Variable& variable,
-  const fuse_core::VectorXd& partial_mean,
-  const fuse_core::MatrixXd& partial_covariance,
-  const std::vector<size_t>& indices) :
-    fuse_core::Constraint(source, {variable.uuid()})  // NOLINT(whitespace/braces)
+  const std::string & source,
+  const Variable & variable,
+  const fuse_core::VectorXd & partial_mean,
+  const fuse_core::MatrixXd & partial_covariance,
+  const std::vector<size_t> & indices)
+: fuse_core::Constraint(source, {variable.uuid()})    // NOLINT(whitespace/braces)
 {
   assert(partial_mean.rows() == static_cast<int>(indices.size()));
   assert(partial_covariance.rows() == static_cast<int>(indices.size()));
@@ -84,8 +84,7 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
   // defined by the variable.
   mean_ = fuse_core::VectorXd::Zero(variable.size());
   sqrt_information_ = fuse_core::MatrixXd::Zero(indices.size(), variable.size());
-  for (size_t i = 0; i < indices.size(); ++i)
-  {
+  for (size_t i = 0; i < indices.size(); ++i) {
     mean_(indices[i]) = partial_mean(i);
     sqrt_information_.col(indices[i]) = partial_sqrt_information.col(i);
   }
@@ -107,7 +106,7 @@ fuse_core::MatrixXd AbsoluteConstraint<Variable>::covariance() const
 }
 
 template<class Variable>
-void AbsoluteConstraint<Variable>::print(std::ostream& stream) const
+void AbsoluteConstraint<Variable>::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -116,15 +115,14 @@ void AbsoluteConstraint<Variable>::print(std::ostream& stream) const
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss())
-  {
+  if (loss()) {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
 template<class Variable>
-ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
+ceres::CostFunction * AbsoluteConstraint<Variable>::costFunction() const
 {
   // Ceres ships with a "prior" cost function. Just use that here.
   return new ceres::NormalPrior(sqrt_information_, mean_);
@@ -133,7 +131,8 @@ ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
 // Specialization for Orientation2D
 // We need to handle the 2*pi rollover for 2D orientations, so simple subtraction does not produce the correct cost
 template<>
-inline ceres::CostFunction* AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
+inline ceres::CostFunction * AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction()
+const
 {
   return new NormalPriorOrientation2D(sqrt_information_(0, 0), mean_(0));
 }

@@ -46,22 +46,22 @@ namespace fuse_constraints
 {
 
 RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
-  const std::string& source,
-  const fuse_variables::Position3DStamped& position1,
-  const fuse_variables::Orientation3DStamped& orientation1,
-  const fuse_variables::Position3DStamped& position2,
-  const fuse_variables::Orientation3DStamped& orientation2,
-  const fuse_core::Vector7d& delta,
-  const fuse_core::Matrix6d& covariance) :
-    fuse_core::Constraint(
-      source,
-      {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),  // NOLINT(whitespace/braces)
-    delta_(delta),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+  const std::string & source,
+  const fuse_variables::Position3DStamped & position1,
+  const fuse_variables::Orientation3DStamped & orientation1,
+  const fuse_variables::Position3DStamped & position2,
+  const fuse_variables::Orientation3DStamped & orientation2,
+  const fuse_core::Vector7d & delta,
+  const fuse_core::Matrix6d & covariance)
+: fuse_core::Constraint(
+    source,
+    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),    // NOLINT(whitespace/braces)
+  delta_(delta),
+  sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-void RelativePose3DStampedConstraint::print(std::ostream& stream) const
+void RelativePose3DStampedConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -74,7 +74,7 @@ void RelativePose3DStampedConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction* RelativePose3DStampedConstraint::costFunction() const
+ceres::CostFunction * RelativePose3DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalDeltaPose3DCostFunctor, 6, 3, 4, 3, 4>(
     new NormalDeltaPose3DCostFunctor(sqrt_information_, delta_));

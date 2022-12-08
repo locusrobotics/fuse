@@ -47,31 +47,31 @@ namespace fuse_constraints
 {
 
 AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
-  const std::string& source,
-  const fuse_variables::Orientation3DStamped& orientation,
-  const fuse_core::Vector4d& mean,
-  const fuse_core::Matrix3d& covariance) :
-    fuse_core::Constraint(source, {orientation.uuid()}),  // NOLINT(whitespace/braces)
-    mean_(mean),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+  const std::string & source,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const fuse_core::Vector4d & mean,
+  const fuse_core::Matrix3d & covariance)
+: fuse_core::Constraint(source, {orientation.uuid()}),    // NOLINT(whitespace/braces)
+  mean_(mean),
+  sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
 AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
-  const std::string& source,
-  const fuse_variables::Orientation3DStamped& orientation,
-  const Eigen::Quaterniond& mean,
-  const fuse_core::Matrix3d& covariance) :
-    AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), covariance)
+  const std::string & source,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const Eigen::Quaterniond & mean,
+  const fuse_core::Matrix3d & covariance)
+: AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), covariance)
 {
 }
 
 AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
-  const std::string& source,
-  const fuse_variables::Orientation3DStamped& orientation,
-  const geometry_msgs::msg::Quaternion& mean,
-  const std::array<double, 9>& covariance) :
-    AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), toEigen(covariance))
+  const std::string & source,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const geometry_msgs::msg::Quaternion & mean,
+  const std::array<double, 9> & covariance)
+: AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), toEigen(covariance))
 {
 }
 
@@ -80,7 +80,7 @@ fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::covariance() const
   return (sqrt_information_.transpose() * sqrt_information_).inverse();
 }
 
-void AbsoluteOrientation3DStampedConstraint::print(std::ostream& stream) const
+void AbsoluteOrientation3DStampedConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -89,34 +89,37 @@ void AbsoluteOrientation3DStampedConstraint::print(std::ostream& stream) const
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss())
-  {
+  if (loss()) {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-ceres::CostFunction* AbsoluteOrientation3DStampedConstraint::costFunction() const
+ceres::CostFunction * AbsoluteOrientation3DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorOrientation3DCostFunctor, 3, 4>(
     new NormalPriorOrientation3DCostFunctor(sqrt_information_, mean_));
 }
 
-fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const Eigen::Quaterniond& quaternion)
+fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(
+  const Eigen::Quaterniond & quaternion)
 {
   fuse_core::Vector4d eigen_quaternion_vector;
   eigen_quaternion_vector << quaternion.w(), quaternion.x(), quaternion.y(), quaternion.z();
   return eigen_quaternion_vector;
 }
 
-fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(const geometry_msgs::msg::Quaternion& quaternion)
+fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(
+  const geometry_msgs::msg::Quaternion & quaternion)
 {
   fuse_core::Vector4d eigen_quaternion_vector;
   eigen_quaternion_vector << quaternion.w, quaternion.x, quaternion.y, quaternion.z;
   return eigen_quaternion_vector;
 }
 
-fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::array<double, 9>& covariance)
+fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(
+  const std::array<double,
+  9> & covariance)
 {
   return fuse_core::Matrix3d(covariance.data());
 }
@@ -124,4 +127,6 @@ fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(const std::a
 }  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsoluteOrientation3DStampedConstraint, fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::AbsoluteOrientation3DStampedConstraint,
+  fuse_core::Constraint);

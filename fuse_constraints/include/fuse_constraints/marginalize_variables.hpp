@@ -75,8 +75,8 @@ namespace fuse_constraints
  * @return The mapping from variable UUID to the computed elimination order
  */
 UuidOrdering computeEliminationOrder(
-  const std::vector<fuse_core::UUID>& marginalized_variables,
-  const fuse_core::Graph& graph);
+  const std::vector<fuse_core::UUID> & marginalized_variables,
+  const fuse_core::Graph & graph);
 
 /**
  * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested variables
@@ -97,9 +97,9 @@ UuidOrdering computeEliminationOrder(
  *         variables and constraints to be removed.
  */
 fuse_core::Transaction marginalizeVariables(
-  const std::string& source,
-  const std::vector<fuse_core::UUID>& marginalized_variables,
-  const fuse_core::Graph& graph);
+  const std::string & source,
+  const std::vector<fuse_core::UUID> & marginalized_variables,
+  const fuse_core::Graph & graph);
 
 /**
  * @brief Generate a transaction that, when applied to the graph, will marginalize out the requested variables
@@ -122,10 +122,10 @@ fuse_core::Transaction marginalizeVariables(
  *         variables and constraints to be removed.
  */
 fuse_core::Transaction marginalizeVariables(
-  const std::string& source,
-  const std::vector<fuse_core::UUID>& marginalized_variables,
-  const fuse_core::Graph& graph,
-  const fuse_constraints::UuidOrdering& elimination_order);
+  const std::string & source,
+  const std::vector<fuse_core::UUID> & marginalized_variables,
+  const fuse_core::Graph & graph,
+  const fuse_constraints::UuidOrdering & elimination_order);
 
 namespace detail
 {
@@ -154,9 +154,9 @@ struct LinearTerm
  * @return A LinearTerm consisting of Jacobian blocks associated with each involved variable in elimination order
  */
 LinearTerm linearize(
-  const fuse_core::Constraint& constraint,
-  const fuse_core::Graph& graph,
-  const UuidOrdering& elimination_order);
+  const fuse_core::Constraint & constraint,
+  const fuse_core::Graph & graph,
+  const UuidOrdering & elimination_order);
 
 /**
  * @brief Marginalize out the lowest-ordered variable from the provided set of linear terms
@@ -167,7 +167,7 @@ LinearTerm linearize(
  * @param[in] linear_terms The set of LinearTerms that are connected to the lowest-ordered variable index
  * @return A LinearTerm object containing the information on the remaining variables
  */
-LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms);
+LinearTerm marginalizeNext(const std::vector<LinearTerm> & linear_terms);
 
 /**
  * @brief Convert the provided linear term into a MarginalConstraint
@@ -179,10 +179,10 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms);
  * @return An equivalent MarginalConstraint object
  */
 MarginalConstraint::SharedPtr createMarginalConstraint(
-  const std::string& source,
-  const LinearTerm& linear_term,
-  const fuse_core::Graph& graph,
-  const UuidOrdering& elimination_order);
+  const std::string & source,
+  const LinearTerm & linear_term,
+  const fuse_core::Graph & graph,
+  const UuidOrdering & elimination_order);
 }  // namespace detail
 
 }  // namespace fuse_constraints
