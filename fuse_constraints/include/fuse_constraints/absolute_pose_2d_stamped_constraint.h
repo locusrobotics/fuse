@@ -39,8 +39,8 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/position_3d_stamped.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/position_3d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::Position3DStamped;
 
@@ -72,7 +72,8 @@ TEST(Position3DStamped, UUID)
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
-  // Verify two positions with the same timestamp but different hardware IDs generate different UUIDs
+  // Verify two positions with the same timestamp but different hardware IDs generate different
+  // UUIDs
   {
     Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Position3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
@@ -90,7 +91,8 @@ TEST(Position3DStamped, UUID)
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
-  // Verify two positions with different hardware IDs and different timestamps produce different UUIDs
+  // Verify two positions with different hardware IDs and different timestamps produce different
+  // UUIDs
   {
     Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Position3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
@@ -104,8 +106,8 @@ TEST(Position3DStamped, UUID)
 
 TEST(Position3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Position3DStamped::make_shared(rclcpp::Time(12345678, 910111213),
-                                                                       fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base = Position3DStamped::make_shared(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Position3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -121,7 +123,7 @@ struct CostFunctor
 {
   CostFunctor() {}
 
-  template <typename T> bool operator()(const T* const x, T* residual) const
+  template<typename T> bool operator()(const T * const x, T * residual) const
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
@@ -139,14 +141,15 @@ TEST(Position3DStamped, Optimization)
   position.z() = 0.8;
 
   // Create a simple a constraint
-  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(new CostFunctor());
+  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(
+    new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(
     position.data(),
     position.size());
-  std::vector<double*> parameter_blocks;
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(position.data());
   problem.AddResidualBlock(
     cost_function,
@@ -167,7 +170,8 @@ TEST(Position3DStamped, Optimization)
 TEST(Position3DStamped, Serialization)
 {
   // Create a Position3DStamped
-  Position3DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  Position3DStamped expected(rclcpp::Time(12345678, 910111213),
+    fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
   expected.z() = 0.8;

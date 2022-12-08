@@ -31,15 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/uuid.hpp>
-#include <fuse_variables/stamped.h>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <stdexcept>
 #include <string>
 #include <thread>
+
+#include <fuse_core/uuid.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 class TestLoadDeviceId : public ::testing::Test
 {
@@ -47,9 +47,10 @@ public:
   void SetUp() override
   {
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    spinner_ = std::thread([&](){
+    spinner_ = std::thread(
+      [&]() {
         executor_->spin();
-    });
+      });
   }
 
   void TearDown() override
@@ -173,7 +174,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
 
 
 // NOTE(CH3): This main is required because the test is manually run by a launch test
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);

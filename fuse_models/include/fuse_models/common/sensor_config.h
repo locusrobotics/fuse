@@ -37,11 +37,11 @@
 #include <fuse_models/common/variable_traits.h>
 
 #include <boost/algorithm/string/case_conv.hpp>
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
-#include <fuse_variables/velocity_angular_2d_stamped.h>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
+#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/velocity_angular_2d_stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <rclcpp/logging.hpp>
 
 #include <algorithm>

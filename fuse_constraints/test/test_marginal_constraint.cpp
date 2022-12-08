@@ -35,8 +35,8 @@
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_variables/orientation_3d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/orientation_3d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_core/time.hpp>
 
 #include <gtest/gtest.h>

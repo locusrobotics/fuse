@@ -39,7 +39,7 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_variables/orientation_3d_stamped.h>
+#include <fuse_variables/orientation_3d_stamped.hpp>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/Quaternion.h>
 

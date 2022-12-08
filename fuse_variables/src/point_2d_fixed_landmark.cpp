@@ -31,26 +31,24 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/point_2d_fixed_landmark.h>
-
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <pluginlib/class_list_macros.hpp>
+#include <ostream>
 
 #include <boost/serialization/export.hpp>
-
-#include <ostream>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/point_2d_fixed_landmark.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_variables
 {
-Point2DFixedLandmark::Point2DFixedLandmark(const uint64_t& landmark_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)),
+Point2DFixedLandmark::Point2DFixedLandmark(const uint64_t & landmark_id)
+: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)),
   id_(landmark_id)
 {
 }
 
-void Point2DFixedLandmark::print(std::ostream& stream) const
+void Point2DFixedLandmark::print(std::ostream & stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"

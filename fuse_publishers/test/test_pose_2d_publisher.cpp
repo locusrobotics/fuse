@@ -37,8 +37,8 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_publishers/pose_2d_publisher.h>
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <ros/ros.h>

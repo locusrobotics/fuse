@@ -35,8 +35,8 @@
 #include <fuse_viz/conversions.h>
 #include <fuse_viz/pose_2d_stamped_visual.h>
 
-#include <fuse_variables/orientation_2d_stamped.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 #include <rviz/ogre_helpers/axes.h>
 #include <rviz/ogre_helpers/movable_text.h>
 #include <rviz/ogre_helpers/shape.h>

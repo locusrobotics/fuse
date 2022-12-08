@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,120 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H
-#define FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H
 
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
+#ifndef FUSE_VARIABLES__ACCELERATION_LINEAR_3D_STAMPED_H_
+#define FUSE_VARIABLES__ACCELERATION_LINEAR_3D_STAMPED_H_
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#warning \
+  This header is obsolete, please include fuse_variables/acceleration_linear_3d_stamped.hpp instead
 
-#include <ostream>
+#include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 
-
-namespace fuse_variables
-{
-
-/**
- * @brief Variable representing a 3D linear acceleration (ax, ay, az) at a specific time, with a specific piece
- * of hardware.
- *
- * This is commonly used to represent a robot's acceleration. The UUID of this class is static after construction.
- * As such, the timestamp and device id cannot be modified. The value of the acceleration can be modified.
- */
-class AccelerationLinear3DStamped : public FixedSizeVariable<3>,  public Stamped
-{
-public:
-  FUSE_VARIABLE_DEFINITIONS(AccelerationLinear3DStamped)
-
-  /**
-   * @brief Can be used to directly index variables in the data array
-   */
-  enum : size_t
-  {
-    X = 0,
-    Y = 1,
-    Z = 2
-  };
-
-  /**
-   * @brief Default constructor
-   */
-  AccelerationLinear3DStamped() = default;
-
-  /**
-   * @brief Construct a 3D acceleration at a specific point in time.
-   *
-   * @param[in] stamp     The timestamp attached to this acceleration.
-   * @param[in] device_id An optional device id, for use when variables originate from multiple robots or devices
-   */
-  explicit AccelerationLinear3DStamped(
-    const rclcpp::Time& stamp,
-    const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
-
-  /**
-   * @brief Read-write access to the X-axis linear acceleration.
-   */
-  double& x() { return data_[X]; }
-
-  /**
-   * @brief Read-only access to the X-axis linear acceleration.
-   */
-  const double& x() const { return data_[X]; }
-
-  /**
-   * @brief Read-write access to the Y-axis linear acceleration.
-   */
-  double& y() { return data_[Y]; }
-
-  /**
-   * @brief Read-only access to the Y-axis linear acceleration.
-   */
-  const double& y() const { return data_[Y]; }
-
-  /**
-   * @brief Read-write access to the Z-axis linear acceleration.
-   */
-  double& z() { return data_[Z]; }
-
-  /**
-   * @brief Read-only access to the Z-axis linear acceleration.
-   */
-  const double& z() const { return data_[Z]; }
-
-  /**
-   * @brief Print a human-readable description of the variable to the provided stream.
-   *
-   * @param[out] stream The stream to write to. Defaults to stdout.
-   */
-  void print(std::ostream& stream = std::cout) const override;
-
-private:
-  // Allow Boost Serialization access to private methods
-  friend class boost::serialization::access;
-
-  /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
-   *
-   * @param[in/out] archive - The archive object that holds the serialized class members
-   * @param[in] version - The version of the archive being read/written. Generally unused.
-   */
-  template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
-  {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & boost::serialization::base_object<Stamped>(*this);
-  }
-};
-
-}  // namespace fuse_variables
-
-BOOST_CLASS_EXPORT_KEY(fuse_variables::AccelerationLinear3DStamped);
-
-#endif  // FUSE_VARIABLES_ACCELERATION_LINEAR_3D_STAMPED_H
+#endif  // FUSE_VARIABLES__ACCELERATION_LINEAR_3D_STAMPED_H_

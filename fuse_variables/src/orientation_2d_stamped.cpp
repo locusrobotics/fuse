@@ -31,30 +31,29 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/orientation_2d_stamped.h>
-
-#include <fuse_core/local_parameterization.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <pluginlib/class_list_macros.hpp>
-#include <fuse_core/time.hpp>
-
-#include <boost/serialization/export.hpp>
-
 #include <ostream>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_variables
 {
 
-Orientation2DStamped::Orientation2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+Orientation2DStamped::Orientation2DStamped(
+  const rclcpp::Time & stamp,
+  const fuse_core::UUID & device_id)
+: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
   Stamped(stamp, device_id)
 {
 }
 
-void Orientation2DStamped::print(std::ostream& stream) const
+void Orientation2DStamped::print(std::ostream & stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
@@ -65,7 +64,7 @@ void Orientation2DStamped::print(std::ostream& stream) const
          << "  - yaw: " << yaw() << "\n";
 }
 
-fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
+fuse_core::LocalParameterization * Orientation2DStamped::localParameterization() const
 {
   return new Orientation2DLocalParameterization();
 }

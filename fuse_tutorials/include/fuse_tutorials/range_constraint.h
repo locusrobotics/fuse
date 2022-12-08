@@ -36,8 +36,8 @@
 
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
-#include <fuse_variables/point_2d_landmark.h>
-#include <fuse_variables/position_2d_stamped.h>
+#include <fuse_variables/point_2d_landmark.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

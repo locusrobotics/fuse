@@ -36,7 +36,7 @@
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/util.hpp>
-#include <fuse_variables/orientation_3d_stamped.h>
+#include <fuse_variables/orientation_3d_stamped.hpp>
 
 #include <ceres/rotation.h>
 #include <Eigen/Core>

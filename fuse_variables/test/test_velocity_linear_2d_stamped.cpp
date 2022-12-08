@@ -31,11 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/velocity_linear_2d_stamped.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -43,6 +38,11 @@
 
 #include <sstream>
 #include <vector>
+
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
 using fuse_variables::VelocityLinear2DStamped;
 
@@ -61,8 +61,10 @@ TEST(VelocityLinear2DStamped, UUID)
     VelocityLinear2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    VelocityLinear2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    VelocityLinear2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityLinear2DStamped variable3(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("c3po"));
+    VelocityLinear2DStamped variable4(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -78,16 +80,18 @@ TEST(VelocityLinear2DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    VelocityLinear2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    VelocityLinear2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    VelocityLinear2DStamped variable1(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("r2d2"));
+    VelocityLinear2DStamped variable2(rclcpp::Time(12345678, 910111213),
+      fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(VelocityLinear2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = VelocityLinear2DStamped::make_shared(rclcpp::Time(12345678, 910111213),
-                                                                             fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base = VelocityLinear2DStamped::make_shared(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<VelocityLinear2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -103,7 +107,7 @@ struct CostFunctor
 {
   CostFunctor() {}
 
-  template <typename T> bool operator()(const T* const x, T* residual) const
+  template<typename T> bool operator()(const T * const x, T * residual) const
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
@@ -114,12 +118,14 @@ struct CostFunctor
 TEST(VelocityLinear2DStamped, Optimization)
 {
   // Create a VelocityLinear2DStamped
-  VelocityLinear2DStamped velocity(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  VelocityLinear2DStamped velocity(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   velocity.x() = 1.5;
   velocity.y() = -3.0;
 
   // Create a simple a constraint
-  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 2>(new CostFunctor());
+  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 2>(
+    new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
@@ -127,7 +133,7 @@ TEST(VelocityLinear2DStamped, Optimization)
     velocity.data(),
     velocity.size(),
     velocity.localParameterization());
-  std::vector<double*> parameter_blocks;
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(velocity.data());
   problem.AddResidualBlock(
     cost_function,
@@ -147,7 +153,8 @@ TEST(VelocityLinear2DStamped, Optimization)
 TEST(VelocityLinear2DStamped, Serialization)
 {
   // Create a VelocityLinear2DStamped
-  VelocityLinear2DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  VelocityLinear2DStamped expected(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
 

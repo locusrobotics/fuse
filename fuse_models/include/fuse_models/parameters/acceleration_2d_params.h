@@ -36,7 +36,7 @@
 
 #include <fuse_core/loss.hpp>
 #include <fuse_core/parameter.hpp>
-#include <fuse_variables/acceleration_linear_2d_stamped.h>
+#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <ros/node_handle.h>

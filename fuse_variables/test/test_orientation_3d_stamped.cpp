@@ -31,13 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/autodiff_local_parameterization.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_variables/orientation_3d_stamped.h>
-#include <fuse_variables/stamped.h>
-#include <fuse_core/time.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/cost_function_to_functor.h>
 #include <ceres/problem.h>
@@ -49,6 +42,12 @@
 #include <sstream>
 #include <vector>
 
+#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/orientation_3d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 
 using fuse_variables::Orientation3DStamped;
 
@@ -77,14 +76,16 @@ TEST(Orientation3DStamped, UUID)
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
-  // Verify two orientations with the same timestamp but different hardware IDs generate different UUIDs
+  // Verify two orientations with the same timestamp but different hardware IDs generate different
+  // UUIDs
   {
     Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 
-  // Verify two orientations with the same hardware ID and different timestamps produce different UUIDs
+  // Verify two orientations with the same hardware ID and different timestamps produce different
+  // UUIDs
   {
     Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_1);
@@ -95,7 +96,8 @@ TEST(Orientation3DStamped, UUID)
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
-  // Verify two orientations with different hardware IDs and different timestamps produce different UUIDs
+  // Verify two orientations with different hardware IDs and different timestamps produce different
+  // UUIDs
   {
     Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
     Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
@@ -110,7 +112,7 @@ TEST(Orientation3DStamped, UUID)
 struct Orientation3DPlus
 {
   template<typename T>
-  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+  bool operator()(const T * x, const T * delta, T * x_plus_delta) const
   {
     T q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -122,7 +124,7 @@ struct Orientation3DPlus
 struct Orientation3DMinus
 {
   template<typename T>
-  bool operator()(const T* q1, const T* q2, T* delta) const
+  bool operator()(const T * q1, const T * q2, T * delta) const
   {
     T q1_inverse[4];
     q1_inverse[0] = q1[0];
@@ -137,7 +139,7 @@ struct Orientation3DMinus
 };
 
 using Orientation3DLocalParameterization =
-    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+  fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
 
 TEST(Orientation3DStamped, Plus)
 {
@@ -179,35 +181,39 @@ TEST(Orientation3DStamped, PlusJacobian)
   auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
-  for (double qx = -0.5; qx < 0.5; qx += 0.1)
-  {
-    for (double qy = -0.5; qy < 0.5; qy += 0.1)
-    {
-      for (double qz = -0.5; qz < 0.5; qz += 0.1)
-      {
-        double qw = std::sqrt(1.0 - qx*qx - qy*qy - qz*qz);
+  for (double qx = -0.5; qx < 0.5; qx += 0.1) {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1) {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1) {
+        double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = {qw, qx, qy, qz};
         fuse_core::MatrixXd actual(4, 3);
+        /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         bool success = parameterization->ComputeJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(4, 3);
+        /* *INDENT-OFF* */
         expected << 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         reference.ComputeJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                                                       << "Actual is:\n" << actual.format(clean) << "\n"
-                                                       << "Difference is:\n" << (expected - actual).format(clean)
-                                                       << "\n";
+        EXPECT_TRUE(
+          expected.isApprox(
+            actual,
+            1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
+                     << "Actual is:\n" << actual.format(clean) << "\n"
+                     << "Difference is:\n" << (expected - actual).format(clean)
+                     << "\n";
       }
     }
   }
@@ -220,33 +226,39 @@ TEST(Orientation3DStamped, MinusJacobian)
   auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
-  for (double qx = -0.5; qx < 0.5; qx += 0.1)
-  {
-    for (double qy = -0.5; qy < 0.5; qy += 0.1)
-    {
-      for (double qz = -0.5; qz < 0.5; qz += 0.1)
-      {
-        double qw = std::sqrt(1.0 - qx*qx - qy*qy - qz*qz);
+  for (double qx = -0.5; qx < 0.5; qx += 0.1) {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1) {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1) {
+        double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = {qw, qx, qy, qz};
         fuse_core::MatrixXd actual(3, 4);
+        /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(3, 4);
+        /* *INDENT-OFF* */
         expected << 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0;
+        /* *INDENT-ON* */
         reference.ComputeMinusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                                                       << "Actual is:\n" << actual.format(clean) << "\n"
-                                                       << "Difference is:\n" << (expected - actual).format(clean)
-                                                       << "\n";
+        EXPECT_TRUE(
+          expected.isApprox(
+            actual,
+            1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
+                     << "Actual is:\n" << actual.format(clean) <<
+          "\n"
+                     << "Difference is:\n" <<
+          (expected - actual).format(clean)
+                     << "\n";
       }
     }
   }
@@ -256,8 +268,8 @@ TEST(Orientation3DStamped, MinusJacobian)
 
 TEST(Orientation3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(rclcpp::Time(12345678, 910111213),
-                                                                          fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(
+    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -271,7 +283,7 @@ TEST(Orientation3DStamped, Stamped)
 
 struct QuaternionCostFunction
 {
-  explicit QuaternionCostFunction(double *observation)
+  explicit QuaternionCostFunction(double * observation)
   {
     observation_[0] = observation[0];
     observation_[1] = observation[1];
@@ -279,8 +291,8 @@ struct QuaternionCostFunction
     observation_[3] = observation[3];
   }
 
-  template <typename T>
-  bool operator()(const T* quaternion, T* residual) const
+  template<typename T>
+  bool operator()(const T * quaternion, T * residual) const
   {
     T inverse_quaternion[4] =
     {
@@ -324,21 +336,17 @@ TEST(Orientation3DStamped, Optimization)
 
   // Create a simple a constraint with an identity quaternion
   double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
-  ceres::CostFunction* cost_function =
-    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
+  ceres::CostFunction * cost_function =
+    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3,
+      4>(new QuaternionCostFunction(target_quat));
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.localParameterization());
-  std::vector<double*> parameter_blocks;
+    orientation.data(), orientation.size(), orientation.localParameterization());
+  std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
