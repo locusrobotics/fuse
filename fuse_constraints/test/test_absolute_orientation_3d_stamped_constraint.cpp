@@ -37,7 +37,7 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
-#include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/msg/quaternion.hpp>
 
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
@@ -65,7 +65,7 @@ TEST(AbsoluteOrientation3DStampedConstraint, Constructor)
   Eigen::Quaterniond quat_eigen(1.0, 0.0, 0.0, 0.0);
   EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint("test", orientation_variable, quat_eigen, cov));
 
-  geometry_msgs::Quaternion quat_geom;
+  geometry_msgs::msg::Quaternion quat_geom;
   quat_geom.w = 1.0;
   std::array<double, 9> cov_arr = {1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0};
   EXPECT_NO_THROW(AbsoluteOrientation3DStampedConstraint constraint("test", orientation_variable, quat_geom, cov_arr));
@@ -193,10 +193,4 @@ TEST(AbsoluteOrientation3DStampedConstraint, Serialization)
   EXPECT_EQ(expected.variables(), actual.variables());
   EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

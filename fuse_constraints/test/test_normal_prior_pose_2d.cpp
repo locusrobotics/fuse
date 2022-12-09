@@ -138,9 +138,3 @@ TEST_F(NormalPriorPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
     ExpectCostFunctionsAreEqual(autodiff_cost_function, cost_function);
   }
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

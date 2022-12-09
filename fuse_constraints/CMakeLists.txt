@@ -1,43 +1,34 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.16)
 project(fuse_constraints)
 
-# TODO(CH3): Migrate these to ament
-set(build_depends
-  fuse_core
-  fuse_graphs
-  fuse_variables
-  geometry_msgs
-  pluginlib
-  roscpp
-)
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CXX_STANDARD_REQUIRED YES)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  ${build_depends}
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+find_package(ament_cmake_ros REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_graphs REQUIRED)
+find_package(fuse_variables REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
+
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(glog REQUIRED)
-find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    ${build_depends}
-  DEPENDS
-    CERES
-    EIGEN3
-    SUITESPARSE
-)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+include(suitesparse-extras.cmake)
 
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
 
 # fuse_constraints library
 add_library(${PROJECT_NAME}
@@ -61,427 +52,69 @@ add_library(${PROJECT_NAME}
   src/uuid_ordering.cpp
   src/variable_constraints.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
 )
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN3_INCLUDE_DIRS}
-    ${SUITESPARSE_INCLUDE_DIRS}
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  Boost::serialization
+  Ceres::ceres
+  Eigen3::Eigen
+  fuse_core::fuse_core
+  fuse_graphs::fuse_graphs
+  fuse_variables::fuse_variables
+  ${geometry_msgs_TARGETS}
+  pluginlib::pluginlib
+  rclcpp::rclcpp
 )
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${CERES_LIBRARIES}
-  ${EIGEN3_LIBRARIES}
-  ${SUITESPARSE_LIBRARIES}
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${SUITESPARSRE_LIBRARIES}
 )
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-)
-
-#############
-## Install ##
-#############
-
-install(
-  TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-install(
-  FILES fuse_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${SUITESPARSRE_INCLUDE_DIRS}
 )
 
 #############
 ## Testing ##
 #############
 
-if(CATKIN_ENABLE_TESTING)
-  find_package(roslint REQUIRED)
-  find_package(rostest REQUIRED)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 
-  # Lint tests
-  set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
-  roslint_cpp()
-  roslint_add_test()
-
-  # Absolute Constraint Tests
-  catkin_add_gtest(test_absolute_constraint
-    test/test_absolute_constraint.cpp
-  )
-  add_dependencies(test_absolute_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_absolute_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_absolute_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_absolute_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Absolute Orientation 3D Stamped Constraint Tests
-  catkin_add_gtest(test_absolute_orientation_3d_stamped_constraint
-    test/test_absolute_orientation_3d_stamped_constraint.cpp
-  )
-  add_dependencies(test_absolute_orientation_3d_stamped_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_absolute_orientation_3d_stamped_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_absolute_orientation_3d_stamped_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
-  )
-  set_target_properties(test_absolute_orientation_3d_stamped_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Absolute Orientation 3D Stamped Euler Constraint Tests
-    catkin_add_gtest(test_absolute_orientation_3d_stamped_euler_constraint
-    test/test_absolute_orientation_3d_stamped_euler_constraint.cpp
-  )
-  add_dependencies(test_absolute_orientation_3d_stamped_euler_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_absolute_orientation_3d_stamped_euler_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-      ${EIGEN3_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_absolute_orientation_3d_stamped_euler_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-    ${EIGEN3_LIBRARIES}
-  )
-  set_target_properties(test_absolute_orientation_3d_stamped_euler_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Absolute Pose 2D Stamped Constraint Tests
-  catkin_add_gtest(test_absolute_pose_2d_stamped_constraint
-    test/test_absolute_pose_2d_stamped_constraint.cpp
-  )
-  add_dependencies(test_absolute_pose_2d_stamped_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_absolute_pose_2d_stamped_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_absolute_pose_2d_stamped_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_absolute_pose_2d_stamped_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Absolute Pose 3D Stamped Constraint Tests
-  catkin_add_gtest(test_absolute_pose_3d_stamped_constraint
-    test/test_absolute_pose_3d_stamped_constraint.cpp
-  )
-  add_dependencies(test_absolute_pose_3d_stamped_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_absolute_pose_3d_stamped_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_absolute_pose_3d_stamped_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_absolute_pose_3d_stamped_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Marginal Constraint Tests
-  catkin_add_gtest(test_marginal_constraint
-    test/test_marginal_constraint.cpp
-  )
-  add_dependencies(test_marginal_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_marginal_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_marginal_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_marginal_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Marginalize Variables Tests
-  catkin_add_gtest(test_marginalize_variables
-    test/test_marginalize_variables.cpp
-  )
-  add_dependencies(test_marginalize_variables
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_marginalize_variables
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_marginalize_variables
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_marginalize_variables
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Normal Delta Pose 2D Tests
-  catkin_add_gtest(test_normal_delta_pose_2d
-    test/test_normal_delta_pose_2d.cpp
-  )
-  add_dependencies(test_normal_delta_pose_2d
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_normal_delta_pose_2d
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-      ${CMAKE_CURRENT_SOURCE_DIR}
-  )
-  target_link_libraries(test_normal_delta_pose_2d
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_normal_delta_pose_2d
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Normal Prior Pose 2D Tests
-  catkin_add_gtest(test_normal_prior_pose_2d
-    test/test_normal_prior_pose_2d.cpp
-  )
-  add_dependencies(test_normal_prior_pose_2d
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_normal_prior_pose_2d
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-      ${CMAKE_CURRENT_SOURCE_DIR}
-  )
-  target_link_libraries(test_normal_prior_pose_2d
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_normal_prior_pose_2d
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Relative Constraint Tests
-  catkin_add_gtest(test_relative_constraint
-    test/test_relative_constraint.cpp
-  )
-  add_dependencies(test_relative_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_relative_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_relative_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_relative_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Relative Pose 2D Stamped Constraint Tests
-  catkin_add_gtest(test_relative_pose_2d_stamped_constraint
-    test/test_relative_pose_2d_stamped_constraint.cpp
-  )
-  add_dependencies(test_relative_pose_2d_stamped_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_relative_pose_2d_stamped_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_relative_pose_2d_stamped_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_relative_pose_2d_stamped_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Relative Pose 3D Stamped Constraint Tests
-  catkin_add_gtest(test_relative_pose_3d_stamped_constraint
-    test/test_relative_pose_3d_stamped_constraint.cpp
-  )
-  add_dependencies(test_relative_pose_3d_stamped_constraint
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_relative_pose_3d_stamped_constraint
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-      ${CERES_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_relative_pose_3d_stamped_constraint
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_relative_pose_3d_stamped_constraint
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # UuidOrdering Tests
-  catkin_add_gtest(test_uuid_ordering
-    test/test_uuid_ordering.cpp
-  )
-  target_include_directories(test_uuid_ordering
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_uuid_ordering
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_uuid_ordering
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # VariableConstraints Tests
-  catkin_add_gtest(test_variable_constraints
-    test/test_variable_constraints.cpp
-  )
-  target_include_directories(test_variable_constraints
-    PRIVATE
-      include
-  )
-  target_link_libraries(test_variable_constraints
-    ${PROJECT_NAME}
-  )
-  set_target_properties(test_variable_constraints
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Benchmarks
-  find_package(benchmark QUIET)
-
-  if(benchmark_FOUND)
-    # Normal Delta Pose 2D benchmark
-    add_executable(benchmark_normal_delta_pose_2d
-      benchmark/benchmark_normal_delta_pose_2d.cpp
-    )
-    if(TARGET benchmark_normal_delta_pose_2d)
-      target_link_libraries(
-        benchmark_normal_delta_pose_2d
-        benchmark
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${CERES_LIBRARIES}
-      )
-      set_target_properties(benchmark_normal_delta_pose_2d
-        PROPERTIES
-          CXX_STANDARD 14
-          CXX_STANDARD_REQUIRED YES
-      )
-    endif()
-
-    # Normal Prior Pose 2D benchmark
-    add_executable(benchmark_normal_prior_pose_2d
-      benchmark/benchmark_normal_prior_pose_2d.cpp
-    )
-    if(TARGET benchmark_normal_prior_pose_2d)
-      target_link_libraries(
-        benchmark_normal_prior_pose_2d
-        benchmark
-        ${PROJECT_NAME}
-        ${catkin_LIBRARIES}
-        ${CERES_LIBRARIES}
-      )
-      set_target_properties(benchmark_normal_prior_pose_2d
-        PROPERTIES
-          CXX_STANDARD 14
-          CXX_STANDARD_REQUIRED YES
-      )
-    endif()
-  endif()
+  add_subdirectory(test)
+  add_subdirectory(benchmark)
 endif()
+
+#############
+## Install ##
+#############
+
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
+
+ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+  ament_cmake_ros
+  fuse_core
+  fuse_graphs
+  fuse_variables
+  geometry_msgs
+  pluginlib
+  rclcpp
+
+  Ceres
+  Eigen3
+  glog
+)
+
+ament_package(CONFIG_EXTRAS suitesparse-extras.cmake)

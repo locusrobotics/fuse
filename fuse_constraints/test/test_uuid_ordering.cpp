@@ -131,9 +131,3 @@ TEST(UuidOrdering, Exists)
   EXPECT_TRUE(order.exists(uuid3));
   EXPECT_FALSE(order.exists(uuid4));
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

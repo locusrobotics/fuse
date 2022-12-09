@@ -522,9 +522,3 @@ TEST(RelativeConstraint, Serialization)
   EXPECT_MATRIX_EQ(expected.delta(), actual.delta());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

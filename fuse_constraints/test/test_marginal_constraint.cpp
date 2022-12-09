@@ -275,9 +275,3 @@ TEST(MarginalConstraint, Serialization)
     EXPECT_TRUE(static_cast<bool>(actual_derived));
   }
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
