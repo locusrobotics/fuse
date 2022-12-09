@@ -36,7 +36,8 @@
 #define FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_H_
 
 #warning \
-  This header is obsolete, please include fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.hpp instead
+  This header is obsolete, please include \
+  fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.hpp instead
 
 #include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.hpp>
 

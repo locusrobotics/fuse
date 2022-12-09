@@ -34,12 +34,12 @@
 #ifndef FUSE_CONSTRAINTS__MARGINAL_COST_FUNCTION_HPP_
 #define FUSE_CONSTRAINTS__MARGINAL_COST_FUNCTION_HPP_
 
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/local_parameterization.hpp>
-
 #include <ceres/cost_function.h>
 
 #include <vector>
+
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/local_parameterization.hpp>
 
 
 namespace fuse_constraints

@@ -31,6 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <ceres/cost_function.h>
+#include <gtest/gtest.h>
+
+#include <set>
+#include <utility>
+#include <vector>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
 #include <fuse_constraints/marginalize_variables.hpp>
 #include <fuse_constraints/relative_orientation_3d_stamped_constraint.hpp>
@@ -44,17 +54,6 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
-
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <ceres/cost_function.h>
-#include <gtest/gtest.h>
-
-#include <set>
-#include <utility>
-#include <vector>
-
 
 /**
  * @brief Create a simple Variable implementation for testing
@@ -332,9 +331,11 @@ TEST(MarginalizeVariables, Linearize)
 
   // Create an elimination order
   auto elimination_order = fuse_constraints::UuidOrdering();
-  elimination_order.push_back(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
+  elimination_order.push_back(fuse_core::uuid::generate());  // Add a dummy variable to the
+                                                             // elimination order
   elimination_order.push_back(x2->uuid());
-  elimination_order.push_back(fuse_core::uuid::generate());  // Add a dummy variable to the elimination order
+  elimination_order.push_back(fuse_core::uuid::generate());  // Add a dummy variable to the
+                                                             // elimination order
   elimination_order.push_back(x1->uuid());
 
   // Compute the linear term
@@ -681,7 +682,7 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
 
   // Marginalize out X1 and L1
   auto transaction =
-    fuse_constraints::marginalizeVariables("test", {x1->uuid(), l1->uuid()}, graph);                   // NOLINT
+    fuse_constraints::marginalizeVariables("test", {x1->uuid(), l1->uuid()}, graph);  // NOLINT
 
   // Verify the computed transaction
   auto added_variables = transaction.addedVariables();

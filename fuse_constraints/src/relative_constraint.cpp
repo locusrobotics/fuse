@@ -31,12 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/relative_constraint.hpp>
-
-#include <pluginlib/class_list_macros.hpp>
-
 #include <boost/serialization/export.hpp>
-
+#include <fuse_constraints/relative_constraint.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint);

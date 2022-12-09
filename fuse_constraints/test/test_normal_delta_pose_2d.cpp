@@ -31,19 +31,17 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_delta_pose_2d.hpp>
-#include <fuse_constraints/normal_delta_pose_2d_cost_functor.hpp>
-
-#include "cost_function_gtest.hpp"
-
-#include <gtest/gtest.h>
-#include <fuse_core/eigen_gtest.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
+#include <gtest/gtest.h>
 
 #include <array>
 #include <string>
+
+#include "cost_function_gtest.hpp"
+#include <fuse_constraints/normal_delta_pose_2d.hpp>
+#include <fuse_constraints/normal_delta_pose_2d_cost_functor.hpp>
+#include <fuse_core/eigen_gtest.hpp>
 
 /**
  * @brief Test fixture that initializes a full pose 2d delta and sqrt information matrix.
@@ -65,10 +63,12 @@ public:
   }
 
   const fuse_core::Matrix3d covariance =
-    fuse_core::Vector3d(2e-3, 1e-3, 1e-2).asDiagonal();    //!< The full pose 2d covariance for the x, y and yaw
-                                                           //!< components
-  Eigen::Matrix3d full_sqrt_information;  //!< The full pose 2d sqrt information matrix for the x, y and yaw components
-  const Eigen::Vector3d full_delta{1.0, 2.0, 3.0};    //!< The full pose 2d delta components: x, y and yaw
+    fuse_core::Vector3d(2e-3, 1e-3, 1e-2).asDiagonal();  //!< The full pose 2d covariance for the x,
+                                                         //!< y and yaw components
+  Eigen::Matrix3d full_sqrt_information;  //!< The full pose 2d sqrt information matrix for the x, y
+                                          //!< and yaw components
+  const Eigen::Vector3d full_delta{1.0, 2.0, 3.0};  //!< The full pose 2d delta components: x, y and
+                                                    //!< yaw
 };
 
 TEST_F(NormalDeltaPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForFullResiduals)

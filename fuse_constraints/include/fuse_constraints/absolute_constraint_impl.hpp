@@ -34,13 +34,13 @@
 #ifndef FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_IMPL_HPP_
 #define FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_IMPL_HPP_
 
-#include <fuse_constraints/normal_prior_orientation_2d.hpp>
-
 #include <ceres/normal_prior.h>
 #include <Eigen/Dense>
 
 #include <string>
 #include <vector>
+
+#include <fuse_constraints/normal_prior_orientation_2d.hpp>
 
 
 namespace fuse_constraints
@@ -134,7 +134,9 @@ ceres::CostFunction * AbsoluteConstraint<Variable>::costFunction() const
 // We need to handle the 2*pi rollover for 2D orientations, so simple subtraction does not produce
 // the correct cost
 template<>
-inline ceres::CostFunction * AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction()
+inline ceres::CostFunction * AbsoluteConstraint<
+  fuse_variables::Orientation2DStamped
+>::costFunction()
 const
 {
   return new NormalPriorOrientation2D(sqrt_information_(0, 0), mean_(0));

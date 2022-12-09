@@ -31,17 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
-
-#include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
+#include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
@@ -52,7 +50,7 @@ AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
   const fuse_variables::Orientation3DStamped & orientation,
   const fuse_core::Vector7d & mean,
   const fuse_core::Matrix6d & covariance)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),    // NOLINT(whitespace/braces)
+: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
   mean_(mean),
   sqrt_information_(covariance.inverse().llt().matrixU())
 {

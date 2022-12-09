@@ -31,11 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/variable_constraints.hpp>
-
 #include <initializer_list>
 #include <numeric>
 
+#include <fuse_constraints/variable_constraints.hpp>
 
 namespace fuse_constraints
 {

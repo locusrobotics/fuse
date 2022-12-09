@@ -31,16 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_cost_function.hpp>
-
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/local_parameterization.hpp>
-
 #include <Eigen/Core>
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
+#include <fuse_constraints/marginal_cost_function.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/local_parameterization.hpp>
 
 namespace fuse_constraints
 {

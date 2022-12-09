@@ -34,12 +34,12 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_COST_FUNCTOR_HPP_
 #define FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_COST_FUNCTOR_HPP_
 
+#include <ceres/rotation.h>
+
 #include <fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
-
-#include <ceres/rotation.h>
 
 
 namespace fuse_constraints
@@ -92,7 +92,8 @@ public:
     T * residual) const;
 
 private:
-  fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root
+                           //!< information matrix
   fuse_core::Vector7d b_;  //!< The measured difference between variable pose1 and variable pose2
 
   NormalDeltaOrientation3DCostFunctor orientation_functor_;
@@ -103,7 +104,8 @@ NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(
   const fuse_core::Vector7d & b)
 : A_(A),
   b_(b),
-  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will not be scaled
+  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will
+                                                                       // not be scaled
 {
 }
 

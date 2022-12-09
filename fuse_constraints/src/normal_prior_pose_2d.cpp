@@ -31,12 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_prior_pose_2d.hpp>
-#include <fuse_core/util.hpp>
-
 #include <Eigen/Core>
 #include <glog/logging.h>
 
+#include <fuse_constraints/normal_prior_pose_2d.hpp>
+#include <fuse_core/util.hpp>
 
 namespace fuse_constraints
 {

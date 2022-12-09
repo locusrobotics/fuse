@@ -34,11 +34,11 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_2D_COST_FUNCTOR_HPP_
 #define FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_2D_COST_FUNCTOR_HPP_
 
+#include <Eigen/Core>
+
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
-
-#include <Eigen/Core>
 
 
 namespace fuse_constraints
@@ -99,7 +99,8 @@ public:
     T * residual) const;
 
 private:
-  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
+                           //!< information matrix
   fuse_core::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
 };
 

@@ -31,18 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
-
-#include <fuse_constraints/normal_prior_pose_2d.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
 #include <vector>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
+#include <fuse_constraints/normal_prior_pose_2d.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
@@ -55,7 +53,7 @@ AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
   const fuse_core::MatrixXd & partial_covariance,
   const std::vector<size_t> & linear_indices,
   const std::vector<size_t> & angular_indices)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})    // NOLINT(whitespace/braces)
+: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})  // NOLINT(whitespace/braces)
 {
   size_t total_variable_size = position.size() + orientation.size();
   size_t total_indices = linear_indices.size() + angular_indices.size();

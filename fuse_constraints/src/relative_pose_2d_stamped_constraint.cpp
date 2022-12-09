@@ -31,17 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
-
-#include <fuse_constraints/normal_delta_pose_2d.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 
 #include <string>
 #include <vector>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_constraints/normal_delta_pose_2d.hpp>
+#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
@@ -58,7 +56,7 @@ RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
   const std::vector<size_t> & angular_indices)
 : fuse_core::Constraint(
     source,
-    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})  // NOLINT(whitespace/braces)
+    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()})  // NOLINT
 {
   size_t total_variable_size = position1.size() + orientation1.size();
   size_t total_indices = linear_indices.size() + angular_indices.size();

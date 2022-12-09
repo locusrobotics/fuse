@@ -34,6 +34,12 @@
 #ifndef FUSE_CONSTRAINTS__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_HPP_
 #define FUSE_CONSTRAINTS__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_HPP_
 
+#include <Eigen/Dense>
+
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -45,11 +51,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <Eigen/Dense>
-
-#include <ostream>
-#include <string>
-#include <vector>
 
 
 namespace fuse_constraints
@@ -113,7 +114,7 @@ public:
     const fuse_core::VectorXd & partial_delta,
     const fuse_core::MatrixXd & partial_covariance,
     const std::vector<size_t> & linear_indices =
-    {fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y},               // NOLINT
+    {fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y},                // NOLINT
     const std::vector<size_t> & angular_indices = {fuse_variables::Orientation2DStamped::YAW});  // NOLINT
 
   /**
@@ -167,7 +168,8 @@ public:
 
 protected:
   fuse_core::Vector3d delta_;  //!< The measured pose change (dx, dy, dyaw)
-  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the covariance matrix)
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the
+                                          //!< covariance matrix)
 
 private:
   // Allow Boost Serialization access to private methods

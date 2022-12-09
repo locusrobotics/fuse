@@ -31,15 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_prior_pose_2d.hpp>
-#include <fuse_constraints/normal_prior_pose_2d_cost_functor.hpp>
-
 #include <benchmark/benchmark.h>
-
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <vector>
+
+#include <fuse_constraints/normal_prior_pose_2d.hpp>
+#include <fuse_constraints/normal_prior_pose_2d_cost_functor.hpp>
 
 class NormalPriorPose2DBenchmarkFixture : public benchmark::Fixture
 {

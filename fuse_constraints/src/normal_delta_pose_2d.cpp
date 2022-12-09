@@ -31,12 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_delta_pose_2d.hpp>
-#include <fuse_core/util.hpp>
-
 #include <Eigen/Core>
 #include <glog/logging.h>
 
+#include <fuse_constraints/normal_delta_pose_2d.hpp>
+#include <fuse_core/util.hpp>
 
 namespace fuse_constraints
 {
@@ -56,15 +55,16 @@ bool NormalDeltaPose2D::Evaluate(
   double ** jacobians) const
 {
   const fuse_core::Matrix2d R1_transpose =
-    fuse_core::rotationMatrix2D(parameters[1][0]).transpose();                                         // orientation1
+    fuse_core::rotationMatrix2D(parameters[1][0]).transpose();  // orientation1
   const fuse_core::Vector2d position_delta =
     R1_transpose * fuse_core::Vector2d(
-    parameters[2][0] - parameters[0][0],                                        // position2.x - position1.x
-    parameters[2][1] - parameters[0][1]);                                       // position2.y - position1.y
+    parameters[2][0] - parameters[0][0],                        // position2.x - position1.x
+    parameters[2][1] - parameters[0][1]);                       // position2.y - position1.y
 
   const fuse_core::Vector3d full_residuals_vector(
     position_delta[0] - b_[0], position_delta[1] - b_[1],
-    fuse_core::wrapAngle2D(parameters[3][0] - parameters[1][0] - b_[2]));    // orientation2 - orientation1
+    // orientation2 - orientation1
+    fuse_core::wrapAngle2D(parameters[3][0] - parameters[1][0] - b_[2]));
 
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.

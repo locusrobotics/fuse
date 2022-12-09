@@ -34,13 +34,13 @@
 #ifndef FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_IMPL_HPP_
 #define FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_IMPL_HPP_
 
-#include <fuse_constraints/normal_delta.hpp>
-#include <fuse_constraints/normal_delta_orientation_2d.hpp>
-
 #include <Eigen/Dense>
 
 #include <string>
 #include <vector>
+
+#include <fuse_constraints/normal_delta.hpp>
+#include <fuse_constraints/normal_delta_orientation_2d.hpp>
 
 
 namespace fuse_constraints
@@ -53,7 +53,7 @@ RelativeConstraint<Variable>::RelativeConstraint(
   const Variable & variable2,
   const fuse_core::VectorXd & delta,
   const fuse_core::MatrixXd & covariance)
-: fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()}),    // NOLINT(whitespace/braces)
+: fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()}),  // NOLINT(whitespace/braces)
   delta_(delta),
   sqrt_information_(covariance.inverse().llt().matrixU())
 {
@@ -71,7 +71,7 @@ RelativeConstraint<Variable>::RelativeConstraint(
   const fuse_core::VectorXd & partial_delta,
   const fuse_core::MatrixXd & partial_covariance,
   const std::vector<size_t> & indices)
-: fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()})    // NOLINT(whitespace/braces)
+: fuse_core::Constraint(source, {variable1.uuid(), variable2.uuid()})  // NOLINT(whitespace/braces)
 {
   assert(variable1.size() == variable2.size());
   assert(partial_delta.rows() == static_cast<int>(indices.size()));
@@ -137,7 +137,9 @@ ceres::CostFunction * RelativeConstraint<Variable>::costFunction() const
 
 // Specialization for Orientation2D
 template<>
-inline ceres::CostFunction * RelativeConstraint<fuse_variables::Orientation2DStamped>::costFunction()
+inline ceres::CostFunction * RelativeConstraint<
+  fuse_variables::Orientation2DStamped
+>::costFunction()
 const
 {
   // Create a Gaussian/Normal Delta constraint

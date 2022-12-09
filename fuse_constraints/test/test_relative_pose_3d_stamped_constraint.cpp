@@ -31,6 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <ceres/covariance.h>
+#include <ceres/problem.h>
+#include <ceres/solver.h>
+#include <gtest/gtest.h>
+
+#include <utility>
+#include <vector>
+
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.hpp>
 #include <fuse_core/eigen.hpp>
@@ -39,14 +47,6 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
-
-#include <ceres/covariance.h>
-#include <ceres/problem.h>
-#include <ceres/solver.h>
-#include <gtest/gtest.h>
-
-#include <utility>
-#include <vector>
 
 using fuse_variables::Orientation3DStamped;
 using fuse_variables::Position3DStamped;

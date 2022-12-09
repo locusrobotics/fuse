@@ -34,6 +34,15 @@
 #ifndef FUSE_CONSTRAINTS__MARGINALIZE_VARIABLES_HPP_
 #define FUSE_CONSTRAINTS__MARGINALIZE_VARIABLES_HPP_
 
+#include <ceres/cost_function.h>
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include <fuse_constraints/marginal_constraint.hpp>
 #include <fuse_constraints/uuid_ordering.hpp>
 #include <fuse_core/constraint.hpp>
@@ -45,14 +54,6 @@
 #include <fuse_core/variable.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
-#include <ceres/cost_function.h>
-
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <ostream>
-#include <string>
-#include <vector>
 
 
 namespace fuse_constraints

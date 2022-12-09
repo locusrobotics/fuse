@@ -32,9 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/normal_prior_orientation_2d.hpp>
-
 #include <fuse_core/util.hpp>
-
 
 namespace fuse_constraints
 {

@@ -32,9 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_constraints/uuid_ordering.hpp>
-
 #include <fuse_core/uuid.hpp>
-
 
 namespace fuse_constraints
 {

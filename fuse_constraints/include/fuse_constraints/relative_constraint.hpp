@@ -34,6 +34,12 @@
 #ifndef FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_HPP_
 #define FUSE_CONSTRAINTS__RELATIVE_CONSTRAINT_HPP_
 
+#include <ceres/cost_function.h>
+
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -50,11 +56,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <ceres/cost_function.h>
-
-#include <ostream>
-#include <string>
-#include <vector>
 
 
 namespace fuse_constraints

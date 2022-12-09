@@ -34,12 +34,12 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_HPP_
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_HPP_
 
+#include <Eigen/Core>
+
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
-
-#include <Eigen/Core>
 
 
 namespace fuse_constraints

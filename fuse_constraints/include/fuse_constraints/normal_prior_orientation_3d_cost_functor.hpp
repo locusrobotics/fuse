@@ -34,13 +34,13 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_PRIOR_ORIENTATION_3D_COST_FUNCTOR_HPP_
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_ORIENTATION_3D_COST_FUNCTOR_HPP_
 
+#include <ceres/rotation.h>
+#include <Eigen/Core>
+
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
-
-#include <ceres/rotation.h>
-#include <Eigen/Core>
 
 
 namespace fuse_constraints
@@ -125,7 +125,8 @@ public:
   }
 
 private:
-  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root
+                           //!< information matrix
   fuse_core::Vector4d b_;  //!< The measured 3D orientation (quaternion) value
 };
 

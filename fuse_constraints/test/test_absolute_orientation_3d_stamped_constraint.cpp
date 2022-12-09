@@ -31,14 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/eigen_gtest.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_variables/orientation_3d_stamped.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
-
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -47,6 +39,14 @@
 
 #include <utility>
 #include <vector>
+
+#include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_variables/orientation_3d_stamped.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
 
 using fuse_constraints::AbsoluteOrientation3DStampedConstraint;
 using fuse_variables::Orientation3DStamped;

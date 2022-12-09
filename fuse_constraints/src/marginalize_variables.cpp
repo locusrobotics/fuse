@@ -31,14 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.hpp>
-#include <fuse_constraints/marginalize_variables.hpp>
-#include <fuse_constraints/uuid_ordering.hpp>
-#include <fuse_constraints/variable_constraints.hpp>
-#include <fuse_core/uuid.hpp>
-
-#include <boost/iterator/transform_iterator.hpp>
-#include <boost/range/empty.hpp>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <suitesparse/ccolamd.h>
@@ -52,6 +44,13 @@
 #include <utility>
 #include <vector>
 
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/empty.hpp>
+#include <fuse_constraints/marginal_constraint.hpp>
+#include <fuse_constraints/marginalize_variables.hpp>
+#include <fuse_constraints/uuid_ordering.hpp>
+#include <fuse_constraints/variable_constraints.hpp>
+#include <fuse_core/uuid.hpp>
 
 namespace fuse_constraints
 {
@@ -489,7 +488,8 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm> & linear_terms)
     auto variable_count = dense_to_index.size() - 1;
     marginal_term.variables.reserve(variable_count);
     marginal_term.A.reserve(variable_count);
-    for (size_t dense = 1ul; dense < dense_to_index.size(); ++dense) { // Skipping the marginalized variable
+    // Skipping the marginalized variable
+    for (size_t dense = 1ul; dense < dense_to_index.size(); ++dense) {
       auto index = dense_to_index[dense];
       marginal_term.variables.push_back(index);
       fuse_core::MatrixXd A = fuse_core::MatrixXd::Zero(marginal_rows, index_to_cols[index]);

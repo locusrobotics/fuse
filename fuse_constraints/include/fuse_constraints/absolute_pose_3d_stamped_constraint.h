@@ -36,7 +36,8 @@
 #define FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_CONSTRAINT_H_
 
 #warning \
-  This header is obsolete, please include fuse_constraints/absolute_pose_3d_stamped_constraint.hpp instead
+  This header is obsolete, please include fuse_constraints/absolute_pose_3d_stamped_constraint.hpp \
+  instead
 
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
 

@@ -34,6 +34,14 @@
 #ifndef FUSE_CONSTRAINTS__MARGINAL_CONSTRAINT_HPP_
 #define FUSE_CONSTRAINTS__MARGINAL_CONSTRAINT_HPP_
 
+#include <ceres/cost_function.h>
+
+#include <algorithm>
+#include <cassert>
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/local_parameterization.hpp>
@@ -49,13 +57,6 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <ceres/cost_function.h>
-
-#include <algorithm>
-#include <cassert>
-#include <ostream>
-#include <string>
-#include <vector>
 
 
 namespace fuse_constraints
@@ -154,7 +155,10 @@ public:
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
-  std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< The local parameterizations
+
+  //!< The local parameterizations
+  std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;
+
   std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
 
 private:
@@ -237,15 +241,15 @@ MarginalConstraint::MarginalConstraint(
     std::all_of(
       A_.begin(), A_.end(), [this](const auto & A) {
         return A.rows() == this->b_.rows();
-      }));                                                                                                  // NOLINT
+      }));  // NOLINT
   assert(
     std::all_of(
       boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
       boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
-      [](const boost::tuple<const fuse_core::MatrixXd &, const fuse_core::Variable &> & tuple)              // NOLINT
+      [](const boost::tuple<const fuse_core::MatrixXd &, const fuse_core::Variable &> & tuple)  // NOLINT
       {
         return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize();
-      }));                 // NOLINT
+      }));  // NOLINT
 }
 
 }  // namespace fuse_constraints

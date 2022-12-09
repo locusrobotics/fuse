@@ -31,19 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_constraint.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/eigen_gtest.hpp>
-#include <fuse_core/serialization.hpp>
-#include <fuse_variables/orientation_3d_stamped.hpp>
-#include <fuse_variables/position_2d_stamped.hpp>
-#include <fuse_core/time.hpp>
-
 #include <gtest/gtest.h>
 
 #include <memory>
 #include <vector>
 
+#include <fuse_constraints/marginal_constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_core/time.hpp>
+#include <fuse_variables/orientation_3d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
 
 TEST(MarginalConstraint, OneVariable)
 {
@@ -148,7 +147,9 @@ TEST(MarginalConstraint, TwoVariables)
 
   // Define the expected residuals and jacobians
   fuse_core::Vector1d expected_residuals;
-  expected_residuals << 310.0;  // 5 * (10 - 1) + 6 * (12 - 2)   +   7 * (15 - 3) + 8 * (18 - 4)   +   9
+  expected_residuals << 310.0;  //   5 * (10 - 1) + 6 * (12 - 2)
+                                // + 7 * (15 - 3) + 8 * (18 - 4)
+                                // + 9
   fuse_core::MatrixXd expected_jacobian1(1, 2);
   expected_jacobian1 << 5.0, 6.0;  // Just A1
   fuse_core::MatrixXd expected_jacobian2(1, 2);

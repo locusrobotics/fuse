@@ -34,6 +34,12 @@
 #ifndef FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_CONSTRAINT_HPP_
 #define FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_CONSTRAINT_HPP_
 
+#include <Eigen/Geometry>
+
+#include <array>
+#include <ostream>
+#include <string>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -45,11 +51,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <Eigen/Geometry>
-
-#include <array>
-#include <ostream>
-#include <string>
 
 
 namespace fuse_constraints

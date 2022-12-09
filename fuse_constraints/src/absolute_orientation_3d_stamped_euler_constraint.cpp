@@ -31,18 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.hpp>
-
-#include <fuse_constraints/normal_prior_orientation_3d_euler_cost_functor.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
 #include <vector>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_constraints/absolute_orientation_3d_stamped_euler_constraint.hpp>
+#include <fuse_constraints/normal_prior_orientation_3d_euler_cost_functor.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {

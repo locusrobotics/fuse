@@ -31,6 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <ceres/covariance.h>
+#include <ceres/problem.h>
+#include <ceres/solver.h>
+#include <gtest/gtest.h>
+
+#include <utility>
+#include <vector>
+
 #include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_constraints/relative_constraint.hpp>
 #include <fuse_core/eigen.hpp>
@@ -44,15 +52,6 @@
 #include <fuse_variables/position_3d_stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
-
-#include <ceres/covariance.h>
-#include <ceres/problem.h>
-#include <ceres/solver.h>
-#include <gtest/gtest.h>
-
-#include <utility>
-#include <vector>
-
 
 TEST(RelativeConstraint, Constructor)
 {

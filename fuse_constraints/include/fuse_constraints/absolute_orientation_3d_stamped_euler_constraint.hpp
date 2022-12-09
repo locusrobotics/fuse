@@ -34,6 +34,10 @@
 #ifndef FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_HPP_
 #define FUSE_CONSTRAINTS__ABSOLUTE_ORIENTATION_3D_STAMPED_EULER_CONSTRAINT_HPP_
 
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -47,10 +51,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/vector.hpp>
-
-#include <ostream>
-#include <string>
-#include <vector>
 
 
 namespace fuse_constraints

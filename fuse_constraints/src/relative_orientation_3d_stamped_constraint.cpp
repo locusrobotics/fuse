@@ -31,17 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/relative_orientation_3d_stamped_constraint.hpp>
-
-#include <fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Geometry>
 
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp>
+#include <fuse_constraints/relative_orientation_3d_stamped_constraint.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
@@ -52,7 +50,7 @@ RelativeOrientation3DStampedConstraint::RelativeOrientation3DStampedConstraint(
   const fuse_variables::Orientation3DStamped & orientation2,
   const fuse_core::Vector4d & delta,
   const fuse_core::Matrix3d & covariance)
-: fuse_core::Constraint(source, {orientation1.uuid(), orientation2.uuid()}),    // NOLINT(whitespace/braces)
+: fuse_core::Constraint(source, {orientation1.uuid(), orientation2.uuid()}),  // NOLINT
   delta_(delta),
   sqrt_information_(covariance.inverse().llt().matrixU())
 {
@@ -75,8 +73,8 @@ RelativeOrientation3DStampedConstraint::RelativeOrientation3DStampedConstraint(
   const fuse_variables::Orientation3DStamped & orientation2,
   const geometry_msgs::msg::Quaternion & delta,
   const std::array<double, 9> & covariance)
-: RelativeOrientation3DStampedConstraint(source, orientation1, orientation2, toEigen(delta), toEigen(
-      covariance))
+: RelativeOrientation3DStampedConstraint(
+    source, orientation1, orientation2, toEigen(delta), toEigen(covariance))
 {
 }
 

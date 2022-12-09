@@ -34,9 +34,9 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_2D_HPP_
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_2D_HPP_
 
-#include <fuse_core/eigen.hpp>
-
 #include <ceres/sized_cost_function.h>
+
+#include <fuse_core/eigen.hpp>
 
 
 namespace fuse_constraints
@@ -95,7 +95,8 @@ public:
     double ** jacobians) const;
 
 private:
-  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
+                           //!< information matrix
   fuse_core::Vector3d b_;  //!< The measured 2D pose value
 };
 

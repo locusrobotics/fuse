@@ -34,9 +34,9 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_HPP_
 #define FUSE_CONSTRAINTS__NORMAL_DELTA_HPP_
 
-#include <fuse_core/eigen.hpp>
-
 #include <ceres/cost_function.h>
+
+#include <fuse_core/eigen.hpp>
 
 
 namespace fuse_constraints
@@ -90,7 +90,8 @@ public:
     double ** jacobians) const;
 
 private:
-  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
+                           //!< information matrix
   fuse_core::VectorXd b_;  //!< The measured difference between variable x0 and variable x1
 };
 
