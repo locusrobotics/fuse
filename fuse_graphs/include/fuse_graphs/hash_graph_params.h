@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019 Clearpath Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,44 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
-#define FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
 
-#include <fuse_core/ceres_options.hpp>
-#include <fuse_core/node_interfaces/node_interfaces.hpp>
+#ifndef FUSE_GRAPHS__HASH_GRAPH_PARAMS_H_
+#define FUSE_GRAPHS__HASH_GRAPH_PARAMS_H_
 
-#include <ceres/problem.h>
+#warning This header is obsolete, please include fuse_graphs/hash_graph_params.hpp instead
 
+#include <fuse_graphs/hash_graph_params.hpp>
 
-namespace fuse_graphs
-{
-
-/**
- * @brief Defines the set of parameters required by the fuse_graphs::HashGraph class
- */
-struct HashGraphParams
-{
-public:
-  /**
-   * @brief Ceres Problem::Options object that controls various aspects of the optimization problem.
-   *
-   * See https://ceres-solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#123
-   */
-  ceres::Problem::Options problem_options;
-
-  /**
-   * @brief Method for loading parameter values from ROS.
-   *
-   * @param[in] interfaces - The node interfaces with which to load parameters
-   */
-  void loadFromROS(fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Parameters
-  > interfaces)
-  {
-    fuse_core::loadProblemOptionsFromROS(interfaces, problem_options, "problem_options");
-  }
-};
-
-}  // namespace fuse_graphs
-
-#endif  // FUSE_GRAPHS_HASH_GRAPH_PARAMS_H
+#endif  // FUSE_GRAPHS__HASH_GRAPH_PARAMS_H_

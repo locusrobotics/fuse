@@ -31,8 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
-#define FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#ifndef FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
+#define FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
+
+#include <vector>
 
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
@@ -43,8 +45,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include <vector>
-
 
 /**
  * @brief Dummy variable implementation for testing
@@ -54,16 +54,16 @@ class ExampleVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  explicit ExampleVariable(size_t N = 1) :
-    fuse_core::Variable(fuse_core::uuid::generate()),
+  explicit ExampleVariable(size_t N = 1)
+  : fuse_core::Variable(fuse_core::uuid::generate()),
     data_(N, 0.0)
   {
   }
 
-  size_t size() const override { return data_.size(); }
-  const double* data() const override { return data_.data(); };
-  double* data() override { return data_.data(); };
-  void print(std::ostream& /*stream = std::cout*/) const override {}
+  size_t size() const override {return data_.size();}
+  const double * data() const override {return data_.data();}
+  double * data() override {return data_.data();}
+  void print(std::ostream & /*stream = std::cout*/) const override {}
 
 private:
   std::vector<double> data_;
@@ -72,13 +72,14 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Variable>(*this);
     archive & data_;
@@ -87,4 +88,4 @@ private:
 
 BOOST_CLASS_EXPORT(ExampleVariable);
 
-#endif  // FUSE_GRAPHS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#endif  // FUSE_GRAPHS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}

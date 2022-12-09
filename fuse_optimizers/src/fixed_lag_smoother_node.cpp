@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_graphs/hash_graph.h>
-#include <fuse_graphs/hash_graph_params.h>
+#include <fuse_graphs/hash_graph.hpp>
+#include <fuse_graphs/hash_graph_params.hpp>
 #include <fuse_optimizers/fixed_lag_smoother.h>
 #include <ros/ros.h>
 

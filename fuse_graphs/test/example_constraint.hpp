@@ -31,8 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_GRAPHS_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
-#define FUSE_GRAPHS_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#ifndef FUSE_GRAPHS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+#define FUSE_GRAPHS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+
+#include <ceres/autodiff_cost_function.h>
+
+#include <string>
 
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -42,9 +46,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <ceres/autodiff_cost_function.h>
-
-#include <string>
 
 
 /**
@@ -53,13 +54,13 @@
 class ExampleFunctor
 {
 public:
-  explicit ExampleFunctor(const double& b) :
-    b_(b)
+  explicit ExampleFunctor(const double & b)
+  : b_(b)
   {
   }
 
-  template <typename T>
-  bool operator()(const T* const variable, T* residual) const
+  template<typename T>
+  bool operator()(const T * const variable, T * residual) const
   {
     residual[0] = variable[0] - T(b_);
     return true;
@@ -79,14 +80,14 @@ public:
 
   ExampleConstraint() = default;
 
-  explicit ExampleConstraint(const std::string& source, const fuse_core::UUID& variable_uuid) :
-    fuse_core::Constraint(source, {variable_uuid}),  // NOLINT
+  explicit ExampleConstraint(const std::string & source, const fuse_core::UUID & variable_uuid)
+  : fuse_core::Constraint(source, {variable_uuid}),  // NOLINT
     data(0.0)
   {
   }
 
-  void print(std::ostream& /*stream = std::cout*/) const override {}
-  ceres::CostFunction* costFunction() const override
+  void print(std::ostream & /*stream = std::cout*/) const override {}
+  ceres::CostFunction * costFunction() const override
   {
     return new ceres::AutoDiffCostFunction<ExampleFunctor, 1, 1>(new ExampleFunctor(data));
   }
@@ -98,13 +99,14 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & data;
@@ -113,4 +115,4 @@ private:
 
 BOOST_CLASS_EXPORT(ExampleConstraint);
 
-#endif  // FUSE_GRAPHS_TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#endif  // FUSE_GRAPHS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
