@@ -66,6 +66,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   ${geometry_msgs_TARGETS}
   pluginlib::pluginlib
   rclcpp::rclcpp
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
   SuiteSparse::CCOLAMD
 )
 
