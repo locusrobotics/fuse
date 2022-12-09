@@ -68,7 +68,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   rclcpp::rclcpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  SuiteSparse::CCOLAMD
+  ${SUITESPARSRE_LIBRARIES}
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${SUITESPARSRE_INCLUDE_DIRS}
 )
 
 #############
