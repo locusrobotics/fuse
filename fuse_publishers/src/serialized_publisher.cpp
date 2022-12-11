@@ -39,8 +39,8 @@
 #include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
-#include <fuse_msgs/SerializedGraph.h>
-#include <fuse_msgs/SerializedTransaction.h>
+#include <fuse_msgs/msg/serialized_graph.hpp>
+#include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
@@ -80,8 +80,8 @@ void SerializedPublisher::onInit()
   }
 
   // Advertise the topics
-  graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1, latch);
-  transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1, latch);
+  graph_publisher_ = private_node_handle_.advertise<fuse_msgs::msg::SerializedGraph>("graph", 1, latch);
+  transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::msg::SerializedTransaction>("transaction", 1, latch);
 }
 
 void SerializedPublisher::notifyCallback(
@@ -96,7 +96,7 @@ void SerializedPublisher::notifyCallback(
 
   if (transaction_publisher_.getNumSubscribers() > 0)
   {
-    fuse_msgs::SerializedTransaction msg;
+    fuse_msgs::msg::SerializedTransaction msg;
     msg.header.stamp = stamp;
     msg.header.frame_id = frame_id_;
     fuse_core::serializeTransaction(*transaction, msg);
@@ -106,7 +106,7 @@ void SerializedPublisher::notifyCallback(
 
 void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const
 {
-  fuse_msgs::SerializedGraph msg;
+  fuse_msgs::msg::SerializedGraph msg;
   msg.header.stamp = stamp;
   msg.header.frame_id = frame_id_;
   fuse_core::serializeGraph(*graph, msg);

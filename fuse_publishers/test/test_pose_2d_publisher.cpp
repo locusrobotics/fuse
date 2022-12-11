@@ -39,11 +39,11 @@
 #include <fuse_publishers/pose_2d_publisher.h>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
-#include <tf2_msgs/TFMessage.h>
+#include <tf2_msgs/msg/tf_message.hpp>
 #include <tf2_ros/static_transform_broadcaster.h>
 
 #include <gtest/gtest.h>
@@ -143,7 +143,7 @@ public:
     graph_->optimize();
 
     // Publish a odom->base transform so tf lookups will succeed
-    geometry_msgs::TransformStamped odom_to_base;
+    geometry_msgs::msg::TransformStamped odom_to_base;
     odom_to_base.header.stamp = rclcpp::Time(0, 0);
     odom_to_base.header.frame_id = "test_odom";
     odom_to_base.child_frame_id = "test_base";
@@ -157,22 +157,22 @@ public:
     static_broadcaster_.sendTransform(odom_to_base);
   }
 
-  void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+  void poseCallback(const geometry_msgs::msg::PoseStamped& msg)
   {
     received_pose_msg_ = true;
-    pose_msg_ = *msg;
+    pose_msg_ = msg;
   }
 
-  void poseWithCovarianceCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
   {
     received_pose_with_covariance_msg_ = true;
-    pose_with_covariance_msg_ = *msg;
+    pose_with_covariance_msg_ = msg;
   }
 
-  void tfCallback(const tf2_msgs::TFMessage::ConstPtr& msg)
+  void tfCallback(const tf2_msgs::msg::TFMessage& msg)
   {
     received_tf_msg_ = true;
-    tf_msg_ = *msg;
+    tf_msg_ = msg;
   }
 
 protected:
@@ -182,11 +182,11 @@ protected:
   fuse_graphs::HashGraph::SharedPtr graph_;
   fuse_core::Transaction::SharedPtr transaction_;
   bool received_pose_msg_;
-  geometry_msgs::PoseStamped pose_msg_;
+  geometry_msgs::msg::PoseStamped pose_msg_;
   bool received_pose_with_covariance_msg_;
-  geometry_msgs::PoseWithCovarianceStamped pose_with_covariance_msg_;
+  geometry_msgs::msg::PoseWithCovarianceStamped pose_with_covariance_msg_;
   bool received_tf_msg_;
-  tf2_msgs::TFMessage tf_msg_;
+  tf2_msgs::msg::TFMessage tf_msg_;
   tf2_ros::StaticTransformBroadcaster static_broadcaster_;
 };
 

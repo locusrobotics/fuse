@@ -86,13 +86,13 @@ namespace fuse_publishers
  *  - tf_timeout (seconds, default: 0.1)  The maximum amount of time to wait for a transform to become available
  *
  * Publishes:
- *  - pose (geometry_msgs::PoseStamped)  The most recent optimized robot pose (i.e. the map->base transform)
- *  - pose_with_covariance (geometry_msgs::PoseWithCovarianceStamped)  The most recent optimized robot pose and
+ *  - pose (geometry_msgs::msg::PoseStamped)  The most recent optimized robot pose (i.e. the map->base transform)
+ *  - pose_with_covariance (geometry_msgs::msg::PoseWithCovarianceStamped)  The most recent optimized robot pose and
  *                                                                     covariance (i.e. the map->base transform)
- *  - tf (tf2_msgs::TFMessage)  The most recent map->odom transform (or map->base if the odom_frame is empty)
+ *  - tf (tf2_msgs::msg::TFMessage)  The most recent map->odom transform (or map->base if the odom_frame is empty)
  *
  * Subscribes:
- *  - tf, tf_static (tf2_msgs::TFMessage)  Used to lookup the current odom->base frame, if needed
+ *  - tf, tf_static (tf2_msgs::msg::TFMessage)  Used to lookup the current odom->base frame, if needed
  */
 class Pose2DPublisher : public fuse_core::AsyncPublisher
 {
@@ -156,8 +156,8 @@ protected:
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   std::string map_frame_;  //!< The name of the robot's map frame
   std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is not used)
-  ros::Publisher pose_publisher_;  //!< Publish the pose as a geometry_msgs::PoseStamped
-  ros::Publisher pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::PoseWithCovarianceStamped
+  ros::Publisher pose_publisher_;  //!< Publish the pose as a geometry_msgs::msg::PoseStamped
+  ros::Publisher pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::msg::PoseWithCovarianceStamped
   bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the pose topics
   Synchronizer::UniquePtr synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by time and frame id
@@ -166,7 +166,7 @@ protected:
   tf2_ros::TransformBroadcaster tf_publisher_;  //!< Publish the map->odom or map->base transform to the tf system
   rclcpp::TimerBase::SharedPtr tf_publish_timer_;  //!< Timer that publishes tf messages to ensure the tf transform doesn't get stale
   rclcpp::Duration tf_timeout_;  //!< The max time to wait for a tf transform to become available
-  geometry_msgs::TransformStamped tf_transform_;  //!< The transform to be published to tf
+  geometry_msgs::msg::TransformStamped tf_transform_;  //!< The transform to be published to tf
   bool use_tf_lookup_;  //!< Internal flag indicating that a tf frame lookup is required
 };
 

@@ -39,9 +39,9 @@
 #include <fuse_publishers/path_2d_publisher.h>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-#include <geometry_msgs/PoseArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Path.h>
+#include <geometry_msgs/msg/pose_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <nav_msgs/msg/path.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
 
@@ -141,15 +141,15 @@ public:
     graph_->optimize();
   }
 
-  void pathCallback(const nav_msgs::Path::ConstPtr& msg)
+  void pathCallback(const nav_msgs::msg::Path& msg)
   {
-    path_msg_ = *msg;
+    path_msg_ = msg;
     received_path_msg_ = true;
   }
 
-  void poseArrayCallback(const geometry_msgs::PoseArray::ConstPtr& msg)
+  void poseArrayCallback(const geometry_msgs::msg::PoseArray& msg)
   {
-    pose_array_msg_ = *msg;
+    pose_array_msg_ = msg;
     received_pose_array_msg_ = true;
   }
 
@@ -160,9 +160,9 @@ protected:
   fuse_graphs::HashGraph::SharedPtr graph_;
   fuse_core::Transaction::SharedPtr transaction_;
   bool received_path_msg_;
-  nav_msgs::Path path_msg_;
+  nav_msgs::msg::Path path_msg_;
   bool received_pose_array_msg_;
-  geometry_msgs::PoseArray pose_array_msg_;
+  geometry_msgs::msg::PoseArray pose_array_msg_;
 };
 
 TEST_F(Path2DPublisherTestFixture, PublishPath)

@@ -47,7 +47,7 @@ namespace fuse_publishers
 {
 
 /**
- * @brief Publisher plugin that publishes all of the stamped 2D poses as a nav_msgs::Path message.
+ * @brief Publisher plugin that publishes all of the stamped 2D poses as a nav_msgs::msg::Path message.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish

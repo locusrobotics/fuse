@@ -40,14 +40,14 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <rclcpp/clock.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <exception>
 #include <memory>
@@ -69,7 +69,7 @@ bool findPose(
   const fuse_core::UUID& device_id,
   fuse_core::UUID& orientation_uuid,
   fuse_core::UUID& position_uuid,
-  geometry_msgs::Pose& pose)
+  geometry_msgs::msg::Pose& pose)
 {
   try
   {
@@ -175,15 +175,15 @@ void Pose2DPublisher::onInit()
   }
 
   // Advertise the topics
-  pose_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseStamped>("pose", 1);
-  pose_with_covariance_publisher_ = private_node_handle_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
+  pose_publisher_ = private_node_handle_.advertise<geometry_msgs::msg::PoseStamped>("pose", 1);
+  pose_with_covariance_publisher_ = private_node_handle_.advertise<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "pose_with_covariance", 1);
 }
 
 void Pose2DPublisher::onStart()
 {
   // Clear the transform
-  tf_transform_ = geometry_msgs::TransformStamped();
+  tf_transform_ = geometry_msgs::msg::TransformStamped();
   // Clear the synchronizer
   synchronizer_ = Synchronizer::make_unique(device_id_);
   // Start the tf timer
@@ -220,7 +220,7 @@ void Pose2DPublisher::notifyCallback(
   // Get the pose values associated with the selected timestamp
   fuse_core::UUID orientation_uuid;
   fuse_core::UUID position_uuid;
-  geometry_msgs::Pose pose;
+  geometry_msgs::msg::Pose pose;
   if (!findPose(*graph, latest_stamp, device_id_, orientation_uuid, position_uuid, pose))
   {
     return;
@@ -229,7 +229,7 @@ void Pose2DPublisher::notifyCallback(
   if (publish_to_tf_)
   {
     // Create a 3D ROS Transform message from the current 2D pose
-    geometry_msgs::TransformStamped map_to_base;
+    geometry_msgs::msg::TransformStamped map_to_base;
     map_to_base.header.stamp = latest_stamp;
     map_to_base.header.frame_id = map_frame_;
     map_to_base.child_frame_id = base_frame_;
@@ -245,7 +245,7 @@ void Pose2DPublisher::notifyCallback(
       try
       {
         auto base_to_odom = tf_buffer_->lookupTransform(base_frame_, odom_frame_, latest_stamp, tf_timeout_);
-        geometry_msgs::TransformStamped map_to_odom;
+        geometry_msgs::msg::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, map_to_base);
         map_to_odom.child_frame_id = odom_frame_;  // The child frame is not populated for some reason
         tf_transform_ = map_to_odom;
@@ -265,7 +265,7 @@ void Pose2DPublisher::notifyCallback(
   }
   if (pose_publisher_.getNumSubscribers() > 0)
   {
-    geometry_msgs::PoseStamped msg;
+    geometry_msgs::msg::PoseStamped msg;
     msg.header.stamp = latest_stamp;
     msg.header.frame_id = map_frame_;
     msg.pose = pose;
@@ -280,7 +280,7 @@ void Pose2DPublisher::notifyCallback(
     requests.emplace_back(orientation_uuid, orientation_uuid);
     std::vector<std::vector<double>> covariance_blocks;
     graph->getCovariance(requests, covariance_blocks);
-    geometry_msgs::PoseWithCovarianceStamped msg;
+    geometry_msgs::msg::PoseWithCovarianceStamped msg;
     msg.header.stamp = latest_stamp;
     msg.header.frame_id = map_frame_;
     msg.pose.pose = pose;
