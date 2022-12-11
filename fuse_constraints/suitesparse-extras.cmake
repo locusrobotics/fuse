@@ -27,6 +27,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 if(DEFINED fuse_constraints_DIR)
-    list(APPEND CMAKE_MODULE_PATH "${fuse_constraints_DIR}")
+  list(APPEND CMAKE_MODULE_PATH "${fuse_constraints_DIR}")
 endif()
 find_package(SUITESPARSE REQUIRED COMPONENTS CCOLAMD)

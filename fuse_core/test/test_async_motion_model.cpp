@@ -89,7 +89,7 @@ public:
 
 TEST_F(TestAsyncMotionModel, OnInit)
 {
-  for (int i = 0; i < 250; i++) {
+  for (int i = 0; i < 50; i++) {
     MyMotionModel motion_model;
     motion_model.initialize("my_motion_model_" + std::to_string(i));
     EXPECT_TRUE(motion_model.initialized);

@@ -37,9 +37,9 @@
 namespace fuse_core
 {
 
-AsyncPublisher::AsyncPublisher(size_t thread_count)
+AsyncPublisher::AsyncPublisher()
 : name_("uninitialized"),
-  executor_thread_count_(thread_count)
+  executor_thread_count_(1)
 {
 }
 
@@ -48,43 +48,48 @@ AsyncPublisher::~AsyncPublisher()
   internal_stop();
 }
 
-void AsyncPublisher::initialize(const std::string & name)
+void AsyncPublisher::initialize(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Waitables
+  > interfaces,
+  const std::string & name)
 {
+  interfaces_ = interfaces;
+
   if (initialized_) {
     throw std::runtime_error("Calling initialize on an already initialized AsyncPublisher!");
   }
 
   // Initialize internal state
-  name_ = name;
-  std::string node_namespace = "";
+  name_ = name;  // NOTE(methylDragon): Used in derived classes
 
-  // TODO(CH3): Pass in the context or a node to get the context from
-  rclcpp::Context::SharedPtr ros_context = rclcpp::contexts::get_global_default_context();
-  auto node_options = rclcpp::NodeOptions();
-  node_options.context(ros_context);  // set a context to generate the node in
-
-  // TODO(CH3): Potentially pass in the optimizer node instead of spinning a new one
-  node_ = rclcpp::Node::make_shared(name_, node_namespace, node_options);
-
+  auto context = interfaces_.get_node_base_interface()->get_context();
   auto executor_options = rclcpp::ExecutorOptions();
-  executor_options.context = ros_context;
-  executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
-    executor_options,
-    executor_thread_count_);
+  executor_options.context = context;
 
-  callback_queue_ = std::make_shared<CallbackAdapter>(ros_context);
+  if (executor_thread_count_ == 1) {
+    executor_ = rclcpp::executors::SingleThreadedExecutor::make_shared(executor_options);
+  } else {
+    executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
+      executor_options, executor_thread_count_);
+  }
+
+  callback_queue_ =
+    std::make_shared<CallbackAdapter>(context);
 
   // This callback group MUST be re-entrant in order to support parallelization
-  cb_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-  node_->get_node_waitables_interface()->add_waitable(
-    callback_queue_, cb_group_);
+  cb_group_ = interfaces_.get_node_base_interface()->create_callback_group(
+    rclcpp::CallbackGroupType::Reentrant, false);
+  interfaces_.get_node_waitables_interface()->add_waitable(callback_queue_, cb_group_);
 
   // Call the derived onInit() function to perform implementation-specific initialization
   onInit();
 
   // Make sure the executor will service the given node
-  // TODO(sloretz) add just the callback group here when using Optimizer's Node
-  executor_->add_node(node_);
+  // We can add this without any guards because the callback group was set to not get automatically
+  // added to executors
+  executor_->add_callback_group(cb_group_, interfaces_.get_node_base_interface());
 
   // Start the executor
   spinner_ = std::thread(
@@ -103,6 +108,18 @@ void AsyncPublisher::initialize(const std::string & name)
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
+}
+
+void AsyncPublisher::initialize(
+  node_interfaces::NodeInterfaces<
+    node_interfaces::Base,
+    node_interfaces::Waitables
+  > interfaces,
+  const std::string & name,
+  size_t thread_count)
+{
+  executor_thread_count_ = thread_count;
+  initialize(interfaces, name);
 }
 
 void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::ConstSharedPtr graph)
@@ -127,7 +144,7 @@ void AsyncPublisher::stop()
 {
   // Prefer to call onStop in executor's thread so downstream users don't have
   // to worry about threads in ROS callbacks when there's only 1 thread.
-  if (node_->get_node_base_interface()->get_context()->is_valid()) {
+  if (interfaces_.get_node_base_interface()->get_context()->is_valid()) {
     auto callback = std::make_shared<CallbackWrapper<void>>(
       std::bind(&AsyncPublisher::onStop, this)
     );

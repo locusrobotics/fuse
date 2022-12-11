@@ -82,7 +82,8 @@ public:
    *
    * @param[in] name A unique name to give this plugin instance
    */
-  virtual void initialize(const std::string & name) = 0;
+  template<typename NodeT>
+  void initialize(NodeT interfaces, const std::string & name);
 
   /**
    * @brief Get the unique name of this publisher

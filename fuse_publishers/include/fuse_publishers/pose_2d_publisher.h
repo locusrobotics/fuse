@@ -44,9 +44,21 @@
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 
-#include <ros/ros.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+
+
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+
+
 
 #include <memory>
 #include <string>
@@ -110,6 +122,23 @@ public:
   virtual ~Pose2DPublisher() = default;
 
   /**
+   * @brief Shadowing extension to the AsyncPublisher::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Clock,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters,
+      fuse_core::node_interfaces::Services,
+      fuse_core::node_interfaces::Timers,
+      fuse_core::node_interfaces::Topics,
+      fuse_core::node_interfaces::Waitables
+    > interfaces,
+    const std::string & name,
+    size_t thread_count);
+
+  /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or reading from the
    * parameter server.
    */
@@ -149,21 +178,34 @@ public:
   void tfPublishTimerCallback();
 
 protected:
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Services,
+    fuse_core::node_interfaces::Timers,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+
   using Synchronizer = StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
                                                    fuse_variables::Position2DStamped>;
-
   std::string base_frame_;  //!< The name of the robot's base_link frame
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
+  rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The publisher's logger, shared_ptr for deferred init
+
   std::string map_frame_;  //!< The name of the robot's map frame
   std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is not used)
-  ros::Publisher pose_publisher_;  //!< Publish the pose as a geometry_msgs::msg::PoseStamped
-  ros::Publisher pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::msg::PoseWithCovarianceStamped
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_publisher_;  //!< Publish the pose as a geometry_msgs::PoseStamped
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::PoseWithCovarianceStamped
   bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the pose topics
   Synchronizer::UniquePtr synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by time and frame id
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the tf topics and
                                                              //!< inserts the received transforms into the tf buffer
-  tf2_ros::TransformBroadcaster tf_publisher_;  //!< Publish the map->odom or map->base transform to the tf system
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_publisher_ = nullptr;  //!< Publish the map->odom or map->base transform to the tf system
   rclcpp::TimerBase::SharedPtr tf_publish_timer_;  //!< Timer that publishes tf messages to ensure the tf transform doesn't get stale
   rclcpp::Duration tf_timeout_;  //!< The max time to wait for a tf transform to become available
   geometry_msgs::msg::TransformStamped tf_transform_;  //!< The transform to be published to tf

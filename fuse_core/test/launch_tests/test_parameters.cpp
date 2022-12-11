@@ -114,9 +114,9 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
   fuse_core::Matrix3d default_covariance = fuse_core::Matrix3d::Identity();
   default_covariance *= default_variance;
 
-  // Load covariance matrix diagonal from the parameter server:
   auto node = rclcpp::Node::make_shared("test_parameters_node");
 
+  // Load covariance matrix diagonal from the parameter server:
   // A covariance diagonal with the expected size and valid should be the same as the expected one:
   {
     const std::string parameter_name{"covariance_diagonal"};

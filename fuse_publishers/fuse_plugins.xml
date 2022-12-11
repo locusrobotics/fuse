@@ -1,4 +1,4 @@
-<library path="lib/libfuse_publishers">
+<library path="fuse_publishers">
   <class type="fuse_publishers::Path2DPublisher" base_class_type="fuse_core::Publisher">
     <description>
       Publisher plugin that publishes all of the Position2DStamped/Orientation2DStamped poses as a

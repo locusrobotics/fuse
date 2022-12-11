@@ -100,7 +100,10 @@ install(DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
 
-install(DIRECTORY cmake DESTINATION share/${PROJECT_NAME})
+install(
+  DIRECTORY cmake
+  DESTINATION share/${PROJECT_NAME}
+)
 
 pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 

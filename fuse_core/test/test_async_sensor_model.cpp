@@ -95,7 +95,7 @@ public:
 
 TEST_F(TestAsyncSensorModel, OnInit)
 {
-  for (int i = 0; i < 250; i++) {
+  for (int i = 0; i < 50; i++) {
     MySensor sensor;
     sensor.initialize("my_sensor_" + std::to_string(i), &transactionCallback);
     EXPECT_TRUE(sensor.initialized);

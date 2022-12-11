@@ -1,35 +1,31 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.16)
 project(fuse_publishers)
 
-set(build_depends
-  fuse_core
-  fuse_variables
-  geometry_msgs
-  nav_msgs
-  pluginlib
-  roscpp
-  tf2
-  tf2_geometry_msgs
-  tf2_ros
-)
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CXX_STANDARD_REQUIRED YES)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  ${build_depends}
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    ${build_depends}
-)
+find_package(ament_cmake_ros REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_msgs REQUIRED)
+find_package(fuse_variables REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
 
 # fuse_publishers library
 add_library(${PROJECT_NAME}
@@ -37,128 +33,62 @@ add_library(${PROJECT_NAME}
   src/pose_2d_publisher.cpp
   src/serialized_publisher.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
 )
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
-)
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-)
-
-#############
-## Install ##
-#############
-
-install(
-  TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-install(FILES fuse_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  fuse_core::fuse_core
+  ${fuse_msgs_TARGETS}
+  fuse_variables::fuse_variables
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  tf2::tf2
+  ${tf2_geometry_msgs_TARGETS}
+  tf2_ros::tf2_ros
 )
 
 #############
 ## Testing ##
 #############
 
-if(CATKIN_ENABLE_TESTING)
-  set(test_depends
-    fuse_constraints
-    fuse_graphs
-  )
-
-  find_package(catkin REQUIRED COMPONENTS
-    ${build_depends}
-    ${test_depends}
-  )
-  find_package(roslint REQUIRED)
-  find_package(rostest REQUIRED)
-
-  # Lint tests
-  set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
-  roslint_cpp()
-  roslint_add_test()
-
-  # Path2DPublisher Tests
-  add_rostest_gtest(test_path_2d_publisher
-    test/path_2d_publisher.test
-    test/test_path_2d_publisher.cpp
-  )
-  add_dependencies(test_path_2d_publisher
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_path_2d_publisher
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_path_2d_publisher
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_path_2d_publisher
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # Pose2DPublisher Tests
-  add_rostest_gtest(test_pose_2d_publisher
-    test/pose_2d_publisher.test
-    test/test_pose_2d_publisher.cpp
-  )
-  add_dependencies(test_pose_2d_publisher
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_pose_2d_publisher
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_pose_2d_publisher
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_pose_2d_publisher
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-
-  # StampedVariableSynchronizer Tests
-  catkin_add_gtest(test_stamped_variable_synchronizer
-    test/test_stamped_variable_synchronizer.cpp
-  )
-  add_dependencies(test_stamped_variable_synchronizer
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_stamped_variable_synchronizer
-    PRIVATE
-      include
-      ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_stamped_variable_synchronizer
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_stamped_variable_synchronizer
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+  add_subdirectory(test)
 endif()
+
+#############
+## Install ##
+#############
+
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
+
+ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+  ament_cmake_ros
+  fuse_core
+  fuse_msgs
+  fuse_variables
+  geometry_msgs
+  nav_msgs
+  pluginlib
+  rclcpp
+  tf2
+  tf2_geometry_msgs
+  tf2_ros
+)
+
+ament_package()

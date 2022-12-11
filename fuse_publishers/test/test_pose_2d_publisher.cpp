@@ -41,7 +41,9 @@
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+// Workaround ros2/geometry2#242
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
 #include <tf2/utils.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <tf2_ros/static_transform_broadcaster.h>
@@ -61,7 +63,6 @@ class Pose2DPublisherTestFixture : public ::testing::Test
 {
 public:
   Pose2DPublisherTestFixture() :
-    private_node_handle_("~"),
     graph_(fuse_graphs::HashGraph::make_shared()),
     transaction_(fuse_core::Transaction::make_shared()),
     received_pose_msg_(false),
@@ -69,26 +70,26 @@ public:
     received_tf_msg_(false)
   {
     // Add a few pose variables
-    auto position1 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10));
+    auto position1 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
     position1->x() = 1.01;
     position1->y() = 2.01;
-    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10));
+    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
     orientation1->yaw() = 3.01;
-    auto position2 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10));
+    auto position2 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
     position2->x() = 1.02;
     position2->y() = 2.02;
-    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10));
+    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
     orientation2->yaw() = 3.02;
-    auto position3 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9));
+    auto position3 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
     position3->x() = 1.03;
     position3->y() = 2.03;
-    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9));
+    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
     orientation3->yaw() = 3.03;
-    auto position4 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 11),
+    auto position4 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 11, RCL_ROS_TIME),
                                                                     fuse_core::uuid::generate("kitt"));
     position4->x() = 1.04;
     position4->y() = 2.04;
-    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 11),
+    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 11, RCL_ROS_TIME),
                                                                           fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
@@ -143,18 +144,35 @@ public:
     graph_->optimize();
 
     // Publish a odom->base transform so tf lookups will succeed
-    geometry_msgs::msg::TransformStamped odom_to_base;
-    odom_to_base.header.stamp = rclcpp::Time(0, 0);
-    odom_to_base.header.frame_id = "test_odom";
-    odom_to_base.child_frame_id = "test_base";
-    odom_to_base.transform.translation.x = -0.10;
-    odom_to_base.transform.translation.y = -0.20;
-    odom_to_base.transform.translation.z = -0.30;
-    odom_to_base.transform.rotation.x = 0.0;
-    odom_to_base.transform.rotation.y = 0.0;
-    odom_to_base.transform.rotation.z = -0.1986693307950612164;
-    odom_to_base.transform.rotation.w = 0.98006657784124162625;  // -0.4rad in yaw
-    static_broadcaster_.sendTransform(odom_to_base);
+    odom_to_base_.header.stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
+    odom_to_base_.header.frame_id = "test_odom";
+    odom_to_base_.child_frame_id = "test_base";
+    odom_to_base_.transform.translation.x = -0.10;
+    odom_to_base_.transform.translation.y = -0.20;
+    odom_to_base_.transform.translation.z = -0.30;
+    odom_to_base_.transform.rotation.x = 0.0;
+    odom_to_base_.transform.rotation.y = 0.0;
+    odom_to_base_.transform.rotation.z = -0.1986693307950612164;
+    odom_to_base_.transform.rotation.w = 0.98006657784124162625;  // -0.4rad in yaw
+  }
+
+  void SetUp() override
+  {
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+
+    spinner_ = std::thread(
+      [&]() {
+        executor_->spin();
+      });
+  }
+
+  void TearDown() override
+  {
+    executor_->cancel();
+    if (spinner_.joinable()) {
+     spinner_.join();
+    }
+    executor_.reset();
   }
 
   void poseCallback(const geometry_msgs::msg::PoseStamped& msg)
@@ -175,10 +193,11 @@ public:
     tf_msg_ = msg;
   }
 
+   std::thread spinner_;  //!< Internal thread for spinning the executor
+   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+
 protected:
-  // TODO(CH3): Replace with node_ (also, we don't need to support node interfaces here since it's a test...)
-  ros::NodeHandle node_handle_;
-  ros::NodeHandle private_node_handle_;
+  geometry_msgs::msg::TransformStamped odom_to_base_;
   fuse_graphs::HashGraph::SharedPtr graph_;
   fuse_core::Transaction::SharedPtr transaction_;
   bool received_pose_msg_;
@@ -187,41 +206,43 @@ protected:
   geometry_msgs::msg::PoseWithCovarianceStamped pose_with_covariance_msg_;
   bool received_tf_msg_;
   tf2_msgs::msg::TFMessage tf_msg_;
-  tf2_ros::StaticTransformBroadcaster static_broadcaster_;
 };
 
 TEST_F(Pose2DPublisherTestFixture, PublishPose)
 {
   // Test that the expected PoseStamped message is published
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "map_frame:=test_map",
+    "-p", "odom_frame:=test_odom",
+    "-p", "base_frame:=test_base",
+    "-p", "publish_to_tf:=false"});
+  auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
+  executor_->add_node(node);
 
   // Create a publisher and send it the graph
-  private_node_handle_.setParam("test_publisher/map_frame", "test_map");
-  private_node_handle_.setParam("test_publisher/odom_frame", "test_odom");
-  private_node_handle_.setParam("test_publisher/base_frame", "test_base");
-  private_node_handle_.setParam("test_publisher/publish_to_tf", false);
   fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize("test_publisher");
+  publisher.initialize(node, "test_publisher", 0);
   publisher.start();
 
   // Subscribe to the "pose" topic
-  ros::Subscriber subscriber = private_node_handle_.subscribe(
-    "test_publisher/pose",
-    1,
-    &Pose2DPublisherTestFixture::poseCallback,
-    reinterpret_cast<Pose2DPublisherTestFixture*>(this));
+  auto subscriber1 = node->create_subscription<geometry_msgs::msg::PoseStamped>(
+    "/test_publisher/pose", 1,
+    std::bind(&Pose2DPublisherTestFixture::poseCallback, this, std::placeholders::_1));
 
   // Send the graph to the Publisher to trigger message publishing
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_pose_msg_) && (node_->now() < timeout))
+  rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(20.0);
+  while ((!received_pose_msg_) && (node->now() < timeout))
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
   ASSERT_TRUE(received_pose_msg_);
-  EXPECT_EQ(rclcpp::Time(1235, 10), pose_msg_.header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10, RCL_ROS_TIME), pose_msg_.header.stamp);
   EXPECT_EQ("test_map", pose_msg_.header.frame_id);
   EXPECT_NEAR(1.02, pose_msg_.pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.02, pose_msg_.pose.position.y, 1.0e-9);
@@ -232,35 +253,38 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
 TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
 {
   // Test that the expected PoseWithCovarianceStamped message is published
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "map_frame:=test_map",
+    "-p", "odom_frame:=test_odom",
+    "-p", "base_frame:=test_base",
+    "-p", "publish_to_tf:=false"});
+  auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
+  executor_->add_node(node);
 
   // Create a publisher and send it the graph
-  private_node_handle_.setParam("test_publisher/map_frame", "test_map");
-  private_node_handle_.setParam("test_publisher/odom_frame", "test_odom");
-  private_node_handle_.setParam("test_publisher/base_frame", "test_base");
-  private_node_handle_.setParam("test_publisher/publish_to_tf", false);
   fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize("test_publisher");
+  publisher.initialize(node, "test_publisher", 0);
   publisher.start();
 
   // Subscribe to the "pose_with_covariance" topic
-  ros::Subscriber subscriber = private_node_handle_.subscribe(
-    "test_publisher/pose_with_covariance",
-    1,
-    &Pose2DPublisherTestFixture::poseWithCovarianceCallback,
-    reinterpret_cast<Pose2DPublisherTestFixture*>(this));
+  auto subscriber1 = node->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    "/test_publisher/pose_with_covariance", 1,
+    std::bind(&Pose2DPublisherTestFixture::poseWithCovarianceCallback, this, std::placeholders::_1));
 
   // Send the graph to the Publisher to trigger message publishing
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_pose_with_covariance_msg_) && (node_->now() < timeout))
+  rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(20.0);
+  while ((!received_pose_with_covariance_msg_) && (node->now() < timeout))
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
   ASSERT_TRUE(received_pose_with_covariance_msg_);
-  EXPECT_EQ(rclcpp::Time(1235, 10), pose_with_covariance_msg_.header.stamp);
+  EXPECT_EQ(rclcpp::Time(1235, 10, RCL_ROS_TIME), pose_with_covariance_msg_.header.stamp);
   EXPECT_EQ("test_map", pose_with_covariance_msg_.header.frame_id);
   EXPECT_NEAR(1.02, pose_with_covariance_msg_.pose.pose.position.x, 1.0e-9);
   EXPECT_NEAR(2.02, pose_with_covariance_msg_.pose.pose.position.y, 1.0e-9);
@@ -268,12 +292,14 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
   EXPECT_NEAR(3.02, tf2::getYaw(pose_with_covariance_msg_.pose.pose.orientation), 1.0e-9);
   std::vector<double> expected_covariance =
   {
+    /* *INDENT-OFF* */
     1.02, 0.00, 0.00, 0.00, 0.00, 0.00,
     0.00, 2.02, 0.00, 0.00, 0.00, 0.00,
     0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
     0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
     0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
     0.00, 0.00, 0.00, 0.00, 0.00, 3.02
+    /* *INDENT-ON* */
   };
   for (size_t i = 0; i < 36; ++i)
   {
@@ -284,31 +310,39 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
 TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
 {
   // Test that the expected TFMessage is published
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "map_frame:=test_map",
+    "-p", "odom_frame:=test_base",
+    "-p", "base_frame:=test_base",
+    "-p", "publish_to_tf:=true"});
+  auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
+  executor_->add_node(node);
 
-  // Create a publisher and send it the graph
-  private_node_handle_.setParam("test_publisher/map_frame", "test_map");
-  private_node_handle_.setParam("test_publisher/odom_frame", "test_base");
-  private_node_handle_.setParam("test_publisher/base_frame", "test_base");
-  private_node_handle_.setParam("test_publisher/publish_to_tf", true);
-  fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize("test_publisher");
-  publisher.start();
+  auto tf_node_ = rclcpp::Node::make_shared("tf_pub_node");
+  executor_->add_node(tf_node_);
+  auto static_broadcaster_ = tf2_ros::StaticTransformBroadcaster(tf_node_);
+  static_broadcaster_.sendTransform(odom_to_base_);
 
   // Subscribe to the "pose" topic
-  ros::Subscriber subscriber = private_node_handle_.subscribe(
-    "/tf",
-    1,
-    &Pose2DPublisherTestFixture::tfCallback,
-    reinterpret_cast<Pose2DPublisherTestFixture*>(this));
+  auto subscriber1 = node->create_subscription<tf2_msgs::msg::TFMessage>(
+    "/tf", 1,
+    std::bind(&Pose2DPublisherTestFixture::tfCallback, this, std::placeholders::_1));
+
+  // Create a publisher and send it the graph
+  fuse_publishers::Pose2DPublisher publisher;
+  publisher.initialize(node, "test_publisher", 0);
+  publisher.start();
 
   // Send the graph to the Publisher to trigger message publishing
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_tf_msg_) && (node_->now() < timeout))
+  rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(20.0);
+  while ((!received_tf_msg_) && (node->now() < timeout))
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
   ASSERT_TRUE(received_tf_msg_);
@@ -324,31 +358,39 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
 TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
 {
   // Test that the expected TFMessage is published
-
-  // Create a publisher and send it the graph
-  private_node_handle_.setParam("test_publisher/map_frame", "test_map");
-  private_node_handle_.setParam("test_publisher/odom_frame", "test_odom");
-  private_node_handle_.setParam("test_publisher/base_frame", "test_base");
-  private_node_handle_.setParam("test_publisher/publish_to_tf", true);
-  fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize("test_publisher");
-  publisher.start();
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "map_frame:=test_map",
+    "-p", "odom_frame:=test_odom",
+    "-p", "base_frame:=test_base",
+    "-p", "publish_to_tf:=true"});
+  auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
+  executor_->add_node(node);
 
   // Subscribe to the "pose" topic
-  ros::Subscriber subscriber = private_node_handle_.subscribe(
-    "/tf",
-    1,
-    &Pose2DPublisherTestFixture::tfCallback,
-    reinterpret_cast<Pose2DPublisherTestFixture*>(this));
+  auto subscriber1 = node->create_subscription<tf2_msgs::msg::TFMessage>(
+    "/tf", 1,
+    std::bind(&Pose2DPublisherTestFixture::tfCallback, this, std::placeholders::_1));
+
+  auto tf_node_ = rclcpp::Node::make_shared("tf_pub_node");
+  executor_->add_node(tf_node_);
+  auto static_broadcaster_ = tf2_ros::StaticTransformBroadcaster(tf_node_);
+  static_broadcaster_.sendTransform(odom_to_base_);
+
+  // Create a publisher and send it the graph
+  fuse_publishers::Pose2DPublisher publisher;
+  publisher.initialize(node, "test_publisher", 0);
+  publisher.start();
 
   // Send the graph to the Publisher to trigger message publishing
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  rclcpp::Time timeout = node_->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_tf_msg_) && (node_->now() < timeout))
+  rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(20.0);
+  while ((!received_tf_msg_) && (node->now() < timeout))
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10));
+    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
   ASSERT_TRUE(received_tf_msg_);
@@ -361,15 +403,12 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   EXPECT_NEAR(-2.8631853072, tf2::getYaw(tf_msg_.transforms[0].transform.rotation), 1.0e-9);
 }
 
-int main(int argc, char** argv)
+// NOTE(CH3): This main is required because the test is manually run by a launch test
+int main(int argc, char ** argv)
 {
+  rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_pose_2d_publisher");
-
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
   int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
+  rclcpp::shutdown();
   return ret;
 }

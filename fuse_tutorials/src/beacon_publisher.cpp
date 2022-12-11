@@ -56,7 +56,7 @@ void BeaconPublisher::onInit()
   private_node_handle_.param("map_frame_id", map_frame_id_, std::string("map"));
 
   // Advertise the output topics
-  beacon_publisher_ = private_node_handle_.advertise<sensor_msgs::PointCloud2>("beacons", 1);
+  beacon_publisher_ = node_->create_publisher<sensor_msgs::PointCloud2>("beacons", 1);
 }
 
 void BeaconPublisher::notifyCallback(

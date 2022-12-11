@@ -38,7 +38,12 @@
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
-#include <ros/ros.h>
+#include <fuse_core/uuid.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <nav_msgs/msg/path.hpp>
+#include <geometry_msgs/msg/pose_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <string>
 
@@ -70,6 +75,19 @@ public:
   virtual ~Path2DPublisher() = default;
 
   /**
+   * @brief Shadowing extension to the AsyncPublisher::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Parameters,
+      fuse_core::node_interfaces::Topics,
+      fuse_core::node_interfaces::Waitables
+    > interfaces,
+    const std::string & name,
+    size_t thread_count);
+
+  /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or reading from the
    * parameter server.
    */
@@ -86,10 +104,17 @@ public:
     fuse_core::Graph::ConstSharedPtr graph) override;
 
 protected:
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   std::string frame_id_;  //!< The name of the frame for this path
-  ros::Publisher path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
-  ros::Publisher pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
+  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
 };
 
 }  // namespace fuse_publishers
