@@ -55,8 +55,9 @@
 #ifndef FUSE_CORE__MACROS_HPP_
 #define FUSE_CORE__MACROS_HPP_
 
-#pragma \
-  message("Including header <fuse_core/macros.h> is deprecated, include <fuse_core/fuse_macros.hpp> instead.") /* NOLINT */
+/* *INDENT-OFF* */
+#pragma message("Including header <fuse_core/macros.h> and <fuse_core/macros.hpp> is deprecated, include <fuse_core/fuse_macros.hpp> instead.") /* NOLINT */
+/* *INDENT-ON* */
 
 // Required by __MAKE_SHARED_ALIGNED_DEFINITION, that uses Eigen::aligned_allocator<T>().
 #include <Eigen/Core>

@@ -31,11 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/variable_constraints.h>
-
 #include <initializer_list>
 #include <numeric>
 
+#include <fuse_constraints/variable_constraints.hpp>
 
 namespace fuse_constraints
 {
@@ -52,10 +51,10 @@ bool VariableConstraints::empty() const
 
 size_t VariableConstraints::size() const
 {
-  auto sum_edges = [](const size_t input, const ConstraintCollection& edges)
-  {
-    return input + edges.size();
-  };
+  auto sum_edges = [](const size_t input, const ConstraintCollection & edges)
+    {
+      return input + edges.size();
+    };
   return std::accumulate(variable_constraints_.begin(), variable_constraints_.end(), 0u, sum_edges);
 }
 
@@ -66,35 +65,33 @@ unsigned int VariableConstraints::nextVariableIndex() const
 
 void VariableConstraints::insert(const unsigned int constraint, const unsigned int variable)
 {
-  if (variable >= variable_constraints_.size())
-  {
+  if (variable >= variable_constraints_.size()) {
     variable_constraints_.resize(variable + 1);
   }
   variable_constraints_[variable].insert(constraint);
 }
 
-void VariableConstraints::insert(const unsigned int constraint, std::initializer_list<unsigned int> variable_list)
+void VariableConstraints::insert(
+  const unsigned int constraint,
+  std::initializer_list<unsigned int> variable_list)
 {
   return insert(constraint, variable_list.begin(), variable_list.end());
 }
 
 void VariableConstraints::insert(const unsigned int variable)
 {
-  if (variable >= variable_constraints_.size())
-  {
+  if (variable >= variable_constraints_.size()) {
     // This automatically create a new variable entry with an empty ConstraintCollection
     variable_constraints_.resize(variable + 1);
   }
 }
 
-void VariableConstraints::print(std::ostream& stream) const
+void VariableConstraints::print(std::ostream & stream) const
 {
-  for (size_t variable = 0; variable < variable_constraints_.size(); ++variable)
-  {
+  for (size_t variable = 0; variable < variable_constraints_.size(); ++variable) {
     stream << variable << ": [";
 
-    for (const auto& constraint : variable_constraints_[variable])
-    {
+    for (const auto & constraint : variable_constraints_[variable]) {
       stream << constraint << ", ";
     }
 
@@ -102,7 +99,7 @@ void VariableConstraints::print(std::ostream& stream) const
   }
 }
 
-std::ostream& operator <<(std::ostream& stream, const VariableConstraints& variable_constraints)
+std::ostream & operator<<(std::ostream & stream, const VariableConstraints & variable_constraints)
 {
   variable_constraints.print(stream);
   return stream;

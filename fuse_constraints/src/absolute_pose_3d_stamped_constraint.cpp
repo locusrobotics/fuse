@@ -31,34 +31,32 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_pose_3d_stamped_constraint.h>
-
-#include <fuse_constraints/normal_prior_pose_3d_cost_functor.h>
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
 
+#include <boost/serialization/export.hpp>
+#include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
+#include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
 
 AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
-  const std::string& source,
-  const fuse_variables::Position3DStamped& position,
-  const fuse_variables::Orientation3DStamped& orientation,
-  const fuse_core::Vector7d& mean,
-  const fuse_core::Matrix6d& covariance) :
-    fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT(whitespace/braces)
-    mean_(mean),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+  const std::string & source,
+  const fuse_variables::Position3DStamped & position,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const fuse_core::Vector7d & mean,
+  const fuse_core::Matrix6d & covariance)
+: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
+  mean_(mean),
+  sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-void AbsolutePose3DStampedConstraint::print(std::ostream& stream) const
+void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -68,14 +66,13 @@ void AbsolutePose3DStampedConstraint::print(std::ostream& stream) const
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss())
-  {
+  if (loss()) {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-ceres::CostFunction* AbsolutePose3DStampedConstraint::costFunction() const
+ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, 6, 3, 4>(
     new NormalPriorPose3DCostFunctor(sqrt_information_, mean_));

@@ -34,9 +34,9 @@
 #ifndef FUSE_MODELS_COMMON_SENSOR_PROC_H
 #define FUSE_MODELS_COMMON_SENSOR_PROC_H
 
-#include <fuse_constraints/absolute_pose_2d_stamped_constraint.h>
-#include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
-#include <fuse_constraints/absolute_constraint.h>
+#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
+#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
+#include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/loss.hpp>
 #include <fuse_core/transaction.hpp>

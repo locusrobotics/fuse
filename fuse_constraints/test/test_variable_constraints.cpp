@@ -31,14 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/variable_constraints.h>
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
 #include <iterator>
 #include <vector>
 
+#include <fuse_constraints/variable_constraints.hpp>
 
 using fuse_constraints::VariableConstraints;
 
@@ -114,10 +113,18 @@ TEST(VariableConstraints, GetConstraints)
   auto actual3_iter = actual3.begin();
   actual3_iter = vars.getConstraints(3u, actual3_iter);
 
-  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected0.size()), std::distance(actual0.begin(), actual0_iter));
-  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected1.size()), std::distance(actual1.begin(), actual1_iter));
-  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected2.size()), std::distance(actual2.begin(), actual2_iter));
-  EXPECT_EQ(static_cast<std::ptrdiff_t>(expected3.size()), std::distance(actual3.begin(), actual3_iter));
+  EXPECT_EQ(
+    static_cast<std::ptrdiff_t>(expected0.size()),
+    std::distance(actual0.begin(), actual0_iter));
+  EXPECT_EQ(
+    static_cast<std::ptrdiff_t>(expected1.size()),
+    std::distance(actual1.begin(), actual1_iter));
+  EXPECT_EQ(
+    static_cast<std::ptrdiff_t>(expected2.size()),
+    std::distance(actual2.begin(), actual2_iter));
+  EXPECT_EQ(
+    static_cast<std::ptrdiff_t>(expected3.size()),
+    std::distance(actual3.begin(), actual3_iter));
 }
 
 TEST(VariableConstraints, InsertOrphanVariable)

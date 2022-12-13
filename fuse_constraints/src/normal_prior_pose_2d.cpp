@@ -31,18 +31,17 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/normal_prior_pose_2d.h>
-#include <fuse_core/util.hpp>
-
 #include <Eigen/Core>
 #include <glog/logging.h>
 
+#include <fuse_constraints/normal_prior_pose_2d.hpp>
+#include <fuse_core/util.hpp>
 
 namespace fuse_constraints
 {
 
-NormalPriorPose2D::NormalPriorPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) :
-  A_(A),
+NormalPriorPose2D::NormalPriorPose2D(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b)
+: A_(A),
   b_(b)
 {
   CHECK_GT(A_.rows(), 0);
@@ -51,30 +50,28 @@ NormalPriorPose2D::NormalPriorPose2D(const fuse_core::MatrixXd& A, const fuse_co
 }
 
 bool NormalPriorPose2D::Evaluate(
-  double const* const* parameters,
-  double* residuals,
-  double** jacobians) const
+  double const * const * parameters,
+  double * residuals,
+  double ** jacobians) const
 {
   fuse_core::Vector3d full_residuals_vector;
   full_residuals_vector[0] = parameters[0][0] - b_[0];  // position x
   full_residuals_vector[1] = parameters[0][1] - b_[1];  // position y
   full_residuals_vector[2] = fuse_core::wrapAngle2D(parameters[1][0] - b_[2]);  // orientation
 
-  // Scale the residuals by the square root information matrix to account for the measurement uncertainty.
+  // Scale the residuals by the square root information matrix to account for the measurement
+  // uncertainty.
   Eigen::Map<fuse_core::VectorXd> residuals_vector(residuals, num_residuals());
   residuals_vector = A_ * full_residuals_vector;
 
-  if (jacobians != nullptr)
-  {
+  if (jacobians != nullptr) {
     // Jacobian wrt position
-    if (jacobians[0] != nullptr)
-    {
+    if (jacobians[0] != nullptr) {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 2) = A_.leftCols<2>();
     }
 
     // Jacobian wrt orientation
-    if (jacobians[1] != nullptr)
-    {
+    if (jacobians[1] != nullptr) {
       Eigen::Map<fuse_core::VectorXd>(jacobians[1], num_residuals()) = A_.col(2);
     }
   }

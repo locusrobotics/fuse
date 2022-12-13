@@ -31,8 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_constraint.h>
-#include <fuse_constraints/relative_constraint.h>
+#include <ceres/covariance.h>
+#include <ceres/problem.h>
+#include <ceres/solver.h>
+#include <gtest/gtest.h>
+
+#include <utility>
+#include <vector>
+
+#include <fuse_constraints/absolute_constraint.hpp>
+#include <fuse_constraints/relative_constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
@@ -45,51 +53,56 @@
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
-#include <ceres/covariance.h>
-#include <ceres/problem.h>
-#include <ceres/solver.h>
-#include <gtest/gtest.h>
-
-#include <utility>
-#include <vector>
-
-
 TEST(RelativeConstraint, Constructor)
 {
   // Construct a constraint for every type, just to make sure they compile.
   {
-    fuse_variables::AccelerationAngular2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("robby"));
-    fuse_variables::AccelerationAngular2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("robby"));
+    fuse_variables::AccelerationAngular2DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("robby"));
+    fuse_variables::AccelerationAngular2DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("robby"));
     fuse_core::Vector1d delta;
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(
-      fuse_constraints::RelativeAccelerationAngular2DStampedConstraint constraint("test", x1, x2, delta, cov));
+      fuse_constraints::RelativeAccelerationAngular2DStampedConstraint constraint(
+        "test", x1, x2,
+        delta, cov));
   }
   {
-    fuse_variables::AccelerationLinear2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("bender"));
-    fuse_variables::AccelerationLinear2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("bender"));
+    fuse_variables::AccelerationLinear2DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("bender"));
+    fuse_variables::AccelerationLinear2DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("bender"));
     fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(
-      fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint("test", x1, x2, delta, cov));
+      fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint(
+        "test", x1, x2,
+        delta, cov));
   }
   {
-    fuse_variables::Orientation2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("johnny5"));
-    fuse_variables::Orientation2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("johnny5"));
+    fuse_variables::Orientation2DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("johnny5"));
+    fuse_variables::Orientation2DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("johnny5"));
     fuse_core::Vector1d delta;
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(
-      fuse_constraints::RelativeOrientation2DStampedConstraint constraint("test", x1, x2, delta, cov));
+      fuse_constraints::RelativeOrientation2DStampedConstraint constraint(
+        "test", x1, x2, delta,
+        cov));
   }
   {
-    fuse_variables::Position2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
-    fuse_variables::Position2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("rosie"));
+    fuse_variables::Position2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate(
+        "rosie"));
+    fuse_variables::Position2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate(
+        "rosie"));
     fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
@@ -98,8 +111,10 @@ TEST(RelativeConstraint, Constructor)
       fuse_constraints::RelativePosition2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
-    fuse_variables::Position3DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("clank"));
-    fuse_variables::Position3DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("clank"));
+    fuse_variables::Position3DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate(
+        "clank"));
+    fuse_variables::Position3DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate(
+        "clank"));
     fuse_core::Vector3d delta;
     delta << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov;
@@ -108,24 +123,32 @@ TEST(RelativeConstraint, Constructor)
       fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
-    fuse_variables::VelocityAngular2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("gort"));
-    fuse_variables::VelocityAngular2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("gort"));
+    fuse_variables::VelocityAngular2DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("gort"));
+    fuse_variables::VelocityAngular2DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("gort"));
     fuse_core::Vector1d delta;
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
     EXPECT_NO_THROW(
-      fuse_constraints::RelativeVelocityAngular2DStampedConstraint constraint("test", x1, x2, delta, cov));
+      fuse_constraints::RelativeVelocityAngular2DStampedConstraint constraint(
+        "test", x1, x2, delta,
+        cov));
   }
   {
-    fuse_variables::VelocityLinear2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("bishop"));
-    fuse_variables::VelocityLinear2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("bishop"));
+    fuse_variables::VelocityLinear2DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("bishop"));
+    fuse_variables::VelocityLinear2DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("bishop"));
     fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
     EXPECT_NO_THROW(
-      fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint("test", x1, x2, delta, cov));
+      fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint(
+        "test", x1, x2, delta,
+        cov));
   }
 }
 
@@ -139,7 +162,9 @@ TEST(RelativeConstraint, PartialMeasurement)
   cov << 3.0, 0.2, 0.2, 1.0;
   auto indices = std::vector<size_t>{2, 0};
   EXPECT_NO_THROW(
-    fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov, indices));
+    fuse_constraints::RelativePosition3DStampedConstraint constraint(
+      "test", x1, x2, delta, cov,
+      indices));
 }
 
 TEST(RelativeConstraint, Covariance)
@@ -147,17 +172,20 @@ TEST(RelativeConstraint, Covariance)
   // Test the covariance of a full measurement
   {
     // Verify the covariance <--> sqrt information conversions are correct
-    fuse_variables::AccelerationLinear2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("chappie"));
-    fuse_variables::AccelerationLinear2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("chappie"));
+    fuse_variables::AccelerationLinear2DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("chappie"));
+    fuse_variables::AccelerationLinear2DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("chappie"));
     fuse_core::Vector2d delta;
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint("test", x1, x2, delta, cov);
+    fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint("test", x1, x2,
+      delta, cov);
     // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
     fuse_core::Matrix2d expected_sqrt_info;
-    expected_sqrt_info <<  1.002509414234171, -0.050125470711709,
-                           0.000000000000000,  0.707106781186547;
+    expected_sqrt_info << 1.002509414234171, -0.050125470711709,
+      0.000000000000000, 0.707106781186547;
     fuse_core::Matrix2d expected_cov = cov;
     // Compare
     EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
@@ -165,22 +193,27 @@ TEST(RelativeConstraint, Covariance)
   }
   // Test the covariance of a partial measurement
   {
-    fuse_variables::Position3DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("astroboy"));
-    fuse_variables::Position3DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("astroboy"));
+    fuse_variables::Position3DStamped x1(rclcpp::Time(1234, 5678),
+      fuse_core::uuid::generate("astroboy"));
+    fuse_variables::Position3DStamped x2(rclcpp::Time(1235, 5678),
+      fuse_core::uuid::generate("astroboy"));
     fuse_core::Vector2d delta;
     delta << 3.0, 1.0;
     fuse_core::Matrix2d cov;
     cov << 3.0, 0.2, 0.2, 1.0;
     auto indices = std::vector<size_t>{2, 0};
-    fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov, indices);
+    fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov,
+      indices);
     // Define the expected matrices
     fuse_core::Vector3d expected_delta;
     expected_delta << 1.0, 0.0, 3.0;
     fuse_core::Matrix3d expected_cov;
     expected_cov << 1.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 3.0;
     fuse_core::MatrixXd expected_sqrt_info(2, 3);
+    /* *INDENT-OFF* */
     expected_sqrt_info << -0.116247638743819,  0.000000000000000,  0.581238193719096,
                            1.000000000000000,  0.000000000000000,  0.000000000000000;
+    /* *INDENT-ON* */
     // Compare
     EXPECT_TRUE(expected_delta.isApprox(constraint.delta(), 1.0e-9));
     EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
@@ -192,9 +225,9 @@ TEST(RelativeConstraint, Optimization)
 {
   // Test optimizing a full measurement
   {
-    // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
-    // Verify the expected value and covariance are generated.
-    // Create the variables
+    // Optimize a two-variable system with a prior on the first variable and a relative constraint
+    // connecting the two. Verify the expected value and covariance are generated. Create the
+    // variables
     auto x1 = fuse_variables::AccelerationLinear2DStamped::make_shared(
       rclcpp::Time(1234, 5678),
       fuse_core::uuid::generate("t800"));
@@ -238,13 +271,13 @@ TEST(RelativeConstraint, Optimization)
       x2->data(),
       x2->size(),
       x2->localParameterization());
-    std::vector<double*> prior_parameter_blocks;
+    std::vector<double *> prior_parameter_blocks;
     prior_parameter_blocks.push_back(x1->data());
     problem.AddResidualBlock(
       prior->costFunction(),
       prior->lossFunction(),
       prior_parameter_blocks);
-    std::vector<double*> relative_parameter_blocks;
+    std::vector<double *> relative_parameter_blocks;
     relative_parameter_blocks.push_back(x1->data());
     relative_parameter_blocks.push_back(x2->data());
     problem.AddResidualBlock(
@@ -261,7 +294,7 @@ TEST(RelativeConstraint, Optimization)
     EXPECT_NEAR(1.1, x2->x(), 1.0e-5);
     EXPECT_NEAR(2.2, x2->y(), 1.0e-5);
     // Compute the covariance
-    std::vector<std::pair<const double*, const double*> > covariance_blocks;
+    std::vector<std::pair<const double *, const double *>> covariance_blocks;
     covariance_blocks.emplace_back(x1->data(), x1->data());
     covariance_blocks.emplace_back(x2->data(), x2->data());
     ceres::Covariance::Options cov_options;
@@ -282,13 +315,13 @@ TEST(RelativeConstraint, Optimization)
     x2_expected_covariance << 2.0, 0.1, 0.1, 4.0;
     EXPECT_TRUE(x2_expected_covariance.isApprox(x2_actual_covariance, 1.0e-9));
   }
-  // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-deficient by
-  // definition, which cannot be optimized alone. Instead, we will simply add a partial measurement to our full
-  // measurement example.
+  // Test optimizing a partial measurement. This is tricky, because a partial measurement is rank-
+  // deficient by definition, which cannot be optimized alone. Instead, we will simply add a partial
+  // measurement to our full measurement example.
   {
-    // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
-    // Verify the expected value and covariance are generated.
-    // Create the variables
+    // Optimize a two-variable system with a prior on the first variable and a relative constraint
+    // connecting the two. Verify the expected value and covariance are generated. Create the
+    // variables
     auto x1 = fuse_variables::Position3DStamped::make_shared(
       rclcpp::Time(1234, 5678),
       fuse_core::uuid::generate("t1000"));
@@ -347,20 +380,20 @@ TEST(RelativeConstraint, Optimization)
       x2->data(),
       x2->size(),
       x2->localParameterization());
-    std::vector<double*> c1_parameter_blocks;
+    std::vector<double *> c1_parameter_blocks;
     c1_parameter_blocks.push_back(x1->data());
     problem.AddResidualBlock(
       c1->costFunction(),
       c1->lossFunction(),
       c1_parameter_blocks);
-    std::vector<double*> c2_parameter_blocks;
+    std::vector<double *> c2_parameter_blocks;
     c2_parameter_blocks.push_back(x1->data());
     c2_parameter_blocks.push_back(x2->data());
     problem.AddResidualBlock(
       c2->costFunction(),
       c2->lossFunction(),
       c2_parameter_blocks);
-    std::vector<double*> c3_parameter_blocks;
+    std::vector<double *> c3_parameter_blocks;
     c3_parameter_blocks.push_back(x1->data());
     c3_parameter_blocks.push_back(x2->data());
     problem.AddResidualBlock(
@@ -379,7 +412,7 @@ TEST(RelativeConstraint, Optimization)
     EXPECT_NEAR(2.2, x2->y(), 1.0e-5);
     EXPECT_NEAR(3.15, x2->z(), 1.0e-5);
     // Compute the marginal covariances
-    std::vector<std::pair<const double*, const double*> > covariance_blocks;
+    std::vector<std::pair<const double *, const double *>> covariance_blocks;
     covariance_blocks.emplace_back(x1->data(), x1->data());
     covariance_blocks.emplace_back(x2->data(), x2->data());
     ceres::Covariance::Options cov_options;
@@ -404,9 +437,9 @@ TEST(RelativeConstraint, Optimization)
 
 TEST(RelativeConstraint, RelativeOrientation2DOptimization)
 {
-  // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
-  // Verify the expected value and covariance are generated.
-  // Create the variables
+  // Optimize a two-variable system with a prior on the first variable and a relative constraint
+  // connecting the two. Verify the expected value and covariance are generated. Create the
+  // variables
   auto x1 = fuse_variables::Orientation2DStamped::make_shared(
     rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("t800"));
@@ -448,13 +481,13 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
     x2->data(),
     x2->size(),
     x2->localParameterization());
-  std::vector<double*> prior_parameter_blocks;
+  std::vector<double *> prior_parameter_blocks;
   prior_parameter_blocks.push_back(x1->data());
   problem.AddResidualBlock(
     prior->costFunction(),
     prior->lossFunction(),
     prior_parameter_blocks);
-  std::vector<double*> relative_parameter_blocks;
+  std::vector<double *> relative_parameter_blocks;
   relative_parameter_blocks.push_back(x1->data());
   relative_parameter_blocks.push_back(x2->data());
   problem.AddResidualBlock(
@@ -469,7 +502,7 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   EXPECT_NEAR(1.0, x1->yaw(), 1.0e-5);
   EXPECT_NEAR(1.1, x2->yaw(), 1.0e-5);
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double *, const double *>> covariance_blocks;
   covariance_blocks.emplace_back(x1->data(), x1->data());
   covariance_blocks.emplace_back(x2->data(), x2->data());
   ceres::Covariance::Options cov_options;
@@ -494,13 +527,16 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
 TEST(RelativeConstraint, Serialization)
 {
   // Construct a constraint
-  fuse_variables::AccelerationAngular2DStamped x1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("robby"));
-  fuse_variables::AccelerationAngular2DStamped x2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("robby"));
+  fuse_variables::AccelerationAngular2DStamped x1(rclcpp::Time(1234, 5678),
+    fuse_core::uuid::generate("robby"));
+  fuse_variables::AccelerationAngular2DStamped x2(rclcpp::Time(1235, 5678),
+    fuse_core::uuid::generate("robby"));
   fuse_core::Vector1d delta;
   delta << 3.0;
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint expected("test", x1, x2, delta, cov);
+  fuse_constraints::RelativeAccelerationAngular2DStampedConstraint expected("test", x1, x2, delta,
+    cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

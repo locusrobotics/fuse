@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,74 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_MARGINAL_COST_FUNCTION_H
-#define FUSE_CONSTRAINTS_MARGINAL_COST_FUNCTION_H
 
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/local_parameterization.hpp>
+#ifndef FUSE_CONSTRAINTS__MARGINAL_COST_FUNCTION_H_
+#define FUSE_CONSTRAINTS__MARGINAL_COST_FUNCTION_H_
 
-#include <ceres/cost_function.h>
+#warning This header is obsolete, please include fuse_constraints/marginal_cost_function.hpp instead
 
-#include <vector>
+#include <fuse_constraints/marginal_cost_function.hpp>
 
-
-namespace fuse_constraints
-{
-
-/**
- * @brief Implements a cost function designed for precomputed marginal distributions
- *
- * The cost function is of the form:
- *
- *             ||                                                                        ||^2
- *   cost(x) = || A1 * (x1 - x1_bar) + A2 * (x2 - x2_bar) + ... + An * (xn - xn_bar) + b ||
- *             ||                                                                        ||
- *
- * where, the A matrices and the b vector are fixed, x_bar is the linearization point used when calculating the A
- * matrices and b vector, and the minus operator in (x - x_bar) is provided by the variable's local parameterization.
- * 
- * The A matrices can have any number of rows, but they must all be the same. The number of columns of each A matrix
- * must match the associated variable's local parameterization size, and the number of rows of each x_bar must match
- * the associated variable's global size. The cost function will have the same number of residuals as the rows of A.
- */
-class MarginalCostFunction : public ceres::CostFunction
-{
-public:
-  /**
-   * @brief Construct a cost function instance
-   *
-   * @param[in] A                       The A matrix of the marginal cost (of the form A*(x - x_bar) + b)
-   * @param[in] b                       The b vector of the marginal cost (of the form A*(x - x_bar) + b)
-   * @param[in] x_bar                   The linearization point of the involved variables
-   * @param[in] local_parameterizations The local parameterization associated with the variable
-   */
-  MarginalCostFunction(
-    const std::vector<fuse_core::MatrixXd>& A,
-    const fuse_core::VectorXd& b,
-    const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations);
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~MarginalCostFunction() = default;
-
-  /**
-   * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
-   *        values
-   */
-  bool Evaluate(
-    double const* const* parameters,
-    double* residuals,
-    double** jacobians) const override;
-
-private:
-  const std::vector<fuse_core::MatrixXd>& A_;  //!< The A matrices of the marginal cost
-  const fuse_core::VectorXd& b_;  //!< The b vector of the marginal cost
-  const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations_;  //!< Parameterizations
-  const std::vector<fuse_core::VectorXd>& x_bar_;  //!< The linearization point of each variable
-};
-
-}  // namespace fuse_constraints
-
-#endif  // FUSE_CONSTRAINTS_MARGINAL_COST_FUNCTION_H
+#endif  // FUSE_CONSTRAINTS__MARGINAL_COST_FUNCTION_H_

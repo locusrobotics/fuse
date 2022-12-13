@@ -31,56 +31,48 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/marginal_cost_function.h>
-
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/local_parameterization.hpp>
-
 #include <Eigen/Core>
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
+#include <fuse_constraints/marginal_cost_function.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/local_parameterization.hpp>
 
 namespace fuse_constraints
 {
 
 MarginalCostFunction::MarginalCostFunction(
-    const std::vector<fuse_core::MatrixXd>& A,
-    const fuse_core::VectorXd& b,
-    const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations) :
-  A_(A),
+  const std::vector<fuse_core::MatrixXd> & A,
+  const fuse_core::VectorXd & b,
+  const std::vector<fuse_core::VectorXd> & x_bar,
+  const std::vector<fuse_core::LocalParameterization::SharedPtr> & local_parameterizations)
+: A_(A),
   b_(b),
   local_parameterizations_(local_parameterizations),
   x_bar_(x_bar)
 {
   set_num_residuals(b_.rows());
-  for (const auto& x_bar : x_bar_)
-  {
+  for (const auto & x_bar : x_bar_) {
     mutable_parameter_block_sizes()->push_back(x_bar.size());
   }
 }
 
 bool MarginalCostFunction::Evaluate(
-  double const* const* parameters,
-  double* residuals,
-  double** jacobians) const
+  double const * const * parameters,
+  double * residuals,
+  double ** jacobians) const
 {
   // Compute cost
   Eigen::Map<fuse_core::VectorXd> residuals_map(residuals, num_residuals());
   residuals_map = b_;
-  for (size_t i = 0; i < A_.size(); ++i)
-  {
+  for (size_t i = 0; i < A_.size(); ++i) {
     fuse_core::VectorXd delta(A_[i].cols());
-    if (local_parameterizations_[i])
-    {
+    if (local_parameterizations_[i]) {
       local_parameterizations_[i]->Minus(x_bar_[i].data(), parameters[i], delta.data());
-    }
-    else
-    {
-      for (int j = 0; j < x_bar_[i].rows(); ++j)
-      {
+    } else {
+      for (int j = 0; j < x_bar_[i].rows(); ++j) {
         delta[j] = parameters[i][j] - x_bar_[i][j];
       }
     }
@@ -88,22 +80,21 @@ bool MarginalCostFunction::Evaluate(
   }
 
   // Compute requested Jacobians
-  if (jacobians)
-  {
-    for (size_t i = 0; i < A_.size(); ++i)
-    {
-      if (jacobians[i])
-      {
-        if (local_parameterizations_[i])
-        {
-          const auto& local_parameterization = local_parameterizations_[i];
-          fuse_core::MatrixXd J_local(local_parameterization->LocalSize(), local_parameterization->GlobalSize());
+  if (jacobians) {
+    for (size_t i = 0; i < A_.size(); ++i) {
+      if (jacobians[i]) {
+        if (local_parameterizations_[i]) {
+          const auto & local_parameterization = local_parameterizations_[i];
+          fuse_core::MatrixXd J_local(local_parameterization->LocalSize(),
+            local_parameterization->GlobalSize());
           local_parameterization->ComputeMinusJacobian(parameters[i], J_local.data());
-          Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i] * J_local;
-        }
-        else
-        {
-          Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i];
+          Eigen::Map<fuse_core::MatrixXd>(
+            jacobians[i], num_residuals(),
+            parameter_block_sizes()[i]) = A_[i] * J_local;
+        } else {
+          Eigen::Map<fuse_core::MatrixXd>(
+            jacobians[i], num_residuals(),
+            parameter_block_sizes()[i]) = A_[i];
         }
       }
     }

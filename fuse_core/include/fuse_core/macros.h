@@ -35,7 +35,7 @@
 #ifndef FUSE_CORE__MACROS_H_
 #define FUSE_CORE__MACROS_H_
 
-#warning This header is obsolete, please include fuse_core/macros.hpp instead
+#warning This header is obsolete, please include fuse_core/fuse_macros.hpp instead
 
 #include <fuse_core/macros.hpp>
 
