@@ -68,9 +68,4 @@
     A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
     </description>
   </class>
-  <class type="fuse_models::BasicErrorHandler" base_class_type="fuse_core::ErrorHandler">
-    <description>
-    A basic error handler that throws exceptions for any error that occurs. 
-    </description>
-  </class>
 </library>

@@ -31,86 +31,65 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_CORE_ERROR_HANDLER_H
 #define FUSE_CORE_ERROR_HANDLER_H
 
-#include <fuse_core/fuse_macros.h>
+#include "ros/ros.h"
 
-#include <string>
-
-
-namespace fuse_core
+namespace fuse_core 
 {
-
-/**
- * @brief The interface definition for error handler plugins in the fuse ecosystem.
- *
- * An error handler plugin is responsible for handling any errors that may come up in execution of the program.
- */
-class ErrorHandler
-{
-public:
-  FUSE_SMART_PTR_ALIASES_ONLY(ErrorHandler);
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~ErrorHandler() = default;
-
-  /**
-   * @brief Perform any required post-construction initialization, such as subscribing to topics or reading from the
-   * parameter server.
-   *
-   * This will be called on each plugin after construction, and after the ros node has been initialized. Plugins are
-   * encouraged to subnamespace any of their parameters to prevent conflicts and allow the same plugin to be used
-   * multiple times with different settings and topics.
-   *
-   * @param[in] name A unique name to give this plugin instance
-   */
-  virtual void initialize(const std::string& name) = 0;
   
-  /**
-   * @brief Handler to be invoked whenever a runtime error occurs
-   *
-   * @param[in] info Information provided about what specifically occurred
-   */
-  virtual void runtimeError(const std::string& info) = 0;
+  class ErrorHandler 
+  {
+    public:
+    
+    static void initializeErrorHandler(const std::string& type)
+    {
+      // If the plugin name is not found, this will throw
+      // auto handler = error_handler_loader_.createInstance(type);
+      // handler->initialize("handler");
+      // error_handler_internal_ = handler;
+    }
 
-  /**
-   * @brief Handler to be invoked whenever invalid arguments are given to a function
-   *
-   * @param[in] info Information provided about what specifically occurred
-   */
-  virtual void invalidArgument(const std::string& info) = 0;
+    static void invalidArgument(const std::string& info)
+    {
+      // error_handler_internal_->invalidArgument(info);
+    }
 
-  /**
-   * @brief Handler to be invoked whenever an out of range error occurs
-   *
-   * @param[in] info Information provided about what specifically occurred
-   */
-  virtual void outOfRangeError(const std::string& info) = 0;
+    static void runtimeError(const std::string& info)
+    {
+      // error_handler_internal_->runtimeError(info);
+    }
 
-  /**
-   * @brief Handler to be invoked whenever a logic error occurs
-   *
-   * @param[in] info Information provided about what specifically occurred
-   */
-  virtual void logicError(const std::string& info) = 0;
+    static void outOfRangeError(const std::string& info)
+    {
+      // error_handler_internal_->outOfRangeError(info);
+    }
+
+    static void logicError(const std::string& info)
+    {
+      // error_handler_internal_->logicError(info);
+    }
+
+    static void registerLogicError(std::function<void(const std::string&)> cb)
+    {
+        logic_error_cb_ = cb;
+    }
 
 
-  /**
-   * @brief Get the unique name of this error handler
-   */
-  virtual const std::string& name() const = 0;
+    static std::function<void(const std::string&)> logic_error_cb_;
+    protected:
+    ErrorHandler() = default;
 
-protected:
-  /**
-   * @brief Default Constructor
-   */
-  ErrorHandler() = default;
-  std::string name_;
-};
+    ros::NodeHandle nh_;
 
-}  // namespace fuse_core
+  };
 
-#endif  // FUSE_CORE_ERROR_HANDLER_H
+
+  // boost::shared_ptr<fuse_core::ErrorHandlerInternal> ErrorHandler::error_handler_internal_ = boost::make_shared<fuse_core::BasicErrorHandler>();
+  // pluginlib::ClassLoader<fuse_core::ErrorHandlerInternal> ErrorHandler::error_handler_loader_("fuse_core", "fuse_core::BasicErrorHandler");
+}
+
+
+#endif // FUSE_CORE_ERROR_HANDLER_H

@@ -38,7 +38,6 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/motion_model.h>
-#include <fuse_core/error_handler.h>
 #include <fuse_core/publisher.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
@@ -123,7 +122,6 @@ protected:
   using PublisherUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::Publisher>;
   using Publishers = std::unordered_map<std::string, PublisherUniquePtr>;
   using SensorModelUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::SensorModel>;
-  using ErrorHandlerUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::ErrorHandler>;
 
   /**
    * @brief A struct to hold the sensor model and whether it is an ignition one or not
@@ -162,8 +160,7 @@ protected:
   Publishers publishers_;  //!< The set of publishers to execute after every graph optimization
   pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
-  pluginlib::ClassLoader<fuse_core::ErrorHandler> error_handler_loader_;  //!< Pluginlib class loader for ErrorHandler
-  ErrorHandlerUniquePtr error_handler_; // The error handler for a given optimizer 
+  
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
   ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
@@ -274,6 +271,14 @@ protected:
    * @param[in] status The diagnostic status
    */
   virtual void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status);
+
+  void invalidArgumentCallback(const std::string& info);
+
+  void logicErrorCallback(const std::string& info);
+  
+  void runtimeErrorCallback(const std::string& info);
+
+  void outOfRangeErrorCallback(const std::string& info);
 };
 
 }  // namespace fuse_optimizers
