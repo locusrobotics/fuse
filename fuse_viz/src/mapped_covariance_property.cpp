@@ -30,9 +30,9 @@
 #include <fuse_viz/mapped_covariance_property.h>
 #include <fuse_viz/mapped_covariance_visual.h>
 
-#include <rviz/properties/color_property.h>
-#include <rviz/properties/enum_property.h>
-#include <rviz/properties/float_property.h>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/enum_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
 
 #include <QColor>
 
@@ -41,8 +41,13 @@
 
 #include <string>
 
-namespace rviz
+namespace fuse_viz
 {
+
+using rviz_common::properties::BoolProperty;
+using rviz_common::properties::ColorProperty;
+using rviz_common::properties::EnumProperty;
+using rviz_common::properties::FloatProperty;
 
 MappedCovarianceProperty::MappedCovarianceProperty(const QString& name, bool default_value, const QString& description,
                                                    Property* parent, const char* changed_slot, QObject* receiver)

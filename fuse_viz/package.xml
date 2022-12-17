@@ -10,7 +10,7 @@
   <author email="efernandez@clearpath.ai">Enrique Fernandez</author>
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
   <build_depend>qtbase5-dev</build_depend>
 
@@ -26,7 +26,7 @@
   <test_depend>roslint</test_depend>
 
   <export>
-    <rviz plugin="${prefix}/rviz_plugins.xml"/>
+    <build_type>ament_cmake</build_type>
     <rosdoc config="rosdoc.yaml" />
   </export>
 </package>

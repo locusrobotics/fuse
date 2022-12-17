@@ -37,9 +37,9 @@
 
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-#include <rviz/ogre_helpers/axes.h>
-#include <rviz/ogre_helpers/movable_text.h>
-#include <rviz/ogre_helpers/shape.h>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
+#include <rviz_rendering/objects/shape.hpp>
 
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
@@ -48,8 +48,9 @@
 #include <memory>
 
 
-namespace rviz
+namespace fuse_viz
 {
+using rviz_rendering::MovableText;
 
 Pose2DStampedVisual::Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
                                          const fuse_variables::Position2DStamped& position,
@@ -58,12 +59,12 @@ Pose2DStampedVisual::Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre
 {
   // Create sphere:
   sphere_node_ = root_node_->createChildSceneNode();
-  sphere_ = std::make_shared<rviz::Shape>(rviz::Shape::Sphere, scene_manager_, sphere_node_);
+  sphere_ = std::make_shared<rviz_rendering::Shape>(rviz_rendering::Shape::Sphere, scene_manager_, sphere_node_);
   setSphereColor(1.0, 0.0, 0.0, 1.0);
 
   // Create axes:
   axes_node_ = root_node_->createChildSceneNode();
-  axes_ = std::make_shared<rviz::Axes>(scene_manager_, axes_node_, 10.0, 1.0);
+  axes_ = std::make_shared<rviz_rendering::Axes>(scene_manager_, axes_node_, 10.0, 1.0);
 
   // Create text:
   const auto caption = position.type() + "::" + fuse_core::uuid::to_string(position.uuid()) + '\n' +

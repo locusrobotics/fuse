@@ -39,12 +39,12 @@
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/graph.hpp>
-#include <geometry_msgs/PoseWithCovariance.h>
-#include <rviz/ogre_helpers/axes.h>
-#include <rviz/ogre_helpers/billboard_line.h>
-#include <rviz/ogre_helpers/movable_text.h>
+#include <geometry_msgs/msg/pose_with_covariance.hpp>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/billboard_line.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
 #include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
@@ -58,7 +58,7 @@
 #include <string>
 
 
-namespace rviz
+namespace fuse_viz
 {
 
 /**
@@ -94,7 +94,7 @@ RelativePose2DStampedConstraintVisual::RelativePose2DStampedConstraintVisual(
 
   // Create constraint relative pose axes:
   relative_pose_axes_node_ = root_node_->createChildSceneNode();
-  relative_pose_axes_ = std::make_shared<rviz::Axes>(scene_manager_, relative_pose_axes_node_, 10.0, 1.0);
+  relative_pose_axes_ = std::make_shared<rviz_rendering::Axes>(scene_manager_, relative_pose_axes_node_, 10.0, 1.0);
 
   // Draw text:
   const auto caption = constraint_name(constraint);
@@ -142,7 +142,7 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
   relative_pose_line_->addPoint(absolute_position_ogre);
 
   // Update constraint covariance:
-  geometry_msgs::PoseWithCovariance relative_pose_msg;
+  geometry_msgs::msg::PoseWithCovariance relative_pose_msg;
   tf2::toMsg(absolute_pose, relative_pose_msg.pose);
   tf2::toMsg(constraint.covariance(), relative_pose_msg.covariance);
 
@@ -197,8 +197,9 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
 
     if (rho[0] > squared_norm)
     {
+      static rclcpp::Clock clock;
       RCLCPP_WARN_STREAM_THROTTLE(
-        rclcpp::get_logger("fuse"), rclcpp::Clock(), 10.0 * 1000,
+        rclcpp::get_logger("fuse"), clock, 10.0 * 1000,
         "Detected invalid loss value of " << rho[0] << " greater than squared residual of " << squared_norm
                                           << " for constraint " << constraint_name(constraint)
                                           << " with loss type " << constraint.loss()->type()
@@ -347,7 +348,7 @@ Ogre::ColourValue RelativePose2DStampedConstraintVisual::computeLossErrorLineCol
   // Get the error line color as HSB:
   Ogre::ColourValue error_line_color(color.r, color.g, color.b);
   Ogre::Real hue, saturation, brightness;
-  error_line_color.getHSB(&hue, &saturation, &brightness);
+  error_line_color.getHSB(hue, saturation, brightness);
 
   // We should correct the color brightness if it is smaller than minimum brightness. Otherwise, we would get an
   // incorrect loss brightness.
@@ -366,4 +367,4 @@ Ogre::ColourValue RelativePose2DStampedConstraintVisual::computeLossErrorLineCol
   return Ogre::ColourValue(loss_error_line_color.r, loss_error_line_color.g, loss_error_line_color.b, color.a);
 }
 
-}  // namespace rviz
+}  // namespace fuse_viz

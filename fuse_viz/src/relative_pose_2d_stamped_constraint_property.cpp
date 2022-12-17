@@ -40,19 +40,24 @@
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/graph.hpp>
 
-#include <rviz/properties/color_property.h>
-#include <rviz/properties/float_property.h>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
 
 #include <QColor>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
-namespace rviz
+namespace fuse_viz
 {
+using rviz_common::properties::BoolProperty;
+using rviz_common::properties::ColorProperty;
+using rviz_common::properties::FloatProperty;
+using rviz_common::properties::Property;
 
 RelativePose2DStampedConstraintProperty::RelativePose2DStampedConstraintProperty(
-    const QString& name, bool default_value, const QString& description, rviz::Property* parent,
+    const QString& name, bool default_value, const QString& description, Property* parent,
     const char* changed_slot, QObject* receiver)
   // NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of this constructor
   : BoolProperty(name, default_value, description, parent)
@@ -324,4 +329,4 @@ void RelativePose2DStampedConstraintProperty::updateVisibility(const VisualPtr& 
   constraint->getCovariance()->setVisible(visible && covariance_property_->getBool());
 }
 
-}  // end namespace rviz
+}  // end namespace fuse_viz

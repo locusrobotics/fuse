@@ -37,10 +37,13 @@
 
 #include <fuse_viz/mapped_covariance_property.h>
 
-#include <rviz/ogre_helpers/object.h>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/billboard_line.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
+#include <rviz_rendering/objects/object.hpp>
 
 #include <OgreColourValue.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <memory>
 #include <string>
@@ -68,12 +71,12 @@ class RelativePose2DStampedConstraint;
 
 }  // namespace fuse_constraints
 
-namespace rviz
+namespace fuse_viz
 {
 
-class Axes;
-class BillboardLine;
-class MovableText;
+using rviz_rendering::Axes;
+using rviz_rendering::BillboardLine;
+using rviz_rendering::MovableText;
 
 class Pose2DStampedVisual;
 class RelativePose2DStampedConstraintProperty;
@@ -90,7 +93,7 @@ class RelativePose2DStampedConstraintProperty;
  * cone for the orientation.
  * 5. A text with the constraint source, type and UUID.
  */
-class RelativePose2DStampedConstraintVisual : public rviz::Object
+class RelativePose2DStampedConstraintVisual : public rviz_rendering::Object
 {
 private:
   /**
@@ -209,8 +212,8 @@ private:
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  void setScale(const Ogre::Vector3& scale) override{};
-  void setColor(float r, float g, float b, float a) override{};
+  void setScale(const Ogre::Vector3&) override{};
+  void setColor(float, float, float, float) override{};
   const Ogre::Vector3& getPosition() override;
   const Ogre::Quaternion& getOrientation() override;
 

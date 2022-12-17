@@ -32,16 +32,15 @@
 
 #include <cmath>
 
-#include <rviz/ogre_helpers/object.h>
+#include <rviz_rendering/objects/object.hpp>
+#include <rviz_rendering/objects/shape.hpp>
 
-#include <boost/scoped_ptr.hpp>
-
-#include <geometry_msgs/PoseWithCovariance.h>
+#include <geometry_msgs/msg/pose_with_covariance.hpp>
 
 #include <Eigen/Dense>
 
 #include <OgreColourValue.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 namespace Ogre
 {
@@ -55,11 +54,8 @@ namespace Eigen
 typedef Matrix<double, 6, 6> Matrix6d;
 }
 
-namespace rviz
+namespace fuse_viz
 {
-
-class Shape;
-class MappedCovarianceProperty;
 
 /**
  * \class MappedCovarianceVisual
@@ -68,7 +64,7 @@ class MappedCovarianceProperty;
  * This is mostly a copy of CovarianceVisual from rviz/default_plugin/covariance_visual.h that allows
  * MappedCovarianceProperty be a friend class of MappedCovarianceVisual, so it can call its constructor.
  */
-class MappedCovarianceVisual : public rviz::Object
+class MappedCovarianceVisual : public rviz_rendering::Object
 {
 public:
   enum ShapeIndex
@@ -137,7 +133,7 @@ public:
    * This effectively changes the orientation and scale of position and orientation
    * covariance shapes
    */
-  virtual void setCovariance(const geometry_msgs::PoseWithCovariance& pose);
+  virtual void setCovariance(const geometry_msgs::msg::PoseWithCovariance& pose);
 
   virtual const Ogre::Vector3& getPositionCovarianceScale();
   virtual const Ogre::Quaternion& getPositionCovarianceOrientation();
@@ -164,7 +160,7 @@ public:
    * \brief Get the shape used to display position covariance
    * @return the shape used to display position covariance
    */
-  rviz::Shape* getPositionShape()
+  rviz_rendering::Shape* getPositionShape()
   {
     return position_shape_;
   }
@@ -173,7 +169,7 @@ public:
    * \brief Get the shape used to display orientation covariance in an especific axis
    * @return the shape used to display orientation covariance in an especific axis
    */
-  rviz::Shape* getOrientationShape(ShapeIndex index);
+  rviz_rendering::Shape* getOrientationShape(ShapeIndex index);
 
   /**
    * \brief Sets user data on all ogre objects we own
@@ -225,8 +221,8 @@ private:
   Ogre::SceneNode* orientation_root_node_;
   Ogre::SceneNode* orientation_offset_node_[kNumOriShapes];
 
-  rviz::Shape* position_shape_;                    //!< Ellipse used for the position covariance
-  rviz::Shape* orientation_shape_[kNumOriShapes];  //!< Cylinders used for the orientation covariance
+  rviz_rendering::Shape* position_shape_;                    //!< Ellipse used for the position covariance
+  rviz_rendering::Shape* orientation_shape_[kNumOriShapes];  //!< Cylinders used for the orientation covariance
 
   bool local_rotation_;
 
@@ -242,10 +238,10 @@ private:
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  virtual void setScale(const Ogre::Vector3& scale)
+  virtual void setScale(const Ogre::Vector3&)
   {
   }
-  virtual void setColor(float r, float g, float b, float a)
+  virtual void setColor(float, float, float, float)
   {
   }
   virtual const Ogre::Vector3& getPosition();

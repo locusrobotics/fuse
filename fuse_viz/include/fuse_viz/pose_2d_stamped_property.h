@@ -35,7 +35,9 @@
 #ifndef FUSE_VIZ_POSE_2D_STAMPED_PROPERTY_H
 #define FUSE_VIZ_POSE_2D_STAMPED_PROPERTY_H
 
-#include <rviz/properties/bool_property.h>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
 
 #include <fuse_core/uuid.hpp>
 
@@ -58,16 +60,12 @@ class Orientation2DStamped;
 
 }  // namespace fuse_variables
 
-namespace rviz
+namespace fuse_viz
 {
 
 class Pose2DStampedVisual;
 
-class Property;
-class ColorProperty;
-class FloatProperty;
-
-class Pose2DStampedProperty : public BoolProperty
+class Pose2DStampedProperty : public rviz_common::properties::BoolProperty
 {
   Q_OBJECT
 public:
@@ -106,12 +104,12 @@ private:
 
   std::unordered_map<fuse_core::UUID, VisualPtr, fuse_core::uuid::hash> variables_;
 
-  ColorProperty* color_property_;
-  BoolProperty* show_text_property_;
-  FloatProperty* sphere_alpha_property_;
-  FloatProperty* axes_alpha_property_;
-  FloatProperty* scale_property_;
-  FloatProperty* text_scale_property_;
+  rviz_common::properties::ColorProperty* color_property_;
+  rviz_common::properties::BoolProperty* show_text_property_;
+  rviz_common::properties::FloatProperty* sphere_alpha_property_;
+  rviz_common::properties::FloatProperty* axes_alpha_property_;
+  rviz_common::properties::FloatProperty* scale_property_;
+  rviz_common::properties::FloatProperty* text_scale_property_;
 };
 
 }  // namespace rviz
