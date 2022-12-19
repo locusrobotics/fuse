@@ -84,7 +84,8 @@ pluginlib_export_plugin_description_file(rviz_common rviz_plugins.xml)
 #############
 
 if(BUILD_TESTING)
-  # TODO(sloretz) lint tests
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_package()
