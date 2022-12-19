@@ -1,4 +1,4 @@
-<library path="lib/libfuse_variables">
+<library path="fuse_variables">
   <class type="fuse_variables::AccelerationAngular2DStamped" base_class_type="fuse_core::Variable">
     <description>
     Variable representing a 2D angular acceleration at a specific time, with a specific piece of hardware.
