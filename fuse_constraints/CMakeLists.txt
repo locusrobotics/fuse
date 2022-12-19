@@ -100,6 +100,8 @@ install(DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
 )
 
+install(DIRECTORY cmake DESTINATION share/${PROJECT_NAME})
+
 pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
