@@ -1,4 +1,4 @@
-<library path="lib/libfuse_viz">
+<library path="fuse_viz">
   <class name="fuse_viz/SerializedGraph" type="fuse_viz::SerializedGraphDisplay" base_class_type="rviz_common::Display">
     <description>
     An rviz display for fuse_msgs::msg::SerializedGraph messages.
