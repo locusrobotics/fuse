@@ -50,7 +50,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -72,7 +72,7 @@ target_link_libraries(batch_optimizer_node
 )
 set_target_properties(batch_optimizer_node
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -94,7 +94,7 @@ target_link_libraries(fixed_lag_smoother_node
 )
 set_target_properties(fixed_lag_smoother_node
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -153,7 +153,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_variable_stamp_index
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -177,7 +177,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_optimizer
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -209,7 +209,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_fixed_lag_ignition
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 endif()

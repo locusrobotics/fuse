@@ -78,7 +78,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -135,7 +135,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_absolute_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -161,7 +161,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_absolute_orientation_3d_stamped_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -187,7 +187,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_absolute_orientation_3d_stamped_euler_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -211,7 +211,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_absolute_pose_2d_stamped_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -235,7 +235,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_absolute_pose_3d_stamped_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -257,7 +257,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_marginal_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -280,7 +280,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_marginalize_variables
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -304,7 +304,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_normal_delta_pose_2d
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -328,7 +328,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_normal_prior_pose_2d
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -352,7 +352,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_relative_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -376,7 +376,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_relative_pose_2d_stamped_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -400,7 +400,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_relative_pose_3d_stamped_constraint
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -419,7 +419,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_uuid_ordering
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -436,7 +436,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_variable_constraints
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -458,7 +458,7 @@ if(CATKIN_ENABLE_TESTING)
       )
       set_target_properties(benchmark_normal_delta_pose_2d
         PROPERTIES
-          CXX_STANDARD 14
+          CXX_STANDARD 17
           CXX_STANDARD_REQUIRED YES
       )
     endif()
@@ -477,7 +477,7 @@ if(CATKIN_ENABLE_TESTING)
       )
       set_target_properties(benchmark_normal_prior_pose_2d
         PROPERTIES
-          CXX_STANDARD 14
+          CXX_STANDARD 17
           CXX_STANDARD_REQUIRED YES
       )
     endif()

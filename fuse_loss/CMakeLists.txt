@@ -58,7 +58,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -123,7 +123,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_loss_function
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -147,7 +147,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_composed_loss
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -171,7 +171,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_huber_loss
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -195,7 +195,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_tukey_loss
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -227,7 +227,7 @@ if(CATKIN_ENABLE_TESTING)
     )
     set_target_properties(test_qwt_loss_plot
       PROPERTIES
-        CXX_STANDARD 14
+        CXX_STANDARD 17
         CXX_STANDARD_REQUIRED YES
     )
 
@@ -257,7 +257,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_scaled_loss
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 endif()
