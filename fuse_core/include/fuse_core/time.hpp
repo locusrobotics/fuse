@@ -80,40 +80,6 @@ bool is_valid(rclcpp::Time time);
 //            in
 bool is_valid(rclcpp::Clock::SharedPtr clock);
 
-
-/**
- * @brief Wait for clock's time to be valid (non-zero)
- *
- * @param[in] clock         An rclcpp::Clock to measure time against
- * @param[in] context       The context to wait in
- *
- * @return valid  true if clock was or became valid
- */
-// TODO(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is
-//            in
-bool wait_for_valid(
-  rclcpp::Clock::SharedPtr clock,
-  rclcpp::Context::SharedPtr context = rclcpp::contexts::get_global_default_context());
-
-
-/**
- * @brief Wait for clock's time to be valid (non-zero), with timeout
- *
- * @param[in] clock         An rclcpp::Clock to measure time against
- * @param[in] timeout       The maximum time to wait for
- * @param[in] context       The context to wait in
- * @param[in] wait_tick_ns  The time to wait between each iteration of the wait loop (in ns)
- *
- * @return valid  true if clock was or became valid
- */
-// TODO(CH3): Replace with rclcpp's implementation when https://github.com/ros2/rclcpp/pull/2040 is
-//            in
-bool wait_for_valid(
-  rclcpp::Clock::SharedPtr clock,
-  const rclcpp::Duration & timeout,
-  rclcpp::Context::SharedPtr context = rclcpp::contexts::get_global_default_context(),
-  const rclcpp::Duration & wait_tick_ns = rclcpp::Duration(0, static_cast<uint32_t>(1e7)));
-
 }  // namespace fuse_core
 
 #endif  // FUSE_CORE__TIME_HPP_
