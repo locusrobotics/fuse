@@ -223,7 +223,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
 
   // Create a publisher and send it the graph
   fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize(node, "test_publisher", 0);
+  publisher.initialize(node, "test_publisher");
   publisher.start();
 
   // Subscribe to the "pose" topic
@@ -265,7 +265,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
 
   // Create a publisher and send it the graph
   fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize(node, "test_publisher", 0);
+  publisher.initialize(node, "test_publisher");
   publisher.start();
 
   // Subscribe to the "pose_with_covariance" topic
@@ -332,7 +332,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
 
   // Create a publisher and send it the graph
   fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize(node, "test_publisher", 0);
+  publisher.initialize(node, "test_publisher");
   publisher.start();
 
   // Send the graph to the Publisher to trigger message publishing
@@ -380,7 +380,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
 
   // Create a publisher and send it the graph
   fuse_publishers::Pose2DPublisher publisher;
-  publisher.initialize(node, "test_publisher", 0);
+  publisher.initialize(node, "test_publisher");
   publisher.start();
 
   // Send the graph to the Publisher to trigger message publishing

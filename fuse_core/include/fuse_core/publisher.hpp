@@ -80,10 +80,23 @@ public:
    * conflicts and allow the same plugin to be used multiple times with different settings and
    * topics.
    *
+   * This requires all possible interfaces, but plugins may choose to use only some of them.
+   *
    * @param[in] name A unique name to give this plugin instance
    */
-  template<typename NodeT>
-  void initialize(NodeT interfaces, const std::string & name);
+  virtual void initialize(
+    node_interfaces::NodeInterfaces<
+      node_interfaces::Base,
+      node_interfaces::Clock,
+      node_interfaces::Graph,
+      node_interfaces::Logging,
+      node_interfaces::Parameters,
+      node_interfaces::Services,
+      node_interfaces::TimeSource,
+      node_interfaces::Timers,
+      node_interfaces::Topics,
+      node_interfaces::Waitables
+    > interfaces, const std::string & name) = 0;
 
   /**
    * @brief Get the unique name of this publisher

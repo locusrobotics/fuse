@@ -61,7 +61,7 @@ namespace fuse_publishers
 {
 
 Path2DPublisher::Path2DPublisher() :
-  fuse_core::AsyncPublisher(),
+  fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
   frame_id_("map")
 {
@@ -70,15 +70,20 @@ Path2DPublisher::Path2DPublisher() :
 void Path2DPublisher::initialize(
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Graph,
+    fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Services,
+    fuse_core::node_interfaces::TimeSource,
+    fuse_core::node_interfaces::Timers,
     fuse_core::node_interfaces::Topics,
     fuse_core::node_interfaces::Waitables
   > interfaces,
-  const std::string & name,
-  size_t thread_count)
+  const std::string & name)
 {
   interfaces_ = interfaces;
-  fuse_core::AsyncPublisher::initialize(interfaces_, name, thread_count);
+  fuse_core::AsyncPublisher::initialize(interfaces, name);
 }
 
 void Path2DPublisher::onInit()

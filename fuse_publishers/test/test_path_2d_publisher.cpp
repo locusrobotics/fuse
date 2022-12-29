@@ -216,7 +216,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   fuse_publishers::Path2DPublisher publisher;
 
   // This is the name of the pub's inner node (to set params against)
-  publisher.initialize(node, "test_publisher", 0);
+  publisher.initialize(node, "test_publisher");
   publisher.start();
 
   // Subscribe to the "path" topic

@@ -90,17 +90,16 @@ public:
   void initialize(
     node_interfaces::NodeInterfaces<
       node_interfaces::Base,
+      node_interfaces::Clock,
+      node_interfaces::Graph,
+      node_interfaces::Logging,
+      node_interfaces::Parameters,
+      node_interfaces::Services,
+      node_interfaces::TimeSource,
+      node_interfaces::Timers,
+      node_interfaces::Topics,
       node_interfaces::Waitables
-    > interfaces,
-    const std::string & name);
-
-  void initialize(
-    node_interfaces::NodeInterfaces<
-      node_interfaces::Base,
-      node_interfaces::Waitables
-    > interfaces,
-    const std::string & name,
-    size_t thread_count);
+    > interfaces, const std::string & name) override;
 
   /**
    * @brief Get the unique name of this publisher
@@ -174,7 +173,7 @@ protected:
 
   //! A single/multi-threaded executor assigned to the local callback queue
   rclcpp::Executor::SharedPtr executor_;
-  size_t executor_thread_count_;
+  size_t executor_thread_count_{1};
   std::thread spinner_;  //!< Internal thread for spinning the executor
   std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
@@ -185,7 +184,7 @@ protected:
    *
    * @param[in] thread_count The number of threads used to service the local callback queue
    */
-  AsyncPublisher();
+  explicit AsyncPublisher(size_t thread_count = 1);
 
   /**
    * @brief Perform any required initialization for the publisher
