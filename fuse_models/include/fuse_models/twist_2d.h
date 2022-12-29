@@ -40,7 +40,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/TwistWithCovarianceStamped.h>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -51,7 +51,7 @@ namespace fuse_models
 /**
  * @brief An adapter-type sensor that produces absolute velocity constraints from information published by another node
  *
- * This sensor subscribes to a geometry_msgs::TwistWithCovarianceStamped topic and converts each received message
+ * This sensor subscribes to a geometry_msgs::msg::TwistWithCovarianceStamped topic and converts each received message
  * into two absolute velocity constraints (one for linear velocity, and one for angular).
  *
  * Parameters:
@@ -61,7 +61,7 @@ namespace fuse_models
  *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
  */
 class Twist2D : public fuse_core::AsyncSensorModel
 {
@@ -83,7 +83,7 @@ public:
    * @brief Callback for twist messages
    * @param[in] msg - The twist message to process
    */
-  void process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::TwistWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -111,7 +111,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::TwistWithCovarianceStamped>;
+  using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::TwistWithCovarianceStamped>;
   TwistThrottledCallback throttled_callback_;
 };
 

@@ -40,9 +40,9 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/msg/imu.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -56,7 +56,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces orientation (relative or absolute), angular velocity, and linear
  * acceleration constraints from IMU sensor data published by another node
  *
- * This sensor subscribes to a sensor_msgs::Imu topic and:
+ * This sensor subscribes to a sensor_msgs::msg::Imu topic and:
  *   1. Creates relative or absolute orientation and constraints. If the \p differential parameter is set to false (the
  *      default), the orientation measurement will be treated as an absolute constraint. If it is set to true,
  *      consecutive measurements will be used to generate relative orientation constraints.
@@ -81,7 +81,7 @@ namespace fuse_models
  *  - acceleration_target_frame (string) Acceleration data will be transformed into this frame before it is fused.
  *
  * Subscribes:
- *  - \p topic (sensor_msgs::Imu) IMU data at a given timestep
+ *  - \p topic (sensor_msgs::msg::Imu) IMU data at a given timestep
  */
 class Imu2D : public fuse_core::AsyncSensorModel
 {
@@ -103,7 +103,7 @@ public:
    * @brief Callback for pose messages
    * @param[in] msg - The IMU message to process
    */
-  void process(const sensor_msgs::Imu::ConstPtr& msg);
+  void process(const sensor_msgs::msg::Imu& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -135,13 +135,13 @@ protected:
    * @param[in] validate - Whether to validate the pose and twist coavriance or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
-  void processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose,
-                           const geometry_msgs::TwistWithCovarianceStamped& twist, const bool validate,
+  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+                           const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
                            fuse_core::Transaction& transaction);
 
   ParameterType params_;
 
-  std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;
+  geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr previous_pose_;
 
   tf2_ros::Buffer tf_buffer_;
 
@@ -149,7 +149,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using ImuThrottledCallback = fuse_core::ThrottledMessageCallback<sensor_msgs::Imu>;
+  using ImuThrottledCallback = fuse_core::ThrottledMessageCallback<sensor_msgs::msg::Imu>;
   ImuThrottledCallback throttled_callback_;
 };
 

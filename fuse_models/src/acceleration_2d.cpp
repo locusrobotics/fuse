@@ -37,7 +37,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
@@ -81,7 +81,7 @@ void Acceleration2D::onStart()
 {
   if (!params_.indices.empty())
   {
-    subscriber_ = node_handle_.subscribe<geometry_msgs::AccelWithCovarianceStamped>(
+    subscriber_ = node_handle_.subscribe<geometry_msgs::msg::AccelWithCovarianceStamped>(
         ros::names::resolve(params_.topic), params_.queue_size, &AccelerationThrottledCallback::callback,
         &throttled_callback_, ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
   }
@@ -92,16 +92,16 @@ void Acceleration2D::onStop()
   subscriber_.shutdown();
 }
 
-void Acceleration2D::process(const geometry_msgs::AccelWithCovarianceStamped::ConstPtr& msg)
+void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   common::processAccelWithCovariance(
     name(),
     device_id_,
-    *msg,
+    msg,
     params_.loss,
     params_.target_frame,
     params_.indices,

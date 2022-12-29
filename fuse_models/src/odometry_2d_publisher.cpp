@@ -39,11 +39,11 @@
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <tf2_2d/tf2_2d.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -82,8 +82,8 @@ void Odometry2DPublisher::onInit()
     tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, node_handle_);
   }
 
-  odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
-  acceleration_pub_ = node_handle_.advertise<geometry_msgs::AccelWithCovarianceStamped>(
+  odom_pub_ = node_handle_.advertise<nav_msgs::msg::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
+  acceleration_pub_ = node_handle_.advertise<geometry_msgs::msg::AccelWithCovarianceStamped>(
       ros::names::resolve(params_.acceleration_topic), params_.queue_size);
 
   publish_timer_node_handle_.setCallbackQueue(&publish_timer_callback_queue_);
@@ -116,8 +116,8 @@ void Odometry2DPublisher::notifyCallback(
   fuse_core::UUID velocity_angular_uuid;
   fuse_core::UUID acceleration_linear_uuid;
 
-  nav_msgs::Odometry odom_output;
-  geometry_msgs::AccelWithCovarianceStamped acceleration_output;
+  nav_msgs::msg::Odometry odom_output;
+  geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
   if (!getState(
          *graph,
          latest_stamp,
@@ -234,8 +234,8 @@ void Odometry2DPublisher::onStart()
   synchronizer_ = Synchronizer(device_id_);
   latest_stamp_ = latest_covariance_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   latest_covariance_valid_ = false;
-  odom_output_ = nav_msgs::Odometry();
-  acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
+  odom_output_ = nav_msgs::msg::Odometry();
+  acceleration_output_ = geometry_msgs::msg::AccelWithCovarianceStamped();
 
   // TODO(CH3): Add this to a separate callback group for async behavior
   publish_timer_ = this->node_.create_timer(
@@ -260,8 +260,8 @@ bool Odometry2DPublisher::getState(
   fuse_core::UUID& velocity_linear_uuid,
   fuse_core::UUID& velocity_angular_uuid,
   fuse_core::UUID& acceleration_linear_uuid,
-  nav_msgs::Odometry& odometry,
-  geometry_msgs::AccelWithCovarianceStamped& acceleration)
+  nav_msgs::msg::Odometry& odometry,
+  geometry_msgs::msg::AccelWithCovarianceStamped& acceleration)
 {
   try
   {
@@ -324,8 +324,8 @@ void Odometry2DPublisher::publishTimerCallback()
   rclcpp::Time latest_stamp;
   rclcpp::Time latest_covariance_stamp;
   bool latest_covariance_valid;
-  nav_msgs::Odometry odom_output;
-  geometry_msgs::AccelWithCovarianceStamped acceleration_output;
+  nav_msgs::msg::Odometry odom_output;
+  geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -484,7 +484,7 @@ void Odometry2DPublisher::publishTimerCallback()
       std::swap(frame_id, child_frame_id);
     }
 
-    geometry_msgs::TransformStamped trans;
+    geometry_msgs::msg::TransformStamped trans;
     trans.header.stamp = odom_output.header.stamp;
     trans.header.frame_id = frame_id;
     trans.child_frame_id = child_frame_id;
@@ -503,7 +503,7 @@ void Odometry2DPublisher::publishTimerCallback()
           trans.header.stamp,
           params_.tf_timeout);
 
-        geometry_msgs::TransformStamped map_to_odom;
+        geometry_msgs::msg::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, trans);
         map_to_odom.child_frame_id = params_.odom_frame_id;
         trans = map_to_odom;

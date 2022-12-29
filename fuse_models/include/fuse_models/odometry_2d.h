@@ -40,8 +40,8 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -55,7 +55,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
  * published by another node
  *
- * This sensor subscribes to a nav_msgs::Odometry topic and:
+ * This sensor subscribes to a nav_msgs::msg::Odometry topic and:
  *   1. Creates relative or absolute pose variables and constraints. If the \p differential parameter is set to false
  *      (the default), the  measurement will be treated as an absolute constraint. If it is set to true, consecutive
  *      measurements will be used to generate relative pose constraints.
@@ -77,7 +77,7 @@ namespace fuse_models
  *      frame should be a body-relative frame, typically 'base_link'.
  *
  * Subscribes:
- *  - \p topic (nav_msgs::Odometry) Odometry information at a given timestep
+ *  - \p topic (nav_msgs::msg::Odometry) Odometry information at a given timestep
  */
 class Odometry2D : public fuse_core::AsyncSensorModel
 {
@@ -99,7 +99,7 @@ public:
    * @brief Callback for pose messages
    * @param[in] msg - The pose message to process
    */
-  void process(const nav_msgs::Odometry::ConstPtr& msg);
+  void process(const nav_msgs::msg::Odometry& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -131,13 +131,13 @@ protected:
    * @param[in] validate - Whether to validate the pose and twist coavriance or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
-  void processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose,
-                           const geometry_msgs::TwistWithCovarianceStamped& twist, const bool validate,
+  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+                           const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
                            fuse_core::Transaction& transaction);
 
   ParameterType params_;
 
-  std::unique_ptr<geometry_msgs::PoseWithCovarianceStamped> previous_pose_;
+  geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr previous_pose_;
 
   tf2_ros::Buffer tf_buffer_;
 
@@ -145,7 +145,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using OdometryThrottledCallback = fuse_core::ThrottledMessageCallback<nav_msgs::Odometry>;
+  using OdometryThrottledCallback = fuse_core::ThrottledMessageCallback<nav_msgs::msg::Odometry>;
   OdometryThrottledCallback throttled_callback_;
 };
 

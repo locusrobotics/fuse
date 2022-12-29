@@ -40,7 +40,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
 
-#include <fuse_msgs/SerializedTransaction.h>
+#include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <ros/ros.h>
 
 namespace fuse_models
@@ -50,7 +50,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces transactions with the same added and removed constraints from an input
  * transaction. This is useful for debugging purposes because it allows to play back the recorded transactions.
  *
- * This sensor subscribes to a fuse_msgs::SerializedTransaction topic and deserializes each received message into a
+ * This sensor subscribes to a fuse_msgs::msg::SerializedTransaction topic and deserializes each received message into a
  * transaction.
  *
  * Parameters:
@@ -58,7 +58,7 @@ namespace fuse_models
  *  - ~topic (string) The topic to which to subscribe for the transaction messages
  *
  * Subscribes:
- *  - topic (fuse_msgs::SerializedTransaction) Transaction
+ *  - topic (fuse_msgs::msg::SerializedTransaction) Transaction
  */
 class Transaction : public fuse_core::AsyncSensorModel
 {
@@ -96,7 +96,7 @@ protected:
    * @brief Callback for transaction messages
    * @param[in] msg - The transaction message to process
    */
-  void process(const fuse_msgs::SerializedTransaction::ConstPtr& msg);
+  void process(const fuse_msgs::msg::SerializedTransaction& msg);
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 

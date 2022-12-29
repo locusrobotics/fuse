@@ -64,7 +64,7 @@ void Transaction::onStop()
   subscriber_.shutdown();
 }
 
-void Transaction::process(const fuse_msgs::SerializedTransaction::ConstPtr& msg)
+void Transaction::process(const fuse_msgs::msg::SerializedTransaction& msg)
 {
   // Deserialize and send the transaction to the plugin's parent
   sendTransaction(transaction_deserializer_.deserialize(msg).clone());

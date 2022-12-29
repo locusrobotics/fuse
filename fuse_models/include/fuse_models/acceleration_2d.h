@@ -40,7 +40,7 @@
 #include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -52,7 +52,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces 2D linear acceleration constraints from information published by another
  * node
  *
- * This sensor subscribes to a geometry_msgs::AccelWithCovarianceStamped topic and converts each received message
+ * This sensor subscribes to a geometry_msgs::msg::AccelWithCovarianceStamped topic and converts each received message
  * into a 2D linear acceleration variable and constraint.
  *
  * Parameters:
@@ -63,7 +63,7 @@ namespace fuse_models
  *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::AccelWithCovarianceStamped) Acceleration information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::AccelWithCovarianceStamped) Acceleration information at a given timestamp
  */
 class Acceleration2D : public fuse_core::AsyncSensorModel
 {
@@ -85,7 +85,7 @@ public:
    * @brief Callback for acceleration messages
    * @param[in] msg - The acceleration message to process
    */
-  void process(const geometry_msgs::AccelWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -117,7 +117,7 @@ protected:
 
   ros::Subscriber subscriber_;
 
-  using AccelerationThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::AccelWithCovarianceStamped>;
+  using AccelerationThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::AccelWithCovarianceStamped>;
   AccelerationThrottledCallback throttled_callback_;
 };
 

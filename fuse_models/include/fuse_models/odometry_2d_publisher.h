@@ -44,8 +44,8 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_publishers/stamped_variable_synchronizer.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
@@ -59,7 +59,7 @@ namespace fuse_models
 {
 
 /**
- * @class Odometry2DPublisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
+ * @class Odometry2DPublisher plugin that publishes a nav_msgs::msg::Odometry message and broadcasts a tf transform for optimized 2D
  * state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
  * VelocityAngular2DStamped, AccelerationLinear2DStamped).
  *
@@ -86,11 +86,11 @@ namespace fuse_models
  *  - topic (string, default: "~odometry/filtered")  The ROS topic to which we will publish the filtered state data
  *
  * Publishes:
- *  - odometry/filtered (nav_msgs::Odometry)  The most recent optimized state, gives as an odometry message
+ *  - odometry/filtered (nav_msgs::msg::Odometry)  The most recent optimized state, gives as an odometry message
  *  - tf (via a tf2_ros::TransformBroadcaster)  The most recent optimized state, as a tf transform
  *
  * Subscribes:
- *  - tf, tf_static (tf2_msgs::TFMessage)  Subscribes to tf data to obtain the requisite odom->base_link transform,
+ *  - tf, tf_static (tf2_msgs::msg::TFMessage)  Subscribes to tf data to obtain the requisite odom->base_link transform,
  *                                         but only if the world_frame_id is set to the value of the map_frame_id.
  */
 class Odometry2DPublisher : public fuse_core::AsyncPublisher // TODO(methylDragon): Refactor this in the same way it was done in fuse_publishers
@@ -160,8 +160,8 @@ protected:
     fuse_core::UUID& velocity_linear_uuid,
     fuse_core::UUID& velocity_angular_uuid,
     fuse_core::UUID& acceleration_linear_uuid,
-    nav_msgs::Odometry& odometry,
-    geometry_msgs::AccelWithCovarianceStamped& acceleration);
+    nav_msgs::msg::Odometry& odometry,
+    geometry_msgs::msg::AccelWithCovarianceStamped& acceleration);
 
   /**
    * @brief Timer callback method for the filtered state publication and tf broadcasting
@@ -188,9 +188,9 @@ protected:
 
   bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
 
-  nav_msgs::Odometry odom_output_;
+  nav_msgs::msg::Odometry odom_output_;
 
-  geometry_msgs::AccelWithCovarianceStamped acceleration_output_;
+  geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output_;
 
   Synchronizer synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
 

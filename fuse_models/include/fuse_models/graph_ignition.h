@@ -42,7 +42,7 @@
 #include <fuse_core/graph.hpp>
 #include <fuse_core/graph_deserializer.hpp>
 
-#include <fuse_msgs/SerializedGraph.h>
+#include <fuse_msgs/msg/serialized_graph.hpp>
 #include <ros/ros.h>
 
 #include <atomic>
@@ -110,7 +110,7 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::SerializedGraph::ConstPtr& msg);
+  void subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
@@ -130,7 +130,7 @@ protected:
    *
    * @param[in] msg - The graph message
    */
-  void process(const fuse_msgs::SerializedGraph& msg);
+  void process(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph
