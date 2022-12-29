@@ -233,7 +233,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
-  rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(20.0);
+  rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
   while ((!received_path_msg_) && (node->now() < timeout))
   {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
