@@ -85,18 +85,8 @@ public:
    * @param[in] name A unique name to give this plugin instance
    */
   virtual void initialize(
-    node_interfaces::NodeInterfaces<
-      node_interfaces::Base,
-      node_interfaces::Clock,
-      node_interfaces::Graph,
-      node_interfaces::Logging,
-      node_interfaces::Parameters,
-      node_interfaces::Services,
-      node_interfaces::TimeSource,
-      node_interfaces::Timers,
-      node_interfaces::Topics,
-      node_interfaces::Waitables
-    > interfaces, const std::string & name) = 0;
+    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name) = 0;
 
   /**
    * @brief Get the unique name of this publisher

@@ -125,18 +125,7 @@ public:
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
   void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Clock,
-      fuse_core::node_interfaces::Graph,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters,
-      fuse_core::node_interfaces::Services,
-      fuse_core::node_interfaces::TimeSource,
-      fuse_core::node_interfaces::Timers,
-      fuse_core::node_interfaces::Topics,
-      fuse_core::node_interfaces::Waitables
-    > interfaces,
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
     const std::string & name) override;
 
   /**
@@ -195,7 +184,7 @@ protected:
   std::string base_frame_;  //!< The name of the robot's base_link frame
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
-  rclcpp::Logger logger_;  //!< The publisher's logger, shared_ptr for deferred init
+  rclcpp::Logger logger_;  //!< The publisher's logger
 
   std::string map_frame_;  //!< The name of the robot's map frame
   std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is not used)

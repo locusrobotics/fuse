@@ -49,18 +49,7 @@ AsyncPublisher::~AsyncPublisher()
 }
 
 void AsyncPublisher::initialize(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Base,
-    node_interfaces::Clock,
-    node_interfaces::Graph,
-    node_interfaces::Logging,
-    node_interfaces::Parameters,
-    node_interfaces::Services,
-    node_interfaces::TimeSource,
-    node_interfaces::Timers,
-    node_interfaces::Topics,
-    node_interfaces::Waitables
-  > interfaces,
+  node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   const std::string & name)
 {
   interfaces_ = interfaces;

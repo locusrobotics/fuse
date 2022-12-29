@@ -45,7 +45,7 @@ class MyPublisher : public fuse_core::AsyncPublisher
 {
 public:
   MyPublisher()
-  : fuse_core::AsyncPublisher(),
+  : fuse_core::AsyncPublisher(1),
     callback_processed(false),
     initialized(false)
   {

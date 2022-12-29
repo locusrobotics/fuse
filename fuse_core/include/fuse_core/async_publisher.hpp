@@ -84,22 +84,11 @@ public:
    *
    * @param[in] interfaces The node interfaces to be used with the publisher
    * @param[in] name A unique name to give this plugin instance
-   * @param[in] name The number of threads to use with this publisher
    * @throws runtime_error if already initialized
    */
   void initialize(
-    node_interfaces::NodeInterfaces<
-      node_interfaces::Base,
-      node_interfaces::Clock,
-      node_interfaces::Graph,
-      node_interfaces::Logging,
-      node_interfaces::Parameters,
-      node_interfaces::Services,
-      node_interfaces::TimeSource,
-      node_interfaces::Timers,
-      node_interfaces::Topics,
-      node_interfaces::Waitables
-    > interfaces, const std::string & name) override;
+    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name) override;
 
   /**
    * @brief Get the unique name of this publisher
