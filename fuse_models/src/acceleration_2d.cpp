@@ -38,8 +38,8 @@
 #include <fuse_core/uuid.hpp>
 
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 
 // Register this sensor model with ROS as a plugin.
@@ -51,45 +51,78 @@ namespace fuse_models
 Acceleration2D::Acceleration2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
-  tf_listener_(tf_buffer_),
+  logger_(rclcpp::get_logger("uninitialized")),
   throttled_callback_(std::bind(&Acceleration2D::process, this, std::placeholders::_1))
 {
 }
 
+void Acceleration2D::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name,
+  fuse_core::TransactionCallback transaction_callback)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
+}
+
 void Acceleration2D::onInit()
 {
-  // Read settings from the parameter sever
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  params_.loadFromROS(private_node_handle_);
+  // Read settings from the parameter sever
+  device_id_ = fuse_variables::loadDeviceId(interfaces_);
+
+  params_.loadFromROS(interfaces_, name_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
 
   if (!params_.throttle_use_wall_time) {
-    throttled_callback_.setClock(node_->get_clock());
+    throttled_callback_.setClock(clock_);
   }
 
   if (params_.indices.empty())
   {
-    RCLCPP_WARN_STREAM(node_->get_logger(),
+    RCLCPP_WARN_STREAM(logger_,
                       "No dimensions were specified. Data from topic "
-                       << ros::names::resolve(params_.topic) << " will be ignored.");
+                       << fuse_core::joinTopicName(name_, params_.topic) << " will be ignored.");
   }
+
+  tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
+  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
+    *tf_buffer_,
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_logging_interface(),
+    interfaces_.get_node_parameters_interface(),
+    interfaces_.get_node_topics_interface()
+  );
 }
 
 void Acceleration2D::onStart()
 {
   if (!params_.indices.empty())
   {
-    subscriber_ = node_handle_.subscribe<geometry_msgs::msg::AccelWithCovarianceStamped>(
-        ros::names::resolve(params_.topic), params_.queue_size, &AccelerationThrottledCallback::callback,
-        &throttled_callback_, ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
+    rclcpp::SubscriptionOptions sub_options;
+    sub_options.callback_group = cb_group_;
+
+    sub_ = rclcpp::create_subscription<geometry_msgs::msg::AccelWithCovarianceStamped>(
+      interfaces_,
+      fuse_core::joinTopicName(name_, params_.topic),
+      params_.queue_size,
+      std::bind(
+        &AccelerationThrottledCallback::callback<
+          const geometry_msgs::msg::AccelWithCovarianceStamped &>,
+        &throttled_callback_,
+        std::placeholders::_1
+      ),
+      sub_options
+    );
   }
 }
 
 void Acceleration2D::onStop()
 {
-  subscriber_.shutdown();
+  sub_.reset();
 }
 
 void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg)
@@ -105,7 +138,7 @@ void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStampe
     params_.loss,
     params_.target_frame,
     params_.indices,
-    tf_buffer_,
+    *tf_buffer_,
     !params_.disable_checks,
     *transaction,
     params_.tf_timeout);

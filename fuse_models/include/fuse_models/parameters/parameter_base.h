@@ -35,8 +35,7 @@
 #define FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 
 #include <fuse_models/common/sensor_config.h>
-
-#include <ros/node_handle.h>
+#include <fuse_core/parameter.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -57,25 +56,41 @@ struct ParameterBase
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+   * @param[in] interfaces - The node interfaces with which to load parameters
+   * @param[in] namespace_string - The parameter namespace to use
    */
-  virtual void loadFromROS(const ros::NodeHandle& nh) = 0;
+  virtual void loadFromROS(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string& namespace_string) = 0;
 };
+
+// Helper function to get a namespace string with a '.' suffix, but only if not empty
+inline std::string get_well_formatted_param_namespace_string(std::string ns)
+{
+  return ns.empty() || ns.back() == '.' ? ns : ns + ".";
+}
 
 /**
  * @brief Utility method to load a sensor configuration, i.e. the dimension indices
  *
  * @tparam T - The variable type the dimension indices belong to
  *
- * @param[in] nh - The ROS node handle with which to load parameters
+ * @param[in] nh - The node interfaces with which to load parameters
  * @param[in] name - The ROS parameter name for the sensor configuration parameter
  * @return A vector with the dimension indices, that would be empty if the parameter does not exist
  */
 template <typename T>
-inline std::vector<size_t> loadSensorConfig(const ros::NodeHandle& nh, const std::string& name)
+inline std::vector<size_t> loadSensorConfig(
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
+  const std::string& name)
 {
-  std::vector<std::string> dimensions;
-  if (nh.getParam(name, dimensions))
+  std::vector<std::string> dimensions =
+    fuse_core::getParam(interfaces, name, dimensions);
+  if (!dimensions.empty())
   {
     return common::getDimensionIndices<T>(dimensions);
   }

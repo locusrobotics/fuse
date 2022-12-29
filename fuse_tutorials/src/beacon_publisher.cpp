@@ -108,7 +108,7 @@ void BeaconPublisher::notifyCallback(
   }
 
   // Publish the pointcloud
-  beacon_publisher_.publish(msg);
+  beacon_publisher_->publish(msg);
 }
 
 }  // namespace fuse_tutorials

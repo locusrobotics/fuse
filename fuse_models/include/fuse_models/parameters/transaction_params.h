@@ -38,7 +38,6 @@
 #include <fuse_models/parameters/parameter_base.h>
 
 #include <fuse_core/parameter.hpp>
-#include <ros/node_handle.h>
 
 #include <string>
 
@@ -57,12 +56,21 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+   * @param[in] interfaces - The node interfaces with which to load parameters
+   * @param[in] namespace_string - The parameter namespace to use
    */
-  void loadFromROS(const ros::NodeHandle& nh) final
+  void loadFromROS(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string& namespace_string)
   {
-    nh.getParam("queue_size", queue_size);
-    fuse_core::getParamRequired(nh, "topic", topic);
+    std::string ns = get_well_formatted_param_namespace_string(namespace_string);
+
+    queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
+    fuse_core::getParamRequired(interfaces, ns + "topic", topic);
   }
 
   int queue_size{ 10 };

@@ -1,4 +1,4 @@
-<library path="lib/libfuse_graphs">
+<library path="fuse_graphs">
   <class type="fuse_graphs::HashGraph" base_class_type="fuse_core::Graph">
     <description>
     This is a concrete implementation of the Graph interface using hashmaps to store the constraints and variables.

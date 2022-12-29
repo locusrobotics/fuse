@@ -106,6 +106,7 @@ public:
   * @param[in] transaction_callback The function to call every time a transaction is published
   */
   virtual void initialize(
+    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
     const std::string & name,
     TransactionCallback transaction_callback) = 0;
 

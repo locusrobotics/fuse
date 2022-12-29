@@ -82,7 +82,8 @@ public:
    */
   bool isEnabled()
   {
-    const auto now = time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now());
 
     if (last_hit_.time_since_epoch().count() < 0.0) {
       last_hit_ = now;
@@ -102,8 +103,8 @@ public:
    */
   void reset()
   {
-    last_hit_ =
-      time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::from_time_t(-1));
+    last_hit_ = std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::from_time_t(-1));
   }
 
 private:

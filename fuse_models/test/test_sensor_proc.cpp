@@ -238,9 +238,3 @@ TEST(TestSuite, populatePartialMeasurementEmptyPositionEmptyOrientation)
   EXPECT_EQ(0, pose_mean_partial.size());
   EXPECT_EQ(0, pose_covariance_partial.size());
 }
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

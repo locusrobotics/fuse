@@ -81,7 +81,7 @@ public:
   {
     stream << type() << ":\n"
            << "  uuid: " << uuid() << '\n'
-           << "  stamp: " << stamp() << '\n'
+           << "  stamp: " << stamp().nanoseconds() << '\n'
            << "  device_id: " << deviceId() << '\n'
            << "  data: " << data_ << '\n';
   }

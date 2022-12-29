@@ -38,7 +38,6 @@
 
 #include <fuse_core/loss.hpp>
 #include <fuse_core/parameter.hpp>
-#include <ros/node_handle.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -61,23 +60,34 @@ struct Unicycle2DIgnitionParams : public ParameterBase
     /**
      * @brief Method for loading parameter values from ROS.
      *
-     * @param[in] nh - The ROS node handle with which to load parameters
+     * @param[in] interfaces - The node interfaces with which to load parameters
+     * @param[in] namespace_string - The parameter namespace to use
      */
-    void loadFromROS(const ros::NodeHandle& nh) final
+    void loadFromROS(
+      fuse_core::node_interfaces::NodeInterfaces<
+        fuse_core::node_interfaces::Base,
+        fuse_core::node_interfaces::Logging,
+        fuse_core::node_interfaces::Parameters
+      > interfaces,
+      const std::string& namespace_string)
     {
-      nh.getParam("publish_on_startup", publish_on_startup);
-      nh.getParam("queue_size", queue_size);
-      nh.getParam("reset_service", reset_service);
-      nh.getParam("set_pose_service", set_pose_service);
-      nh.getParam("set_pose_deprecated_service", set_pose_deprecated_service);
-      nh.getParam("topic", topic);
+      std::string ns = get_well_formatted_param_namespace_string(namespace_string);
+
+      publish_on_startup = fuse_core::getParam(interfaces, ns + "publish_on_startup", publish_on_startup);
+      queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
+      reset_service = fuse_core::getParam(interfaces, ns + "reset_service", reset_service);
+      set_pose_service = fuse_core::getParam(interfaces, ns + "set_pose_service", set_pose_service);
+      set_pose_deprecated_service = fuse_core::getParam(interfaces, ns + "set_pose_deprecated_service", set_pose_deprecated_service);
+      topic = fuse_core::getParam(interfaces, ns + "topic", topic);
 
       std::vector<double> sigma_vector;
-      if (nh.getParam("initial_sigma", sigma_vector))
+      sigma_vector = fuse_core::getParam(interfaces, ns + "initial_sigma", sigma_vector);
+      if (!sigma_vector.empty())
       {
         if (sigma_vector.size() != 8)
         {
-          throw std::invalid_argument("The supplied initial_sigma parameter must be length 8, but is actually length " +
+          throw std::invalid_argument("The supplied initial_sigma parameter must be length 8, but "
+                                      "is actually length " +
                                       std::to_string(sigma_vector.size()));
         }
         auto is_sigma_valid = [](const double sigma)
@@ -93,7 +103,8 @@ struct Unicycle2DIgnitionParams : public ParameterBase
       }
 
       std::vector<double> state_vector;
-      if (nh.getParam("initial_state", state_vector))
+      state_vector = fuse_core::getParam(interfaces, ns + "initial_state", state_vector);
+      if (!state_vector.empty())
       {
         if (state_vector.size() != 8)
         {
@@ -112,7 +123,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         initial_state.swap(state_vector);
       }
 
-      loss = fuse_core::loadLossConfig(interfaces, "loss");
+      loss = fuse_core::loadLossConfig(interfaces, ns + "loss");
     }
 
 
@@ -130,22 +141,22 @@ struct Unicycle2DIgnitionParams : public ParameterBase
     /**
      * @brief The name of the reset service to call before sending transactions to the optimizer
      */
-    std::string reset_service { "~reset" };
+    std::string reset_service { "reset" };
 
     /**
      * @brief The name of the set_pose service to advertise
      */
-    std::string set_pose_service { "~set_pose" };
+    std::string set_pose_service { "set_pose" };
 
     /**
      * @brief The name of the deprecated set_pose service without return codes
      */
-    std::string set_pose_deprecated_service { "~set_pose_deprecated" };
+    std::string set_pose_deprecated_service { "set_pose_deprecated" };
 
     /**
      * @brief The topic name for received PoseWithCovarianceStamped messages
      */
-    std::string topic { "~set_pose" };
+    std::string topic { "set_pose" };
 
     /**
      * @brief The uncertainty of the initial state value

@@ -40,6 +40,7 @@
 
 #include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/graph.hpp>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/sensor_model.hpp>
 #include <fuse_core/transaction.hpp>
 
@@ -127,6 +128,7 @@ public:
    * @throws runtime_error if already initialized
    */
   void initialize(
+    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
     const std::string & name,
     TransactionCallback transaction_callback) override;
 
@@ -193,15 +195,17 @@ protected:
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 
   std::string name_;  //!< The unique name for this sensor model instance
-  rclcpp::Node::SharedPtr node_;  //!< The node for this sensor model
+
+  //! The node interfaces
+  node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Waitables> interfaces_;
   rclcpp::CallbackGroup::SharedPtr cb_group_;  //!< Internal re-entrant callback group
 
   //! A single/multi-threaded executor assigned to the local callback queue
-  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
+  rclcpp::Executor::SharedPtr executor_;
 
   //! The function to be executed every time a Transaction is "published"
   TransactionCallback transaction_callback_;
-  size_t executor_thread_count_;
+  size_t executor_thread_count_{1};
   std::thread spinner_;  //!< Internal thread for spinning the executor
   std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 

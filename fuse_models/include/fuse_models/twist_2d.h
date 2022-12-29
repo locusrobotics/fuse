@@ -41,7 +41,8 @@
 #include <fuse_core/uuid.hpp>
 
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
 
@@ -80,6 +81,14 @@ public:
   virtual ~Twist2D() = default;
 
   /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
+
+  /**
    * @brief Callback for twist messages
    * @param[in] msg - The twist message to process
    */
@@ -103,13 +112,25 @@ protected:
    */
   void onStop() override;
 
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
+  rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The sensor model's logger
+
   ParameterType params_;
 
-  tf2_ros::Buffer tf_buffer_;
+  // NOTE(CH3): Unique ptr to defer till we have the node interfaces from initialize()
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  tf2_ros::TransformListener tf_listener_;
-
-  ros::Subscriber subscriber_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr sub_;
 
   using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::TwistWithCovarianceStamped>;
   TwistThrottledCallback throttled_callback_;

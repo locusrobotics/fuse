@@ -54,12 +54,12 @@ public:
   : Node("fuse_echo", options)
   {
     // Subscribe to the constraint topic
-    graph_subscriber_ = this->create_subscription<fuse_msgs::msg::SerializedGraph>(
+    graph_sub_ = this->create_subscription<fuse_msgs::msg::SerializedGraph>(
       "graph",
       rclcpp::QoS(100),
       std::bind(&FuseEcho::graphCallback, this, std::placeholders::_1)
     );
-    transaction_subscriber_ = this->create_subscription<fuse_msgs::msg::SerializedTransaction>(
+    transaction_sub_ = this->create_subscription<fuse_msgs::msg::SerializedTransaction>(
       "transaction",
       rclcpp::QoS(100),
       std::bind(&FuseEcho::transactionCallback, this, std::placeholders::_1)
@@ -69,8 +69,8 @@ public:
 private:
   fuse_core::GraphDeserializer graph_deserializer_;
   fuse_core::TransactionDeserializer transaction_deserializer_;
-  rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_subscriber_;
-  rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_subscriber_;
+  rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_sub_;
+  rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_sub_;
 
   void graphCallback(const fuse_msgs::msg::SerializedGraph & msg)
   {

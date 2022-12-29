@@ -35,10 +35,12 @@
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_models/unicycle_2d.h>
 #include <fuse_models/common/sensor_proc.h>
+#include <fuse_models/parameters/parameter_base.h>
 
 #include <Eigen/Dense>
 #include <fuse_core/async_motion_model.hpp>
 #include <fuse_core/constraint.hpp>
+#include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
@@ -48,8 +50,8 @@
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <fuse_variables/stamped.hpp>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
 
 #include <stdexcept>
@@ -117,6 +119,7 @@ namespace fuse_models
 
 Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
+  logger_(rclcpp::get_logger("uninitialized")),
   buffer_length_(rclcpp::Duration::max()),
   device_id_(fuse_core::uuid::NIL),
   timestamp_manager_(&Unicycle2D::generateMotionModel, this, rclcpp::Duration::max())
@@ -128,7 +131,7 @@ void Unicycle2D::print(std::ostream& stream) const
   stream << "state history:\n";
   for (const auto& state : state_history_)
   {
-    stream << "- stamp: " << state.first << "\n";
+    stream << "- stamp: " << state.first.nanoseconds() << "\n";
     state.second.print(stream);
   }
 }
@@ -180,7 +183,7 @@ bool Unicycle2D::applyCallback(fuse_core::Transaction& transaction)
   }
   catch (const std::exception& e)
   {
-    RCLCPP_ERROR_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+    RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                  "An error occurred while completing the motion model query. Error: " << e.what());
     return false;
   }
@@ -192,10 +195,23 @@ void Unicycle2D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
   updateStateHistoryEstimates(*graph, state_history_, buffer_length_);
 }
 
+void Unicycle2D::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncMotionModel::initialize(interfaces, name);
+}
+
 void Unicycle2D::onInit()
 {
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
+
+  std::string ns = fuse_models::parameters::get_well_formatted_param_namespace_string(name_);
+
   std::vector<double> process_noise_diagonal;
-  private_node_handle_.param("process_noise_diagonal", process_noise_diagonal, process_noise_diagonal);
+  process_noise_diagonal = fuse_core::getParam(interfaces_, ns + "process_noise_diagonal", process_noise_diagonal);
 
   if (process_noise_diagonal.size() != 8)
   {
@@ -204,23 +220,25 @@ void Unicycle2D::onInit()
 
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
-  private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
-  private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
+  scale_process_noise_ = fuse_core::getParam(interfaces_, ns + "scale_process_noise", scale_process_noise_);
+  velocity_norm_min_ = fuse_core::getParam(interfaces_, ns + "velocity_norm_min", velocity_norm_min_);
 
-  private_node_handle_.param("disable_checks", disable_checks_, disable_checks_);
+  disable_checks_ = fuse_core::getParam(interfaces_, ns + "disable_checks", disable_checks_);
 
   double buffer_length = 3.0;
-  private_node_handle_.param("buffer_length", buffer_length, buffer_length);
+  buffer_length = fuse_core::getParam(interfaces_, ns + "buffer_length", buffer_length);
 
   if (buffer_length < 0.0)
   {
-    throw std::runtime_error("Invalid negative buffer length of " + std::to_string(buffer_length) + " specified.");
+    throw std::runtime_error(
+      "Invalid negative buffer length of " + std::to_string(buffer_length) + " specified.");
   }
 
-  buffer_length_ = (buffer_length == 0.0) ? rclcpp::Duration::max() : rclcpp::Duration::from_seconds(buffer_length);
+  buffer_length_ =
+    (buffer_length == 0.0) ? rclcpp::Duration::max() : rclcpp::Duration::from_seconds(buffer_length);
   timestamp_manager_.bufferLength(buffer_length_);
 
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  device_id_ = fuse_variables::loadDeviceId(interfaces_);
 }
 
 void Unicycle2D::onStart()
@@ -245,9 +263,9 @@ void Unicycle2D::generateMotionModel(
   auto base_state_pair_it = state_history_.upper_bound(beginning_stamp);
   if (base_state_pair_it == state_history_.begin())
   {
-    RCLCPP_WARN_STREAM_EXPRESSION(node_->get_logger(), !state_history_.empty(),
-                                  "UnicycleModel", "Unable to locate a state in this history with stamp <= "
-                                  << beginning_stamp << ". Variables will all be initialized to 0.");
+    RCLCPP_WARN_STREAM_EXPRESSION(logger_, !state_history_.empty(),
+                                  "Unable to locate a state in this history with stamp <= "
+                                  << beginning_stamp.nanoseconds() << ". Variables will all be initialized to 0.");
     base_time = beginning_stamp;
   }
   else
@@ -369,7 +387,7 @@ void Unicycle2D::generateMotionModel(
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                    "Invalid '" << name_ << "' motion model: " << ex.what());
       return;
     }
@@ -417,11 +435,12 @@ void Unicycle2D::updateStateHistoryEstimates(
   // Compute the expiration time carefully, as ROS can't handle negative times
   const auto& ending_stamp = state_history.rbegin()->first;
 
+  rclcpp::Time expiration_time;
   if (ending_stamp.seconds() > buffer_length.seconds()) {
-    auto expiration_time = ending_stamp - buffer_length;
+    expiration_time = ending_stamp - buffer_length;
   } else {
     // NOTE(CH3): Uninitialized. But okay because it's just used for comparison.
-    auto expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type);
+    expiration_time = rclcpp::Time(0, 0, ending_stamp.get_clock_type());
   }
 
   // Remove state history elements before the expiration time.

@@ -40,8 +40,8 @@
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 
 #include <memory>
@@ -57,32 +57,53 @@ namespace fuse_models
 Imu2D::Imu2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
-  tf_listener_(tf_buffer_),
+  logger_(rclcpp::get_logger("uninitialized")),
   throttled_callback_(std::bind(&Imu2D::process, this, std::placeholders::_1))
 {
 }
 
+void Imu2D::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name,
+  fuse_core::TransactionCallback transaction_callback)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
+}
+
 void Imu2D::onInit()
 {
-  // Read settings from the parameter sever
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  params_.loadFromROS(private_node_handle_);
+  // Read settings from the parameter sever
+  device_id_ = fuse_variables::loadDeviceId(interfaces_);
+
+  params_.loadFromROS(interfaces_, name_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
 
   if (!params_.throttle_use_wall_time) {
-    throttled_callback_.setClock(node_->get_clock());
+    throttled_callback_.setClock(clock_);
   }
 
   if (params_.orientation_indices.empty() &&
       params_.linear_acceleration_indices.empty() &&
       params_.angular_velocity_indices.empty())
   {
-    RCLCPP_WARN_STREAM(node_->get_logger(),
-                       "No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic)
+    RCLCPP_WARN_STREAM(logger_,
+                       "No dimensions were specified. Data from topic " << fuse_core::joinTopicName(name_, params_.topic)
                        << " will be ignored.");
   }
+
+  tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
+  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
+    *tf_buffer_,
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_logging_interface(),
+    interfaces_.get_node_parameters_interface(),
+    interfaces_.get_node_topics_interface()
+  );
 }
 
 void Imu2D::onStart()
@@ -92,15 +113,27 @@ void Imu2D::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe<sensor_msgs::msg::Imu>(ros::names::resolve(params_.topic), params_.queue_size,
-                                                           &ImuThrottledCallback::callback, &throttled_callback_,
-                                                           ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
+
+    rclcpp::SubscriptionOptions sub_options;
+    sub_options.callback_group = cb_group_;
+
+    sub_ = rclcpp::create_subscription<sensor_msgs::msg::Imu>(
+      interfaces_,
+      fuse_core::joinTopicName(name_, params_.topic),
+      params_.queue_size,
+      std::bind(
+        &ImuThrottledCallback::callback<const sensor_msgs::msg::Imu &>,
+        &throttled_callback_,
+        std::placeholders::_1
+      ),
+      sub_options
+    );
   }
 }
 
 void Imu2D::onStop()
 {
-  subscriber_.shutdown();
+  sub_.reset();
 }
 
 void Imu2D::process(const sensor_msgs::msg::Imu& msg)
@@ -152,7 +185,7 @@ void Imu2D::process(const sensor_msgs::msg::Imu& msg)
       params_.orientation_target_frame,
       {},
       params_.orientation_indices,
-      tf_buffer_,
+      *tf_buffer_,
       validate,
       *transaction,
       params_.tf_timeout);
@@ -168,7 +201,7 @@ void Imu2D::process(const sensor_msgs::msg::Imu& msg)
     params_.twist_target_frame,
     {},
     params_.angular_velocity_indices,
-    tf_buffer_,
+    *tf_buffer_,
     validate,
     *transaction,
     params_.tf_timeout);
@@ -209,7 +242,7 @@ void Imu2D::process(const sensor_msgs::msg::Imu& msg)
     params_.linear_acceleration_loss,
     params_.acceleration_target_frame,
     params_.linear_acceleration_indices,
-    tf_buffer_,
+    *tf_buffer_,
     validate,
     *transaction,
     params_.tf_timeout);
@@ -226,10 +259,10 @@ void Imu2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStam
   transformed_pose->header.frame_id =
       params_.orientation_target_frame.empty() ? pose.header.frame_id : params_.orientation_target_frame;
 
-  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
+  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose))
   {
-    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
-                                "Cannot transform pose message with stamp " << pose.header.stamp
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                "Cannot transform pose message with stamp " << rclcpp::Time(pose.header.stamp).nanoseconds()
                                 << " to orientation target frame " << params_.orientation_target_frame);
     return;
   }
@@ -246,10 +279,10 @@ void Imu2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStam
     transformed_twist.header.frame_id =
         params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 
-    if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
+    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist))
     {
-      RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
-                                  "Cannot transform twist message with stamp " << twist.header.stamp
+      RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                  "Cannot transform twist message with stamp " << rclcpp::Time(twist.header.stamp).nanoseconds()
                                   << " to twist target frame " << params_.twist_target_frame);
     }
     else

@@ -53,7 +53,7 @@ namespace fuse_core
 {
 
 // Helper function to get a namespace string with a '.' suffix, but only if not empty
-static std::string get_well_formatted_namespace_string(std::string ns)
+static std::string get_well_formatted_param_namespace_string(std::string ns)
 {
   return ns.empty() || ns.back() == '.' ? ns : ns + ".";
 }
@@ -70,7 +70,7 @@ void loadCovarianceOptionsFromROS(
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string ns = get_well_formatted_namespace_string(namespace_string);
+  std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
   // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version
   // 1.13.0, see https://github.com/ceres-solver/ceres-
@@ -127,7 +127,7 @@ void loadProblemOptionsFromROS(
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string ns = get_well_formatted_namespace_string(namespace_string);
+  std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
   tmp_descr.description = "trades memory for faster Problem::RemoveResidualBlock()";
   problem_options.enable_fast_removal = fuse_core::getParam(
@@ -162,7 +162,7 @@ void loadSolverOptionsFromROS(
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string ns = get_well_formatted_namespace_string(namespace_string);
+  std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
   // Minimizer options
   solver_options.minimizer_type =

@@ -41,7 +41,7 @@
 #include <fuse_core/transaction_deserializer.hpp>
 
 #include <fuse_msgs/msg/serialized_transaction.hpp>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_models
 {
@@ -76,6 +76,14 @@ public:
    */
   virtual ~Transaction() = default;
 
+  /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
+
 protected:
   /**
    * @brief Loads ROS parameters and subscribes to the parameterized topic
@@ -98,9 +106,17 @@ protected:
    */
   void process(const fuse_msgs::msg::SerializedTransaction& msg);
 
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
-  ros::Subscriber subscriber_;  //!< ROS subscriber that receives SerializedTransaction messages
+  rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr sub_;
 
   fuse_core::TransactionDeserializer transaction_deserializer_;  //!< Deserializer for SerializedTransaction messages
 };

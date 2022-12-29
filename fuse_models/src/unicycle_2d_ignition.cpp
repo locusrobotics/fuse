@@ -40,8 +40,8 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_models/SetPose.h>
-#include <fuse_models/SetPoseDeprecated.h>
+#include <fuse_msgs/srv/set_pose.hpp>
+#include <fuse_msgs/srv/set_pose_deprecated.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
@@ -50,8 +50,8 @@
 #include <fuse_variables/stamped.hpp>
 
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <pluginlib/class_list_macros.h>
-#include <std_srvs/srv/Empty.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <std_srvs/srv/empty.hpp>
 #include <tf2/convert.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
@@ -72,37 +72,72 @@ Unicycle2DIgnition::Unicycle2DIgnition() :
   fuse_core::AsyncSensorModel(1),
   started_(false),
   initial_transaction_sent_(false),
-  device_id_(fuse_core::uuid::NIL)
+  device_id_(fuse_core::uuid::NIL),
+  logger_(rclcpp::get_logger("uninitialized"))
 {
+}
+
+void Unicycle2DIgnition::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name,
+  fuse_core::TransactionCallback transaction_callback)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
 }
 
 void Unicycle2DIgnition::onInit()
 {
-  // Read settings from the parameter sever
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  params_.loadFromROS(private_node_handle_);
+  // Read settings from the parameter sever
+  device_id_ = fuse_variables::loadDeviceId(interfaces_);
+
+  params_.loadFromROS(interfaces_, name_);
 
   // Connect to the reset service
   if (!params_.reset_service.empty())
   {
-    reset_client_ = node_handle_.serviceClient<std_srvs::srv::Empty>(ros::names::resolve(params_.reset_service));
+    reset_client_ = rclcpp::create_client<std_srvs::srv::Empty>(
+      interfaces_.get_node_base_interface(),
+      interfaces_.get_node_graph_interface(),
+      interfaces_.get_node_services_interface(),
+      interfaces_.get_node_services_interface()->resolve_service_name(params_.reset_service),
+      rclcpp::ServicesQoS(),
+      cb_group_
+    );
   }
 
   // Advertise
-  subscriber_ = node_handle_.subscribe(
-    ros::names::resolve(params_.topic),
+  rclcpp::SubscriptionOptions sub_options;
+  sub_options.callback_group = cb_group_;
+  sub_ = rclcpp::create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    interfaces_,
+    fuse_core::joinTopicName(name_, params_.topic),
     params_.queue_size,
-    &Unicycle2DIgnition::subscriberCallback,
-    this);
-  set_pose_service_ = node_handle_.advertiseService(
-    ros::names::resolve(params_.set_pose_service),
-    &Unicycle2DIgnition::setPoseServiceCallback,
-    this);
-  set_pose_deprecated_service_ = node_handle_.advertiseService(
-    ros::names::resolve(params_.set_pose_deprecated_service),
-    &Unicycle2DIgnition::setPoseDeprecatedServiceCallback,
-    this);
+    std::bind(&Unicycle2DIgnition::subscriberCallback, this, std::placeholders::_1),
+    sub_options
+  );
+
+  set_pose_service_ = rclcpp::create_service<fuse_msgs::srv::SetPose>(
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_services_interface(),
+    interfaces_.get_node_services_interface()->resolve_service_name(params_.set_pose_service),
+    std::bind(
+      &Unicycle2DIgnition::setPoseServiceCallback, this, std::placeholders::_1, std::placeholders::_2),
+    rclcpp::ServicesQoS(),
+    cb_group_
+  );
+  set_pose_deprecated_service_ = rclcpp::create_service<fuse_msgs::srv::SetPoseDeprecated>(
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_services_interface(),
+    interfaces_.get_node_services_interface()->resolve_service_name(params_.set_pose_deprecated_service),
+    std::bind(
+      &Unicycle2DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1, std::placeholders::_2),
+    rclcpp::ServicesQoS(),
+    cb_group_
+  );
 }
 
 void Unicycle2DIgnition::start()
@@ -115,7 +150,7 @@ void Unicycle2DIgnition::start()
   if (params_.publish_on_startup && !initial_transaction_sent_)
   {
     auto pose = geometry_msgs::msg::PoseWithCovarianceStamped();
-    pose.header.stamp = this->get_node_clock_interface()->now();
+    pose.header.stamp = clock_->now();
     pose.pose.pose.position.x = params_.initial_state[0];
     pose.pose.pose.position.y = params_.initial_state[1];
     pose.pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0.0, 0.0, 1.0), params_.initial_state[2]));
@@ -140,38 +175,40 @@ void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCo
   }
   catch (const std::exception& e)
   {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), e.what() << " Ignoring message.");
+    RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring message.");
   }
 }
 
-bool Unicycle2DIgnition::setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_models::SetPose::Response& res)
+bool Unicycle2DIgnition::setPoseServiceCallback(
+  const fuse_msgs::srv::SetPose::Request::SharedPtr req,
+  fuse_msgs::srv::SetPose::Response::SharedPtr res)
 {
   try
   {
-    process(req.pose);
-    res.success = true;
+    process(req->pose);
+    res->success = true;
   }
   catch (const std::exception& e)
   {
-    res.success = false;
-    res.message = e.what();
-    RCLCPP_ERROR_STREAM(node_->get_logger(), e.what() << " Ignoring request.");
+    res->success = false;
+    res->message = e.what();
+    RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring request.");
   }
   return true;
 }
 
 bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
-  fuse_models::SetPoseDeprecated::Request& req,
-  fuse_models::SetPoseDeprecated::Response&)
+  const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req,
+  fuse_msgs::srv::SetPoseDeprecated::Response::SharedPtr)
 {
   try
   {
-    process(req.pose);
+    process(req->pose);
     return true;
   }
   catch (const std::exception& e)
   {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), e.what() << " Ignoring request.");
+    RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring request.");
     return false;
   }
 }
@@ -227,17 +264,21 @@ void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceSta
   if (!params_.reset_service.empty())
   {
     // Wait for the reset service
-    while (!reset_client_.waitForExistence(rclcpp::Duration::from_seconds(10.0)) && ros::ok())
+    while (!reset_client_->wait_for_service(std::chrono::seconds(10))
+           && interfaces_.get_node_base_interface()->get_context()->is_valid())
     {
-      RCLCPP_WARN_STREAM(node_->get_logger(),
-                         "Waiting for '" << reset_client_.getService() << "' service to become avaiable.");
+      RCLCPP_WARN_STREAM(logger_,
+                         "Waiting for '" << reset_client_->get_service_name() << "' service to become avaiable.");
     }
 
-    auto srv = std_srvs::srv::Empty();
-    if (!reset_client_.call(srv))
+    auto srv = std::make_shared<std_srvs::srv::Empty::Request>();
+    auto result_future = reset_client_->async_send_request(srv);
+    if (rclcpp::spin_until_future_complete(
+          interfaces_.get_node_base_interface(), result_future, std::chrono::seconds(10))
+        != rclcpp::FutureReturnCode::SUCCESS)
     {
       // The reset() service failed. Propagate that failure to the caller of this service.
-      throw std::runtime_error("Failed to call the '" + reset_client_.getService() + "' service.");
+      throw std::runtime_error("Failed to call the '" + std::string(reset_client_->get_service_name()) + "' service.");
     }
   }
 
@@ -332,8 +373,9 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
   // Send the transaction to the optimizer.
   sendTransaction(transaction);
 
-  RCLCPP_INFO_STREAM(node_->get_logger(),
-                     "Received a set_pose request (stamp: " << stamp << ", x: " << position->x() << ", y: "
+  RCLCPP_INFO_STREAM(logger_,
+                     "Received a set_pose request (stamp: " << rclcpp::Time(stamp).nanoseconds()
+                     << ", x: " << position->x() << ", y: "
                      << position->y() << ", yaw: " << orientation->yaw() << ")");
 }
 

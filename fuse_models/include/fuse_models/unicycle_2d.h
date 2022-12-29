@@ -42,8 +42,8 @@
 #include <fuse_core/timestamp_manager.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
-#include <ros/ros.h>
-#include <tf2_2d/tf2_2d.h>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_2d/tf2_2d.hpp>
 
 #include <map>
 #include <string>
@@ -85,6 +85,13 @@ public:
    * @brief Destructor
    */
   ~Unicycle2D() = default;
+
+  /**
+   * @brief Shadowing extension to the AsyncMotionModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name) override;
 
   void print(std::ostream& stream = std::cout) const;
 
@@ -182,6 +189,18 @@ protected:
    */
   static void validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
                                   const fuse_core::Matrix8d& process_noise_covariance);
+
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
+  rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The sensor model's logger
 
   rclcpp::Duration buffer_length_;                    //!< The length of the state history
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published

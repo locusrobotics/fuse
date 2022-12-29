@@ -1,4 +1,4 @@
-<library path="lib/libfuse_models">
+<library path="fuse_models">
   <class type="fuse_models::Unicycle2DStateKinematicConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A class that represents a kinematic constraint between 2D states at two different times.

@@ -46,7 +46,7 @@
 
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
@@ -83,7 +83,7 @@ namespace fuse_models
  *  - base_link_frame_id (string, default: "base_link")  Our base_link (body) frame_id
  *  - world_frame_id (string, default: "odom")  The frame_id that will be published as the parent frame for the output.
  *                                              Must be either the map_frame_id or the odom_frame_id.
- *  - topic (string, default: "~odometry/filtered")  The ROS topic to which we will publish the filtered state data
+ *  - topic (string, default: "odometry/filtered")  The ROS topic to which we will publish the filtered state data
  *
  * Publishes:
  *  - odometry/filtered (nav_msgs::msg::Odometry)  The most recent optimized state, gives as an odometry message
@@ -93,7 +93,7 @@ namespace fuse_models
  *  - tf, tf_static (tf2_msgs::msg::TFMessage)  Subscribes to tf data to obtain the requisite odom->base_link transform,
  *                                         but only if the world_frame_id is set to the value of the map_frame_id.
  */
-class Odometry2DPublisher : public fuse_core::AsyncPublisher // TODO(methylDragon): Refactor this in the same way it was done in fuse_publishers
+class Odometry2DPublisher : public fuse_core::AsyncPublisher
 {
 public:
   FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Odometry2DPublisher)
@@ -108,6 +108,13 @@ public:
    * @brief Destructor
    */
   virtual ~Odometry2DPublisher() = default;
+
+  /**
+   * @brief Shadowing extension to the AsyncPublisher::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name) override;
 
 protected:
   /**
@@ -178,42 +185,42 @@ protected:
                                                                     fuse_variables::VelocityAngular2DStamped,
                                                                     fuse_variables::AccelerationLinear2DStamped>;
 
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Timers,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+
   fuse_core::UUID device_id_;  //!< The UUID of this device
+  rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The publisher's logger
 
   ParameterType params_;
 
   rclcpp::Time latest_stamp_;
-
   rclcpp::Time latest_covariance_stamp_;
-
   bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
-
   nav_msgs::msg::Odometry odom_output_;
-
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output_;
 
   Synchronizer synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
-  ros::Publisher odom_pub_;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::AccelWithCovarianceStamped>::SharedPtr acceleration_pub_;
 
-  ros::Publisher acceleration_pub_;
-
-  tf2_ros::TransformBroadcaster tf_broadcaster_;
-
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_ = nullptr;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
   fuse_core::DelayedThrottleFilter delayed_throttle_filter_{ 10.0 };  //!< A ros::console filter to print delayed
                                                                       //!< throttle messages, that can be reset on start
 
   rclcpp::TimerBase::SharedPtr publish_timer_;
-
-  ros::CallbackQueue publish_timer_callback_queue_;  //!< A dedicated callback queue for the publish timer
-  ros::NodeHandle publish_timer_node_handle_;        //!< A dedicated node handle for the publish timer, so it can use
-                                                     //!< its own callback queue
-  ros::AsyncSpinner publish_timer_spinner_;          //!< A dedicated async spinner for the publish timer that manages
-                                                     //!< its callback queue with a dedicated thread
 
   std::mutex mutex_;  //!< A mutex to protect the access to the attributes used concurrently by the notifyCallback and
                       //!< publishTimerCallback methods:

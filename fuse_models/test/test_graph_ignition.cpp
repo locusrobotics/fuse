@@ -37,9 +37,12 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_models/SetGraph.h>
+#include <fuse_msgs/srv/set_graph.hpp>
 #include <fuse_models/graph_ignition.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+
+#include <nav_msgs/msg/path.hpp>
+#include <geometry_msgs/msg/pose_array.hpp>
 
 #include "example_constraint.h"
 #include "example_variable.h"
@@ -182,11 +185,47 @@ bool operator!=(const fuse_core::Constraint& rhs, const fuse_core::Constraint& l
 
 }  // namespace fuse_core
 
-TEST(Unicycle2DIgnition, SetGraphService)
+class GraphIgnitionTestFixture : public ::testing::Test
 {
-  // Set some configuration
-  ros::param::set("/graph_ignition_test/ignition_sensor/set_graph_service", "/set_graph");
-  ros::param::set("/graph_ignition_test/ignition_sensor/reset_service", "");
+public:
+  GraphIgnitionTestFixture()
+  {
+  }
+
+  void SetUp() override
+  {
+    rclcpp::init(0, nullptr);
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    spinner_ = std::thread(
+      [&]() {
+        executor_->spin();
+      });
+  }
+
+  void TearDown() override
+  {
+    executor_->cancel();
+    if (spinner_.joinable()) {
+     spinner_.join();
+    }
+    executor_.reset();
+    rclcpp::shutdown();
+  }
+
+   std::thread spinner_;  //!< Internal thread for spinning the executor
+   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+};
+
+TEST_F(GraphIgnitionTestFixture, SetGraphService)
+{
+  // Test that the expected PoseStamped message is published
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "ignition_sensor.set_graph_service:=/set_graph",
+    "-p", "ignition_sensor.reset_service:=''"});
+  auto node = rclcpp::Node::make_shared("graph_ignition_test", options);
+  executor_->add_node(node);
 
   // Initialize the callback promise. Promises are single-use.
   callback_promise = std::promise<fuse_core::Transaction::SharedPtr>();
@@ -194,7 +233,7 @@ TEST(Unicycle2DIgnition, SetGraphService)
 
   // Create an ignition sensor and register the callback
   fuse_models::GraphIgnition ignition_sensor;
-  ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Create graph
@@ -213,23 +252,24 @@ TEST(Unicycle2DIgnition, SetGraphService)
   graph.addVariable(variable3);
 
   auto constraint1 = ExampleConstraint::make_shared(
-      "test",
-      std::initializer_list<fuse_core::UUID>{ variable1->uuid(), variable2->uuid() });  // NOLINT(whitespace/braces)
+    "test",
+    std::initializer_list<fuse_core::UUID>{ variable1->uuid(), variable2->uuid() });  // NOLINT(whitespace/braces)
   constraint1->data = 1.5;
   graph.addConstraint(constraint1);
 
   auto constraint2 = ExampleConstraint::make_shared(
-      "test",
-      std::initializer_list<fuse_core::UUID>{ variable2->uuid(), variable3->uuid() });  // NOLINT(whitespace/braces)
+    "test",
+    std::initializer_list<fuse_core::UUID>{ variable2->uuid(), variable3->uuid() });  // NOLINT(whitespace/braces)
   constraint2->data = -3.7;
   graph.addConstraint(constraint2);
 
   // Call the SetGraph service
-  fuse_models::SetGraph srv;
-  fuse_core::serializeGraph(graph, srv.request.graph);
-  const bool success = ros::service::call("/set_graph", srv);
-  ASSERT_TRUE(success);
-  EXPECT_TRUE(srv.response.success);
+  auto srv = std::make_shared<fuse_msgs::srv::SetGraph::Request>();
+  fuse_core::serializeGraph(graph, srv->graph);
+  auto client = node->create_client<fuse_msgs::srv::SetGraph>("/set_graph");
+  auto result = client->async_send_request(srv);
+  ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
+  EXPECT_TRUE(result.get()->success);
 
   // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
@@ -288,14 +328,19 @@ TEST(Unicycle2DIgnition, SetGraphService)
   // the transaction stamp, that should also be equal to the requested graph message stamp
   ASSERT_EQ(1u, boost::size(transaction->involvedStamps()));
   EXPECT_EQ(transaction->stamp(), transaction->involvedStamps().front());
-  EXPECT_EQ(srv.request.graph.header.stamp, transaction->stamp());
+  EXPECT_EQ(srv->graph.header.stamp, transaction->stamp());
 }
 
-TEST(Unicycle2DIgnition, SetGraphServiceWithStampedVariables)
+TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
 {
   // Set some configuration
-  ros::param::set("/graph_ignition_test/ignition_sensor/set_graph_service", "/set_graph");
-  ros::param::set("/graph_ignition_test/ignition_sensor/reset_service", "");
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "ignition_sensor.set_graph_service:=/set_graph",
+    "-p", "ignition_sensor.reset_service:=''"});
+  auto node = rclcpp::Node::make_shared("graph_ignition_test", options);
+  executor_->add_node(node);
 
   // Initialize the callback promise. Promises are single-use.
   callback_promise = std::promise<fuse_core::Transaction::SharedPtr>();
@@ -303,7 +348,7 @@ TEST(Unicycle2DIgnition, SetGraphServiceWithStampedVariables)
 
   // Create an ignition sensor and register the callback
   fuse_models::GraphIgnition ignition_sensor;
-  ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Create graph
@@ -322,23 +367,24 @@ TEST(Unicycle2DIgnition, SetGraphServiceWithStampedVariables)
   graph.addVariable(variable3);
 
   auto constraint1 = ExampleConstraint::make_shared(
-      "test",
-      std::initializer_list<fuse_core::UUID>{ variable1->uuid(), variable2->uuid() });  // NOLINT(whitespace/braces)
+    "test",
+    std::initializer_list<fuse_core::UUID>{ variable1->uuid(), variable2->uuid() });  // NOLINT(whitespace/braces)
   constraint1->data = 1.5;
   graph.addConstraint(constraint1);
 
   auto constraint2 = ExampleConstraint::make_shared(
-      "test",
-      std::initializer_list<fuse_core::UUID>{ variable2->uuid(), variable3->uuid() });  // NOLINT(whitespace/braces)
+    "test",
+    std::initializer_list<fuse_core::UUID>{ variable2->uuid(), variable3->uuid() });  // NOLINT(whitespace/braces)
   constraint2->data = -3.7;
   graph.addConstraint(constraint2);
 
   // Call the SetGraph service
-  fuse_models::SetGraph srv;
-  fuse_core::serializeGraph(graph, srv.request.graph);
-  const bool success = ros::service::call("/set_graph", srv);
-  ASSERT_TRUE(success);
-  EXPECT_TRUE(srv.response.success);
+  auto srv = std::make_shared<fuse_msgs::srv::SetGraph::Request>();
+  fuse_core::serializeGraph(graph, srv->graph);
+  auto client = node->create_client<fuse_msgs::srv::SetGraph>("/set_graph");
+  auto result = client->async_send_request(srv);
+  ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
+  EXPECT_TRUE(result.get()->success);
 
   // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
@@ -396,17 +442,5 @@ TEST(Unicycle2DIgnition, SetGraphServiceWithStampedVariables)
   // Since the variables in the graph have a stamp, the transaction should have one involved stamp per variable, and the
   // transaction stamp should be equal to the requested graph message stamp
   ASSERT_EQ(boost::size(graph.getVariables()), boost::size(transaction->involvedStamps()));
-  EXPECT_EQ(srv.request.graph.header.stamp, transaction->stamp());
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "graph_ignition_test");
-  auto spinner = ros::AsyncSpinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
+  EXPECT_EQ(srv->graph.header.stamp, transaction->stamp());
 }

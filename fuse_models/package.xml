@@ -8,53 +8,59 @@
   <description>fuse plugins that implement various kinematic and sensor models</description>
 
   <author email="tmoore@locusrobotics.com">Tom Moore</author>
+  <license>BSD</license>
   <maintainer email="tmoore@locusrobotics.com">Tom Moore</maintainer>
 
-  <license>BSD</license>
-
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
   <depend>boost</depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
-  <depend>fuse_constraints</depend>
-  <depend>fuse_core</depend>
-  <depend>fuse_graphs</depend>
-  <depend>fuse_msgs</depend>
-  <depend>fuse_publishers</depend>
-  <depend>fuse_variables</depend>
-  <depend>geometry_msgs</depend>
-  <depend>nav_msgs</depend>
-  <depend>pluginlib</depend>
-  <depend>roscpp</depend>
-  <depend>sensor_msgs</depend>
-  <depend>std_srvs</depend>
-  <depend>tf2</depend>
-  <depend>tf2_2d</depend>
-  <depend>tf2_geometry_msgs</depend>
-  <depend>tf2_ros</depend>
 
-  <build_depend>message_generation</build_depend>
-  <build_depend>roslint</build_depend>
+  <build_depend>fuse_constraints</build_depend>
+  <build_depend>fuse_core</build_depend>
+  <build_depend>fuse_graphs</build_depend>
+  <build_depend>fuse_msgs</build_depend>
+  <build_depend>fuse_publishers</build_depend>
+  <build_depend>fuse_variables</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>rclcpp_components</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>tf2_2d</build_depend>
+  <build_depend>tf2_geometry_msgs</build_depend>
+  <build_depend>tf2_ros</build_depend>
 
-  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>fuse_constraints</exec_depend>
+  <exec_depend>fuse_core</exec_depend>
+  <exec_depend>fuse_graphs</exec_depend>
+  <exec_depend>fuse_msgs</exec_depend>
+  <exec_depend>fuse_publishers</exec_depend>
+  <exec_depend>fuse_variables</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>tf2</exec_depend>
+  <exec_depend>tf2_2d</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
 
-  <!-- The official rosdep has an entry for Google's benchmark deb
-       (https://github.com/ros/rosdistro/blob/2cbcebdedcc1e827501acfecaf2386cd33f26809/rosdep/base.yaml#L232-L239)
-       since https://github.com/ros/rosdistro/pull/23163 got merged.
-
-       There's an official deb named libbenchmark-dev available since Ubuntu Bionic:
-       https://packages.ubuntu.com/bionic/libbenchmark-dev
-
-       And ROS Melodic is the first $ROS_DISTRO that officially supports Ubuntu Bionic:
-       https://www.ros.org/reps/rep-0003.html
-
-       For this reason we conditionally test_depend on benchmark only if the $ROS_DISTRO is ROS Melodic or newer.
-  -->
-  <test_depend condition="$ROS_DISTRO >= melodic">benchmark</test_depend>
-  <test_depend>rostest</test_depend>
+  <test_depend>benchmark</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_cmake_gmock</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
     <rosdoc config="rosdoc.yaml" />
   </export>

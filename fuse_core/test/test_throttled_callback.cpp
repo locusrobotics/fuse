@@ -265,7 +265,7 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
 TEST_F(TestThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPeriod)
 {
   // Start sensor model to listen to messages:
-  const rclcpp::Duration throttled_period(0, RCUTILS_S_TO_NS(0.2));
+  const rclcpp::Duration throttled_period(0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.2)));
   auto sensor_model = std::make_shared<PointSensorModel>(throttled_period);
   executor_->add_node(sensor_model);
 
