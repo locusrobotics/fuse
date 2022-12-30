@@ -44,11 +44,11 @@
 #include <rviz_common/properties/property.hpp>
 #endif  // Q_MOC_RUN
 
-#include <fuse_viz/pose_2d_stamped_property.h>
-#include <fuse_viz/pose_2d_stamped_visual.h>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_property.h>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.h>
-#include <fuse_viz/serialized_graph_display.h>
+#include <fuse_viz/pose_2d_stamped_property.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_property.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
+#include <fuse_viz/serialized_graph_display.hpp>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/graph.hpp>

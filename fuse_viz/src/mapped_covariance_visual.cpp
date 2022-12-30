@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/mapped_covariance_visual.h>
+#include <fuse_viz/mapped_covariance_visual.hpp>
 
 #include <rviz_rendering/objects/shape.hpp>
 

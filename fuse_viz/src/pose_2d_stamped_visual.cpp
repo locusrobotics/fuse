@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/conversions.h>
-#include <fuse_viz/pose_2d_stamped_visual.h>
+#include <fuse_viz/conversions.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
 
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>

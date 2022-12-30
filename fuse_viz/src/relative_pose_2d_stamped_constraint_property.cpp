@@ -32,10 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/mapped_covariance_property.h>
-#include <fuse_viz/mapped_covariance_visual.h>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_property.h>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.h>
+#include <fuse_viz/mapped_covariance_property.hpp>
+#include <fuse_viz/mapped_covariance_visual.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_property.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/graph.hpp>

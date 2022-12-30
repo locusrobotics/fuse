@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/mapped_covariance_property.h>
-#include <fuse_viz/mapped_covariance_visual.h>
+#include <fuse_viz/mapped_covariance_property.hpp>
+#include <fuse_viz/mapped_covariance_visual.hpp>
 
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/enum_property.hpp>

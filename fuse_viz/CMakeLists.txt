@@ -30,10 +30,10 @@ find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 ###########
 
 qt5_wrap_cpp(moc_files
-  include/fuse_viz/mapped_covariance_property.h
-  include/fuse_viz/pose_2d_stamped_property.h
-  include/fuse_viz/relative_pose_2d_stamped_constraint_property.h
-  include/fuse_viz/serialized_graph_display.h
+  include/fuse_viz/mapped_covariance_property.hpp
+  include/fuse_viz/pose_2d_stamped_property.hpp
+  include/fuse_viz/relative_pose_2d_stamped_constraint_property.hpp
+  include/fuse_viz/serialized_graph_display.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED
