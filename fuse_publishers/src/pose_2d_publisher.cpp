@@ -31,14 +31,21 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/pose_2d_publisher.hpp>
+#include <tf2/utils.h>
+
+#include <chrono>
+#include <exception>
+#include <utility>
+#include <vector>
 
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
+#include <fuse_core/parameter.hpp>
 #include <fuse_core/time.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
+#include <fuse_publishers/pose_2d_publisher.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -46,16 +53,7 @@
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-
-#include <fuse_core/parameter.hpp>
-
-#include <chrono>
-#include <exception>
-#include <utility>
-#include <vector>
-
 
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_publishers::Pose2DPublisher, fuse_core::Publisher);

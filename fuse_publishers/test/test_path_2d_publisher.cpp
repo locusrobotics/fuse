@@ -43,14 +43,14 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
-// Workaround ros2/geometry2#242
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
-#include <tf2/utils.h>
 
+// Workaround ros2/geometry2#242
 #include <gtest/gtest.h>
+#include <tf2/utils.h>
 
 #include <vector>
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
 
 /**
  * @brief Test fixture for the Path2DPublisher

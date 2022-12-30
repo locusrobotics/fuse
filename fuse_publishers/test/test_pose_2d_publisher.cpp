@@ -42,16 +42,16 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
-// Workaround ros2/geometry2#242
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
-#include <tf2/utils.h>
-#include <tf2_msgs/msg/tf_message.hpp>
-#include <tf2_ros/static_transform_broadcaster.h>
 
+// Workaround ros2/geometry2#242
 #include <gtest/gtest.h>
+#include <tf2/utils.h>
+#include <tf2_ros/static_transform_broadcaster.h>
 
 #include <vector>
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
+#include <tf2_msgs/msg/tf_message.hpp>
 
 /**
  * @brief Test fixture for the LatestStampedPose2DPublisher

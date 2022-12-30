@@ -31,15 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/stamped_variable_synchronizer.hpp>
+#include <gtest/gtest.h>
 
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
+#include <fuse_publishers/stamped_variable_synchronizer.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-
-#include <gtest/gtest.h>
-
 
 using fuse_core::uuid::generate;
 using fuse_publishers::StampedVariableSynchronizer;

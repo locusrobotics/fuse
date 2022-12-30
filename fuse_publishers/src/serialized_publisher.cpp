@@ -31,8 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/serialized_publisher.hpp>
-
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/graph_deserializer.hpp>
@@ -41,9 +39,9 @@
 #include <fuse_core/transaction_deserializer.hpp>
 #include <fuse_msgs/msg/serialized_graph.hpp>
 #include <fuse_msgs/msg/serialized_transaction.hpp>
+#include <fuse_publishers/serialized_publisher.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-
 
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_publishers::SerializedPublisher, fuse_core::Publisher);
