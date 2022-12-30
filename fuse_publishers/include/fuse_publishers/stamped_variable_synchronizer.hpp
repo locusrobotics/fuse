@@ -52,10 +52,11 @@ namespace fuse_publishers
 /**
  * @brief A utility class that finds the most recent timestamp shared by a set of stamped variables
  *
- * This is designed to be used by derived fuse_core::Publisher classes. The class remembers the last common timestamp
- * from the previous call, and attempts to find a more recent common timestamp using the provided transaction
- * information. If no common timestamp is found after searching the transaction, a full search of the graph will
- * be conducted. If no common timestamp is found after searching the full graph, a zero timestamp will be returned.
+ * This is designed to be used by derived fuse_core::Publisher classes. The class remembers the last
+ * common timestamp from the previous call, and attempts to find a more recent common timestamp
+ * using the provided transaction information. If no common timestamp is found after searching the
+ * transaction, a full search of the graph will be conducted. If no common timestamp is found after
+ * searching the full graph, a zero timestamp will be returned.
  *
  * The set of variable types are provided in the template parameters. e.g.
  * @code{.cpp}
@@ -78,9 +79,11 @@ public:
   explicit StampedVariableSynchronizer(const fuse_core::UUID & device_id = fuse_core::uuid::NIL);
 
   /**
-   * @brief Find the latest timestamp for which variables of all the specified template types exist in the graph
+   * @brief Find the latest timestamp for which variables of all the specified template types exist
+   *        in the graph
    *
-   * @param[in] transaction A fuse_core::Transaction object containing the changes to the graph since the last call
+   * @param[in] transaction A fuse_core::Transaction object containing the changes to the graph
+   *                        since the last call
    * @param[in] graph       The complete graph
    * @return The latest timestamp shared by all requested variable types
    */
@@ -93,11 +96,12 @@ private:
   rclcpp::Time latest_common_stamp_;  //!< The previously discovered common stamp
 
   /**
-   * @brief Search the variables in the provided range for more recent timestamps. Update the \p latest_common_stamp_
-   *        member variable if a newer common timestamp is found.
+   * @brief Search the variables in the provided range for more recent timestamps. Update the \p
+   *        latest_common_stamp_ member variable if a newer common timestamp is found.
    *
    * @param[in] variable_range The collection of variables to test
-   * @param[in] graph          The complete graph, used to verify that all requested variables exist for a given time
+   * @param[in] graph          The complete graph, used to verify that all requested variables exist
+   *                           for a given time
    */
   template<typename VariableRange>
   void updateTime(const VariableRange & variable_range, const fuse_core::Graph & graph);
@@ -121,7 +125,8 @@ template<typename ... Ts>
 using all_true = all_true_helper<Ts::value...>;
 
 /**
- * @brief Test if a property is true for all types in a template parameter pack. This is a boolean value.
+ * @brief Test if a property is true for all types in a template parameter pack. This is a boolean
+ *        value.
  */
 template<typename ... Ts>
 constexpr bool allTrue = all_true<Ts...>::value;
@@ -133,7 +138,8 @@ template<typename T>
 using is_stamped = std::is_base_of<fuse_variables::Stamped, T>;
 
 /**
- * @brief Test if a class is derived from the fuse_variables::Stamped base class. This is a boolean value.
+ * @brief Test if a class is derived from the fuse_variables::Stamped base class. This is a boolean
+ *        value.
  */
 template<typename T>
 constexpr bool isStamped = is_stamped<T>::value;
@@ -145,14 +151,15 @@ template<typename T>
 using is_variable = std::is_base_of<fuse_core::Variable, T>;
 
 /**
- * @brief Test if a class is derived from the fuse_core::Variable base class. This is a boolean value.
+ * @brief Test if a class is derived from the fuse_core::Variable base class. This is a boolean
+ *        value.
  */
 template<typename T>
 constexpr bool isVariable = is_variable<T>::value;
 
 /**
- * @brief Test if a class is derived from both the fuse_core::Variable base class and the fuse_variables::Stamped
- *        base class. This is a type.
+ * @brief Test if a class is derived from both the fuse_core::Variable base class and the
+ *        fuse_variables::Stamped base class. This is a type.
  */
 template<typename T>
 struct is_stamped_variable
@@ -161,22 +168,22 @@ struct is_stamped_variable
 };
 
 /**
- * @brief Test if a class is derived from both the fuse_core::Variable base class and the fuse_variables::Stamped
- *        base class. This is a boolean value.
+ * @brief Test if a class is derived from both the fuse_core::Variable base class and the
+ *        fuse_variables::Stamped base class. This is a boolean value.
  */
 template<typename T>
 constexpr bool isStampedVariable = is_stamped_variable<T>::value;
 
 /**
- * @brief Test if all of the template parameter pack types are fuse_core::Variable and fuse_variables::Stamped.
- *        This is a type.
+ * @brief Test if all of the template parameter pack types are fuse_core::Variable and
+ *        fuse_variables::Stamped. This is a type.
  */
 template<typename ... Ts>
 using all_stamped_variables = all_true<is_stamped_variable<Ts>...>;
 
 /**
- * @brief Test if all of the template parameter pack types are fuse_core::Variable and fuse_variables::Stamped.
- *        This is a boolean value.
+ * @brief Test if all of the template parameter pack types are fuse_core::Variable and
+ *        fuse_variables::Stamped. This is a boolean value.
  */
 template<typename ... Ts>
 constexpr bool allStampedVariables = all_stamped_variables<Ts...>::value;
@@ -184,8 +191,8 @@ constexpr bool allStampedVariables = all_stamped_variables<Ts...>::value;
 /**
  * @brief Test if instances of all the template parameter pack types exist in the graph
  *
- * This version accepts an empty parameter pack, and is used to terminate the recursive template parameter pack
- * expansion.
+ * This version accepts an empty parameter pack, and is used to terminate the recursive template
+ * parameter pack expansion.
  *
  * This would be much easier to write in C++17 using 'if constexpr (sizeof...(Ts) > 0)'
  *
@@ -208,7 +215,8 @@ struct all_variables_exist
 /**
  * @brief Test if instances of all the template parameter pack types exist in the graph
  *
- * This version accepts two or more template arguments. The template parameter pack is expanded recursively.
+ * This version accepts two or more template arguments. The template parameter pack is expanded
+ * recursively.
  *
  * @param[in] graph     The complete graph, used to verify the existence of a variable
  * @param[in] stamp     The timestamp used to construct all variable types
@@ -230,8 +238,8 @@ struct all_variables_exist<T, Ts...>
 /**
  * @brief Test if a given variable is included in the template parameter pack types
  *
- * This version accepts an empty parameter pack, and is used to terminate the recursive template parameter pack
- * expansion.
+ * This version accepts an empty parameter pack, and is used to terminate the recursive template
+ * parameter pack expansion.
  *
  * This would be much easier to write in C++17 using 'if constexpr (sizeof...(Ts) > 0)'
  *
@@ -250,7 +258,8 @@ struct is_variable_in_pack
 /**
  * @brief Test if a given variable is included in the template parameter pack types
  *
- * This version accepts two or more template arguments. The template parameter pack is expanded recursively.
+ * This version accepts two or more template arguments. The template parameter pack is expanded
+ * recursively.
  *
  * @param[in] variable The variable to check against the template parameter pack
  * @return True if the variable's type is part of the template parameter pack, false otherwise
@@ -271,8 +280,8 @@ struct is_variable_in_pack<T, Ts...>
 template<typename ... Ts>
 StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(const fuse_core::UUID & device_id)
 : device_id_(device_id),
-  // NOTE(CH3): Uninitialized, for getting latest
-  //            We use RCL_ROS_TIME so time comparisons are consistent
+  // NOTE(CH3): Uninitialized, for getting latest We use RCL_ROS_TIME so time comparisons are
+  //            consistent
   latest_common_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME))
 {
   static_assert(

@@ -56,8 +56,8 @@
 /**
  * @brief Test fixture for the LatestStampedPose2DPublisher
  *
- * This test fixture provides a populated graph for testing the publish() function, and subscriber callbacks
- * for each of the different possible output topics.
+ * This test fixture provides a populated graph for testing the publish() function, and subscriber
+ * callbacks for each of the different possible output topics.
  */
 class Pose2DPublisherTestFixture : public ::testing::Test
 {

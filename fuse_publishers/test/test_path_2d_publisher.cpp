@@ -55,8 +55,8 @@
 /**
  * @brief Test fixture for the Path2DPublisher
  *
- * This test fixture provides a populated graph for testing the publish() function, and a subscriber callback
- * for the 'path' output topics.
+ * This test fixture provides a populated graph for testing the publish() function, and a subscriber
+ * callback for the 'path' output topics.
  */
 class Path2DPublisherTestFixture : public ::testing::Test
 {

@@ -279,8 +279,8 @@ void Pose2DPublisher::notifyCallback(
     map_to_base.transform.rotation = pose.orientation;
     // If we are suppose to publish the map->odom frame instead, do that transformation now
     if (use_tf_lookup_) {
-      // We need to lookup the base->odom frame first, so we can compute the map->odom transform from the
-      // map->base transform
+      // We need to lookup the base->odom frame first, so we can compute the map->odom transform
+      // from the map->base transform
       try {
         auto base_to_odom = tf_buffer_->lookupTransform(
           base_frame_, odom_frame_, latest_stamp,

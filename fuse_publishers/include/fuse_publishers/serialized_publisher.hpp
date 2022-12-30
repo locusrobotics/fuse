@@ -77,16 +77,18 @@ public:
     const std::string & name) override;
 
   /**
-   * @brief Perform any required post-construction initialization, such as advertising publishers or reading from the
-   * parameter server.
+   * @brief Perform any required post-construction initialization, such as advertising publishers or
+   *        reading from the parameter server.
    */
   void onInit() override;
 
   /**
    * @brief Notify the publisher about variables that have been added or removed
    *
-   * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
-   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
+   * @param[in] transaction A Transaction object, describing the set of variables that have been
+   *                        added and/or removed
+   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
+   *                        performed whenever needed
    */
   void notifyCallback(
     fuse_core::Transaction::ConstSharedPtr transaction,
@@ -105,7 +107,8 @@ protected:
   /**
    * @brief Publish the serialized graph
    *
-   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed
+   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
+   *                  whenever needed
    * @param[in] stamp A rclcpp::Time stamp used for the serialized graph message published
    */
   void graphPublisherCallback(

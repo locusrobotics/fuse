@@ -54,8 +54,8 @@ TEST(StampedVariableSynchronizer, Constructor)
 
   // StampedVariableSynchronizer<int, double, size_t> sync3;
   // This _correctly_ does not compile:
-  // error: static assertion failed: All synchronized types must be derived from both fuse_core::Variable
-  //                                 and fuse_variable::Stamped.
+  // error: static assertion failed: All synchronized types must be derived from both
+  // fuse_core::Variable and fuse_variable::Stamped.
 
   // StampedVariableSynchronizer<> sync4;
   // This _correctly_ does not compile:
@@ -66,8 +66,8 @@ TEST(StampedVariableSynchronizer, Constructor)
 
 TEST(StampedVariableSynchronizer, FullSearch)
 {
-  // Don't provide an incremental transaction. This will force a full search of the graph since no timestamp has
-  // been found before
+  // Don't provide an incremental transaction. This will force a full search of the graph since no
+  // timestamp has been found before
 
   // Create the synchronizer
   auto sync =
