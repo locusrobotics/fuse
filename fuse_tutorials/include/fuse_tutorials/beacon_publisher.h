@@ -111,7 +111,7 @@ public:
    * the number of threads to use to spin the callback queue. Generally this will be 1, unless you have a good reason
    * to use a multi-threaded spinner.
    */
-  BeaconPublisher() : fuse_core::AsyncPublisher(1) {}
+  BeaconPublisher() : fuse_core::AsyncPublisher(1) {}  // TODO(methylDragon): Refactor this in the same way it was done in fuse_publishers
 
   /**
    * @brief Perform any required initialization for the publisher

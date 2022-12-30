@@ -93,7 +93,7 @@ namespace fuse_models
  *  - tf, tf_static (tf2_msgs::TFMessage)  Subscribes to tf data to obtain the requisite odom->base_link transform,
  *                                         but only if the world_frame_id is set to the value of the map_frame_id.
  */
-class Odometry2DPublisher : public fuse_core::AsyncPublisher
+class Odometry2DPublisher : public fuse_core::AsyncPublisher // TODO(methylDragon): Refactor this in the same way it was done in fuse_publishers
 {
 public:
   FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Odometry2DPublisher)

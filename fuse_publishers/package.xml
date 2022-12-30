@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>fuse_publishers</name>
   <version>0.4.2</version>
   <description>
@@ -7,28 +10,42 @@
   </description>
 
   <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>
+  <license>BSD</license>
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
 
-  <license>BSD</license>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>fuse_core</build_depend>
+  <build_depend>fuse_msgs</build_depend>
+  <build_depend>fuse_variables</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>tf2_geometry_msgs</build_depend>
+  <build_depend>tf2_ros</build_depend>
 
-  <depend>fuse_core</depend>
-  <depend>fuse_variables</depend>
-  <depend>geometry_msgs</depend>
-  <depend>nav_msgs</depend>
-  <depend>pluginlib</depend>
-  <depend>roscpp</depend>
-  <depend>tf2</depend>
-  <depend>tf2_geometry_msgs</depend>
-  <depend>tf2_ros</depend>
+  <exec_depend>fuse_core</exec_depend>
+  <exec_depend>fuse_msgs</exec_depend>
+  <exec_depend>fuse_variables</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>tf2</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
 
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
   <test_depend>fuse_constraints</test_depend>
   <test_depend>fuse_graphs</test_depend>
-  <test_depend>roslint</test_depend>
-  <test_depend>rostest</test_depend>
+  <test_depend>rclcpp</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />
     <rosdoc config="rosdoc.yaml" />
   </export>

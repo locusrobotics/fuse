@@ -42,6 +42,7 @@
 #include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/graph.hpp>
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/publisher.hpp>
 #include <fuse_core/transaction.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -81,10 +82,13 @@ public:
    * AsyncPublisher::onInit() method will be called from here, once the internal node is properly
    * configured.
    *
+   * @param[in] interfaces The node interfaces to be used with the publisher
    * @param[in] name A unique name to give this plugin instance
    * @throws runtime_error if already initialized
    */
-  void initialize(const std::string & name) override;
+  void initialize(
+    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name) override;
 
   /**
    * @brief Get the unique name of this publisher
@@ -151,12 +155,14 @@ protected:
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 
   std::string name_;  //!< The unique name for this publisher instance
-  rclcpp::Node::SharedPtr node_;  //!< The node for this publisher
   rclcpp::CallbackGroup::SharedPtr cb_group_;  //!< Internal re-entrant callback group
 
+  //! The node interfaces
+  node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Waitables> interfaces_;
+
   //! A single/multi-threaded executor assigned to the local callback queue
-  rclcpp::executors::MultiThreadedExecutor::SharedPtr executor_;
-  size_t executor_thread_count_;
+  rclcpp::Executor::SharedPtr executor_;
+  size_t executor_thread_count_{1};
   std::thread spinner_;  //!< Internal thread for spinning the executor
   std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 

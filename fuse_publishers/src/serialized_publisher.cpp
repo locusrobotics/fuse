@@ -39,10 +39,10 @@
 #include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
-#include <fuse_msgs/SerializedGraph.h>
-#include <fuse_msgs/SerializedTransaction.h>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include <fuse_msgs/msg/serialized_graph.hpp>
+#include <fuse_msgs/msg/serialized_transaction.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 
 // Register this publisher with ROS as a plugin.
@@ -59,29 +59,49 @@ SerializedPublisher::SerializedPublisher() :
 {
 }
 
+void SerializedPublisher::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncPublisher::initialize(interfaces, name);
+}
+
 void SerializedPublisher::onInit()
 {
   // Configure the publisher
-  private_node_handle_.getParam("frame_id", frame_id_);
+  frame_id_ = fuse_core::getParam(interfaces_, "frame_id", frame_id_);
 
   bool latch = false;
-  private_node_handle_.getParam("latch", latch);
+  latch = fuse_core::getParam(interfaces_, "latch", latch);
 
-  rclcpp::Duration graph_throttle_period{ 0 };
-  fuse_core::getPositiveParam(private_node_handle_, "graph_throttle_period", graph_throttle_period, false);
+  rclcpp::Duration graph_throttle_period{ 0, 0 };
+  fuse_core::getPositiveParam(interfaces_, "graph_throttle_period", graph_throttle_period, false);
 
   bool graph_throttle_use_wall_time{ false };
-  private_node_handle_.getParam("graph_throttle_use_wall_time", graph_throttle_use_wall_time);
+  graph_throttle_use_wall_time =
+    fuse_core::getParam(
+      interfaces_, "graph_throttle_use_wall_time", graph_throttle_use_wall_time);
 
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
 
   if (!graph_throttle_use_wall_time) {
-    graph_publisher_throttled_callback_.setClock(node_->get_clock());
+    graph_publisher_throttled_callback_.setClock(interfaces_.get_node_clock_interface()->get_clock());
   }
 
   // Advertise the topics
-  graph_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedGraph>("graph", 1, latch);
-  transaction_publisher_ = private_node_handle_.advertise<fuse_msgs::SerializedTransaction>("transaction", 1, latch);
+  rclcpp::QoS qos(1);  // Queue size of 1
+  if (latch) {
+    qos.transient_local();
+  }
+
+  rclcpp::PublisherOptions pub_options;
+  pub_options.callback_group = cb_group_;
+
+  graph_publisher_ =
+    rclcpp::create_publisher<fuse_msgs::msg::SerializedGraph>(interfaces_, "graph", qos, pub_options);
+  transaction_publisher_ =
+    rclcpp::create_publisher<fuse_msgs::msg::SerializedTransaction>(interfaces_, "transaction", qos, pub_options);
 }
 
 void SerializedPublisher::notifyCallback(
@@ -89,28 +109,29 @@ void SerializedPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   const auto& stamp = transaction->stamp();
-  if (graph_publisher_.getNumSubscribers() > 0)
+  if (graph_publisher_->get_subscription_count() > 0)
   {
     graph_publisher_throttled_callback_(graph, stamp);
   }
 
-  if (transaction_publisher_.getNumSubscribers() > 0)
+  if (transaction_publisher_->get_subscription_count() > 0)
   {
-    fuse_msgs::SerializedTransaction msg;
+    fuse_msgs::msg::SerializedTransaction msg;
     msg.header.stamp = stamp;
     msg.header.frame_id = frame_id_;
     fuse_core::serializeTransaction(*transaction, msg);
-    transaction_publisher_.publish(msg);
+    transaction_publisher_->publish(msg);
   }
 }
 
-void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const
+void SerializedPublisher::graphPublisherCallback(
+  fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const
 {
-  fuse_msgs::SerializedGraph msg;
+  fuse_msgs::msg::SerializedGraph msg;
   msg.header.stamp = stamp;
   msg.header.frame_id = frame_id_;
   fuse_core::serializeGraph(*graph, msg);
-  graph_publisher_.publish(msg);
+  graph_publisher_->publish(msg);
 }
 
 }  // namespace fuse_publishers

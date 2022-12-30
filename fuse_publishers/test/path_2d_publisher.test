@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-  <test test-name="Path2DPublisher" pkg="fuse_publishers" type="test_path_2d_publisher" />
-</launch>

@@ -75,13 +75,13 @@ TEST(StampedVariableSynchronizer, FullSearch)
   // Define the transaction and graph
   auto transaction = fuse_core::Transaction();
   auto graph = fuse_graphs::HashGraph();
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(10, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(10, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(20, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(20, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0), generate("Dadblank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0), generate("Dadblank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(40, 0), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(10, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(10, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(20, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(20, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("Dadblank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("Dadblank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(40, 0, RCL_ROS_TIME), generate("blank")));
 
   // Use the synchronizer
   auto actual = sync.findLatestCommonStamp(transaction, graph);
@@ -89,7 +89,7 @@ TEST(StampedVariableSynchronizer, FullSearch)
   // Expect Time(20, 0).
   // Time(30, 0) entries have a different device_id
   // Time(40, 0) entries don't have a whole set
-  EXPECT_EQ(rclcpp::Time(20, 0), actual);
+  EXPECT_EQ(rclcpp::Time(20, 0, RCL_ROS_TIME), actual);
 }
 
 TEST(StampedVariableSynchronizer, Update)
@@ -102,27 +102,27 @@ TEST(StampedVariableSynchronizer, Update)
   // Define the first transaction and graph
   auto transaction1 = fuse_core::Transaction();
   auto graph = fuse_graphs::HashGraph();
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(10, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(10, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(20, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(20, 0), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(10, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(10, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(20, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(20, 0, RCL_ROS_TIME), generate("blank")));
 
   // Use the synchronizer
   auto actual1 = sync.findLatestCommonStamp(transaction1, graph);
-  EXPECT_EQ(rclcpp::Time(20, 0), actual1);
+  EXPECT_EQ(rclcpp::Time(20, 0, RCL_ROS_TIME), actual1);
 
   // Create an incremental transaction update
   auto transaction2 = fuse_core::Transaction();
-  transaction2.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0), generate("blank")));
-  transaction2.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0), generate("blank")));
-  transaction2.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(40, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(40, 0), generate("blank")));
+  transaction2.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")));
+  transaction2.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")));
+  transaction2.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(40, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(40, 0, RCL_ROS_TIME), generate("blank")));
 
   // Use the synchronizer
   auto actual2 = sync.findLatestCommonStamp(transaction2, graph);
-  EXPECT_EQ(rclcpp::Time(30, 0), actual2);
+  EXPECT_EQ(rclcpp::Time(30, 0, RCL_ROS_TIME), actual2);
 }
 
 TEST(StampedVariableSynchronizer, Remove)
@@ -134,29 +134,23 @@ TEST(StampedVariableSynchronizer, Remove)
   // Define the first transaction and graph
   auto transaction1 = fuse_core::Transaction();
   auto graph = fuse_graphs::HashGraph();
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(10, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(10, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(20, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(20, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0), generate("blank")));
-  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(10, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(10, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(20, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(20, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")));
+  graph.addVariable(fuse_variables::Position2DStamped::make_shared(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")));
 
   // Use the synchronizer
   auto actual1 = sync.findLatestCommonStamp(transaction1, graph);
-  EXPECT_EQ(rclcpp::Time(30, 0), actual1);
+  EXPECT_EQ(rclcpp::Time(30, 0, RCL_ROS_TIME), actual1);
 
   // Create an incremental transaction that removes one of the latest variables
   auto transaction2 = fuse_core::Transaction();
-  transaction2.removeVariable(fuse_variables::Position2DStamped(rclcpp::Time(30, 0), generate("blank")).uuid());
-  graph.removeVariable(fuse_variables::Position2DStamped(rclcpp::Time(30, 0), generate("blank")).uuid());
+  transaction2.removeVariable(fuse_variables::Position2DStamped(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")).uuid());
+  graph.removeVariable(fuse_variables::Position2DStamped(rclcpp::Time(30, 0, RCL_ROS_TIME), generate("blank")).uuid());
 
   // Use the synchronizer
   auto actual2 = sync.findLatestCommonStamp(transaction2, graph);
-  EXPECT_EQ(rclcpp::Time(20, 0), actual2);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  EXPECT_EQ(rclcpp::Time(20, 0, RCL_ROS_TIME), actual2);
 }
