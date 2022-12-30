@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,86 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_PUBLISHERS_PATH_2D_PUBLISHER_H
-#define FUSE_PUBLISHERS_PATH_2D_PUBLISHER_H
 
-#include <fuse_core/async_publisher.hpp>
-#include <fuse_core/graph.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-#include <rclcpp/rclcpp.hpp>
+#ifndef FUSE_PUBLISHERS__PATH_2D_PUBLISHER_H_
+#define FUSE_PUBLISHERS__PATH_2D_PUBLISHER_H_
 
-#include <nav_msgs/msg/path.hpp>
-#include <geometry_msgs/msg/pose_array.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
+#warning This header is obsolete, please include fuse_publishers/path_2d_publisher.hpp instead
 
-#include <string>
+#include <fuse_publishers/path_2d_publisher.hpp>
 
-
-namespace fuse_publishers
-{
-
-/**
- * @brief Publisher plugin that publishes all of the stamped 2D poses as a nav_msgs::msg::Path message.
- *
- * Parameters:
- *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
- *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - frame_id (string, default: map)  Name for the robot's map frame
- */
-class Path2DPublisher : public fuse_core::AsyncPublisher
-{
-public:
-  FUSE_SMART_PTR_DEFINITIONS(Path2DPublisher)
-
-  /**
-   * @brief Constructor
-   */
-  Path2DPublisher();
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~Path2DPublisher() = default;
-
-  /**
-   * @brief Shadowing extension to the AsyncPublisher::initialize call
-   */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
-
-  /**
-   * @brief Perform any required post-construction initialization, such as advertising publishers or reading from the
-   * parameter server.
-   */
-  void onInit() override;
-
-  /**
-   * @brief Notify the publisher about variables that have been added or removed
-   *
-   * @param[in] transaction A Transaction object, describing the set of variables that have been added and/or removed
-   * @param[in] graph       A read-only pointer to the graph object, allowing queries to be performed whenever needed
-   */
-  void notifyCallback(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph) override;
-
-protected:
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
-
-  fuse_core::UUID device_id_;  //!< The UUID of the device to be published
-  std::string frame_id_;  //!< The name of the frame for this path
-  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
-  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
-};
-
-}  // namespace fuse_publishers
-
-#endif  // FUSE_PUBLISHERS_PATH_2D_PUBLISHER_H
+#endif  // FUSE_PUBLISHERS__PATH_2D_PUBLISHER_H_

@@ -42,7 +42,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_publishers/stamped_variable_synchronizer.h>
+#include <fuse_publishers/stamped_variable_synchronizer.hpp>
 
 #include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>

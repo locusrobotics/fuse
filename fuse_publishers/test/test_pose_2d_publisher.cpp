@@ -36,7 +36,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_publishers/pose_2d_publisher.h>
+#include <fuse_publishers/pose_2d_publisher.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>

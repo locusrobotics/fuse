@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/path_2d_publisher.h>
+#include <fuse_publishers/path_2d_publisher.hpp>
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>

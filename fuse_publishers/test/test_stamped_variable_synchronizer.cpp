@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/stamped_variable_synchronizer.h>
+#include <fuse_publishers/stamped_variable_synchronizer.hpp>
 
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
