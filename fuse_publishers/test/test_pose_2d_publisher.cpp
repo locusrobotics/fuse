@@ -62,35 +62,43 @@
 class Pose2DPublisherTestFixture : public ::testing::Test
 {
 public:
-  Pose2DPublisherTestFixture() :
-    graph_(fuse_graphs::HashGraph::make_shared()),
+  Pose2DPublisherTestFixture()
+  : graph_(fuse_graphs::HashGraph::make_shared()),
     transaction_(fuse_core::Transaction::make_shared()),
     received_pose_msg_(false),
     received_pose_with_covariance_msg_(false),
     received_tf_msg_(false)
   {
     // Add a few pose variables
-    auto position1 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
+    auto position1 =
+      fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
     position1->x() = 1.01;
     position1->y() = 2.01;
-    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
+    auto orientation1 =
+      fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
     orientation1->yaw() = 3.01;
-    auto position2 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
+    auto position2 =
+      fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
     position2->x() = 1.02;
     position2->y() = 2.02;
-    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
+    auto orientation2 =
+      fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
     orientation2->yaw() = 3.02;
-    auto position3 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
+    auto position3 =
+      fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
     position3->x() = 1.03;
     position3->y() = 2.03;
-    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
+    auto orientation3 =
+      fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
     orientation3->yaw() = 3.03;
-    auto position4 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 11, RCL_ROS_TIME),
-                                                                    fuse_core::uuid::generate("kitt"));
+    auto position4 = fuse_variables::Position2DStamped::make_shared(
+      rclcpp::Time(1235, 11, RCL_ROS_TIME),
+      fuse_core::uuid::generate("kitt"));
     position4->x() = 1.04;
     position4->y() = 2.04;
-    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 11, RCL_ROS_TIME),
-                                                                          fuse_core::uuid::generate("kitt"));
+    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(
+      rclcpp::Time(1235, 11, RCL_ROS_TIME),
+      fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
     transaction_->addInvolvedStamp(position1->stamp());
@@ -113,25 +121,25 @@ public:
     fuse_core::Vector3d mean1;
     mean1 << 1.01, 2.01, 3.01;
     fuse_core::Matrix3d cov1;
-    cov1 << 1.01, 0.0, 0.0,  0.0, 2.01, 0.0,  0.0, 0.0, 3.01;
+    cov1 << 1.01, 0.0, 0.0, 0.0, 2.01, 0.0, 0.0, 0.0, 3.01;
     auto constraint1 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       "test", *position1, *orientation1, mean1, cov1);
     fuse_core::Vector3d mean2;
     mean2 << 1.02, 2.02, 3.02;
     fuse_core::Matrix3d cov2;
-    cov2 << 1.02, 0.0, 0.0,  0.0, 2.02, 0.0,  0.0, 0.0, 3.02;
+    cov2 << 1.02, 0.0, 0.0, 0.0, 2.02, 0.0, 0.0, 0.0, 3.02;
     auto constraint2 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       "test", *position2, *orientation2, mean2, cov2);
     fuse_core::Vector3d mean3;
     mean3 << 1.03, 2.03, 3.03;
     fuse_core::Matrix3d cov3;
-    cov3 << 1.03, 0.0, 0.0,  0.0, 2.03, 0.0,  0.0, 0.0, 3.03;
+    cov3 << 1.03, 0.0, 0.0, 0.0, 2.03, 0.0, 0.0, 0.0, 3.03;
     auto constraint3 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       "test", *position3, *orientation3, mean3, cov3);
     fuse_core::Vector3d mean4;
     mean4 << 1.04, 2.04, 3.04;
     fuse_core::Matrix3d cov4;
-    cov4 << 1.04, 0.0, 0.0,  0.0, 2.04, 0.0,  0.0, 0.0, 3.04;
+    cov4 << 1.04, 0.0, 0.0, 0.0, 2.04, 0.0, 0.0, 0.0, 3.04;
     auto constraint4 = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
       "test", *position4, *orientation4, mean4, cov4);
     transaction_->addConstraint(constraint1);
@@ -171,32 +179,32 @@ public:
   {
     executor_->cancel();
     if (spinner_.joinable()) {
-     spinner_.join();
+      spinner_.join();
     }
     executor_.reset();
     rclcpp::shutdown();
   }
 
-  void poseCallback(const geometry_msgs::msg::PoseStamped& msg)
+  void poseCallback(const geometry_msgs::msg::PoseStamped & msg)
   {
     received_pose_msg_ = true;
     pose_msg_ = msg;
   }
 
-  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
+  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
   {
     received_pose_with_covariance_msg_ = true;
     pose_with_covariance_msg_ = msg;
   }
 
-  void tfCallback(const tf2_msgs::msg::TFMessage& msg)
+  void tfCallback(const tf2_msgs::msg::TFMessage & msg)
   {
     received_tf_msg_ = true;
     tf_msg_ = msg;
   }
 
-   std::thread spinner_;  //!< Internal thread for spinning the executor
-   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::thread spinner_;   //!< Internal thread for spinning the executor
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 
 protected:
   geometry_msgs::msg::TransformStamped odom_to_base_;
@@ -214,7 +222,8 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
 {
   // Test that the expected PoseStamped message is published
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "map_frame:=test_map",
     "-p", "odom_frame:=test_odom",
@@ -238,8 +247,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
 
   // Verify the subscriber received the expected pose
   rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_pose_msg_) && (node->now() < timeout))
-  {
+  while ((!received_pose_msg_) && (node->now() < timeout)) {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
@@ -256,7 +264,8 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
 {
   // Test that the expected PoseWithCovarianceStamped message is published
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "map_frame:=test_map",
     "-p", "odom_frame:=test_odom",
@@ -273,15 +282,16 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
   // Subscribe to the "pose_with_covariance" topic
   auto subscriber1 = node->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "/test_publisher/pose_with_covariance", 1,
-    std::bind(&Pose2DPublisherTestFixture::poseWithCovarianceCallback, this, std::placeholders::_1));
+    std::bind(
+      &Pose2DPublisherTestFixture::poseWithCovarianceCallback, this,
+      std::placeholders::_1));
 
   // Send the graph to the Publisher to trigger message publishing
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
   rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_pose_with_covariance_msg_) && (node->now() < timeout))
-  {
+  while ((!received_pose_with_covariance_msg_) && (node->now() < timeout)) {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
@@ -303,8 +313,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
     0.00, 0.00, 0.00, 0.00, 0.00, 3.02
     /* *INDENT-ON* */
   };
-  for (size_t i = 0; i < 36; ++i)
-  {
+  for (size_t i = 0; i < 36; ++i) {
     EXPECT_NEAR(expected_covariance[i], pose_with_covariance_msg_.pose.covariance[i], 1.0e-9);
   }
 }
@@ -313,7 +322,8 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
 {
   // Test that the expected TFMessage is published
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "map_frame:=test_map",
     "-p", "odom_frame:=test_base",
@@ -342,8 +352,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
 
   // Verify the subscriber received the expected pose
   rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_tf_msg_) && (node->now() < timeout))
-  {
+  while ((!received_tf_msg_) && (node->now() < timeout)) {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
@@ -361,7 +370,8 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
 {
   // Test that the expected TFMessage is published
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "map_frame:=test_map",
     "-p", "odom_frame:=test_odom",
@@ -390,8 +400,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
 
   // Verify the subscriber received the expected pose
   rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_tf_msg_) && (node->now() < timeout))
-  {
+  while ((!received_tf_msg_) && (node->now() < timeout)) {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 

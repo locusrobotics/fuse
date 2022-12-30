@@ -59,7 +59,6 @@
 #include <tf2_ros/transform_listener.h>
 
 
-
 #include <memory>
 #include <string>
 
@@ -178,24 +177,37 @@ protected:
     fuse_core::node_interfaces::Waitables
   > interfaces_;  //!< Shadows AsyncPublisher interfaces_
 
-  using Synchronizer = StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
-                                                   fuse_variables::Position2DStamped>;
+  using Synchronizer = StampedVariableSynchronizer<
+    fuse_variables::Orientation2DStamped,
+    fuse_variables::Position2DStamped>;
+
   std::string base_frame_;  //!< The name of the robot's base_link frame
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
   rclcpp::Logger logger_;  //!< The publisher's logger
 
   std::string map_frame_;  //!< The name of the robot's map frame
-  std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is not used)
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_publisher_;  //!< Publish the pose as a geometry_msgs::PoseStamped
-  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_with_covariance_publisher_;  //!< Publish the pose as a geometry_msgs::PoseWithCovarianceStamped
-  bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the pose topics
-  Synchronizer::UniquePtr synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
-  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by time and frame id
-  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the tf topics and
-                                                             //!< inserts the received transforms into the tf buffer
-  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_publisher_ = nullptr;  //!< Publish the map->odom or map->base transform to the tf system
-  rclcpp::TimerBase::SharedPtr tf_publish_timer_;  //!< Timer that publishes tf messages to ensure the tf transform doesn't get stale
+  std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is
+                            //!< not used)
+
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_publisher_;
+  rclcpp::Publisher<
+    geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_with_covariance_publisher_;
+  bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the
+                        //!< pose topics
+  Synchronizer::UniquePtr synchronizer_;  //!< Object that tracks the latest common timestamp of
+                                          //!< multiple variables
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by
+                                                //!< time and frame id
+  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the
+                                                             //!< tf topics and inserts the received
+                                                             //!< transforms into the tf buffer
+
+  //!< Publish the map->odom or map->base transform to the tf system
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_publisher_ = nullptr;
+
+  rclcpp::TimerBase::SharedPtr tf_publish_timer_;  //!< Timer that publishes tf messages to ensure
+                                                   //!< the tf transform doesn't get stale
   rclcpp::Duration tf_timeout_;  //!< The max time to wait for a tf transform to become available
   geometry_msgs::msg::TransformStamped tf_transform_;  //!< The transform to be published to tf
   bool use_tf_lookup_;  //!< Internal flag indicating that a tf frame lookup is required

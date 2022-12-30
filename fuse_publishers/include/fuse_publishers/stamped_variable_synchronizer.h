@@ -35,7 +35,8 @@
 #ifndef FUSE_PUBLISHERS__STAMPED_VARIABLE_SYNCHRONIZER_H_
 #define FUSE_PUBLISHERS__STAMPED_VARIABLE_SYNCHRONIZER_H_
 
-#warning This header is obsolete, please include fuse_publishers/stamped_variable_synchronizer.hpp instead
+#warning \
+  This header is obsolete, please include fuse_publishers/stamped_variable_synchronizer.hpp instead
 
 #include <fuse_publishers/stamped_variable_synchronizer.hpp>
 
