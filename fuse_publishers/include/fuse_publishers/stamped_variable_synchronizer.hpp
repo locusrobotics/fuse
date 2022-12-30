@@ -34,6 +34,8 @@
 #ifndef FUSE_PUBLISHERS__STAMPED_VARIABLE_SYNCHRONIZER_HPP_
 #define FUSE_PUBLISHERS__STAMPED_VARIABLE_SYNCHRONIZER_HPP_
 
+#include <type_traits>
+
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/time.hpp>
@@ -41,9 +43,6 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
-
-#include <type_traits>
 
 
 namespace fuse_publishers

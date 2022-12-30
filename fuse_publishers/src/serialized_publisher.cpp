@@ -84,7 +84,8 @@ void SerializedPublisher::onInit()
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
 
   if (!graph_throttle_use_wall_time) {
-    graph_publisher_throttled_callback_.setClock(interfaces_.get_node_clock_interface()->get_clock());
+    graph_publisher_throttled_callback_.setClock(
+      interfaces_.get_node_clock_interface()->get_clock());
   }
 
   // Advertise the topics

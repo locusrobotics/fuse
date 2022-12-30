@@ -147,8 +147,6 @@ void Path2DPublisher::notifyCallback(
       } else {
         return pose1.header.stamp.sec < pose2.header.stamp.sec;
       }
-
-
     };
   std::sort(poses.begin(), poses.end(), compare_stamps);
   // Define the header for the aggregate message

@@ -34,6 +34,8 @@
 #ifndef FUSE_PUBLISHERS__SERIALIZED_PUBLISHER_HPP_
 #define FUSE_PUBLISHERS__SERIALIZED_PUBLISHER_HPP_
 
+#include <string>
+
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -43,9 +45,6 @@
 
 #include <fuse_msgs/msg/serialized_graph.hpp>
 #include <fuse_msgs/msg/serialized_transaction.hpp>
-
-
-#include <string>
 
 
 namespace fuse_publishers
@@ -115,14 +114,16 @@ protected:
     fuse_core::Graph::ConstSharedPtr graph,
     const rclcpp::Time & stamp) const;
 
-  std::string frame_id_;  //!< The name of the frame for the serialized graph and transaction messages published
+  std::string frame_id_;  //!< The name of the frame for the serialized graph and transaction
+                          //!< messages published
   rclcpp::Publisher<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_publisher_;
   rclcpp::Publisher<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_publisher_;
 
   using GraphPublisherCallback =
     std::function<void (fuse_core::Graph::ConstSharedPtr, const rclcpp::Time &)>;
   using GraphPublisherThrottledCallback = fuse_core::ThrottledCallback<GraphPublisherCallback>;
-  GraphPublisherThrottledCallback graph_publisher_throttled_callback_;  //!< The graph publisher throttled callback
+  GraphPublisherThrottledCallback graph_publisher_throttled_callback_;  //!< The graph publisher
+                                                                        //!< throttled callback
 };
 
 }  // namespace fuse_publishers

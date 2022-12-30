@@ -31,6 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
+// Workaround ros2/geometry2#242
+#include <gtest/gtest.h>
+#include <tf2/utils.h>
+
+#include <vector>
+
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/transaction.hpp>
@@ -44,13 +51,8 @@
 #include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-// Workaround ros2/geometry2#242
-#include <gtest/gtest.h>
-#include <tf2/utils.h>
-
-#include <vector>
-
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
+
 
 /**
  * @brief Test fixture for the Path2DPublisher

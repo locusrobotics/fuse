@@ -247,11 +247,11 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
-  if (!fuse_core::is_valid(latest_stamp)) { // If uninitialized
+  if (!fuse_core::is_valid(latest_stamp)) {  // If uninitialized
     RCLCPP_WARN_STREAM_THROTTLE(
       logger_, *clock_, 10.0 * 1000,
-      "Failed to find a matching set of stamped pose variables with device id '" << device_id_
-                                                                                 << "'.");
+      "Failed to find a matching set of stamped pose variables with device id '"
+        << device_id_ << "'.");
     return;
   }
   // Get the pose values associated with the selected timestamp
@@ -271,7 +271,8 @@ void Pose2DPublisher::notifyCallback(
     map_to_base.header.stamp = latest_stamp;
     map_to_base.header.frame_id = map_frame_;
     map_to_base.child_frame_id = base_frame_;
-    map_to_base.transform.translation.x = pose.position.x;  // Transforms use Vector3 instead of Point (shakes fist)
+    map_to_base.transform.translation.x = pose.position.x;  // Transforms use Vector3 instead of
+                                                            // Point (shakes fist)
     map_to_base.transform.translation.y = pose.position.y;
     map_to_base.transform.translation.z = pose.position.z;
     map_to_base.transform.rotation = pose.orientation;
@@ -285,7 +286,8 @@ void Pose2DPublisher::notifyCallback(
           tf_timeout_);
         geometry_msgs::msg::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, map_to_base);
-        map_to_odom.child_frame_id = odom_frame_;  // The child frame is not populated for some reason
+        map_to_odom.child_frame_id = odom_frame_;  // The child frame is not populated for some
+                                                   // reason
         tf_transform_ = map_to_odom;
       } catch (const std::exception & e) {
         RCLCPP_WARN_STREAM_THROTTLE(

@@ -34,6 +34,8 @@
 #ifndef FUSE_PUBLISHERS__PATH_2D_PUBLISHER_HPP_
 #define FUSE_PUBLISHERS__PATH_2D_PUBLISHER_HPP_
 
+#include <string>
+
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -44,8 +46,6 @@
 #include <nav_msgs/msg/path.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-
-#include <string>
 
 
 namespace fuse_publishers
@@ -111,8 +111,12 @@ protected:
 
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
   std::string frame_id_;  //!< The name of the frame for this path
-  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;  //!< The publisher that sends the entire robot trajectory as a path
-  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_publisher_;  //!< The publisher that sends the entire robot trajectory as a pose array
+
+  //!< The publisher that sends the entire robot trajectory as a path
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+
+  //!< The publisher that sends the entire robot trajectory as a pose array
+  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_publisher_;
 };
 
 }  // namespace fuse_publishers
