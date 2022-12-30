@@ -277,8 +277,14 @@ inline fuse_core::Loss::SharedPtr loadLossConfig(
   const std::string & name
 )
 {
+  if (!interfaces.get_node_parameters_interface()->has_parameter(
+      name + ".type"))
+  {
+    return {};
+  }
+
   std::string loss_type;
-  getParamRequired(interfaces, name + "/type", loss_type);
+  getParamRequired(interfaces, name + ".type", loss_type);
 
   auto loss = fuse_core::createUniqueLoss(loss_type);
   loss->initialize(interfaces, interfaces.get_node_base_interface()->get_fully_qualified_name());

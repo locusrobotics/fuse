@@ -158,6 +158,7 @@ public:
 
   void SetUp() override
   {
+    rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
     spinner_ = std::thread(
@@ -173,6 +174,7 @@ public:
      spinner_.join();
     }
     executor_.reset();
+    rclcpp::shutdown();
   }
 
   void poseCallback(const geometry_msgs::msg::PoseStamped& msg)
@@ -401,14 +403,4 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   EXPECT_NEAR(1.8002186614, tf_msg_.transforms[0].transform.translation.y, 1.0e-9);
   EXPECT_NEAR(0.3000000000, tf_msg_.transforms[0].transform.translation.z, 1.0e-9);
   EXPECT_NEAR(-2.8631853072, tf2::getYaw(tf_msg_.transforms[0].transform.rotation), 1.0e-9);
-}
-
-// NOTE(CH3): This main is required because the test is manually run by a launch test
-int main(int argc, char ** argv)
-{
-  rclcpp::init(argc, argv);
-  testing::InitGoogleTest(&argc, argv);
-  int ret = RUN_ALL_TESTS();
-  rclcpp::shutdown();
-  return ret;
 }

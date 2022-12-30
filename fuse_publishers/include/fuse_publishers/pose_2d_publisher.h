@@ -173,7 +173,6 @@ protected:
     fuse_core::node_interfaces::Clock,
     fuse_core::node_interfaces::Logging,
     fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Services,
     fuse_core::node_interfaces::Timers,
     fuse_core::node_interfaces::Topics,
     fuse_core::node_interfaces::Waitables

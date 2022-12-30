@@ -162,6 +162,7 @@ public:
 
   void SetUp() override
   {
+    rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     spinner_ = std::thread(
       [&]() {
@@ -176,6 +177,7 @@ public:
      spinner_.join();
     }
     executor_.reset();
+    rclcpp::shutdown();
   }
 
   void pathCallback(const nav_msgs::msg::Path& msg)
@@ -284,15 +286,4 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   EXPECT_NEAR(2.02, pose_array_msg_.poses[2].position.y, 1.0e-9);
   EXPECT_NEAR(0.00, pose_array_msg_.poses[2].position.z, 1.0e-9);
   EXPECT_NEAR(3.02, tf2::getYaw(pose_array_msg_.poses[2].orientation), 1.0e-9);
-}
-
-
-// NOTE(CH3): This main is required because the test is manually run by a launch test
-int main(int argc, char ** argv)
-{
-  rclcpp::init(argc, argv);
-  testing::InitGoogleTest(&argc, argv);
-  int ret = RUN_ALL_TESTS();
-  rclcpp::shutdown();
-  return ret;
 }
