@@ -35,11 +35,14 @@
 #ifndef FUSE_VIZ_POSE_2D_STAMPED_VISUAL_H
 #define FUSE_VIZ_POSE_2D_STAMPED_VISUAL_H
 
-#include <rviz/ogre_helpers/object.h>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
+#include <rviz_rendering/objects/object.hpp>
+#include <rviz_rendering/objects/shape.hpp>
 
 #include <tf2/LinearMath/Transform.h>
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <memory>
 
@@ -60,12 +63,8 @@ class Orientation2DStamped;
 
 }  // namespace fuse_variables
 
-namespace rviz
+namespace fuse_viz
 {
-
-class Axes;
-class MovableText;
-class Shape;
 
 /**
  * @class Pose2DStampedVisual
@@ -75,7 +74,7 @@ class Shape;
  * 2. An axes representing the 2D pose (position + orientation).
  * 3. A text with the variable type and UUID.
  */
-class Pose2DStampedVisual : public rviz::Object
+class Pose2DStampedVisual : public rviz_rendering::Object
 {
 private:
   /**
@@ -156,14 +155,14 @@ private:
 
   bool visible_;
 
-  std::shared_ptr<Axes> axes_;
-  std::shared_ptr<Shape> sphere_;
-  MovableText* text_;
+  std::shared_ptr<rviz_rendering::Axes> axes_;
+  std::shared_ptr<rviz_rendering::Shape> sphere_;
+  rviz_rendering::MovableText* text_;
 
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  void setColor(float r, float g, float b, float a) override{};
+  void setColor(float, float, float, float) override{};
   const Ogre::Vector3& getPosition() override;
   const Ogre::Quaternion& getOrientation() override;
 

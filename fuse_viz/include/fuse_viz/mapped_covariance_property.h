@@ -34,8 +34,15 @@
 
 #include <OgreColourValue.h>
 
-#include <rviz/properties/bool_property.h>
+#include <fuse_viz/mapped_covariance_visual.h>
 
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/enum_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/property.hpp>
+
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -47,26 +54,19 @@ class SceneNode;
 
 }  // namespace Ogre
 
-namespace rviz
+namespace fuse_viz
 {
-
-class Property;
-class ColorProperty;
-class FloatProperty;
-class EnumProperty;
-class MappedCovarianceVisual;
-
 /**
  * @brief Property specialized to provide getter for booleans.
  *
  * This is mostly a copy of CovarianceProperty from rviz/default_plugin/covariance_property.h that instead of using an
  * std::deque to store the visuals, it uses an std::unordered_map, so the visuals can be indexed by their UUID.
  */
-class MappedCovarianceProperty : public rviz::BoolProperty
+class MappedCovarianceProperty : public rviz_common::properties::BoolProperty
 {
   Q_OBJECT
 public:
-  typedef boost::shared_ptr<MappedCovarianceVisual> MappedCovarianceVisualPtr;
+  typedef std::shared_ptr<MappedCovarianceVisual> MappedCovarianceVisualPtr;
 
   enum Frame
   {
@@ -81,7 +81,7 @@ public:
   };
 
   MappedCovarianceProperty(const QString& name = "Covariance", bool default_value = false,
-                           const QString& description = QString(), rviz::Property* parent = 0,
+                           const QString& description = QString(), rviz_common::properties::Property* parent = 0,
                            const char* changed_slot = 0, QObject* receiver = 0);
 
   virtual ~MappedCovarianceProperty();
@@ -111,17 +111,17 @@ private:
 
   std::unordered_map<std::string, MappedCovarianceVisualPtr> covariances_;
 
-  rviz::BoolProperty* position_property_;
-  rviz::ColorProperty* position_color_property_;
-  rviz::FloatProperty* position_alpha_property_;
-  rviz::FloatProperty* position_scale_property_;
-  rviz::BoolProperty* orientation_property_;
-  rviz::EnumProperty* orientation_frame_property_;
-  rviz::EnumProperty* orientation_colorstyle_property_;
-  rviz::ColorProperty* orientation_color_property_;
-  rviz::FloatProperty* orientation_alpha_property_;
-  rviz::FloatProperty* orientation_offset_property_;
-  rviz::FloatProperty* orientation_scale_property_;
+  rviz_common::properties::BoolProperty* position_property_;
+  rviz_common::properties::ColorProperty* position_color_property_;
+  rviz_common::properties::FloatProperty* position_alpha_property_;
+  rviz_common::properties::FloatProperty* position_scale_property_;
+  rviz_common::properties::BoolProperty* orientation_property_;
+  rviz_common::properties::EnumProperty* orientation_frame_property_;
+  rviz_common::properties::EnumProperty* orientation_colorstyle_property_;
+  rviz_common::properties::ColorProperty* orientation_color_property_;
+  rviz_common::properties::FloatProperty* orientation_alpha_property_;
+  rviz_common::properties::FloatProperty* orientation_offset_property_;
+  rviz_common::properties::FloatProperty* orientation_scale_property_;
 };
 
 }  // end namespace rviz

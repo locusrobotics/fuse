@@ -38,9 +38,9 @@
 #ifndef Q_MOC_RUN
 #include <fuse_core/graph_deserializer.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_msgs/SerializedGraph.h>
+#include <fuse_msgs/msg/serialized_graph.hpp>
 
-#include <rviz/message_filter_display.h>
+#include <rviz_common/message_filter_display.hpp>
 
 #include <OgreColourValue.h>
 #include <OgreSceneNode.h>
@@ -51,20 +51,21 @@
 #include <string>
 #include <unordered_map>
 
-namespace rviz
+namespace fuse_viz
 {
 
 class Pose2DStampedVisual;
 class RelativePose2DStampedConstraintVisual;
 
-class BoolProperty;
+using rviz_common::properties::BoolProperty;
+
 class Pose2DStampedProperty;
 class RelativePose2DStampedConstraintProperty;
 
 /**
- * @brief An rviz dispaly for fuse_msgs::SerializedGraph messages.
+ * @brief An rviz dispaly for fuse_msgs::msg::SerializedGraph messages.
  */
-class SerializedGraphDisplay : public MessageFilterDisplay<fuse_msgs::SerializedGraph>
+class SerializedGraphDisplay : public rviz_common::MessageFilterDisplay<fuse_msgs::msg::SerializedGraph>
 {
   Q_OBJECT
 public:
@@ -81,7 +82,7 @@ protected:
 
   void onDisable() override;
 
-  void load(const Config& config) override;
+  void load(const rviz_common::Config& config) override;
 
 private Q_SLOTS:
   void updateShowVariables();
@@ -94,11 +95,11 @@ private:
                          fuse_core::uuid::hash>;
   using ColorBySourceMap = std::unordered_map<std::string, Ogre::ColourValue>;
   using ConstraintPropertyBySourceMap = std::map<std::string, RelativePose2DStampedConstraintProperty*>;
-  using ConfigBySourceMap = std::unordered_map<std::string, Config>;
+  using ConfigBySourceMap = std::unordered_map<std::string, rviz_common::Config>;
 
   void clear();
 
-  void processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg) override;
+  void processMessage(fuse_msgs::msg::SerializedGraph::ConstSharedPtr msg) override;
 
   Ogre::SceneNode* root_node_;
 
@@ -119,6 +120,6 @@ private:
   fuse_core::GraphDeserializer graph_deserializer_;
 };
 
-}  // namespace rviz
+}  // namespace fuse_viz
 
 #endif  // FUSE_VIZ_SERIALIZED_GRAPH_DISPLAY_H

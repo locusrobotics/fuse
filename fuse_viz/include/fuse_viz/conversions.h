@@ -46,12 +46,12 @@
 
 #include <OgreColourValue.h>
 #include <OgreQuaternion.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
-#include <boost/array.hpp>
 
 #include <Eigen/Dense>
 
+#include <array>
 #include <stdexcept>
 
 namespace tf2
@@ -63,7 +63,7 @@ namespace tf2
  * @param[out] msg        6x6 covariance message, which is stored as a plain array with 36 elements.
  */
 template <typename Derived>
-inline void toMsg(const Eigen::MatrixBase<Derived>& covariance, boost::array<double, 36>& msg)
+inline void toMsg(const Eigen::MatrixBase<Derived>& covariance, std::array<double, 36>& msg)
 {
   using Scalar = typename Derived::Scalar;
   using Matrix6 = Eigen::Matrix<Scalar, 6, 6>;

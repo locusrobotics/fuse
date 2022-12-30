@@ -38,19 +38,24 @@
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <rviz/properties/color_property.h>
-#include <rviz/properties/float_property.h>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/property.hpp>
 
 #include <QColor>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
-namespace rviz
+namespace fuse_viz
 {
 
+using rviz_common::properties::ColorProperty;
+using rviz_common::properties::FloatProperty;
+using rviz_common::properties::Property;
+
 Pose2DStampedProperty::Pose2DStampedProperty(const QString& name, bool default_value, const QString& description,
-                                             rviz::Property* parent, const char* changed_slot, QObject* receiver)
+                                             Property* parent, const char* changed_slot, QObject* receiver)
   // NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of this constructor
   : BoolProperty(name, default_value, description, parent)
 {

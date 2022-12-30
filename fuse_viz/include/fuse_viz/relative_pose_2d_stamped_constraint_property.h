@@ -38,7 +38,10 @@
 #include <OgreColourValue.h>
 
 #include <fuse_core/uuid.hpp>
-#include <rviz/properties/bool_property.h>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/property.hpp>
 
 #include <memory>
 #include <string>
@@ -66,15 +69,17 @@ class RelativePose2DStampedConstraint;
 
 }  // namespace fuse_constraints
 
-namespace rviz
+namespace fuse_viz
 {
 
 class Pose2DStampedVisual;
 class RelativePose2DStampedConstraintVisual;
 
-class Property;
-class ColorProperty;
-class FloatProperty;
+using rviz_common::properties::BoolProperty;
+using rviz_common::properties::ColorProperty;
+using rviz_common::properties::FloatProperty;
+using rviz_common::properties::Property;
+
 class MappedCovarianceProperty;
 
 class RelativePose2DStampedConstraintProperty : public BoolProperty

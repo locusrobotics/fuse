@@ -37,11 +37,11 @@
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
-#include <rviz/display_context.h>
-#include <rviz/frame_manager.h>
+#include <rviz_common/display_context.hpp>
 
-#include <rviz/properties/parse_color.h>
-#include <rviz/properties/property.h>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/parse_color.hpp>
+#include <rviz_common/properties/property.hpp>
 #endif  // Q_MOC_RUN
 
 #include <fuse_viz/pose_2d_stamped_property.h>
@@ -56,10 +56,10 @@
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 
-#include <boost/range.hpp>
-
-namespace rviz
+namespace fuse_viz
 {
+
+using rviz_common::properties::BoolProperty;
 
 SerializedGraphDisplay::SerializedGraphDisplay()
 {
@@ -119,7 +119,7 @@ void SerializedGraphDisplay::onDisable()
   root_node_->setVisible(false);
 }
 
-void SerializedGraphDisplay::load(const Config& config)
+void SerializedGraphDisplay::load(const rviz_common::Config& config)
 {
   MFDClass::load(config);
 
@@ -127,7 +127,7 @@ void SerializedGraphDisplay::load(const Config& config)
   // created the first time a constraint of each source is present in the graph:
   const auto constraints_config = config.mapGetChild("Constraints");
 
-  for (Config::MapIterator iter = constraints_config.mapIterator(); iter.isValid(); iter.advance())
+  for (rviz_common::Config::MapIterator iter = constraints_config.mapIterator(); iter.isValid(); iter.advance())
   {
     constraint_source_configs_[iter.currentKey().toStdString()] = iter.currentChild();
   }
@@ -164,7 +164,7 @@ void SerializedGraphDisplay::clear()
   constraints_changed_map_.clear();
 }
 
-void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::ConstPtr& msg)
+void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::ConstSharedPtr msg)
 {
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
@@ -258,7 +258,7 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
 
       if (constraint_source_configs_.find(constraint_source) == constraint_source_configs_.end())
       {
-        constraint_source_properties_[constraint_source]->setColor(ogreToQt(source_color));
+        constraint_source_properties_[constraint_source]->setColor(rviz_common::properties::ogreToQt(source_color));
       }
       else
       {
@@ -321,7 +321,7 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
   }
 }
 
-}  // namespace rviz
+}  // namespace fuse_viz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rviz::SerializedGraphDisplay, rviz::Display)
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(fuse_viz::SerializedGraphDisplay, rviz_common::Display)

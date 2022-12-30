@@ -29,8 +29,7 @@
 
 #include <fuse_viz/mapped_covariance_visual.h>
 
-#include <rviz/ogre_helpers/shape.h>
-#include <rviz/validate_quaternions.h>
+#include <rviz_rendering/objects/shape.hpp>
 
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
@@ -39,9 +38,11 @@
 #include <rclcpp/clock.hpp>
 #include <rclcpp/logging.hpp>
 
+#include <rviz_common/msg_conversions.hpp>
+
 #include <sstream>
 
-namespace rviz
+namespace fuse_viz
 {
 
 namespace
@@ -121,8 +122,9 @@ void computeShapeScaleAndOrientation3D(const Eigen::Matrix3d& covariance, Ogre::
   }
   else
   {
+    static rclcpp::Clock clock;
     RCLCPP_WARN_THROTTLE(
-      rclcpp::get_logger("fuse"), rclcpp::Clock(), 1000,
+      rclcpp::get_logger("fuse"), clock, 1000,
       "failed to compute eigen vectors/values for position. Is the covariance matrix correct?");
     eigenvalues = Eigen::Vector3d::Zero();  // Setting the scale to zero will hide it on the screen
     eigenvectors = Eigen::Matrix3d::Identity();
@@ -166,8 +168,9 @@ void computeShapeScaleAndOrientation2D(const Eigen::Matrix2d& covariance, Ogre::
   }
   else
   {
+    static rclcpp::Clock clock;
     RCLCPP_WARN_THROTTLE(
-      rclcpp::get_logger("fuse"), rclcpp::Clock(), 1000,
+      rclcpp::get_logger("fuse"), clock, 1000,
       "failed to compute eigen vectors/values for position. Is the covariance matrix correct?");
     eigenvalues = Eigen::Vector2d::Zero();  // Setting the scale to zero will hide it on the screen
     eigenvectors = Eigen::Matrix2d::Identity();
@@ -233,7 +236,7 @@ MappedCovarianceVisual::MappedCovarianceVisual(Ogre::SceneManager* scene_manager
   position_scale_node_ = fixed_orientation_node_->createChildSceneNode();
   // Node to be oriented and scaled from the message's covariance
   position_node_ = position_scale_node_->createChildSceneNode();
-  position_shape_ = new rviz::Shape(rviz::Shape::Sphere, scene_manager_, position_node_);
+  position_shape_ = new rviz_rendering::Shape(rviz_rendering::Shape::Sphere, scene_manager_, position_node_);
 
   // Node to scale the orientation part of the covariance. May be attached to both the local (root) node or the fixed
   // frame node. May be re-attached later by setRotatingFrame()
@@ -251,9 +254,9 @@ MappedCovarianceVisual::MappedCovarianceVisual(Ogre::SceneManager* scene_manager
     orientation_offset_node_[i]->setInheritScale(false);
 
     if (i != kYaw2D)
-      orientation_shape_[i] = new rviz::Shape(rviz::Shape::Cylinder, scene_manager_, orientation_offset_node_[i]);
+      orientation_shape_[i] = new rviz_rendering::Shape(rviz_rendering::Shape::Cylinder, scene_manager_, orientation_offset_node_[i]);
     else
-      orientation_shape_[i] = new rviz::Shape(rviz::Shape::Cone, scene_manager_, orientation_offset_node_[i]);
+      orientation_shape_[i] = new rviz_rendering::Shape(rviz_rendering::Shape::Cone, scene_manager_, orientation_offset_node_[i]);
 
     // Initialize all current scales to 0
     current_ori_scale_[i] = Ogre::Vector3(0, 0, 0);
@@ -307,14 +310,15 @@ MappedCovarianceVisual::~MappedCovarianceVisual()
   scene_manager_->destroySceneNode(root_node_->getName());
 }
 
-void MappedCovarianceVisual::setCovariance(const geometry_msgs::PoseWithCovariance& pose)
+void MappedCovarianceVisual::setCovariance(const geometry_msgs::msg::PoseWithCovariance& pose)
 {
   // check for NaN in covariance
   for (unsigned i = 0; i < 3; ++i)
   {
     if (std::isnan(pose.covariance[i]))
     {
-      RCLCPP_WARN_THROTTLE(rclcpp::get_logger("fuse"), rclcpp::Clock(), 1000, "covariance contains NaN");
+      static rclcpp::Clock clock;
+      RCLCPP_WARN_THROTTLE(rclcpp::get_logger("fuse"), clock, 1000, "covariance contains NaN");
       return;
     }
   }
@@ -327,8 +331,8 @@ void MappedCovarianceVisual::setCovariance(const geometry_msgs::PoseWithCovarian
   updateOrientationVisibility();
 
   // store orientation in Ogre structure
-  Ogre::Quaternion ori;
-  normalizeQuaternion(pose.pose.orientation, ori);
+  Ogre::Quaternion ori = rviz_common::quaternionMsgToOgre(pose.pose.orientation);
+  ori.normalise();
 
   // Set the orientation of the fixed node. Since this node is attached to the root node, it's orientation will be the
   // inverse of pose's orientation.
@@ -625,9 +629,9 @@ void MappedCovarianceVisual::setRotatingFrame(bool is_local_rotation)
     fixed_orientation_node_->addChild(root_node_->removeChild(orientation_root_node_->getName()));
 }
 
-rviz::Shape* MappedCovarianceVisual::getOrientationShape(ShapeIndex index)
+rviz_rendering::Shape* MappedCovarianceVisual::getOrientationShape(ShapeIndex index)
 {
   return orientation_shape_[index];
 }
 
-}  // namespace rviz
+}  // namespace fuse_viz

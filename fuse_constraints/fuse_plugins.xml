@@ -1,4 +1,4 @@
-<library path="lib/libfuse_constraints">
+<library path="fuse_constraints">
   <class type="fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 2D angular acceleration, or a direct measurement of
