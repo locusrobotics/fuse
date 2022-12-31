@@ -68,6 +68,7 @@ class RelativePose2DStampedConstraintProperty;
 class SerializedGraphDisplay : public rviz_common::MessageFilterDisplay<fuse_msgs::msg::SerializedGraph>
 {
   Q_OBJECT
+
 public:
   SerializedGraphDisplay();
 
@@ -82,7 +83,7 @@ protected:
 
   void onDisable() override;
 
-  void load(const rviz_common::Config& config) override;
+  void load(const rviz_common::Config & config) override;
 
 private Q_SLOTS:
   void updateShowVariables();
@@ -91,17 +92,18 @@ private Q_SLOTS:
 private:
   using ChangedByUUIDMap = std::unordered_map<fuse_core::UUID, bool, fuse_core::uuid::hash>;
   using ConstraintByUUIDMap =
-      std::unordered_map<fuse_core::UUID, std::shared_ptr<RelativePose2DStampedConstraintVisual>,
-                         fuse_core::uuid::hash>;
+    std::unordered_map<fuse_core::UUID, std::shared_ptr<RelativePose2DStampedConstraintVisual>,
+      fuse_core::uuid::hash>;
   using ColorBySourceMap = std::unordered_map<std::string, Ogre::ColourValue>;
-  using ConstraintPropertyBySourceMap = std::map<std::string, RelativePose2DStampedConstraintProperty*>;
+  using ConstraintPropertyBySourceMap = std::map<std::string,
+      RelativePose2DStampedConstraintProperty *>;
   using ConfigBySourceMap = std::unordered_map<std::string, rviz_common::Config>;
 
   void clear();
 
   void processMessage(fuse_msgs::msg::SerializedGraph::ConstSharedPtr msg) override;
 
-  Ogre::SceneNode* root_node_;
+  Ogre::SceneNode * root_node_;
 
   ConstraintByUUIDMap constraint_visuals_;
 
@@ -110,9 +112,9 @@ private:
   ChangedByUUIDMap variables_changed_map_;
   ChangedByUUIDMap constraints_changed_map_;
 
-  BoolProperty* show_variables_property_;
-  BoolProperty* show_constraints_property_;
-  Pose2DStampedProperty* variable_property_;
+  BoolProperty * show_variables_property_;
+  BoolProperty * show_constraints_property_;
+  Pose2DStampedProperty * variable_property_;
   ConstraintPropertyBySourceMap constraint_source_properties_;
 
   ConfigBySourceMap constraint_source_configs_;

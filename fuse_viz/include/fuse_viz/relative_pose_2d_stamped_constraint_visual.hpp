@@ -107,9 +107,10 @@ private:
    * @param[in] constraint fuse_constraints::RelativePose2DStampedConstraint constraint.
    * @param[in] visible Initial visibility.
    */
-  RelativePose2DStampedConstraintVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                        const fuse_constraints::RelativePose2DStampedConstraint& constraint,
-                                        const bool visible = true);
+  RelativePose2DStampedConstraintVisual(
+    Ogre::SceneManager * scene_manager, Ogre::SceneNode * parent_node,
+    const fuse_constraints::RelativePose2DStampedConstraint & constraint,
+    const bool visible = true);
 
 public:
   using CovarianceVisualPtr = MappedCovarianceProperty::MappedCovarianceVisualPtr;
@@ -122,14 +123,15 @@ public:
    * @param[in] graph fuse_core::Graph, used to retrieve the first/source and second/target
    * constraint variables pose.
    */
-  void setConstraint(const fuse_constraints::RelativePose2DStampedConstraint& constraint,
-                     const fuse_core::Graph& graph);
+  void setConstraint(
+    const fuse_constraints::RelativePose2DStampedConstraint & constraint,
+    const fuse_core::Graph & graph);
 
   /**
    * @brief Get the root scene node of this constraint visual
    * @return the root scene node of this constraint visual
    */
-  Ogre::SceneNode* getSceneNode()
+  Ogre::SceneNode * getSceneNode()
   {
     return root_node_;
   }
@@ -137,7 +139,7 @@ public:
   /**
    * @brief Sets user data on all ogre objects we own
    */
-  void setUserData(const Ogre::Any& data) override;
+  void setUserData(const Ogre::Any & data) override;
 
   void setRelativePoseLineWidth(const float line_width);
 
@@ -151,9 +153,9 @@ public:
 
   void setRelativePoseAxesAlpha(const float alpha);
 
-  void setRelativePoseAxesScale(const Ogre::Vector3& scale);
+  void setRelativePoseAxesScale(const Ogre::Vector3 & scale);
 
-  void setTextScale(const Ogre::Vector3& scale);
+  void setTextScale(const Ogre::Vector3 & scale);
 
   void setTextVisible(const bool visible);
 
@@ -167,44 +169,44 @@ public:
   /**
    * @brief Sets position of the frame this constraint is attached
    */
-  void setPosition(const Ogre::Vector3& position) override;
+  void setPosition(const Ogre::Vector3 & position) override;
 
   /**
    * @brief Sets orientation of the frame this constraint is attached
    */
-  void setOrientation(const Ogre::Quaternion& orientation) override;
+  void setOrientation(const Ogre::Quaternion & orientation) override;
 
-  const CovarianceVisualPtr& getCovariance() const
+  const CovarianceVisualPtr & getCovariance() const
   {
     return covariance_;
   }
 
-  void setCovariance(const CovarianceVisualPtr& covariance)
+  void setCovariance(const CovarianceVisualPtr & covariance)
   {
     covariance_ = covariance;
   }
 
-  const std::string& getSource() const
+  const std::string & getSource() const
   {
     return source_;
   }
 
 private:
-  Ogre::SceneNode* root_node_;
-  Ogre::SceneNode* relative_pose_line_node_;
-  Ogre::SceneNode* error_line_node_;
-  Ogre::SceneNode* relative_pose_axes_node_;
-  Ogre::SceneNode* text_node_;
+  Ogre::SceneNode * root_node_;
+  Ogre::SceneNode * relative_pose_line_node_;
+  Ogre::SceneNode * error_line_node_;
+  Ogre::SceneNode * relative_pose_axes_node_;
+  Ogre::SceneNode * text_node_;
 
   std::shared_ptr<BillboardLine> relative_pose_line_;
   std::shared_ptr<BillboardLine> error_line_;
   std::shared_ptr<Axes> relative_pose_axes_;
-  MovableText* text_;
+  MovableText * text_;
   CovarianceVisualPtr covariance_;
   std::string source_;
 
-  float loss_scale_{ -1.0 };
-  float min_brightness_{ 0.0 };
+  float loss_scale_{-1.0};
+  float min_brightness_{0.0};
   Ogre::ColourValue error_line_color_;
 
   bool visible_;
@@ -212,12 +214,14 @@ private:
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  void setScale(const Ogre::Vector3&) override{};
-  void setColor(float, float, float, float) override{};
-  const Ogre::Vector3& getPosition() override;
-  const Ogre::Quaternion& getOrientation() override;
+  void setScale(const Ogre::Vector3 &) override {}
+  void setColor(float, float, float, float) override {}
+  const Ogre::Vector3 & getPosition() override;
+  const Ogre::Quaternion & getOrientation() override;
 
-  Ogre::ColourValue computeLossErrorLineColor(const Ogre::ColourValue& color, const float loss_scale);
+  Ogre::ColourValue computeLossErrorLineColor(
+    const Ogre::ColourValue & color,
+    const float loss_scale);
 
   // Make RelativePose2DStampedConstraintProperty friend class so it create RelativePose2DStampedConstraintVisual
   // objects

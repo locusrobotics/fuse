@@ -52,14 +52,17 @@ namespace fuse_viz
 {
 using rviz_rendering::MovableText;
 
-Pose2DStampedVisual::Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                         const fuse_variables::Position2DStamped& position,
-                                         const fuse_variables::Orientation2DStamped& orientation, const bool visible)
-  : Object(scene_manager), root_node_(parent_node->createChildSceneNode()), visible_(visible)
+Pose2DStampedVisual::Pose2DStampedVisual(
+  Ogre::SceneManager * scene_manager, Ogre::SceneNode * parent_node,
+  const fuse_variables::Position2DStamped & position,
+  const fuse_variables::Orientation2DStamped & orientation, const bool visible)
+: Object(scene_manager), root_node_(parent_node->createChildSceneNode()), visible_(visible)
 {
   // Create sphere:
   sphere_node_ = root_node_->createChildSceneNode();
-  sphere_ = std::make_shared<rviz_rendering::Shape>(rviz_rendering::Shape::Sphere, scene_manager_, sphere_node_);
+  sphere_ = std::make_shared<rviz_rendering::Shape>(
+    rviz_rendering::Shape::Sphere, scene_manager_,
+    sphere_node_);
   setSphereColor(1.0, 0.0, 0.0, 1.0);
 
   // Create axes:
@@ -68,7 +71,7 @@ Pose2DStampedVisual::Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre
 
   // Create text:
   const auto caption = position.type() + "::" + fuse_core::uuid::to_string(position.uuid()) + '\n' +
-                       orientation.type() + "::" + fuse_core::uuid::to_string(orientation.uuid());
+    orientation.type() + "::" + fuse_core::uuid::to_string(orientation.uuid());
   text_ = new MovableText(caption);
   text_->setCaption(caption);
   text_->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
@@ -95,13 +98,14 @@ Pose2DStampedVisual::~Pose2DStampedVisual()
   scene_manager_->destroySceneNode(root_node_->getName());
 }
 
-void Pose2DStampedVisual::setPose2DStamped(const fuse_variables::Position2DStamped& position,
-                                           const fuse_variables::Orientation2DStamped& orientation)
+void Pose2DStampedVisual::setPose2DStamped(
+  const fuse_variables::Position2DStamped & position,
+  const fuse_variables::Orientation2DStamped & orientation)
 {
   setPose2DStamped(toOgre(position), toOgre(orientation));
 }
 
-void Pose2DStampedVisual::setUserData(const Ogre::Any& data)
+void Pose2DStampedVisual::setUserData(const Ogre::Any & data)
 {
   axes_->setUserData(data);
   sphere_->setUserData(data);
@@ -114,22 +118,31 @@ void Pose2DStampedVisual::setSphereColor(const float r, const float g, const flo
 
 void Pose2DStampedVisual::setAxesAlpha(const float alpha)
 {
-  static const auto& default_x_color_ = axes_->getDefaultXColor();
-  static const auto& default_y_color_ = axes_->getDefaultYColor();
-  static const auto& default_z_color_ = axes_->getDefaultZColor();
+  static const auto & default_x_color_ = axes_->getDefaultXColor();
+  static const auto & default_y_color_ = axes_->getDefaultYColor();
+  static const auto & default_z_color_ = axes_->getDefaultZColor();
 
-  axes_->setXColor(Ogre::ColourValue( default_x_color_.r, default_x_color_.g, default_x_color_.b, alpha ));  // NOLINT
-  axes_->setYColor(Ogre::ColourValue( default_y_color_.r, default_y_color_.g, default_y_color_.b, alpha ));  // NOLINT
-  axes_->setZColor(Ogre::ColourValue( default_z_color_.r, default_z_color_.g, default_z_color_.b, alpha ));  // NOLINT
+  axes_->setXColor(
+    Ogre::ColourValue(
+      default_x_color_.r, default_x_color_.g, default_x_color_.b,
+      alpha));                                                                                               // NOLINT
+  axes_->setYColor(
+    Ogre::ColourValue(
+      default_y_color_.r, default_y_color_.g, default_y_color_.b,
+      alpha));                                                                                               // NOLINT
+  axes_->setZColor(
+    Ogre::ColourValue(
+      default_z_color_.r, default_z_color_.g, default_z_color_.b,
+      alpha));                                                                                               // NOLINT
 }
 
-void Pose2DStampedVisual::setScale(const Ogre::Vector3& scale)
+void Pose2DStampedVisual::setScale(const Ogre::Vector3 & scale)
 {
   sphere_->setScale(scale);
   axes_->setScale(scale);
 }
 
-void Pose2DStampedVisual::setTextScale(const Ogre::Vector3& scale)
+void Pose2DStampedVisual::setTextScale(const Ogre::Vector3 & scale)
 {
   text_node_->setScale(scale);
 }
@@ -145,7 +158,9 @@ void Pose2DStampedVisual::setVisible(const bool visible)
   axes_node_->setVisible(visible);
 }
 
-void Pose2DStampedVisual::setPose2DStamped(const Ogre::Vector3& position, const Ogre::Quaternion& orientation)
+void Pose2DStampedVisual::setPose2DStamped(
+  const Ogre::Vector3 & position,
+  const Ogre::Quaternion & orientation)
 {
   axes_->setPosition(position);
   axes_->setOrientation(orientation);
@@ -153,22 +168,22 @@ void Pose2DStampedVisual::setPose2DStamped(const Ogre::Vector3& position, const 
   text_node_->setPosition(position);
 }
 
-const Ogre::Vector3& Pose2DStampedVisual::getPosition()
+const Ogre::Vector3 & Pose2DStampedVisual::getPosition()
 {
   return root_node_->getPosition();
 }
 
-const Ogre::Quaternion& Pose2DStampedVisual::getOrientation()
+const Ogre::Quaternion & Pose2DStampedVisual::getOrientation()
 {
   return root_node_->getOrientation();
 }
 
-void Pose2DStampedVisual::setPosition(const Ogre::Vector3& position)
+void Pose2DStampedVisual::setPosition(const Ogre::Vector3 & position)
 {
   root_node_->setPosition(position);
 }
 
-void Pose2DStampedVisual::setOrientation(const Ogre::Quaternion& orientation)
+void Pose2DStampedVisual::setOrientation(const Ogre::Quaternion & orientation)
 {
   root_node_->setOrientation(orientation);
 }

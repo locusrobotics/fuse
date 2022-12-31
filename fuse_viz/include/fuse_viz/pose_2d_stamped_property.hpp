@@ -68,20 +68,23 @@ class Pose2DStampedVisual;
 class Pose2DStampedProperty : public rviz_common::properties::BoolProperty
 {
   Q_OBJECT
+
 public:
   using Visual = Pose2DStampedVisual;
   using VisualPtr = std::shared_ptr<Visual>;
 
-  Pose2DStampedProperty(const QString& name = "Pose2DStamped", bool default_value = true,
-                        const QString& description = QString(), Property* parent = NULL,
-                        const char* changed_slot = NULL, QObject* receiver = NULL);
+  Pose2DStampedProperty(
+    const QString & name = "Pose2DStamped", bool default_value = true,
+    const QString & description = QString(), Property * parent = NULL,
+    const char * changed_slot = NULL, QObject * receiver = NULL);
 
   ~Pose2DStampedProperty() override = default;
 
-  VisualPtr createAndInsertOrUpdateVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                          const fuse_variables::Position2DStamped& position,
-                                          const fuse_variables::Orientation2DStamped& orientation);
-  void eraseVisual(const fuse_core::UUID& uuid);
+  VisualPtr createAndInsertOrUpdateVisual(
+    Ogre::SceneManager * scene_manager, Ogre::SceneNode * parent_node,
+    const fuse_variables::Position2DStamped & position,
+    const fuse_variables::Orientation2DStamped & orientation);
+  void eraseVisual(const fuse_core::UUID & uuid);
   void clearVisual();
 
 public Q_SLOTS:
@@ -95,21 +98,21 @@ private Q_SLOTS:
   void updateTextScale();
 
 private:
-  void updateAxesAlpha(const VisualPtr& constraint);
-  void updateScale(const VisualPtr& constraint);
-  void updateShowText(const VisualPtr& constraint);
-  void updateSphereColorAlpha(const VisualPtr& constraint);
-  void updateTextScale(const VisualPtr& constraint);
-  void updateVisibility(const VisualPtr& constraint);
+  void updateAxesAlpha(const VisualPtr & constraint);
+  void updateScale(const VisualPtr & constraint);
+  void updateShowText(const VisualPtr & constraint);
+  void updateSphereColorAlpha(const VisualPtr & constraint);
+  void updateTextScale(const VisualPtr & constraint);
+  void updateVisibility(const VisualPtr & constraint);
 
   std::unordered_map<fuse_core::UUID, VisualPtr, fuse_core::uuid::hash> variables_;
 
-  rviz_common::properties::ColorProperty* color_property_;
-  rviz_common::properties::BoolProperty* show_text_property_;
-  rviz_common::properties::FloatProperty* sphere_alpha_property_;
-  rviz_common::properties::FloatProperty* axes_alpha_property_;
-  rviz_common::properties::FloatProperty* scale_property_;
-  rviz_common::properties::FloatProperty* text_scale_property_;
+  rviz_common::properties::ColorProperty * color_property_;
+  rviz_common::properties::BoolProperty * show_text_property_;
+  rviz_common::properties::FloatProperty * sphere_alpha_property_;
+  rviz_common::properties::FloatProperty * axes_alpha_property_;
+  rviz_common::properties::FloatProperty * scale_property_;
+  rviz_common::properties::FloatProperty * text_scale_property_;
 };
 
 }  // namespace rviz

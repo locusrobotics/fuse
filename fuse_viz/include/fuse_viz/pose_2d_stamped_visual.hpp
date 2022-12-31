@@ -89,9 +89,10 @@ private:
    * @param[in] orientation fuse_variables::Orientation2DStamped orientation.
    * @param[in] visible Initial visibility.
    */
-  Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                      const fuse_variables::Position2DStamped& position,
-                      const fuse_variables::Orientation2DStamped& orientation, const bool visible = true);
+  Pose2DStampedVisual(
+    Ogre::SceneManager * scene_manager, Ogre::SceneNode * parent_node,
+    const fuse_variables::Position2DStamped & position,
+    const fuse_variables::Orientation2DStamped & orientation, const bool visible = true);
 
 public:
   ~Pose2DStampedVisual() override;
@@ -101,14 +102,15 @@ public:
    * @param[in] position    2D position stamped variable.
    * @param[in] orientation 2D orientation stamped variable.
    */
-  void setPose2DStamped(const fuse_variables::Position2DStamped& position,
-                        const fuse_variables::Orientation2DStamped& orientation);
+  void setPose2DStamped(
+    const fuse_variables::Position2DStamped & position,
+    const fuse_variables::Orientation2DStamped & orientation);
 
   /**
    * @brief Get the root scene node of this variable visual.
    * @return the root scene node of this variable visual.
    */
-  Ogre::SceneNode* getSceneNode()
+  Ogre::SceneNode * getSceneNode()
   {
     return root_node_;
   }
@@ -116,15 +118,15 @@ public:
   /**
    * @brief Sets user data on all ogre objects we own
    */
-  void setUserData(const Ogre::Any& data) override;
+  void setUserData(const Ogre::Any & data) override;
 
   void setSphereColor(const float r, const float g, const float b, const float a);
 
   void setAxesAlpha(const float alpha);
 
-  void setScale(const Ogre::Vector3& scale) override;
+  void setScale(const Ogre::Vector3 & scale) override;
 
-  void setTextScale(const Ogre::Vector3& scale);
+  void setTextScale(const Ogre::Vector3 & scale);
 
   void setTextVisible(const bool visible);
 
@@ -138,33 +140,33 @@ public:
   /**
    * @brief Sets position of the frame this constraint is attached
    */
-  void setPosition(const Ogre::Vector3& position) override;
+  void setPosition(const Ogre::Vector3 & position) override;
 
   /**
    * @brief Sets orientation of the frame this constraint is attached
    */
-  void setOrientation(const Ogre::Quaternion& orientation) override;
+  void setOrientation(const Ogre::Quaternion & orientation) override;
 
 private:
-  void setPose2DStamped(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
+  void setPose2DStamped(const Ogre::Vector3 & position, const Ogre::Quaternion & orientation);
 
-  Ogre::SceneNode* root_node_;
-  Ogre::SceneNode* sphere_node_;
-  Ogre::SceneNode* axes_node_;
-  Ogre::SceneNode* text_node_;
+  Ogre::SceneNode * root_node_;
+  Ogre::SceneNode * sphere_node_;
+  Ogre::SceneNode * axes_node_;
+  Ogre::SceneNode * text_node_;
 
   bool visible_;
 
   std::shared_ptr<rviz_rendering::Axes> axes_;
   std::shared_ptr<rviz_rendering::Shape> sphere_;
-  rviz_rendering::MovableText* text_;
+  rviz_rendering::MovableText * text_;
 
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  void setColor(float, float, float, float) override{};
-  const Ogre::Vector3& getPosition() override;
-  const Ogre::Quaternion& getOrientation() override;
+  void setColor(float, float, float, float) override {}
+  const Ogre::Vector3 & getPosition() override;
+  const Ogre::Quaternion & getOrientation() override;
 
   // Make Pose2DStampedProperty friend class so it create Pose2DStampedVisual objects
   friend class Pose2DStampedProperty;
