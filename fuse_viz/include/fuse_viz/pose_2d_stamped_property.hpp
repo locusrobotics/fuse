@@ -35,14 +35,15 @@
 #ifndef FUSE_VIZ__POSE_2D_STAMPED_PROPERTY_HPP_
 #define FUSE_VIZ__POSE_2D_STAMPED_PROPERTY_HPP_
 
+#include <memory>
+#include <unordered_map>
+
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
 
 #include <fuse_core/uuid.hpp>
 
-#include <memory>
-#include <unordered_map>
 
 namespace Ogre
 {
@@ -115,6 +116,6 @@ private:
   rviz_common::properties::FloatProperty * text_scale_property_;
 };
 
-}  // namespace rviz
+}  // namespace fuse_viz
 
 #endif  // FUSE_VIZ__POSE_2D_STAMPED_PROPERTY_HPP_

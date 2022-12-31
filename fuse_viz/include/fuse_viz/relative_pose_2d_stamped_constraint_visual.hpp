@@ -35,6 +35,12 @@
 #ifndef FUSE_VIZ__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_VISUAL_HPP_
 #define FUSE_VIZ__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_VISUAL_HPP_
 
+#include <OgreColourValue.h>
+#include <Ogre.h>
+
+#include <memory>
+#include <string>
+
 #include <fuse_viz/mapped_covariance_property.hpp>
 
 #include <rviz_rendering/objects/axes.hpp>
@@ -42,11 +48,6 @@
 #include <rviz_rendering/objects/movable_text.hpp>
 #include <rviz_rendering/objects/object.hpp>
 
-#include <OgreColourValue.h>
-#include <Ogre.h>
-
-#include <memory>
-#include <string>
 
 namespace Ogre
 {
@@ -85,12 +86,13 @@ class RelativePose2DStampedConstraintProperty;
  * @class RelativePose2DStampedConstraintVisual
  *
  * @brief Relative 2D pose constraint visual consisting on:
- * 1. A line that starts from the first/source variable position and ends at the relative position wrt that variable.
+ * 1. A line that starts from the first/source variable position and ends at the relative position
+ *    wrt that variable.
  * 2. An axes that shows the relative pose wrt the first/source variable.
- * 3. A line that starts from the relative position wrt the first/source variable and ends at the second/target variable
- * position, which represents the error.
- * 4. A covariance visual object that represents the relative pose 2D covariance with an ellipse for the position and a
- * cone for the orientation.
+ * 3. A line that starts from the relative position wrt the first/source variable and ends at the
+ *    second/target variable position, which represents the error.
+ * 4. A covariance visual object that represents the relative pose 2D covariance with an ellipse for
+ *    the position and a cone for the orientation.
  * 5. A text with the constraint source, type and UUID.
  */
 class RelativePose2DStampedConstraintVisual : public rviz_rendering::Object
@@ -121,7 +123,7 @@ public:
    * @brief Set the constraint.
    * @param[in] constraint fuse_constraints::RelativePose2DStampedConstraint constraint.
    * @param[in] graph fuse_core::Graph, used to retrieve the first/source and second/target
-   * constraint variables pose.
+   *                  constraint variables pose.
    */
   void setConstraint(
     const fuse_constraints::RelativePose2DStampedConstraint & constraint,
@@ -223,11 +225,11 @@ private:
     const Ogre::ColourValue & color,
     const float loss_scale);
 
-  // Make RelativePose2DStampedConstraintProperty friend class so it create RelativePose2DStampedConstraintVisual
-  // objects
+  // Make RelativePose2DStampedConstraintProperty friend class so it create
+  // RelativePose2DStampedConstraintVisual objects
   friend class RelativePose2DStampedConstraintProperty;
 };
 
-}  // namespace rviz
+}  // namespace fuse_viz
 
 #endif  // FUSE_VIZ__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_VISUAL_HPP_

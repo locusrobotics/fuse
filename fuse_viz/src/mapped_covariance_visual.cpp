@@ -1,46 +1,48 @@
 /*
+ * Software License Agreement (BSD License)
+ *
  * Copyright (c) 2017, Ellon Paiva Mendes @ LAAS-CNRS
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the copyright holder nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include <fuse_viz/mapped_covariance_visual.hpp>
-
-#include <rviz_rendering/objects/shape.hpp>
 
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
+#include <sstream>
+
+#include <fuse_viz/mapped_covariance_visual.hpp>
 #include <rclcpp/clock.hpp>
 #include <rclcpp/logging.hpp>
-
 #include <rviz_common/msg_conversions.hpp>
-
-#include <sstream>
+#include <rviz_rendering/objects/shape.hpp>
 
 namespace fuse_viz
 {
@@ -106,8 +108,8 @@ void computeShapeScaleAndOrientation3D(
   Eigen::Vector3d eigenvalues(Eigen::Vector3d::Identity());
   Eigen::Matrix3d eigenvectors(Eigen::Matrix3d::Zero());
 
-  // NOTE: The SelfAdjointEigenSolver only references the lower triangular part of the covariance matrix
-  // FIXME: Should we use Eigen's pseudoEigenvectors() ?
+  // NOTE: The SelfAdjointEigenSolver only references the lower triangular part of the covariance
+  // matrix FIXME: Should we use Eigen's pseudoEigenvectors() ?
   Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(covariance);
   // Compute eigenvectors and eigenvalues
   if (eigensolver.info() == Eigen::Success) {
@@ -132,7 +134,8 @@ void computeShapeScaleAndOrientation3D(
       eigenvectors(1, 0), eigenvectors(1, 1), eigenvectors(1, 2),
       eigenvectors(2, 0), eigenvectors(2, 1), eigenvectors(2, 2)));
 
-  // Define the scale. eigenvalues are the variances, so we take the sqrt to draw the standard deviation
+  // Define the scale. eigenvalues are the variances, so we take the sqrt to draw the standard
+  // deviation
   scale.x = 2 * std::sqrt(eigenvalues[0]);
   scale.y = 2 * std::sqrt(eigenvalues[1]);
   scale.z = 2 * std::sqrt(eigenvalues[2]);
@@ -152,8 +155,8 @@ void computeShapeScaleAndOrientation2D(
   Eigen::Vector2d eigenvalues(Eigen::Vector2d::Identity());
   Eigen::Matrix2d eigenvectors(Eigen::Matrix2d::Zero());
 
-  // NOTE: The SelfAdjointEigenSolver only references the lower triangular part of the covariance matrix
-  // FIXME: Should we use Eigen's pseudoEigenvectors() ?
+  // NOTE: The SelfAdjointEigenSolver only references the lower triangular part of the covariance
+  // matrix FIXME: Should we use Eigen's pseudoEigenvectors() ?
   Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eigensolver(covariance);
   // Compute eigenvectors and eigenvalues
   if (eigensolver.info() == Eigen::Success) {
@@ -192,7 +195,7 @@ void computeShapeScaleAndOrientation2D(
     scale.x = 2 * std::sqrt(eigenvalues[0]);
     scale.y = 0;
     scale.z = 2 * std::sqrt(eigenvalues[1]);
-  } else { // plane == XY_PLANE
+  } else {  // plane == XY_PLANE
     orientation.FromRotationMatrix(
       Ogre::Matrix3(
         eigenvectors(0, 0), eigenvectors(0, 1), 0, eigenvectors(1, 0),
@@ -226,7 +229,8 @@ MappedCovarianceVisual::MappedCovarianceVisual(
 {
   // Main node of the visual
   root_node_ = parent_node->createChildSceneNode();
-  // Node that will have the same orientation as the fixed frame. Updated from the message on setCovariance()
+  // Node that will have the same orientation as the fixed frame. Updated from the message on
+  // setCovariance()
   fixed_orientation_node_ = root_node_->createChildSceneNode();
   // Node to scale the position part of the covariance from the property value
   position_scale_node_ = fixed_orientation_node_->createChildSceneNode();
@@ -236,8 +240,8 @@ MappedCovarianceVisual::MappedCovarianceVisual(
     rviz_rendering::Shape::Sphere, scene_manager_,
     position_node_);
 
-  // Node to scale the orientation part of the covariance. May be attached to both the local (root) node or the fixed
-  // frame node. May be re-attached later by setRotatingFrame()
+  // Node to scale the orientation part of the covariance. May be attached to both the local (root)
+  // node or the fixed frame node. May be re-attached later by setRotatingFrame()
   if (local_rotation_) {
     orientation_root_node_ = root_node_->createChildSceneNode();
   } else {
@@ -247,8 +251,8 @@ MappedCovarianceVisual::MappedCovarianceVisual(
   for (int i = 0; i < kNumOriShapes; i++) {
     // Node to position and orient the shape along the axis. One for each axis.
     orientation_offset_node_[i] = orientation_root_node_->createChildSceneNode();
-    // Does not inherit scale from the parent. This is needed to keep the cylinders with the same height. The scale is
-    // set by setOrientationScale()
+    // Does not inherit scale from the parent. This is needed to keep the cylinders with the same
+    // height. The scale is set by setOrientationScale()
     orientation_offset_node_[i]->setInheritScale(false);
 
     if (i != kYaw2D) {
@@ -346,8 +350,8 @@ void MappedCovarianceVisual::setCovariance(const geometry_msgs::msg::PoseWithCov
   Ogre::Quaternion ori = rviz_common::quaternionMsgToOgre(pose.pose.orientation);
   ori.normalise();
 
-  // Set the orientation of the fixed node. Since this node is attached to the root node, it's orientation will be the
-  // inverse of pose's orientation.
+  // Set the orientation of the fixed node. Since this node is attached to the root node, it's
+  // orientation will be the inverse of pose's orientation.
   fixed_orientation_node_->setOrientation(ori.Inverse());
   // Map covariance to a Eigen::Matrix
   Eigen::Map<const Eigen::Matrix<double, 6, 6>> covariance(pose.covariance.data());
@@ -424,7 +428,8 @@ void MappedCovarianceVisual::updateOrientation(const Eigen::Matrix6d & covarianc
       covarianceAxis = covariance.block<2, 2>(3, 3);
     }
 
-    // NOTE: The cylinder mesh is oriented along its y axis, thus we want to flat it out into the XZ plane
+    // NOTE: The cylinder mesh is oriented along its y axis, thus we want to flat it out into the XZ
+    // plane
     computeShapeScaleAndOrientation2D(covarianceAxis, shape_scale, shape_orientation, XZ_PLANE);
     // Give a minimal height for the cylinder for better visualization
     shape_scale.y = 0.001;
@@ -476,7 +481,8 @@ void MappedCovarianceVisual::setOrientationOffset(float ori_offset)
   //       orientation covariance. The other dimensions are set to 1.0.
   for (int i = 0; i < kNumOriShapes; i++) {
     if (i == kYaw2D) {
-      // For 2D, the angle is only encoded on x, but we also scale on y to put the top of the cone at the pose origin
+      // For 2D, the angle is only encoded on x, but we also scale on y to put the top of the cone
+      // at the pose origin
       orientation_offset_node_[i]->setScale(ori_offset, ori_offset, 1.0);
     } else {
       // For 3D, the angle covariance is encoded on x and z dimensions

@@ -35,11 +35,6 @@
 #ifndef FUSE_VIZ__CONVERSIONS_HPP_
 #define FUSE_VIZ__CONVERSIONS_HPP_
 
-#include <fuse_core/graph.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_variables/orientation_2d_stamped.hpp>
-#include <fuse_variables/position_2d_stamped.hpp>
-
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/LinearMath/Vector3.h>
@@ -48,11 +43,16 @@
 #include <OgreQuaternion.h>
 #include <Ogre.h>
 
-
 #include <Eigen/Dense>
 
 #include <array>
 #include <stdexcept>
+
+#include <fuse_core/graph.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+
 
 namespace tf2
 {
@@ -108,7 +108,7 @@ inline Ogre::Vector3 toOgre(const tf2::Vector3 & position)
 
 inline Ogre::Quaternion toOgre(const tf2::Quaternion & orientation)
 {
-  return {static_cast<float>(orientation.w()), static_cast<float>(orientation.x()),   // NOLINT(whitespace/braces)
+  return {static_cast<float>(orientation.w()), static_cast<float>(orientation.x()),  // NOLINT
     static_cast<float>(orientation.y()), static_cast<float>(orientation.z())};
 }
 
@@ -146,8 +146,8 @@ inline tf2::Transform getPose(
             " from graph as fuse_variables::Position2DStamped.");
   }
 
-  const auto orientation =
-    dynamic_cast<const fuse_variables::Orientation2DStamped *>(&graph.getVariable(orientation_uuid));
+  const auto orientation = dynamic_cast<const fuse_variables::Orientation2DStamped *>(
+    &graph.getVariable(orientation_uuid));
   if (!orientation) {
     throw std::runtime_error(
             "Failed to get variable " + fuse_core::uuid::to_string(orientation_uuid) +

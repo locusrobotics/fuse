@@ -35,16 +35,16 @@
 #ifndef FUSE_VIZ__POSE_2D_STAMPED_VISUAL_HPP_
 #define FUSE_VIZ__POSE_2D_STAMPED_VISUAL_HPP_
 
+#include <tf2/LinearMath/Transform.h>
+#include <Ogre.h>
+
+#include <memory>
+
 #include <rviz_rendering/objects/axes.hpp>
 #include <rviz_rendering/objects/movable_text.hpp>
 #include <rviz_rendering/objects/object.hpp>
 #include <rviz_rendering/objects/shape.hpp>
 
-#include <tf2/LinearMath/Transform.h>
-
-#include <Ogre.h>
-
-#include <memory>
 
 namespace Ogre
 {
@@ -172,6 +172,6 @@ private:
   friend class Pose2DStampedProperty;
 };
 
-}  // namespace rviz
+}  // namespace fuse_viz
 
 #endif  // FUSE_VIZ__POSE_2D_STAMPED_VISUAL_HPP_

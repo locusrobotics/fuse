@@ -65,7 +65,8 @@ class RelativePose2DStampedConstraintProperty;
 /**
  * @brief An rviz dispaly for fuse_msgs::msg::SerializedGraph messages.
  */
-class SerializedGraphDisplay : public rviz_common::MessageFilterDisplay<fuse_msgs::msg::SerializedGraph>
+class SerializedGraphDisplay
+  : public rviz_common::MessageFilterDisplay<fuse_msgs::msg::SerializedGraph>
 {
   Q_OBJECT
 

@@ -32,20 +32,17 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/pose_2d_stamped_property.hpp>
-#include <fuse_viz/pose_2d_stamped_visual.hpp>
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <QColor>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/uuid.hpp>
-
+#include <fuse_viz/pose_2d_stamped_property.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_common/properties/property.hpp>
-
-#include <QColor>
-
-#include <OgreSceneManager.h>
-#include <OgreSceneNode.h>
 
 namespace fuse_viz
 {
@@ -57,7 +54,8 @@ using rviz_common::properties::Property;
 Pose2DStampedProperty::Pose2DStampedProperty(
   const QString & name, bool default_value, const QString & description,
   Property * parent, const char * changed_slot, QObject * receiver)
-// NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of this constructor
+// NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of
+// this constructor
 : BoolProperty(name, default_value, description, parent)
 {
   color_property_ = new ColorProperty(
@@ -212,7 +210,7 @@ void Pose2DStampedProperty::updateSphereColorAlpha(const VisualPtr & variable)
 
 void Pose2DStampedProperty::updateTextScale(const VisualPtr & variable)
 {
-  variable->setTextScale(Ogre::Vector3{text_scale_property_->getFloat()});    // NOLINT(whitespace/braces)
+  variable->setTextScale(Ogre::Vector3{text_scale_property_->getFloat()});  // NOLINT
 }
 
 void Pose2DStampedProperty::updateVisibility(const VisualPtr & variable)
@@ -223,4 +221,4 @@ void Pose2DStampedProperty::updateVisibility(const VisualPtr & variable)
   variable->setTextVisible(visible && show_text_property_->getBool());
 }
 
-}  // end namespace rviz
+}  // namespace fuse_viz

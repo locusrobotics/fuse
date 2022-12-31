@@ -32,22 +32,19 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <QColor>
+
+#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
+#include <fuse_core/graph.hpp>
 #include <fuse_viz/mapped_covariance_property.hpp>
 #include <fuse_viz/mapped_covariance_visual.hpp>
 #include <fuse_viz/relative_pose_2d_stamped_constraint_property.hpp>
 #include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
-
-#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
-#include <fuse_core/graph.hpp>
-
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
-
-#include <QColor>
-
-#include <OgreSceneManager.h>
-#include <OgreSceneNode.h>
 
 namespace fuse_viz
 {
@@ -59,7 +56,8 @@ using rviz_common::properties::Property;
 RelativePose2DStampedConstraintProperty::RelativePose2DStampedConstraintProperty(
   const QString & name, bool default_value, const QString & description, Property * parent,
   const char * changed_slot, QObject * receiver)
-// NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of this constructor
+// NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of
+// this constructor
 : BoolProperty(name, default_value, description, parent)
 {
   color_property_ =
@@ -304,7 +302,7 @@ void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesAlpha(
 void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesScale(
   const VisualPtr & constraint)
 {
-  constraint->setRelativePoseAxesScale(Ogre::Vector3{relative_pose_axes_scale_property_->getFloat()});    // NOLINT
+  constraint->setRelativePoseAxesScale(Ogre::Vector3{relative_pose_axes_scale_property_->getFloat()});  // NOLINT
 }
 
 void RelativePose2DStampedConstraintProperty::updateRelativePoseLineAlpha(
@@ -330,7 +328,7 @@ void RelativePose2DStampedConstraintProperty::updateShowText(const VisualPtr & c
 
 void RelativePose2DStampedConstraintProperty::updateTextScale(const VisualPtr & constraint)
 {
-  constraint->setTextScale(Ogre::Vector3{text_scale_property_->getFloat()});    // NOLINT(whitespace/braces)
+  constraint->setTextScale(Ogre::Vector3{text_scale_property_->getFloat()});  // NOLINT
 }
 
 void RelativePose2DStampedConstraintProperty::updateVisibility(const VisualPtr & constraint)

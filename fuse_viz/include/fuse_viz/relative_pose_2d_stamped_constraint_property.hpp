@@ -37,15 +37,16 @@
 
 #include <OgreColourValue.h>
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 #include <fuse_core/uuid.hpp>
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_common/properties/property.hpp>
 
-#include <memory>
-#include <string>
-#include <unordered_map>
 
 namespace Ogre
 {
@@ -150,6 +151,6 @@ private:
   MappedCovarianceProperty * covariance_property_;
 };
 
-}  // namespace rviz
+}  // namespace fuse_viz
 
 #endif  // FUSE_VIZ__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_PROPERTY_HPP_

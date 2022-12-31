@@ -38,23 +38,22 @@
 #include <OgreSceneNode.h>
 
 #include <rviz_common/display_context.hpp>
-
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/parse_color.hpp>
 #include <rviz_common/properties/property.hpp>
-#endif  // Q_MOC_RUN
 
-#include <fuse_viz/pose_2d_stamped_property.hpp>
-#include <fuse_viz/pose_2d_stamped_visual.hpp>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_property.hpp>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
-#include <fuse_viz/serialized_graph_display.hpp>
+#endif  // Q_MOC_RUN
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_viz/pose_2d_stamped_property.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_property.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
+#include <fuse_viz/serialized_graph_display.hpp>
 
 namespace fuse_viz
 {
@@ -125,8 +124,9 @@ void SerializedGraphDisplay::load(const rviz_common::Config & config)
 {
   MFDClass::load(config);
 
-  // Cache constraint config for each source in order to apply it when the RelativePose2DStampedConstraintProperty is
-  // created the first time a constraint of each source is present in the graph:
+  // Cache constraint config for each source in order to apply it when the
+  // RelativePose2DStampedConstraintProperty is created the first time a constraint of each source
+  // is present in the graph:
   const auto constraints_config = config.mapGetChild("Constraints");
 
   for (rviz_common::Config::MapIterator iter = constraints_config.mapIterator(); iter.isValid();
@@ -223,9 +223,10 @@ void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::Con
 
     if (source_color_map_.find(constraint_source) == source_color_map_.end()) {
       // Generate hue color automatically based on the number of sources including the new one (n)
-      // The hue is computed in such a way that the (dynamic) colormap is always well spread along the spectrum. This is
-      // achieved by traversing a virtual complete binary tree in breadth-first order. Each node represents a sampling
-      // position in the hue interval (0, 1) based on the current level and the number of nodes in that level (m)
+      // The hue is computed in such a way that the (dynamic) colormap is always well spread along
+      // the spectrum. This is achieved by traversing a virtual complete binary tree in breadth-
+      // first order. Each node represents a sampling position in the hue interval (0, 1) based on
+      // the current level and the number of nodes in that level (m)
       const auto n = source_color_map_.size() + 1;
       const size_t level = std::floor(std::log2(n));
       const auto m = n + 1 - std::pow(2, level);
@@ -311,4 +312,5 @@ void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::Con
 }  // namespace fuse_viz
 
 #include <pluginlib/class_list_macros.hpp>
+
 PLUGINLIB_EXPORT_CLASS(fuse_viz::SerializedGraphDisplay, rviz_common::Display)

@@ -32,31 +32,28 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/conversions.hpp>
-#include <fuse_viz/mapped_covariance_visual.hpp>
-#include <fuse_viz/pose_2d_stamped_visual.hpp>
-#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
-
-#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
-#include <fuse_core/graph.hpp>
-#include <geometry_msgs/msg/pose_with_covariance.hpp>
-#include <rviz_rendering/objects/axes.hpp>
-#include <rviz_rendering/objects/billboard_line.hpp>
-#include <rviz_rendering/objects/movable_text.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
-#include <tf2/utils.h>
-
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-
-#include <rclcpp/clock.hpp>
-#include <rclcpp/logging.hpp>
+#include <tf2/utils.h>
 
 #include <algorithm>
 #include <memory>
 #include <string>
 
+#include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_viz/conversions.hpp>
+#include <fuse_viz/mapped_covariance_visual.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
+#include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
+#include <geometry_msgs/msg/pose_with_covariance.hpp>
+#include <rclcpp/clock.hpp>
+#include <rclcpp/logging.hpp>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/billboard_line.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
 
 namespace fuse_viz
 {
@@ -183,17 +180,20 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
     //
     // cost = 0.5 * squared_norm
     //
-    // See https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L159
+    // See https://github.com/ceres-solver/ceres-
+    // solver/blob/master/internal/ceres/residual_block.cc#L159
     const auto squared_norm = residuals.squaredNorm();
 
     // Evaluate the loss as in:
-    // https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L164
+    // https://github.com/ceres-solver/ceres-
+    // solver/blob/master/internal/ceres/residual_block.cc#L164
     //
     // The cost with the loss would be:
     //
     // loss_cost = 0.5 * rho[0]
     //
-    // See https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc#L165
+    // See https://github.com/ceres-solver/ceres-
+    // solver/blob/master/internal/ceres/residual_block.cc#L165
     double rho[3];
     loss_function->Evaluate(squared_norm, rho);
     delete loss_function;
@@ -203,23 +203,24 @@ void RelativePose2DStampedConstraintVisual::setConstraint(
       RCLCPP_WARN_STREAM_THROTTLE(
         rclcpp::get_logger(
           "fuse"), clock, 10.0 * 1000,
-        "Detected invalid loss value of " << rho[0] << " greater than squared residual of " << squared_norm
-                                          << " for constraint " << constraint_name(constraint)
+        "Detected invalid loss value of " << rho[0] << " greater than squared residual of "
+                                          << squared_norm << " for constraint " <<
+          constraint_name(constraint)
                                           << " with loss type " << constraint.loss()->type()
                                           << ". Loss value clamped to the squared residual.");
 
       rho[0] = squared_norm;
     }
 
-    // Interpolate between the constraint's absolute position and its second variable position by the quotient between
-    // the cost with and without loss:
+    // Interpolate between the constraint's absolute position and its second variable position by
+    // the quotient between the cost with and without loss:
     //
     //              loss_cost      0.5 * rho[0]         rho[0]
     // loss_scale = --------- = ------------------ = ------------
     //                cost      0.5 * squared_norm   squared_norm
     //
-    // Remember that in principle `rho[0] <= squared_norm`, with `rho[0] == squared_norm` for the inlier region, and
-    // `rho[0] < squared_norm` for the outlier region:
+    // Remember that in principle `rho[0] <= squared_norm`, with `rho[0] == squared_norm` for the
+    // inlier region, and `rho[0] < squared_norm` for the outlier region:
     loss_scale_ = squared_norm == 0.0 ? 1.0 : rho[0] / squared_norm;
 
     // Compute error line color with the loss function impact:
@@ -271,10 +272,9 @@ void RelativePose2DStampedConstraintVisual::setErrorLineColor(
   const float r, const float g, const float b,
   const float a)
 {
-  // Cache error line color w/o the loss function impact, so we can change its darkness based on the loss function
-  // impact on the constraint cost:
-  // Note that we cannot recover/retrieve the color from the Ogre::BillboarrdLine error_line_ because its API does NOT
-  // support that.
+  // Cache error line color w/o the loss function impact, so we can change its darkness based on the
+  // loss function impact on the constraint cost: Note that we cannot recover/retrieve the color
+  // from the Ogre::BillboarrdLine error_line_ because its API does NOT support that.
   error_line_color_.r = r;
   error_line_color_.g = g;
   error_line_color_.b = b;
@@ -357,11 +357,11 @@ Ogre::ColourValue RelativePose2DStampedConstraintVisual::computeLossErrorLineCol
   Ogre::Real hue, saturation, brightness;
   error_line_color.getHSB(hue, saturation, brightness);
 
-  // We should correct the color brightness if it is smaller than minimum brightness. Otherwise, we would get an
-  // incorrect loss brightness.
+  // We should correct the color brightness if it is smaller than minimum brightness. Otherwise, we
+  // would get an incorrect loss brightness.
   //
-  // However, we cannot do this because it changes the color of the error line, which should be consistent for all
-  // constraints visuals. Instead, we clamp the minium brightness:
+  // However, we cannot do this because it changes the color of the error line, which should be
+  // consistent for all constraints visuals. Instead, we clamp the minium brightness:
   const auto min_brightness = std::min(min_brightness_, brightness);
 
   // Scale brightness by the loss scale within the [min_brightness, 1] range:

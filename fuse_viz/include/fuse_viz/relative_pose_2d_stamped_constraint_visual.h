@@ -36,7 +36,8 @@
 #define FUSE_VIZ__RELATIVE_POSE_2D_STAMPED_CONSTRAINT_VISUAL_H_
 
 #warning \
-  This header is obsolete, please include fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp instead
+  This header is obsolete, please include fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp \
+  instead
 
 #include <fuse_viz/relative_pose_2d_stamped_constraint_visual.hpp>
 

@@ -32,21 +32,19 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/conversions.hpp>
-#include <fuse_viz/pose_2d_stamped_visual.hpp>
-
-#include <fuse_variables/orientation_2d_stamped.hpp>
-#include <fuse_variables/position_2d_stamped.hpp>
-#include <rviz_rendering/objects/axes.hpp>
-#include <rviz_rendering/objects/movable_text.hpp>
-#include <rviz_rendering/objects/shape.hpp>
-
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
 #include <memory>
 
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_viz/conversions.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
+#include <rviz_rendering/objects/shape.hpp>
 
 namespace fuse_viz
 {
@@ -188,4 +186,4 @@ void Pose2DStampedVisual::setOrientation(const Ogre::Quaternion & orientation)
   root_node_->setOrientation(orientation);
 }
 
-}  // namespace rviz
+}  // namespace fuse_viz
