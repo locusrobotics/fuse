@@ -35,11 +35,14 @@
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-#include <tf2/utils.h>
 
 #include <algorithm>
 #include <memory>
 #include <string>
+
+// Workaround ros2/geometry2#242
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2/utils.h>  // NOLINT(build/include_order)
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/graph.hpp>
@@ -53,7 +56,6 @@
 #include <rviz_rendering/objects/axes.hpp>
 #include <rviz_rendering/objects/billboard_line.hpp>
 #include <rviz_rendering/objects/movable_text.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
 
 namespace fuse_viz
 {
