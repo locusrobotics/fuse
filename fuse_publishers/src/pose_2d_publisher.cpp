@@ -195,10 +195,10 @@ void Pose2DPublisher::onInit()
   pub_options.callback_group = cb_group_;
 
   pose_publisher_ = rclcpp::create_publisher<geometry_msgs::msg::PoseStamped>(
-    interfaces_, fuse_core::joinTopicName(name_, "/pose"), 1, pub_options);
+    interfaces_, fuse_core::joinTopicName(name_, "pose"), 1, pub_options);
   pose_with_covariance_publisher_ =
     rclcpp::create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    interfaces_, fuse_core::joinTopicName(name_, "/pose_with_covariance"), 1, pub_options);
+    interfaces_, fuse_core::joinTopicName(name_, "pose_with_covariance"), 1, pub_options);
 }
 
 void Pose2DPublisher::onStart()

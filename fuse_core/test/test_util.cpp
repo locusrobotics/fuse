@@ -75,7 +75,9 @@ TEST(Util, wrapAngle2D)
     EXPECT_EQ("a/b", fuse_core::joinTopicName("a", "b"));
     EXPECT_EQ("/a/b", fuse_core::joinTopicName("/a", "b"));
     EXPECT_EQ("a/b", fuse_core::joinTopicName("a/", "b"));
-    EXPECT_EQ("a/b", fuse_core::joinTopicName("a", "/b"));
-    EXPECT_EQ("a/b", fuse_core::joinTopicName("a/", "/b"));
+    EXPECT_EQ("/b", fuse_core::joinTopicName("a", "/b"));
+    EXPECT_EQ("/b", fuse_core::joinTopicName("a/", "/b"));
+    EXPECT_EQ("~/b", fuse_core::joinTopicName("a/", "~/b"));
+    EXPECT_EQ("~b", fuse_core::joinTopicName("a/", "~b"));
   }
 }

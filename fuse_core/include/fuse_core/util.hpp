@@ -166,12 +166,14 @@ std::string joinTopicName(std::string a, std::string b)
   if (b.empty()) {
     return a;
   }
+  if (b.front() == '/' || b.front() == '~') {
+    RCLCPP_WARN(
+      rclcpp::get_logger("fuse"), "Second argument to joinTopicName is absolute! Returning it.");
+    return b;
+  }
 
   if (a.back() == '/') {
     a.pop_back();
-  }
-  if (b.front() == '/') {
-    b.erase(b.begin());
   }
 
   return a + "/" + b;
