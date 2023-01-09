@@ -34,6 +34,7 @@ add_compile_options(-Wall -Werror)
 add_library(${PROJECT_NAME}
   src/batch_optimizer.cpp
   src/fixed_lag_smoother.cpp
+  src/step_wise_fixed_lag_smoother.cpp
   src/optimizer.cpp
   src/variable_stamp_index.cpp
 )
@@ -98,6 +99,28 @@ set_target_properties(fixed_lag_smoother_node
     CXX_STANDARD_REQUIRED YES
 )
 
+## step_wise_fixed_lag_smoother node
+add_executable(step_wise_fixed_lag_smoother_node
+  src/step_wise_fixed_lag_smoother_node.cpp
+)
+add_dependencies(step_wise_fixed_lag_smoother_node
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(step_wise_fixed_lag_smoother_node
+  PRIVATE
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+target_link_libraries(step_wise_fixed_lag_smoother_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+set_target_properties(step_wise_fixed_lag_smoother_node
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+)
+
 #############
 ## Install ##
 #############
@@ -114,6 +137,7 @@ install(
   TARGETS
     batch_optimizer_node
     fixed_lag_smoother_node
+    step_wise_fixed_lag_smoother_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
