@@ -267,7 +267,7 @@ protected:
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-  bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+  bool resetServiceCallback(std_srvs::srv::Empty::Request&, std_srvs::srv::Empty::Response&);
 
   /**
    * @brief Thread-safe read-only access to the timestamp of the first transaction

@@ -433,7 +433,6 @@ void Optimizer::injectCallback(
   // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
   // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
   // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
-
   auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
       std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction)));
   callback_queue_->addCallback(callback, (rclcpp::CallbackGroup::SharedPtr) nullptr);
@@ -484,7 +483,7 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat
 {
   if (!fuse_core::is_valid(this->get_node_clock_interface()->get_clock()))
   {
-    status.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Waiting for valid ROS time");
+    status.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Waiting for valid ROS time");
     return;
   }
 

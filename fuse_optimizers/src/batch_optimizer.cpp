@@ -239,7 +239,7 @@ void BatchOptimizer::transactionCallback(
 
 void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
 {
-  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "BatchOptimizer");
+  status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "BatchOptimizer");
 
   Optimizer::setDiagnostics(status);
 

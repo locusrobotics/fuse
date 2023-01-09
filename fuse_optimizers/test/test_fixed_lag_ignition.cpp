@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/SetPose.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
+#include <fuse_msgs/srv/set_pose.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <ros/ros.h>
 
 #include <gtest/gtest.h>
@@ -43,7 +43,7 @@ TEST(FixedLagIgnition, SetInitialState)
 {
   // TODO(CH3): Make this an rclcpp node
   auto node_handle = ros::NodeHandle();
-  auto relative_pose_publisher = node_handle.advertise<geometry_msgs::PoseWithCovarianceStamped>("/relative_pose", 1);
+  auto relative_pose_publisher = node_handle.advertise<geometry_msgs::msg::PoseWithCovarianceStamped>("/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
@@ -81,7 +81,7 @@ TEST(FixedLagIgnition, SetInitialState)
   ASSERT_GE(relative_pose_publisher.getNumSubscribers(), 1u);
 
   // Publish a relative pose
-  auto pose_msg1 = geometry_msgs::PoseWithCovarianceStamped();
+  auto pose_msg1 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg1.header.stamp = rclcpp::Time(2, 0);
   pose_msg1.header.frame_id = "base_link";
   pose_msg1.pose.pose.position.x = 5.0;
@@ -96,7 +96,7 @@ TEST(FixedLagIgnition, SetInitialState)
   pose_msg1.pose.covariance[35] = 1.0;
   relative_pose_publisher.publish(pose_msg1);
 
-  auto pose_msg2 = geometry_msgs::PoseWithCovarianceStamped();
+  auto pose_msg2 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg2.header.stamp = rclcpp::Time(3, 0);
   pose_msg2.header.frame_id = "base_link";
   pose_msg2.pose.pose.position.x = 10.0;
@@ -113,22 +113,27 @@ TEST(FixedLagIgnition, SetInitialState)
 
   // Wait for the optimizer to process all queued transactions
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
-  auto odom_msg = nav_msgs::Odometry::ConstPtr();
-  while ((!odom_msg || odom_msg->header.stamp != rclcpp::Time(3, 0)) &&
+  auto odom_msg = nav_msgs::msg::Odometry();
+  while ((!odom_msg || odom_msg.header.stamp != rclcpp::Time(3, 0)) &&
          (node->now() < result_timeout))
   {
-    odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
+    // TODO(CH3): Replace with rclcpp::wait_for_message
+    //
+    // https://github.com/ros2/rclcpp/blob/rolling/rclcpp/include/rclcpp/wait_for_message.hpp
+    //
+    // It might be a rabbit hole though. If that fails, just wait on a condition variable...
+    odom_msg = ros::topic::waitForMessage<nav_msgs::msg::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
   }
   ASSERT_TRUE(static_cast<bool>(odom_msg));
-  ASSERT_EQ(odom_msg->header.stamp, rclcpp::Time(3, 0));
+  ASSERT_EQ(odom_msg.header.stamp, rclcpp::Time(3, 0));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call state, give or
   // take the motion model forward prediction.
-  EXPECT_NEAR(100.1, odom_msg->pose.pose.position.x, 0.10);
-  EXPECT_NEAR(100.2, odom_msg->pose.pose.position.y, 0.10);
-  EXPECT_NEAR(0.8660, odom_msg->pose.pose.orientation.z, 0.10);
-  EXPECT_NEAR(0.5000, odom_msg->pose.pose.orientation.w, 0.10);
+  EXPECT_NEAR(100.1, odom_msg.pose.pose.position.x, 0.10);
+  EXPECT_NEAR(100.2, odom_msg.pose.pose.position.y, 0.10);
+  EXPECT_NEAR(0.8660, odom_msg.pose.pose.orientation.z, 0.10);
+  EXPECT_NEAR(0.5000, odom_msg.pose.pose.orientation.w, 0.10);
 }
 
 int main(int argc, char** argv)

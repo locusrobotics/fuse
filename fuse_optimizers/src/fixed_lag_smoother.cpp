@@ -433,7 +433,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   }
 }
 
-bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+bool FixedLagSmoother::resetServiceCallback(std_srvs::srv::Empty::Request&, std_srvs::srv::Empty::Response&)
 {
   // Tell all the plugins to stop
   stopPlugins();
@@ -550,14 +550,14 @@ void FixedLagSmoother::transactionCallback(
 }
 
 /**
- * @brief Make a diagnostic_msgs::DiagnosticStatus message filling in the level and message
+ * @brief Make a diagnostic_msgs::msg::DiagnosticStatus message filling in the level and message
  *
  * @param[in] level   The diagnostic status level
  * @param[in] message The diagnostic status message
  */
-diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const std::string& message)
+diagnostic_msgs::msg::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const std::string& message)
 {
-  diagnostic_msgs::DiagnosticStatus status;
+  diagnostic_msgs::msg::DiagnosticStatus status;
 
   status.level = level;
   status.message = message;
@@ -577,17 +577,17 @@ diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const
  * @param[in] termination_type The optimization termination type
  * @return The diagnostic status with the level and message corresponding to the optimization termination type
  */
-diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type)
+diagnostic_msgs::msg::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type)
 {
   switch (termination_type)
   {
     case ceres::TerminationType::CONVERGENCE:
     case ceres::TerminationType::USER_SUCCESS:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
+      return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimization converged");
     case ceres::TerminationType::NO_CONVERGENCE:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
+      return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Optimization didn't converge");
     default:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+      return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Optimization failed");
   }
 }
 
@@ -616,7 +616,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
       }
       else
       {
-        status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Optimization running");
+        status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimization running");
       }
     }
 
