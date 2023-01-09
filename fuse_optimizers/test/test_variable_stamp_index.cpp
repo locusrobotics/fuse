@@ -378,9 +378,3 @@ TEST(VariableStampIndex, MarginalTransaction)
   std::sort(actual.begin(), actual.end());
   EXPECT_EQ(expected, actual);
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

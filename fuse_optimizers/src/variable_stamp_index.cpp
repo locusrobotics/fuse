@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <fuse_optimizers/variable_stamp_index.h>
 
 #include <fuse_core/transaction.hpp>
@@ -42,6 +43,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
+
 
 namespace fuse_optimizers
 {

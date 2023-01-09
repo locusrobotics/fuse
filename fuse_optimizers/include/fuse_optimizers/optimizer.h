@@ -31,10 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_OPTIMIZERS_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_OPTIMIZER_H
 
-#include <diagnostic_updater/diagnostic_updater.h>
+#include <diagnostic_updater/diagnostic_updater.hpp>
+#include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/motion_model.hpp>
@@ -105,7 +107,8 @@ public:
    */
   Optimizer(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph,
+    std::string node_name,
+    fuse_core::Graph::UniquePtr graph
     );
 
   /**
@@ -158,8 +161,6 @@ protected:
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
-  rclcpp::TimerBase::SharedPtr diagnostic_updater_timer_; //!< Diagnostic updater timer
-  double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
 
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 

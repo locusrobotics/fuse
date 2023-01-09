@@ -31,20 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <fuse_graphs/hash_graph.hpp>
 #include <fuse_graphs/hash_graph_params.hpp>
 #include <fuse_optimizers/fixed_lag_smoother.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "fixed_lag_smoother_node");
-  ros::NodeHandle private_node_handle("~");
-  fuse_graphs::HashGraphParams hash_graph_params;
-  hash_graph_params.loadFromROS(private_node_handle);
-  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params));
-  ros::spin();
-
+  rclcpp::init(argc, argv);
+  rclcpp::NodeOptions options;
+  rclcpp::spin(std::make_shared<fuse_optimizers::FixedLagSmoother>(options));
+  rclcpp::shutdown();
   return 0;
 }

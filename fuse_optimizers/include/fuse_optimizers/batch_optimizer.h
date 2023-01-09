@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
 
@@ -39,7 +40,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
+#include <fuse_graphs/hash_graph.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -108,9 +109,10 @@ public:
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
   BatchOptimizer(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+    rclcpp::NodeOptions options,
+    std::string node_name = "batch_optimizer_node",
+    fuse_core::Graph::UniquePtr graph = nullptr
+  );
 
   /**
    * @brief Destructor

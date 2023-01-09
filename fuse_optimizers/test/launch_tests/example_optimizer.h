@@ -31,8 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H  // NOLINT{build/header_guard}
-#define FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H  // NOLINT{build/header_guard}
+
+#ifndef FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H
+#define FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H
 
 #include <fuse_optimizers/optimizer.h>
 
@@ -51,8 +52,9 @@ public:
 
   ExampleOptimizer(
     rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
-  ) : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
+    std::string node_name = "example_optimizer_node",
+    fuse_core::Graph::UniquePtr graph = nullptr
+  ) : fuse_optimizers::Optimizer(options, node_name, std::move(graph))
   {
   }
 
@@ -78,4 +80,4 @@ public:
   }
 };
 
-#endif  // FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H  // NOLINT{build/header_guard}
+#endif  // FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H

@@ -31,54 +31,90 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/time.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/wait_for_message.hpp>
+#include <std_srvs/srv/empty.hpp>
 
 #include <gtest/gtest.h>
 
 
-TEST(FixedLagIgnition, SetInitialState)
+class FixedLagIgnitionFixture : public ::testing::Test
 {
-  // TODO(CH3): Make this an rclcpp node
-  auto node_handle = ros::NodeHandle();
-  auto relative_pose_publisher = node_handle.advertise<geometry_msgs::msg::PoseWithCovarianceStamped>("/relative_pose", 1);
+public:
+  FixedLagIgnitionFixture()
+  {
+  }
+
+  void SetUp() override
+  {
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    spinner_ = std::thread(
+      [&]() {
+        executor_->spin();
+      });
+  }
+
+  void TearDown() override
+  {
+    executor_->cancel();
+    if (spinner_.joinable()) {
+     spinner_.join();
+    }
+    executor_.reset();
+    rclcpp::shutdown();
+  }
+
+   std::thread spinner_;  //!< Internal thread for spinning the executor
+   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+};
+
+TEST_F(FixedLagIgnitionFixture, SetInitialState)
+{
+  auto node = rclcpp::Node::make_shared("fixed_lag_ignition_test");
+  auto relative_pose_publisher =
+    node->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      "pose_sensor/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
 
   // Wait for the optimizer to be ready
-  ASSERT_TRUE(ros::service::waitForService("/fixed_lag/set_pose", rclcpp::Duration::from_seconds(1.0)));
-  ASSERT_TRUE(ros::service::waitForService("/fixed_lag/reset", rclcpp::Duration::from_seconds(1.0)));
+  auto set_pose_client = node->create_client<fuse_msgs::srv::SetPose>("/fixed_lag_node/set_pose");
+  auto reset_client = node->create_client<std_srvs::srv::Empty>("/fixed_lag_node/reset");
+  ASSERT_TRUE(set_pose_client->wait_for_service(std::chrono::seconds(1)));
+  ASSERT_TRUE(reset_client->wait_for_service(std::chrono::seconds(1)));
 
   // Set the initial pose to something far away from zero
-  fuse_models::SetPose::Request req;
-  req.pose.header.frame_id = "map";
-  req.pose.header.stamp = rclcpp::Time(1, 0);
-  req.pose.pose.pose.position.x = 100.1;
-  req.pose.pose.pose.position.y = 100.2;
-  req.pose.pose.pose.position.z = 0.0;
-  req.pose.pose.pose.orientation.x = 0.0;
-  req.pose.pose.pose.orientation.y = 0.0;
-  req.pose.pose.pose.orientation.z = 0.8660;
-  req.pose.pose.pose.orientation.w = 0.5000;
-  req.pose.pose.covariance[0] = 1.0;
-  req.pose.pose.covariance[7] = 1.0;
-  req.pose.pose.covariance[35] = 1.0;
-  fuse_models::SetPose::Response res;
-  ros::service::call("/fixed_lag/set_pose", req, res);
-  ASSERT_TRUE(res.success);
+  auto req = std::make_shared<fuse_msgs::srv::SetPose::Request>();
+  req->pose.header.frame_id = "map";
+  req->pose.header.stamp = rclcpp::Time(1, 0);
+  req->pose.pose.pose.position.x = 100.1;
+  req->pose.pose.pose.position.y = 100.2;
+  req->pose.pose.pose.position.z = 0.0;
+  req->pose.pose.pose.orientation.x = 0.0;
+  req->pose.pose.pose.orientation.y = 0.0;
+  req->pose.pose.pose.orientation.z = 0.8660;
+  req->pose.pose.pose.orientation.w = 0.5000;
+  req->pose.pose.covariance[0] = 1.0;
+  req->pose.pose.covariance[7] = 1.0;
+  req->pose.pose.covariance[35] = 1.0;
+  auto result = set_pose_client->async_send_request(req);
+  ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
+  EXPECT_TRUE(result.get()->success);
 
   // The 'set_pose' service call triggers all of the sensors to resubscribe to their topics.
   // I need to wait for those subscribers to be ready before sending them sensor data.
-  rclcpp::Time subscriber_timeout = this->node->now() + rclcpp::Duration::from_seconds(1.0);
-  while ((relative_pose_publisher.getNumSubscribers() < 1u) &&
-         (this->node->now() < subscriber_timeout))
+  rclcpp::Time subscriber_timeout = node->now() + rclcpp::Duration::from_seconds(1.0);
+  while ((relative_pose_publisher->get_subscription_count() < 1u) &&
+         (node->now() < subscriber_timeout))
   {
-    rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.01);
+    rclcpp::sleep_for(std::chrono::milliseconds(10));
   }
-  ASSERT_GE(relative_pose_publisher.getNumSubscribers(), 1u);
+  ASSERT_GE(relative_pose_publisher->get_subscription_count(), 1u);
 
   // Publish a relative pose
   auto pose_msg1 = geometry_msgs::msg::PoseWithCovarianceStamped();
@@ -94,7 +130,7 @@ TEST(FixedLagIgnition, SetInitialState)
   pose_msg1.pose.covariance[0] = 1.0;
   pose_msg1.pose.covariance[7] = 1.0;
   pose_msg1.pose.covariance[35] = 1.0;
-  relative_pose_publisher.publish(pose_msg1);
+  relative_pose_publisher->publish(pose_msg1);
 
   auto pose_msg2 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg2.header.stamp = rclcpp::Time(3, 0);
@@ -109,22 +145,22 @@ TEST(FixedLagIgnition, SetInitialState)
   pose_msg2.pose.covariance[0] = 1.0;
   pose_msg2.pose.covariance[7] = 1.0;
   pose_msg2.pose.covariance[35] = 1.0;
-  relative_pose_publisher.publish(pose_msg2);
+  relative_pose_publisher->publish(pose_msg2);
 
   // Wait for the optimizer to process all queued transactions
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
   auto odom_msg = nav_msgs::msg::Odometry();
-  while ((!odom_msg || odom_msg.header.stamp != rclcpp::Time(3, 0)) &&
+  while ((odom_msg.header.stamp != rclcpp::Time(3, 0)) &&
          (node->now() < result_timeout))
   {
     // TODO(CH3): Replace with rclcpp::wait_for_message
+    // ALSO NOTE TO SELF: (!!!) Watch out for the /odom
     //
     // https://github.com/ros2/rclcpp/blob/rolling/rclcpp/include/rclcpp/wait_for_message.hpp
     //
     // It might be a rabbit hole though. If that fails, just wait on a condition variable...
-    odom_msg = ros::topic::waitForMessage<nav_msgs::msg::Odometry>("/odom", rclcpp::Duration::from_seconds(1.0));
+    rclcpp::wait_for_message(odom_msg, node, "/odom", std::chrono::seconds(1));
   }
-  ASSERT_TRUE(static_cast<bool>(odom_msg));
   ASSERT_EQ(odom_msg.header.stamp, rclcpp::Time(3, 0));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
@@ -136,14 +172,12 @@ TEST(FixedLagIgnition, SetInitialState)
   EXPECT_NEAR(0.5000, odom_msg.pose.pose.orientation.w, 0.10);
 }
 
-int main(int argc, char** argv)
+// NOTE(CH3): This main is required because the test is manually run by a launch test
+int main(int argc, char ** argv)
 {
+  rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "fixed_lag_ignition_test");
-  auto spinner = ros::AsyncSpinner(1);
-  spinner.start();
   int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
+  rclcpp::shutdown();
   return ret;
 }
