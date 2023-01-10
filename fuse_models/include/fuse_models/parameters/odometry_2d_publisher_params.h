@@ -100,8 +100,8 @@ public:
     map_frame_id = fuse_core::getParam(interfaces, ns + "map_frame_id", map_frame_id);
     odom_frame_id = fuse_core::getParam(interfaces, ns + "odom_frame_id", odom_frame_id);
     base_link_frame_id = fuse_core::getParam(interfaces, ns + "base_link_frame_id", base_link_frame_id);
-    base_link_frame_id = fuse_core::getParam(interfaces, ns + "base_link_output_frame_id", base_link_frame_id);
-    odom_frame_id = fuse_core::getParam(interfaces, ns + "world_frame_id", odom_frame_id);
+    base_link_output_frame_id = fuse_core::getParam(interfaces, ns + "base_link_output_frame_id", base_link_output_frame_id);
+    world_frame_id = fuse_core::getParam(interfaces, ns + "world_frame_id", world_frame_id);
 
     const bool frames_valid =
       map_frame_id != odom_frame_id &&

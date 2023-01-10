@@ -88,8 +88,8 @@ inline std::vector<size_t> loadSensorConfig(
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
   const std::string& name)
 {
-  std::vector<std::string> dimensions =
-    fuse_core::getParam(interfaces, name, dimensions);
+  std::vector<std::string> dimensions;
+  dimensions = fuse_core::getParam(interfaces, name, dimensions);
   if (!dimensions.empty())
   {
     return common::getDimensionIndices<T>(dimensions);

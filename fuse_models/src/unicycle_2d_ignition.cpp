@@ -103,7 +103,7 @@ void Unicycle2DIgnition::onInit()
       interfaces_.get_node_base_interface(),
       interfaces_.get_node_graph_interface(),
       interfaces_.get_node_services_interface(),
-      interfaces_.get_node_services_interface()->resolve_service_name(params_.reset_service),
+      fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.reset_service),
       rclcpp::ServicesQoS(),
       cb_group_
     );
@@ -123,7 +123,7 @@ void Unicycle2DIgnition::onInit()
   set_pose_service_ = rclcpp::create_service<fuse_msgs::srv::SetPose>(
     interfaces_.get_node_base_interface(),
     interfaces_.get_node_services_interface(),
-    interfaces_.get_node_services_interface()->resolve_service_name(params_.set_pose_service),
+    fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_service),
     std::bind(
       &Unicycle2DIgnition::setPoseServiceCallback, this, std::placeholders::_1, std::placeholders::_2),
     rclcpp::ServicesQoS(),
@@ -132,7 +132,7 @@ void Unicycle2DIgnition::onInit()
   set_pose_deprecated_service_ = rclcpp::create_service<fuse_msgs::srv::SetPoseDeprecated>(
     interfaces_.get_node_base_interface(),
     interfaces_.get_node_services_interface(),
-    interfaces_.get_node_services_interface()->resolve_service_name(params_.set_pose_deprecated_service),
+    fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_deprecated_service),
     std::bind(
       &Unicycle2DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1, std::placeholders::_2),
     rclcpp::ServicesQoS(),
@@ -272,14 +272,8 @@ void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceSta
     }
 
     auto srv = std::make_shared<std_srvs::srv::Empty::Request>();
+    // No need to spin since node is optimizer node, which should be spinning
     auto result_future = reset_client_->async_send_request(srv);
-    if (rclcpp::spin_until_future_complete(
-          interfaces_.get_node_base_interface(), result_future, std::chrono::seconds(10))
-        != rclcpp::FutureReturnCode::SUCCESS)
-    {
-      // The reset() service failed. Propagate that failure to the caller of this service.
-      throw std::runtime_error("Failed to call the '" + std::string(reset_client_->get_service_name()) + "' service.");
-    }
   }
 
   // Now that the pose has been validated and the optimizer has been reset, actually send the initial state constraints
