@@ -31,8 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/serialized_publisher.h>
-
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/graph_deserializer.hpp>
@@ -41,9 +39,9 @@
 #include <fuse_core/transaction_deserializer.hpp>
 #include <fuse_msgs/msg/serialized_graph.hpp>
 #include <fuse_msgs/msg/serialized_transaction.hpp>
+#include <fuse_publishers/serialized_publisher.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-
 
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_publishers::SerializedPublisher, fuse_core::Publisher);
@@ -51,11 +49,12 @@ PLUGINLIB_EXPORT_CLASS(fuse_publishers::SerializedPublisher, fuse_core::Publishe
 namespace fuse_publishers
 {
 
-SerializedPublisher::SerializedPublisher() :
-  fuse_core::AsyncPublisher(1),
+SerializedPublisher::SerializedPublisher()
+: fuse_core::AsyncPublisher(1),
   frame_id_("map"),
   graph_publisher_throttled_callback_(
-      std::bind(&SerializedPublisher::graphPublisherCallback, this, std::placeholders::_1, std::placeholders::_2))
+    std::bind(&SerializedPublisher::graphPublisherCallback, this, std::placeholders::_1,
+    std::placeholders::_2))
 {
 }
 
@@ -75,18 +74,18 @@ void SerializedPublisher::onInit()
   bool latch = false;
   latch = fuse_core::getParam(interfaces_, "latch", latch);
 
-  rclcpp::Duration graph_throttle_period{ 0, 0 };
+  rclcpp::Duration graph_throttle_period{0, 0};
   fuse_core::getPositiveParam(interfaces_, "graph_throttle_period", graph_throttle_period, false);
 
-  bool graph_throttle_use_wall_time{ false };
+  bool graph_throttle_use_wall_time{false};
   graph_throttle_use_wall_time =
-    fuse_core::getParam(
-      interfaces_, "graph_throttle_use_wall_time", graph_throttle_use_wall_time);
+    fuse_core::getParam(interfaces_, "graph_throttle_use_wall_time", graph_throttle_use_wall_time);
 
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
 
   if (!graph_throttle_use_wall_time) {
-    graph_publisher_throttled_callback_.setClock(interfaces_.get_node_clock_interface()->get_clock());
+    graph_publisher_throttled_callback_.setClock(
+      interfaces_.get_node_clock_interface()->get_clock());
   }
 
   // Advertise the topics
@@ -99,23 +98,25 @@ void SerializedPublisher::onInit()
   pub_options.callback_group = cb_group_;
 
   graph_publisher_ =
-    rclcpp::create_publisher<fuse_msgs::msg::SerializedGraph>(interfaces_, "graph", qos, pub_options);
+    rclcpp::create_publisher<fuse_msgs::msg::SerializedGraph>(
+    interfaces_, "graph", qos,
+    pub_options);
   transaction_publisher_ =
-    rclcpp::create_publisher<fuse_msgs::msg::SerializedTransaction>(interfaces_, "transaction", qos, pub_options);
+    rclcpp::create_publisher<fuse_msgs::msg::SerializedTransaction>(
+    interfaces_, "transaction", qos,
+    pub_options);
 }
 
 void SerializedPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr transaction,
   fuse_core::Graph::ConstSharedPtr graph)
 {
-  const auto& stamp = transaction->stamp();
-  if (graph_publisher_->get_subscription_count() > 0)
-  {
+  const auto & stamp = transaction->stamp();
+  if (graph_publisher_->get_subscription_count() > 0) {
     graph_publisher_throttled_callback_(graph, stamp);
   }
 
-  if (transaction_publisher_->get_subscription_count() > 0)
-  {
+  if (transaction_publisher_->get_subscription_count() > 0) {
     fuse_msgs::msg::SerializedTransaction msg;
     msg.header.stamp = stamp;
     msg.header.frame_id = frame_id_;
@@ -125,7 +126,7 @@ void SerializedPublisher::notifyCallback(
 }
 
 void SerializedPublisher::graphPublisherCallback(
-  fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const
+  fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time & stamp) const
 {
   fuse_msgs::msg::SerializedGraph msg;
   msg.header.stamp = stamp;

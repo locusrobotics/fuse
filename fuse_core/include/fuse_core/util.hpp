@@ -38,6 +38,7 @@
 #include <Eigen/Core>
 
 #include <cmath>
+#include <string>
 
 #include <rclcpp/logging.hpp>
 
@@ -147,6 +148,35 @@ Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
   Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotation;
   rotation << cos_angle, -sin_angle, sin_angle, cos_angle;
   return rotation;
+}
+
+/**
+ * @brief Create a compound ROS topic name from two components
+ *
+ * @param[in] a The first element
+ * @param[in] b The second element
+ * @return      The joined topic name
+ */
+inline
+std::string joinTopicName(std::string a, std::string b)
+{
+  if (a.empty()) {
+    return b;
+  }
+  if (b.empty()) {
+    return a;
+  }
+  if (b.front() == '/' || b.front() == '~') {
+    RCLCPP_WARN(
+      rclcpp::get_logger("fuse"), "Second argument to joinTopicName is absolute! Returning it.");
+    return b;
+  }
+
+  if (a.back() == '/') {
+    a.pop_back();
+  }
+
+  return a + "/" + b;
 }
 
 }  // namespace fuse_core

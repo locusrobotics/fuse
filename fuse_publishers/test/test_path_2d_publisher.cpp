@@ -31,38 +31,40 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include <gtest/gtest.h>
+
+#include <vector>
+
+// Workaround ros2/geometry2#242
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2/utils.h>  // NOLINT(build/include_order)
+
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_publishers/path_2d_publisher.h>
+#include <fuse_publishers/path_2d_publisher.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
-// Workaround ros2/geometry2#242
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  // NOLINT(build/include_order)
-#include <tf2/utils.h>
-
-#include <gtest/gtest.h>
-
-#include <vector>
 
 
 /**
  * @brief Test fixture for the Path2DPublisher
  *
- * This test fixture provides a populated graph for testing the publish() function, and a subscriber callback
- * for the 'path' output topics.
+ * This test fixture provides a populated graph for testing the publish() function, and a subscriber
+ * callback for the 'path' output topics.
  */
 class Path2DPublisherTestFixture : public ::testing::Test
 {
 public:
-  Path2DPublisherTestFixture() :
-    graph_(fuse_graphs::HashGraph::make_shared()),
+  Path2DPublisherTestFixture()
+  : graph_(fuse_graphs::HashGraph::make_shared()),
     transaction_(fuse_core::Transaction::make_shared()),
     received_path_msg_(false),
     received_pose_array_msg_(false)
@@ -94,7 +96,7 @@ public:
     position4->x() = 1.04;
     position4->y() = 2.04;
     auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(
-        rclcpp::Time(1235, 11, RCL_ROS_TIME), fuse_core::uuid::generate("kitt"));
+      rclcpp::Time(1235, 11, RCL_ROS_TIME), fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
     transaction_->addInvolvedStamp(position1->stamp());
@@ -122,7 +124,7 @@ public:
     /* *INDENT-ON* */
     auto constraint1 =
       fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-        "test", *position1, *orientation1, mean1, cov1);
+      "test", *position1, *orientation1, mean1, cov1);
     fuse_core::Vector3d mean2;
     mean2 << 1.02, 2.02, 3.02;
     fuse_core::Matrix3d cov2;
@@ -131,7 +133,7 @@ public:
     /* *INDENT-ON* */
     auto constraint2 =
       fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-        "test", *position2, *orientation2, mean2, cov2);
+      "test", *position2, *orientation2, mean2, cov2);
     fuse_core::Vector3d mean3;
     mean3 << 1.03, 2.03, 3.03;
     fuse_core::Matrix3d cov3;
@@ -140,7 +142,7 @@ public:
     /* *INDENT-ON* */
     auto constraint3 =
       fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-        "test", *position3, *orientation3, mean3, cov3);
+      "test", *position3, *orientation3, mean3, cov3);
     fuse_core::Vector3d mean4;
     mean4 << 1.04, 2.04, 3.04;
     fuse_core::Matrix3d cov4;
@@ -149,7 +151,7 @@ public:
     /* *INDENT-ON* */
     auto constraint4 =
       fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-        "test", *position4, *orientation4, mean4, cov4);
+      "test", *position4, *orientation4, mean4, cov4);
     transaction_->addConstraint(constraint1);
     transaction_->addConstraint(constraint2);
     transaction_->addConstraint(constraint3);
@@ -162,6 +164,7 @@ public:
 
   void SetUp() override
   {
+    rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
     spinner_ = std::thread(
       [&]() {
@@ -173,25 +176,26 @@ public:
   {
     executor_->cancel();
     if (spinner_.joinable()) {
-     spinner_.join();
+      spinner_.join();
     }
     executor_.reset();
+    rclcpp::shutdown();
   }
 
-  void pathCallback(const nav_msgs::msg::Path& msg)
+  void pathCallback(const nav_msgs::msg::Path & msg)
   {
     path_msg_ = msg;
     received_path_msg_ = true;
   }
 
-  void poseArrayCallback(const geometry_msgs::msg::PoseArray& msg)
+  void poseArrayCallback(const geometry_msgs::msg::PoseArray & msg)
   {
     pose_array_msg_ = msg;
     received_pose_array_msg_ = true;
   }
 
-   std::thread spinner_;  //!< Internal thread for spinning the executor
-   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::thread spinner_;   //!< Internal thread for spinning the executor
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 
 protected:
   fuse_graphs::HashGraph::SharedPtr graph_;
@@ -206,7 +210,8 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
 {
   // Test that the expected PoseStamped message is published
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "frame_id:=test_map"});
   auto node = rclcpp::Node::make_shared("test_path_2d_publisher_node", options);
@@ -234,8 +239,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
 
   // Verify the subscriber received the expected pose
   rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_path_msg_) && (node->now() < timeout))
-  {
+  while ((!received_path_msg_) && (node->now() < timeout)) {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 
@@ -284,15 +288,4 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   EXPECT_NEAR(2.02, pose_array_msg_.poses[2].position.y, 1.0e-9);
   EXPECT_NEAR(0.00, pose_array_msg_.poses[2].position.z, 1.0e-9);
   EXPECT_NEAR(3.02, tf2::getYaw(pose_array_msg_.poses[2].orientation), 1.0e-9);
-}
-
-
-// NOTE(CH3): This main is required because the test is manually run by a launch test
-int main(int argc, char ** argv)
-{
-  rclcpp::init(argc, argv);
-  testing::InitGoogleTest(&argc, argv);
-  int ret = RUN_ALL_TESTS();
-  rclcpp::shutdown();
-  return ret;
 }

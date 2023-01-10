@@ -69,4 +69,15 @@ TEST(Util, wrapAngle2D)
     const double angle = 0.5;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle - 3.0 * 2.0 * M_PI));
   }
+
+  // Join topic names
+  {
+    EXPECT_EQ("a/b", fuse_core::joinTopicName("a", "b"));
+    EXPECT_EQ("/a/b", fuse_core::joinTopicName("/a", "b"));
+    EXPECT_EQ("a/b", fuse_core::joinTopicName("a/", "b"));
+    EXPECT_EQ("/b", fuse_core::joinTopicName("a", "/b"));
+    EXPECT_EQ("/b", fuse_core::joinTopicName("a/", "/b"));
+    EXPECT_EQ("~/b", fuse_core::joinTopicName("a/", "~/b"));
+    EXPECT_EQ("~b", fuse_core::joinTopicName("a/", "~b"));
+  }
 }
