@@ -261,7 +261,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
   srv->pose.pose.covariance[0] = 1.0;
   srv->pose.pose.covariance[7] = 2.0;
   srv->pose.pose.covariance[35] = 3.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPose>("unicycle_2d_ignition_test/set_pose");
+  auto client = node->create_client<fuse_msgs::srv::SetPose>("/unicycle_2d_ignition_test/set_pose");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
@@ -360,7 +360,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
   srv->pose.pose.covariance[0] = 1.0;
   srv->pose.pose.covariance[7] = 2.0;
   srv->pose.pose.covariance[35] = 3.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>("unicycle_2d_ignition_test/set_pose_deprecated");
+  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>("/unicycle_2d_ignition_test/set_pose_deprecated");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));

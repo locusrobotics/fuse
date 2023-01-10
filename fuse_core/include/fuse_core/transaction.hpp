@@ -292,7 +292,7 @@ public:
   void deserialize(fuse_core::TextInputArchive & /* archive */);
 
 private:
-  rclcpp::Time stamp_;  //!< The transaction message timestamp
+  rclcpp::Time stamp_{ 0, 0, RCL_ROS_TIME };  //!< The transaction message timestamp
   std::vector<Constraint::SharedPtr> added_constraints_;  //!< The constraints to be added
   std::vector<Variable::SharedPtr> added_variables_;  //!< The variables to be added
   std::set<rclcpp::Time> involved_stamps_;  //!< The set of timestamps involved in this transaction

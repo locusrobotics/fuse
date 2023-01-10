@@ -100,9 +100,30 @@ void TimestampManager::query(
       const rclcpp::Time & current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
+      rclcpp::Time history_beginning_stamp = history_iter->second.beginning_stamp;
+      rclcpp::Time history_ending_stamp = history_iter->second.ending_stamp;
+
+      // lower_bound() can default construct Time, which causes a mismatched clock error
+      // This explicitly rectifies that situation
+      if (history_beginning_stamp.seconds() == 0
+          && history_beginning_stamp.get_clock_type() == RCL_SYSTEM_TIME)
+      {
+        history_beginning_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
+      }
+
+      if (history_ending_stamp.seconds() == 0
+          && history_ending_stamp.get_clock_type() == RCL_SYSTEM_TIME)
+      {
+        history_ending_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
+      }
+
+      std::cout << history_beginning_stamp.seconds() << " | " << history_beginning_stamp.get_clock_type() << " || "
+                << history_ending_stamp.seconds() << " | " << history_ending_stamp.get_clock_type()
+                << std::endl;
+
       if ((history_iter != motion_model_history_.end()) &&
-        (history_iter->second.beginning_stamp == previous_stamp) &&
-        (history_iter->second.ending_stamp == current_stamp))
+        (history_beginning_stamp == previous_stamp) &&
+        (history_ending_stamp == current_stamp))
       {
         if (update_variables) {
           // Add the motion model version of the variables involved in this motion model segment
@@ -126,8 +147,8 @@ void TimestampManager::query(
       }
       // Check if this stamp is in the middle of an existing entry. If so, delete it.
       if ((history_iter != motion_model_history_.end()) &&
-        (history_iter->second.beginning_stamp < current_stamp) &&
-        (history_iter->second.ending_stamp >= current_stamp))
+        (history_beginning_stamp < current_stamp) &&
+        (history_ending_stamp >= current_stamp))
       {
         removeSegment(history_iter, motion_model_transaction);
       }

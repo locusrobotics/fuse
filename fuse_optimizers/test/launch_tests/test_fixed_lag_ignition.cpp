@@ -65,7 +65,6 @@ public:
      spinner_.join();
     }
     executor_.reset();
-    rclcpp::shutdown();
   }
 
    std::thread spinner_;  //!< Internal thread for spinning the executor
@@ -75,6 +74,8 @@ public:
 TEST_F(FixedLagIgnitionFixture, SetInitialState)
 {
   auto node = rclcpp::Node::make_shared("fixed_lag_ignition_test");
+  executor_->add_node(node);
+
   auto relative_pose_publisher =
     node->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "pose_sensor/relative_pose", 1);
@@ -91,7 +92,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   // Set the initial pose to something far away from zero
   auto req = std::make_shared<fuse_msgs::srv::SetPose::Request>();
   req->pose.header.frame_id = "map";
-  req->pose.header.stamp = rclcpp::Time(1, 0);
+  req->pose.header.stamp = rclcpp::Time(1, 0, RCL_ROS_TIME);
   req->pose.pose.pose.position.x = 100.1;
   req->pose.pose.pose.position.y = 100.2;
   req->pose.pose.pose.position.z = 0.0;
@@ -108,7 +109,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   // The 'set_pose' service call triggers all of the sensors to resubscribe to their topics.
   // I need to wait for those subscribers to be ready before sending them sensor data.
-  rclcpp::Time subscriber_timeout = node->now() + rclcpp::Duration::from_seconds(1.0);
+  rclcpp::Time subscriber_timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
   while ((relative_pose_publisher->get_subscription_count() < 1u) &&
          (node->now() < subscriber_timeout))
   {
@@ -118,7 +119,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   // Publish a relative pose
   auto pose_msg1 = geometry_msgs::msg::PoseWithCovarianceStamped();
-  pose_msg1.header.stamp = rclcpp::Time(2, 0);
+  pose_msg1.header.stamp = rclcpp::Time(2, 0, RCL_ROS_TIME);
   pose_msg1.header.frame_id = "base_link";
   pose_msg1.pose.pose.position.x = 5.0;
   pose_msg1.pose.pose.position.y = 6.0;
@@ -133,7 +134,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   relative_pose_publisher->publish(pose_msg1);
 
   auto pose_msg2 = geometry_msgs::msg::PoseWithCovarianceStamped();
-  pose_msg2.header.stamp = rclcpp::Time(3, 0);
+  pose_msg2.header.stamp = rclcpp::Time(3, 0, RCL_ROS_TIME);
   pose_msg2.header.frame_id = "base_link";
   pose_msg2.pose.pose.position.x = 10.0;
   pose_msg2.pose.pose.position.y = 20.0;
@@ -148,20 +149,16 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   relative_pose_publisher->publish(pose_msg2);
 
   // Wait for the optimizer to process all queued transactions
-  rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(3.0);
+  rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(1.0);
   auto odom_msg = nav_msgs::msg::Odometry();
-  while ((odom_msg.header.stamp != rclcpp::Time(3, 0)) &&
+  while ((odom_msg.header.stamp != rclcpp::Time(3, 0, RCL_ROS_TIME)) &&
          (node->now() < result_timeout))
   {
-    // TODO(CH3): Replace with rclcpp::wait_for_message
-    // ALSO NOTE TO SELF: (!!!) Watch out for the /odom
-    //
-    // https://github.com/ros2/rclcpp/blob/rolling/rclcpp/include/rclcpp/wait_for_message.hpp
-    //
-    // It might be a rabbit hole though. If that fails, just wait on a condition variable...
-    rclcpp::wait_for_message(odom_msg, node, "/odom", std::chrono::seconds(1));
+    rclcpp::wait_for_message(odom_msg, node, "/odometry_publisher/odom", std::chrono::seconds(1));
   }
-  ASSERT_EQ(odom_msg.header.stamp, rclcpp::Time(3, 0));
+  std::cout << rclcpp::Time(odom_msg.header.stamp).nanoseconds() << std::endl;
+  std::cout << rclcpp::Time(3, 0, RCL_ROS_TIME).nanoseconds() << std::endl;
+  ASSERT_EQ(rclcpp::Time(odom_msg.header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call state, give or
@@ -170,6 +167,8 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   EXPECT_NEAR(100.2, odom_msg.pose.pose.position.y, 0.10);
   EXPECT_NEAR(0.8660, odom_msg.pose.pose.orientation.z, 0.10);
   EXPECT_NEAR(0.5000, odom_msg.pose.pose.orientation.w, 0.10);
+
+  ASSERT_TRUE(false);
 }
 
 // NOTE(CH3): This main is required because the test is manually run by a launch test

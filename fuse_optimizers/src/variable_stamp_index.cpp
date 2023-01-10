@@ -60,7 +60,7 @@ rclcpp::Time VariableStampIndex::currentStamp() const
   }
   else
   {
-    return rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED);  // NOTE(CH3): Signals uninitialized
+    return rclcpp::Time(0, 0, RCL_ROS_TIME);
   }
 }
 

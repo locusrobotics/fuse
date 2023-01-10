@@ -91,7 +91,7 @@ public:
 
 private:
   fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
-  rclcpp::Time stamp_;  //!< The timestamp associated with this variable instance
+  rclcpp::Time stamp_{ 0, 0, RCL_ROS_TIME };  //!< The timestamp associated with this variable instance
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

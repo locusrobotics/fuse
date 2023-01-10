@@ -190,7 +190,7 @@ protected:
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  rclcpp::Time start_time_ { 0, 0, RCL_ROS_TIME };  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
@@ -271,10 +271,10 @@ protected:
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-bool resetServiceCallback(
-  const std::shared_ptr<std_srvs::srv::Empty::Request>,
-  std::shared_ptr<std_srvs::srv::Empty::Response>
-);
+  bool resetServiceCallback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request>,
+    std::shared_ptr<std_srvs::srv::Empty::Response>
+  );
 
   /**
    * @brief Thread-safe read-only access to the timestamp of the first transaction
