@@ -32,20 +32,17 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_viz/pose_2d_stamped_property.h>
-#include <fuse_viz/pose_2d_stamped_visual.h>
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <QColor>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_core/uuid.hpp>
-
+#include <fuse_viz/pose_2d_stamped_property.hpp>
+#include <fuse_viz/pose_2d_stamped_visual.hpp>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_common/properties/property.hpp>
-
-#include <QColor>
-
-#include <OgreSceneManager.h>
-#include <OgreSceneNode.h>
 
 namespace fuse_viz
 {
@@ -54,44 +51,55 @@ using rviz_common::properties::ColorProperty;
 using rviz_common::properties::FloatProperty;
 using rviz_common::properties::Property;
 
-Pose2DStampedProperty::Pose2DStampedProperty(const QString& name, bool default_value, const QString& description,
-                                             Property* parent, const char* changed_slot, QObject* receiver)
-  // NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of this constructor
-  : BoolProperty(name, default_value, description, parent)
+Pose2DStampedProperty::Pose2DStampedProperty(
+  const QString & name, bool default_value, const QString & description,
+  Property * parent, const char * changed_slot, QObject * receiver)
+// NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of
+// this constructor
+: BoolProperty(name, default_value, description, parent)
 {
-  color_property_ = new ColorProperty("Color", QColor(255, 0, 0), "Color to draw the variable sphere.", this,
-                                      SLOT(updateSphereColorAlpha()));
+  color_property_ = new ColorProperty(
+    "Color", QColor(255, 0, 0), "Color to draw the variable sphere.", this,
+    SLOT(updateSphereColorAlpha()));
 
   sphere_alpha_property_ =
-      new FloatProperty("Sphere Alpha", 1.0, "Alpha of variable sphere.", this, SLOT(updateSphereColorAlpha()));
+    new FloatProperty(
+    "Sphere Alpha", 1.0, "Alpha of variable sphere.", this,
+    SLOT(updateSphereColorAlpha()));
   sphere_alpha_property_->setMin(0.0);
   sphere_alpha_property_->setMax(1.0);
 
-  axes_alpha_property_ = new FloatProperty("Axes Alpha", 0.0, "Alpha of variable axes.", this, SLOT(updateAxesAlpha()));
+  axes_alpha_property_ =
+    new FloatProperty(
+    "Axes Alpha", 0.0, "Alpha of variable axes.", this,
+    SLOT(updateAxesAlpha()));
   axes_alpha_property_->setMin(0.0);
   axes_alpha_property_->setMax(1.0);
 
-  scale_property_ = new FloatProperty("Scale", 1.0, "Scale of variable sphere and axes.", this, SLOT(updateScale()));
+  scale_property_ = new FloatProperty(
+    "Scale", 1.0, "Scale of variable sphere and axes.", this, SLOT(
+      updateScale()));
   scale_property_->setMin(0.0);
 
   show_text_property_ =
-      new BoolProperty("Show Text", false, "Show variable type and UUID.", this, SLOT(updateShowText()));
+    new BoolProperty(
+    "Show Text", false, "Show variable type and UUID.", this, SLOT(
+      updateShowText()));
 
-  text_scale_property_ = new FloatProperty("Text Scale", 1.0, "Scale of variable text.", this, SLOT(updateTextScale()));
+  text_scale_property_ =
+    new FloatProperty(
+    "Text Scale", 1.0, "Scale of variable text.", this,
+    SLOT(updateTextScale()));
   text_scale_property_->setMin(0.0);
 
   connect(this, SIGNAL(changed()), this, SLOT(updateVisibility()));
 
   // Connect changed() signal here instead of doing it through the initialization of BoolProperty().
   // We do this here to make changed_slot be called _after_ updateVisibility()
-  if (changed_slot && (parent || receiver))
-  {
-    if (receiver)
-    {
+  if (changed_slot && (parent || receiver)) {
+    if (receiver) {
       connect(this, SIGNAL(changed()), receiver, changed_slot);
-    }
-    else
-    {
+    } else {
       connect(this, SIGNAL(changed()), parent, changed_slot);
     }
   }
@@ -100,17 +108,15 @@ Pose2DStampedProperty::Pose2DStampedProperty(const QString& name, bool default_v
 }
 
 Pose2DStampedProperty::VisualPtr Pose2DStampedProperty::createAndInsertOrUpdateVisual(
-    Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node, const fuse_variables::Position2DStamped& position,
-    const fuse_variables::Orientation2DStamped& orientation)
+  Ogre::SceneManager * scene_manager, Ogre::SceneNode * parent_node,
+  const fuse_variables::Position2DStamped & position,
+  const fuse_variables::Orientation2DStamped & orientation)
 {
-  auto& visual = variables_[position.uuid()];
+  auto & visual = variables_[position.uuid()];
 
-  if (visual)
-  {
+  if (visual) {
     visual->setPose2DStamped(position, orientation);
-  }
-  else
-  {
+  } else {
     visual.reset(new Visual(scene_manager, parent_node, position, orientation));
 
     visual->setPose2DStamped(position, orientation);
@@ -126,7 +132,7 @@ Pose2DStampedProperty::VisualPtr Pose2DStampedProperty::createAndInsertOrUpdateV
   return visual;
 }
 
-void Pose2DStampedProperty::eraseVisual(const fuse_core::UUID& uuid)
+void Pose2DStampedProperty::eraseVisual(const fuse_core::UUID & uuid)
 {
   variables_.erase(uuid);
 }
@@ -138,80 +144,76 @@ void Pose2DStampedProperty::clearVisual()
 
 void Pose2DStampedProperty::updateVisibility()
 {
-  for (auto& entry : variables_)
-  {
+  for (auto & entry : variables_) {
     updateVisibility(entry.second);
   }
 }
 
 void Pose2DStampedProperty::updateAxesAlpha()
 {
-  for (auto& entry : variables_)
-  {
+  for (auto & entry : variables_) {
     updateAxesAlpha(entry.second);
   }
 }
 
 void Pose2DStampedProperty::updateScale()
 {
-  for (auto& entry : variables_)
-  {
+  for (auto & entry : variables_) {
     updateScale(entry.second);
   }
 }
 
 void Pose2DStampedProperty::updateShowText()
 {
-  for (auto& entry : variables_)
-  {
+  for (auto & entry : variables_) {
     updateShowText(entry.second);
   }
 }
 
 void Pose2DStampedProperty::updateSphereColorAlpha()
 {
-  for (auto& entry : variables_)
-  {
+  for (auto & entry : variables_) {
     updateSphereColorAlpha(entry.second);
   }
 }
 
 void Pose2DStampedProperty::updateTextScale()
 {
-  for (auto& entry : variables_)
-  {
+  for (auto & entry : variables_) {
     updateTextScale(entry.second);
   }
 }
 
-void Pose2DStampedProperty::updateAxesAlpha(const VisualPtr& variable)
+void Pose2DStampedProperty::updateAxesAlpha(const VisualPtr & variable)
 {
   variable->setAxesAlpha(axes_alpha_property_->getFloat());
 }
 
-void Pose2DStampedProperty::updateScale(const VisualPtr& variable)
+void Pose2DStampedProperty::updateScale(const VisualPtr & variable)
 {
-  variable->setScale(Ogre::Vector3{ scale_property_->getFloat() });  // NOLINT(whitespace/braces)
+  variable->setScale(Ogre::Vector3{scale_property_->getFloat()});    // NOLINT(whitespace/braces)
 }
 
-void Pose2DStampedProperty::updateShowText(const VisualPtr& variable)
+void Pose2DStampedProperty::updateShowText(const VisualPtr & variable)
 {
   variable->setTextVisible(show_text_property_->getBool());
 }
 
-void Pose2DStampedProperty::updateSphereColorAlpha(const VisualPtr& variable)
+void Pose2DStampedProperty::updateSphereColorAlpha(const VisualPtr & variable)
 {
   const auto color = color_property_->getColor();
 
-  variable->setSphereColor(color.redF(), color.greenF(), color.blueF(), sphere_alpha_property_->getFloat());
+  variable->setSphereColor(
+    color.redF(), color.greenF(),
+    color.blueF(), sphere_alpha_property_->getFloat());
 }
 
-void Pose2DStampedProperty::updateTextScale(const VisualPtr& variable)
+void Pose2DStampedProperty::updateTextScale(const VisualPtr & variable)
 {
-  variable->setTextScale(Ogre::Vector3{ text_scale_property_->getFloat() });  // NOLINT(whitespace/braces)
+  variable->setTextScale(Ogre::Vector3{text_scale_property_->getFloat()});  // NOLINT
 }
 
-void Pose2DStampedProperty::updateVisibility(const VisualPtr& variable)
+void Pose2DStampedProperty::updateVisibility(const VisualPtr & variable)
 {
   const auto visible = getBool();
 
@@ -219,4 +221,4 @@ void Pose2DStampedProperty::updateVisibility(const VisualPtr& variable)
   variable->setTextVisible(visible && show_text_property_->getBool());
 }
 
-}  // end namespace rviz
+}  // namespace fuse_viz
