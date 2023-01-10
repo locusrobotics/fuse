@@ -274,6 +274,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceSta
     auto srv = std::make_shared<std_srvs::srv::Empty::Request>();
     // No need to spin since node is optimizer node, which should be spinning
     auto result_future = reset_client_->async_send_request(srv);
+    result_future.wait();
   }
 
   // Now that the pose has been validated and the optimizer has been reset, actually send the initial state constraints

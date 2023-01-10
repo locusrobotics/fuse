@@ -236,7 +236,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
     "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
     "-p", "ignition_sensor.initial_sigma:="
     "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
-    "-p", "ignition_sensor.set_pose_service:=/set_pose",
+    "-p", "ignition_sensor.set_pose_service:=set_pose",
     "-p", "ignition_sensor.reset_service:=''",
     "-p", "ignition_sensor.publish_on_startup:=false"});
   auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
@@ -261,7 +261,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
   srv->pose.pose.covariance[0] = 1.0;
   srv->pose.pose.covariance[7] = 2.0;
   srv->pose.pose.covariance[35] = 3.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPose>("/set_pose");
+  auto client = node->create_client<fuse_msgs::srv::SetPose>("unicycle_2d_ignition_test/set_pose");
+  ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_TRUE(result.get()->success);
@@ -334,7 +335,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
     "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
     "-p", "ignition_sensor.initial_sigma:="
     "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
-    "-p", "ignition_sensor.set_pose_deprecated_service:=/set_pose_deprecated",
+    "-p", "ignition_sensor.set_pose_deprecated_service:=set_pose_deprecated",
     "-p", "ignition_sensor.reset_service:=''",
     "-p", "ignition_sensor.publish_on_startup:=false"});
   auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
@@ -359,7 +360,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
   srv->pose.pose.covariance[0] = 1.0;
   srv->pose.pose.covariance[7] = 2.0;
   srv->pose.pose.covariance[35] = 3.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>("/set_pose_deprecated");
+  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>("unicycle_2d_ignition_test/set_pose_deprecated");
+  ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
 
