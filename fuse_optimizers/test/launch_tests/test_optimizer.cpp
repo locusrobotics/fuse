@@ -46,7 +46,9 @@
 TEST(Optimizer, Constructor)
 {
   // Create optimizer:
-  ExampleOptimizer optimizer(fuse_graphs::HashGraph::make_unique());
+  rclcpp::NodeOptions options;
+  ExampleOptimizer optimizer(
+    options, "example_optimizer_node", fuse_graphs::HashGraph::make_unique());
 
   // Check the motion and sensor models, and publishers were loaded:
   const auto& motion_models = optimizer.getMotionModels();
@@ -87,15 +89,13 @@ TEST(Optimizer, Constructor)
       << "Actual: " << publishers << "\nExpected: " << expected_publishers << "\nDifference: " << difference_publishers;
 }
 
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_optimizer");
 
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
+// NOTE(CH3): This main is required because the test is manually run by a launch test
+int main(int argc, char ** argv)
+{
+  rclcpp::init(argc, argv);
+  testing::InitGoogleTest(&argc, argv);
   int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
+  rclcpp::shutdown();
   return ret;
 }

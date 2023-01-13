@@ -18,8 +18,6 @@ import os
 
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
-from launch_ros.actions import Node
-from launch.substitutions import PathJoinSubstitution
 
 import launch_pytest
 from launch_pytest.actions import ReadyToTest
@@ -31,32 +29,17 @@ import pytest
 @pytest.fixture
 def test_proc():
     test_root = '.'
-    test_path = os.path.join(test_root, 'test_fixed_lag_ignition')
-    cmd = [test_path]
+
+    param_path = os.path.join(test_root, 'launch_tests', 'config', 'optimizer_params.yaml')
+    test_path = os.path.join(test_root, 'test_optimizer')
+
+    cmd = [test_path, '--ros-args', '--params-file', param_path]
     return ExecuteProcess(cmd=cmd, shell=True, output='screen', cached_output=True)
 
 
 @launch_pytest.fixture
 def generate_test_description(test_proc):
-    test_root = '.'
-
-    return LaunchDescription(
-        [
-            test_proc,
-            Node(
-                package='fuse_optimizers',
-                executable='fixed_lag_smoother_node',
-                name='fixed_lag_node',
-                output='screen',
-                parameters=[
-                    PathJoinSubstitution(
-                        [test_root, 'launch_tests', 'config', 'fixed_lag_ignition_params.yaml']
-                    )
-                ],
-            ),
-            ReadyToTest()
-        ]
-    )
+    return LaunchDescription([test_proc, ReadyToTest()])
 
 
 @pytest.mark.launch(fixture=generate_test_description)

@@ -77,6 +77,8 @@ public:
       const std::string& sensor_name,
       fuse_core::Transaction::SharedPtr transaction) override
   {
+    (void)sensor_name;
+    (void)transaction;
   }
 };
 

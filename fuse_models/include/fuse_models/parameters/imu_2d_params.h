@@ -90,7 +90,7 @@ struct Imu2DParams : public ParameterBase
 
       remove_gravitational_acceleration = fuse_core::getParam(interfaces, ns + "remove_gravitational_acceleration", remove_gravitational_acceleration);
       gravitational_acceleration = fuse_core::getParam(interfaces, ns + "gravitational_acceleration", gravitational_acceleration);
-      fuse_core::getParamRequired(interfaces, "topic", topic);
+      fuse_core::getParamRequired(interfaces, ns + "topic", topic);
 
       if (differential)
       {
