@@ -37,7 +37,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 #include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <memory>
 #include <unordered_map>
@@ -53,7 +53,7 @@ namespace fuse_tutorials
  * of measuring the distance to some sort of beacon, but does not provide any information about the bearing/heading
  * to that beacon. None of the fuse packages provide such a sensor model, so you need to develop one yourself.
  * Because I don't want to create a brand new message type for this tutorial, the driver for this new sensor will be
- * publishing sensor_msgs::PointCloud2 messages with the following fields defined:
+ * publishing sensor_msgs::msg::PointCloud2 messages with the following fields defined:
  *  - "id", uint32, count 1, offset 0, The unique ID associated with that beacon
  *  - "range", float64, count 1, offset 4, The range, in meters, between the robot and the beacon
  *  - "sigma", float64, count 1, offset 12, The standard deviation of the range measurement, in meters
@@ -129,7 +129,7 @@ public:
    *
    * @param[in] msg - Message containing the database of known but noisy beacon positions.
    */
-  void priorBeaconsCallback(const sensor_msgs::PointCloud2::ConstPtr& msg);
+  void priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg);
 
   /**
    * @brief Callback for range measurement messages
@@ -139,7 +139,7 @@ public:
    *
    * @param[in] msg - The range message to process
    */
-  void rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& msg);
+  void rangesCallback(const sensor_msgs::msg::PointCloud2& msg);
 
 protected:
   /**

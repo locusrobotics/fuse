@@ -32,16 +32,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/util.hpp>
+<<<<<<< HEAD
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <nav_msgs/Odometry.h>
+=======
+#include <fuse_models/SetPose.h>
+#include <nav_msgs/msg/odometry.hpp>
+>>>>>>> eb51957... msg changes
 #include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
-#include <boost/make_shared.hpp>
 
 #include <cmath>
+#include <memory>
 #include <random>
 #include <vector>
 
@@ -117,26 +122,26 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::PointCloud2::ConstPtr beaconsToPointcloud(
+sensor_msgs::msg::PointCloud2 beaconsToPointcloud(
   const std::vector<Beacon>& beacons,
   const rclcpp::Clock& clock)
 {
-  auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
+  auto msg = sensor_msgs::msg::PointCloud2::SharedPtr();
   msg->header.stamp = clock.now();
 
   msg->header.frame_id = MAP_FRAME;
-  sensor_msgs::PointCloud2Modifier modifier(*msg);
-  modifier.setPointCloud2Fields(5, "x", 1, sensor_msgs::PointField::FLOAT32,
-                                   "y", 1, sensor_msgs::PointField::FLOAT32,
-                                   "z", 1, sensor_msgs::PointField::FLOAT32,
-                                   "sigma", 1, sensor_msgs::PointField::FLOAT32,
-                                   "id", 1, sensor_msgs::PointField::UINT32);
+  sensor_msgs::msg::PointCloud2Modifier modifier(*msg);
+  modifier.setPointCloud2Fields(5, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "y", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "z", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "sigma", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "id", 1, sensor_msgs::msg::PointField::UINT32);
   modifier.resize(beacons.size());
-  sensor_msgs::PointCloud2Iterator<float> x_it(*msg, "x");
-  sensor_msgs::PointCloud2Iterator<float> y_it(*msg, "y");
-  sensor_msgs::PointCloud2Iterator<float> z_it(*msg, "z");
-  sensor_msgs::PointCloud2Iterator<float> sigma_it(*msg, "sigma");
-  sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
+  sensor_msgs::msg::PointCloud2Iterator<float> x_it(*msg, "x");
+  sensor_msgs::msg::PointCloud2Iterator<float> y_it(*msg, "y");
+  sensor_msgs::msg::PointCloud2Iterator<float> z_it(*msg, "z");
+  sensor_msgs::msg::PointCloud2Iterator<float> sigma_it(*msg, "sigma");
+  sensor_msgs::msg::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     // Compute the distance to each beacon
@@ -148,15 +153,15 @@ sensor_msgs::PointCloud2::ConstPtr beaconsToPointcloud(
     *id_it = id;
     ++x_it; ++y_it; ++z_it; ++sigma_it, ++id_it;
   }
-  return msg;
+  return sensor_msgs::msg::PointCloud2(msg);
 }
 
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::Odometry::ConstPtr robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry robotToOdometry(const Robot& state)
 {
-  auto msg = boost::make_shared<nav_msgs::Odometry>();
+  auto msg = nav_msgs::msg::Odometry::SharedPtr();
   msg->header.stamp = state.stamp;
   msg->header.frame_id = MAP_FRAME;
   msg->child_frame_id = BASELINK_FRAME;
@@ -185,7 +190,7 @@ nav_msgs::Odometry::ConstPtr robotToOdometry(const Robot& state)
   msg->twist.covariance[21] = 0.1;
   msg->twist.covariance[28] = 0.1;
   msg->twist.covariance[35] = 0.1;
-  return msg;
+  return nav_msgs::msg::Odometry(msg);
 }
 
 /**
@@ -244,33 +249,33 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::Imu::ConstPtr simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu simulateImu(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, IMU_SIGMA};
 
-  auto msg = boost::make_shared<sensor_msgs::Imu>();
+  auto msg = sensor_msgs::msg::Imu::SharedPtr();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
   msg->orientation_covariance[0] = -1;  // Simulated IMU does not provide orientation
   msg->angular_velocity.z = robot.vyaw + noise(generator);
   msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
   msg->linear_acceleration_covariance[0] = -1;  // Simulated IMU does not provide acceleration
-  return msg;
+  return sensor_msgs::msg::Imu(msg);
 }
 
 /**
  * @brief Create a simulated Odometry measurement from the current state
  */
-nav_msgs::Odometry::ConstPtr simulateWheelOdometry(const Robot& robot)
+nav_msgs::msg::Odometry simulateWheelOdometry(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> vx_noise{0.0, ODOM_VX_SIGMA};
   static std::normal_distribution<> vyaw_noise{0.0, ODOM_VYAW_SIGMA};
 
-  auto msg = boost::make_shared<nav_msgs::Odometry>();
+  auto msg = nav_msgs::msg::Odometry::SharedPtr();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = ODOM_FRAME;
   msg->child_frame_id = BASELINK_FRAME;
@@ -280,30 +285,30 @@ nav_msgs::Odometry::ConstPtr simulateWheelOdometry(const Robot& robot)
   msg->twist.covariance[0] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[7] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[35] = ODOM_VYAW_SIGMA * ODOM_VYAW_SIGMA;
-  return msg;
+  return nav_msgs::msg::Odometry(msg);
 }
 
-sensor_msgs::PointCloud2::ConstPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
+sensor_msgs::msg::PointCloud2 simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, RANGE_SIGMA};
 
-  auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
+  auto msg = sensor_msgs::msg::PointCloud2::SharedPtr();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
 
   // Configure the pointcloud to have the following fields: id, range, sigma
-  sensor_msgs::PointCloud2Modifier modifier(*msg);
-  modifier.setPointCloud2Fields(3, "id", 1, sensor_msgs::PointField::UINT32,
-                                   "range", 1, sensor_msgs::PointField::FLOAT64,
-                                   "sigma", 1, sensor_msgs::PointField::FLOAT64);
+  sensor_msgs::msg::PointCloud2Modifier modifier(*msg);
+  modifier.setPointCloud2Fields(3, "id", 1, sensor_msgs::msg::PointField::UINT32,
+                                   "range", 1, sensor_msgs::msg::PointField::FLOAT64,
+                                   "sigma", 1, sensor_msgs::msg::PointField::FLOAT64);
 
   // Generate the simulated range to each known beacon
   modifier.resize(beacons.size());
-  sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
-  sensor_msgs::PointCloud2Iterator<double> range_it(*msg, "range");
-  sensor_msgs::PointCloud2Iterator<double> sigma_it(*msg, "sigma");
+  sensor_msgs::msg::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
+  sensor_msgs::msg::PointCloud2Iterator<double> range_it(*msg, "range");
+  sensor_msgs::msg::PointCloud2Iterator<double> sigma_it(*msg, "sigma");
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     // Compute the distance to each beacon
@@ -317,27 +322,27 @@ sensor_msgs::PointCloud2::ConstPtr simulateRangeSensor(const Robot& robot, const
     *sigma_it = RANGE_SIGMA;
     ++id_it; ++range_it; ++sigma_it;
   }
-  return msg;
+  return sensor_msgs::msg::PointCloud2(msg);
 }
 
 /**
  * @brief Simulate a robot traveling in a circular path with wheel encoders, Imu, and a range sensor.
  *
  * The following simulated sensor topics are published:
- *  - The wheel encoders measure forward and rotational velocity and publish nav_msgs::Odometry messages on the
+ *  - The wheel encoders measure forward and rotational velocity and publish nav_msgs::msg::Odometry messages on the
  *    /wheel_odom topic at 10Hz.
- *  - The Imu measures z-axis rotational velocity and publishes sensor_msgs::Imu messages on the /imu topic at 10Hz.
- *  - The "range sensor" publishes special sensor_msgs::PointCloud2 messages on the /ranges topic. The PointCloud2
+ *  - The Imu measures z-axis rotational velocity and publishes sensor_msgs::msg::Imu messages on the /imu topic at 10Hz.
+ *  - The "range sensor" publishes special sensor_msgs::msg::PointCloud2 messages on the /ranges topic. The PointCloud2
  *    message contains three channels (id, range, sigma). The id field contains the unique ID of the range beacon
  *    being measured. The range field contains the measured distance between the robot and the range beacon in
  *    meters. The sigma field contains the range measurement uncertainty (standard deviation) in meters.
  *  - A prior known database of noisy beacon positions are published on the /prior_beacons latched topic as a
- *    sensor_msgs::PointCloud2 with the following fields: (x, y, z, sigma, id)
+ *    sensor_msgs::msg::PointCloud2 with the following fields: (x, y, z, sigma, id)
  *
  * In addition to the simulated sensors, the following ground truth topics are published:
- *  - The true position of each beacon is published as a sensor_msgs::PointCloud2 (x, y, z, sigma, id) topic on the
+ *  - The true position of each beacon is published as a sensor_msgs::msg::PointCloud2 (x, y, z, sigma, id) topic on the
  *    latched topic /true_beacons
- *  - The true position and velocity of the robot is published as a nav_msgs::Odometry message on the /ground_truth
+ *  - The true position and velocity of the robot is published as a nav_msgs::msg::Odometry message on the /ground_truth
  *    topic at 10Hz
  */
 int main(int argc, char **argv)
@@ -346,12 +351,12 @@ int main(int argc, char **argv)
 
   // TODO(CH3): Make this an rclcpp node!
   ros::NodeHandle node_handle;
-  ros::Publisher imu_publisher = node_handle.advertise<sensor_msgs::Imu>("imu", 1);
-  ros::Publisher true_beacons_publisher = node_handle.advertise<sensor_msgs::PointCloud2>("true_beacons", 1, true);
-  ros::Publisher prior_beacons_publisher = node_handle.advertise<sensor_msgs::PointCloud2>("prior_beacons", 1, true);
-  ros::Publisher wheel_odom_publisher = node_handle.advertise<nav_msgs::Odometry>("wheel_odom", 1);
-  ros::Publisher ground_truth_publisher = node_handle.advertise<nav_msgs::Odometry>("ground_truth", 1);
-  ros::Publisher range_publisher = node_handle.advertise<sensor_msgs::PointCloud2>("ranges", 1);
+  ros::Publisher imu_publisher = node_handle.advertise<sensor_msgs::msg::Imu>("imu", 1);
+  ros::Publisher true_beacons_publisher = node_handle.advertise<sensor_msgs::msg::PointCloud2>("true_beacons", 1, true);
+  ros::Publisher prior_beacons_publisher = node_handle.advertise<sensor_msgs::msg::PointCloud2>("prior_beacons", 1, true);
+  ros::Publisher wheel_odom_publisher = node_handle.advertise<nav_msgs::msg::Odometry>("wheel_odom", 1);
+  ros::Publisher ground_truth_publisher = node_handle.advertise<nav_msgs::msg::Odometry>("ground_truth", 1);
+  ros::Publisher range_publisher = node_handle.advertise<sensor_msgs::msg::PointCloud2>("ranges", 1);
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
