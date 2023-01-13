@@ -1,54 +1,92 @@
-# Fixed-lag smoother configuration
-optimization_frequency: 20
-transaction_timeout: 0.01
-lag_duration: 0.5
+state_estimator:
+  ros__parameters:
+    # parameters for the fixed-lag optimiser
+    optimization_frequency: 20.0
+    transaction_timeout: 0.01
+    lag_duration: 0.5
 
-motion_models:
-  unicycle_motion_model:
-    type: fuse_models::Unicycle2D
+    # parameters for the model loader (handled by the optimizer base-class)
+    # ROS2 requires forward-declaration of parameters,
+    # so mention the names of plugins you want to load first
 
-unicycle_motion_model:
-  #                         x      y      yaw    vx     vy     vyaw   ax   ay
-  process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
+    # list of motion models to load config for
+    motion_models:
+      # a list of human-readable names for the models
+      motion_model_list:
+        - unicycle_motion_model
 
-sensor_models:
-  initial_localization_sensor:
-    type: fuse_models::Unicycle2DIgnition
-    motion_models: [unicycle_motion_model]
-    ignition: true
-  odometry_sensor:
-    type: fuse_models::Odometry2D
-    motion_models: [unicycle_motion_model]
-  imu_sensor:
-    type: fuse_models::Imu2D
-    motion_models: [unicycle_motion_model]
+      # model-loader config for motion models mentioned above
+      # this specifies the state variables Fuse will attempt to estimate
+      # these motion models load their own config as nodes below
+      unicycle_motion_model:
+        type: fuse_models::Unicycle2D
 
-initial_localization_sensor:
-  publish_on_startup: true
-  #                x      y      yaw    vx     vy     vyaw    ax     ay
-  initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
-  initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
+    # list of sensor models to load config for
+    sensor_models:
+      # a list of human-readable names for the models
+      sensor_model_list:
+        - initial_localization_sensor
+        - odometry_sensor
+        - imu_sensor
 
-odometry_sensor:
-  topic: 'odom'
-  twist_target_frame: 'base_footprint'
-  linear_velocity_dimensions: ['x', 'y']
-  angular_velocity_dimensions: ['yaw']
+      # model-loader config for sensor models mentioned above
+      # this specifies which constraints will be generated
+      # and how the constraints will link to the state variables
+      # these sensor models load their own config as nodes below
+      initial_localization_sensor:
+        type: fuse_models::Unicycle2DIgnition
+        motion_models: [unicycle_motion_model]
+        ignition: true
 
-imu_sensor:
-  topic: 'imu'
-  twist_target_frame: 'base_footprint'
-  angular_velocity_dimensions: ['yaw']
+      odometry_sensor:
+        type: fuse_models::Odometry2D
+        motion_models: [unicycle_motion_model]
 
-publishers:
-  filtered_publisher:
-    type: fuse_models::Odometry2DPublisher
+      imu_sensor:
+        type: fuse_models::Imu2D
+        motion_models: [unicycle_motion_model]
 
-filtered_publisher:
-  topic: 'odom_filtered'
-  base_link_frame_id: 'base_footprint'
-  odom_frame_id: 'odom'
-  map_frame_id: 'map'
-  world_frame_id: 'odom'
-  publish_tf: true
-  publish_frequency: 10
+    # list of state estimation publishers to load config for
+    publishers:
+      # a list of human-readable names for the publishers
+      publisher_list:
+        - filtered_publisher
+
+      # model-loader config for state estimation publishers mentioned above
+      # these publishers load their own config as nodes below
+      filtered_publisher:
+        type: fuse_models::Odometry2DPublisher
+
+
+    # Motion Models
+    unicycle_motion_model:
+      #                         x      y      yaw    vx     vy     vyaw   ax   ay
+      process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
+
+    # Sensor Models
+    initial_localization_sensor:
+      publish_on_startup: true
+      #                x      y      yaw    vx     vy     vyaw    ax     ay
+      initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
+      initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
+
+    odometry_sensor:
+      topic: 'odom'
+      twist_target_frame: 'base_footprint'
+      linear_velocity_dimensions: ['x', 'y']
+      angular_velocity_dimensions: ['yaw']
+
+    imu_sensor:
+      topic: 'imu'
+      twist_target_frame: 'base_footprint'
+      angular_velocity_dimensions: ['yaw']
+
+    # Publishers
+    filtered_publisher:
+      topic: 'odom_filtered'
+      base_link_frame_id: 'base_footprint'
+      odom_frame_id: 'odom'
+      map_frame_id: 'map'
+      world_frame_id: 'odom'
+      publish_tf: true
+      publish_frequency: 10.0

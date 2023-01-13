@@ -38,7 +38,8 @@
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <string>
 
@@ -82,7 +83,7 @@ namespace fuse_tutorials
  * time by optimizer's thread, but any other ROS callbacks (timers, subscriptions, etc.) will be executed in the
  * callback queue thread. To make derived publishers easier to implement, the AsyncPublisher base class is provided,
  * which hides most of the thread synchronization details. The AsyncPublisher class provides its own callback queue
- * and spinner, making it act much like a typical, single-threaded ROS node. All of the original base Publisher methods
+ * and executor, making it act much like a typical, single-threaded ROS node. All of the original base Publisher methods
  * are wrapped. Instead, slightly modified versions are provided, which are executed within the AsyncPublisher's
  * spinner thread.
  *  - onInit() can be overridden instead of initialize()
@@ -109,9 +110,19 @@ public:
    * A default constructor is required by pluginlib. The real initialization of the publisher will occur in the
    * onInit() method. This will be called immediately after construction by the optimizer node. We do, however, specify
    * the number of threads to use to spin the callback queue. Generally this will be 1, unless you have a good reason
-   * to use a multi-threaded spinner.
+   * to use a multi-threaded executor.
    */
-  BeaconPublisher() : fuse_core::AsyncPublisher(1) {}  // TODO(methylDragon): Refactor this in the same way it was done in fuse_publishers
+  BeaconPublisher() : fuse_core::AsyncPublisher(1) {}
+
+  /**
+   * @brief Shadowing extension to the AsyncPublisher::initialize call
+   *
+   * This allows you to bind more node interfaces to the publisher than the ones supported by the
+   * base AsyncPublisher class.
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name) override;
 
   /**
    * @brief Perform any required initialization for the publisher
@@ -152,12 +163,23 @@ public:
    * @param[in] transaction - A read-only pointer to a Transaction object, describing all changes to the graph
    * @param[in] graph - A read-only pointer to the graph object, allowing queries to be performed whenever needed
    */
-  void notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph)
-    override;
+  void notifyCallback(
+    fuse_core::Transaction::ConstSharedPtr transaction,
+    fuse_core::Graph::ConstSharedPtr graph) override;
 
 protected:
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+
   std::string map_frame_id_;  //!< The name of the robot's map frame
-  ros::Publisher beacon_publisher_;  //!< Publish the set of beacon positions as a sensor_msgs::msg::PointCloud2 message
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr beacon_publisher_;  //!< Publish the set of beacon positions as a sensor_msgs::msg::PointCloud2 message
+
+  rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
 };
 
 }  // namespace fuse_tutorials

@@ -48,7 +48,7 @@ namespace fuse_core
 {
 
 /**
- * @brief A sensor model base class that provides an internal node and an internal callback queue.
+ * @brief A sensor model base class that provides an internal callback queue and executor.
  *
  * A sensor model plugin is responsible for generating new constraints, packaging them in a
  * fuse_core::Transaction object, and passing them along to the optimizer. The asynchronous
@@ -59,7 +59,7 @@ namespace fuse_core
  * standard ROS node. First and most obvious, the sensor model is designed as a plugin, with all
  * of the stipulations and requirements that come with all ROS plugins (must be derived from a
  * known base class, will be default constructed). Second, the base AsyncSensorModel class
- * provides an internal node that is hooked to a local callback queue and local executor on
+ * accepts node interfaces for a node that is hooked to a local callback queue and local executor on
  * init. This makes it act like a full ROS node -- subscriptions trigger message callbacks,
  * callbacks will fire sequentially, etc. However, authors of derived sensor models should be
  * aware of this fact and avoid creating additional sub-nodes, or at least take care when

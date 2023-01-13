@@ -40,7 +40,7 @@
 #include <fuse_tutorials/range_constraint.h>
 #include <fuse_variables/point_2d_landmark.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
@@ -49,14 +49,23 @@ PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeSensorModel, fuse_core::SensorModel)
 
 namespace fuse_tutorials
 {
+void RangeSensorModel::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name,
+  fuse_core::TransactionCallback transaction_callback)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
+}
+
 void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg)
 {
   // Store a copy of the beacon database. We use a map to allow efficient lookups by ID number.
-  sensor_msgs::msg::PointCloud2ConstIterator<float> x_it(msg, "x");
-  sensor_msgs::msg::PointCloud2ConstIterator<float> y_it(msg, "y");
-  sensor_msgs::msg::PointCloud2ConstIterator<float> z_it(msg, "z");
-  sensor_msgs::msg::PointCloud2ConstIterator<float> sigma_it(msg, "sigma");
-  sensor_msgs::msg::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
+  sensor_msgs::PointCloud2ConstIterator<float> x_it(msg, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> y_it(msg, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> z_it(msg, "z");
+  sensor_msgs::PointCloud2ConstIterator<float> sigma_it(msg, "sigma");
+  sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
   for (; x_it != x_it.end(); ++x_it, ++y_it, ++z_it, ++sigma_it, ++id_it)
   {
     beacon_db_[*id_it] = Beacon { *x_it, *y_it, *sigma_it };
@@ -66,10 +75,26 @@ void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::msg::PointCloud2&
 
 void RangeSensorModel::onInit()
 {
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+
   // Read settings from the parameter server, or any other one-time operations. This sensor model doesn't have any
   // user configuration to read. But we do need a copy of the beacon database. We will subscribe to that now, as it
   // is assumed to be constant -- no need to clear it if the optimizer is reset.
-  beacon_sub_ = node_handle_.subscribe("prior_beacons", 10, &RangeSensorModel::priorBeaconsCallback, this);
+  rclcpp::SubscriptionOptions sub_options;
+  sub_options.callback_group = cb_group_;
+
+  auto latched_qos = rclcpp::QoS(10);
+  latched_qos.transient_local();
+
+  beacon_sub_ = rclcpp::create_subscription<sensor_msgs::msg::PointCloud2>(
+    interfaces_,
+    "prior_beacons",
+    latched_qos,
+    std::bind(
+      &RangeSensorModel::priorBeaconsCallback, this, std::placeholders::_1
+    ),
+    sub_options
+  );
 }
 
 void RangeSensorModel::onStart()
@@ -82,7 +107,18 @@ void RangeSensorModel::onStart()
   // Subscribe to the ranges topic. Any received messages will be processed within the message callback function,
   // and the created constraints will be sent to the optimizer. By subscribing to the topic in onStart() and
   // unsubscribing in onStop(), we will only send transactions to the optimizer while it is running.
-  sub_ = node_handle_.subscribe("ranges", 10, &RangeSensorModel::rangesCallback, this);
+  rclcpp::SubscriptionOptions sub_options;
+  sub_options.callback_group = cb_group_;
+
+  sub_ = rclcpp::create_subscription<sensor_msgs::msg::PointCloud2>(
+    interfaces_,
+    "ranges",
+    10,
+    std::bind(
+      &RangeSensorModel::rangesCallback, this, std::placeholders::_1
+    ),
+    sub_options
+  );
 }
 
 void RangeSensorModel::onStop()
@@ -124,9 +160,9 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2& msg)
   transaction->addInvolvedStamp(msg.header.stamp);
 
   // Loop over the pointcloud, extracting the beacon ID, range, and measurement uncertainty for each detected beacon
-  sensor_msgs::msg::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
-  sensor_msgs::msg::PointCloud2ConstIterator<double> range_it(msg, "range");
-  sensor_msgs::msg::PointCloud2ConstIterator<double> sigma_it(msg, "sigma");
+  sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
+  sensor_msgs::PointCloud2ConstIterator<double> range_it(msg, "range");
+  sensor_msgs::PointCloud2ConstIterator<double> sigma_it(msg, "sigma");
   for (; id_it != id_it.end(); ++id_it, ++range_it, ++sigma_it)
   {
     // Each measure range will involve a different observed beacon. Construct a variable for this

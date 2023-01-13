@@ -31,15 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/util.hpp>
-<<<<<<< HEAD
 #include <fuse_msgs/srv/set_pose.hpp>
-#include <nav_msgs/Odometry.h>
-=======
-#include <fuse_models/SetPose.h>
 #include <nav_msgs/msg/odometry.hpp>
->>>>>>> eb51957... msg changes
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -122,26 +118,26 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::msg::PointCloud2 beaconsToPointcloud(
+sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(
   const std::vector<Beacon>& beacons,
   const rclcpp::Clock& clock)
 {
-  auto msg = sensor_msgs::msg::PointCloud2::SharedPtr();
+  auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
   msg->header.stamp = clock.now();
 
   msg->header.frame_id = MAP_FRAME;
-  sensor_msgs::msg::PointCloud2Modifier modifier(*msg);
+  sensor_msgs::PointCloud2Modifier modifier(*msg);
   modifier.setPointCloud2Fields(5, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
                                    "y", 1, sensor_msgs::msg::PointField::FLOAT32,
                                    "z", 1, sensor_msgs::msg::PointField::FLOAT32,
                                    "sigma", 1, sensor_msgs::msg::PointField::FLOAT32,
                                    "id", 1, sensor_msgs::msg::PointField::UINT32);
   modifier.resize(beacons.size());
-  sensor_msgs::msg::PointCloud2Iterator<float> x_it(*msg, "x");
-  sensor_msgs::msg::PointCloud2Iterator<float> y_it(*msg, "y");
-  sensor_msgs::msg::PointCloud2Iterator<float> z_it(*msg, "z");
-  sensor_msgs::msg::PointCloud2Iterator<float> sigma_it(*msg, "sigma");
-  sensor_msgs::msg::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
+  sensor_msgs::PointCloud2Iterator<float> x_it(*msg, "x");
+  sensor_msgs::PointCloud2Iterator<float> y_it(*msg, "y");
+  sensor_msgs::PointCloud2Iterator<float> z_it(*msg, "z");
+  sensor_msgs::PointCloud2Iterator<float> sigma_it(*msg, "sigma");
+  sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     // Compute the distance to each beacon
@@ -153,15 +149,15 @@ sensor_msgs::msg::PointCloud2 beaconsToPointcloud(
     *id_it = id;
     ++x_it; ++y_it; ++z_it; ++sigma_it, ++id_it;
   }
-  return sensor_msgs::msg::PointCloud2(msg);
+  return msg;
 }
 
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
 {
-  auto msg = nav_msgs::msg::Odometry::SharedPtr();
+  auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = state.stamp;
   msg->header.frame_id = MAP_FRAME;
   msg->child_frame_id = BASELINK_FRAME;
@@ -190,7 +186,7 @@ nav_msgs::msg::Odometry robotToOdometry(const Robot& state)
   msg->twist.covariance[21] = 0.1;
   msg->twist.covariance[28] = 0.1;
   msg->twist.covariance[35] = 0.1;
-  return nav_msgs::msg::Odometry(msg);
+  return msg;
 }
 
 /**
@@ -199,32 +195,58 @@ nav_msgs::msg::Odometry robotToOdometry(const Robot& state)
  * The state estimator will not run until it has been sent a starting pose.
  */
 void initializeStateEstimation(
-  const Robot& state, const rclcpp::Clock& clock)
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const Robot& state,
+  const rclcpp::Clock& clock,
+  const rclcpp::Logger& logger)
 {
   // Send the initial localization signal to the state estimator
-  auto srv = fuse_msgs::srv::SetPose();
-  srv.request.pose.header.frame_id = MAP_FRAME;
-  srv.request.pose.pose.pose.position.x = state.x;
-  srv.request.pose.pose.pose.position.y = state.y;
-  srv.request.pose.pose.pose.position.z = 0.0;
-  srv.request.pose.pose.pose.orientation.w = std::cos(state.yaw / 2);
-  srv.request.pose.pose.pose.orientation.x = 0.0;
-  srv.request.pose.pose.pose.orientation.y = 0.0;
-  srv.request.pose.pose.pose.orientation.z = std::sin(state.yaw / 2);
-  srv.request.pose.pose.covariance[0] = 1.0;
-  srv.request.pose.pose.covariance[7] = 1.0;
-  srv.request.pose.pose.covariance[14] = 1.0;
-  srv.request.pose.pose.covariance[21] = 1.0;
-  srv.request.pose.pose.covariance[28] = 1.0;
-  srv.request.pose.pose.covariance[35] = 1.0;
-  ros::service::waitForService("/state_estimation/set_pose", rclcpp::Duration::from_seconds(30.0));
+  auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
+  srv->pose.header.frame_id = MAP_FRAME;
+  srv->pose.pose.pose.position.x = state.x;
+  srv->pose.pose.pose.position.y = state.y;
+  srv->pose.pose.pose.position.z = 0.0;
+  srv->pose.pose.pose.orientation.w = std::cos(state.yaw / 2);
+  srv->pose.pose.pose.orientation.x = 0.0;
+  srv->pose.pose.pose.orientation.y = 0.0;
+  srv->pose.pose.pose.orientation.z = std::sin(state.yaw / 2);
+  srv->pose.pose.covariance[0] = 1.0;
+  srv->pose.pose.covariance[7] = 1.0;
+  srv->pose.pose.covariance[14] = 1.0;
+  srv->pose.pose.covariance[21] = 1.0;
+  srv->pose.pose.covariance[28] = 1.0;
+  srv->pose.pose.covariance[35] = 1.0;
+
+  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
+    interfaces.get_node_base_interface(),
+    interfaces.get_node_graph_interface(),
+    interfaces.get_node_services_interface(),
+    "/state_estimation/set_pose",
+    rclcpp::ServicesQoS()
+  );
+
+  while (!client->wait_for_service(std::chrono::seconds(30))
+         && interfaces.get_node_base_interface()->get_context()->is_valid())
+  {
+    RCLCPP_WARN_STREAM(
+      logger, "Waiting for '" << client->get_service_name() << "' service to become avaiable.");
+  }
+
   auto success = false;
   while (!success)
   {
-    rclcpp::Duration::from_seconds(0.1).sleep();
-    srv.request.pose.header.stamp = clock.now();
-    ros::service::call("/state_estimation/set_pose", srv);
-    success = srv.response.success;
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
+    srv->pose.header.stamp = clock.now();
+    auto result_future = client->async_send_request(srv);
+
+    if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future) !=
+      rclcpp::FutureReturnCode::SUCCESS)
+    {
+      RCLCPP_ERROR(logger, "service call failed :(");
+      client->remove_pending_request(result_future);
+      return;
+    }
+    success = result_future.get()->success;
   }
 }
 
@@ -249,33 +271,33 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, IMU_SIGMA};
 
-  auto msg = sensor_msgs::msg::Imu::SharedPtr();
+  auto msg = std::make_shared<sensor_msgs::msg::Imu>();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
   msg->orientation_covariance[0] = -1;  // Simulated IMU does not provide orientation
   msg->angular_velocity.z = robot.vyaw + noise(generator);
   msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
   msg->linear_acceleration_covariance[0] = -1;  // Simulated IMU does not provide acceleration
-  return sensor_msgs::msg::Imu(msg);
+  return msg;
 }
 
 /**
  * @brief Create a simulated Odometry measurement from the current state
  */
-nav_msgs::msg::Odometry simulateWheelOdometry(const Robot& robot)
+nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> vx_noise{0.0, ODOM_VX_SIGMA};
   static std::normal_distribution<> vyaw_noise{0.0, ODOM_VYAW_SIGMA};
 
-  auto msg = nav_msgs::msg::Odometry::SharedPtr();
+  auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = ODOM_FRAME;
   msg->child_frame_id = BASELINK_FRAME;
@@ -285,30 +307,30 @@ nav_msgs::msg::Odometry simulateWheelOdometry(const Robot& robot)
   msg->twist.covariance[0] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[7] = ODOM_VX_SIGMA * ODOM_VX_SIGMA;
   msg->twist.covariance[35] = ODOM_VYAW_SIGMA * ODOM_VYAW_SIGMA;
-  return nav_msgs::msg::Odometry(msg);
+  return msg;
 }
 
-sensor_msgs::msg::PointCloud2 simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
+sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
 {
   static std::random_device rd{};
   static std::mt19937 generator{rd()};
   static std::normal_distribution<> noise{0.0, RANGE_SIGMA};
 
-  auto msg = sensor_msgs::msg::PointCloud2::SharedPtr();
+  auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
   msg->header.stamp = robot.stamp;
   msg->header.frame_id = BASELINK_FRAME;
 
   // Configure the pointcloud to have the following fields: id, range, sigma
-  sensor_msgs::msg::PointCloud2Modifier modifier(*msg);
+  sensor_msgs::PointCloud2Modifier modifier(*msg);
   modifier.setPointCloud2Fields(3, "id", 1, sensor_msgs::msg::PointField::UINT32,
                                    "range", 1, sensor_msgs::msg::PointField::FLOAT64,
                                    "sigma", 1, sensor_msgs::msg::PointField::FLOAT64);
 
   // Generate the simulated range to each known beacon
   modifier.resize(beacons.size());
-  sensor_msgs::msg::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
-  sensor_msgs::msg::PointCloud2Iterator<double> range_it(*msg, "range");
-  sensor_msgs::msg::PointCloud2Iterator<double> sigma_it(*msg, "sigma");
+  sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
+  sensor_msgs::PointCloud2Iterator<double> range_it(*msg, "range");
+  sensor_msgs::PointCloud2Iterator<double> sigma_it(*msg, "sigma");
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     // Compute the distance to each beacon
@@ -322,7 +344,7 @@ sensor_msgs::msg::PointCloud2 simulateRangeSensor(const Robot& robot, const std:
     *sigma_it = RANGE_SIGMA;
     ++id_it; ++range_it; ++sigma_it;
   }
-  return sensor_msgs::msg::PointCloud2(msg);
+  return msg;
 }
 
 /**
@@ -347,24 +369,35 @@ sensor_msgs::msg::PointCloud2 simulateRangeSensor(const Robot& robot, const std:
  */
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "range_sensor_simulator");
+  rclcpp::init(argc, argv);
+  auto node = rclcpp::Node::make_shared("range_sensor_simulator");
+  auto logger = node->get_logger();
+  auto clock = node->get_clock();
 
   // TODO(CH3): Make this an rclcpp node!
-  ros::NodeHandle node_handle;
-  ros::Publisher imu_publisher = node_handle.advertise<sensor_msgs::msg::Imu>("imu", 1);
-  ros::Publisher true_beacons_publisher = node_handle.advertise<sensor_msgs::msg::PointCloud2>("true_beacons", 1, true);
-  ros::Publisher prior_beacons_publisher = node_handle.advertise<sensor_msgs::msg::PointCloud2>("prior_beacons", 1, true);
-  ros::Publisher wheel_odom_publisher = node_handle.advertise<nav_msgs::msg::Odometry>("wheel_odom", 1);
-  ros::Publisher ground_truth_publisher = node_handle.advertise<nav_msgs::msg::Odometry>("ground_truth", 1);
-  ros::Publisher range_publisher = node_handle.advertise<sensor_msgs::msg::PointCloud2>("ranges", 1);
+  auto latched_qos = rclcpp::QoS(1);
+  latched_qos.transient_local();
+
+  auto imu_publisher =
+    node->create_publisher<sensor_msgs::msg::Imu>("imu", 1);
+  auto true_beacons_publisher =
+    node->create_publisher<sensor_msgs::msg::PointCloud2>("true_beacons", latched_qos);
+  auto prior_beacons_publisher =
+    node->create_publisher<sensor_msgs::msg::PointCloud2>("prior_beacons", latched_qos);
+  auto wheel_odom_publisher =
+    node->create_publisher<nav_msgs::msg::Odometry>("wheel_odom", 1);
+  auto ground_truth_publisher =
+    node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
+  auto range_publisher =
+    node->create_publisher<sensor_msgs::msg::PointCloud2>("ranges", 1);
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
-  true_beacons_publisher->publish(beaconsToPointcloud(beacons), *node->get_clock());
+  true_beacons_publisher->publish(*beaconsToPointcloud(beacons, *clock));
 
   // Publish a set of noisy beacon locations to act as the known priors
   auto noisy_beacons = createNoisyBeacons(beacons);
-  prior_beacons_publisher->publish(beaconsToPointcloud(noisy_beacons, *node->get_clock());
+  prior_beacons_publisher->publish(*beaconsToPointcloud(noisy_beacons, *clock));
 
   // Initialize the robot state
   auto state = Robot();
@@ -377,24 +410,26 @@ int main(int argc, char **argv)
   state.vyaw = state.vx / ROBOT_PATH_RADIUS;
 
   // Send the initial localization pose to the state estimator
-  initializeStateEstimation(state, *node->get_clock());
+  initializeStateEstimation(node, state, *clock, logger);
 
   // Simulate the robot traveling in a circular path
   auto rate = rclcpp::Rate(10.0);
-  while (ros::ok())
+  while (node->get_node_base_interface()->get_context()->is_valid())
   {
     // Simulate the robot motion
     auto new_state = simulateRobotMotion(state, node->now());
     // Publish the new ground truth
-    ground_truth_publisher->publish(robotToOdometry(new_state));
+    ground_truth_publisher->publish(*robotToOdometry(new_state));
     // Generate and publish simulated measurements from the new robot state
-    imu_publisher->publish(simulateImu(new_state));
-    wheel_odom_publisher->publish(simulateWheelOdometry(new_state));
-    range_publisher->publish(simulateRangeSensor(new_state, beacons));
+    imu_publisher->publish(*simulateImu(new_state));
+    wheel_odom_publisher->publish(*simulateWheelOdometry(new_state));
+    range_publisher->publish(*simulateRangeSensor(new_state, beacons));
     // Wait for the next time step
     state = new_state;
+    rclcpp::spin_some(node);
     rate.sleep();
   }
 
+  rclcpp::shutdown();
   return 0;
 }

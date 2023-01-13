@@ -77,9 +77,9 @@ public:
   /**
    * @brief Initialize the AsyncPublisher object
    *
-   * This will store the provided name and graph object, and create an internal node for this
+   * This will store the provided name and graph object, and create an internal executor for this
    * instance that will use an internal callback queue serviced by a local thread. The
-   * AsyncPublisher::onInit() method will be called from here, once the internal node is properly
+   * AsyncPublisher::onInit() method will be called from here, once the callback queue is properly
    * configured.
    *
    * @param[in] interfaces The node interfaces to be used with the publisher
