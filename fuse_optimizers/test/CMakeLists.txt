@@ -17,7 +17,7 @@ find_package(ament_cmake_pytest REQUIRED)
 ament_add_gtest_executable(test_fixed_lag_ignition launch_tests/test_fixed_lag_ignition.cpp)
 target_link_libraries(test_fixed_lag_ignition ${PROJECT_NAME} ${nav_msgs_TARGETS})
 
-ament_add_pytest_test(fixed_lag_ignition_py "launch_tests/test_fixed_lag_ignition.py"
+ament_add_pytest_test(test_fixed_lag_ignition_py "launch_tests/test_fixed_lag_ignition.py"
   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
 

@@ -134,7 +134,7 @@ void Unicycle2DIgnition::onInit()
     interfaces_.get_node_services_interface(),
     fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_deprecated_service),
     std::bind(
-      &Unicycle2DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1, std::placeholders::_2),
+      &Unicycle2DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
     rclcpp::ServicesQoS(),
     cb_group_
   );
@@ -186,10 +186,12 @@ bool Unicycle2DIgnition::setPoseServiceCallback(
 {
   try
   {
-    process(req->pose, [service, request_id](){
-      fuse_msgs::srv::SetPose::Response response;
-      response.success = true;
-      service->send_response(*request_id, response);
+    process(
+      req->pose,
+      [service, request_id](){
+        fuse_msgs::srv::SetPose::Response response;
+        response.success = true;
+        service->send_response(*request_id, response);
     });
   }
   catch (const std::exception& e)
@@ -204,22 +206,30 @@ bool Unicycle2DIgnition::setPoseServiceCallback(
 }
 
 bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
-  const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req,
-  fuse_msgs::srv::SetPoseDeprecated::Response::SharedPtr)
+  rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
+  std::shared_ptr<rmw_request_id_t> request_id,
+  const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req)
 {
   try
   {
-    process(req->pose);
-    return true;
+    process(
+      req->pose,
+      [service, request_id](){
+        fuse_msgs::srv::SetPoseDeprecated::Response response;
+        service->send_response(*request_id, response);
+      });
   }
   catch (const std::exception& e)
   {
+    fuse_msgs::srv::SetPoseDeprecated::Response response;
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring request.");
-    return false;
+    service->send_response(*request_id, response);
   }
+  return true;
 }
 
-void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, std::function<void()> post_process)
+void Unicycle2DIgnition::process(
+  const geometry_msgs::msg::PoseWithCovarianceStamped& pose, std::function<void()> post_process)
 {
   // Verify we are in the correct state to process set pose requests
   if (!started_)

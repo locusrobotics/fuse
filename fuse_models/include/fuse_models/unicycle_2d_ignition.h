@@ -139,8 +139,9 @@ public:
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
   bool setPoseDeprecatedServiceCallback(
-    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req,
-    fuse_msgs::srv::SetPoseDeprecated::Response::SharedPtr);
+    rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
+    std::shared_ptr<rmw_request_id_t> request_id,
+    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req);
 
 protected:
   /**
@@ -156,7 +157,9 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, std::function<void()> post_process = nullptr);
+  void process(
+    const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+    std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a prior transaction based on the supplied pose

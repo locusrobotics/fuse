@@ -125,8 +125,9 @@ protected:
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
   bool setGraphServiceCallback(
-    const fuse_msgs::srv::SetGraph::Request::SharedPtr req,
-    fuse_msgs::srv::SetGraph::Response::SharedPtr res);
+    rclcpp::Service<fuse_msgs::srv::SetGraph>::SharedPtr service,
+    std::shared_ptr<rmw_request_id_t> request_id,
+    const fuse_msgs::srv::SetGraph::Request::SharedPtr req);
 
   /**
    * @brief Perform any required initialization for the kinematic ignition sensor
@@ -141,7 +142,8 @@ protected:
    *
    * @param[in] msg - The graph message
    */
-  void process(const fuse_msgs::msg::SerializedGraph& msg);
+  void process(
+    const fuse_msgs::msg::SerializedGraph& msg, std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph

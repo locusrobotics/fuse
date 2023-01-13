@@ -622,7 +622,7 @@ void loadSolverOptionsFromROS(
   fuse_core::getParam<std::vector<int64_t>>(
     interfaces, ns + "trust_region_minimizer_iterations_to_dump", std::vector<int64_t>());
   std::vector<int64_t> iterations_to_dump_tmp = interfaces.get_node_parameters_interface()
-    ->get_parameter("trust_region_minimizer_iterations_to_dump")
+    ->get_parameter(ns + "trust_region_minimizer_iterations_to_dump")
     .get_value<std::vector<int64_t>>();
   if (!iterations_to_dump_tmp.empty()) {
     solver_options.trust_region_minimizer_iterations_to_dump.reserve(iterations_to_dump_tmp.size());

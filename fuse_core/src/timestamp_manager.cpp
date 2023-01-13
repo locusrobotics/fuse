@@ -117,10 +117,6 @@ void TimestampManager::query(
         history_ending_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
       }
 
-      std::cout << history_beginning_stamp.seconds() << " | " << history_beginning_stamp.get_clock_type() << " || "
-                << history_ending_stamp.seconds() << " | " << history_ending_stamp.get_clock_type()
-                << std::endl;
-
       if ((history_iter != motion_model_history_.end()) &&
         (history_beginning_stamp == previous_stamp) &&
         (history_ending_stamp == current_stamp))

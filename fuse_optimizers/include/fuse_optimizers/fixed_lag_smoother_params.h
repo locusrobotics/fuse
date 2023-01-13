@@ -65,7 +65,7 @@ public:
    *
    * If an optimization takes longer than expected, an optimization cycle may be skipped. The optimization period
    * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
-   * parameter in Hz.
+   * parameter in Hz. "optimization_frequency" will be prioritized.
    */
   rclcpp::Duration optimization_period { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
 
@@ -103,22 +103,26 @@ public:
     // Read settings from the parameter server
     fuse_core::getPositiveParam(interfaces, "lag_duration", lag_duration);
 
-    if (interfaces.get_node_parameters_interface()->has_parameter("optimization_frequency"))
-    {
-      double optimization_frequency{ 1.0 / optimization_period.seconds() };
-      fuse_core::getPositiveParam(interfaces, "optimization_frequency", optimization_frequency);
-      optimization_period = rclcpp::Duration::from_seconds(RCUTILS_S_TO_NS(1.0 / optimization_frequency));
-    }
-    else
-    {
-      fuse_core::getPositiveParam(interfaces, "optimization_period", optimization_period);
+    double optimization_frequency{ -1.0 };
+    optimization_frequency = fuse_core::getParam(interfaces, "optimization_frequency", optimization_frequency);
+    fuse_core::getPositiveParam(interfaces, "optimization_period", optimization_period);
+
+    if (optimization_frequency != -1.0) {
+      if (optimization_frequency < 0) {
+        RCLCPP_WARN_STREAM(
+          interfaces.get_node_logging_interface()->get_logger(),
+          "The requested optimization_frequency parameter is < 0. Using the optimization_period"
+          "parameter instead!");
+      }
+      optimization_period =
+        rclcpp::Duration::from_seconds(1.0 / optimization_frequency);
     }
 
     fuse_core::getParam(interfaces, "reset_service", reset_service);
 
     fuse_core::getPositiveParam(interfaces, "transaction_timeout", transaction_timeout);
 
-    fuse_core::loadSolverOptionsFromROS(interfaces, solver_options);
+    fuse_core::loadSolverOptionsFromROS(interfaces, solver_options, "solver_options");
   }
 };
 

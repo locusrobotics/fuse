@@ -156,8 +156,6 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   {
     rclcpp::wait_for_message(odom_msg, node, "/odometry_publisher/odom", std::chrono::seconds(1));
   }
-  std::cout << rclcpp::Time(odom_msg.header.stamp).nanoseconds() << std::endl;
-  std::cout << rclcpp::Time(3, 0, RCL_ROS_TIME).nanoseconds() << std::endl;
   ASSERT_EQ(rclcpp::Time(odom_msg.header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
@@ -167,8 +165,6 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   EXPECT_NEAR(100.2, odom_msg.pose.pose.position.y, 0.10);
   EXPECT_NEAR(0.8660, odom_msg.pose.pose.orientation.z, 0.10);
   EXPECT_NEAR(0.5000, odom_msg.pose.pose.orientation.w, 0.10);
-
-  ASSERT_TRUE(false);
 }
 
 // NOTE(CH3): This main is required because the test is manually run by a launch test
