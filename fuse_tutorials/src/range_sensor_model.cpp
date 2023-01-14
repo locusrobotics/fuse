@@ -61,7 +61,7 @@ void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::PointCloud2::Cons
   {
     beacon_db_[*id_it] = Beacon { *x_it, *y_it, *sigma_it };
   }
-  RCLCPP_INFO_STREAM(node_->get_logger(), "Updated Beacon Database.");
+  RCLCPP_INFO_STREAM(logger_, "Updated Beacon Database.");
 }
 
 void RangeSensorModel::onInit()
@@ -69,7 +69,7 @@ void RangeSensorModel::onInit()
   // Read settings from the parameter server, or any other one-time operations. This sensor model doesn't have any
   // user configuration to read. But we do need a copy of the beacon database. We will subscribe to that now, as it
   // is assumed to be constant -- no need to clear it if the optimizer is reset.
-  beacon_subscriber_ = node_handle_.subscribe("prior_beacons", 10, &RangeSensorModel::priorBeaconsCallback, this);
+  beacon_sub_ = node_handle_.subscribe("prior_beacons", 10, &RangeSensorModel::priorBeaconsCallback, this);
 }
 
 void RangeSensorModel::onStart()
@@ -82,7 +82,7 @@ void RangeSensorModel::onStart()
   // Subscribe to the ranges topic. Any received messages will be processed within the message callback function,
   // and the created constraints will be sent to the optimizer. By subscribing to the topic in onStart() and
   // unsubscribing in onStop(), we will only send transactions to the optimizer while it is running.
-  subscriber_ = node_handle_.subscribe("ranges", 10, &RangeSensorModel::rangesCallback, this);
+  sub_ = node_handle_.subscribe("ranges", 10, &RangeSensorModel::rangesCallback, this);
 }
 
 void RangeSensorModel::onStop()
@@ -90,7 +90,7 @@ void RangeSensorModel::onStop()
   // Unsubscribe from the ranges topic. Since the sensor constraints are created and sent from the subscriber callback,
   // shutting down the subscriber effectively stops the creation of new constraints from this sensor model. This
   // ensures we only send transactions to the optimizer while it is running.
-  subscriber_.shutdown();
+  sub_.reset();
 }
 
 void RangeSensorModel::rangesCallback(const sensor_msgs::PointCloud2::ConstPtr& msg)

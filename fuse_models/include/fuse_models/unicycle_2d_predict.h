@@ -37,7 +37,7 @@
 #include <ceres/jet.h>
 #include <fuse_core/util.hpp>
 #include <fuse_core/eigen.hpp>
-#include <tf2_2d/tf2_2d.h>
+#include <tf2_2d/tf2_2d.hpp>
 
 #include <array>
 

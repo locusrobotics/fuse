@@ -36,9 +36,9 @@
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_models/unicycle_2d_ignition.h>
-#include <fuse_models/SetPose.h>
-#include <fuse_models/SetPoseDeprecated.h>
-#include <ros/ros.h>
+#include <fuse_msgs/srv/set_pose.hpp>
+#include <fuse_msgs/srv/set_pose_deprecated.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
 
@@ -87,13 +87,49 @@ const Derived* getConstraint(const fuse_core::Transaction& transaction)
 }
 
 
-TEST(Unicycle2DIgnition, InitialTransaction)
+class Unicycle2DIgnitionTestFixture : public ::testing::Test
+{
+public:
+  Unicycle2DIgnitionTestFixture()
+  {
+  }
+
+  void SetUp() override
+  {
+    rclcpp::init(0, nullptr);
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    spinner_ = std::thread(
+      [&]() {
+        executor_->spin();
+      });
+  }
+
+  void TearDown() override
+  {
+    executor_->cancel();
+    if (spinner_.joinable()) {
+     spinner_.join();
+    }
+    executor_.reset();
+    rclcpp::shutdown();
+  }
+
+   std::thread spinner_;  //!< Internal thread for spinning the executor
+   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+};
+
+TEST_F(Unicycle2DIgnitionTestFixture, InitialTransaction)
 {
   // Set some configuration
-  auto initial_state = std::vector<double>{0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_state", initial_state);
-  auto initial_sigma = std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_sigma", initial_sigma);
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "ignition_sensor.initial_state:="
+    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+    "-p", "ignition_sensor.initial_sigma:="
+    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]"});
+  auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
+  executor_->add_node(node);
 
   // Initialize the callback promise. Promises are single-use.
   callback_promise = std::promise<fuse_core::Transaction::SharedPtr>();
@@ -101,7 +137,7 @@ TEST(Unicycle2DIgnition, InitialTransaction)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // The ignition sensor should publish a transaction immediately. Wait for the callback to fire.
@@ -162,14 +198,19 @@ TEST(Unicycle2DIgnition, InitialTransaction)
   }
 }
 
-TEST(Unicycle2DIgnition, SkipInitialTransaction)
+TEST_F(Unicycle2DIgnitionTestFixture, SkipInitialTransaction)
 {
   // Set some configuration
-  auto initial_state = std::vector<double>{0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_state", initial_state);
-  auto initial_sigma = std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_sigma", initial_sigma);
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/publish_on_startup", false);
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "ignition_sensor.initial_state:="
+    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+    "-p", "ignition_sensor.initial_sigma:="
+    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
+    "-p", "ignition_sensor.publish_on_startup:=false"});
+  auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
+  executor_->add_node(node);
 
   // Initialize the callback promise. Promises are single-use.
   callback_promise = std::promise<fuse_core::Transaction::SharedPtr>();
@@ -177,7 +218,7 @@ TEST(Unicycle2DIgnition, SkipInitialTransaction)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // The ignition sensor should publish a transaction immediately. Wait for the callback to fire.
@@ -185,16 +226,21 @@ TEST(Unicycle2DIgnition, SkipInitialTransaction)
   ASSERT_FALSE(status == std::future_status::ready);
 }
 
-TEST(Unicycle2DIgnition, SetPoseService)
+TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
 {
   // Set some configuration
-  auto initial_state = std::vector<double>{0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_state", initial_state);
-  auto initial_sigma = std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_sigma", initial_sigma);
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/set_pose_service", "/set_pose");
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/reset_service", "");
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/publish_on_startup", false);
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "ignition_sensor.initial_state:="
+    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+    "-p", "ignition_sensor.initial_sigma:="
+    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
+    "-p", "ignition_sensor.set_pose_service:=set_pose",
+    "-p", "ignition_sensor.reset_service:=''",
+    "-p", "ignition_sensor.publish_on_startup:=false"});
+  auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
+  executor_->add_node(node);
 
   // Initialize the callback promise. Promises are single-use.
   callback_promise = std::promise<fuse_core::Transaction::SharedPtr>();
@@ -202,22 +248,24 @@ TEST(Unicycle2DIgnition, SetPoseService)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Call the SetPose service
-  fuse_models::SetPose srv;
-  srv.request.pose.header.stamp = rclcpp::Time(12, 345678910);
-  srv.request.pose.pose.pose.position.x = 1.0;
-  srv.request.pose.pose.pose.position.y = 2.0;
-  srv.request.pose.pose.pose.orientation.z = 0.0499792;  // yaw = 0.1rad
-  srv.request.pose.pose.pose.orientation.w = 0.9987503;
-  srv.request.pose.pose.covariance[0] = 1.0;
-  srv.request.pose.pose.covariance[7] = 2.0;
-  srv.request.pose.pose.covariance[35] = 3.0;
-  bool success = ros::service::call("/set_pose", srv);
-  ASSERT_TRUE(success);
-  EXPECT_TRUE(srv.response.success);
+  auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
+  srv->pose.header.stamp = rclcpp::Time(12, 345678910);
+  srv->pose.pose.pose.position.x = 1.0;
+  srv->pose.pose.pose.position.y = 2.0;
+  srv->pose.pose.pose.orientation.z = 0.0499792;  // yaw = 0.1rad
+  srv->pose.pose.pose.orientation.w = 0.9987503;
+  srv->pose.pose.covariance[0] = 1.0;
+  srv->pose.pose.covariance[7] = 2.0;
+  srv->pose.pose.covariance[35] = 3.0;
+  auto client = node->create_client<fuse_msgs::srv::SetPose>("unicycle_2d_ignition_test/set_pose");
+  ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
+  auto result = client->async_send_request(srv);
+  ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
+  EXPECT_TRUE(result.get()->success);
 
   // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
@@ -277,16 +325,21 @@ TEST(Unicycle2DIgnition, SetPoseService)
   }
 }
 
-TEST(Unicycle2DIgnition, SetPoseDeprecatedService)
+TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
 {
   // Set some configuration
-  auto initial_state = std::vector<double>{0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_state", initial_state);
-  auto initial_sigma = std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/initial_sigma", initial_sigma);
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/set_pose_deprecated_service", "/set_pose_deprecated");
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/reset_service", "");
-  ros::param::set("/unicycle_2d_ignition_test/ignition_sensor/publish_on_startup", false);
+  rclcpp::NodeOptions options;
+  options.arguments({
+    "--ros-args",
+    "-p", "ignition_sensor.initial_state:="
+    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+    "-p", "ignition_sensor.initial_sigma:="
+    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
+    "-p", "ignition_sensor.set_pose_deprecated_service:=set_pose_deprecated",
+    "-p", "ignition_sensor.reset_service:=''",
+    "-p", "ignition_sensor.publish_on_startup:=false"});
+  auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
+  executor_->add_node(node);
 
   // Initialize the callback promise. Promises are single-use.
   callback_promise = std::promise<fuse_core::Transaction::SharedPtr>();
@@ -294,21 +347,23 @@ TEST(Unicycle2DIgnition, SetPoseDeprecatedService)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize("ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Call the SetPose service
-  fuse_models::SetPoseDeprecated srv;
-  srv.request.pose.header.stamp = rclcpp::Time(12, 345678910);
-  srv.request.pose.pose.pose.position.x = 1.0;
-  srv.request.pose.pose.pose.position.y = 2.0;
-  srv.request.pose.pose.pose.orientation.z = 0.0499792;  // yaw = 0.1rad
-  srv.request.pose.pose.pose.orientation.w = 0.9987503;
-  srv.request.pose.pose.covariance[0] = 1.0;
-  srv.request.pose.pose.covariance[7] = 2.0;
-  srv.request.pose.pose.covariance[35] = 3.0;
-  bool success = ros::service::call("/set_pose_deprecated", srv);
-  ASSERT_TRUE(success);
+  auto srv = std::make_shared<fuse_msgs::srv::SetPoseDeprecated::Request>();
+  srv->pose.header.stamp = rclcpp::Time(12, 345678910);
+  srv->pose.pose.pose.position.x = 1.0;
+  srv->pose.pose.pose.position.y = 2.0;
+  srv->pose.pose.pose.orientation.z = 0.0499792;  // yaw = 0.1rad
+  srv->pose.pose.pose.orientation.w = 0.9987503;
+  srv->pose.pose.covariance[0] = 1.0;
+  srv->pose.pose.covariance[7] = 2.0;
+  srv->pose.pose.covariance[35] = 3.0;
+  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>("unicycle_2d_ignition_test/set_pose_deprecated");
+  ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
+  auto result = client->async_send_request(srv);
+  ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
 
   // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
@@ -366,16 +421,4 @@ TEST(Unicycle2DIgnition, SetPoseDeprecatedService)
     EXPECT_MATRIX_NEAR(expected_mean, actual->mean(), 1.0e-9);
     EXPECT_MATRIX_NEAR(expected_cov, actual->covariance(), 1.0e-9);
   }
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "unicycle_2d_ignition_test");
-  auto spinner = ros::AsyncSpinner(1);
-  spinner.start();
-  int ret = RUN_ALL_TESTS();
-  spinner.stop();
-  ros::shutdown();
-  return ret;
 }

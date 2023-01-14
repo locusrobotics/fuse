@@ -35,6 +35,7 @@
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
 #include <gtest/gtest.h>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 
 #include <ceres/autodiff_cost_function.h>
@@ -99,7 +100,13 @@ TEST(CostFunction, evaluateCostFunction)
 
   // Check jacobians are correct using a gradient checker
   ceres::NumericDiffOptions numeric_diff_options;
-  ceres::GradientChecker gradient_checker(&cost_function, NULL, numeric_diff_options);
+
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+  std::vector<const ceres::Manifold *> parameterizations;
+  ceres::GradientChecker gradient_checker(&cost_function, &parameterizations, numeric_diff_options);
+#else
+  ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
+#endif
 
   // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
   ceres::GradientChecker::ProbeResults probe_results;
@@ -132,10 +139,4 @@ TEST(CostFunction, evaluateCostFunction)
       << "Autodiff Jacobian[" << i << "] =\n" << J_autodiff[i].format(HeavyFmt)
       << "\nAnalytic Jacobian[" << i << "] =\n" << J[i].format(HeavyFmt);
   }
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

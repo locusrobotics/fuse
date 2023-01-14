@@ -52,14 +52,13 @@ void AsyncPublisher::initialize(
   node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   const std::string & name)
 {
-  interfaces_ = interfaces;
-
   if (initialized_) {
     throw std::runtime_error("Calling initialize on an already initialized AsyncPublisher!");
   }
 
   // Initialize internal state
   name_ = name;  // NOTE(methylDragon): Used in derived classes
+  interfaces_ = interfaces;
 
   auto context = interfaces_.get_node_base_interface()->get_context();
   auto executor_options = rclcpp::ExecutorOptions();
@@ -72,8 +71,7 @@ void AsyncPublisher::initialize(
       executor_options, executor_thread_count_);
   }
 
-  callback_queue_ =
-    std::make_shared<CallbackAdapter>(context);
+  callback_queue_ = std::make_shared<CallbackAdapter>(context);
 
   // This callback group MUST be re-entrant in order to support parallelization
   cb_group_ = interfaces_.get_node_base_interface()->create_callback_group(

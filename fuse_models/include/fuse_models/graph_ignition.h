@@ -35,15 +35,16 @@
 #ifndef FUSE_MODELS_GRAPH_IGNITION_H
 #define FUSE_MODELS_GRAPH_IGNITION_H
 
-#include <fuse_models/SetGraph.h>
+#include <fuse_msgs/srv/set_graph.hpp>
 #include <fuse_models/parameters/graph_ignition_params.h>
 
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/graph_deserializer.hpp>
 
-#include <fuse_msgs/SerializedGraph.h>
-#include <ros/ros.h>
+#include <fuse_msgs/msg/serialized_graph.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <std_srvs/srv/empty.hpp>
 
 #include <atomic>
 
@@ -64,9 +65,9 @@ namespace fuse_models
  *
  * Parameters:
  *  - ~queue_size (int, default: 10) The subscriber queue size for the graph messages
- *  - ~reset_service (string, default: "~reset") The name of the reset service to call before sending a transaction
- *  - ~set_graph_service (string, default: "~set_graph") The name of the set_graph service to advertise
- *  - ~topic (string, default: "~graph") The topic name for received Graph messages
+ *  - ~reset_service (string, default: "reset") The name of the reset service to call before sending a transaction
+ *  - ~set_graph_service (string, default: "set_graph") The name of the set_graph service to advertise
+ *  - ~topic (string, default: "graph") The topic name for received Graph messages
  */
 class GraphIgnition : public fuse_core::AsyncSensorModel
 {
@@ -85,6 +86,14 @@ public:
    * @brief Destructor
    */
   ~GraphIgnition() = default;
+
+  /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
@@ -110,12 +119,14 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::SerializedGraph::ConstPtr& msg);
+  void subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  bool setGraphServiceCallback(fuse_models::SetGraph::Request& req, fuse_models::SetGraph::Response& res);
+  bool setGraphServiceCallback(
+    const fuse_msgs::srv::SetGraph::Request::SharedPtr req,
+    fuse_msgs::srv::SetGraph::Response::SharedPtr res);
 
   /**
    * @brief Perform any required initialization for the kinematic ignition sensor
@@ -130,7 +141,7 @@ protected:
    *
    * @param[in] msg - The graph message
    */
-  void process(const fuse_msgs::SerializedGraph& msg);
+  void process(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph
@@ -140,15 +151,24 @@ protected:
    */
   void sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp);
 
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Graph,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Services,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
   std::atomic_bool started_;  //!< Flag indicating the sensor has been started
+  rclcpp::Logger logger_;  //!< The sensor model's logger
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
-  ros::ServiceClient reset_client_;  //!< Service client used to call the "reset" service on the optimizer
-
-  ros::ServiceServer set_graph_service_;  //!< ROS service server that receives SetGraph requests
-
-  ros::Subscriber subscriber_;  //!< ROS subscriber that receives SerializedGraph messages
+  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr reset_client_;  //!< Service client used to call the "reset" service on the optimizer
+  rclcpp::Service<fuse_msgs::srv::SetGraph>::SharedPtr set_graph_service_;
+  rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr sub_;
 
   fuse_core::GraphDeserializer graph_deserializer_;  //!< Deserializer for SerializedGraph messages
 };

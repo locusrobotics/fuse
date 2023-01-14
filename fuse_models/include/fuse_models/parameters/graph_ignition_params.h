@@ -37,8 +37,6 @@
 
 #include <fuse_models/parameters/parameter_base.h>
 
-#include <ros/node_handle.h>
-
 #include <string>
 
 namespace fuse_models
@@ -56,14 +54,23 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+   * @param[in] interfaces - The node interfaces with which to load parameters
+   * @param[in] namespace_string - The parameter namespace to use
    */
-  void loadFromROS(const ros::NodeHandle& nh) final
+  void loadFromROS(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string& namespace_string)
   {
-    nh.getParam("queue_size", queue_size);
-    nh.getParam("reset_service", reset_service);
-    nh.getParam("set_graph_service", set_graph_service);
-    nh.getParam("topic", topic);
+    std::string ns = get_well_formatted_param_namespace_string(namespace_string);
+
+    queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
+    reset_service = fuse_core::getParam(interfaces, ns + "reset_service", reset_service);
+    set_graph_service = fuse_core::getParam(interfaces, ns + "set_graph_service", set_graph_service);
+    topic = fuse_core::getParam(interfaces, ns + "topic", topic);
   }
 
   /**
@@ -74,17 +81,17 @@ public:
   /**
    * @brief The name of the reset service to call before sending transactions to the optimizer
    */
-  std::string reset_service{ "~reset" };
+  std::string reset_service{ "reset" };
 
   /**
    * @brief The name of the set_graph service to advertise
    */
-  std::string set_graph_service{ "~set_graph" };
+  std::string set_graph_service{ "set_graph" };
 
   /**
    * @brief The topic name for received SerializedGraph messages
    */
-  std::string topic{ "~graph" };
+  std::string topic{ "graph" };
 };
 
 }  // namespace parameters

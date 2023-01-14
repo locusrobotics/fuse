@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/util.hpp>
-#include <fuse_models/SetPose.h>
+#include <fuse_msgs/srv/set_pose.hpp>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
@@ -197,7 +197,7 @@ void initializeStateEstimation(
   const Robot& state, const rclcpp::Clock& clock)
 {
   // Send the initial localization signal to the state estimator
-  auto srv = fuse_models::SetPose();
+  auto srv = fuse_msgs::srv::SetPose();
   srv.request.pose.header.frame_id = MAP_FRAME;
   srv.request.pose.pose.pose.position.x = state.x;
   srv.request.pose.pose.pose.position.y = state.y;
@@ -355,11 +355,11 @@ int main(int argc, char **argv)
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
-  true_beacons_publisher.publish(beaconsToPointcloud(beacons), *node->get_clock());
+  true_beacons_publisher->publish(beaconsToPointcloud(beacons), *node->get_clock());
 
   // Publish a set of noisy beacon locations to act as the known priors
   auto noisy_beacons = createNoisyBeacons(beacons);
-  prior_beacons_publisher.publish(beaconsToPointcloud(noisy_beacons, *node->get_clock());
+  prior_beacons_publisher->publish(beaconsToPointcloud(noisy_beacons, *node->get_clock());
 
   // Initialize the robot state
   auto state = Robot();
@@ -381,11 +381,11 @@ int main(int argc, char **argv)
     // Simulate the robot motion
     auto new_state = simulateRobotMotion(state, node->now());
     // Publish the new ground truth
-    ground_truth_publisher.publish(robotToOdometry(new_state));
+    ground_truth_publisher->publish(robotToOdometry(new_state));
     // Generate and publish simulated measurements from the new robot state
-    imu_publisher.publish(simulateImu(new_state));
-    wheel_odom_publisher.publish(simulateWheelOdometry(new_state));
-    range_publisher.publish(simulateRangeSensor(new_state, beacons));
+    imu_publisher->publish(simulateImu(new_state));
+    wheel_odom_publisher->publish(simulateWheelOdometry(new_state));
+    range_publisher->publish(simulateRangeSensor(new_state, beacons));
     // Wait for the next time step
     state = new_state;
     rate.sleep();

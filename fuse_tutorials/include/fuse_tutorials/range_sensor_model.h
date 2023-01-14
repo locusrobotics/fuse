@@ -169,9 +169,9 @@ protected:
   };
 
   std::unordered_map<unsigned int, Beacon> beacon_db_;  //!< The estimated position of each beacon
-  ros::Subscriber beacon_subscriber_;  //!< ROS subscriber for the database of prior beacon positions
+  ros::Subscriber beacon_sub_;  //!< ROS subscription for the database of prior beacon positions
   bool initialized_ { false };  //!< Flag indicating the initial beacon positions have been processed
-  ros::Subscriber subscriber_;  //!< ROS subscriber for the range sensor measurements
+  ros::Subscriber sub_;  //!< ROS subscription for the range sensor measurements
 };
 
 }  // namespace fuse_tutorials

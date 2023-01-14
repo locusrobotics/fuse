@@ -1,4 +1,4 @@
-<library path="lib/libfuse_tutorials">
+<library path="fuse_tutorials">
   <class type="fuse_tutorials::RangeConstraint" base_class_type="fuse_tutorials::RangeConstraint">
     <description>
       Implements a range-only measurement constraint between the robot and a landmark. The main purpose is to

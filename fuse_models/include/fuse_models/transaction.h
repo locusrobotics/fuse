@@ -40,8 +40,8 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
 
-#include <fuse_msgs/SerializedTransaction.h>
-#include <ros/ros.h>
+#include <fuse_msgs/msg/serialized_transaction.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_models
 {
@@ -50,7 +50,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces transactions with the same added and removed constraints from an input
  * transaction. This is useful for debugging purposes because it allows to play back the recorded transactions.
  *
- * This sensor subscribes to a fuse_msgs::SerializedTransaction topic and deserializes each received message into a
+ * This sensor subscribes to a fuse_msgs::msg::SerializedTransaction topic and deserializes each received message into a
  * transaction.
  *
  * Parameters:
@@ -58,7 +58,7 @@ namespace fuse_models
  *  - ~topic (string) The topic to which to subscribe for the transaction messages
  *
  * Subscribes:
- *  - topic (fuse_msgs::SerializedTransaction) Transaction
+ *  - topic (fuse_msgs::msg::SerializedTransaction) Transaction
  */
 class Transaction : public fuse_core::AsyncSensorModel
 {
@@ -75,6 +75,14 @@ public:
    * @brief Destructor
    */
   virtual ~Transaction() = default;
+
+  /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
 
 protected:
   /**
@@ -96,11 +104,19 @@ protected:
    * @brief Callback for transaction messages
    * @param[in] msg - The transaction message to process
    */
-  void process(const fuse_msgs::SerializedTransaction::ConstPtr& msg);
+  void process(const fuse_msgs::msg::SerializedTransaction& msg);
+
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
-  ros::Subscriber subscriber_;  //!< ROS subscriber that receives SerializedTransaction messages
+  rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr sub_;
 
   fuse_core::TransactionDeserializer transaction_deserializer_;  //!< Deserializer for SerializedTransaction messages
 };

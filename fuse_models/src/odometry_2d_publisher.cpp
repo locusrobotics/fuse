@@ -39,15 +39,16 @@
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
-#include <pluginlib/class_list_macros.h>
-#include <tf2_2d/tf2_2d.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <tf2_2d/tf2_2d.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
 #include <algorithm>
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -63,31 +64,63 @@ namespace fuse_models
 Odometry2DPublisher::Odometry2DPublisher() :
   fuse_core::AsyncPublisher(1),
   device_id_(fuse_core::uuid::NIL),
+  logger_(rclcpp::get_logger("uninitialized")),
   latest_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME)),
-  latest_covariance_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME)),
-  publish_timer_spinner_(1, &publish_timer_callback_queue_)
+  latest_covariance_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME))
 {
+}
+
+void Odometry2DPublisher::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncPublisher::initialize(interfaces, name);
 }
 
 void Odometry2DPublisher::onInit()
 {
-  // Read settings from the parameter sever
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  params_.loadFromROS(private_node_handle_);
+  tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(interfaces_);
+
+  // Read settings from the parameter sever
+  device_id_ = fuse_variables::loadDeviceId(interfaces_);
+
+  params_.loadFromROS(interfaces_, name_);
 
   if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
   {
-    tf_buffer_ = std::make_unique<tf2_ros::Buffer>(params_.tf_cache_time);
-    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, node_handle_);
+    tf_buffer_ = std::make_unique<tf2_ros::Buffer>(
+      clock_,
+      params_.tf_cache_time.to_chrono<std::chrono::nanoseconds>()
+      // , interfaces_  // NOTE(methylDragon): This one is pending a change on tf2_ros/buffer.h
+                        // TODO(methylDragon): See above ^
+    );
+
+    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
+      *tf_buffer_,
+      interfaces_.get_node_base_interface(),
+      interfaces_.get_node_logging_interface(),
+      interfaces_.get_node_parameters_interface(),
+      interfaces_.get_node_topics_interface());
   }
 
-  odom_pub_ = node_handle_.advertise<nav_msgs::Odometry>(ros::names::resolve(params_.topic), params_.queue_size);
-  acceleration_pub_ = node_handle_.advertise<geometry_msgs::AccelWithCovarianceStamped>(
-      ros::names::resolve(params_.acceleration_topic), params_.queue_size);
+  // Advertise the topics
+  rclcpp::PublisherOptions pub_options;
+  pub_options.callback_group = cb_group_;
 
-  publish_timer_node_handle_.setCallbackQueue(&publish_timer_callback_queue_);
-  publish_timer_spinner_.start();
+  odom_pub_ = rclcpp::create_publisher<nav_msgs::msg::Odometry>(
+    interfaces_,
+    fuse_core::joinTopicName(name_, params_.topic),
+    params_.queue_size,
+    pub_options);
+  acceleration_pub_ = rclcpp::create_publisher<geometry_msgs::msg::AccelWithCovarianceStamped>(
+    interfaces_,
+    fuse_core::joinTopicName(name_, params_.acceleration_topic),
+    params_.queue_size,
+    pub_options);
 }
 
 void Odometry2DPublisher::notifyCallback(
@@ -103,7 +136,7 @@ void Odometry2DPublisher::notifyCallback(
       latest_stamp_ = latest_stamp;
     }
 
-    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                 "Failed to find a matching set of state variables with device id '"
                                 << device_id_ << "'.");
     return;
@@ -116,8 +149,8 @@ void Odometry2DPublisher::notifyCallback(
   fuse_core::UUID velocity_angular_uuid;
   fuse_core::UUID acceleration_linear_uuid;
 
-  nav_msgs::Odometry odom_output;
-  geometry_msgs::AccelWithCovarianceStamped acceleration_output;
+  nav_msgs::msg::Odometry odom_output;
+  geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
   if (!getState(
          *graph,
          latest_stamp,
@@ -145,10 +178,10 @@ void Odometry2DPublisher::notifyCallback(
   // Don't waste CPU computing the covariance if nobody is listening
   rclcpp::Time latest_covariance_stamp = latest_covariance_stamp_;
   bool latest_covariance_valid = latest_covariance_valid_;
-  if (odom_pub_.getNumSubscribers() > 0 || acceleration_pub_.getNumSubscribers() > 0)
+  if (odom_pub_->get_subscription_count() > 0 || acceleration_pub_->get_subscription_count() > 0)
   {
     // Throttle covariance computation
-    if (params_.covariance_throttle_period.isZero() ||
+    if (params_.covariance_throttle_period.nanoseconds() == 0 ||
        latest_stamp - latest_covariance_stamp > params_.covariance_throttle_period)
     {
       latest_covariance_stamp = latest_stamp;
@@ -196,8 +229,8 @@ void Odometry2DPublisher::notifyCallback(
       }
       catch (const std::exception& e)
       {
-        RCLCPP_WARN_STREAM(node_->get_logger(),
-                           "An error occurred computing the covariance information for " << latest_stamp
+        RCLCPP_WARN_STREAM(logger_,
+                           "An error occurred computing the covariance information for " << latest_stamp.nanoseconds()
                            << ". The covariance will be set to zero.\n" << e.what());
         std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
         std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
@@ -234,13 +267,16 @@ void Odometry2DPublisher::onStart()
   synchronizer_ = Synchronizer(device_id_);
   latest_stamp_ = latest_covariance_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   latest_covariance_valid_ = false;
-  odom_output_ = nav_msgs::Odometry();
-  acceleration_output_ = geometry_msgs::AccelWithCovarianceStamped();
+  odom_output_ = nav_msgs::msg::Odometry();
+  acceleration_output_ = geometry_msgs::msg::AccelWithCovarianceStamped();
 
   // TODO(CH3): Add this to a separate callback group for async behavior
-  publish_timer_ = this->node_.create_timer(
-    rclcpp::Duration::from_seconds(1.0 / params_.publish_frequency),
-    std::bind(&Odometry2DPublisher::publishTimerCallback, this)
+  publish_timer_ = rclcpp::create_timer(
+    interfaces_,
+    clock_,
+    std::chrono::duration<double>(1.0 / params_.publish_frequency),
+    std::move(std::bind(&Odometry2DPublisher::publishTimerCallback, this)),
+    cb_group_
   );
 
   delayed_throttle_filter_.reset();
@@ -248,7 +284,7 @@ void Odometry2DPublisher::onStart()
 
 void Odometry2DPublisher::onStop()
 {
-  publish_timer_.cancel();
+  publish_timer_->cancel();
 }
 
 bool Odometry2DPublisher::getState(
@@ -260,8 +296,8 @@ bool Odometry2DPublisher::getState(
   fuse_core::UUID& velocity_linear_uuid,
   fuse_core::UUID& velocity_angular_uuid,
   fuse_core::UUID& acceleration_linear_uuid,
-  nav_msgs::Odometry& odometry,
-  geometry_msgs::AccelWithCovarianceStamped& acceleration)
+  nav_msgs::msg::Odometry& odometry,
+  geometry_msgs::msg::AccelWithCovarianceStamped& acceleration)
 {
   try
   {
@@ -305,14 +341,14 @@ bool Odometry2DPublisher::getState(
   }
   catch (const std::exception& e)
   {
-    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
-                                "Failed to find a state at time " << stamp << ". Error: " << e.what());
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
+                                "Failed to find a state at time " << stamp.nanoseconds() << ". Error: " << e.what());
     return false;
   }
   catch (...)
   {
-    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 10.0 * 1000,
-                                "Failed to find a state at time " << stamp << ". Error: unknown");
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
+                                "Failed to find a state at time " << stamp.nanoseconds() << ". Error: unknown");
     return false;
   }
 
@@ -324,8 +360,8 @@ void Odometry2DPublisher::publishTimerCallback()
   rclcpp::Time latest_stamp;
   rclcpp::Time latest_covariance_stamp;
   bool latest_covariance_valid;
-  nav_msgs::Odometry odom_output;
-  geometry_msgs::AccelWithCovarianceStamped acceleration_output;
+  nav_msgs::msg::Odometry odom_output;
+  geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -339,7 +375,7 @@ void Odometry2DPublisher::publishTimerCallback()
   if (!fuse_core::is_valid(latest_stamp))
   {
     RCLCPP_WARN_STREAM_EXPRESSION(
-      node_->get_logger(), delayed_throttle_filter_.isEnabled(),
+      logger_, delayed_throttle_filter_.isEnabled(),
       "No valid state data yet. Delaying tf broadcast.");
     return;
   }
@@ -350,10 +386,11 @@ void Odometry2DPublisher::publishTimerCallback()
   // If requested, we need to project our state forward in time using the 2D kinematic model
   if (params_.predict_to_current_time)
   {
+    rclcpp::Time timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
     tf2_2d::Vector2 velocity_linear;
     tf2::fromMsg(odom_output.twist.twist.linear, velocity_linear);
 
-    const double dt = event.current_real.seconds() - odom_output.header.stamp.seconds();
+    const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
 
     fuse_core::Matrix8d jacobian;
 
@@ -391,8 +428,8 @@ void Odometry2DPublisher::publishTimerCallback()
       acceleration_output.accel.accel.linear.y = acceleration_linear.y();
     }
 
-    odom_output.header.stamp = event.current_real;
-    acceleration_output.header.stamp = event.current_real;
+    odom_output.header.stamp = timer_now;
+    acceleration_output.header.stamp = timer_now;
 
     // Either the last covariance computation was skipped because there was no subscriber,
     // or it failed
@@ -470,8 +507,8 @@ void Odometry2DPublisher::publishTimerCallback()
     }
   }
 
-  odom_pub_.publish(odom_output);
-  acceleration_pub_.publish(acceleration_output);
+  odom_pub_->publish(odom_output);
+  acceleration_pub_->publish(acceleration_output);
 
   if (params_.publish_tf)
   {
@@ -484,7 +521,7 @@ void Odometry2DPublisher::publishTimerCallback()
       std::swap(frame_id, child_frame_id);
     }
 
-    geometry_msgs::TransformStamped trans;
+    geometry_msgs::msg::TransformStamped trans;
     trans.header.stamp = odom_output.header.stamp;
     trans.header.frame_id = frame_id;
     trans.child_frame_id = child_frame_id;
@@ -503,7 +540,7 @@ void Odometry2DPublisher::publishTimerCallback()
           trans.header.stamp,
           params_.tf_timeout);
 
-        geometry_msgs::TransformStamped map_to_odom;
+        geometry_msgs::msg::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, trans);
         map_to_odom.child_frame_id = params_.odom_frame_id;
         trans = map_to_odom;
@@ -511,7 +548,7 @@ void Odometry2DPublisher::publishTimerCallback()
       catch (const std::exception& e)
       {
         RCLCPP_WARN_STREAM_THROTTLE(
-          node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
+          logger_, *clock_, 5.0 * 1000,
           "Could not lookup the " << params_.base_link_frame_id << "->"
           << params_.odom_frame_id<< " transform. Error: " << e.what());
 
@@ -519,7 +556,7 @@ void Odometry2DPublisher::publishTimerCallback()
       }
     }
 
-    tf_broadcaster_.sendTransform(trans);
+    tf_broadcaster_->sendTransform(trans);
   }
 }
 

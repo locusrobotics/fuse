@@ -41,7 +41,6 @@
 #include <fuse_core/parameter.hpp>
 
 #include <rclcpp/logging.hpp>
-#include <ros/node_handle.h>
 
 #include <ceres/covariance.h>
 
@@ -68,32 +67,41 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] nh - The ROS node handle with which to load parameters
+   * @param[in] interfaces - The node interfaces with which to load parameters
+   * @param[in] namespace_string - The parameter namespace to use
    */
-  void loadFromROS(const ros::NodeHandle& nh) final  // TODO(CH3): Replace with a NodePtr
+  void loadFromROS(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string& namespace_string)
   {
-    nh.getParam("publish_tf", publish_tf);
-    nh.getParam("invert_tf", invert_tf);
-    nh.getParam("predict_to_current_time", predict_to_current_time);
-    nh.getParam("predict_with_acceleration", predict_with_acceleration);
-    nh.getParam("publish_frequency", publish_frequency);
+    std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
-    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(nh, "process_noise_diagonal", 0.0);
-    nh.param("scale_process_noise", scale_process_noise, scale_process_noise);
-    nh.param("velocity_norm_min", velocity_norm_min, velocity_norm_min);
+    publish_tf = fuse_core::getParam(interfaces, ns + "publish_tf", publish_tf);
+    invert_tf = fuse_core::getParam(interfaces, ns + "invert_tf", invert_tf);
+    predict_to_current_time = fuse_core::getParam(interfaces, ns + "predict_to_current_time", predict_to_current_time);
+    predict_with_acceleration = fuse_core::getParam(interfaces, ns + "predict_with_acceleration", predict_with_acceleration);
+    publish_frequency = fuse_core::getParam(interfaces, ns + "publish_frequency", publish_frequency);
 
-    fuse_core::getPositiveParam(nh, "covariance_throttle_period", covariance_throttle_period, false);
+    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(interfaces, ns + "process_noise_diagonal", 0.0);
+    scale_process_noise = fuse_core::getParam(interfaces, ns + "scale_process_noise", scale_process_noise);
+    velocity_norm_min = fuse_core::getParam(interfaces, ns + "velocity_norm_min", velocity_norm_min);
 
-    fuse_core::getPositiveParam(nh, "tf_cache_time", tf_cache_time, false);
-    fuse_core::getPositiveParam(nh, "tf_timeout", tf_timeout, false);
+    fuse_core::getPositiveParam(interfaces, ns + "covariance_throttle_period", covariance_throttle_period, false);
 
-    nh.getParam("queue_size", queue_size);
+    fuse_core::getPositiveParam(interfaces, ns + "tf_cache_time", tf_cache_time, false);
+    fuse_core::getPositiveParam(interfaces, ns + "tf_timeout", tf_timeout, false);
 
-    nh.getParam("map_frame_id", map_frame_id);
-    nh.getParam("odom_frame_id", odom_frame_id);
-    nh.getParam("base_link_frame_id", base_link_frame_id);
-    nh.param("base_link_output_frame_id", base_link_output_frame_id, base_link_frame_id);
-    nh.param("world_frame_id", world_frame_id, odom_frame_id);
+    queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
+
+    map_frame_id = fuse_core::getParam(interfaces, ns + "map_frame_id", map_frame_id);
+    odom_frame_id = fuse_core::getParam(interfaces, ns + "odom_frame_id", odom_frame_id);
+    base_link_frame_id = fuse_core::getParam(interfaces, ns + "base_link_frame_id", base_link_frame_id);
+    base_link_output_frame_id = fuse_core::getParam(interfaces, ns + "base_link_output_frame_id", base_link_output_frame_id);
+    world_frame_id = fuse_core::getParam(interfaces, ns + "world_frame_id", world_frame_id);
 
     const bool frames_valid =
       map_frame_id != odom_frame_id &&
@@ -105,7 +113,7 @@ public:
 
     if (!frames_valid)
     {
-      RCLCPP_FATAL_STREAM(node->get_logger(),
+      RCLCPP_FATAL_STREAM(interfaces.get_node_logging_interface()->get_logger(),
         "Invalid frame configuration! Please note:\n"
         << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n"
         << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n"
@@ -114,10 +122,10 @@ public:
       assert(frames_valid);
     }
 
-    nh.getParam("topic", topic);
-    nh.getParam("acceleration_topic", acceleration_topic);
+    topic = fuse_core::getParam(interfaces, ns + "topic", topic);
+    acceleration_topic = fuse_core::getParam(interfaces, ns + "acceleration_topic", acceleration_topic);
 
-    fuse_core::loadCovarianceOptionsFromROS(ros::NodeHandle(nh, "covariance_options"), covariance_options);
+    fuse_core::loadCovarianceOptionsFromROS(interfaces, covariance_options, "covariance_options");
   }
 
   bool publish_tf { true };  //!< Whether to publish/broadcast the TF transform or not
@@ -131,10 +139,10 @@ public:
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   bool scale_process_noise{ false };
   double velocity_norm_min{ 1e-3 };
-  rclcpp::Duration covariance_throttle_period { 0 };  //!< The throttle period duration in seconds to compute the
+  rclcpp::Duration covariance_throttle_period { 0, 0 };  //!< The throttle period duration in seconds to compute the
                                                      //!< covariance
   rclcpp::Duration tf_cache_time { 10, 0 };
-  rclcpp::Duration tf_timeout { RCUTILS_S_TO_NS(0.1) };
+  rclcpp::Duration tf_timeout { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
   int queue_size { 1 };
   std::string map_frame_id { "map" };
   std::string odom_frame_id { "odom" };

@@ -1,4 +1,4 @@
-<library path="lib/libfuse_loss">
+<library path="fuse_loss">
   <!--
   Loss functions are M-estimators that take the squared norm of a residual block 'r' and try to reduce the effect of
   outliers by replacing the squared residuals 's = r^2' used in the standard Least-Squares problem by another function

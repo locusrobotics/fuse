@@ -34,7 +34,7 @@
 #include <fuse_models/unicycle_2d_predict.h>
 
 #include <gtest/gtest.h>
-#include <tf2_2d/tf2_2d.h>
+#include <tf2_2d/tf2_2d.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 
 #include <array>
@@ -449,10 +449,4 @@ TEST(Predict, predictJacobians)
   EXPECT_MATRIX_NEAR(J_autodiff, J_analytic, std::numeric_limits<double>::epsilon())
     << "Autodiff Jacobian =\n" << J_autodiff.format(HeavyFmt)
     << "\nAnalytic Jacobian =\n" << J_analytic.format(HeavyFmt);
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

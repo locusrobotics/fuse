@@ -39,8 +39,6 @@
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_models/parameters/parameter_base.h>
 
-#include <ros/node_handle.h>
-
 #include <string>
 #include <vector>
 
@@ -60,35 +58,38 @@ struct Acceleration2DParams : public ParameterBase
     /**
      * @brief Method for loading parameter values from ROS.
      *
-     * @param[in] nh - The ROS node handle with which to load parameters
+     * @param[in] interfaces - The node interfaces with which to load parameters
+     * @param[in] namespace_string - The parameter namespace to use
      */
-    void loadFromROS(const ros::NodeHandle& nh) final
+    void loadFromROS(
+      fuse_core::node_interfaces::NodeInterfaces<
+        fuse_core::node_interfaces::Base,
+        fuse_core::node_interfaces::Logging,
+        fuse_core::node_interfaces::Parameters
+      > interfaces,
+      const std::string& namespace_string)
     {
-      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(nh, "dimensions");
+      std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
-      nh.getParam("disable_checks", disable_checks);
-      nh.getParam("queue_size", queue_size);
-      nh.getParam("tcp_no_delay", tcp_no_delay);
-      fuse_core::getPositiveParam(nh, "tf_timeout", tf_timeout, false);
+      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(interfaces, ns + "dimensions");
 
-      fuse_core::getPositiveParam(nh, "throttle_period", throttle_period, false);
-      nh.getParam("throttle_use_wall_time", throttle_use_wall_time);
+      disable_checks = fuse_core::getParam(interfaces, ns + "disable_checks", disable_checks);
+      queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
+      fuse_core::getPositiveParam(interfaces, ns + "tf_timeout", tf_timeout, false);
 
-      fuse_core::getParamRequired(nh, "topic", topic);
-      fuse_core::getParamRequired(nh, "target_frame", target_frame);
+      fuse_core::getPositiveParam(interfaces, ns + "throttle_period", throttle_period, false);
+      throttle_use_wall_time = fuse_core::getParam(interfaces, ns + "throttle_use_wall_time", throttle_use_wall_time);
 
-      loss = fuse_core::loadLossConfig(interfaces, "loss");
+      fuse_core::getParamRequired(interfaces, ns + "topic", topic);
+      fuse_core::getParamRequired(interfaces, ns + "target_frame", target_frame);
+
+      loss = fuse_core::loadLossConfig(interfaces, ns + "loss");
     }
 
     bool disable_checks { false };
     int queue_size { 10 };
-    bool tcp_no_delay { false };  //!< Whether to use TCP_NODELAY, i.e. disable Nagle's algorithm, in the subscriber
-                                  //!< socket or not. TCP_NODELAY forces a socket to send the data in its buffer,
-                                  //!< whatever the packet size. This reduces delay at the cost of network congestion,
-                                  //!< specially if the payload of a packet is smaller than the TCP header data. This is
-                                  //!< true for small ROS messages like geometry_msgs::AccelWithCovarianceStamped
-    rclcpp::Duration tf_timeout { 0 };  //!< The maximum time to wait for a transform to become available
-    rclcpp::Duration throttle_period { 0 };  //!< The throttle period duration in seconds
+    rclcpp::Duration tf_timeout { 0, 0 };  //!< The maximum time to wait for a transform to become available
+    rclcpp::Duration throttle_period { 0, 0 };  //!< The throttle period duration in seconds
     bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
     std::string topic {};
     std::string target_frame {};

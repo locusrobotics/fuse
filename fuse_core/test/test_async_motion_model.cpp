@@ -43,7 +43,7 @@ class MyMotionModel : public fuse_core::AsyncMotionModel
 {
 public:
   MyMotionModel()
-  : fuse_core::AsyncMotionModel(0),
+  : fuse_core::AsyncMotionModel(1),
     initialized(false)
   {
   }
@@ -91,7 +91,8 @@ TEST_F(TestAsyncMotionModel, OnInit)
 {
   for (int i = 0; i < 50; i++) {
     MyMotionModel motion_model;
-    motion_model.initialize("my_motion_model_" + std::to_string(i));
+    auto node = rclcpp::Node::make_shared("test_async_motion_model_node");
+    motion_model.initialize(node, "my_motion_model_" + std::to_string(i));
     EXPECT_TRUE(motion_model.initialized);
   }
 }
@@ -99,15 +100,17 @@ TEST_F(TestAsyncMotionModel, OnInit)
 TEST_F(TestAsyncMotionModel, DoubleInit)
 {
   MyMotionModel motion_model;
-  motion_model.initialize("my_motion_model");
+  auto node = rclcpp::Node::make_shared("test_async_motion_model_node");
+  motion_model.initialize(node, "my_motion_model");
   EXPECT_TRUE(motion_model.initialized);
-  EXPECT_THROW(motion_model.initialize("test"), std::runtime_error);
+  EXPECT_THROW(motion_model.initialize(node, "test"), std::runtime_error);
 }
 
 TEST_F(TestAsyncMotionModel, OnGraphUpdate)
 {
   MyMotionModel motion_model;
-  motion_model.initialize("my_motion_model");
+  auto node = rclcpp::Node::make_shared("test_async_motion_model_node");
+  motion_model.initialize(node, "my_motion_model");
 
   // Execute the graph callback in this thread. This should push a call to
   // MyMotionModel::onGraphUpdate() into MyMotionModel's callback queue, which will get executed by
@@ -133,7 +136,8 @@ TEST_F(TestAsyncMotionModel, OnGraphUpdate)
 TEST_F(TestAsyncMotionModel, ApplyCallback)
 {
   MyMotionModel motion_model;
-  motion_model.initialize("my_motion_model");
+  auto node = rclcpp::Node::make_shared("test_async_motion_model_node");
+  motion_model.initialize(node, "my_motion_model");
 
   // Call the motion model base class "apply()" method to send a transaction to the derived model.
   // The AsyncMotionModel will then inject a call to applyCallback() into the motion model's

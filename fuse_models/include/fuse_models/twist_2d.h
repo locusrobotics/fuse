@@ -40,8 +40,9 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/TwistWithCovarianceStamped.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
 
@@ -51,7 +52,7 @@ namespace fuse_models
 /**
  * @brief An adapter-type sensor that produces absolute velocity constraints from information published by another node
  *
- * This sensor subscribes to a geometry_msgs::TwistWithCovarianceStamped topic and converts each received message
+ * This sensor subscribes to a geometry_msgs::msg::TwistWithCovarianceStamped topic and converts each received message
  * into two absolute velocity constraints (one for linear velocity, and one for angular).
  *
  * Parameters:
@@ -61,7 +62,7 @@ namespace fuse_models
  *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
  */
 class Twist2D : public fuse_core::AsyncSensorModel
 {
@@ -80,10 +81,18 @@ public:
   virtual ~Twist2D() = default;
 
   /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
+
+  /**
    * @brief Callback for twist messages
    * @param[in] msg - The twist message to process
    */
-  void process(const geometry_msgs::TwistWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::TwistWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -103,15 +112,27 @@ protected:
    */
   void onStop() override;
 
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
+  rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The sensor model's logger
+
   ParameterType params_;
 
-  tf2_ros::Buffer tf_buffer_;
+  // NOTE(CH3): Unique ptr to defer till we have the node interfaces from initialize()
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  tf2_ros::TransformListener tf_listener_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr sub_;
 
-  ros::Subscriber subscriber_;
-
-  using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::TwistWithCovarianceStamped>;
+  using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::TwistWithCovarianceStamped>;
   TwistThrottledCallback throttled_callback_;
 };
 

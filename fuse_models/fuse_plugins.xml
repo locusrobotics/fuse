@@ -1,4 +1,4 @@
-<library path="lib/libfuse_models">
+<library path="fuse_models">
   <class type="fuse_models::Unicycle2DStateKinematicConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A class that represents a kinematic constraint between 2D states at two different times.
@@ -14,7 +14,7 @@
 
   <class type="fuse_models::Odometry2DPublisher" base_class_type="fuse_core::Publisher">
     <description>
-    Publisher plugin that publishes a nav_msgs::Odometry message and broadcasts a tf transform for optimized 2D
+    Publisher plugin that publishes a nav_msgs::msg::Odometry message and broadcasts a tf transform for optimized 2D
     state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
     VelocityAngular2DStamped).
     </description>

@@ -39,7 +39,7 @@
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <Eigen/Dense>

@@ -34,14 +34,17 @@
 #ifndef FUSE_MODELS_POSE_2D_H
 #define FUSE_MODELS_POSE_2D_H
 
+#include <memory>
+
 #include <fuse_models/parameters/pose_2d_params.h>
 
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
 
@@ -52,7 +55,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces absolute or relative pose constraints from information published by
  * another node.
  *
- * This sensor subscribes to a geometry_msgs::PoseWithCovarianceStamped topic and converts each received message
+ * This sensor subscribes to a geometry_msgs::msg::PoseWithCovarianceStamped topic and converts each received message
  * into an absolute or relative pose constraint. If the \p differential parameter is set to false (the default), the
  * measurement will be treated as an absolute constraint. If it is set to true, consecutive measurements will be used
  * to generate relative pose constraints.
@@ -66,7 +69,7 @@ namespace fuse_models
  *      constraints using consecutive measurements.
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::PoseWithCovarianceStamped) Absolute pose information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::PoseWithCovarianceStamped) Absolute pose information at a given timestamp
  */
 class Pose2D : public fuse_core::AsyncSensorModel
 {
@@ -85,10 +88,18 @@ public:
   virtual ~Pose2D() = default;
 
   /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
+
+  /**
    * @brief Callback for pose messages
    * @param[in] msg - The pose message to process
    */
-  void process(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -119,20 +130,33 @@ protected:
    * @param[in] validate - Whether to validate the pose or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
-  void processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose, const bool validate,
+  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
                            fuse_core::Transaction& transaction);
+
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
+  rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The sensor model's logger
 
   ParameterType params_;
 
-  geometry_msgs::PoseWithCovarianceStamped::ConstPtr previous_pose_msg_;
+  geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr previous_pose_msg_;
 
-  tf2_ros::Buffer tf_buffer_;
+  // NOTE(CH3): Unique ptr to defer till we have the node interfaces from initialize()
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  tf2_ros::TransformListener tf_listener_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_;
 
-  ros::Subscriber subscriber_;
-
-  using PoseThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::PoseWithCovarianceStamped>;
+  using PoseThrottledCallback =
+    fuse_core::ThrottledMessageCallback<geometry_msgs::msg::PoseWithCovarianceStamped>;
   PoseThrottledCallback throttled_callback_;
 };
 

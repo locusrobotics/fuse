@@ -38,11 +38,12 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_models/parameters/unicycle_2d_ignition_params.h>
-#include <fuse_models/SetPose.h>
-#include <fuse_models/SetPoseDeprecated.h>
+#include <fuse_msgs/srv/set_pose.hpp>
+#include <fuse_msgs/srv/set_pose_deprecated.hpp>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <std_srvs/srv/empty.hpp>
 
 #include <atomic>
 
@@ -70,10 +71,10 @@ namespace fuse_models
  *  - ~initial_state (vector of doubles) An 8-dimensional vector containing the initial values for the state.
  *                                       Variable order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc).
  *  - ~queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - ~reset_service (string, default: "~reset") The name of the reset service to call before sending a transaction
- *  - ~set_pose_deprecated_service (string, default: "~set_pose_deprecated") The name of the set_pose_deprecated service
- *  - ~set_pose_service (string, default: "~set_pose") The name of the set_pose service to advertise
- *  - ~topic (string, default: "~set_pose") The topic name for received PoseWithCovarianceStamped messages
+ *  - ~reset_service (string, default: "reset") The name of the reset service to call before sending a transaction
+ *  - ~set_pose_deprecated_service (string, default: "set_pose_deprecated") The name of the set_pose_deprecated service
+ *  - ~set_pose_service (string, default: "set_pose") The name of the set_pose service to advertise
+ *  - ~topic (string, default: "set_pose") The topic name for received PoseWithCovarianceStamped messages
  */
 class Unicycle2DIgnition : public fuse_core::AsyncSensorModel
 {
@@ -92,6 +93,14 @@ public:
    * @brief Destructor
    */
   ~Unicycle2DIgnition() = default;
+
+  /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
@@ -116,19 +125,21 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  void subscriberCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
+  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  bool setPoseServiceCallback(fuse_models::SetPose::Request& req, fuse_models::SetPose::Response& res);
+  bool setPoseServiceCallback(
+    const fuse_msgs::srv::SetPose::Request::SharedPtr req,
+    fuse_msgs::srv::SetPose::Response::SharedPtr res);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
   bool setPoseDeprecatedServiceCallback(
-    fuse_models::SetPoseDeprecated::Request& req,
-    fuse_models::SetPoseDeprecated::Response&);
+    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req,
+    fuse_msgs::srv::SetPoseDeprecated::Response::SharedPtr);
 
 protected:
   /**
@@ -144,7 +155,7 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void process(const geometry_msgs::PoseWithCovarianceStamped& pose);
+  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
 
   /**
    * @brief Create and send a prior transaction based on the supplied pose
@@ -154,23 +165,32 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void sendPrior(const geometry_msgs::PoseWithCovarianceStamped& pose);
+  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
+
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Graph,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Services,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
   std::atomic_bool started_;  //!< Flag indicating the sensor has been started
-
   bool initial_transaction_sent_;  //!< Flag indicating an initial transaction has been sent already
-
   fuse_core::UUID device_id_;  //!< The UUID of this device
+  rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping
+  rclcpp::Logger logger_;  //!< The sensor model's logger
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
-  ros::ServiceClient reset_client_;  //!< Service client used to call the "reset" service on the optimizer
+  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr reset_client_;  //!< Service client used to call the "reset" service on the optimizer
+  rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr set_pose_service_;
+  rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr set_pose_deprecated_service_;
 
-  ros::ServiceServer set_pose_service_;  //!< ROS service server that receives SetPose requests
-
-  ros::ServiceServer set_pose_deprecated_service_;  //!< ROS service server that receives SetPoseDeprecated requests
-
-  ros::Subscriber subscriber_;  //!< ROS subscriber that receives PoseWithCovarianceStamped messages
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_;
 };
 
 }  // namespace fuse_models

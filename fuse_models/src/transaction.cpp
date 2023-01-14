@@ -34,8 +34,8 @@
 
 #include <fuse_models/transaction.h>
 
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Transaction, fuse_core::SensorModel)
@@ -47,27 +47,44 @@ Transaction::Transaction() : fuse_core::AsyncSensorModel(1)
 {
 }
 
+void Transaction::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name,
+  fuse_core::TransactionCallback transaction_callback)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
+}
+
 void Transaction::onInit()
 {
   // Read settings from the parameter sever
-  params_.loadFromROS(private_node_handle_);
+  params_.loadFromROS(interfaces_, name_);
 }
 
 void Transaction::onStart()
 {
-  subscriber_ =
-      node_handle_.subscribe(ros::names::resolve(params_.topic), params_.queue_size, &Transaction::process, this);
+  rclcpp::SubscriptionOptions sub_options;
+  sub_options.callback_group = cb_group_;
+
+  sub_ = rclcpp::create_subscription<fuse_msgs::msg::SerializedTransaction>(
+    interfaces_,
+    fuse_core::joinTopicName(name_, params_.topic),
+    params_.queue_size,
+    std::bind(&Transaction::process, this, std::placeholders::_1),
+    sub_options
+  );
 }
 
 void Transaction::onStop()
 {
-  subscriber_.shutdown();
+  sub_.reset();
 }
 
-void Transaction::process(const fuse_msgs::SerializedTransaction::ConstPtr& msg)
+void Transaction::process(const fuse_msgs::msg::SerializedTransaction& msg)
 {
   // Deserialize and send the transaction to the plugin's parent
-  sendTransaction(transaction_deserializer_.deserialize(msg).clone());
+  sendTransaction(transaction_deserializer_.deserialize(msg)->clone());
 }
 
 }  // namespace fuse_models

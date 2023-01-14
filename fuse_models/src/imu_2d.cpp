@@ -37,12 +37,12 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/TwistWithCovarianceStamped.h>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 
 #include <memory>
 #include <utility>
@@ -57,32 +57,53 @@ namespace fuse_models
 Imu2D::Imu2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
-  tf_listener_(tf_buffer_),
+  logger_(rclcpp::get_logger("uninitialized")),
   throttled_callback_(std::bind(&Imu2D::process, this, std::placeholders::_1))
 {
 }
 
+void Imu2D::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name,
+  fuse_core::TransactionCallback transaction_callback)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
+}
+
 void Imu2D::onInit()
 {
-  // Read settings from the parameter sever
-  device_id_ = fuse_variables::loadDeviceId(private_node_handle_);
+  logger_ = interfaces_.get_node_logging_interface()->get_logger();
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  params_.loadFromROS(private_node_handle_);
+  // Read settings from the parameter sever
+  device_id_ = fuse_variables::loadDeviceId(interfaces_);
+
+  params_.loadFromROS(interfaces_, name_);
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
 
   if (!params_.throttle_use_wall_time) {
-    throttled_callback_.setClock(node_->get_clock());
+    throttled_callback_.setClock(clock_);
   }
 
   if (params_.orientation_indices.empty() &&
       params_.linear_acceleration_indices.empty() &&
       params_.angular_velocity_indices.empty())
   {
-    RCLCPP_WARN_STREAM(node_->get_logger(),
-                       "No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic)
+    RCLCPP_WARN_STREAM(logger_,
+                       "No dimensions were specified. Data from topic " << fuse_core::joinTopicName(name_, params_.topic)
                        << " will be ignored.");
   }
+
+  tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
+  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
+    *tf_buffer_,
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_logging_interface(),
+    interfaces_.get_node_parameters_interface(),
+    interfaces_.get_node_topics_interface()
+  );
 }
 
 void Imu2D::onStart()
@@ -92,49 +113,61 @@ void Imu2D::onStart()
       !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
-    subscriber_ = node_handle_.subscribe<sensor_msgs::Imu>(ros::names::resolve(params_.topic), params_.queue_size,
-                                                           &ImuThrottledCallback::callback, &throttled_callback_,
-                                                           ros::TransportHints().tcpNoDelay(params_.tcp_no_delay));
+
+    rclcpp::SubscriptionOptions sub_options;
+    sub_options.callback_group = cb_group_;
+
+    sub_ = rclcpp::create_subscription<sensor_msgs::msg::Imu>(
+      interfaces_,
+      fuse_core::joinTopicName(name_, params_.topic),
+      params_.queue_size,
+      std::bind(
+        &ImuThrottledCallback::callback<const sensor_msgs::msg::Imu &>,
+        &throttled_callback_,
+        std::placeholders::_1
+      ),
+      sub_options
+    );
   }
 }
 
 void Imu2D::onStop()
 {
-  subscriber_.shutdown();
+  sub_.reset();
 }
 
-void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
+void Imu2D::process(const sensor_msgs::msg::Imu& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
-  transaction->stamp(msg->header.stamp);
+  transaction->stamp(msg.header.stamp);
 
   // Handle the orientation data (treat it as a pose, but with only orientation indices used)
-  auto pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
-  pose->header = msg->header;
-  pose->pose.pose.orientation = msg->orientation;
-  pose->pose.covariance[21] = msg->orientation_covariance[0];
-  pose->pose.covariance[22] = msg->orientation_covariance[1];
-  pose->pose.covariance[23] = msg->orientation_covariance[2];
-  pose->pose.covariance[27] = msg->orientation_covariance[3];
-  pose->pose.covariance[28] = msg->orientation_covariance[4];
-  pose->pose.covariance[29] = msg->orientation_covariance[5];
-  pose->pose.covariance[33] = msg->orientation_covariance[6];
-  pose->pose.covariance[34] = msg->orientation_covariance[7];
-  pose->pose.covariance[35] = msg->orientation_covariance[8];
+  auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
+  pose->header = msg.header;
+  pose->pose.pose.orientation = msg.orientation;
+  pose->pose.covariance[21] = msg.orientation_covariance[0];
+  pose->pose.covariance[22] = msg.orientation_covariance[1];
+  pose->pose.covariance[23] = msg.orientation_covariance[2];
+  pose->pose.covariance[27] = msg.orientation_covariance[3];
+  pose->pose.covariance[28] = msg.orientation_covariance[4];
+  pose->pose.covariance[29] = msg.orientation_covariance[5];
+  pose->pose.covariance[33] = msg.orientation_covariance[6];
+  pose->pose.covariance[34] = msg.orientation_covariance[7];
+  pose->pose.covariance[35] = msg.orientation_covariance[8];
 
-  geometry_msgs::TwistWithCovarianceStamped twist;
-  twist.header = msg->header;
-  twist.twist.twist.angular = msg->angular_velocity;
-  twist.twist.covariance[21] = msg->angular_velocity_covariance[0];
-  twist.twist.covariance[22] = msg->angular_velocity_covariance[1];
-  twist.twist.covariance[23] = msg->angular_velocity_covariance[2];
-  twist.twist.covariance[27] = msg->angular_velocity_covariance[3];
-  twist.twist.covariance[28] = msg->angular_velocity_covariance[4];
-  twist.twist.covariance[29] = msg->angular_velocity_covariance[5];
-  twist.twist.covariance[33] = msg->angular_velocity_covariance[6];
-  twist.twist.covariance[34] = msg->angular_velocity_covariance[7];
-  twist.twist.covariance[35] = msg->angular_velocity_covariance[8];
+  geometry_msgs::msg::TwistWithCovarianceStamped twist;
+  twist.header = msg.header;
+  twist.twist.twist.angular = msg.angular_velocity;
+  twist.twist.covariance[21] = msg.angular_velocity_covariance[0];
+  twist.twist.covariance[22] = msg.angular_velocity_covariance[1];
+  twist.twist.covariance[23] = msg.angular_velocity_covariance[2];
+  twist.twist.covariance[27] = msg.angular_velocity_covariance[3];
+  twist.twist.covariance[28] = msg.angular_velocity_covariance[4];
+  twist.twist.covariance[29] = msg.angular_velocity_covariance[5];
+  twist.twist.covariance[33] = msg.angular_velocity_covariance[6];
+  twist.twist.covariance[34] = msg.angular_velocity_covariance[7];
+  twist.twist.covariance[35] = msg.angular_velocity_covariance[8];
 
   const bool validate = !params_.disable_checks;
 
@@ -152,7 +185,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
       params_.orientation_target_frame,
       {},
       params_.orientation_indices,
-      tf_buffer_,
+      *tf_buffer_,
       validate,
       *transaction,
       params_.tf_timeout);
@@ -168,33 +201,33 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     params_.twist_target_frame,
     {},
     params_.angular_velocity_indices,
-    tf_buffer_,
+    *tf_buffer_,
     validate,
     *transaction,
     params_.tf_timeout);
 
   // Handle the acceleration data
-  geometry_msgs::AccelWithCovarianceStamped accel;
-  accel.header = msg->header;
-  accel.accel.accel.linear = msg->linear_acceleration;
-  accel.accel.covariance[0]  = msg->linear_acceleration_covariance[0];
-  accel.accel.covariance[1]  = msg->linear_acceleration_covariance[1];
-  accel.accel.covariance[2]  = msg->linear_acceleration_covariance[2];
-  accel.accel.covariance[6]  = msg->linear_acceleration_covariance[3];
-  accel.accel.covariance[7]  = msg->linear_acceleration_covariance[4];
-  accel.accel.covariance[8]  = msg->linear_acceleration_covariance[5];
-  accel.accel.covariance[12] = msg->linear_acceleration_covariance[6];
-  accel.accel.covariance[13] = msg->linear_acceleration_covariance[7];
-  accel.accel.covariance[14] = msg->linear_acceleration_covariance[8];
+  geometry_msgs::msg::AccelWithCovarianceStamped accel;
+  accel.header = msg.header;
+  accel.accel.accel.linear = msg.linear_acceleration;
+  accel.accel.covariance[0]  = msg.linear_acceleration_covariance[0];
+  accel.accel.covariance[1]  = msg.linear_acceleration_covariance[1];
+  accel.accel.covariance[2]  = msg.linear_acceleration_covariance[2];
+  accel.accel.covariance[6]  = msg.linear_acceleration_covariance[3];
+  accel.accel.covariance[7]  = msg.linear_acceleration_covariance[4];
+  accel.accel.covariance[8]  = msg.linear_acceleration_covariance[5];
+  accel.accel.covariance[12] = msg.linear_acceleration_covariance[6];
+  accel.accel.covariance[13] = msg.linear_acceleration_covariance[7];
+  accel.accel.covariance[14] = msg.linear_acceleration_covariance[8];
 
   // Optionally remove the acceleration due to gravity
   if (params_.remove_gravitational_acceleration)
   {
-    geometry_msgs::Vector3 accel_gravity;
+    geometry_msgs::msg::Vector3 accel_gravity;
     accel_gravity.z = params_.gravitational_acceleration;
-    geometry_msgs::TransformStamped orientation_trans;
+    geometry_msgs::msg::TransformStamped orientation_trans;
     tf2::Quaternion imu_orientation;
-    tf2::fromMsg(msg->orientation, imu_orientation);
+    tf2::fromMsg(msg.orientation, imu_orientation);
     orientation_trans.transform.rotation = tf2::toMsg(imu_orientation.inverse());
     tf2::doTransform(accel_gravity, accel_gravity, orientation_trans);  // Doesn't use the stamp
     accel.accel.accel.linear.x -= accel_gravity.x;
@@ -209,7 +242,7 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
     params_.linear_acceleration_loss,
     params_.acceleration_target_frame,
     params_.linear_acceleration_indices,
-    tf_buffer_,
+    *tf_buffer_,
     validate,
     *transaction,
     params_.tf_timeout);
@@ -218,18 +251,18 @@ void Imu2D::process(const sensor_msgs::Imu::ConstPtr& msg)
   sendTransaction(transaction);
 }
 
-void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& pose,
-                                const geometry_msgs::TwistWithCovarianceStamped& twist, const bool validate,
+void Imu2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+                                const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
                                 fuse_core::Transaction& transaction)
 {
-  auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
+  auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
   transformed_pose->header.frame_id =
       params_.orientation_target_frame.empty() ? pose.header.frame_id : params_.orientation_target_frame;
 
-  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
+  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose))
   {
-    RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
-                                "Cannot transform pose message with stamp " << pose.header.stamp
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                "Cannot transform pose message with stamp " << rclcpp::Time(pose.header.stamp).nanoseconds()
                                 << " to orientation target frame " << params_.orientation_target_frame);
     return;
   }
@@ -242,14 +275,14 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
 
   if (params_.use_twist_covariance)
   {
-    geometry_msgs::TwistWithCovarianceStamped transformed_twist;
+    geometry_msgs::msg::TwistWithCovarianceStamped transformed_twist;
     transformed_twist.header.frame_id =
         params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 
-    if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
+    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist))
     {
-      RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), 5.0 * 1000,
-                                  "Cannot transform twist message with stamp " << twist.header.stamp
+      RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                  "Cannot transform twist message with stamp " << rclcpp::Time(twist.header.stamp).nanoseconds()
                                   << " to twist target frame " << params_.twist_target_frame);
     }
     else

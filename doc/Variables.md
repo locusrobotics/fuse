@@ -297,7 +297,7 @@ void print(std::ostream& stream = std::cout) const override
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid_ << "\n"
-         << "  stamp: " << stamp_ << "\n"
+         << "  stamp: " << stamp_.nanoseconds() << "\n"
          << "  device_id: " << device_id_ << "\n"
          << "  size: " << data_.size() << "\n"
          << "  data:\n"

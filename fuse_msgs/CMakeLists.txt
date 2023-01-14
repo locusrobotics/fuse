@@ -11,15 +11,22 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 set(msg_files
   "msg/SerializedGraph.msg"
   "msg/SerializedTransaction.msg"
 )
 
-rosidl_generate_interfaces(${PROJECT_NAME} ${msg_files}
+set(srv_files
+  "srv/SetGraph.srv"
+  "srv/SetPose.srv"
+  "srv/SetPoseDeprecated.srv"
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME} ${msg_files} ${srv_files}
   DEPENDENCIES
-    std_msgs
+    std_msgs geometry_msgs
   ADD_LINTER_TESTS
 )
 

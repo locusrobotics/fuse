@@ -40,8 +40,9 @@
 #include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <geometry_msgs/AccelWithCovarianceStamped.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
 
@@ -52,7 +53,7 @@ namespace fuse_models
  * @brief An adapter-type sensor that produces 2D linear acceleration constraints from information published by another
  * node
  *
- * This sensor subscribes to a geometry_msgs::AccelWithCovarianceStamped topic and converts each received message
+ * This sensor subscribes to a geometry_msgs::msg::AccelWithCovarianceStamped topic and converts each received message
  * into a 2D linear acceleration variable and constraint.
  *
  * Parameters:
@@ -63,7 +64,7 @@ namespace fuse_models
  *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::AccelWithCovarianceStamped) Acceleration information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::AccelWithCovarianceStamped) Acceleration information at a given timestamp
  */
 class Acceleration2D : public fuse_core::AsyncSensorModel
 {
@@ -82,10 +83,18 @@ public:
   virtual ~Acceleration2D() = default;
 
   /**
+   * @brief Shadowing extension to the AsyncSensorModel::initialize call
+   */
+  void initialize(
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    const std::string & name,
+    fuse_core::TransactionCallback transaction_callback) override;
+
+  /**
    * @brief Callback for acceleration messages
    * @param[in] msg - The acceleration message to process
    */
-  void process(const geometry_msgs::AccelWithCovarianceStamped::ConstPtr& msg);
+  void process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -109,15 +118,28 @@ protected:
    */
   void onStop() override;
 
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Base,
+    fuse_core::node_interfaces::Clock,
+    fuse_core::node_interfaces::Logging,
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Topics,
+    fuse_core::node_interfaces::Waitables
+  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+
+  rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
+  rclcpp::Logger logger_;  //!< The sensor model's logger
+
   ParameterType params_;
 
-  tf2_ros::Buffer tf_buffer_;
+  // NOTE(CH3): Unique ptr to defer till we have the node interfaces from initialize()
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  tf2_ros::TransformListener tf_listener_;
+  rclcpp::Subscription<geometry_msgs::msg::AccelWithCovarianceStamped>::SharedPtr sub_;
 
-  ros::Subscriber subscriber_;
-
-  using AccelerationThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::AccelWithCovarianceStamped>;
+  using AccelerationThrottledCallback =
+    fuse_core::ThrottledMessageCallback<geometry_msgs::msg::AccelWithCovarianceStamped>;
   AccelerationThrottledCallback throttled_callback_;
 };
 
