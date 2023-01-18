@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(fuse_optimizers)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 
 set(build_depends
   diagnostic_updater
