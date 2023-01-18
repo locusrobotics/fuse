@@ -197,6 +197,30 @@ void FixedLagSmoother::optimizationLoop()
       {
         continue;
       }
+      // check if new transaction has added constraints to variables that are to be marginalized
+      std::vector<fuse_core::UUID> faulty_constraints;
+      for(auto& c: new_transaction->addedConstraints())
+      {
+        for(auto var_uuid: c.variables())
+        {
+          for (auto marginal_uuid : marginal_transaction_.removedVariables()) 
+          {
+            if (var_uuid == marginal_uuid) 
+            {
+              faulty_constraints.push_back(c.uuid());
+              break;
+            }
+          }
+        }
+      }
+      if(faulty_constraints.size() > 0)
+      {
+        ROS_WARN_STREAM("Removing invalid constraints.");
+        for(auto& faulty_constraint: faulty_constraints)
+        {
+          new_transaction->removeConstraint(faulty_constraint);
+        }
+      }
       // Prepare for selecting the marginal variables
       preprocessMarginalization(*new_transaction);
       // Combine the new transactions with any marginal transaction from the end of the last cycle
