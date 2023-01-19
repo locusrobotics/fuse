@@ -78,7 +78,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   auto relative_pose_publisher =
     node->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-      "pose_sensor/relative_pose", 1);
+      "/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(fuse_core::wait_for_valid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
@@ -154,7 +154,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   while ((odom_msg.header.stamp != rclcpp::Time(3, 0, RCL_ROS_TIME)) &&
          (node->now() < result_timeout))
   {
-    rclcpp::wait_for_message(odom_msg, node, "/odometry_publisher/odom", std::chrono::seconds(1));
+    rclcpp::wait_for_message(odom_msg, node, "/odom", std::chrono::seconds(1));
   }
   ASSERT_EQ(rclcpp::Time(odom_msg.header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
 

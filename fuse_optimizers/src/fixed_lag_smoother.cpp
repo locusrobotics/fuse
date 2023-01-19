@@ -107,7 +107,7 @@ FixedLagSmoother::FixedLagSmoother(
 
   // Advertise a service that resets the optimizer to its initial state
   reset_service_server_ = create_service<std_srvs::srv::Empty>(
-    fuse_core::joinTopicName(get_name(), params_.reset_service),
+    params_.reset_service,
     std::bind(
       &FixedLagSmoother::resetServiceCallback,
       this,

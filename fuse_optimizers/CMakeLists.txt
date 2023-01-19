@@ -52,34 +52,14 @@ target_link_libraries(${PROJECT_NAME}
   pluginlib::pluginlib
   ${std_srvs_TARGETS}
 )
-ament_target_dependencies(
-  ${PROJECT_NAME} diagnostic_updater
-)
+ament_target_dependencies(${PROJECT_NAME} diagnostic_updater)
 
 ## batch_optimizer node
-add_executable(batch_optimizer_node
-  src/batch_optimizer_node.cpp
-  src/batch_optimizer.cpp
-  src/optimizer.cpp
-  src/variable_stamp_index.cpp
-)
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-)
+add_executable(batch_optimizer_node src/batch_optimizer_node.cpp)
 target_link_libraries(batch_optimizer_node ${PROJECT_NAME})
 
 ## fixed_lag_smoother node
-add_executable(fixed_lag_smoother_node
-  src/fixed_lag_smoother_node.cpp
-  src/fixed_lag_smoother.cpp
-  src/optimizer.cpp
-  src/variable_stamp_index.cpp
-)
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-)
+add_executable(fixed_lag_smoother_node src/fixed_lag_smoother_node.cpp)
 target_link_libraries(fixed_lag_smoother_node ${PROJECT_NAME})
 
 #############

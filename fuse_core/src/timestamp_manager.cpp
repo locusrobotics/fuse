@@ -103,16 +103,19 @@ void TimestampManager::query(
       rclcpp::Time history_beginning_stamp = history_iter->second.beginning_stamp;
       rclcpp::Time history_ending_stamp = history_iter->second.ending_stamp;
 
-      // lower_bound() can default construct Time, which causes a mismatched clock error
-      // This explicitly rectifies that situation
-      if (history_beginning_stamp.seconds() == 0
-          && history_beginning_stamp.get_clock_type() == RCL_SYSTEM_TIME)
+      // TODO(methylDragon): Something still adds a default constructed (?) Time object here,
+      //                     causing a mismatched clock error
+      //
+      //                     This explicitly rectifies that situation, but masks the underlying
+      //                     issue
+      if (history_beginning_stamp.seconds() == 0 &&
+        history_beginning_stamp.get_clock_type() == RCL_SYSTEM_TIME)
       {
         history_beginning_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
       }
 
-      if (history_ending_stamp.seconds() == 0
-          && history_ending_stamp.get_clock_type() == RCL_SYSTEM_TIME)
+      if (history_ending_stamp.seconds() == 0 &&
+        history_ending_stamp.get_clock_type() == RCL_SYSTEM_TIME)
       {
         history_ending_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
       }

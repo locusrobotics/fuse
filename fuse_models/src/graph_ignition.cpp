@@ -78,7 +78,7 @@ void GraphIgnition::onInit()
       interfaces_.get_node_base_interface(),
       interfaces_.get_node_graph_interface(),
       interfaces_.get_node_services_interface(),
-      fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.reset_service),
+      params_.reset_service,
       rclcpp::ServicesQoS(),
       cb_group_
     );
@@ -200,6 +200,11 @@ void GraphIgnition::process(
           post_process();
         }
       });
+  } else {
+    sendGraph(*graph, msg.header.stamp);
+    if (post_process) {
+      post_process();
+    }
   }
 }
 

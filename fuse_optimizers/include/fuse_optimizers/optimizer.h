@@ -100,10 +100,9 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] graph               The derived graph object. This allows different graph implementations to be used
-   *                                with the same optimizer code.
-   * @param[in] node_handle         A node handle in the global namespace
-   * @param[in] private_node_handle A node handle in the node's private namespace
+   * @param[in] options             Node options for the optimizer's node
+   * @param[in] node_name           The name to use for the optimizer's node
+   * @param[in] graph               The graph used with the optimizer
    */
   Optimizer(
     rclcpp::NodeOptions options,

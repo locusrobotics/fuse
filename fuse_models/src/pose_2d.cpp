@@ -88,7 +88,7 @@ void Pose2D::onInit()
       params_.orientation_indices.empty())
   {
     RCLCPP_WARN_STREAM(logger_,
-                       "No dimensions were specified. Data from topic " << fuse_core::joinTopicName(name_, params_.topic)
+                       "No dimensions were specified. Data from topic " << params_.topic
                        << " will be ignored.");
   }
 
@@ -112,7 +112,7 @@ void Pose2D::onStart()
 
     sub_ = rclcpp::create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
       interfaces_,
-      fuse_core::joinTopicName(name_, params_.topic),
+      params_.topic,
       params_.queue_size,
       std::bind(
         &PoseThrottledCallback::callback<

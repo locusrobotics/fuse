@@ -141,7 +141,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
     /**
      * @brief The name of the reset service to call before sending transactions to the optimizer
      */
-    std::string reset_service { "reset" };
+    std::string reset_service { "~/reset" };
 
     /**
      * @brief The name of the set_pose service to advertise

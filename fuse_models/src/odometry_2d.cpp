@@ -92,7 +92,7 @@ void Odometry2D::onInit()
       params_.angular_velocity_indices.empty())
   {
     RCLCPP_WARN_STREAM(logger_,
-                       "No dimensions were specified. Data from topic " << fuse_core::joinTopicName(name_, params_.topic)
+                       "No dimensions were specified. Data from topic " << params_.topic
                        << " will be ignored.");
   }
 
@@ -120,7 +120,7 @@ void Odometry2D::onStart()
 
     sub_ = rclcpp::create_subscription<nav_msgs::msg::Odometry>(
       interfaces_,
-      fuse_core::joinTopicName(name_, params_.topic),
+      params_.topic,
       params_.queue_size,
       std::bind(
         &OdometryThrottledCallback::callback<

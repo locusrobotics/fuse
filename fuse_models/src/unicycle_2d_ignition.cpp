@@ -103,7 +103,7 @@ void Unicycle2DIgnition::onInit()
       interfaces_.get_node_base_interface(),
       interfaces_.get_node_graph_interface(),
       interfaces_.get_node_services_interface(),
-      fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.reset_service),
+      params_.reset_service,
       rclcpp::ServicesQoS(),
       cb_group_
     );
@@ -114,7 +114,7 @@ void Unicycle2DIgnition::onInit()
   sub_options.callback_group = cb_group_;
   sub_ = rclcpp::create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     interfaces_,
-    fuse_core::joinTopicName(name_, params_.topic),
+    params_.topic,
     params_.queue_size,
     std::bind(&Unicycle2DIgnition::subscriberCallback, this, std::placeholders::_1),
     sub_options
@@ -301,6 +301,11 @@ void Unicycle2DIgnition::process(
           post_process();
         }
       });
+  } else {
+    sendPrior(pose);
+    if (post_process) {
+      post_process();
+    }
   }
 }
 

@@ -71,7 +71,7 @@ namespace fuse_models
  *  - ~initial_state (vector of doubles) An 8-dimensional vector containing the initial values for the state.
  *                                       Variable order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc).
  *  - ~queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - ~reset_service (string, default: "reset") The name of the reset service to call before sending a transaction
+ *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before sending a transaction
  *  - ~set_pose_deprecated_service (string, default: "set_pose_deprecated") The name of the set_pose_deprecated service
  *  - ~set_pose_service (string, default: "set_pose") The name of the set_pose service to advertise
  *  - ~topic (string, default: "set_pose") The topic name for received PoseWithCovarianceStamped messages

@@ -193,7 +193,7 @@ void getPositiveParam(
 /**
  * @brief Helper function that loads positive duration values from the parameter server
  *
- * @param[in] node_handle - The node handle used to load the parameter
+ * @param[in] interfaces - The node interfaces used to load the parameter
  * @param[in] parameter_name - The parameter name to load
  * @param[in, out] default_value - A default value to use if the provided parameter name does not
  *                 exist. As output it has the loaded (or default) value

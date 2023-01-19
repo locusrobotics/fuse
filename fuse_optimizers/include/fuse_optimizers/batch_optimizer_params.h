@@ -80,7 +80,7 @@ public:
   /**
    * @brief Method for loading parameter values from ROS.
    *
-   * @param[in] node_handle - The node used to load the parameter
+   * @param[in] interfaces - The node interfaces used to load the parameter
    */
   void loadFromROS(
     fuse_core::node_interfaces::NodeInterfaces<
