@@ -100,7 +100,6 @@ void TimestampManager::query(
       const rclcpp::Time & current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
-
       if ((history_iter != motion_model_history_.end()) &&
         (history_iter->second.beginning_stamp == previous_stamp) &&
         (history_iter->second.ending_stamp == current_stamp))

@@ -88,6 +88,7 @@ public:
   std::vector<std::pair<rclcpp::Time, rclcpp::Time>> generated_time_spans;
 };
 
+
 TEST_F(TimestampManagerTestFixture, Empty)
 {
   // Test:
