@@ -100,29 +100,10 @@ void TimestampManager::query(
       const rclcpp::Time & current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
-      rclcpp::Time history_beginning_stamp = history_iter->second.beginning_stamp;
-      rclcpp::Time history_ending_stamp = history_iter->second.ending_stamp;
-
-      // TODO(methylDragon): Something still adds a default constructed (?) Time object here,
-      //                     causing a mismatched clock error
-      //
-      //                     This explicitly rectifies that situation, but masks the underlying
-      //                     issue
-      if (history_beginning_stamp.seconds() == 0 &&
-        history_beginning_stamp.get_clock_type() == RCL_SYSTEM_TIME)
-      {
-        history_beginning_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
-      }
-
-      if (history_ending_stamp.seconds() == 0 &&
-        history_ending_stamp.get_clock_type() == RCL_SYSTEM_TIME)
-      {
-        history_ending_stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
-      }
 
       if ((history_iter != motion_model_history_.end()) &&
-        (history_beginning_stamp == previous_stamp) &&
-        (history_ending_stamp == current_stamp))
+        (history_iter->second.beginning_stamp == previous_stamp) &&
+        (history_iter->second.ending_stamp == current_stamp))
       {
         if (update_variables) {
           // Add the motion model version of the variables involved in this motion model segment
@@ -146,8 +127,8 @@ void TimestampManager::query(
       }
       // Check if this stamp is in the middle of an existing entry. If so, delete it.
       if ((history_iter != motion_model_history_.end()) &&
-        (history_beginning_stamp < current_stamp) &&
-        (history_ending_stamp >= current_stamp))
+        (history_iter->second.beginning_stamp < current_stamp) &&
+        (history_iter->second.ending_stamp >= current_stamp))
       {
         removeSegment(history_iter, motion_model_transaction);
       }
@@ -170,7 +151,7 @@ void TimestampManager::query(
 
     // Insert the last timestamp into the motion model history, but with no constraints. The last
     // entry in the motion model history will always contain no constraints.
-    motion_model_history_.emplace(last_stamp, MotionModelSegment());
+    motion_model_history_.emplace(last_stamp, MotionModelSegment(last_stamp.get_clock_type()));
   }
   // Purge any old entries from the motion model history
   purgeHistory();
@@ -209,12 +190,11 @@ void TimestampManager::addSegment(
   for (const auto & variable : variables) {
     transaction.addVariable(variable);
   }
-  // Add the motion model segment to the history
-  motion_model_history_[beginning_stamp] = MotionModelSegment(
+  motion_model_history_.insert_or_assign(beginning_stamp, MotionModelSegment(
     beginning_stamp,
     ending_stamp,
     constraints,
-    variables);
+    variables));
 }
 
 void TimestampManager::removeSegment(

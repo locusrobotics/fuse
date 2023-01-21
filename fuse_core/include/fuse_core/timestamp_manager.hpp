@@ -232,7 +232,11 @@ protected:
     std::vector<Constraint::SharedPtr> constraints;
     std::vector<Variable::SharedPtr> variables;
 
-    MotionModelSegment() = default;
+    explicit MotionModelSegment(rcl_clock_type_t clock_t)
+    : beginning_stamp{0, 0, clock_t},
+      ending_stamp{0, 0, clock_t}
+    {
+    }
 
     MotionModelSegment(
       const rclcpp::Time & beginning_stamp,
