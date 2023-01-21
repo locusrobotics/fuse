@@ -169,7 +169,7 @@ TEST_F(TimestampManagerTestFixture, Exceptions)
 TEST_F(TimestampManagerTestFixture, Purge)
 {
   // Set a finite buffer length and populate it with some queries
-  manager.bufferLength(rclcpp::Duration::from_seconds(30.0));
+  manager.bufferLength(rclcpp::Duration(30, 0));
   populate();
 
   // The timespan is within the specified duration. All entries should still be present.
