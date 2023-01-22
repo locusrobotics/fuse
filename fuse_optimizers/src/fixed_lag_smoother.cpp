@@ -81,17 +81,16 @@ namespace fuse_optimizers
 {
 
 FixedLagSmoother::FixedLagSmoother(
-  rclcpp::NodeOptions options,
-  std::string node_name,
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
 ) :
-  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
+  fuse_optimizers::Optimizer(interfaces, std::move(graph)),
   ignited_(false),
   optimization_running_(true),
   started_(false),
   optimization_request_(false)
 {
-  params_.loadFromROS(*this);
+  params_.loadFromROS(interfaces_);
 
   // Test for auto-start
   autostart();
@@ -100,22 +99,28 @@ FixedLagSmoother::FixedLagSmoother(
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = this->create_timer(
+  optimize_timer_ = rclcpp::create_timer(
+    interfaces_,
+    clock_,
     params_.optimization_period.to_chrono<std::chrono::nanoseconds>(),
-    std::bind(&FixedLagSmoother::optimizerTimerCallback, this)
+    std::bind(&FixedLagSmoother::optimizerTimerCallback, this),
+    interfaces_.get_node_base_interface()->get_default_callback_group()
   );
 
   // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = create_service<std_srvs::srv::Empty>(
-    params_.reset_service,
+  reset_service_server_ = rclcpp::create_service<std_srvs::srv::Empty>(
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_services_interface(),
+    fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.reset_service),
     std::bind(
       &FixedLagSmoother::resetServiceCallback,
       this,
       std::placeholders::_1,
       std::placeholders::_2
-    )
+    ),
+    rclcpp::ServicesQoS(),
+    interfaces_.get_node_base_interface()->get_default_callback_group()
   );
-
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -138,7 +143,7 @@ void FixedLagSmoother::autostart()
     // No ignition sensors were provided. Auto-start.
     started_ = true;
     setStartTime(rclcpp::Time(0, 1, RCL_ROS_TIME));  // Initialized
-    RCLCPP_INFO_STREAM(this->get_logger(), "No ignition sensors were specified. Optimization will begin immediately.");
+    RCLCPP_INFO_STREAM(logger_, "No ignition sensors were specified. Optimization will begin immediately.");
   }
 }
 
@@ -180,11 +185,11 @@ void FixedLagSmoother::optimizationLoop()
     return (
       this->optimization_request_
       || !this->optimization_running_
-      || !this->get_node_base_interface()->get_context()->is_valid()
+      || !interfaces_.get_node_base_interface()->get_context()->is_valid()
     );
   };
   // Optimize constraints until told to exit
-  while (this->get_node_base_interface()->get_context()->is_valid() && optimization_running_)
+  while (interfaces_.get_node_base_interface()->get_context()->is_valid() && optimization_running_)
   {
     // Wait for the next signal to start the next optimization cycle
     // NOTE(CH3): Uninitialized, but it's ok since it's meant to get overwritten.
@@ -196,7 +201,7 @@ void FixedLagSmoother::optimizationLoop()
       optimization_deadline = optimization_deadline_;
     }
     // If a shutdown is requested, exit now.
-    if (!optimization_running_ || !this->get_node_base_interface()->get_context()->is_valid())
+    if (!optimization_running_ || !interfaces_.get_node_base_interface()->get_context()->is_valid())
     {
       break;
     }
@@ -234,7 +239,7 @@ void FixedLagSmoother::optimizationLoop()
         oss << "\nTransaction:\n";
         new_transaction->print(oss);
 
-        RCLCPP_FATAL_STREAM(this->get_logger(),
+        RCLCPP_FATAL_STREAM(logger_,
                             "Failed to update graph with transaction: " << ex.what()
                             << "\nLeaving optimization loop and requesting node shutdown...\n" << oss.str());
         rclcpp::shutdown();
@@ -250,10 +255,10 @@ void FixedLagSmoother::optimizationLoop()
       // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
       if (!summary_.IsSolutionUsable())
       {
-        RCLCPP_FATAL_STREAM(this->get_logger(),
+        RCLCPP_FATAL_STREAM(logger_,
                             "Optimization failed after updating the graph with the transaction with timestamp "
                             << new_transaction_stamp.nanoseconds() << ". Leaving optimization loop and requesting node shutdown...");
-        RCLCPP_INFO(get_logger(), summary_.FullReport().c_str());
+        RCLCPP_INFO(logger_, summary_.FullReport().c_str());
         rclcpp::shutdown();
         break;
       }
@@ -261,17 +266,19 @@ void FixedLagSmoother::optimizationLoop()
       // Compute a transaction that marginalizes out those variables.
       lag_expiration_ = computeLagExpirationTime();
       marginal_transaction_ = fuse_constraints::marginalizeVariables(
-        get_name(),
+        interfaces_.get_node_base_interface()->get_name(),
         computeVariablesToMarginalize(lag_expiration_),
         *graph_);
       // Perform any post-marginal cleanup
       postprocessMarginalization(marginal_transaction_);
       // Note: The marginal transaction will not be applied until the next optimization iteration
       // Log a warning if the optimization took too long
-      auto optimization_complete = this->get_node_clock_interface()->get_clock()->now();
+      auto optimization_complete = clock_->now();
       if (optimization_complete > optimization_deadline)
       {
-        RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 10.0 * 1000,
+        RCLCPP_WARN_STREAM_THROTTLE(logger_,
+                                    *clock_,
+                                    10.0 * 1000,
                                     "Optimization exceeded the configured duration by "
                                     << (optimization_complete - optimization_deadline).nanoseconds() << "ns");
       }
@@ -299,7 +306,7 @@ void FixedLagSmoother::optimizerTimerCallback()
     {
       std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
       optimization_request_ = true;
-      optimization_deadline_ = get_clock()->now() + optimize_timer_->time_until_trigger();
+      optimization_deadline_ = clock_->now() + optimize_timer_->time_until_trigger();
     }
     optimization_requested_.notify_one();
   }
@@ -336,7 +343,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     {
       // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
       // transaction, but we do not enforce it is processed individually.
-      RCLCPP_ERROR_STREAM(this->get_logger(),
+      RCLCPP_ERROR_STREAM(logger_,
                           "The queued transaction with timestamp " << element.stamp().nanoseconds() << " from sensor "
                           << element.sensor_name << " is not an ignition sensor transaction. "
                           << "This transaction will not be processed individually.");
@@ -354,7 +361,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
       {
         // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
         // trying again next time, so we ignore this transaction.
-        RCLCPP_ERROR_STREAM(this->get_logger(),
+        RCLCPP_ERROR_STREAM(logger_,
                             "The queued ignition transaction with timestamp " << element.stamp().nanoseconds() << " from sensor "
                             << element.sensor_name << " could not be processed. Ignoring this ignition transaction.");
 
@@ -401,7 +408,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     if (min_stamp < lag_expiration)
     {
       RCLCPP_DEBUG_STREAM(
-        this->get_logger(),
+        logger_,
         "The current lag expiration time is " << lag_expiration.nanoseconds()
          << ". The queued transaction with timestamp " << element.stamp().nanoseconds() << " from sensor " << element.sensor_name
          << " has a minimum involved timestamp of " << min_stamp.nanoseconds()
@@ -428,7 +435,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
       {
         // Warn that this transaction has expired, then skip it.
         RCLCPP_ERROR_STREAM(
-          this->get_logger(),
+          logger_,
           "The queued transaction with timestamp " << element.stamp().nanoseconds()
           << " and maximum involved stamp of " << max_stamp.nanoseconds() << " from sensor " << element.sensor_name
           << " could not be processed after " << (current_time - max_stamp).nanoseconds()
@@ -493,7 +500,7 @@ void FixedLagSmoother::transactionCallback(
   const auto max_time = transaction->maxStamp();
   if (started_ && max_time < start_time)
   {
-    RCLCPP_DEBUG_STREAM(this->get_logger(),
+    RCLCPP_DEBUG_STREAM(logger_,
                         "Received a transaction before the start time from sensor '" << sensor_name
                         << "'.\n  start_time: " << start_time.nanoseconds() << ", maximum involved stamp: " << max_time.nanoseconds()
                         << ", difference: " << (start_time - max_time).nanoseconds() << "ns");
@@ -661,7 +668,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
     {
       const auto optimization_request_time = optimization_deadline - params_.optimization_period;
       const auto time_since_last_optimization_request =
-        this->get_node_clock_interface()->get_clock()->now() - optimization_request_time;
+        clock_->now() - optimization_request_time;
       status.add("Time Since Last Optimization Request [s]", time_since_last_optimization_request.seconds());
     }
   }

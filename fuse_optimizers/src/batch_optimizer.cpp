@@ -48,22 +48,24 @@ namespace fuse_optimizers
 {
 
 BatchOptimizer::BatchOptimizer(
-  rclcpp::NodeOptions options,
-  std::string node_name,
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
 ):
-  fuse_optimizers::Optimizer(options, node_name, std::move(graph)),
+  fuse_optimizers::Optimizer(interfaces, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
   start_time_(rclcpp::Time::max()),
   started_(false)
 {
-  params_.loadFromROS(*this);
+  params_.loadFromROS(interfaces_);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = this->create_timer(
+  optimize_timer_ = rclcpp::create_timer(
+    interfaces_,
+    clock_,
     params_.optimization_period.to_chrono<std::chrono::nanoseconds>(),
-    std::bind(&BatchOptimizer::optimizerTimerCallback, this)
+    std::bind(&BatchOptimizer::optimizerTimerCallback, this),
+    interfaces_.get_node_base_interface()->get_default_callback_group()
   );
 
   // Start the optimization thread
@@ -104,7 +106,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
       if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        RCLCPP_ERROR_STREAM(this->get_logger(),
+        RCLCPP_ERROR_STREAM(logger_,
                             "The queued transaction with timestamp " << element.transaction->stamp().nanoseconds()
                             << " could not be processed after " << (current_time - element.transaction->stamp()).nanoseconds()
                             << " seconds, which is greater than the 'transaction_timeout' value of "
@@ -131,7 +133,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
 void BatchOptimizer::optimizationLoop()
 {
   // Optimize constraints until told to exit
-  while (get_node_base_interface()->get_context()->is_valid())
+  while (interfaces_.get_node_base_interface()->get_context()->is_valid())
   {
     // Wait for the next signal to start the next optimization cycle
     {
@@ -139,11 +141,11 @@ void BatchOptimizer::optimizationLoop()
       optimization_requested_.wait(
         lock,
         [this]{
-          return optimization_request_ || !get_node_base_interface()->get_context()->is_valid();
+          return optimization_request_ || !interfaces_.get_node_base_interface()->get_context()->is_valid();
         });
     }
     // If a shutdown is requested, exit now.
-    if (!get_node_base_interface()->get_context()->is_valid())
+    if (!interfaces_.get_node_base_interface()->get_context()->is_valid())
     {
       break;
     }

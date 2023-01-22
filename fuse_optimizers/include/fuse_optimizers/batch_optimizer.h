@@ -103,13 +103,11 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] options             Node options for the optimizer's node
-   * @param[in] node_name           The name to use for the optimizer's node
+   * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
   BatchOptimizer(
-    rclcpp::NodeOptions options,
-    std::string node_name = "batch_optimizer_node",
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
     fuse_core::Graph::UniquePtr graph = nullptr
   );
 

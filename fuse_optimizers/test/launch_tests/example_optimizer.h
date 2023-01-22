@@ -51,10 +51,9 @@ public:
   FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer)
 
   ExampleOptimizer(
-    rclcpp::NodeOptions options,
-    std::string node_name = "example_optimizer_node",
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
     fuse_core::Graph::UniquePtr graph = nullptr
-  ) : fuse_optimizers::Optimizer(options, node_name, std::move(graph))
+  ) : fuse_optimizers::Optimizer(interfaces, std::move(graph))
   {
   }
 

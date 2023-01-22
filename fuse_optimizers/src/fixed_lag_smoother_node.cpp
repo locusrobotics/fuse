@@ -41,8 +41,10 @@
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::NodeOptions options;
-  rclcpp::spin(std::make_shared<fuse_optimizers::FixedLagSmoother>(options));
+  auto node = std::make_shared<rclcpp::Node>("fixed_lag_smoother_node");
+  auto optimizer = std::make_shared<fuse_optimizers::FixedLagSmoother>(node);
+
+  rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;
 }
