@@ -63,7 +63,7 @@ BatchOptimizer::BatchOptimizer(
   optimize_timer_ = rclcpp::create_timer(
     interfaces_,
     clock_,
-    params_.optimization_period.to_chrono<std::chrono::nanoseconds>(),
+    params_.optimization_period,
     std::bind(&BatchOptimizer::optimizerTimerCallback, this),
     interfaces_.get_node_base_interface()->get_default_callback_group()
   );
