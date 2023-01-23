@@ -51,6 +51,7 @@
   <test_depend>geometry_msgs</test_depend>
   <test_depend>nav_msgs</test_depend>
   <test_depend>launch</test_depend>
+  <test_depend>launch_ros</test_depend>
   <test_depend>launch_pytest</test_depend>
   <test_depend>rclcpp</test_depend>
 
