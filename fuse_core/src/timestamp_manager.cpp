@@ -189,11 +189,12 @@ void TimestampManager::addSegment(
   for (const auto & variable : variables) {
     transaction.addVariable(variable);
   }
-  motion_model_history_.insert_or_assign(beginning_stamp, MotionModelSegment(
-    beginning_stamp,
-    ending_stamp,
-    constraints,
-    variables));
+  motion_model_history_.insert_or_assign(
+    beginning_stamp, MotionModelSegment(
+      beginning_stamp,
+      ending_stamp,
+      constraints,
+      variables));
 }
 
 void TimestampManager::removeSegment(
