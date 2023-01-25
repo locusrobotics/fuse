@@ -34,6 +34,7 @@
 
 #include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/graph.hpp>
+#include <fuse_core/parameter.hpp>
 #include <fuse_core/time.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
@@ -109,9 +110,6 @@ Optimizer::~Optimizer()
 
 void Optimizer::loadMotionModels()
 {
-  const std::string param_prefix = "motion_models.";
-  const std::string list_param_full_name = param_prefix + "motion_model_list";
-
   // struct for readability
   typedef struct {
     std::string name;
@@ -122,34 +120,15 @@ void Optimizer::loadMotionModels()
   // the configurations used to load models
   std::vector<ModelConfig> motion_model_config;
 
-  // declare the parameter
-  if(! interfaces_.get_node_parameters_interface()->has_parameter(list_param_full_name)){
-    rcl_interfaces::msg::ParameterDescriptor descr;
-    descr.description = "the list of motion models to load";
-    interfaces_.get_node_parameters_interface()->declare_parameter(
-      list_param_full_name,
-      rclcpp::ParameterValue (std::vector< std::string >()),
-      descr
-    );
-    // XXX catch rclcpp::exceptions::InvalidParameterValueException when launch assigns wrong type
-  }
-
-  // get the list of motion models
-  rclcpp::Parameter motion_model_list_param = interfaces_.get_node_parameters_interface()->get_parameter(list_param_full_name);
-
-  //extract the list from the parameter
-  if(motion_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
-    std::vector< std::string > names = motion_model_list_param.as_string_array();
-    for(std::string name : names){
-      ModelConfig config;
-      config.name = name;
-      motion_model_config.push_back(std::move(config));
-    }
-  }
+  std::unordered_set<std::string> motion_model_names =
+    fuse_core::list_parameter_override_prefixes(
+      interfaces_, "motion_models.");
 
   // declare config parameters for each model
-  for(ModelConfig & config : motion_model_config){
-    config.param_name = param_prefix + config.name + ".type";
+  for(const auto & param_name : motion_model_names){
+    ModelConfig & config = motion_model_config.emplace_back();
+    config.name = param_name.substr(param_name.rfind('.') + 1);
+    config.param_name = param_name + ".type";
 
     if(! interfaces_.get_node_parameters_interface()->has_parameter(config.param_name)){
       rcl_interfaces::msg::ParameterDescriptor descr;
@@ -194,9 +173,6 @@ void Optimizer::loadMotionModels()
 
 void Optimizer::loadSensorModels()
 {
-  const std::string param_prefix = "sensor_models.";
-  const std::string list_param_full_name = param_prefix + "sensor_model_list";
-
   // struct for readability
   typedef struct {
     std::string name;
@@ -211,36 +187,17 @@ void Optimizer::loadSensorModels()
   // the configurations used to load models
   std::vector<ModelConfig> sensor_model_config;
 
-  // declare the parameter
-  if(! interfaces_.get_node_parameters_interface()->has_parameter(list_param_full_name)){
-    rcl_interfaces::msg::ParameterDescriptor descr;
-    descr.description = "the list of sensor models to load";
-    interfaces_.get_node_parameters_interface()->declare_parameter(
-      list_param_full_name,
-      rclcpp::ParameterValue (std::vector< std::string >()),
-      descr
-    );
-    // XXX catch rclcpp::exceptions::InvalidParameterValueException when launch assigns wrong type
-  }
-
-  // get the list of sensor models
-  rclcpp::Parameter sensor_model_list_param = interfaces_.get_node_parameters_interface()->get_parameter(list_param_full_name);
-
-  //extract the list from the parameter
-  if(sensor_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
-    std::vector< std::string > names = sensor_model_list_param.as_string_array();
-    for(std::string name : names){
-      ModelConfig config;
-      config.name = name;
-      sensor_model_config.push_back(std::move(config));
-    }
-  }
+  std::unordered_set<std::string> sensor_model_names =
+    fuse_core::list_parameter_override_prefixes(
+      interfaces_, "sensor_models.");
 
   // declare config parameters for each model
-  for(ModelConfig & config : sensor_model_config){
-    config.type_param_name = param_prefix + config.name + ".type";
-    config.models_param_name = param_prefix + config.name + ".motion_models";
-    config.ignition_param_name = param_prefix + config.name + ".ignition";
+  for(const auto & param_name : sensor_model_names){
+    ModelConfig & config = sensor_model_config.emplace_back();
+    config.name = param_name.substr(param_name.rfind('.') + 1);
+    config.type_param_name = param_name + ".type";
+    config.models_param_name = param_name + ".motion_models";
+    config.ignition_param_name = param_name + ".ignition";
 
 
     // get the type parameter for the sensor model
@@ -343,10 +300,6 @@ void Optimizer::loadSensorModels()
 
 void Optimizer::loadPublishers()
 {
-
-  const std::string param_prefix = "publishers.";
-  const std::string list_param_full_name = param_prefix + "publisher_list";
-
   // struct for readability
   typedef struct {
     std::string name;
@@ -357,34 +310,15 @@ void Optimizer::loadPublishers()
   // the configurations used to load models
   std::vector<PublisherConfig> publisher_config;
 
-  // declare the parameter
-  if(! interfaces_.get_node_parameters_interface()->has_parameter(list_param_full_name)){
-    rcl_interfaces::msg::ParameterDescriptor descr;
-    descr.description = "the list of publishers to load";
-    interfaces_.get_node_parameters_interface()->declare_parameter(
-      list_param_full_name,
-      rclcpp::ParameterValue (std::vector< std::string >()),
-      descr
-    );
-    // XXX catch rclcpp::exceptions::InvalidParameterValueException when launch assigns wrong type
-  }
-
-  // get the list of publishers
-  rclcpp::Parameter publisher_list_param = interfaces_.get_node_parameters_interface()->get_parameter(list_param_full_name);
-
-  //extract the list from the parameter
-  if(publisher_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY){
-    std::vector< std::string > names = publisher_list_param.as_string_array();
-    for(std::string name : names){
-      PublisherConfig config;
-      config.name = name;
-      publisher_config.push_back(std::move(config));
-    }
-  }
+  std::unordered_set<std::string> publisher_names =
+    fuse_core::list_parameter_override_prefixes(
+      interfaces_, "publishers.");
 
   // declare config parameters for each model
-  for(PublisherConfig & config : publisher_config){
-    config.param_name = param_prefix + config.name + ".type";
+  for(const auto & param_name : publisher_names){
+    PublisherConfig & config = publisher_config.emplace_back();
+    config.name = param_name.substr(param_name.rfind('.') + 1);
+    config.param_name = param_name + ".type";
 
     if(! interfaces_.get_node_parameters_interface()->has_parameter(config.param_name)){
       rcl_interfaces::msg::ParameterDescriptor descr;

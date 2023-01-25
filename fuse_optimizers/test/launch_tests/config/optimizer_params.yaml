@@ -1,10 +1,6 @@
 example_optimizer_node:
   ros__parameters:
     motion_models:
-      motion_model_list:
-        - unicycle_2d
-        - noisy_unicycle_2d
-
       noisy_unicycle_2d:
         type: fuse_models::Unicycle2D
 
@@ -13,12 +9,6 @@ example_optimizer_node:
 
 
     sensor_models:
-      sensor_model_list:
-        - unicycle_2d_ignition
-        - wheel_odometry
-        - laser_localization
-        - imu
-
       unicycle_2d_ignition:
         type: fuse_models::Unicycle2DIgnition
         motion_models: ['unicycle_2d']
@@ -34,9 +24,6 @@ example_optimizer_node:
 
 
     publishers:
-      publisher_list:
-        - odometry_publisher
-        - serialized_publisher
 
       odometry_publisher:
         type: fuse_models::Odometry2DPublisher

@@ -14,6 +14,9 @@ target_link_libraries(test_loss ${PROJECT_NAME})
 ament_add_gtest(test_message_buffer test_message_buffer.cpp)
 target_link_libraries(test_message_buffer ${PROJECT_NAME})
 
+ament_add_gtest(test_parameter test_parameter.cpp)
+target_link_libraries(test_parameter ${PROJECT_NAME})
+
 ament_add_gtest(test_timestamp_manager test_timestamp_manager.cpp)
 target_link_libraries(test_timestamp_manager ${PROJECT_NAME})
 

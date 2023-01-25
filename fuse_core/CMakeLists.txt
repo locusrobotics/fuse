@@ -38,6 +38,7 @@ add_library(${PROJECT_NAME}
   src/graph.cpp
   src/graph_deserializer.cpp
   src/loss.cpp
+  src/parameter.cpp
   src/serialization.cpp
   src/time.cpp
   src/timestamp_manager.cpp

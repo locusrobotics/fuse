@@ -10,18 +10,11 @@ fixed_lag_node:
 
 
       motion_models:
-        motion_model_list:
-          - unicycle_motion_model
-
         unicycle_motion_model:
           type: fuse_models::Unicycle2D
 
 
       sensor_models:
-        sensor_model_list:
-          - unicycle_ignition_sensor
-          - pose_sensor
-
         unicycle_ignition_sensor:
           type: fuse_models::Unicycle2DIgnition
           motion_models: [unicycle_motion_model]
@@ -32,8 +25,6 @@ fixed_lag_node:
 
 
       publishers:
-        publisher_list:
-          - odometry_publisher
 
         odometry_publisher:
           type: fuse_models::Odometry2DPublisher
