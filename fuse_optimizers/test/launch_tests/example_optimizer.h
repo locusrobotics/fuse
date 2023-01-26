@@ -31,8 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H  // NOLINT{build/header_guard}
-#define FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H  // NOLINT{build/header_guard}
+
+#ifndef FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H
+#define FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H
 
 #include <fuse_optimizers/optimizer.h>
 
@@ -50,9 +51,9 @@ public:
   FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer)
 
   ExampleOptimizer(
-    rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph = fuse_graphs::HashGraph::make_unique()
-  ) : fuse_optimizers::Optimizer(std::move(graph), node_handle, private_node_handle)
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    fuse_core::Graph::UniquePtr graph = nullptr
+  ) : fuse_optimizers::Optimizer(interfaces, std::move(graph))
   {
   }
 
@@ -75,7 +76,9 @@ public:
       const std::string& sensor_name,
       fuse_core::Transaction::SharedPtr transaction) override
   {
+    (void)sensor_name;
+    (void)transaction;
   }
 };
 
-#endif  // FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H  // NOLINT{build/header_guard}
+#endif  // FUSE_OPTIMIZERS_TEST_EXAMPLE_OPTIMIZER_H

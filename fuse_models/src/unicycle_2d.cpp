@@ -256,7 +256,7 @@ void Unicycle2D::generateMotionModel(
   assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history_.empty()));
 
   StateHistoryElement base_state;
-  rclcpp::Time base_time;
+  rclcpp::Time base_time{ 0, 0, RCL_ROS_TIME };
 
   // Find an entry that is > beginning_stamp
   // The entry that is <= will be the one before it

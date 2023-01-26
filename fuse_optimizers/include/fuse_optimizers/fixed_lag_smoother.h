@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
 #define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
 
@@ -39,9 +40,11 @@
 #include <fuse_optimizers/fixed_lag_smoother_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_optimizers/variable_stamp_index.h>
+#include <fuse_graphs/hash_graph.hpp>
+#include <fuse_constraints/marginalize_variables.hpp>
 
 #include <rclcpp/rclcpp.hpp>
-#include <std_srvs/Empty.h>
+#include <std_srvs/srv/empty.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -112,15 +115,13 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] graph               The derived graph object. This allows different graph implementations to be used
-   *                                with the same optimizer code.
-   * @param[in] node_handle         A node handle in the global namespace
-   * @param[in] private_node_handle A node handle in the node's private namespace
+   * @param[in] interfaces          The node interfaces for the node driving the optimizer
+   * @param[in] graph               The graph used with the optimizer
    */
   FixedLagSmoother(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    fuse_core::Graph::UniquePtr graph = nullptr
+  );
 
   /**
    * @brief Destructor
@@ -186,11 +187,11 @@ protected:
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  rclcpp::Time start_time_ { 0, 0, RCL_ROS_TIME };  //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
-  ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
    * @brief Automatically start the smoother if no ignition sensors are specified
@@ -267,7 +268,10 @@ protected:
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-  bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+  bool resetServiceCallback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request>,
+    std::shared_ptr<std_srvs::srv::Empty::Response>
+  );
 
   /**
    * @brief Thread-safe read-only access to the timestamp of the first transaction

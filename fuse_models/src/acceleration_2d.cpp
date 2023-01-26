@@ -107,7 +107,7 @@ void Acceleration2D::onStart()
 
     sub_ = rclcpp::create_subscription<geometry_msgs::msg::AccelWithCovarianceStamped>(
       interfaces_,
-      fuse_core::joinTopicName(name_, params_.topic),
+      params_.topic,
       params_.queue_size,
       std::bind(
         &AccelerationThrottledCallback::callback<

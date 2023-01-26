@@ -113,12 +113,12 @@ void Odometry2DPublisher::onInit()
 
   odom_pub_ = rclcpp::create_publisher<nav_msgs::msg::Odometry>(
     interfaces_,
-    fuse_core::joinTopicName(name_, params_.topic),
+    params_.topic,
     params_.queue_size,
     pub_options);
   acceleration_pub_ = rclcpp::create_publisher<geometry_msgs::msg::AccelWithCovarianceStamped>(
     interfaces_,
-    fuse_core::joinTopicName(name_, params_.acceleration_topic),
+    params_.acceleration_topic,
     params_.queue_size,
     pub_options);
 }

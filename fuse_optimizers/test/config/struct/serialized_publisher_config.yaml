@@ -1,3 +1,0 @@
-publishers:
-  serialized_publisher:
-    type: fuse_publishers::SerializedPublisher

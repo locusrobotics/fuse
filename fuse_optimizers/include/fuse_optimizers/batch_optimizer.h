@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
 
@@ -39,7 +40,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
+#include <fuse_graphs/hash_graph.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -102,15 +103,13 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] graph               The derived graph object. This allows different graph implementations to be used
-   *                                with the same optimizer code.
-   * @param[in] node_handle         A node handle in the global namespace
-   * @param[in] private_node_handle A node handle in the node's private namespace
+   * @param[in] interfaces          The node interfaces for the node driving the optimizer
+   * @param[in] graph               The graph used with the optimizer
    */
   BatchOptimizer(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    fuse_core::Graph::UniquePtr graph = nullptr
+  );
 
   /**
    * @brief Destructor

@@ -31,10 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include <fuse_core/transaction.hpp>
 #include <fuse_optimizers/batch_optimizer.h>
 #include <fuse_optimizers/optimizer.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>
 #include <mutex>
@@ -47,21 +48,24 @@ namespace fuse_optimizers
 {
 
 BatchOptimizer::BatchOptimizer(
-  rclcpp::NodeOptions options,
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
 ):
-  fuse_optimizers::Optimizer(options, std::move(graph)),
+  fuse_optimizers::Optimizer(interfaces, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
   start_time_(rclcpp::Time::max()),
   started_(false)
 {
-  params_.loadFromROS(private_node_handle);
+  params_.loadFromROS(interfaces_);
 
   // Configure a timer to trigger optimizations
-  optimize_timer_ = this->create_timer(
+  optimize_timer_ = rclcpp::create_timer(
+    interfaces_,
+    clock_,
     params_.optimization_period,
-    std::bind(&BatchOptimizer::optimizerTimerCallback, this)
+    std::bind(&BatchOptimizer::optimizerTimerCallback, this),
+    interfaces_.get_node_base_interface()->get_default_callback_group()
   );
 
   // Start the optimization thread
@@ -102,11 +106,11 @@ void BatchOptimizer::applyMotionModelsToQueue()
       if (element.transaction->stamp() + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
-        RCLCPP_ERROR_STREAM(this->get_logger(),
-                            "The queued transaction with timestamp " << element.transaction->stamp()
-                            << " could not be processed after " << (current_time - element.transaction->stamp())
+        RCLCPP_ERROR_STREAM(logger_,
+                            "The queued transaction with timestamp " << element.transaction->stamp().nanoseconds()
+                            << " could not be processed after " << (current_time - element.transaction->stamp()).nanoseconds()
                             << " seconds, which is greater than the 'transaction_timeout' value of "
-                            << params_.transaction_timeout << ". Ignoring this transaction.");
+                            << params_.transaction_timeout.nanoseconds() << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
       }
@@ -129,7 +133,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
 void BatchOptimizer::optimizationLoop()
 {
   // Optimize constraints until told to exit
-  while (get_node_base_interface()->get_context()->is_valid())
+  while (interfaces_.get_node_base_interface()->get_context()->is_valid())
   {
     // Wait for the next signal to start the next optimization cycle
     {
@@ -137,11 +141,11 @@ void BatchOptimizer::optimizationLoop()
       optimization_requested_.wait(
         lock,
         [this]{
-          return optimization_request_ || !get_node_base_interface()->get_context()->is_valid();
+          return optimization_request_ || !interfaces_.get_node_base_interface()->get_context()->is_valid();
         });
     }
     // If a shutdown is requested, exit now.
-    if (!get_node_base_interface()->get_context()->is_valid())
+    if (!interfaces_.get_node_base_interface()->get_context()->is_valid())
     {
       break;
     }
@@ -195,7 +199,7 @@ void BatchOptimizer::transactionCallback(
   // Add the new transaction to the pending set
   // Either we haven't "started" yet and we want to keep a short history of transactions around
   // Or we have "started" already, and the new transaction is after the starting time.
-  auto transaction_clock_type = transaction->stamp()->get_clock_type();
+  auto transaction_clock_type = transaction->stamp().get_clock_type();
 
   rclcpp::Time transaction_time = transaction->stamp();
   rclcpp::Time last_pending_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
@@ -221,7 +225,7 @@ void BatchOptimizer::transactionCallback(
       purge_time = start_time_;
     }
     // prevent a bad subtraction
-    else if (rclcpp::Time(params_.transaction_timeout.nanoseconds, last_pending_time.get_clock_type())
+    else if (rclcpp::Time(params_.transaction_timeout.nanoseconds(), last_pending_time.get_clock_type())
              < last_pending_time)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
@@ -239,7 +243,7 @@ void BatchOptimizer::transactionCallback(
 
 void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
 {
-  status.summary(diagnostic_msgs::DiagnosticStatus::OK, "BatchOptimizer");
+  status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "BatchOptimizer");
 
   Optimizer::setDiagnostics(status);
 

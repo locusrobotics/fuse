@@ -1,0 +1,60 @@
+example_optimizer_node:
+  ros__parameters:
+    motion_models:
+      noisy_unicycle_2d:
+        type: fuse_models::Unicycle2D
+
+      unicycle_2d:
+        type: fuse_models::Unicycle2D
+
+
+    sensor_models:
+      unicycle_2d_ignition:
+        type: fuse_models::Unicycle2DIgnition
+        motion_models: ['unicycle_2d']
+      wheel_odometry:
+        type: fuse_models::Odometry2D
+        motion_models: ['unicycle_2d']
+      laser_localization:
+        type: fuse_models::Odometry2D
+        motion_models: ['unicycle_2d']
+      imu:
+        type: fuse_models::Imu2D
+        motion_models: ['unicycle_2d']
+
+
+    publishers:
+
+      odometry_publisher:
+        type: fuse_models::Odometry2DPublisher
+      serialized_publisher:
+        type: fuse_publishers::SerializedPublisher
+
+
+    # Motion Models
+    noisy_unicycle_2d:
+      process_noise_diagonal: [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1]
+
+    unicycle_2d:
+      process_noise_diagonal: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+
+    # Sensor Models
+    unicycle_2d_ignition:
+      initial_sigma: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      publish_on_startup: false
+
+    imu:
+      topic: imu
+      angular_velocity_dimensions: ['yaw']
+
+    wheel_odometry:
+      topic: odom
+      differential: true
+      position_dimensions: ['x', 'y']
+      orientation_dimensions: ['yaw']
+
+    laser_localization:
+      topic: pose
+      position_dimensions: ['x', 'y']
+      orientation_dimensions: ['yaw']

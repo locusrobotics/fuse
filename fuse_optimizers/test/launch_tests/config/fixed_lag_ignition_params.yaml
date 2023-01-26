@@ -1,17 +1,18 @@
-<?xml version="1.0"?>
-<launch>
-  <node name="fixed_lag" pkg="fuse_optimizers" type="fixed_lag_smoother_node" output="screen">
-    <rosparam subst_value="true">
+fixed_lag_node:
+  ros__parameters:
       optimization_frequency: 2.0
       transaction_timeout: 5.0
       lag_duration: 5.0
 
+
       solver_options:
         max_num_iterations: 0
+
 
       motion_models:
         unicycle_motion_model:
           type: fuse_models::Unicycle2D
+
 
       sensor_models:
         unicycle_ignition_sensor:
@@ -22,9 +23,12 @@
           type: fuse_models::Pose2D
           motion_models: [unicycle_motion_model]
 
+
       publishers:
+
         odometry_publisher:
           type: fuse_models::Odometry2DPublisher
+
 
       unicycle_motion_model:
         buffer_length: 5.0
@@ -45,8 +49,3 @@
         topic: odom
         world_frame_id: map
         publish_tf: false
-    </rosparam>
-  </node>
-
-  <test test-name="FixedLagIgnition" pkg="fuse_optimizers" type="test_fixed_lag_ignition" />
-</launch>

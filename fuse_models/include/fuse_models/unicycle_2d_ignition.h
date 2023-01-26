@@ -71,7 +71,7 @@ namespace fuse_models
  *  - ~initial_state (vector of doubles) An 8-dimensional vector containing the initial values for the state.
  *                                       Variable order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc).
  *  - ~queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - ~reset_service (string, default: "reset") The name of the reset service to call before sending a transaction
+ *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before sending a transaction
  *  - ~set_pose_deprecated_service (string, default: "set_pose_deprecated") The name of the set_pose_deprecated service
  *  - ~set_pose_service (string, default: "set_pose") The name of the set_pose service to advertise
  *  - ~topic (string, default: "set_pose") The topic name for received PoseWithCovarianceStamped messages
@@ -131,15 +131,17 @@ public:
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
   bool setPoseServiceCallback(
-    const fuse_msgs::srv::SetPose::Request::SharedPtr req,
-    fuse_msgs::srv::SetPose::Response::SharedPtr res);
+    rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
+    std::shared_ptr<rmw_request_id_t>,
+    const fuse_msgs::srv::SetPose::Request::SharedPtr req);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
   bool setPoseDeprecatedServiceCallback(
-    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req,
-    fuse_msgs::srv::SetPoseDeprecated::Response::SharedPtr);
+    rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
+    std::shared_ptr<rmw_request_id_t> request_id,
+    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req);
 
 protected:
   /**
@@ -155,7 +157,9 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
+  void process(
+    const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+    std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a prior transaction based on the supplied pose

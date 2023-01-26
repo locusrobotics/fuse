@@ -150,7 +150,7 @@ void TimestampManager::query(
 
     // Insert the last timestamp into the motion model history, but with no constraints. The last
     // entry in the motion model history will always contain no constraints.
-    motion_model_history_.emplace(last_stamp, MotionModelSegment());
+    motion_model_history_.emplace(last_stamp, MotionModelSegment(last_stamp.get_clock_type()));
   }
   // Purge any old entries from the motion model history
   purgeHistory();
@@ -189,12 +189,12 @@ void TimestampManager::addSegment(
   for (const auto & variable : variables) {
     transaction.addVariable(variable);
   }
-  // Add the motion model segment to the history
-  motion_model_history_[beginning_stamp] = MotionModelSegment(
-    beginning_stamp,
-    ending_stamp,
-    constraints,
-    variables);
+  motion_model_history_.insert_or_assign(
+    beginning_stamp, MotionModelSegment(
+      beginning_stamp,
+      ending_stamp,
+      constraints,
+      variables));
 }
 
 void TimestampManager::removeSegment(

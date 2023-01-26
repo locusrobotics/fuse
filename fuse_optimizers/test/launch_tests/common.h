@@ -31,13 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_OPTIMIZERS_TEST_COMMON_H  // NOLINT{build/header_guard}
-#define FUSE_OPTIMIZERS_TEST_COMMON_H  // NOLINT{build/header_guard}
+
+#ifndef FUSE_OPTIMIZERS_TEST_COMMON_H
+#define FUSE_OPTIMIZERS_TEST_COMMON_H
+
 #include <algorithm>
 #include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 
 /**
  * @brief Helper function to print the elements of std::vector<T> objects
@@ -111,4 +114,5 @@ std::vector<std::string> set_symmetric_difference(const std::vector<std::string>
   return diff;
 }
 
-#endif  // FUSE_OPTIMIZERS_TEST_COMMON_H  // NOLINT{build/header_guard}
+
+#endif  // FUSE_OPTIMIZERS_TEST_COMMON_H

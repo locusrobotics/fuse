@@ -266,7 +266,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   // Call the SetGraph service
   auto srv = std::make_shared<fuse_msgs::srv::SetGraph::Request>();
   fuse_core::serializeGraph(graph, srv->graph);
-  auto client = node->create_client<fuse_msgs::srv::SetGraph>("graph_ignition_test/set_graph");
+  auto client = node->create_client<fuse_msgs::srv::SetGraph>("/graph_ignition_test/set_graph");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
@@ -382,7 +382,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   // Call the SetGraph service
   auto srv = std::make_shared<fuse_msgs::srv::SetGraph::Request>();
   fuse_core::serializeGraph(graph, srv->graph);
-  auto client = node->create_client<fuse_msgs::srv::SetGraph>("graph_ignition_test/set_graph");
+  auto client = node->create_client<fuse_msgs::srv::SetGraph>("/graph_ignition_test/set_graph");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));

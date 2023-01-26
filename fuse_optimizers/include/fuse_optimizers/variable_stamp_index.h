@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
 #define FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
 
@@ -42,6 +43,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+
 
 namespace fuse_optimizers
 {

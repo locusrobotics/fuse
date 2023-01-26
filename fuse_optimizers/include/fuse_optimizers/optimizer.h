@@ -31,10 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef FUSE_OPTIMIZERS_OPTIMIZER_H
 #define FUSE_OPTIMIZERS_OPTIMIZER_H
 
-#include <diagnostic_updater/diagnostic_updater.h>
+#include <diagnostic_updater/diagnostic_updater.hpp>
+#include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/motion_model.hpp>
@@ -90,7 +92,7 @@ namespace fuse_optimizers
  *  - ...
  * @endcode
  */
-class Optimizer : public rclcpp::Node
+class Optimizer
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)
@@ -98,14 +100,12 @@ public:
   /**
    * @brief Constructor
    *
-   * @param[in] graph               The derived graph object. This allows different graph implementations to be used
-   *                                with the same optimizer code.
-   * @param[in] node_handle         A node handle in the global namespace
-   * @param[in] private_node_handle A node handle in the node's private namespace
+   * @param[in] interfaces          The node interfaces for the node driving the optimizer
+   * @param[in] graph               The graph used with the optimizer
    */
   Optimizer(
-    rclcpp::NodeOptions options,
-    fuse_core::Graph::UniquePtr graph,
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    fuse_core::Graph::UniquePtr graph = nullptr
     );
 
   /**
@@ -147,6 +147,10 @@ protected:
   using MotionModelGroup = std::vector<std::string>;  //!< A set of motion model names
   using AssociatedMotionModels = std::unordered_map<std::string, MotionModelGroup>;  //!< sensor -> motion models group
 
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces_;
+  rclcpp::Clock::SharedPtr clock_;
+  rclcpp::Logger logger_;
+
   AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used for each sensor
   fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
 
@@ -158,8 +162,6 @@ protected:
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
-  rclcpp::TimerBase::SharedPtr diagnostic_updater_timer_; //!< Diagnostic updater timer
-  double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
 
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 
