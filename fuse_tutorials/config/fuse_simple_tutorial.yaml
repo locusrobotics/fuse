@@ -11,10 +11,6 @@ state_estimator:
 
     # list of motion models to load config for
     motion_models:
-      # a list of human-readable names for the models
-      motion_model_list:
-        - unicycle_motion_model
-
       # model-loader config for motion models mentioned above
       # this specifies the state variables Fuse will attempt to estimate
       # these motion models load their own config as nodes below
@@ -23,12 +19,6 @@ state_estimator:
 
     # list of sensor models to load config for
     sensor_models:
-      # a list of human-readable names for the models
-      sensor_model_list:
-        - initial_localization_sensor
-        - odometry_sensor
-        - imu_sensor
-
       # model-loader config for sensor models mentioned above
       # this specifies which constraints will be generated
       # and how the constraints will link to the state variables
@@ -48,10 +38,6 @@ state_estimator:
 
     # list of state estimation publishers to load config for
     publishers:
-      # a list of human-readable names for the publishers
-      publisher_list:
-        - filtered_publisher
-
       # model-loader config for state estimation publishers mentioned above
       # these publishers load their own config as nodes below
       filtered_publisher:

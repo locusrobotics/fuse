@@ -81,10 +81,6 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
 
       # list of motion models to load config for
       motion_models:
-        # a list of human-readable names for the models
-        motion_model_list:
-          - unicycle_motion_model
-
         # model-loader config for motion models mentioned above
         # this specifies the state variables Fuse will attempt to estimate
         # these motion models load their own config as nodes below
@@ -93,11 +89,6 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
 
       # list of sensor models to load config for
       sensor_models:
-        # a list of human-readable names for the models
-        sensor_model_list:
-          - initial_localization_sensor
-          - odometry_sensor
-
         # model-loader config for sensor models mentioned above
         # this specifies which constraints will be generated
         # and how the constraints will link to the state variables
@@ -112,10 +103,6 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
 
       # list of state estimation publishers to load config for
       publishers:
-        # a list of human-readable names for the publishers
-        publisher_list:
-          - filtered_publisher
-
         # model-loader config for state estimation publishers mentioned above
         # these publishers load their own config as nodes below
         filtered_publisher:
@@ -169,10 +156,6 @@ The `lag_duration` parameter specifies the length of the smoothing window. Varia
 
   # list of motion models to load config for
   motion_models:
-    # a list of human-readable names for the models
-    motion_model_list:
-      - unicycle_motion_model
-
     unicycle_motion_model:
       type: fuse_models::Unicycle2D
 
@@ -182,8 +165,6 @@ The `lag_duration` parameter specifies the length of the smoothing window. Varia
 
 This section specifies the motion (kinematic) model that we will use in this problem. As our robot is a differential-drive bot, we use a 2D unicycle model. Note that `fuse` supports multiple motion models to be used, but most applications will only require one.
 
-All motion models that are meant to be used must be listed in the `motion_model_list` parameter.
-
 The motion model will be used to add constraints to the graph between sensor measurements. The model we have specified is of type `fuse_models::Unicycle2D`, which is a plugin with its own parameters. Those parameters are specified in the next block.
 
 The `process_noise_diagonal` specifies the error growth for each of our state variables when we apply the kinematic model. This is equivalent to the process noise covariance you might see in an EKF application. Here, we just specify the diagonals for that matrix.
@@ -191,11 +172,6 @@ The `process_noise_diagonal` specifies the error growth for each of our state va
 .. code-block:: yaml
 
   sensor_models:
-    # a list of human-readable names for the models
-    sensor_model_list:
-      - initial_localization_sensor
-      - odometry_sensor
-
     initial_localization_sensor:
       type: fuse_models::Unicycle2DIgnition
       motion_models: [unicycle_motion_model]
@@ -217,7 +193,6 @@ The `process_noise_diagonal` specifies the error growth for each of our state va
     angular_velocity_dimensions: ['yaw']
 
 In this section, we specify two sensor models.
-All sensor models that are meant to be used must be listed in the `sensor_model_list` parameter.
 
 The first is an "ignition" model of type `fuse_models::Unicycle2DIgnition`. It is responsible for adding a constraint to our graph for the robot's initial pose.
   - The `publish_on_startup` parameter will cause it to add a constraint to the graph as soon as it initializes
@@ -231,10 +206,6 @@ The second sensor model is of type `fuse_models::Odometry2D`. This particular se
 .. code-block:: yaml
 
   publishers:
-    # a list of human-readable names for the publishers
-    publisher_list:
-      - filtered_publisher
-
     filtered_publisher:
       type: fuse_models::Odometry2DPublisher
 
@@ -252,8 +223,6 @@ Here, we configure the plugin that will publish our state estimate. The `fuse_pu
 - The `topic` is the ROS topic on which the output will be published.
 - The `*_frame_id` parameters specify the various coordinate frame IDs that will be used when publishing the `nav_msgs/Odometry` message.
 - The `publish_tf` parameter can be used to enable or disable publishing the transform for use by `tf2`.
-
-All publishers that are meant to be used must be listed in the `publisher_list` parameter.
 
 Try running the launch file:
 
@@ -285,10 +254,6 @@ The example so far fuses only a single odometry source, which isn't especially u
 
       # list of motion models to load config for
       motion_models:
-        # a list of human-readable names for the models
-        motion_model_list:
-          - unicycle_motion_model
-
         # model-loader config for motion models mentioned above
         # this specifies the state variables Fuse will attempt to estimate
         # these motion models load their own config as nodes below
@@ -297,12 +262,6 @@ The example so far fuses only a single odometry source, which isn't especially u
 
       # list of sensor models to load config for
       sensor_models:
-        # a list of human-readable names for the models
-        sensor_model_list:
-          - initial_localization_sensor
-          - odometry_sensor
-          - imu_sensor
-
         # model-loader config for sensor models mentioned above
         # this specifies which constraints will be generated
         # and how the constraints will link to the state variables
@@ -322,10 +281,6 @@ The example so far fuses only a single odometry source, which isn't especially u
 
       # list of state estimation publishers to load config for
       publishers:
-        # a list of human-readable names for the publishers
-        publisher_list:
-          - filtered_publisher
-
         # model-loader config for state estimation publishers mentioned above
         # these publishers load their own config as nodes below
         filtered_publisher:
