@@ -41,8 +41,6 @@
 #include <fuse_optimizers/optimizer.h>
 #include <fuse_graphs/hash_graph.hpp>
 
-//#include <XmlRpcValue.h>
-
 #include <chrono>
 #include <functional>
 #include <numeric>
@@ -55,7 +53,6 @@
 namespace fuse_optimizers
 {
 
-// XXX pass a rclcpp::Context, and a CallbackGroup
 Optimizer::Optimizer(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph

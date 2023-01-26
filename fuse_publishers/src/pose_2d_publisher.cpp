@@ -178,7 +178,7 @@ void Pose2DPublisher::onInit()
         rclcpp::Duration::from_seconds(tf_cache_time)
         .to_chrono<std::chrono::nanoseconds>()
         // , interfaces_  // NOTE(methylDragon): This one is pending a change on tf2_ros/buffer.h
-        // TODO(methylDragon): See above ^
+        //                   TODO(methylDragon): See above ^                            // NOLINT
       );
       tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
         *tf_buffer_,

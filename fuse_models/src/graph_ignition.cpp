@@ -163,7 +163,10 @@ void GraphIgnition::process(
   }
 
   // Deserialize the graph message
-  const auto graph = graph_deserializer_.deserialize(msg);
+  // NOTE(methylDragon): We convert the Graph::UniquePtr to a shared pointer so it can be passed
+  //                     as a copyable object to the deferred service call's std::function<> arg
+  //                     to satisfy the requirement that std::function<> arguments are copyable.
+  const auto graph = std::shared_ptr<fuse_core::Graph>(std::move(graph_deserializer_.deserialize(msg)));
 
   // Validate the requested graph before we do anything
   if (boost::empty(graph->getConstraints()))
@@ -191,11 +194,12 @@ void GraphIgnition::process(
     // Don't block the executor.
     // It needs to be free to handle the response to this service call.
     // Have a callback do the rest of the work when a response comes.
-    auto result_future = reset_client_->async_send_request(srv,
-      [this, post_process, &graph, msg](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result){
+    auto result_future = reset_client_->async_send_request(
+      srv,
+      [this, post_process, captured_graph = std::move(graph), msg](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result) {
         (void)result;
         // Now that the optimizer has been reset, actually send the initial state constraints to the optimizer
-        sendGraph(*graph, msg.header.stamp);
+        sendGraph(*captured_graph, msg.header.stamp);
         if (post_process) {
           post_process();
         }

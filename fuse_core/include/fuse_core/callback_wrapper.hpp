@@ -179,7 +179,6 @@ public:
 
   std::shared_ptr<void> take_data() override;
 
-  // TODO(CH3): check this against the threading model of the multi-threaded executor.
   void execute(std::shared_ptr<void> & data) override;
 
   void addCallback(const std::shared_ptr<CallbackWrapperBase> & callback);

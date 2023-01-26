@@ -1,14 +1,6 @@
 # CORE GTESTS ======================================================================================
-set(TEST_TARGETS
-  # test_fixed_lag_ignition
-  # test_optimizer
-  test_variable_stamp_index
-)
-
-foreach(test_name ${TEST_TARGETS})
-  ament_add_gtest("${test_name}" "${test_name}.cpp")
-  target_link_libraries("${test_name}" ${PROJECT_NAME})
-endforeach()
+ament_add_gtest(test_variable_stamp_index "test_variable_stamp_index.cpp")
+target_link_libraries(test_variable_stamp_index ${PROJECT_NAME})
 
 
 # ROS TESTS (WITH LAUNCH) ==========================================================================
