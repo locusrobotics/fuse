@@ -12,8 +12,8 @@ To start, you'll need a launch file, a yaml configuration file, and the supporti
   mkdir ~/fuse_tutorials
   cd ~/fuse_tutorials
   wget https://github.com/locusrobotics/fuse/raw/rolling/fuse_tutorials/data/turtlebot3.bag
-  md5sum turtlebot3.bag # Should return e13723bcce819036734bc76b657c7aaf
-  wget https://raw.githubusercontent.com/locusrobotics/fuse/rolling/fuse_tutorials/config/range_sensor_tutorial.rviz
+  md5sum turtlebot3.bag # Should return f1621722a0b03f31b504ca98c8bfeb4e
+  wget https://raw.githubusercontent.com/locusrobotics/fuse/rolling/fuse_tutorials/config/fuse_simple_tutorial.rviz
   touch fuse_simple_tutorial.launch.py
   touch fuse_simple_tutorial.yaml
 
@@ -70,29 +70,20 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
 
   state_estimator:
     ros__parameters:
-      # parameters for the fixed-lag optimiser
+      # Fixed-lag smoother configuration
       optimization_frequency: 20.0
       transaction_timeout: 0.01
       lag_duration: 0.5
 
-      # parameters for the model loader (handled by the optimizer base-class)
-      # ROS2 requires forward-declaration of parameters,
-      # so mention the names of plugins you want to load first
-
-      # list of motion models to load config for
       motion_models:
-        # model-loader config for motion models mentioned above
-        # this specifies the state variables Fuse will attempt to estimate
-        # these motion models load their own config as nodes below
         unicycle_motion_model:
           type: fuse_models::Unicycle2D
 
-      # list of sensor models to load config for
+      unicycle_motion_model:
+        #                         x      y      yaw    vx     vy     vyaw   ax   ay
+        process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
+
       sensor_models:
-        # model-loader config for sensor models mentioned above
-        # this specifies which constraints will be generated
-        # and how the constraints will link to the state variables
-        # these sensor models load their own config as nodes below
         initial_localization_sensor:
           type: fuse_models::Unicycle2DIgnition
           motion_models: [unicycle_motion_model]
@@ -101,20 +92,6 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
           type: fuse_models::Odometry2D
           motion_models: [unicycle_motion_model]
 
-      # list of state estimation publishers to load config for
-      publishers:
-        # model-loader config for state estimation publishers mentioned above
-        # these publishers load their own config as nodes below
-        filtered_publisher:
-          type: fuse_models::Odometry2DPublisher
-
-
-      # Motion Models
-      unicycle_motion_model:
-        #                         x      y      yaw    vx     vy     vyaw   ax   ay
-        process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
-
-      # Sensor Models
       initial_localization_sensor:
         publish_on_startup: true
         #                x      y      yaw    vx     vy     vyaw    ax     ay
@@ -122,18 +99,21 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
         initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
 
       odometry_sensor:
-        topic: 'odom'
-        twist_target_frame: 'base_footprint'
+        topic: "odom"
+        twist_target_frame: "base_footprint"
         linear_velocity_dimensions: ['x', 'y']
         angular_velocity_dimensions: ['yaw']
 
-      # Publishers
+      publishers:
+        filtered_publisher:
+          type: fuse_models::Odometry2DPublisher
+
       filtered_publisher:
-        topic: 'odom_filtered'
-        base_link_frame_id: 'base_footprint'
-        odom_frame_id: 'odom'
-        map_frame_id: 'map'
-        world_frame_id: 'odom'
+        topic: "odom_filtered"
+        base_link_frame_id: "base_footprint"
+        odom_frame_id: "odom"
+        map_frame_id: "map"
+        world_frame_id: "odom"
         publish_tf: true
         publish_frequency: 10.0
 
@@ -141,6 +121,7 @@ There's a lot to unpack here, so we'll look at one section at a time.
 
 .. code-block:: yaml
 
+  # Fixed-lag smoother configuration
   optimization_frequency: 20.0
   transaction_timeout: 0.01
   lag_duration: 0.5
@@ -154,7 +135,6 @@ The `lag_duration` parameter specifies the length of the smoothing window. Varia
 
 .. code-block:: yaml
 
-  # list of motion models to load config for
   motion_models:
     unicycle_motion_model:
       type: fuse_models::Unicycle2D
@@ -216,7 +196,7 @@ The second sensor model is of type `fuse_models::Odometry2D`. This particular se
     map_frame_id: "map"
     world_frame_id: "odom"
     publish_tf: true
-    publish_frequency: 10
+    publish_frequency: 10.0
 
 Here, we configure the plugin that will publish our state estimate. The `fuse_publishers::Odometry2DPublisher` publishes a ROS `nav_msgs/Odometry` message, as well as a transform from the frame specified in the `world_frame` parameter to the frame specified in the `base_link_frame_id` parameter.
 
@@ -243,56 +223,31 @@ The example so far fuses only a single odometry source, which isn't especially u
 
   state_estimator:
     ros__parameters:
-      # parameters for the fixed-lag optimiser
+      # Fixed-lag smoother configuration
       optimization_frequency: 20.0
       transaction_timeout: 0.01
       lag_duration: 0.5
 
-      # parameters for the model loader (handled by the optimizer base-class)
-      # ROS2 requires forward-declaration of parameters,
-      # so mention the names of plugins you want to load first
-
-      # list of motion models to load config for
       motion_models:
-        # model-loader config for motion models mentioned above
-        # this specifies the state variables Fuse will attempt to estimate
-        # these motion models load their own config as nodes below
         unicycle_motion_model:
           type: fuse_models::Unicycle2D
 
-      # list of sensor models to load config for
-      sensor_models:
-        # model-loader config for sensor models mentioned above
-        # this specifies which constraints will be generated
-        # and how the constraints will link to the state variables
-        # these sensor models load their own config as nodes below
-        initial_localization_sensor:
-          type: fuse_models::Unicycle2DIgnition
-          motion_models: [unicycle_motion_model]
-          ignition: true
-
-        odometry_sensor:
-          type: fuse_models::Odometry2D
-          motion_models: [unicycle_motion_model]
-
-        imu_sensor:
-          type: fuse_models::Imu2D
-          motion_models: [unicycle_motion_model]
-
-      # list of state estimation publishers to load config for
-      publishers:
-        # model-loader config for state estimation publishers mentioned above
-        # these publishers load their own config as nodes below
-        filtered_publisher:
-          type: fuse_models::Odometry2DPublisher
-
-
-      # Motion Models
       unicycle_motion_model:
         #                         x      y      yaw    vx     vy     vyaw   ax   ay
         process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
 
-      # Sensor Models
+      sensor_models:
+        initial_localization_sensor:
+          type: fuse_models::Unicycle2DIgnition
+          motion_models: [unicycle_motion_model]
+          ignition: true
+        odometry_sensor:
+          type: fuse_models::Odometry2D
+          motion_models: [unicycle_motion_model]
+        imu_sensor:
+          type: fuse_models::Imu2D
+          motion_models: [unicycle_motion_model]
+
       initial_localization_sensor:
         publish_on_startup: true
         #                x      y      yaw    vx     vy     vyaw    ax     ay
@@ -300,23 +255,27 @@ The example so far fuses only a single odometry source, which isn't especially u
         initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
 
       odometry_sensor:
-        topic: 'odom'
-        twist_target_frame: 'base_footprint'
+        topic: "odom"
+        twist_target_frame: "base_footprint"
         linear_velocity_dimensions: ['x', 'y']
         angular_velocity_dimensions: ['yaw']
 
       imu_sensor:
-        topic: 'imu'
-        twist_target_frame: 'base_footprint'
+        topic: "imu"
         angular_velocity_dimensions: ['yaw']
+        linear_acceleration_dimensions: ['x', 'y']
+        twist_target_frame: "base_footprint"
 
-      # Publishers
+      publishers:
+        filtered_publisher:
+          type: fuse_models::Odometry2DPublisher
+
       filtered_publisher:
-        topic: 'odom_filtered'
-        base_link_frame_id: 'base_footprint'
-        odom_frame_id: 'odom'
-        map_frame_id: 'map'
-        world_frame_id: 'odom'
+        topic: "odom_filtered"
+        base_link_frame_id: "base_footprint"
+        odom_frame_id: "odom"
+        map_frame_id: "map"
+        world_frame_id: "odom"
         publish_tf: true
         publish_frequency: 10.0
 

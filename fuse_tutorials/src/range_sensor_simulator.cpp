@@ -197,7 +197,7 @@ nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
 void initializeStateEstimation(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   const Robot& state,
-  const rclcpp::Clock& clock,
+  const rclcpp::Clock::SharedPtr& clock,
   const rclcpp::Logger& logger)
 {
   // Send the initial localization signal to the state estimator
@@ -235,8 +235,8 @@ void initializeStateEstimation(
   auto success = false;
   while (!success)
   {
-    rclcpp::sleep_for(std::chrono::milliseconds(100));
-    srv->pose.header.stamp = clock.now();
+    clock->sleep_for(std::chrono::milliseconds(100));
+    srv->pose.header.stamp = clock->now();
     auto result_future = client->async_send_request(srv);
 
     if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future) !=
@@ -374,7 +374,6 @@ int main(int argc, char **argv)
   auto logger = node->get_logger();
   auto clock = node->get_clock();
 
-  // TODO(CH3): Make this an rclcpp node!
   auto latched_qos = rclcpp::QoS(1);
   latched_qos.transient_local();
 
@@ -410,11 +409,11 @@ int main(int argc, char **argv)
   state.vyaw = state.vx / ROBOT_PATH_RADIUS;
 
   // Send the initial localization pose to the state estimator
-  initializeStateEstimation(node, state, *clock, logger);
+  initializeStateEstimation(node, state, clock, logger);
 
   // Simulate the robot traveling in a circular path
   auto rate = rclcpp::Rate(10.0);
-  while (node->get_node_base_interface()->get_context()->is_valid())
+  while (rclcpp::ok())
   {
     // Simulate the robot motion
     auto new_state = simulateRobotMotion(state, node->now());

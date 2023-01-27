@@ -1,66 +1,35 @@
 state_estimation:
   ros__parameters:
-    # parameters for the fixed-lag optimiser
+    # Fixed-lag smoother configuration
     optimization_frequency: 20.0
     transaction_timeout: 0.01
     lag_duration: 0.5
 
-    # parameters for the model loader (handled by the optimizer base-class)
-    # ROS2 requires forward-declaration of parameters,
-    #  so mention the names of plugins you want to load first
-
-    # list of motion models to load config for
     motion_models:
-      # model-loading config for motion models mentioned above
-      # this specifies the state variables Fuse will attempt to estimate
-      # these motion models load their own config as nodes below
       unicycle_motion_model:
         type: fuse_models::Unicycle2D
 
-
-    # list of sensor models to load config for
-    sensor_models:
-      # model-loading config for sensor models mentioned above
-      # this specifies which constraints will be generated
-      #  and how the constraints will link to the state variables
-      # these sensor models load their own config as nodes below
-      initial_localization_sensor:
-        type: fuse_models::Unicycle2DIgnition
-        motion_models: [unicycle_motion_model]
-        ignition: true
-
-      odometry_sensor:
-        type: fuse_models::Odometry2D
-        motion_models: [unicycle_motion_model]
-
-      imu_sensor:
-        type: fuse_models::Imu2D
-        motion_models: [unicycle_motion_model]
-
-      range_sensor:
-        type: fuse_tutorials::RangeSensorModel
-        motion_models: [unicycle_motion_model]
-
-
-    # list of state estimation publishers to load config for
-    publishers:
-      # model-loading config for state estimation publishers mentioned above
-      # these publishers load their own config as nodes below
-      filtered_publisher:
-        type: fuse_models::Odometry2DPublisher
-
-      beacon_publisher:
-        type: fuse_tutorials::BeaconPublisher
-
-
-    # Motion Models
     unicycle_motion_model:
       #                         x      y      yaw    vx     vy     vyaw   ax   ay
       process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
 
-    # Sensor Models
+    sensor_models:
+      initial_localization_sensor:
+        type: fuse_models::Unicycle2DIgnition
+        motion_models: [unicycle_motion_model]
+        ignition: true
+      odometry_sensor:
+        type: fuse_models::Odometry2D
+        motion_models: [unicycle_motion_model]
+      imu_sensor:
+        type: fuse_models::Imu2D
+        motion_models: [unicycle_motion_model]
+      range_sensor:
+        type: fuse_tutorials::RangeSensorModel
+        motion_models: [unicycle_motion_model]
+
     initial_localization_sensor:
-        publish_on_startup: false
+      publish_on_startup: false
 
     odometry_sensor:
       topic: 'wheel_odom'
@@ -71,7 +40,12 @@ state_estimation:
       topic: 'imu'
       angular_velocity_dimensions: ['yaw']
 
-    # Publishers
+    publishers:
+      filtered_publisher:
+        type: fuse_models::Odometry2DPublisher
+      beacon_publisher:
+        type: fuse_tutorials::BeaconPublisher
+
     filtered_publisher:
       topic: 'odom_filtered'
       base_link_frame_id: 'base_link'
