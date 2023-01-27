@@ -1,35 +1,28 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.16)
 project(fuse_tutorials)
 
-find_package(catkin REQUIRED COMPONENTS
-  fuse_constraints
-  fuse_core
-  fuse_models
-  fuse_variables
-  nav_msgs
-  roscpp
-  sensor_msgs
-)
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CXX_STANDARD_REQUIRED YES)
+endif()
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    ${PROJECT_NAME}
-  CATKIN_DEPENDS
-    fuse_constraints
-    fuse_core
-    fuse_models
-    fuse_variables
-    nav_msgs
-    roscpp
-    sensor_msgs
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake_ros REQUIRED)
+find_package(fuse_constraints REQUIRED)
+find_package(fuse_core REQUIRED)
+find_package(fuse_models REQUIRED)
+find_package(fuse_variables REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
 
 ## fuse_tutorial library
 add_library(${PROJECT_NAME}
@@ -37,90 +30,68 @@ add_library(${PROJECT_NAME}
   src/range_constraint.cpp
   src/range_sensor_model.cpp
 )
-add_dependencies(${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
 )
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
-)
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  fuse_constraints::fuse_constraints
+  fuse_core::fuse_core
+  fuse_models::fuse_models
+  fuse_variables::fuse_variables
+  ${nav_msgs_TARGETS}
+  rclcpp::rclcpp
+  ${sensor_msgs_TARGETS}
 )
 
 # tutorial_sim executable
-add_executable(range_sensor_simulator
-  src/range_sensor_simulator.cpp
-)
-add_dependencies(range_sensor_simulator
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(range_sensor_simulator
-  PUBLIC
-    include
-    ${catkin_INCLUDE_DIRS}
-)
-target_link_libraries(range_sensor_simulator
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
-set_target_properties(range_sensor_simulator
-  PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-)
-
-#############
-## Install ##
-#############
-
-install(
-  TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-
-install(
-  TARGETS range_sensor_simulator
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-install(
-  DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-
-install(
-  DIRECTORY config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-
-install(
-  FILES fuse_plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+add_executable(range_sensor_simulator src/range_sensor_simulator.cpp)
+target_link_libraries(range_sensor_simulator ${PROJECT_NAME})
 
 #############
 ## Testing ##
 #############
 
-if(CATKIN_ENABLE_TESTING)
-  find_package(roslint REQUIRED)
-
-  # Lint tests
-  set(ROSLINT_CPP_OPTS "--filter=-build/c++11,-runtime/references")
-  roslint_cpp()
-  roslint_add_test()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
+
+#############
+## Install ##
+#############
+
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+)
+
+install(TARGETS
+  TARGETS range_sensor_simulator
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY launch config data
+  DESTINATION share/${PROJECT_NAME}
+)
+
+pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
+
+ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+  ament_cmake_ros
+  fuse_constraints
+  fuse_core
+  fuse_models
+  fuse_variables
+  nav_msgs
+  rclcpp
+  sensor_msgs
+)
+
+ament_package()

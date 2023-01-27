@@ -35,12 +35,14 @@
 
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
+#include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
+#include <fuse_core/util.hpp>
 #include <fuse_variables/point_2d_landmark.hpp>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <string>
 #include <vector>
@@ -48,19 +50,34 @@
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher);
 
+
 namespace fuse_tutorials
 {
+void BeaconPublisher::initialize(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const std::string & name)
+{
+  interfaces_ = interfaces;
+  fuse_core::AsyncPublisher::initialize(interfaces, name);
+}
+
 void BeaconPublisher::onInit()
 {
+  clock_ = interfaces_.get_node_clock_interface()->get_clock();
+
   // Read configuration from the parameter server
-  private_node_handle_.param("map_frame_id", map_frame_id_, std::string("map"));
+  map_frame_id_ = fuse_core::getParam(interfaces_, "map_frame_id", std::string("map"));
 
   // Advertise the output topics
-  beacon_publisher_ = node_->create_publisher<sensor_msgs::PointCloud2>("beacons", 1);
+  rclcpp::PublisherOptions pub_options;
+  pub_options.callback_group = cb_group_;
+
+  beacon_publisher_ = rclcpp::create_publisher<sensor_msgs::msg::PointCloud2>(
+    interfaces_, fuse_core::joinTopicName(name_, "beacons"), 1, pub_options);
 }
 
 void BeaconPublisher::notifyCallback(
-  fuse_core::Transaction::ConstSharedPtr transaction,
+  fuse_core::Transaction::ConstSharedPtr /* transaction */,
   fuse_core::Graph::ConstSharedPtr graph)
 {
   // This is where all of the processing happens in this publisher implementation. All of the beacons are represented
@@ -76,24 +93,24 @@ void BeaconPublisher::notifyCallback(
     }
   }
 
-  // We then transform those variables into a sensor_msgs::PointCloud2 representation. To support visualization in
+  // We then transform those variables into a sensor_msgs::msg::PointCloud2 representation. To support visualization in
   // rviz, the PointCloud2 needs to have (x, y, z) fields of type Float32. Additionally we are adding a channel for
   // the beacon ID. Rviz cannot really display that information, but it is potentially useful.
-  auto msg = boost::make_shared<sensor_msgs::PointCloud2>();
-  msg->header.stamp = this->get_node_clock_interface()->now();  // TODO(CH3): Implement getter in AsyncPublisher
-  msg->header.frame_id = map_frame_id_;
-  sensor_msgs::PointCloud2Modifier modifier(*msg);
+  auto msg = sensor_msgs::msg::PointCloud2();
+  msg.header.stamp = clock_->now();
+  msg.header.frame_id = map_frame_id_;
+  sensor_msgs::PointCloud2Modifier modifier(msg);
   // clang-format off
-  modifier.setPointCloud2Fields(4, "x", 1, sensor_msgs::PointField::FLOAT32,
-                                   "y", 1, sensor_msgs::PointField::FLOAT32,
-                                   "z", 1, sensor_msgs::PointField::FLOAT32,
-                                   "id", 1, sensor_msgs::PointField::UINT32);
+  modifier.setPointCloud2Fields(4, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "y", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "z", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                   "id", 1, sensor_msgs::msg::PointField::UINT32);
   // clang-format on
   modifier.resize(beacons.size());
-  sensor_msgs::PointCloud2Iterator<float> x_it(*msg, "x");
-  sensor_msgs::PointCloud2Iterator<float> y_it(*msg, "y");
-  sensor_msgs::PointCloud2Iterator<float> z_it(*msg, "z");
-  sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
+  sensor_msgs::PointCloud2Iterator<float> x_it(msg, "x");
+  sensor_msgs::PointCloud2Iterator<float> y_it(msg, "y");
+  sensor_msgs::PointCloud2Iterator<float> z_it(msg, "z");
+  sensor_msgs::PointCloud2Iterator<unsigned int> id_it(msg, "id");
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     const auto& beacon = beacons.at(id);

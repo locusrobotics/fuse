@@ -11,30 +11,55 @@ To start, you'll need a launch file, a yaml configuration file, and the supporti
 
   mkdir ~/fuse_tutorials
   cd ~/fuse_tutorials
-  wget https://locus-ros-public.s3.amazonaws.com/fuse_tutorial_data.tar.xz
-  md5sum fuse_tutorial_data.tar.xz # Should return ef82dceb57ed83dd597cf4973f31a175
-  tar -xf fuse_tutorial_data.tar.xz && rm fuse_tutorial_data.tar.xz
-  touch fuse_simple_tutorial.launch
+  wget https://github.com/locusrobotics/fuse/raw/rolling/fuse_tutorials/data/turtlebot3.bag
+  md5sum turtlebot3.bag # Should return f1621722a0b03f31b504ca98c8bfeb4e
+  wget https://raw.githubusercontent.com/locusrobotics/fuse/rolling/fuse_tutorials/config/fuse_simple_tutorial.rviz
+  touch fuse_simple_tutorial.launch.py
   touch fuse_simple_tutorial.yaml
 
 Launch File
 ***********
 
-The core state estimation node in fuse is known as the `fixed_lag_smoother_node`. We'll begin by adding it to our `fuse_simple_tutorial.launch` file, along with the `rosbag play` and `rviz` nodes:
+The core state estimation node in fuse is known as the `fixed_lag_smoother_node`. We'll begin by adding it to our `fuse_simple_tutorial.launch.py` file, along with the `rosbag2 play` and `rviz2` nodes:
 
-.. code-block:: xml
+.. code-block:: python
 
-  <launch>
-    <param name="/use_sim_time" value="true"/>
+  from launch_ros.actions import SetParameter, Node
+  from launch_ros.substitutions import FindPackageShare
 
-    <node name="state_estimator" pkg="fuse_optimizers" type="fixed_lag_smoother_node">
-      <rosparam command="load" file="$(env HOME)/fuse_tutorials/fuse_simple_tutorial.yaml"/>
-    </node>
+  from launch import LaunchDescription
+  from launch.actions import ExecuteProcess
+  from launch.substitutions import PathJoinSubstitution
 
-    <node name="bag_play" pkg="rosbag" type="play" args="$(env HOME)/fuse_tutorials/turtlebot3.bag --clock -d 3"/>
+  import os
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(env HOME)/fuse_tutorials/fuse_tutorials.rviz"/>
-  </launch>
+  def generate_launch_description():
+    return LaunchDescription([
+        ExecuteProcess(
+            cmd=['ros2', 'bag', 'play',
+                 PathJoinSubstitution([os.getcwd(), 'turtlebot3.bag']),
+                 '--clock', '-l', '-d', '3'],
+            output='screen'
+        ),
+
+        SetParameter(name='use_sim_time', value=True),
+        Node(
+            package='fuse_optimizers',
+            executable='fixed_lag_smoother_node',
+            name='state_estimator',
+            parameters=[PathJoinSubstitution([
+                os.getcwd(), 'fuse_simple_tutorial.yaml'
+            ])]
+        ),
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz',
+            arguments=[
+                '-d', [PathJoinSubstitution([os.getcwd(), 'fuse_simple_tutorial.rviz'])]
+            ]
+        )
+    ])
 
 Basic Configuration
 *******************
@@ -43,59 +68,61 @@ Our initial configuration will simply fuse a single wheel odometry sensor. Open 
 
 .. code-block:: yaml
 
-  # Fixed-lag smoother configuration
-  optimization_frequency: 20
-  transaction_timeout: 0.01
-  lag_duration: 0.5
+  state_estimator:
+    ros__parameters:
+      # Fixed-lag smoother configuration
+      optimization_frequency: 20.0
+      transaction_timeout: 0.01
+      lag_duration: 0.5
 
-  motion_models:
-    unicycle_motion_model:
-      type: fuse_models::Unicycle2D
+      motion_models:
+        unicycle_motion_model:
+          type: fuse_models::Unicycle2D
 
-  unicycle_motion_model:
-    #                         x      y      yaw    vx     vy     vyaw   ax   ay
-    process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
+      unicycle_motion_model:
+        #                         x      y      yaw    vx     vy     vyaw   ax   ay
+        process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
 
-  sensor_models:
-    initial_localization_sensor:
-      type: fuse_models::Unicycle2DIgnition
-      motion_models: [unicycle_motion_model]
-      ignition: true
-    odometry_sensor:
-      type: fuse_models::Odometry2D
-      motion_models: [unicycle_motion_model]
+      sensor_models:
+        initial_localization_sensor:
+          type: fuse_models::Unicycle2DIgnition
+          motion_models: [unicycle_motion_model]
+          ignition: true
+        odometry_sensor:
+          type: fuse_models::Odometry2D
+          motion_models: [unicycle_motion_model]
 
-  initial_localization_sensor:
-    publish_on_startup: true
-    #                x      y      yaw    vx     vy     vyaw    ax     ay
-    initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
-    initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
+      initial_localization_sensor:
+        publish_on_startup: true
+        #                x      y      yaw    vx     vy     vyaw    ax     ay
+        initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
+        initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
 
-  odometry_sensor:
-    topic: "odom"
-    twist_target_frame: "base_footprint"
-    linear_velocity_dimensions: ['x', 'y']
-    angular_velocity_dimensions: ['yaw']
+      odometry_sensor:
+        topic: "odom"
+        twist_target_frame: "base_footprint"
+        linear_velocity_dimensions: ['x', 'y']
+        angular_velocity_dimensions: ['yaw']
 
-  publishers:
-    filtered_publisher:
-      type: fuse_models::Odometry2DPublisher
+      publishers:
+        filtered_publisher:
+          type: fuse_models::Odometry2DPublisher
 
-  filtered_publisher:
-    topic: "odom_filtered"
-    base_link_frame_id: "base_footprint"
-    odom_frame_id: "odom"
-    map_frame_id: "map"
-    world_frame_id: "odom"
-    publish_tf: true
-    publish_frequency: 10
+      filtered_publisher:
+        topic: "odom_filtered"
+        base_link_frame_id: "base_footprint"
+        odom_frame_id: "odom"
+        map_frame_id: "map"
+        world_frame_id: "odom"
+        publish_tf: true
+        publish_frequency: 10.0
 
 There's a lot to unpack here, so we'll look at one section at a time.
 
 .. code-block:: yaml
 
   # Fixed-lag smoother configuration
-  optimization_frequency: 20
+  optimization_frequency: 20.0
   transaction_timeout: 0.01
   lag_duration: 0.5
 
@@ -169,7 +196,7 @@ The second sensor model is of type `fuse_models::Odometry2D`. This particular se
     map_frame_id: "map"
     world_frame_id: "odom"
     publish_tf: true
-    publish_frequency: 10
+    publish_frequency: 10.0
 
 Here, we configure the plugin that will publish our state estimate. The `fuse_publishers::Odometry2DPublisher` publishes a ROS `nav_msgs/Odometry` message, as well as a transform from the frame specified in the `world_frame` parameter to the frame specified in the `base_link_frame_id` parameter.
 
@@ -182,7 +209,7 @@ Try running the launch file:
 .. code-block:: bash
 
   cd ~/fuse_tutorials
-  roslaunch fuse_simple_tutorial.launch
+  ros2 launch fuse_simple_tutorial.launch.py
 
 
 You should see the state estimate output. The covariance display for the output `odom_filtered` topic is not enabled by default.
@@ -194,61 +221,63 @@ The example so far fuses only a single odometry source, which isn't especially u
 
 .. code-block:: yaml
 
-  # Fixed-lag smoother configuration
-  optimization_frequency: 20
-  transaction_timeout: 0.01
-  lag_duration: 0.5
+  state_estimator:
+    ros__parameters:
+      # Fixed-lag smoother configuration
+      optimization_frequency: 20.0
+      transaction_timeout: 0.01
+      lag_duration: 0.5
 
-  motion_models:
-    unicycle_motion_model:
-      type: fuse_models::Unicycle2D
+      motion_models:
+        unicycle_motion_model:
+          type: fuse_models::Unicycle2D
 
-  unicycle_motion_model:
-    #                         x      y      yaw    vx     vy     vyaw   ax   ay
-    process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
+      unicycle_motion_model:
+        #                         x      y      yaw    vx     vy     vyaw   ax   ay
+        process_noise_diagonal: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.1, 0.1]
 
-  sensor_models:
-    initial_localization_sensor:
-      type: fuse_models::Unicycle2DIgnition
-      motion_models: [unicycle_motion_model]
-      ignition: true
-    odometry_sensor:
-      type: fuse_models::Odometry2D
-      motion_models: [unicycle_motion_model]
-    imu_sensor:
-      type: fuse_models::Imu2D
-      motion_models: [unicycle_motion_model]
+      sensor_models:
+        initial_localization_sensor:
+          type: fuse_models::Unicycle2DIgnition
+          motion_models: [unicycle_motion_model]
+          ignition: true
+        odometry_sensor:
+          type: fuse_models::Odometry2D
+          motion_models: [unicycle_motion_model]
+        imu_sensor:
+          type: fuse_models::Imu2D
+          motion_models: [unicycle_motion_model]
 
-  initial_localization_sensor:
-    publish_on_startup: true
-    #                x      y      yaw    vx     vy     vyaw    ax     ay
-    initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
-    initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
+      initial_localization_sensor:
+        publish_on_startup: true
+        #                x      y      yaw    vx     vy     vyaw    ax     ay
+        initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
+        initial_sigma: [0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100, 0.100]
 
-  odometry_sensor:
-    topic: "odom"
-    twist_target_frame: "base_footprint"
-    linear_velocity_dimensions: ['x', 'y']
-    angular_velocity_dimensions: ['yaw']
+      odometry_sensor:
+        topic: "odom"
+        twist_target_frame: "base_footprint"
+        linear_velocity_dimensions: ['x', 'y']
+        angular_velocity_dimensions: ['yaw']
 
-  imu_sensor:
-    topic: "imu"
-    angular_velocity_dimensions: ['yaw']
-    linear_acceleration_dimensions: ['x', 'y']
-    twist_target_frame: "base_footprint"
+      imu_sensor:
+        topic: "imu"
+        angular_velocity_dimensions: ['yaw']
+        linear_acceleration_dimensions: ['x', 'y']
+        twist_target_frame: "base_footprint"
 
-  publishers:
-    filtered_publisher:
-      type: fuse_models::Odometry2DPublisher
+      publishers:
+        filtered_publisher:
+          type: fuse_models::Odometry2DPublisher
 
-  filtered_publisher:
-    topic: "odom_filtered"
-    base_link_frame_id: "base_footprint"
-    odom_frame_id: "odom"
-    map_frame_id: "map"
-    world_frame_id: "odom"
-    publish_tf: true
-    publish_frequency: 10
+      filtered_publisher:
+        topic: "odom_filtered"
+        base_link_frame_id: "base_footprint"
+        odom_frame_id: "odom"
+        map_frame_id: "map"
+        world_frame_id: "odom"
+        publish_tf: true
+        publish_frequency: 10.0
 
 Note that we have added an `imu_sensor` section to `sensor_models`, and then specified the parameters for that new model.
 
@@ -261,4 +290,4 @@ Now running the launch file again:
 .. code-block:: bash
 
   cd ~/fuse_tutorials
-  roslaunch fuse_simple_tutorial.launch
+  ros2 launch fuse_simple_tutorial.launch.py

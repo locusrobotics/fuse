@@ -47,7 +47,7 @@ namespace fuse_core
 {
 
 /**
- * @brief A motion model base class that provides an internal node and an internal callback queue.
+ * @brief A motion model base class that provides an internal callback queue and executor.
  *
  * A model model plugin is responsible for generating constraints that link together timestamps
  * introduced by other sensors in the system. The AsyncMotionModel class is designed similar to a
