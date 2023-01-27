@@ -88,7 +88,7 @@ Optimizer::Optimizer(
   diagnostic_updater_.setHardwareID("fuse");
 
   // Wait for a valid time before loading any of the plugins
-  clock_.wait_until_started();
+  clock_->wait_until_started();
 
   // Load all configured plugins
   loadMotionModels();
