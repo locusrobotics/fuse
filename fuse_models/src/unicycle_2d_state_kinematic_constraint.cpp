@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
-#include <fuse_models/unicycle_2d_state_cost_function.h>
+#include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
+#include <fuse_models/unicycle_2d_state_cost_function.hpp>
 
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
@@ -110,7 +110,7 @@ ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
   //
   // which requires:
   //
-  // #include <fuse_models/unicycle_2d_state_cost_functor.h>
+  // #include <fuse_models/unicycle_2d_state_cost_functor.hpp>
   return new Unicycle2DStateCostFunction(dt_, sqrt_information_);
 }
 

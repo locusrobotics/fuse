@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_ODOMETRY_2D_PUBLISHER_H
-#define FUSE_MODELS_ODOMETRY_2D_PUBLISHER_H
+#ifndef FUSE_MODELS__ODOMETRY_2D_PUBLISHER_HPP_
+#define FUSE_MODELS__ODOMETRY_2D_PUBLISHER_HPP_
 
-#include <fuse_models/parameters/odometry_2d_publisher_params.h>
+#include <fuse_models/parameters/odometry_2d_publisher_params.hpp>
 
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/console.hpp>
@@ -229,4 +229,4 @@ protected:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_ODOMETRY_2D_PUBLISHER_H
+#endif  // FUSE_MODELS__ODOMETRY_2D_PUBLISHER_HPP_

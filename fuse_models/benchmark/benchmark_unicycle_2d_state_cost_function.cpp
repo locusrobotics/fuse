@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_state_cost_function.h>
-#include <fuse_models/unicycle_2d_state_cost_functor.h>
+#include <fuse_models/unicycle_2d_state_cost_function.hpp>
+#include <fuse_models/unicycle_2d_state_cost_functor.hpp>
 
 #include <benchmark/benchmark.h>
 

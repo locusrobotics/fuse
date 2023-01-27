@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_UNICYCLE_2D_H
-#define FUSE_MODELS_UNICYCLE_2D_H
+#ifndef FUSE_MODELS__UNICYCLE_2D_HPP_
+#define FUSE_MODELS__UNICYCLE_2D_HPP_
 
 #include <fuse_core/async_motion_model.hpp>
 #include <fuse_core/constraint.hpp>
@@ -219,4 +219,4 @@ std::ostream& operator<<(std::ostream& stream, const Unicycle2D& unicycle_2d);
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_UNICYCLE_2D_H
+#endif  // FUSE_MODELS__UNICYCLE_2D_HPP_

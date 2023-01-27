@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium, is strictly prohibited
  * Proprietary and confidential
  ***************************************************************************/
-#include <fuse_models/common/sensor_proc.h>
+#include <fuse_models/common/sensor_proc.hpp>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

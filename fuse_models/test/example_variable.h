@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
-#define FUSE_MODELS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#ifndef FUSE_MODELS__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#define FUSE_MODELS__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
@@ -100,4 +100,4 @@ private:
 
 BOOST_CLASS_EXPORT(ExampleVariable);
 
-#endif  // FUSE_MODELS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#endif  // FUSE_MODELS__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}

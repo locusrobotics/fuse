@@ -32,10 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_PARAMETERS_GRAPH_IGNITION_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_GRAPH_IGNITION_PARAMS_H
+#ifndef FUSE_MODELS__PARAMETERS_GRAPH_IGNITION_PARAMS_HPP_
+#define FUSE_MODELS__PARAMETERS_GRAPH_IGNITION_PARAMS_HPP_
 
-#include <fuse_models/parameters/parameter_base.h>
+#include <fuse_models/parameters/parameter_base.hpp>
 
 #include <string>
 
@@ -96,4 +96,4 @@ public:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_PARAMETERS_GRAPH_IGNITION_PARAMS_H
+#endif  // FUSE_MODELS__PARAMETERS_GRAPH_IGNITION_PARAMS_HPP_

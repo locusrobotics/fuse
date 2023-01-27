@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_models/graph_ignition.h>
+#include <fuse_models/graph_ignition.hpp>
 
 #include <std_srvs/srv/empty.hpp>
 

@@ -31,10 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTION_H
-#define FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTION_H
+#ifndef FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTION_HPP_
+#define FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTION_HPP_
 
-#include <fuse_models/unicycle_2d_predict.h>
+#include <fuse_models/unicycle_2d_predict.hpp>
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -282,4 +282,4 @@ Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const 
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_UNICYCLE_2D_STATE_COST_FUNCTION_H
+#endif  // FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTION_HPP_

@@ -31,13 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_UNICYCLE_2D_IGNITION_H
-#define FUSE_MODELS_UNICYCLE_2D_IGNITION_H
+#ifndef FUSE_MODELS__UNICYCLE_2D_IGNITION_HPP_
+#define FUSE_MODELS__UNICYCLE_2D_IGNITION_HPP_
 
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_models/parameters/unicycle_2d_ignition_params.h>
+#include <fuse_models/parameters/unicycle_2d_ignition_params.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 
@@ -199,4 +199,4 @@ protected:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_UNICYCLE_2D_IGNITION_H
+#endif  // FUSE_MODELS__UNICYCLE_2D_IGNITION_HPP_

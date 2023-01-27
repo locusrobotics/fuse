@@ -31,11 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_predict.h>
-#include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
-#include <fuse_models/unicycle_2d.h>
-#include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/parameters/parameter_base.h>
+#include <fuse_models/unicycle_2d_predict.hpp>
+#include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
+#include <fuse_models/unicycle_2d.hpp>
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/parameters/parameter_base.hpp>
 
 #include <Eigen/Dense>
 #include <fuse_core/async_motion_model.hpp>

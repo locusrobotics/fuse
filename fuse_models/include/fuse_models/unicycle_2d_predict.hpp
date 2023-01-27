@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_UNICYCLE_2D_PREDICT_H
-#define FUSE_MODELS_UNICYCLE_2D_PREDICT_H
+#ifndef FUSE_MODELS__UNICYCLE_2D_PREDICT_HPP_
+#define FUSE_MODELS__UNICYCLE_2D_PREDICT_HPP_
 
 #include <ceres/jet.h>
 #include <fuse_core/util.hpp>
@@ -422,4 +422,4 @@ inline void predict(
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_UNICYCLE_2D_PREDICT_H
+#endif  // FUSE_MODELS__UNICYCLE_2D_PREDICT_HPP_

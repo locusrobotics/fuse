@@ -35,7 +35,7 @@
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/transaction.hpp>
-#include <fuse_models/unicycle_2d_ignition.h>
+#include <fuse_models/unicycle_2d_ignition.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 #include <rclcpp/rclcpp.hpp>

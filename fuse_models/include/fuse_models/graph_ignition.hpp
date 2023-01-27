@@ -32,11 +32,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_GRAPH_IGNITION_H
-#define FUSE_MODELS_GRAPH_IGNITION_H
+#ifndef FUSE_MODELS__GRAPH_IGNITION_HPP_
+#define FUSE_MODELS__GRAPH_IGNITION_HPP_
 
 #include <fuse_msgs/srv/set_graph.hpp>
-#include <fuse_models/parameters/graph_ignition_params.h>
+#include <fuse_models/parameters/graph_ignition_params.hpp>
 
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/graph.hpp>
@@ -177,4 +177,4 @@ protected:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_GRAPH_IGNITION_H
+#endif  // FUSE_MODELS__GRAPH_IGNITION_HPP_

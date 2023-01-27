@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/odometry_2d_publisher.h>
-#include <fuse_models/unicycle_2d_predict.h>
-#include <fuse_models/common/sensor_proc.h>
+#include <fuse_models/odometry_2d_publisher.hpp>
+#include <fuse_models/unicycle_2d_predict.hpp>
+#include <fuse_models/common/sensor_proc.hpp>
 
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/eigen.hpp>

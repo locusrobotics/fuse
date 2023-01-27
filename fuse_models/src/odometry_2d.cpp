@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/odometry_2d.h>
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/odometry_2d.hpp>
 
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>

@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium, is strictly prohibited
  * Proprietary and confidential
  ***************************************************************************/
-#include <fuse_models/unicycle_2d.h>
+#include <fuse_models/unicycle_2d.hpp>
 
 #include <fuse_graphs/hash_graph.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>

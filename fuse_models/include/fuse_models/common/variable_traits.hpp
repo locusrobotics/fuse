@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
-#define FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
+#ifndef FUSE_MODELS__COMMON_VARIABLE_TRAITS_HPP_
+#define FUSE_MODELS__COMMON_VARIABLE_TRAITS_HPP_
 
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
@@ -93,4 +93,4 @@ struct is_angular_2d<fuse_variables::VelocityAngular2DStamped>
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
+#endif  // FUSE_MODELS__COMMON_VARIABLE_TRAITS_HPP_

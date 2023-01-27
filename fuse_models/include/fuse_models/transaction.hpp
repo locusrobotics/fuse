@@ -32,10 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_TRANSACTION_H
-#define FUSE_MODELS_TRANSACTION_H
+#ifndef FUSE_MODELS__TRANSACTION_HPP_
+#define FUSE_MODELS__TRANSACTION_HPP_
 
-#include <fuse_models/parameters/transaction_params.h>
+#include <fuse_models/parameters/transaction_params.hpp>
 
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/transaction_deserializer.hpp>
@@ -123,4 +123,4 @@ protected:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS_TRANSACTION_H
+#endif  // FUSE_MODELS__TRANSACTION_HPP_

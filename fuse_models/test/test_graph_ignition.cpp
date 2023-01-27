@@ -38,7 +38,7 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 #include <fuse_msgs/srv/set_graph.hpp>
-#include <fuse_models/graph_ignition.h>
+#include <fuse_models/graph_ignition.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <nav_msgs/msg/path.hpp>
