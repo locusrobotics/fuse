@@ -34,7 +34,6 @@
 #include <gtest/gtest.h>
 
 #include <fuse_core/message_buffer.hpp>
-#include <fuse_core/time.hpp>
 #include <rclcpp/duration.hpp>
 
 /**

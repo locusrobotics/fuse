@@ -129,7 +129,7 @@ void Odometry2DPublisher::notifyCallback(
 {
   // Find the most recent common timestamp
   const auto latest_stamp = synchronizer_.findLatestCommonStamp(*transaction, *graph);
-  if (!fuse_core::is_valid(latest_stamp))
+  if (0u == latest_stamp.nanoseconds())
   {
     {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -372,7 +372,7 @@ void Odometry2DPublisher::publishTimerCallback()
     acceleration_output = acceleration_output_;
   }
 
-  if (!fuse_core::is_valid(latest_stamp))
+  if (0u == latest_stamp.nanoseconds())
   {
     RCLCPP_WARN_STREAM_EXPRESSION(
       logger_, delayed_throttle_filter_.isEnabled(),

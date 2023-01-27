@@ -41,12 +41,12 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
 #include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+#include <rclcpp/time.hpp>
 
 namespace fuse_variables
 {

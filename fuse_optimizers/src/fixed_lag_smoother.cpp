@@ -158,7 +158,7 @@ rclcpp::Time FixedLagSmoother::computeLagExpirationTime() const
   auto start_time = getStartTime();
   auto now = timestamp_tracking_.currentStamp();
 
-  if (!fuse_core::is_valid(now)) {  // now is Time(0, 0)
+  if (0u == now.nanoseconds()) {
     return start_time;
   }
 
@@ -664,7 +664,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
       }
     }
 
-    if (fuse_core::is_valid(optimization_deadline))
+    if (0u != optimization_deadline.nanoseconds())
     {
       const auto optimization_request_time = optimization_deadline - params_.optimization_period;
       const auto time_since_last_optimization_request =

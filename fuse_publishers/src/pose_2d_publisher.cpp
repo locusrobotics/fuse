@@ -42,7 +42,6 @@
 #include <fuse_core/graph.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/parameter.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_publishers/pose_2d_publisher.hpp>
@@ -247,7 +246,7 @@ void Pose2DPublisher::notifyCallback(
   fuse_core::Graph::ConstSharedPtr graph)
 {
   auto latest_stamp = synchronizer_->findLatestCommonStamp(*transaction, *graph);
-  if (!fuse_core::is_valid(latest_stamp)) {  // If uninitialized
+  if (0u == latest_stamp.nanoseconds()) {  // If uninitialized
     RCLCPP_WARN_STREAM_THROTTLE(
       logger_, *clock_, 10.0 * 1000,
       "Failed to find a matching set of stamped pose variables with device id '"
@@ -336,7 +335,7 @@ void Pose2DPublisher::tfPublishTimerCallback()
 {
   // The tf_transform_ is updated in a separate thread, so we must guard the read/write operations.
   // Only publish if the tf transform is valid
-  if (fuse_core::is_valid(tf_transform_.header.stamp)) {
+  if (rclcpp::Time(tf_transform_.header.stamp).nanoseconds()) {
     // Update the timestamp of the transform so the tf tree will continue to be valid
     tf_transform_.header.stamp = clock_->now();
     tf_publisher_->sendTransform(tf_transform_);

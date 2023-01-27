@@ -45,9 +45,9 @@
 #include <fuse_core/autodiff_local_parameterization.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/stamped.hpp>
+#include <rclcpp/time.hpp>
 
 using fuse_variables::Orientation3DStamped;
 

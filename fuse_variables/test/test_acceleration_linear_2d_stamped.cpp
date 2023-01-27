@@ -40,9 +40,9 @@
 #include <vector>
 
 #include <fuse_core/serialization.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/stamped.hpp>
+#include <rclcpp/time.hpp>
 
 using fuse_variables::AccelerationLinear2DStamped;
 

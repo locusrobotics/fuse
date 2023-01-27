@@ -34,7 +34,6 @@
 #include <gtest/gtest.h>
 
 #include <fuse_core/throttled_callback.hpp>
-#include <fuse_core/time.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <rclcpp/rclcpp.hpp>
 

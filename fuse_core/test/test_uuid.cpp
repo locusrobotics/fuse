@@ -38,7 +38,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include <fuse_core/time.hpp>
 #include <fuse_core/uuid.hpp>
 
 using fuse_core::UUID;

@@ -35,12 +35,12 @@
 
 #include <boost/serialization/export.hpp>
 #include <fuse_core/local_parameterization.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_variables
 {

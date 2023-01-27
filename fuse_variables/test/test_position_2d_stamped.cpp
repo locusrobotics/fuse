@@ -40,9 +40,9 @@
 #include <vector>
 
 #include <fuse_core/serialization.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_variables/stamped.hpp>
+#include <rclcpp/time.hpp>
 
 using fuse_variables::Position2DStamped;
 

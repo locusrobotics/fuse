@@ -39,8 +39,8 @@
 
 #include <boost/range/any_range.hpp>
 #include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/time.hpp>
 #include <rclcpp/duration.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {

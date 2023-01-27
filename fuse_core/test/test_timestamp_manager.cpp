@@ -39,7 +39,6 @@
 #include <vector>
 
 #include <fuse_core/constraint.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_core/timestamp_manager.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
