@@ -48,7 +48,6 @@
 
 #include <rclcpp/time.hpp>
 
-
 namespace fuse_variables
 {
 
