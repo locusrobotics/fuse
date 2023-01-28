@@ -77,16 +77,19 @@ void Path2DPublisher::onInit()
 {
   // Configure the publisher
   std::string device_str;
-  device_str = fuse_core::getParam(interfaces_, "device_id", device_str);
+  device_str = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "device_id"), device_str);
   if (device_str != "") {
     device_id_ = fuse_core::uuid::from_string(device_str);
   } else {
-    device_str = fuse_core::getParam(interfaces_, "device_name", device_str);
+    device_str = fuse_core::getParam(
+      interfaces_, fuse_core::joinParameterName(name_, "device_name"), device_str);
     if (device_str != "") {
       device_id_ = fuse_core::uuid::generate(device_str);
     }
   }
-  frame_id_ = fuse_core::getParam(interfaces_, "frame_id", frame_id_);
+  frame_id_ = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "frame_id"), frame_id_);
 
   // Advertise the topic
   rclcpp::PublisherOptions pub_options;

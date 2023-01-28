@@ -129,21 +129,27 @@ void Pose2DPublisher::onInit()
   tf_publisher_ = std::make_shared<tf2_ros::TransformBroadcaster>(interfaces_);
 
   // Read configuration from the parameter server
-  base_frame_ = fuse_core::getParam(interfaces_, "base_frame", std::string("base_link"));
-  map_frame_ = fuse_core::getParam(interfaces_, "map_frame", std::string("map"));
-  odom_frame_ = fuse_core::getParam(interfaces_, "odom_frame", std::string("odom"));
+  base_frame_ = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "base_frame"), std::string("base_link"));
+  map_frame_ = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "map_frame"), std::string("map"));
+  odom_frame_ = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "odom_frame"), std::string("odom"));
 
   std::string device_str;
-  device_str = fuse_core::getParam(interfaces_, "device_id", device_str);
+  device_str = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "device_id"), device_str);
   if (device_str != "") {
     device_id_ = fuse_core::uuid::from_string(device_str);
   } else {
-    device_str = fuse_core::getParam(interfaces_, "device_name", device_str);
+    device_str = fuse_core::getParam(
+      interfaces_, fuse_core::joinParameterName(name_, "device_name"), device_str);
     if (device_str != "") {
       device_id_ = fuse_core::uuid::generate(device_str);
     }
   }
-  publish_to_tf_ = fuse_core::getParam(interfaces_, "publish_to_tf", false);
+  publish_to_tf_ = fuse_core::getParam(
+    interfaces_, fuse_core::joinParameterName(name_, "publish_to_tf"), false);
 
   // Configure tf, if requested
   if (publish_to_tf_) {
@@ -151,7 +157,8 @@ void Pose2DPublisher::onInit()
     if (use_tf_lookup_) {
       double tf_cache_time;
       double default_tf_cache_time = 10.0;
-      tf_cache_time = fuse_core::getParam(interfaces_, "tf_cache_time", default_tf_cache_time);
+      tf_cache_time = fuse_core::getParam(
+        interfaces_, fuse_core::joinParameterName(name_, "tf_cache_time"), default_tf_cache_time);
       if (tf_cache_time <= 0) {
         RCLCPP_WARN_STREAM(
           logger_,
@@ -162,7 +169,8 @@ void Pose2DPublisher::onInit()
 
       double tf_timeout;
       double default_tf_timeout = 0.1;
-      tf_timeout = fuse_core::getParam(interfaces_, "tf_timeout", default_tf_timeout);
+      tf_timeout = fuse_core::getParam(
+        interfaces_, fuse_core::joinParameterName(name_, "tf_timeout"), default_tf_timeout);
       if (tf_timeout <= 0) {
         RCLCPP_WARN_STREAM(
           logger_,
@@ -214,7 +222,7 @@ void Pose2DPublisher::onStart()
     // We pull the param again on each start so the publisher can technically get set to a different
     // publish frequency
     tf_publish_frequency = fuse_core::getParam(
-      interfaces_, "tf_publish_frequency",
+      interfaces_, fuse_core::joinParameterName(name_, "tf_publish_frequency"),
       default_tf_publish_frequency);
     if (tf_publish_frequency <= 0) {
       RCLCPP_WARN_STREAM(

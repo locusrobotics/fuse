@@ -57,7 +57,7 @@ public:
    * @brief Method for loading parameter values from ROS.
    *
    * @param[in] interfaces - The node interfaces with which to load parameters
-   * @param[in] namespace_string - The parameter namespace to use
+   * @param[in] ns - The parameter namespace to use
    */
   void loadFromROS(
     fuse_core::node_interfaces::NodeInterfaces<
@@ -65,12 +65,10 @@ public:
       fuse_core::node_interfaces::Logging,
       fuse_core::node_interfaces::Parameters
     > interfaces,
-    const std::string& namespace_string)
+    const std::string& ns)
   {
-    std::string ns = get_well_formatted_param_namespace_string(namespace_string);
-
-    queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
-    fuse_core::getParamRequired(interfaces, ns + "topic", topic);
+    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
+    fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
   }
 
   int queue_size{ 10 };

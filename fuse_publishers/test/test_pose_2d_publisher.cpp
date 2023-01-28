@@ -228,10 +228,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishPose)
   options.arguments(
   {
     "--ros-args",
-    "-p", "map_frame:=test_map",
-    "-p", "odom_frame:=test_odom",
-    "-p", "base_frame:=test_base",
-    "-p", "publish_to_tf:=false"});
+    "-p", "test_publisher.map_frame:=test_map",
+    "-p", "test_publisher.odom_frame:=test_odom",
+    "-p", "test_publisher.base_frame:=test_base",
+    "-p", "test_publisher.publish_to_tf:=false"});
   auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
   executor_->add_node(node);
 
@@ -270,10 +270,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishPoseWithCovariance)
   options.arguments(
   {
     "--ros-args",
-    "-p", "map_frame:=test_map",
-    "-p", "odom_frame:=test_odom",
-    "-p", "base_frame:=test_base",
-    "-p", "publish_to_tf:=false"});
+    "-p", "test_publisher.map_frame:=test_map",
+    "-p", "test_publisher.odom_frame:=test_odom",
+    "-p", "test_publisher.base_frame:=test_base",
+    "-p", "test_publisher.publish_to_tf:=false"});
   auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
   executor_->add_node(node);
 
@@ -328,10 +328,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
   options.arguments(
   {
     "--ros-args",
-    "-p", "map_frame:=test_map",
-    "-p", "odom_frame:=test_base",
-    "-p", "base_frame:=test_base",
-    "-p", "publish_to_tf:=true"});
+    "-p", "test_publisher.map_frame:=test_map",
+    "-p", "test_publisher.odom_frame:=test_base",
+    "-p", "test_publisher.base_frame:=test_base",
+    "-p", "test_publisher.publish_to_tf:=true"});
   auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
   executor_->add_node(node);
 
@@ -376,10 +376,10 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
   options.arguments(
   {
     "--ros-args",
-    "-p", "map_frame:=test_map",
-    "-p", "odom_frame:=test_odom",
-    "-p", "base_frame:=test_base",
-    "-p", "publish_to_tf:=true"});
+    "-p", "test_publisher.map_frame:=test_map",
+    "-p", "test_publisher.odom_frame:=test_odom",
+    "-p", "test_publisher.base_frame:=test_base",
+    "-p", "test_publisher.publish_to_tf:=true"});
   auto node = rclcpp::Node::make_shared("test_pose_2d_publisher_node", options);
   executor_->add_node(node);
 

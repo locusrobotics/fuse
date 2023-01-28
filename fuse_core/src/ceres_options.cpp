@@ -52,13 +52,6 @@
 namespace fuse_core
 {
 
-// Helper function to get a namespace string with a '.' suffix, but only if not empty
-static std::string get_well_formatted_param_namespace_string(std::string ns)
-{
-  return ns.empty() || ns.back() == '.' ? ns : ns + ".";
-}
-
-
 void loadCovarianceOptionsFromROS(
   node_interfaces::NodeInterfaces<
     node_interfaces::Base,
@@ -66,21 +59,19 @@ void loadCovarianceOptionsFromROS(
     node_interfaces::Parameters
   > interfaces,
   ceres::Covariance::Options & covariance_options,
-  const std::string & namespace_string)
+  const std::string & ns)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
-
-  std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
   // The sparse_linear_algebra_library_type field was added to ceres::Covariance::Options in version
   // 1.13.0, see https://github.com/ceres-solver/ceres-
   // solver/commit/14d8297cf968e421c5db4e3fb0543b3b111155d7
   covariance_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
-    interfaces, ns + "sparse_linear_algebra_library_type",
+    interfaces, fuse_core::joinParameterName(ns, "sparse_linear_algebra_library_type"),
     covariance_options.sparse_linear_algebra_library_type);
   covariance_options.algorithm_type =
     fuse_core::declareCeresParam(
-    interfaces, ns + "algorithm_type",
+    interfaces, fuse_core::joinParameterName(ns, "algorithm_type"),
     covariance_options.algorithm_type);
 
   tmp_descr.description = (
@@ -92,7 +83,8 @@ void loadCovarianceOptionsFromROS(
     "Where min_sigma and max_sigma are the minimum and maximum singular values of J respectively.");
   covariance_options.min_reciprocal_condition_number = fuse_core::getParam(
     interfaces,
-    ns + "min_reciprocal_condition_number", covariance_options.min_reciprocal_condition_number,
+    fuse_core::joinParameterName(ns, "min_reciprocal_condition_number"),
+    covariance_options.min_reciprocal_condition_number,
     tmp_descr
   );
 
@@ -100,14 +92,15 @@ void loadCovarianceOptionsFromROS(
     "The number of singular dimensions to tolerate (-1 unbounded) no effect on `SPARSE_QR`";
   covariance_options.null_space_rank = fuse_core::getParam(
     interfaces,
-    ns + "null_space_rank", covariance_options.null_space_rank, tmp_descr
+    fuse_core::joinParameterName(ns, "null_space_rank"),
+    covariance_options.null_space_rank, tmp_descr
   );
 
   tmp_descr.description =
     "Number of threads to be used for evaluating the Jacobian and estimation of covariance";
   covariance_options.num_threads = fuse_core::getParam(
     interfaces,
-    ns + "num_threads", covariance_options.num_threads, tmp_descr
+    fuse_core::joinParameterName(ns, "num_threads"), covariance_options.num_threads, tmp_descr
   );
 
   tmp_descr.description = (
@@ -116,23 +109,25 @@ void loadCovarianceOptionsFromROS(
     "functions)");
   covariance_options.apply_loss_function = fuse_core::getParam(
     interfaces,
-    ns + "apply_loss_function", covariance_options.apply_loss_function, tmp_descr
+    fuse_core::joinParameterName(ns, "apply_loss_function"),
+    covariance_options.apply_loss_function,
+    tmp_descr
   );
 }
 
 void loadProblemOptionsFromROS(
   node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
   ceres::Problem::Options & problem_options,
-  const std::string & namespace_string)
+  const std::string & ns)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
-
-  std::string ns = get_well_formatted_param_namespace_string(namespace_string);
 
   tmp_descr.description = "trades memory for faster Problem::RemoveResidualBlock()";
   problem_options.enable_fast_removal = fuse_core::getParam(
     interfaces,
-    ns + "enable_fast_removal", problem_options.enable_fast_removal, tmp_descr
+    fuse_core::joinParameterName(ns, "enable_fast_removal"),
+    problem_options.enable_fast_removal,
+    tmp_descr
   );
 
   tmp_descr.description = (
@@ -147,7 +142,9 @@ void loadProblemOptionsFromROS(
     "you are doing");
   problem_options.disable_all_safety_checks = fuse_core::getParam(
     interfaces,
-    ns + "disable_all_safety_checks", problem_options.disable_all_safety_checks, tmp_descr
+    fuse_core::joinParameterName(ns, "disable_all_safety_checks"),
+    problem_options.disable_all_safety_checks,
+    tmp_descr
   );
 }
 
@@ -158,31 +155,35 @@ void loadSolverOptionsFromROS(
     node_interfaces::Parameters
   > interfaces,
   ceres::Solver::Options & solver_options,
-  const std::string & namespace_string)
+  const std::string & ns)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
-  std::string ns = get_well_formatted_param_namespace_string(namespace_string);
-
   // Minimizer options
-  solver_options.minimizer_type =
-    fuse_core::declareCeresParam(interfaces, ns + "minimizer_type", solver_options.minimizer_type);
+  solver_options.minimizer_type = fuse_core::declareCeresParam(
+    interfaces, fuse_core::joinParameterName(ns, "minimizer_type"), solver_options.minimizer_type);
   solver_options.line_search_direction_type = fuse_core::declareCeresParam(
-    interfaces, ns + "line_search_direction_type", solver_options.line_search_direction_type);
-  solver_options.line_search_type =
-    fuse_core::declareCeresParam(
-    interfaces, ns + "line_search_type",
-    solver_options.line_search_type);
+    interfaces,
+    fuse_core::joinParameterName(ns, "line_search_direction_type"),
+    solver_options.line_search_direction_type
+  );
+  solver_options.line_search_type = fuse_core::declareCeresParam(
+    interfaces,
+    fuse_core::joinParameterName(ns, "line_search_type"),
+    solver_options.line_search_type
+  );
   solver_options.nonlinear_conjugate_gradient_type = fuse_core::declareCeresParam(
-    interfaces, ns + "nonlinear_conjugate_gradient_type",
-    solver_options.nonlinear_conjugate_gradient_type);
+    interfaces,
+    fuse_core::joinParameterName(ns, "nonlinear_conjugate_gradient_type"),
+    solver_options.nonlinear_conjugate_gradient_type
+  );
 
   tmp_descr.description = (
     "The rank of the LBFGS hessian approximation. See: Nocedal, J. (1980). 'Updating Quasi-Newton "
     "Matrices with Limited Storage'. Mathematics of Computation 35 (151): 773-782.");
   solver_options.max_lbfgs_rank = fuse_core::getParam(
     interfaces,
-    ns + "max_lbfgs_rank",
+    fuse_core::joinParameterName(ns, "max_lbfgs_rank"),
     solver_options.max_lbfgs_rank,
     tmp_descr
   );
@@ -196,7 +197,7 @@ void loadSolverOptionsFromROS(
     "use_approximate_eigenvalue_bfgs_scaling to true enables this scaling.");
   solver_options.use_approximate_eigenvalue_bfgs_scaling = fuse_core::getParam(
     interfaces,
-    ns + "use_approximate_eigenvalue_bfgs_scaling",
+    fuse_core::joinParameterName(ns, "use_approximate_eigenvalue_bfgs_scaling"),
     solver_options.use_approximate_eigenvalue_bfgs_scaling,
     tmp_descr
   );
@@ -206,14 +207,14 @@ void loadSolverOptionsFromROS(
     "BISECTION, QUADRATIC and CUBIC.");
   solver_options.line_search_interpolation_type = fuse_core::declareCeresParam(
     interfaces,
-    ns + "line_search_interpolation_type",
+    fuse_core::joinParameterName(ns, "line_search_interpolation_type"),
     solver_options.line_search_interpolation_type);
 
   tmp_descr.description =
     "If during the line search, the step_size falls below this value, it is truncated to zero.";
   solver_options.min_line_search_step_size = fuse_core::getParam(
     interfaces,
-    ns + "min_line_search_step_size",
+    fuse_core::joinParameterName(ns, "min_line_search_step_size"),
     solver_options.min_line_search_step_size,
     tmp_descr
   );
@@ -230,7 +231,7 @@ void loadSolverOptionsFromROS(
     "f(step_size) <= f(0) + sufficient_decrease * f'(0) * step_size");
   solver_options.line_search_sufficient_function_decrease = fuse_core::getParam(
     interfaces,
-    ns + "line_search_sufficient_function_decrease",
+    fuse_core::joinParameterName(ns, "line_search_sufficient_function_decrease"),
     solver_options.line_search_sufficient_function_decrease,
     tmp_descr
   );
@@ -243,7 +244,7 @@ void loadSolverOptionsFromROS(
     "0 < max_step_contraction < min_step_contraction < 1");
   solver_options.max_line_search_step_contraction = fuse_core::getParam(
     interfaces,
-    ns + "max_line_search_step_contraction",
+    fuse_core::joinParameterName(ns, "max_line_search_step_contraction"),
     solver_options.max_line_search_step_contraction,
     tmp_descr
   );
@@ -256,7 +257,7 @@ void loadSolverOptionsFromROS(
     "0 < max_step_contraction < min_step_contraction < 1");
   solver_options.min_line_search_step_contraction = fuse_core::getParam(
     interfaces,
-    ns + "min_line_search_step_contraction",
+    fuse_core::joinParameterName(ns, "min_line_search_step_contraction"),
     solver_options.min_line_search_step_contraction,
     tmp_descr
   );
@@ -273,7 +274,7 @@ void loadSolverOptionsFromROS(
     "optimization problems. ");
   solver_options.max_num_line_search_step_size_iterations = fuse_core::getParam(
     interfaces,
-    ns + "max_num_line_search_step_size_iterations",
+    fuse_core::joinParameterName(ns, "max_num_line_search_step_size_iterations"),
     solver_options.max_num_line_search_step_size_iterations,
     tmp_descr
   );
@@ -286,7 +287,7 @@ void loadSolverOptionsFromROS(
     "in the validity of the approximations used. ");
   solver_options.max_num_line_search_direction_restarts = fuse_core::getParam(
     interfaces,
-    ns + "max_num_line_search_direction_restarts",
+    fuse_core::joinParameterName(ns, "max_num_line_search_direction_restarts"),
     solver_options.max_num_line_search_direction_restarts,
     tmp_descr
   );
@@ -305,7 +306,7 @@ void loadSolverOptionsFromROS(
     "w.r.t step_size (d f / d step_size).");
   solver_options.line_search_sufficient_curvature_decrease = fuse_core::getParam(
     interfaces,
-    ns + "line_search_sufficient_curvature_decrease",
+    fuse_core::joinParameterName(ns, "line_search_sufficient_curvature_decrease"),
     solver_options.line_search_sufficient_curvature_decrease,
     tmp_descr
   );
@@ -321,15 +322,18 @@ void loadSolverOptionsFromROS(
     "By definition for expansion, max_step_expansion > 1.0.");
   solver_options.max_line_search_step_expansion = fuse_core::getParam(
     interfaces,
-    ns + "max_line_search_step_expansion",
+    fuse_core::joinParameterName(ns, "max_line_search_step_expansion"),
     solver_options.max_line_search_step_expansion,
     tmp_descr
   );
 
   solver_options.trust_region_strategy_type = fuse_core::declareCeresParam(
-    interfaces, ns + "trust_region_strategy_type", solver_options.trust_region_strategy_type);
+    interfaces,
+    fuse_core::joinParameterName(ns, "trust_region_strategy_type"),
+    solver_options.trust_region_strategy_type
+  );
   solver_options.dogleg_type = fuse_core::declareCeresParam(
-    interfaces, ns + "dogleg_type", solver_options.dogleg_type);
+    interfaces, fuse_core::joinParameterName(ns, "dogleg_type"), solver_options.dogleg_type);
 
 
   tmp_descr.description = (
@@ -337,7 +341,7 @@ void loadSolverOptionsFromROS(
     "Gould & Toint in 'Trust Region Methods', Section 10.1");
   solver_options.use_nonmonotonic_steps = fuse_core::getParam(
     interfaces,
-    ns + "use_nonmonotonic_steps",
+    fuse_core::joinParameterName(ns, "use_nonmonotonic_steps"),
     solver_options.use_nonmonotonic_steps,
     tmp_descr
   );
@@ -346,7 +350,7 @@ void loadSolverOptionsFromROS(
     "The window size used by the step selection algorithm to accept non-monotonic steps";
   solver_options.max_consecutive_nonmonotonic_steps = fuse_core::getParam(
     interfaces,
-    ns + "max_consecutive_nonmonotonic_steps",
+    fuse_core::joinParameterName(ns, "max_consecutive_nonmonotonic_steps"),
     solver_options.max_consecutive_nonmonotonic_steps,
     tmp_descr
   );
@@ -355,7 +359,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Maximum number of iterations for which the solver should run";
   solver_options.max_num_iterations = fuse_core::getParam(
     interfaces,
-    ns + "max_num_iterations",
+    fuse_core::joinParameterName(ns, "max_num_iterations"),
     solver_options.max_num_iterations,
     tmp_descr
   );
@@ -363,7 +367,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Maximum amount of time for which the solver should run";
   solver_options.max_solver_time_in_seconds = fuse_core::getParam(
     interfaces,
-    ns + "max_solver_time_in_seconds",
+    fuse_core::joinParameterName(ns, "max_solver_time_in_seconds"),
     solver_options.max_solver_time_in_seconds,
     tmp_descr
   );
@@ -371,7 +375,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Number of threads used by Ceres for evaluating the cost and jacobians";
   solver_options.num_threads = fuse_core::getParam(
     interfaces,
-    ns + "num_threads",
+    fuse_core::joinParameterName(ns, "num_threads"),
     solver_options.num_threads,
     tmp_descr
   );
@@ -381,7 +385,7 @@ void loadSolverOptionsFromROS(
     "reciprocal of this number is the initial regularization parameter");
   solver_options.initial_trust_region_radius = fuse_core::getParam(
     interfaces,
-    ns + "initial_trust_region_radius",
+    fuse_core::joinParameterName(ns, "initial_trust_region_radius"),
     solver_options.initial_trust_region_radius,
     tmp_descr
   );
@@ -389,7 +393,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "The trust region radius is not allowed to grow beyond this value";
   solver_options.max_trust_region_radius = fuse_core::getParam(
     interfaces,
-    ns + "max_trust_region_radius",
+    fuse_core::joinParameterName(ns, "max_trust_region_radius"),
     solver_options.max_trust_region_radius,
     tmp_descr
   );
@@ -398,7 +402,7 @@ void loadSolverOptionsFromROS(
     "The solver terminates when the trust region becomes smaller than this value";
   solver_options.min_trust_region_radius = fuse_core::getParam(
     interfaces,
-    ns + "min_trust_region_radius",
+    fuse_core::joinParameterName(ns, "min_trust_region_radius"),
     solver_options.min_trust_region_radius,
     tmp_descr
   );
@@ -407,7 +411,7 @@ void loadSolverOptionsFromROS(
     "Lower threshold for relative decrease before a trust-region step is accepted";
   solver_options.min_relative_decrease = fuse_core::getParam(
     interfaces,
-    ns + "min_relative_decrease",
+    fuse_core::joinParameterName(ns, "min_relative_decrease"),
     solver_options.min_relative_decrease,
     tmp_descr
   );
@@ -417,7 +421,7 @@ void loadSolverOptionsFromROS(
     "This is the lower bound on the values of this diagonal matrix");
   solver_options.min_lm_diagonal = fuse_core::getParam(
     interfaces,
-    ns + "min_lm_diagonal",
+    fuse_core::joinParameterName(ns, "min_lm_diagonal"),
     solver_options.min_lm_diagonal,
     tmp_descr
   );
@@ -427,7 +431,7 @@ void loadSolverOptionsFromROS(
     "This is the upper bound on the values of this diagonal matrix");
   solver_options.max_lm_diagonal = fuse_core::getParam(
     interfaces,
-    ns + "max_lm_diagonal",
+    fuse_core::joinParameterName(ns, "max_lm_diagonal"),
     solver_options.max_lm_diagonal,
     tmp_descr
   );
@@ -439,7 +443,7 @@ void loadSolverOptionsFromROS(
     " This parameter sets the number of consecutive retries before the minimizer gives up");
   solver_options.max_num_consecutive_invalid_steps = fuse_core::getParam(
     interfaces,
-    ns + "max_num_consecutive_invalid_steps",
+    fuse_core::joinParameterName(ns, "max_num_consecutive_invalid_steps"),
     solver_options.max_num_consecutive_invalid_steps,
     tmp_descr
   );
@@ -448,7 +452,7 @@ void loadSolverOptionsFromROS(
     "Minimizer terminates when: (new_cost - old_cost) < function_tolerance * old_cost;";
   solver_options.function_tolerance = fuse_core::getParam(
     interfaces,
-    ns + "function_tolerance",
+    fuse_core::joinParameterName(ns, "function_tolerance"),
     solver_options.function_tolerance,
     tmp_descr
   );
@@ -459,7 +463,7 @@ void loadSolverOptionsFromROS(
     "This value should typically be 1e-4 * function_tolerance");
   solver_options.gradient_tolerance = fuse_core::getParam(
     interfaces,
-    ns + "gradient_tolerance",
+    fuse_core::joinParameterName(ns, "gradient_tolerance"),
     solver_options.gradient_tolerance,
     tmp_descr
   );
@@ -468,29 +472,29 @@ void loadSolverOptionsFromROS(
     "Minimizer terminates when: |step|_2 <= parameter_tolerance * ( |x|_2 +  parameter_tolerance)";
   solver_options.parameter_tolerance = fuse_core::getParam(
     interfaces,
-    ns + "parameter_tolerance",
+    fuse_core::joinParameterName(ns, "parameter_tolerance"),
     solver_options.parameter_tolerance,
     tmp_descr
   );
 
   solver_options.linear_solver_type =
     fuse_core::declareCeresParam(
-    interfaces, ns + "linear_solver_type",
+    interfaces, fuse_core::joinParameterName(ns, "linear_solver_type"),
     solver_options.linear_solver_type);
   solver_options.preconditioner_type =
     fuse_core::declareCeresParam(
-    interfaces, ns + "preconditioner_type",
+    interfaces, fuse_core::joinParameterName(ns, "preconditioner_type"),
     solver_options.preconditioner_type);
   solver_options.visibility_clustering_type =
     fuse_core::declareCeresParam(
-    interfaces, ns + "visibility_clustering_type",
+    interfaces, fuse_core::joinParameterName(ns, "visibility_clustering_type"),
     solver_options.visibility_clustering_type);
   solver_options.dense_linear_algebra_library_type =
     fuse_core::declareCeresParam(
-    interfaces, ns + "dense_linear_algebra_library_type",
+    interfaces, fuse_core::joinParameterName(ns, "dense_linear_algebra_library_type"),
     solver_options.dense_linear_algebra_library_type);
   solver_options.sparse_linear_algebra_library_type = fuse_core::declareCeresParam(
-    interfaces, ns + "sparse_linear_algebra_library_type",
+    interfaces, fuse_core::joinParameterName(ns, "sparse_linear_algebra_library_type"),
     solver_options.sparse_linear_algebra_library_type);
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
@@ -500,7 +504,7 @@ void loadSolverOptionsFromROS(
     "Enabling this option tells ITERATIVE_SCHUR to use an explicitly computed Schur complement.";
   solver_options.use_explicit_schur_complement = fuse_core::getParam(
     interfaces,
-    ns + "use_explicit_schur_complement",
+    fuse_core::joinParameterName(ns, "use_explicit_schur_complement"),
     solver_options.use_explicit_schur_complement,
     tmp_descr
   );
@@ -513,7 +517,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "This settings only affects the SPARSE_NORMAL_CHOLESKY solver.";
   solver_options.dynamic_sparsity = fuse_core::getParam(
     interfaces,
-    ns + "dynamic_sparsity",
+    fuse_core::joinParameterName(ns, "dynamic_sparsity"),
     solver_options.dynamic_sparsity,
     tmp_descr
   );
@@ -531,7 +535,7 @@ void loadSolverOptionsFromROS(
     "of this accuracy back.");
   solver_options.use_mixed_precision_solves = fuse_core::getParam(
     interfaces,
-    ns + "use_mixed_precision_solves",
+    fuse_core::joinParameterName(ns, "use_mixed_precision_solves"),
     solver_options.use_mixed_precision_solves,
     tmp_descr
   );
@@ -540,7 +544,7 @@ void loadSolverOptionsFromROS(
     "Number steps of the iterative refinement process to run when computing the Gauss-Newton step.";
   solver_options.max_num_refinement_iterations = fuse_core::getParam(
     interfaces,
-    ns + "max_num_refinement_iterations",
+    fuse_core::joinParameterName(ns, "max_num_refinement_iterations"),
     solver_options.max_num_refinement_iterations,
     tmp_descr
   );
@@ -551,7 +555,7 @@ void loadSolverOptionsFromROS(
     "Enable the use of the non-linear generalization of Ruhe & Wedin's Algorithm II";
   solver_options.use_inner_iterations = fuse_core::getParam(
     interfaces,
-    ns + "use_inner_iterations",
+    fuse_core::joinParameterName(ns, "use_inner_iterations"),
     solver_options.use_inner_iterations,
     tmp_descr
   );
@@ -566,7 +570,7 @@ void loadSolverOptionsFromROS(
     "iterations is disabled.");
   solver_options.inner_iteration_tolerance = fuse_core::getParam(
     interfaces,
-    ns + "inner_iteration_tolerance",
+    fuse_core::joinParameterName(ns, "inner_iteration_tolerance"),
     solver_options.inner_iteration_tolerance,
     tmp_descr
   );
@@ -574,7 +578,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Minimum number of iterations used by the linear iterative solver";
   solver_options.min_linear_solver_iterations = fuse_core::getParam(
     interfaces,
-    ns + "min_linear_solver_iterations",
+    fuse_core::joinParameterName(ns, "min_linear_solver_iterations"),
     solver_options.min_linear_solver_iterations,
     tmp_descr
   );
@@ -582,7 +586,7 @@ void loadSolverOptionsFromROS(
   tmp_descr.description = "Maximum number of iterations used by the linear iterative solver";
   solver_options.max_linear_solver_iterations = fuse_core::getParam(
     interfaces,
-    ns + "max_linear_solver_iterations",
+    fuse_core::joinParameterName(ns, "max_linear_solver_iterations"),
     solver_options.max_linear_solver_iterations,
     tmp_descr
   );
@@ -592,7 +596,7 @@ void loadSolverOptionsFromROS(
     "relative accuracy with which the Newton step is computed");
   solver_options.eta = fuse_core::getParam(
     interfaces,
-    ns + "eta",
+    fuse_core::joinParameterName(ns, "eta"),
     solver_options.eta,
     tmp_descr
   );
@@ -603,26 +607,29 @@ void loadSolverOptionsFromROS(
     "linear solver. This improves the numerical conditioning of the normal equations");
   solver_options.jacobi_scaling = fuse_core::getParam(
     interfaces,
-    ns + "jacobi_scaling",
+    fuse_core::joinParameterName(ns, "jacobi_scaling"),
     solver_options.jacobi_scaling,
     tmp_descr
   );
 
   // Logging options
-  solver_options.logging_type =
-    fuse_core::declareCeresParam(interfaces, ns + "logging_type", solver_options.logging_type);
+  solver_options.logging_type = fuse_core::declareCeresParam(
+    interfaces, fuse_core::joinParameterName(ns, "logging_type"), solver_options.logging_type);
 
   tmp_descr.description = "If logging_type is not SILENT, sends the logging output to STDOUT";
   solver_options.minimizer_progress_to_stdout = fuse_core::getParam(
     interfaces,
-    ns + "minimizer_progress_to_stdout",
+    fuse_core::joinParameterName(ns, "minimizer_progress_to_stdout"),
     solver_options.minimizer_progress_to_stdout,
     tmp_descr
   );
   fuse_core::getParam<std::vector<int64_t>>(
-    interfaces, ns + "trust_region_minimizer_iterations_to_dump", std::vector<int64_t>());
+    interfaces,
+    fuse_core::joinParameterName(ns, "trust_region_minimizer_iterations_to_dump"),
+    std::vector<int64_t>()
+  );
   std::vector<int64_t> iterations_to_dump_tmp = interfaces.get_node_parameters_interface()
-    ->get_parameter(ns + "trust_region_minimizer_iterations_to_dump")
+    ->get_parameter(fuse_core::joinParameterName(ns, "trust_region_minimizer_iterations_to_dump"))
     .get_value<std::vector<int64_t>>();
   if (!iterations_to_dump_tmp.empty()) {
     solver_options.trust_region_minimizer_iterations_to_dump.reserve(iterations_to_dump_tmp.size());
@@ -640,14 +647,14 @@ void loadSolverOptionsFromROS(
     "CONSOLE.");
   solver_options.trust_region_problem_dump_directory = fuse_core::getParam(
     interfaces,
-    ns + "trust_region_problem_dump_directory",
+    fuse_core::joinParameterName(ns, "trust_region_problem_dump_directory"),
     solver_options.trust_region_problem_dump_directory,
     tmp_descr
   );
   solver_options.trust_region_problem_dump_format_type =
     fuse_core::declareCeresParam(
     interfaces,
-    ns + "trust_region_problem_dump_format_type",
+    fuse_core::joinParameterName(ns, "trust_region_problem_dump_format_type"),
     solver_options.trust_region_problem_dump_format_type
     );
 
@@ -657,7 +664,7 @@ void loadSolverOptionsFromROS(
     "and analytic gradients differ substantially)");
   solver_options.check_gradients = fuse_core::getParam(
     interfaces,
-    ns + "check_gradients",
+    fuse_core::joinParameterName(ns, "check_gradients"),
     solver_options.check_gradients,
     tmp_descr
   );
@@ -667,7 +674,7 @@ void loadSolverOptionsFromROS(
     "cost term is dumped");
   solver_options.gradient_check_relative_precision = fuse_core::getParam(
     interfaces,
-    ns + "gradient_check_relative_precision",
+    fuse_core::joinParameterName(ns, "gradient_check_relative_precision"),
     solver_options.gradient_check_relative_precision,
     tmp_descr
   );
@@ -676,7 +683,7 @@ void loadSolverOptionsFromROS(
     "Solver::Options::check_gradients is true.");
   solver_options.gradient_check_numeric_derivative_relative_step_size = fuse_core::getParam(
     interfaces,
-    ns + "gradient_check_numeric_derivative_relative_step_size",
+    fuse_core::joinParameterName(ns, "gradient_check_numeric_derivative_relative_step_size"),
     solver_options.gradient_check_numeric_derivative_relative_step_size,
     tmp_descr
   );
@@ -688,7 +695,7 @@ void loadSolverOptionsFromROS(
     "termination");
   solver_options.update_state_every_iteration = fuse_core::getParam(
     interfaces,
-    ns + "update_state_every_iteration",
+    fuse_core::joinParameterName(ns, "update_state_every_iteration"),
     solver_options.update_state_every_iteration,
     tmp_descr
   );

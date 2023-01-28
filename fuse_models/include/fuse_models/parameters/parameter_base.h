@@ -57,7 +57,7 @@ struct ParameterBase
    * @brief Method for loading parameter values from ROS.
    *
    * @param[in] interfaces - The node interfaces with which to load parameters
-   * @param[in] namespace_string - The parameter namespace to use
+   * @param[in] ns - The parameter namespace to use
    */
   virtual void loadFromROS(
     fuse_core::node_interfaces::NodeInterfaces<
@@ -65,14 +65,8 @@ struct ParameterBase
       fuse_core::node_interfaces::Logging,
       fuse_core::node_interfaces::Parameters
     > interfaces,
-    const std::string& namespace_string) = 0;
+    const std::string& ns) = 0;
 };
-
-// Helper function to get a namespace string with a '.' suffix, but only if not empty
-inline std::string get_well_formatted_param_namespace_string(std::string ns)
-{
-  return ns.empty() || ns.back() == '.' ? ns : ns + ".";
-}
 
 /**
  * @brief Utility method to load a sensor configuration, i.e. the dimension indices

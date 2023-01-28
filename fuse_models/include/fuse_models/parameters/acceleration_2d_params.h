@@ -59,7 +59,7 @@ struct Acceleration2DParams : public ParameterBase
      * @brief Method for loading parameter values from ROS.
      *
      * @param[in] interfaces - The node interfaces with which to load parameters
-     * @param[in] namespace_string - The parameter namespace to use
+     * @param[in] ns - The parameter namespace to use
      */
     void loadFromROS(
       fuse_core::node_interfaces::NodeInterfaces<
@@ -67,23 +67,21 @@ struct Acceleration2DParams : public ParameterBase
         fuse_core::node_interfaces::Logging,
         fuse_core::node_interfaces::Parameters
       > interfaces,
-      const std::string& namespace_string)
+      const std::string& ns)
     {
-      std::string ns = get_well_formatted_param_namespace_string(namespace_string);
+      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(interfaces, fuse_core::joinParameterName(ns, "dimensions"));
 
-      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(interfaces, ns + "dimensions");
+      disable_checks = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "disable_checks"), disable_checks);
+      queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
+      fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_timeout"), tf_timeout, false);
 
-      disable_checks = fuse_core::getParam(interfaces, ns + "disable_checks", disable_checks);
-      queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
-      fuse_core::getPositiveParam(interfaces, ns + "tf_timeout", tf_timeout, false);
+      fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "throttle_period"), throttle_period, false);
+      throttle_use_wall_time = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "throttle_use_wall_time"), throttle_use_wall_time);
 
-      fuse_core::getPositiveParam(interfaces, ns + "throttle_period", throttle_period, false);
-      throttle_use_wall_time = fuse_core::getParam(interfaces, ns + "throttle_use_wall_time", throttle_use_wall_time);
+      fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
+      fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
 
-      fuse_core::getParamRequired(interfaces, ns + "topic", topic);
-      fuse_core::getParamRequired(interfaces, ns + "target_frame", target_frame);
-
-      loss = fuse_core::loadLossConfig(interfaces, ns + "loss");
+      loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "loss"));
     }
 
     bool disable_checks { false };

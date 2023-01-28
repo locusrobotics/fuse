@@ -68,7 +68,7 @@ public:
    * @brief Method for loading parameter values from ROS.
    *
    * @param[in] interfaces - The node interfaces with which to load parameters
-   * @param[in] namespace_string - The parameter namespace to use
+   * @param[in] ns - The parameter namespace to use
    */
   void loadFromROS(
     fuse_core::node_interfaces::NodeInterfaces<
@@ -76,32 +76,30 @@ public:
       fuse_core::node_interfaces::Logging,
       fuse_core::node_interfaces::Parameters
     > interfaces,
-    const std::string& namespace_string)
+    const std::string& ns)
   {
-    std::string ns = get_well_formatted_param_namespace_string(namespace_string);
+    publish_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_tf"), publish_tf);
+    invert_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "invert_tf"), invert_tf);
+    predict_to_current_time = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "predict_to_current_time"), predict_to_current_time);
+    predict_with_acceleration = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "predict_with_acceleration"), predict_with_acceleration);
+    publish_frequency = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_frequency"), publish_frequency);
 
-    publish_tf = fuse_core::getParam(interfaces, ns + "publish_tf", publish_tf);
-    invert_tf = fuse_core::getParam(interfaces, ns + "invert_tf", invert_tf);
-    predict_to_current_time = fuse_core::getParam(interfaces, ns + "predict_to_current_time", predict_to_current_time);
-    predict_with_acceleration = fuse_core::getParam(interfaces, ns + "predict_with_acceleration", predict_with_acceleration);
-    publish_frequency = fuse_core::getParam(interfaces, ns + "publish_frequency", publish_frequency);
+    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(interfaces, fuse_core::joinParameterName(ns, "process_noise_diagonal"), 0.0);
+    scale_process_noise = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "scale_process_noise"), scale_process_noise);
+    velocity_norm_min = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "velocity_norm_min"), velocity_norm_min);
 
-    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(interfaces, ns + "process_noise_diagonal", 0.0);
-    scale_process_noise = fuse_core::getParam(interfaces, ns + "scale_process_noise", scale_process_noise);
-    velocity_norm_min = fuse_core::getParam(interfaces, ns + "velocity_norm_min", velocity_norm_min);
+    fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "covariance_throttle_period"), covariance_throttle_period, false);
 
-    fuse_core::getPositiveParam(interfaces, ns + "covariance_throttle_period", covariance_throttle_period, false);
+    fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_cache_time"), tf_cache_time, false);
+    fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_timeout"), tf_timeout, false);
 
-    fuse_core::getPositiveParam(interfaces, ns + "tf_cache_time", tf_cache_time, false);
-    fuse_core::getPositiveParam(interfaces, ns + "tf_timeout", tf_timeout, false);
+    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
 
-    queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
-
-    map_frame_id = fuse_core::getParam(interfaces, ns + "map_frame_id", map_frame_id);
-    odom_frame_id = fuse_core::getParam(interfaces, ns + "odom_frame_id", odom_frame_id);
-    base_link_frame_id = fuse_core::getParam(interfaces, ns + "base_link_frame_id", base_link_frame_id);
-    base_link_output_frame_id = fuse_core::getParam(interfaces, ns + "base_link_output_frame_id", base_link_output_frame_id);
-    world_frame_id = fuse_core::getParam(interfaces, ns + "world_frame_id", world_frame_id);
+    map_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "map_frame_id"), map_frame_id);
+    odom_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "odom_frame_id"), odom_frame_id);
+    base_link_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "base_link_frame_id"), base_link_frame_id);
+    base_link_output_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "base_link_output_frame_id"), base_link_output_frame_id);
+    world_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "world_frame_id"), world_frame_id);
 
     const bool frames_valid =
       map_frame_id != odom_frame_id &&
@@ -122,8 +120,8 @@ public:
       assert(frames_valid);
     }
 
-    topic = fuse_core::getParam(interfaces, ns + "topic", topic);
-    acceleration_topic = fuse_core::getParam(interfaces, ns + "acceleration_topic", acceleration_topic);
+    topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
+    acceleration_topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "acceleration_topic"), acceleration_topic);
 
     fuse_core::loadCovarianceOptionsFromROS(interfaces, covariance_options, "covariance_options");
   }

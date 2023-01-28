@@ -233,7 +233,7 @@ void loadCovarianceOptionsFromROS(
     node_interfaces::Parameters
   > interfaces,
   ceres::Covariance::Options & covariance_options,
-  const std::string & namespace_string = std::string());
+  const std::string & ns = std::string());
 
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
@@ -248,7 +248,7 @@ void loadProblemOptionsFromROS(
     node_interfaces::Parameters
   > interfaces,
   ceres::Problem::Options & problem_options,
-  const std::string & namespace_string = std::string());
+  const std::string & ns = std::string());
 
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
@@ -265,7 +265,7 @@ void loadSolverOptionsFromROS(
     node_interfaces::Parameters
   > interfaces,
   ceres::Solver::Options & solver_options,
-  const std::string & namespace_string = std::string());
+  const std::string & ns = std::string());
 
 }  // namespace fuse_core
 
