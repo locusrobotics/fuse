@@ -60,7 +60,7 @@ TEST(Optimizer, Constructor)
 
   // Check the expected motion and sensor models, and publisher were loaded:
   const std::vector<std::string> expected_motion_models = {"noisy_unicycle_2d", "unicycle_2d"};
-  const std::vector<std::string> expected_sensor_models = {"imu", "laser_localization",   // NOLINT(whitespace/braces)
+  const std::vector<std::string> expected_sensor_models = {"imu", "laser_localization",   // NOLINT
     "unicycle_2d_ignition", "wheel_odometry"};
   const std::vector<std::string> expected_publishers =
   {"odometry_publisher", "serialized_publisher"};

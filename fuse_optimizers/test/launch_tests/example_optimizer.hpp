@@ -32,13 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_
-#define FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_
-
-#include <fuse_optimizers/optimizer.hpp>
+#ifndef FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_  // NOLINT{build/header_guard}
+#define FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_  // NOLINT{build/header_guard}
 
 #include <string>
 #include <utility>
+
+#include <fuse_optimizers/optimizer.hpp>
 
 
 /**
@@ -82,4 +82,4 @@ public:
   }
 };
 
-#endif  // FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_
+#endif  // FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_  // NOLINT{build/header_guard}

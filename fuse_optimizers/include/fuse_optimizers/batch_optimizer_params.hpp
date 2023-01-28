@@ -35,15 +35,15 @@
 #ifndef FUSE_OPTIMIZERS__BATCH_OPTIMIZER_PARAMS_HPP_
 #define FUSE_OPTIMIZERS__BATCH_OPTIMIZER_PARAMS_HPP_
 
-#include <fuse_core/ceres_options.hpp>
-#include <fuse_core/parameter.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <ceres/solver.h>
 
 #include <algorithm>
 #include <string>
 #include <vector>
+
+#include <fuse_core/ceres_options.hpp>
+#include <fuse_core/parameter.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 
 namespace fuse_optimizers

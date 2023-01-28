@@ -35,13 +35,6 @@
 #ifndef FUSE_OPTIMIZERS__BATCH_OPTIMIZER_HPP_
 #define FUSE_OPTIMIZERS__BATCH_OPTIMIZER_HPP_
 
-#include <fuse_core/graph.hpp>
-#include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_optimizers/batch_optimizer_params.hpp>
-#include <fuse_optimizers/optimizer.hpp>
-#include <fuse_graphs/hash_graph.hpp>
-
 #include <atomic>
 #include <condition_variable>
 #include <map>
@@ -51,6 +44,13 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
+#include <fuse_core/graph.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_optimizers/batch_optimizer_params.hpp>
+#include <fuse_optimizers/optimizer.hpp>
+#include <fuse_graphs/hash_graph.hpp>
 
 
 namespace fuse_optimizers
@@ -147,26 +147,30 @@ protected:
    */
   using TransactionQueue = std::multimap<rclcpp::Time, TransactionQueueElement>;
 
-  fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate constraints and variables
-                                                            //!< from multiple sensors and motions
-                                                            //!< models before being applied to the
-                                                            //!< graph.
-  std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction across different threads
+  fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate
+                                                            //!< constraints and variables from
+                                                            //!< multiple sensors and motions models
+                                                            //!< before being applied to the graph.
+  std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction
+                                           //!< across different threads
   ParameterType params_;  //!< Configuration settings for this optimizer
   std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
-  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
-                                                    //!< until a new optimization is requested by
-                                                    //!< the main thread
+  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization
+                                                    //!< thread to wait until a new optimization is
+                                                    //!< requested by the main thread
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
-  TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
-                                           //!< optimizer yet. Transactions are added by the main
-                                           //!< thread, and removed and processed by the
+  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed
+                                                 //!< frequency
+  TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been
+                                           //!< added to the optimizer yet. Transactions are added
+                                           //!< by the main thread, and removed and processed by the
                                            //!< optimization thread.
-  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
+  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the
+                                           //!< pending_transactions_ container
   rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
-  bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
+  bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an
+                  //!< ignition sensor
 
   /**
    * @brief Generate motion model constraints for pending transactions

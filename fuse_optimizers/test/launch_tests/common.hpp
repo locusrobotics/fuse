@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS__TEST_COMMON_HPP_
-#define FUSE_OPTIMIZERS__TEST_COMMON_HPP_
+#ifndef FUSE_OPTIMIZERS__TEST_COMMON_HPP_  // NOLINT{build/header_guard}
+#define FUSE_OPTIMIZERS__TEST_COMMON_HPP_  // NOLINT{build/header_guard}
 
 #include <algorithm>
 #include <iterator>
@@ -118,4 +118,4 @@ std::vector<std::string> set_symmetric_difference(
 }
 
 
-#endif  // FUSE_OPTIMIZERS__TEST_COMMON_HPP_
+#endif  // FUSE_OPTIMIZERS__TEST_COMMON_HPP_  // NOLINT{build/header_guard}

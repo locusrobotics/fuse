@@ -35,14 +35,14 @@
 #ifndef FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_HPP_
 #define FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_HPP_
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
 #include <rclcpp/time.hpp>
-
-#include <unordered_map>
-#include <unordered_set>
 
 
 namespace fuse_optimizers
@@ -165,7 +165,8 @@ public:
 
 protected:
   using StampedMap = std::unordered_map<fuse_core::UUID, rclcpp::Time>;
-  StampedMap stamped_index_;  //!< Container that holds the UUID->Stamp mapping for fuse_variables::Stamped variables
+  StampedMap stamped_index_;  //!< Container that holds the UUID->Stamp mapping for
+                              //!< fuse_variables::Stamped variables
 
   using VariableToConstraintsMap = std::unordered_map<fuse_core::UUID,
       std::unordered_set<fuse_core::UUID>>;

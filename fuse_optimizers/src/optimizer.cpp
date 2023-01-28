@@ -81,8 +81,8 @@ Optimizer::Optimizer(
     graph_ = std::move(fuse_graphs::HashGraph::make_unique(hash_graph_params));
   }
 
-  //add a ros1 style callback queue so that transactions can be processed in the optimiser's
-  //executor
+  // add a ros1 style callback queue so that transactions can be processed in the optimiser's
+  // executor
   interfaces_.get_node_waitables_interface()->add_waitable(
     callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 
@@ -145,7 +145,7 @@ void Optimizer::loadMotionModels()
     // get the type parameter for the motion model
     rclcpp::Parameter motion_model_type_param =
       interfaces_.get_node_parameters_interface()->get_parameter(config.param_name);
-    //extract the type string from the parameter
+    // extract the type string from the parameter
     if (motion_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING) {
       config.type = motion_model_type_param.as_string();
     }
@@ -210,7 +210,8 @@ void Optimizer::loadSensorModels()
     if (!interfaces_.get_node_parameters_interface()->has_parameter(config.type_param_name)) {
       rcl_interfaces::msg::ParameterDescriptor descr;
       descr.description =
-        "the PLUGINLIB type string to load for this sensor_model (eg: 'fuse_models::Acceleration2D')";
+        "the PLUGINLIB type string to load for this sensor_model "
+        "(eg: 'fuse_models::Acceleration2D')";
       interfaces_.get_node_parameters_interface()->declare_parameter(
         config.type_param_name,
         rclcpp::ParameterValue(std::string()),
@@ -221,7 +222,7 @@ void Optimizer::loadSensorModels()
     // get the type parameter for the sensor model
     rclcpp::Parameter sensor_model_type_param =
       interfaces_.get_node_parameters_interface()->get_parameter(config.type_param_name);
-    //extract the type string from the parameter
+    // extract the type string from the parameter
     if (sensor_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING) {
       config.type = sensor_model_type_param.as_string();
     }
@@ -241,7 +242,7 @@ void Optimizer::loadSensorModels()
     // get the model_list parameter for the sensor model
     rclcpp::Parameter sensor_model_model_list_param =
       interfaces_.get_node_parameters_interface()->get_parameter(config.models_param_name);
-    //extract the model_list string from the parameter
+    // extract the model_list string from the parameter
     if (sensor_model_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY) {
       config.associated_motion_models = sensor_model_model_list_param.as_string_array();
     }
@@ -261,7 +262,7 @@ void Optimizer::loadSensorModels()
     // get the model list parameter for the sensor model
     rclcpp::Parameter sensor_model_ignition_param =
       interfaces_.get_node_parameters_interface()->get_parameter(config.ignition_param_name);
-    //extract the ignition bool from the parameter
+    // extract the ignition bool from the parameter
     if (sensor_model_ignition_param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
       config.ignition = sensor_model_ignition_param.as_bool();
     }
@@ -271,12 +272,9 @@ void Optimizer::loadSensorModels()
     if (config.type == "") {
       RCLCPP_WARN_STREAM(
         logger_,
-        "parameter '" << config.type_param_name <<
-          "' should be the string of a sensor_model type " <<
-          "for the sensor_model named '" << config.name <<
-          "'.");
+        "parameter '" << config.type_param_name << "' should be the string of a sensor_model type "
+                      << "for the sensor_model named '" << config.name << "'.");
     }
-
   }
 
   // now load the models defined above
@@ -290,7 +288,7 @@ void Optimizer::loadSensorModels()
     // Store the sensor in a member variable for use later
     sensor_models_.emplace(
       config.name,
-      SensorModelInfo{std::move(sensor_model), config.ignition});                         // NOLINT(whitespace/braces)
+      SensorModelInfo{std::move(sensor_model), config.ignition});  // NOLINT(whitespace/braces)
 
     // Parse out the list of associated motion models, if any
     associated_motion_models_[config.name] = config.associated_motion_models;
@@ -299,9 +297,10 @@ void Optimizer::loadSensorModels()
       if (motion_models_.find(motion_model_name) == motion_models_.end()) {
         RCLCPP_WARN_STREAM(
           logger_,
-          "Sensor model '" << config.name << "' is configured to use motion model '"
-                           << motion_model_name << "', but no motion model with that name currently exists. "
-                           << "This is likely a configuration error.");
+          "Sensor model '"
+            << config.name << "' is configured to use motion model '" << motion_model_name
+            << "', but no motion model with that name currently exists. "
+            << "This is likely a configuration error.");
       }
     }
   }
@@ -335,7 +334,8 @@ void Optimizer::loadPublishers()
     if (!interfaces_.get_node_parameters_interface()->has_parameter(config.param_name)) {
       rcl_interfaces::msg::ParameterDescriptor descr;
       descr.description =
-        "the PLUGINLIB type string to load for this publisher (eg: 'fuse_publishers::Path2DPublisher')";
+        "the PLUGINLIB type string to load for this publisher "
+        "(eg: 'fuse_publishers::Path2DPublisher')";
       interfaces_.get_node_parameters_interface()->declare_parameter(
         config.param_name,
         rclcpp::ParameterValue(std::string()),
@@ -346,7 +346,7 @@ void Optimizer::loadPublishers()
     // get the type parameter for the publisher
     rclcpp::Parameter publisher_type_param =
       interfaces_.get_node_parameters_interface()->get_parameter(config.param_name);
-    //extract the type string from the parameter
+    // extract the type string from the parameter
     if (publisher_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING) {
       config.type = publisher_type_param.as_string();
     }
@@ -394,8 +394,8 @@ bool Optimizer::applyMotionModels(
     } catch (const std::exception & e) {
       RCLCPP_ERROR_STREAM(
         logger_,
-        "Error generating constraints for sensor '" << sensor_name << "' "
-                                                    << "from motion model '" << motion_model_name << "'. Error: " <<
+        "Error generating constraints for sensor '" << sensor_name << "' from motion model '"
+                                                    << motion_model_name << "'. Error: " <<
           e.what());
       success = false;
     }
@@ -497,7 +497,7 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & sta
     return;
   }
 
-  // TODO test for previous convergence success or failure
+  // TODO(BrettRD): test for previous convergence success or failure
 
   status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimizer exists");
 

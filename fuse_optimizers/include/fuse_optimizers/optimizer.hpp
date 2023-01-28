@@ -35,6 +35,12 @@
 #ifndef FUSE_OPTIMIZERS__OPTIMIZER_HPP_
 #define FUSE_OPTIMIZERS__OPTIMIZER_HPP_
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/graph.hpp>
@@ -45,11 +51,6 @@
 #include <fuse_core/transaction.hpp>
 #include <pluginlib/class_loader.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 
 namespace fuse_optimizers
@@ -146,20 +147,27 @@ protected:
 
   // Some internal book-keeping data structures
   using MotionModelGroup = std::vector<std::string>;  //!< A set of motion model names
-  using AssociatedMotionModels = std::unordered_map<std::string, MotionModelGroup>;  //!< sensor -> motion models group
+
+  //!< sensor -> motion models group
+  using AssociatedMotionModels = std::unordered_map<std::string, MotionModelGroup>;
 
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces_;
   rclcpp::Clock::SharedPtr clock_;
   rclcpp::Logger logger_;
 
-  AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used for each sensor
-  fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
+  AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used
+                                                     //!< for each sensor
+  fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and
+                                       //!< constraints
 
-  pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader for MotionModels
+  pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader
+                                                                        //!< for MotionModels
   MotionModels motion_models_;  //!< The set of motion models, addressable by name
-  pluginlib::ClassLoader<fuse_core::Publisher> publisher_loader_;  //!< Pluginlib class loader for Publishers
+  pluginlib::ClassLoader<fuse_core::Publisher> publisher_loader_;  //!< Pluginlib class loader for
+                                                                   //!< Publishers
   Publishers publishers_;  //!< The set of publishers to execute after every graph optimization
-  pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
+  pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader
+                                                                        //!< for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater

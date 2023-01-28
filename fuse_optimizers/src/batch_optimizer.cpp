@@ -43,6 +43,7 @@
 #include <fuse_optimizers/optimizer.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+
 namespace fuse_optimizers
 {
 
@@ -102,12 +103,11 @@ void BatchOptimizer::applyMotionModelsToQueue()
         // Warn that this transaction has expired, then skip it.
         RCLCPP_ERROR_STREAM(
           logger_,
-          "The queued transaction with timestamp " << element.transaction->stamp().nanoseconds()
-                                                   << " could not be processed after " <<
-            (current_time - element.transaction->stamp()).nanoseconds()
-                                                   << " seconds, which is greater than the 'transaction_timeout' value of "
-                                                   << params_.transaction_timeout.nanoseconds() <<
-            ". Ignoring this transaction.");
+          "The queued transaction with timestamp "
+            << element.transaction->stamp().nanoseconds() << " could not be processed after "
+            << (current_time - element.transaction->stamp()).nanoseconds()
+            << " seconds, which is greater than the 'transaction_timeout' value of "
+            << params_.transaction_timeout.nanoseconds() << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
       } else {
@@ -136,7 +136,12 @@ void BatchOptimizer::optimizationLoop()
       optimization_requested_.wait(
         lock,
         [this] {
-          return optimization_request_ || !interfaces_.get_node_base_interface()->get_context()->is_valid();
+          /* *INDENT-OFF* */
+          return (
+            optimization_request_ ||
+            !interfaces_.get_node_base_interface()->get_context()->is_valid()
+          );
+          /* *INDENT-ON* */
         });
     }
     // If a shutdown is requested, exit now.
@@ -213,12 +218,10 @@ void BatchOptimizer::transactionCallback(
     rclcpp::Time purge_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
     if (started_) {
       purge_time = start_time_;
-    }
-    // prevent a bad subtraction
-    else if (rclcpp::Time(
-        params_.transaction_timeout.nanoseconds(),
-        last_pending_time.get_clock_type()) <
-      last_pending_time)
+    } else if (  // prevent a bad subtraction  // NOLINT
+      rclcpp::Time(
+        params_.transaction_timeout.nanoseconds(), last_pending_time.get_clock_type()
+      ) < last_pending_time)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }
