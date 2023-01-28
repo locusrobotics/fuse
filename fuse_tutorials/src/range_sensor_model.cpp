@@ -58,7 +58,7 @@ void RangeSensorModel::initialize(
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
 }
 
-void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg)
+void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::msg::PointCloud2 & msg)
 {
   // Store a copy of the beacon database. We use a map to allow efficient lookups by ID number.
   sensor_msgs::PointCloud2ConstIterator<float> x_it(msg, "x");
@@ -66,9 +66,8 @@ void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::msg::PointCloud2&
   sensor_msgs::PointCloud2ConstIterator<float> z_it(msg, "z");
   sensor_msgs::PointCloud2ConstIterator<float> sigma_it(msg, "sigma");
   sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
-  for (; x_it != x_it.end(); ++x_it, ++y_it, ++z_it, ++sigma_it, ++id_it)
-  {
-    beacon_db_[*id_it] = Beacon { *x_it, *y_it, *sigma_it };
+  for (; x_it != x_it.end(); ++x_it, ++y_it, ++z_it, ++sigma_it, ++id_it) {
+    beacon_db_[*id_it] = Beacon {*x_it, *y_it, *sigma_it};
   }
   RCLCPP_INFO_STREAM(logger_, "Updated Beacon Database.");
 }
@@ -129,14 +128,13 @@ void RangeSensorModel::onStop()
   sub_.reset();
 }
 
-void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2& msg)
+void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2 & msg)
 {
   // We received a new message for our sensor. This is where most of the processing happens for our sensor model. We
   // take the published ROS message and transform it into one or more Constraints, and send them to the optimizer.
 
   // However, if we have not received the prior beacon positions yet, we cannot process the range messages.
-  if (beacon_db_.empty())
-  {
+  if (beacon_db_.empty()) {
     return;
   }
 
@@ -163,8 +161,7 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2& msg)
   sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
   sensor_msgs::PointCloud2ConstIterator<double> range_it(msg, "range");
   sensor_msgs::PointCloud2ConstIterator<double> sigma_it(msg, "sigma");
-  for (; id_it != id_it.end(); ++id_it, ++range_it, ++sigma_it)
-  {
+  for (; id_it != id_it.end(); ++id_it, ++range_it, ++sigma_it) {
     // Each measure range will involve a different observed beacon. Construct a variable for this
     // measurement's beacon.
     auto beacon = beacon_db_[*id_it];
@@ -189,16 +186,16 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2& msg)
     // a prior database, the beacons could be tracked over multiple samples. Once the beacon has been observed with
     // enough parallax, then all measurements of that beacon could be added at once. Some type of delayed
     // initialization scheme is common in vision-based odometry and SLAM systems.
-    if (!initialized_)
-    {
+    if (!initialized_) {
       auto mean = fuse_core::Vector2d(beacon.x, beacon.y);
       auto cov = fuse_core::Matrix2d();
       cov << beacon.sigma * beacon.sigma, 0.0, 0.0, beacon.sigma * beacon.sigma;
-      auto prior = fuse_constraints::AbsoluteConstraint<fuse_variables::Point2DLandmark>::make_shared(
-        this->name(),
-        *beacon_position,
-        mean,
-        cov);
+      /* *INDENT-OFF* */
+      auto prior =
+        fuse_constraints::AbsoluteConstraint<fuse_variables::Point2DLandmark>::make_shared(
+          this->name(), *beacon_position, mean, cov
+        );
+      /* *INDENT-ON* */
       transaction->addConstraint(prior);
     }
   }

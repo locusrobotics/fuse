@@ -107,9 +107,9 @@ public:
    * @param[in] sigma - The uncertainty of measured distance
    */
   RangeConstraint(
-    const std::string& source,
-    const fuse_variables::Position2DStamped& robot_position,
-    const fuse_variables::Point2DLandmark& beacon_position,
+    const std::string & source,
+    const fuse_variables::Position2DStamped & robot_position,
+    const fuse_variables::Point2DLandmark & beacon_position,
     const double z,
     const double sigma);
 
@@ -120,7 +120,7 @@ public:
    *
    * @param[out] stream - The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -135,7 +135,7 @@ public:
    *         that the fuse project guarantees the derived Constraint object will outlive the Ceres Solver CostFunction
    *         object.
    */
-  ceres::CostFunction* costFunction() const override;
+  ceres::CostFunction * costFunction() const override;
 
 private:
   // Allow Boost Serialization access to private methods and members
@@ -154,16 +154,16 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  template<class Archive>
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive& sigma_;
-    archive& z_;
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & sigma_;
+    archive & z_;
   }
 
-  double sigma_ { 0.0 };  //!< The standard deviation of the range measurement
-  double z_ { 0.0 };  //!< The measured range to the beacon
+  double sigma_ {0.0};    //!< The standard deviation of the range measurement
+  double z_ {0.0};    //!< The measured range to the beacon
 };
 
 }  // namespace fuse_tutorials

@@ -87,7 +87,8 @@ public:
    * @param[in] z The measured range to the beacon
    * @param[in] sigma The standard deviation of the range measurement
    */
-  RangeCostFunctor(const double z, const double sigma) : sigma_(sigma), z_(z) {}
+  RangeCostFunctor(const double z, const double sigma)
+  : sigma_(sigma), z_(z) {}
 
   /**
    * @brief Compute the costs using the provided stored measurement details and the provided variable values.
@@ -111,8 +112,10 @@ public:
    * @param[out] residuals - An array of computed cost values. In this case, our residual array is only a single value.
    * @return True if the cost was computed successfully, false otherwise
    */
-  template <typename T>
-  bool operator()(const T* const robot_position, const T* const beacon_position, T* residuals) const
+  template<typename T>
+  bool operator()(
+    const T * const robot_position, const T * const beacon_position,
+    T * residuals) const
   {
     // Implement our mathematic measurement model:
     //   z_hat = sqrt( (x_robot - x_beacon)^2 + (y_robot - y_beacon)^2 )
@@ -124,13 +127,10 @@ public:
     auto dx = robot_position[0] - beacon_position[0];
     auto dy = robot_position[1] - beacon_position[1];
     auto norm_sq = dx * dx + dy * dy;
-    if (norm_sq > 0.0)
-    {
+    if (norm_sq > 0.0) {
       auto z_hat = ceres::sqrt(norm_sq);
       residuals[0] = (T(z_) - z_hat) / T(sigma_);
-    }
-    else
-    {
+    } else {
       residuals[0] = T(z_) / T(sigma_);
     }
     return true;

@@ -83,12 +83,10 @@ void BeaconPublisher::notifyCallback(
   // This is where all of the processing happens in this publisher implementation. All of the beacons are represented
   // as fuse_variables::Point2DLandmark objects. We loop through the variables in the graph and keep a pointer to the
   // variables that are the correct type.
-  auto beacons = std::vector<const fuse_variables::Point2DLandmark*>();
-  for (const auto& variable : graph->getVariables())
-  {
-    const auto beacon = dynamic_cast<const fuse_variables::Point2DLandmark*>(&variable);
-    if (beacon)
-    {
+  auto beacons = std::vector<const fuse_variables::Point2DLandmark *>();
+  for (const auto & variable : graph->getVariables()) {
+    const auto beacon = dynamic_cast<const fuse_variables::Point2DLandmark *>(&variable);
+    if (beacon) {
       beacons.push_back(beacon);
     }
   }
@@ -101,19 +99,19 @@ void BeaconPublisher::notifyCallback(
   msg.header.frame_id = map_frame_id_;
   sensor_msgs::PointCloud2Modifier modifier(msg);
   // clang-format off
-  modifier.setPointCloud2Fields(4, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
-                                   "y", 1, sensor_msgs::msg::PointField::FLOAT32,
-                                   "z", 1, sensor_msgs::msg::PointField::FLOAT32,
-                                   "id", 1, sensor_msgs::msg::PointField::UINT32);
+  modifier.setPointCloud2Fields(
+    4, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
+    "y", 1, sensor_msgs::msg::PointField::FLOAT32,
+    "z", 1, sensor_msgs::msg::PointField::FLOAT32,
+    "id", 1, sensor_msgs::msg::PointField::UINT32);
   // clang-format on
   modifier.resize(beacons.size());
   sensor_msgs::PointCloud2Iterator<float> x_it(msg, "x");
   sensor_msgs::PointCloud2Iterator<float> y_it(msg, "y");
   sensor_msgs::PointCloud2Iterator<float> z_it(msg, "z");
   sensor_msgs::PointCloud2Iterator<unsigned int> id_it(msg, "id");
-  for (auto id = 0u; id < beacons.size(); ++id)
-  {
-    const auto& beacon = beacons.at(id);
+  for (auto id = 0u; id < beacons.size(); ++id) {
+    const auto & beacon = beacons.at(id);
     *x_it = static_cast<float>(beacon->x());
     *y_it = static_cast<float>(beacon->y());
     *z_it = 0.0f;
