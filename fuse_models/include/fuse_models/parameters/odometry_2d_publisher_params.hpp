@@ -209,9 +209,10 @@ public:
 
   bool publish_tf {true};    //!< Whether to publish/broadcast the TF transform or not
   bool invert_tf{false};     //!< Whether to broadcast the inverse of the TF transform or not. When the inverse is
-                             //!< broadcasted, the transform is inverted and the header.frame_id and child_frame_id are
-                             //!< swapped, i.e. the odometry output header.frame_id is set to the
-                             //!< base_link_output_frame_id and the child_frame_id to the world_frame_id
+                             //!< broadcasted, the transform is inverted and the header.frame_id and
+                             //!< child_frame_id are swapped, i.e. the odometry output
+                             //!< header.frame_id is set to the base_link_output_frame_id and the
+                             //!< child_frame_id to the world_frame_id
   bool predict_to_current_time {false};
   bool predict_with_acceleration {false};
   double publish_frequency {10.0};

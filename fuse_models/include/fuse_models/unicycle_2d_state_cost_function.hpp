@@ -165,18 +165,16 @@ public:
     residuals_map.applyOnTheLeft(A_);
 
     if (jacobians) {
-      // It might be possible to simplify the code below implementing something like this but using compile-time
-      // template recursion.
+      // It might be possible to simplify the code below implementing something like this but using
+      // compile-time template recursion.
       //
       // // state1: (position1, yaw1, vel_linear1, vel_yaw1, acc_linear1)
       // for (size_t i = 0; i < 5; ++i)
       // {
       //   if (jacobians[i])
       //   {
-      //     Eigen::Map<fuse_core::Matrix<double, 8, ParameterDims::GetDim(i)>> jacobian(jacobians[i]);
-      //     jacobian.applyOnTheLeft(-A_);
-      //   }
-      // }
+      // Eigen::Map<fuse_core::Matrix<double, 8, ParameterDims::GetDim(i)>> jacobian(jacobians[i]);
+      // jacobian.applyOnTheLeft(-A_); } }
 
       // Update jacobian wrt position1
       if (jacobians[0]) {
@@ -208,8 +206,8 @@ public:
         jacobian.applyOnTheLeft(-A_);
       }
 
-      // It might be possible to simplify the code below implementing something like this but using compile-time
-      // template recursion.
+      // It might be possible to simplify the code below implementing something like this but using
+      // compile-time template recursion.
       //
       // // state2: (position2, yaw2, vel_linear2, vel_yaw2, acc_linear2)
       // for (size_t i = 5, offset = 0; i < ParameterDims::kNumParameterBlocks; ++i)

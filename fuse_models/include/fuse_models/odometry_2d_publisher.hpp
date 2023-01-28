@@ -230,13 +230,15 @@ protected:
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
   fuse_core::DelayedThrottleFilter delayed_throttle_filter_{10.0};    //!< A ros::console filter to print delayed
-                                                                      //!< throttle messages, that can be reset on start
+                                                                      //!< throttle messages, that
+                                                                      //!< can be reset on start
 
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
   std::mutex mutex_;  //!< A mutex to protect the access to the attributes used concurrently by the notifyCallback and
                       //!< publishTimerCallback methods:
-                      //!< latest_stamp_, latest_covariance_stamp_, odom_output_ and acceleration_output_
+                      //!< latest_stamp_, latest_covariance_stamp_, odom_output_ and
+                      //!< acceleration_output_
 };
 
 }  // namespace fuse_models

@@ -159,9 +159,9 @@ void GraphIgnition::process(
   }
 
   // Deserialize the graph message
-  // NOTE(methylDragon): We convert the Graph::UniquePtr to a shared pointer so it can be passed
-  //                     as a copyable object to the deferred service call's std::function<> arg
-  //                     to satisfy the requirement that std::function<> arguments are copyable.
+  // NOTE(methylDragon): We convert the Graph::UniquePtr to a shared pointer so it can be passed as
+  //                     a copyable object to the deferred service call's std::function<> arg to
+  //                     satisfy the requirement that std::function<> arguments are copyable.
   const auto graph =
     std::shared_ptr<fuse_core::Graph>(std::move(graph_deserializer_.deserialize(msg)));
 
@@ -194,7 +194,8 @@ void GraphIgnition::process(
       [this, post_process, captured_graph = std::move(graph),
       msg](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result) {
         (void)result;
-        // Now that the optimizer has been reset, actually send the initial state constraints to the optimizer
+        // Now that the optimizer has been reset, actually send the initial state constraints to the
+        // optimizer
         sendGraph(*captured_graph, msg.header.stamp);
         if (post_process) {
           post_process();
@@ -225,8 +226,8 @@ void GraphIgnition::sendGraph(const fuse_core::Graph & graph, const rclcpp::Time
     }
   }
 
-  // If the transaction ended up with no involved stamps, we use a single involved stamped equal to the
-  // transaction/graph stamp
+  // If the transaction ended up with no involved stamps, we use a single involved stamped equal to
+  // the transaction/graph stamp
   if (boost::empty(transaction->involvedStamps())) {
     transaction->addInvolvedStamp(stamp);
   }

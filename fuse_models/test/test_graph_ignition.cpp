@@ -270,18 +270,20 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_TRUE(result.get()->success);
 
-  // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
+  // The ignition sensor should publish a transaction in response to the service call. Wait for the
+  // callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
   ASSERT_TRUE(status == std::future_status::ready);
 
-  // Check the transaction is equivalent to the graph, i.e. it has the same constraints and transactions
+  // Check the transaction is equivalent to the graph, i.e. it has the same constraints and
+  // transactions
   const auto transaction = callback_future.get();
 
   ASSERT_EQ(boost::size(graph.getConstraints()), boost::size(transaction->addedConstraints()));
   ASSERT_EQ(boost::size(graph.getVariables()), boost::size(transaction->addedVariables()));
 
-  // We cannot compare the constraints or variables of the graph with the added constraints or variables of the
-  // transaction with:
+  // We cannot compare the constraints or variables of the graph with the added constraints or
+  // variables of the transaction with:
   //
   //    graph.getConstraints() == transaction->addedConstraints()
   //
@@ -289,12 +291,13 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   //
   //    graph.getVariables() == transaction->addedVariables()
   //
-  // because the graph could stored the constraints and variables in unordered containers. Indeed, the
-  // fuse_graphs::HashGraph uses unordered containers for both the constraints and variables.
+  // because the graph could stored the constraints and variables in unordered containers. Indeed,
+  // the fuse_graphs::HashGraph uses unordered containers for both the constraints and variables.
   //
-  // So even if the added constraints and variables are stored in std::vector containers in the transaction, we cannot
-  // compare them with the straightforward approach mentioned above. Instead, we need to check that all added
-  // constraints and varaibles are in the graph, and check they are the same.
+  // So even if the added constraints and variables are stored in std::vector containers in the
+  // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
+  // we need to check that all added constraints and varaibles are in the graph, and check they are
+  // the same.
   for (const auto & added_constraint : transaction->addedConstraints()) {
     try {
       const auto & constraint = graph.getConstraint(added_constraint.uuid());
@@ -315,8 +318,9 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
     }
   }
 
-  // Since the variables in the graph do not have a stamp, the transaction should have a single involved stamp, equal to
-  // the transaction stamp, that should also be equal to the requested graph message stamp
+  // Since the variables in the graph do not have a stamp, the transaction should have a single
+  // involved stamp, equal to the transaction stamp, that should also be equal to the requested
+  // graph message stamp
   ASSERT_EQ(1u, boost::size(transaction->involvedStamps()));
   EXPECT_EQ(transaction->stamp(), transaction->involvedStamps().front());
   EXPECT_EQ(srv->graph.header.stamp, transaction->stamp());
@@ -379,18 +383,20 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_TRUE(result.get()->success);
 
-  // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
+  // The ignition sensor should publish a transaction in response to the service call. Wait for the
+  // callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
   ASSERT_TRUE(status == std::future_status::ready);
 
-  // Check the transaction is equivalent to the graph, i.e. it has the same constraints and transactions
+  // Check the transaction is equivalent to the graph, i.e. it has the same constraints and
+  // transactions
   const auto transaction = callback_future.get();
 
   ASSERT_EQ(boost::size(graph.getConstraints()), boost::size(transaction->addedConstraints()));
   ASSERT_EQ(boost::size(graph.getVariables()), boost::size(transaction->addedVariables()));
 
-  // We cannot compare the constraints or variables of the graph with the added constraints or variables of the
-  // transaction with:
+  // We cannot compare the constraints or variables of the graph with the added constraints or
+  // variables of the transaction with:
   //
   //    graph.getConstraints() == transaction->addedConstraints()
   //
@@ -398,12 +404,13 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   //
   //    graph.getVariables() == transaction->addedVariables()
   //
-  // because the graph could stored the constraints and variables in unordered containers. Indeed, the
-  // fuse_graphs::HashGraph uses unordered containers for both the constraints and variables.
+  // because the graph could stored the constraints and variables in unordered containers. Indeed,
+  // the fuse_graphs::HashGraph uses unordered containers for both the constraints and variables.
   //
-  // So even if the added constraints and variables are stored in std::vector containers in the transaction, we cannot
-  // compare them with the straightforward approach mentioned above. Instead, we need to check that all added
-  // constraints and varaibles are in the graph, and check they are the same.
+  // So even if the added constraints and variables are stored in std::vector containers in the
+  // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
+  // we need to check that all added constraints and varaibles are in the graph, and check they are
+  // the same.
   for (const auto & added_constraint : transaction->addedConstraints()) {
     try {
       const auto & constraint = graph.getConstraint(added_constraint.uuid());
@@ -424,8 +431,8 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
     }
   }
 
-  // Since the variables in the graph have a stamp, the transaction should have one involved stamp per variable, and the
-  // transaction stamp should be equal to the requested graph message stamp
+  // Since the variables in the graph have a stamp, the transaction should have one involved stamp
+  // per variable, and the transaction stamp should be equal to the requested graph message stamp
   ASSERT_EQ(boost::size(graph.getVariables()), boost::size(transaction->involvedStamps()));
   EXPECT_EQ(srv->graph.header.stamp, transaction->stamp());
 }

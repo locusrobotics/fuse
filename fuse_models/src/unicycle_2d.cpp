@@ -171,8 +171,8 @@ void Unicycle2D::StateHistoryElement::validate() const
 
 bool Unicycle2D::applyCallback(fuse_core::Transaction & transaction)
 {
-  // Use the timestamp manager to generate just the required motion model segments. The timestamp manager, in turn,
-  // makes calls to the generateMotionModel() function.
+  // Use the timestamp manager to generate just the required motion model segments. The timestamp
+  // manager, in turn, makes calls to the generateMotionModel() function.
   try {
     // Now actually generate the motion model segments
     timestamp_manager_.query(transaction, true);
@@ -294,7 +294,8 @@ void Unicycle2D::generateMotionModel(
 
   StateHistoryElement state1;
 
-  // If the nearest state we had was before the beginning stamp, we need to project that state to the beginning stamp
+  // If the nearest state we had was before the beginning stamp, we need to project that state to
+  // the beginning stamp
   if (base_time != beginning_stamp) {
     predict(
       base_state.pose,
@@ -482,7 +483,8 @@ void Unicycle2D::updateStateHistoryEstimates(
   }
 
   // Update the states in the state history with information from the graph
-  // If a state is not in the graph yet, predict the state in question from the closest previous state
+  // If a state is not in the graph yet, predict the state in question from the closest previous
+  // state
   for (auto current_iter = state_history.begin(); current_iter != state_history.end();
     ++current_iter)
   {
@@ -522,9 +524,10 @@ void Unicycle2D::updateStateHistoryEstimates(
       const auto & previous_stamp = previous_iter->first;
       const auto & previous_state = previous_iter->second;
 
-      // This state is not in the graph yet, so we can't update/correct the value in our state history. However, the
-      // state *before* this one may have been corrected (or one of its predecessors may have been), so we can use
-      // that corrected value, along with our prediction logic, to provide a more accurate update to this state.
+      // This state is not in the graph yet, so we can't update/correct the value in our state
+      // history. However, the state *before* this one may have been corrected (or one of its
+      // predecessors may have been), so we can use that corrected value, along with our prediction
+      // logic, to provide a more accurate update to this state.
       predict(
         previous_state.pose,
         previous_state.velocity_linear,

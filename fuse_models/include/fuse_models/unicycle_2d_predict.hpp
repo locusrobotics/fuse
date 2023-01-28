@@ -307,10 +307,11 @@ inline void predict(
   double acc_linear_x_pred {};
   double acc_linear_y_pred {};
 
-  // fuse_core::Matrix8d is Eigen::RowMajor, so we cannot use pointers to the columns where each parameter block starts.
-  // Instead, we need to create a vector of Eigen::RowMajor matrices per parameter block and later reconstruct the
-  // fuse_core::Matrix8d with the full jacobian.
-  // The parameter blocks have the following sizes: {position1: 2, yaw1: 1, vel_linear1: 2, vel_yaw1: 1, acc_linear1: 2}
+  // fuse_core::Matrix8d is Eigen::RowMajor, so we cannot use pointers to the columns where each
+  // parameter block starts. Instead, we need to create a vector of Eigen::RowMajor matrices per
+  // parameter block and later reconstruct the fuse_core::Matrix8d with the full jacobian. The
+  // parameter blocks have the following sizes: {position1: 2, yaw1: 1, vel_linear1: 2, vel_yaw1: 1,
+  // acc_linear1: 2}
   static constexpr size_t num_residuals{8};
   static constexpr size_t num_parameter_blocks{5};
   static const std::array<size_t, num_parameter_blocks> block_sizes = {2, 1, 2, 1, 2};

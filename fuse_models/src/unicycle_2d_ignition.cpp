@@ -149,9 +149,9 @@ void Unicycle2DIgnition::start()
 {
   started_ = true;
 
-  // TODO(swilliams) Should this be executed every time optimizer.reset() is called, or only once ever?
-  //                 I feel like it should be "only once ever".
-  // Send an initial state transaction immediately, if requested
+  // TODO(swilliams) Should this be executed every time optimizer.reset() is called, or only once
+  //                 ever? I feel like it should be "only once ever". Send an initial state
+  //                 transaction immediately, if requested
   if (params_.publish_on_startup && !initial_transaction_sent_) {
     auto pose = geometry_msgs::msg::PoseWithCovarianceStamped();
     pose.header.stamp = clock_->now();
@@ -292,8 +292,8 @@ void Unicycle2DIgnition::process(
       srv,
       [this, post_process, pose](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result) {
         (void)result;
-        // Now that the pose has been validated and the optimizer has been reset, actually send the initial state constraints
-        // to the optimizer
+        // Now that the pose has been validated and the optimizer has been reset, actually send the
+        // initial state constraints to the optimizer
         sendPrior(pose);
         if (post_process) {
           post_process();
@@ -312,8 +312,8 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
   const auto & stamp = pose.header.stamp;
 
   // Create variables for the full state.
-  // The initial values of the pose are extracted from the provided PoseWithCovarianceStamped message.
-  // The remaining dimensions are provided as parameters to the parameter server.
+  // The initial values of the pose are extracted from the provided PoseWithCovarianceStamped
+  // message. The remaining dimensions are provided as parameters to the parameter server.
   auto position = fuse_variables::Position2DStamped::make_shared(stamp, device_id_);
   position->x() = pose.pose.pose.position.x;
   position->y() = pose.pose.pose.position.y;

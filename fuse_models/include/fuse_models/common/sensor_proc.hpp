@@ -866,11 +866,11 @@ inline bool processDifferentialPoseWithTwistCovariance(
   //
   // where Id is a 3x3 Identity matrix.
   //
-  // In some cases the twist covariance T12 is very small and it could yield to an ill-conditioned C12 covariance. For
-  // that reason a minimum covariance is added to [2].
+  // In some cases the twist covariance T12 is very small and it could yield to an ill-conditioned
+  // C12 covariance. For that reason a minimum covariance is added to [2].
   //
-  // It is also common that for the same reason, the twist covariance T12 already has a minimum covariance offset added
-  // to it by the publisher, so we have to remove it before using it.
+  // It is also common that for the same reason, the twist covariance T12 already has a minimum
+  // covariance offset added to it by the publisher, so we have to remove it before using it.
   const auto dt = (rclcpp::Time(pose2.header.stamp) - rclcpp::Time(pose1.header.stamp)).seconds();
 
   if (dt < 1e-6) {
@@ -1235,19 +1235,21 @@ inline void scaleProcessNoiseCovariance(
   const tf2_2d::Vector2 & velocity_linear, const double velocity_yaw,
   const double velocity_norm_min)
 {
-  // A more principled approach would be to get the current velocity from the state, make a diagonal matrix from it,
-  // and then rotate it to be in the world frame (i.e., the same frame as the pose data). We could then use this
-  // rotated velocity matrix to scale the process noise covariance for the pose variables as
-  // rotatedVelocityMatrix * poseCovariance * rotatedVelocityMatrix'
-  // However, this presents trouble for robots that may incur rotational error as a result of linear motion (and
-  // vice-versa). Instead, we create a diagonal matrix whose diagonal values are the vector norm of the state's
-  // velocity. We use that to scale the process noise covariance.
+  // A more principled approach would be to get the current velocity from the state, make a diagonal
+  // matrix from it, and then rotate it to be in the world frame (i.e., the same frame as the pose
+  // data). We could then use this rotated velocity matrix to scale the process noise covariance for
+  // the pose variables as rotatedVelocityMatrix * poseCovariance * rotatedVelocityMatrix' However,
+  // this presents trouble for robots that may incur rotational error as a result of linear motion
+  // (and vice-versa). Instead, we create a diagonal matrix whose diagonal values are the vector
+  // norm of the state's velocity. We use that to scale the process noise covariance.
   //
   // The comment above has been taken from:
-  // https://github.com/cra-ros-pkg/robot_localization/blob/melodic-devel/src/filter_base.cpp#L138-L144
+  // https://github.com/cra-ros-pkg/robot_localization/blob/melodic-
+  // devel/src/filter_base.cpp#L138-L144
   //
-  // We also need to make sure the norm is not zero, because otherwise the resulting process noise covariance for the
-  // pose becomes zero and we get NaN when we compute the inverse to obtain the information
+  // We also need to make sure the norm is not zero, because otherwise the resulting process noise
+  // covariance for the pose becomes zero and we get NaN when we compute the inverse to obtain the
+  // information
   fuse_core::Matrix3d velocity;
   velocity.setIdentity();
   velocity.diagonal() *=

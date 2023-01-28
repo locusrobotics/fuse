@@ -93,8 +93,8 @@ TEST(CostFunction, evaluateCostFunction)
 
   EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
 
-  // We cannot use std::numeric_limits<double>::epsilon() tolerance because with the expected state2 above the residuals
-  // are not zero for position2.x = -4.389e-16 and yaw2 = -2.776e-16
+  // We cannot use std::numeric_limits<double>::epsilon() tolerance because with the expected state2
+  // above the residuals are not zero for position2.x = -4.389e-16 and yaw2 = -2.776e-16
   EXPECT_MATRIX_NEAR(fuse_core::Vector8d::Zero(), residuals, 1e-15);
 
   // Check jacobians are correct using a gradient checker
@@ -107,11 +107,14 @@ TEST(CostFunction, evaluateCostFunction)
   ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
 #endif
 
-  // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
+  // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error
+  // is 5.26356e-10
   ceres::GradientChecker::ProbeResults probe_results;
-  // TODO(efernandez) probe_results segfaults when it's destroyed at the end of this TEST function, but Probe actually
-  // returns true and the jacobians are correct according to the gradient checker numeric differentiation
-  // EXPECT_TRUE(gradient_checker.Probe(parameters, 1e-9, &probe_results)) << probe_results.error_log;
+  // TODO(efernandez) probe_results segfaults when it's destroyed at the end of this TEST function,
+  //                  but Probe actually returns true and the jacobians are correct according to the
+  //                  gradient checker numeric differentiation
+  //                  EXPECT_TRUE(gradient_checker.Probe(parameters, 1e-9, &probe_results)) <<
+  //                  probe_results.error_log;
 
   // Create cost function using automatic differentiation on the cost functor
   ceres::AutoDiffCostFunction<fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1,

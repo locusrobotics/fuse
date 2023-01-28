@@ -227,7 +227,8 @@ protected:
   double velocity_norm_min_{1e-3};                 //!< The minimum velocity/twist norm allowed when scaling the
                                                    //!< process noise covariance
   bool disable_checks_{false};    //!< Whether to disable the validation checks for the current and predicted state,
-                                  //!< including the process noise covariance after it is scaled and multiplied by dt
+                                  //!< including the process noise covariance after it is scaled and
+                                  //!< multiplied by dt
   StateHistory state_history_;    //!< History of optimized graph pose estimates
 };
 

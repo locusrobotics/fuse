@@ -238,10 +238,11 @@ void Odometry2DPublisher::notifyCallback(
         latest_covariance_valid = false;
       }
     } else {
-      // This covariance computation cycle has been skipped, so simply take the last covariance computed
+      // This covariance computation cycle has been skipped, so simply take the last covariance
+      // computed
       //
-      // We do not propagate the latest covariance forward because it would grow unbounded being very different from
-      // the actual covariance we would have computed if not throttling.
+      // We do not propagate the latest covariance forward because it would grow unbounded being
+      // very different from the actual covariance we would have computed if not throttling.
       odom_output.pose.covariance = odom_output_.pose.covariance;
       odom_output.twist.covariance = odom_output_.twist.covariance;
       acceleration_output.accel.covariance = acceleration_output_.accel.covariance;
@@ -451,9 +452,9 @@ void Odometry2DPublisher::publishTimerCallback()
       covariance(7, 6) = acceleration_output.accel.covariance[6];
       covariance(7, 7) = acceleration_output.accel.covariance[7];
 
-      // TODO(efernandez) for now we set to zero the out-of-diagonal blocks with the correlations between pose, twist
-      // and acceleration, but we could cache them in another attribute when we retrieve the covariance from the ceres
-      // problem
+      // TODO(efernandez) for now we set to zero the out-of-diagonal blocks with the correlations
+      //                  between pose, twist and acceleration, but we could cache them in another
+      //                  attribute when we retrieve the covariance from the ceres problem
       covariance.topRightCorner<3, 5>().setZero();
       covariance.bottomLeftCorner<5, 3>().setZero();
       covariance.block<3, 2>(3, 6).setZero();

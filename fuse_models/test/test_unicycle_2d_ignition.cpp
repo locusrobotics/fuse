@@ -268,7 +268,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_TRUE(result.get()->success);
 
-  // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
+  // The ignition sensor should publish a transaction in response to the service call. Wait for the
+  // callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
   ASSERT_TRUE(status == std::future_status::ready);
 
@@ -368,7 +369,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
 
-  // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
+  // The ignition sensor should publish a transaction in response to the service call. Wait for the
+  // callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
   ASSERT_TRUE(status == std::future_status::ready);
 

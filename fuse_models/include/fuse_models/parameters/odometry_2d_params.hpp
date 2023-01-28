@@ -184,7 +184,8 @@ public:
   bool use_twist_covariance {true};
   fuse_core::Matrix3d minimum_pose_relative_covariance;    //!< Minimum pose relative covariance matrix
   fuse_core::Matrix3d twist_covariance_offset;    //!< Offset already added to the twist covariance matrix, that will be
-                                                  //!< substracted in order to recover the raw values
+                                                  //!< substracted in order to recover the raw
+                                                  //!< values
   int queue_size {10};
   rclcpp::Duration tf_timeout {0, 0};      //!< The maximum time to wait for a transform to become available
   rclcpp::Duration throttle_period {0, 0};      //!< The throttle period duration in seconds

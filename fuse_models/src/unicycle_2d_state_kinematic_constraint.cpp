@@ -102,11 +102,11 @@ void Unicycle2DStateKinematicConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * Unicycle2DStateKinematicConstraint::costFunction() const
 {
-  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could use automatic
-  // differentiation as follows:
+  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
+  // use automatic differentiation as follows:
   //
-  // return new ceres::AutoDiffCostFunction<Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>(
-  //   new Unicycle2DStateCostFunctor(dt_, sqrt_information_));
+  // return new ceres::AutoDiffCostFunction<Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2,
+  // 1, 2>( new Unicycle2DStateCostFunctor(dt_, sqrt_information_));
   //
   // which requires:
   //

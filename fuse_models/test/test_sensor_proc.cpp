@@ -154,8 +154,8 @@ TEST(TestSuite, populatePartialMeasurementXPositionYawOrientation)
     pose_mean_partial,
     pose_covariance_partial);
 
-  // Eigen indexing is only supported in the latest stable versions, so we avoid using that feature for backwards
-  // compatibility
+  // Eigen indexing is only supported in the latest stable versions, so we avoid using that feature
+  // for backwards compatibility
   const std::vector<int> expected_merged_indices{0, 2};
 
   EXPECT_THAT(expected_merged_indices, testing::ElementsAreArray(merged_indices));
