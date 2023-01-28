@@ -75,9 +75,10 @@ void RangeSensorModel::onInit()
 {
   logger_ = interfaces_.get_node_logging_interface()->get_logger();
 
-  // Read settings from the parameter server, or any other one-time operations. This sensor model doesn't have any
-  // user configuration to read. But we do need a copy of the beacon database. We will subscribe to that now, as it
-  // is assumed to be constant -- no need to clear it if the optimizer is reset.
+  // Read settings from the parameter server, or any other one-time operations. This sensor model
+  // doesn't have any user configuration to read. But we do need a copy of the beacon database. We
+  // will subscribe to that now, as it is assumed to be constant -- no need to clear it if the
+  // optimizer is reset.
   rclcpp::SubscriptionOptions sub_options;
   sub_options.callback_group = cb_group_;
 
@@ -97,14 +98,16 @@ void RangeSensorModel::onInit()
 
 void RangeSensorModel::onStart()
 {
-  // Ensure the "initialized" flag is false at the beginning. This is what triggers the beacon database information
-  // to be sent to the optimizer. This needs to happen once and only once for each run of the optimizer. By clearing
-  // that flag in onStart(), we ensure the database information will be processed after every optimizer reset.
+  // Ensure the "initialized" flag is false at the beginning. This is what triggers the beacon
+  // database information to be sent to the optimizer. This needs to happen once and only once for
+  // each run of the optimizer. By clearing that flag in onStart(), we ensure the database
+  // information will be processed after every optimizer reset.
   initialized_ = false;
 
-  // Subscribe to the ranges topic. Any received messages will be processed within the message callback function,
-  // and the created constraints will be sent to the optimizer. By subscribing to the topic in onStart() and
-  // unsubscribing in onStop(), we will only send transactions to the optimizer while it is running.
+  // Subscribe to the ranges topic. Any received messages will be processed within the message
+  // callback function, and the created constraints will be sent to the optimizer. By subscribing to
+  // the topic in onStart() and unsubscribing in onStop(), we will only send transactions to the
+  // optimizer while it is running.
   rclcpp::SubscriptionOptions sub_options;
   sub_options.callback_group = cb_group_;
 
@@ -121,42 +124,48 @@ void RangeSensorModel::onStart()
 
 void RangeSensorModel::onStop()
 {
-  // Unsubscribe from the ranges topic. Since the sensor constraints are created and sent from the subscriber callback,
-  // shutting down the subscriber effectively stops the creation of new constraints from this sensor model. This
-  // ensures we only send transactions to the optimizer while it is running.
+  // Unsubscribe from the ranges topic. Since the sensor constraints are created and sent from the
+  // subscriber callback, shutting down the subscriber effectively stops the creation of new
+  // constraints from this sensor model. This ensures we only send transactions to the optimizer
+  // while it is running.
   sub_.reset();
 }
 
 void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  // We received a new message for our sensor. This is where most of the processing happens for our sensor model. We
-  // take the published ROS message and transform it into one or more Constraints, and send them to the optimizer.
+  // We received a new message for our sensor. This is where most of the processing happens for our
+  // sensor model. We take the published ROS message and transform it into one or more Constraints,
+  // and send them to the optimizer.
 
-  // However, if we have not received the prior beacon positions yet, we cannot process the range messages.
+  // However, if we have not received the prior beacon positions yet, we cannot process the range
+  // messages.
   if (beacon_db_.empty()) {
     return;
   }
 
-  // Create a transaction object. This is used to package all of the generated constraints from a given timestamp
-  // into one update operation for the optimizer.
+  // Create a transaction object. This is used to package all of the generated constraints from a
+  // given timestamp into one update operation for the optimizer.
   auto transaction = fuse_core::Transaction::make_shared();
-  // Each transaction has a timestamp. This is used by the optimizer to determine what order the sensor transactions
-  // should be added to the graph. Unless you have a very specific reason not to, the transaction timestamp should be
-  // the same as the sensor data timestamp. Or rclcpp::Clock(RCL_SYSTEM_TIME).now() if the sensor data is not stamped.
+  // Each transaction has a timestamp. This is used by the optimizer to determine what order the
+  // sensor transactions should be added to the graph. Unless you have a very specific reason not
+  // to, the transaction timestamp should be the same as the sensor data timestamp. Or
+  // rclcpp::Clock(RCL_SYSTEM_TIME).now() if the sensor data is not stamped.
   transaction->stamp(msg.header.stamp);
 
-  // All of the measured range constraints will involve the robot position at the pointcloud message timestamp.
-  // Construct a robot position variable at that timestamp now.
+  // All of the measured range constraints will involve the robot position at the pointcloud message
+  // timestamp. Construct a robot position variable at that timestamp now.
   auto robot_position = fuse_variables::Position2DStamped::make_shared(msg.header.stamp);
-  // The transaction needs to know about all of the involved variables as well as the constraints, so insert the robot
-  // position variable now.
+  // The transaction needs to know about all of the involved variables as well as the constraints,
+  // so insert the robot position variable now.
   transaction->addVariable(robot_position);
-  // Additionally the transaction needs to know about all of the individual timestamps involved in this transaction.
-  // Since not every variable is associated with a timestamp, I could not work out a way to populate this list
-  // automatically. The robot pose is the only stamped variable involved, so add that timestamp now as well.
+  // Additionally the transaction needs to know about all of the individual timestamps involved in
+  // this transaction. Since not every variable is associated with a timestamp, I could not work out
+  // a way to populate this list automatically. The robot pose is the only stamped variable
+  // involved, so add that timestamp now as well.
   transaction->addInvolvedStamp(msg.header.stamp);
 
-  // Loop over the pointcloud, extracting the beacon ID, range, and measurement uncertainty for each detected beacon
+  // Loop over the pointcloud, extracting the beacon ID, range, and measurement uncertainty for each
+  // detected beacon
   sensor_msgs::PointCloud2ConstIterator<unsigned int> id_it(msg, "id");
   sensor_msgs::PointCloud2ConstIterator<double> range_it(msg, "range");
   sensor_msgs::PointCloud2ConstIterator<double> sigma_it(msg, "sigma");
@@ -169,7 +178,8 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2 & msg)
     beacon_position->y() = beacon.y;
     transaction->addVariable(beacon_position);
 
-    // Now that we have the involved variables defined, create a constraint for this sensor measurement
+    // Now that we have the involved variables defined, create a constraint for this sensor
+    // measurement
     auto constraint = fuse_tutorials::RangeConstraint::make_shared(
       this->name(),
       *robot_position,
@@ -178,12 +188,13 @@ void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2 & msg)
       *sigma_it);
     transaction->addConstraint(constraint);
 
-    // If this is the very first measurement, add a prior position constraint on all of the beacons as well. This
-    // captures the prior information we know from the database. It also fully constrains the beacon estimate within
-    // the optimizer. Our beacon measurement is rank-deficient (one range measurement but two degrees of freedom).
-    // Without adding this prior, the optimizer would be unable to solve the optimization problem. In the absence of
-    // a prior database, the beacons could be tracked over multiple samples. Once the beacon has been observed with
-    // enough parallax, then all measurements of that beacon could be added at once. Some type of delayed
+    // If this is the very first measurement, add a prior position constraint on all of the beacons
+    // as well. This captures the prior information we know from the database. It also fully
+    // constrains the beacon estimate within the optimizer. Our beacon measurement is rank-deficient
+    // (one range measurement but two degrees of freedom). Without adding this prior, the optimizer
+    // would be unable to solve the optimization problem. In the absence of a prior database, the
+    // beacons could be tracked over multiple samples. Once the beacon has been observed with enough
+    // parallax, then all measurements of that beacon could be added at once. Some type of delayed
     // initialization scheme is common in vision-based odometry and SLAM systems.
     if (!initialized_) {
       auto mean = fuse_core::Vector2d(beacon.x, beacon.y);

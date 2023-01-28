@@ -79,9 +79,9 @@ void BeaconPublisher::notifyCallback(
   fuse_core::Transaction::ConstSharedPtr /* transaction */,
   fuse_core::Graph::ConstSharedPtr graph)
 {
-  // This is where all of the processing happens in this publisher implementation. All of the beacons are represented
-  // as fuse_variables::Point2DLandmark objects. We loop through the variables in the graph and keep a pointer to the
-  // variables that are the correct type.
+  // This is where all of the processing happens in this publisher implementation. All of the
+  // beacons are represented as fuse_variables::Point2DLandmark objects. We loop through the
+  // variables in the graph and keep a pointer to the variables that are the correct type.
   auto beacons = std::vector<const fuse_variables::Point2DLandmark *>();
   for (const auto & variable : graph->getVariables()) {
     const auto beacon = dynamic_cast<const fuse_variables::Point2DLandmark *>(&variable);
@@ -90,9 +90,10 @@ void BeaconPublisher::notifyCallback(
     }
   }
 
-  // We then transform those variables into a sensor_msgs::msg::PointCloud2 representation. To support visualization in
-  // rviz, the PointCloud2 needs to have (x, y, z) fields of type Float32. Additionally we are adding a channel for
-  // the beacon ID. Rviz cannot really display that information, but it is potentially useful.
+  // We then transform those variables into a sensor_msgs::msg::PointCloud2 representation. To
+  // support visualization in rviz, the PointCloud2 needs to have (x, y, z) fields of type Float32.
+  // Additionally we are adding a channel for the beacon ID. Rviz cannot really display that
+  // information, but it is potentially useful.
   auto msg = sensor_msgs::msg::PointCloud2();
   msg.header.stamp = clock_->now();
   msg.header.frame_id = map_frame_id_;

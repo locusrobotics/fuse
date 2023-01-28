@@ -47,15 +47,22 @@
 
 static constexpr double SITE_WIDTH = 100.0;  //!< The width/length of the test area in meters
 static constexpr double BEACON_SPACING = 20.0;  //!< The distance between each range beacon
-static constexpr double BEACON_SIGMA = 4.0;  //!< Std dev used to create the database of noisy beacon positions
-static constexpr double ROBOT_PATH_RADIUS = 0.35 * SITE_WIDTH;  //!< The radius of the simulated robot's path
+static constexpr double BEACON_SIGMA = 4.0;  //!< Std dev used to create the database of noisy
+                                             //!< beacon positions
+static constexpr double ROBOT_PATH_RADIUS = 0.35 * SITE_WIDTH;  //!< The radius of the simulated
+                                                                //!< robot's path
 static constexpr double ROBOT_VELOCITY = 10.0;  //!< The forward velocity of our simulated robot
-static constexpr char BASELINK_FRAME[] = "base_link";  //!< The base_link frame id used when publishing sensor data
-static constexpr char ODOM_FRAME[] = "odom";  //!< The odom frame id used when publishing wheel odometry data
-static constexpr char MAP_FRAME[] = "map";  //!< The map frame id used when publishing ground truth data
+static constexpr char BASELINK_FRAME[] = "base_link";  //!< The base_link frame id used when
+                                                       //!< publishing sensor data
+static constexpr char ODOM_FRAME[] = "odom";  //!< The odom frame id used when publishing wheel
+                                              //!< odometry data
+static constexpr char MAP_FRAME[] = "map";  //!< The map frame id used when publishing ground truth
+                                            //!< data
 static constexpr double IMU_SIGMA = 0.1;  //!< Std dev of simulated Imu measurement noise
-static constexpr double ODOM_VX_SIGMA = 0.5;  //!< Std dev of simulated Odometry linear velocity measurement noise
-static constexpr double ODOM_VYAW_SIGMA = 0.5;  //!< Std dev of simulated Odometry angular velocity measurement noise
+static constexpr double ODOM_VX_SIGMA = 0.5;  //!< Std dev of simulated Odometry linear velocity
+                                              //!< measurement noise
+static constexpr double ODOM_VYAW_SIGMA = 0.5;  //!< Std dev of simulated Odometry angular velocity
+                                                //!< measurement noise
 static constexpr double RANGE_SIGMA = 0.5;  //!< Std dev of simulated beacon range measurement noise
 
 /**
@@ -106,7 +113,7 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon> & beacons)
 
   auto noisy_beacons = std::vector<Beacon>();
   for (const auto & beacon : beacons) {
-    noisy_beacons.push_back({beacon.x + noise(generator), beacon.y + noise(generator)});  // NOLINT[whitespace/braces]
+    noisy_beacons.push_back({beacon.x + noise(generator), beacon.y + noise(generator)});  // NOLINT
   }
   return noisy_beacons;
 }
@@ -345,24 +352,27 @@ sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(
 }
 
 /**
- * @brief Simulate a robot traveling in a circular path with wheel encoders, Imu, and a range sensor.
+ * @brief Simulate a robot traveling in a circular path with wheel encoders, Imu, and a range
+ *        sensor.
  *
  * The following simulated sensor topics are published:
- *  - The wheel encoders measure forward and rotational velocity and publish nav_msgs::msg::Odometry messages on the
- *    /wheel_odom topic at 10Hz.
- *  - The Imu measures z-axis rotational velocity and publishes sensor_msgs::msg::Imu messages on the /imu topic at 10Hz.
- *  - The "range sensor" publishes special sensor_msgs::msg::PointCloud2 messages on the /ranges topic. The PointCloud2
- *    message contains three channels (id, range, sigma). The id field contains the unique ID of the range beacon
- *    being measured. The range field contains the measured distance between the robot and the range beacon in
- *    meters. The sigma field contains the range measurement uncertainty (standard deviation) in meters.
- *  - A prior known database of noisy beacon positions are published on the /prior_beacons latched topic as a
- *    sensor_msgs::msg::PointCloud2 with the following fields: (x, y, z, sigma, id)
+ *  - The wheel encoders measure forward and rotational velocity and publish nav_msgs::msg::Odometry
+ *    messages on the /wheel_odom topic at 10Hz.
+ *  - The Imu measures z-axis rotational velocity and publishes sensor_msgs::msg::Imu messages on
+ *    the /imu topic at 10Hz.
+ *  - The "range sensor" publishes special sensor_msgs::msg::PointCloud2 messages on the /ranges
+ *    topic. The PointCloud2 message contains three channels (id, range, sigma). The id field
+ *    contains the unique ID of the range beacon being measured. The range field contains the
+ *    measured distance between the robot and the range beacon in meters. The sigma field contains
+ *    the range measurement uncertainty (standard deviation) in meters.
+ *  - A prior known database of noisy beacon positions are published on the /prior_beacons latched
+ *    topic as a sensor_msgs::msg::PointCloud2 with the following fields: (x, y, z, sigma, id)
  *
  * In addition to the simulated sensors, the following ground truth topics are published:
- *  - The true position of each beacon is published as a sensor_msgs::msg::PointCloud2 (x, y, z, sigma, id) topic on the
- *    latched topic /true_beacons
- *  - The true position and velocity of the robot is published as a nav_msgs::msg::Odometry message on the /ground_truth
- *    topic at 10Hz
+ *  - The true position of each beacon is published as a sensor_msgs::msg::PointCloud2 (x, y, z,
+ *    sigma, id) topic on the latched topic /true_beacons
+ *  - The true position and velocity of the robot is published as a nav_msgs::msg::Odometry message
+ *    on the /ground_truth topic at 10Hz
  */
 int main(int argc, char ** argv)
 {
