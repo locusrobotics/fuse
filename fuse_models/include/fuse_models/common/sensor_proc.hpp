@@ -34,6 +34,17 @@
 #ifndef FUSE_MODELS__COMMON__SENSOR_PROC_HPP_
 #define FUSE_MODELS__COMMON__SENSOR_PROC_HPP_
 
+#include <tf2/LinearMath/Transform.h>
+#include <tf2/LinearMath/Vector3.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_constraint.hpp>
@@ -54,21 +65,12 @@
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <rclcpp/clock.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2/LinearMath/Transform.h>
-#include <tf2/LinearMath/Vector3.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
 #include <tf2_2d/tf2_2d.hpp>
 #include <tf2_2d/transform.hpp>
 
 #include <boost/range/join.hpp>
 
-#include <algorithm>
-#include <functional>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 static auto sensor_proc_clock = rclcpp::Clock();
 
@@ -532,8 +534,8 @@ inline bool processDifferentialPoseWithCovariance(
     //
     // C2 = J_p1 * C1 * J_p1^T + J_p12 * C12 * J_p12^T
     //
-    // where C1, C2, C12 are the covariance matrices of p1, p2 and dp, respectively, and J_p1 and J_p12 are the
-    // jacobians of the equation wrt p1 and p12, respectively.
+    // where C1, C2, C12 are the covariance matrices of p1, p2 and dp, respectively, and J_p1 and
+    // J_p12 are the jacobians of the equation wrt p1 and p12, respectively.
     //
     // Therefore, the covariance C12 of the relative pose p12 is:
     //
@@ -603,15 +605,15 @@ inline bool processDifferentialPoseWithCovariance(
     //
     //
     //
-    // At this point we could go one step further since p12 = t12 * dt and include the jacobian of this additional
-    // equation:
+    // At this point we could go one step further since p12 = t12 * dt and include the jacobian of
+    // this additional equation:
     //
     // J_t12 = dt * Id
     //
     // where Id is a 3x3 identity matrix.
     //
-    // However, that would give us the covariance of the twist t12, and here we simply need the one of the relative
-    // pose p12.
+    // However, that would give us the covariance of the twist t12, and here we simply need the one
+    // of the relative pose p12.
     //
     //
     //
@@ -642,8 +644,9 @@ inline bool processDifferentialPoseWithCovariance(
     //
     //
     //
-    // Note that the covariance propagation expression derived here for dependent pose measurements gives more accurate
-    // results than simply changing the sign in the expression for independent pose measurements, which would be:
+    // Note that the covariance propagation expression derived here for dependent pose measurements
+    // gives more accurate results than simply changing the sign in the expression for independent
+    // pose measurements, which would be:
     //
     // C12 = J_p2 * C2 * J_p2^T - J_p1 * C1 * J_p1^T
     //
@@ -657,12 +660,13 @@ inline bool processDifferentialPoseWithCovariance(
     // J_p2 = (------) = (sin(yaw1)  cos(yaw1) 0)
     //        ( 0 | 1)   (        0          0 1)
     //
-    // which are the j_pose1 and j_pose2 jacobians used above for the covariance propagation expresion for independent
-    // pose measurements.
+    // which are the j_pose1 and j_pose2 jacobians used above for the covariance propagation
+    // expression for independent pose measurements.
     //
-    // This seems to be the approach adviced in https://github.com/cra-ros-pkg/robot_localization/issues/356, but after
-    // comparing the resulting relative pose covariance C12 and the twist covariance, we can conclude that the approach
-    // proposed here is the only one that allow us to get results that match.
+    // This seems to be the approach adviced in
+    // https://github.com/cra-ros-pkg/robot_localization/issues/356, but after comparing the
+    // resulting relative pose covariance C12 and the twist covariance, we can conclude that the
+    // approach proposed here is the only one that allow us to get results that match.
     //
     // The relative pose covariance C12 and the twist covariance T12 can be compared with:
     //
@@ -670,8 +674,9 @@ inline bool processDifferentialPoseWithCovariance(
     //
     //
     //
-    // In some cases the difference between the C1 and C2 covariance matrices is very small and it could yield to an
-    // ill-conditioned C12 covariance. For that reason a minimum covariance is added to [2].
+    // In some cases the difference between the C1 and C2 covariance matrices is very small and it
+    // could yield to an ill-conditioned C12 covariance. For that reason a minimum covariance is
+    //    added to [2].
     fuse_core::Matrix3d j_pose1;
     /* *INDENT-OFF* */
     j_pose1 << 1, 0, sy * pose_relative_mean(0) - cy * pose_relative_mean(1),

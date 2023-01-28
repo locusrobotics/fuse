@@ -32,8 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
-#define FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#ifndef FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+#define FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
+#include <string>
 
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -44,15 +49,11 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-#include <algorithm>
-#include <initializer_list>
-#include <iterator>
-#include <string>
 
 /**
  * @brief Dummy constraint implementation for testing
  */
-class ExampleConstraint: public fuse_core::Constraint
+class ExampleConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
@@ -61,16 +62,16 @@ public:
 
   ExampleConstraint(
     const std::string & source,
-    std::initializer_list < fuse_core::UUID > variable_uuid_list)
-    : fuse_core::Constraint(source, variable_uuid_list), data(0.0)
+    std::initializer_list<fuse_core::UUID> variable_uuid_list)
+  : fuse_core::Constraint(source, variable_uuid_list), data(0.0)
   {
   }
 
-  template < typename VariableUuidIterator >
+  template<typename VariableUuidIterator>
   ExampleConstraint(
     const std::string & source, VariableUuidIterator first,
     VariableUuidIterator last)
-    : fuse_core::Constraint(source, first, last), data(0.0)
+  : fuse_core::Constraint(source, first, last), data(0.0)
   {
   }
 
@@ -85,7 +86,7 @@ public:
     if (!variable_uuids.empty()) {
       std::copy(
         variable_uuids.begin(),
-        variable_uuids.end() - 1, std::ostream_iterator < fuse_core::UUID > (stream, ", "));
+        variable_uuids.end() - 1, std::ostream_iterator<fuse_core::UUID>(stream, ", "));
       stream << variable_uuids.back();
     }
 
@@ -111,14 +112,14 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template < class Archive >
+  template<class Archive>
   void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object < fuse_core::Constraint > (*this);
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & data;
   }
 };
 
 BOOST_CLASS_EXPORT(ExampleConstraint);
 
-#endif  // FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_H  // NOLINT{build/header_guard}
+#endif  // FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}

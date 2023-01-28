@@ -34,6 +34,12 @@
 #ifndef FUSE_MODELS__ACCELERATION_2D_HPP_
 #define FUSE_MODELS__ACCELERATION_2D_HPP_
 
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+
+#include <memory>
+#include <string>
+
 #include <fuse_models/parameters/acceleration_2d_params.hpp>
 
 #include <fuse_core/async_sensor_model.hpp>
@@ -42,8 +48,6 @@
 
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
 
 
 namespace fuse_models

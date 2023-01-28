@@ -35,11 +35,12 @@
 #define FUSE_MODELS__UNICYCLE_2D_PREDICT_HPP_
 
 #include <ceres/jet.h>
+
+#include <array>
+
 #include <fuse_core/util.hpp>
 #include <fuse_core/eigen.hpp>
 #include <tf2_2d/tf2_2d.hpp>
-
-#include <array>
 
 
 namespace fuse_models
@@ -145,7 +146,8 @@ inline void predict(
   double ** jacobians)
 {
   // There are better models for this projection, but this matches the one used by r_l.
-  const double sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses this model
+  const double sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses
+                                       // this model
   const double cy = ceres::cos(yaw1);
 
   const double half_dt2 = 0.5 * dt * dt;

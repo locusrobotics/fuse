@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_H  // NOLINT{build/header_guard}
-#define FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_H  // NOLINT{build/header_guard}
+#ifndef FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_HPP_  // NOLINT{build/header_guard}
+#define FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_HPP_  // NOLINT{build/header_guard}
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
@@ -48,7 +48,7 @@
 /**
  * @brief Dummy variable stamped implementation for testing
  */
-class ExampleVariableStamped: public fuse_core::Variable, public fuse_variables::Stamped
+class ExampleVariableStamped : public fuse_core::Variable, public fuse_variables::Stamped
 {
 public:
   FUSE_VARIABLE_DEFINITIONS(ExampleVariableStamped)
@@ -101,15 +101,15 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template < class Archive >
+  template<class Archive>
   void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object < fuse_core::Variable > (*this);
-    archive & boost::serialization::base_object < fuse_variables::Stamped > (*this);
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
     archive & data_;
   }
 };
 
 BOOST_CLASS_EXPORT(ExampleVariableStamped);
 
-#endif  // FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_H  // NOLINT{build/header_guard}
+#endif  // FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_HPP_  // NOLINT{build/header_guard}

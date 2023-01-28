@@ -34,6 +34,14 @@
 #ifndef FUSE_MODELS__ODOMETRY_2D_PUBLISHER_HPP_
 #define FUSE_MODELS__ODOMETRY_2D_PUBLISHER_HPP_
 
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
+
+#include <memory>
+#include <mutex>
+#include <string>
+
 #include <fuse_models/parameters/odometry_2d_publisher_params.hpp>
 
 #include <fuse_core/async_publisher.hpp>
@@ -47,13 +55,7 @@
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
 
-#include <memory>
-#include <mutex>
-#include <string>
 
 namespace fuse_models
 {
@@ -191,11 +193,12 @@ protected:
   /**
    * @brief Object that searches for the most recent common timestamp for a set of variables
    */
-  using Synchronizer = fuse_publishers::StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
-      fuse_variables::Position2DStamped,
-      fuse_variables::VelocityLinear2DStamped,
-      fuse_variables::VelocityAngular2DStamped,
-      fuse_variables::AccelerationLinear2DStamped>;
+  using Synchronizer = fuse_publishers::StampedVariableSynchronizer<
+    fuse_variables::Orientation2DStamped,
+    fuse_variables::Position2DStamped,
+    fuse_variables::VelocityLinear2DStamped,
+    fuse_variables::VelocityAngular2DStamped,
+    fuse_variables::AccelerationLinear2DStamped>;
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,
@@ -215,11 +218,12 @@ protected:
 
   rclcpp::Time latest_stamp_;
   rclcpp::Time latest_covariance_stamp_;
-  bool latest_covariance_valid_{false};    //!< Whether the latest covariance computed is valid or not
+  bool latest_covariance_valid_{false};  //!< Whether the latest covariance computed is valid or not
   nav_msgs::msg::Odometry odom_output_;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output_;
 
-  Synchronizer synchronizer_;  //!< Object that tracks the latest common timestamp of multiple variables
+  //!< Object that tracks the latest common timestamp of multiple variables
+  Synchronizer synchronizer_;
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
@@ -229,16 +233,17 @@ protected:
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_ = nullptr;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{10.0};    //!< A ros::console filter to print delayed
-                                                                      //!< throttle messages, that
-                                                                      //!< can be reset on start
+  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{10.0};  //!< A ros::console filter to
+                                                                    //!< print delayed throttle
+                                                                    //!< messages, that can be reset
+                                                                    //!< on start
 
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
-  std::mutex mutex_;  //!< A mutex to protect the access to the attributes used concurrently by the notifyCallback and
-                      //!< publishTimerCallback methods:
-                      //!< latest_stamp_, latest_covariance_stamp_, odom_output_ and
-                      //!< acceleration_output_
+  std::mutex mutex_;  //!< A mutex to protect the access to the attributes used concurrently by the
+                      //!< notifyCallback and publishTimerCallback methods:
+                      //!<   latest_stamp_, latest_covariance_stamp_, odom_output_ and
+                      //!<   acceleration_output_
 };
 
 }  // namespace fuse_models

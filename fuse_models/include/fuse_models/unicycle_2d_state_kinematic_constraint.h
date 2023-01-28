@@ -36,7 +36,8 @@
 #define FUSE_MODELS__UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_H_
 
 #warning \
-  This header is obsolete, please include fuse_models/unicycle_2d_state_kinematic_constraint.hpp instead
+  This header is obsolete, please include fuse_models/unicycle_2d_state_kinematic_constraint.hpp \
+  instead
 
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
 

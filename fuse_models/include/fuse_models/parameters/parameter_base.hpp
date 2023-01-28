@@ -34,12 +34,12 @@
 #ifndef FUSE_MODELS__PARAMETERS__PARAMETER_BASE_HPP_
 #define FUSE_MODELS__PARAMETERS__PARAMETER_BASE_HPP_
 
-#include <fuse_models/common/sensor_config.hpp>
-#include <fuse_core/parameter.hpp>
-
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include <fuse_models/common/sensor_config.hpp>
+#include <fuse_core/parameter.hpp>
 
 
 namespace fuse_models

@@ -34,15 +34,15 @@
 #ifndef FUSE_MODELS__PARAMETERS__UNICYCLE_2D_IGNITION_PARAMS_HPP_
 #define FUSE_MODELS__PARAMETERS__UNICYCLE_2D_IGNITION_PARAMS_HPP_
 
-#include <fuse_models/parameters/parameter_base.hpp>
-
-#include <fuse_core/loss.hpp>
-#include <fuse_core/parameter.hpp>
-
 #include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include <fuse_models/parameters/parameter_base.hpp>
+
+#include <fuse_core/loss.hpp>
+#include <fuse_core/parameter.hpp>
 
 
 namespace fuse_models

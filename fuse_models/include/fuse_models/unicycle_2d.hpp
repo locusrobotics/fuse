@@ -34,6 +34,11 @@
 #ifndef FUSE_MODELS__UNICYCLE_2D_HPP_
 #define FUSE_MODELS__UNICYCLE_2D_HPP_
 
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <fuse_core/async_motion_model.hpp>
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
@@ -44,11 +49,6 @@
 #include <fuse_core/variable.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_2d/tf2_2d.hpp>
-
-#include <map>
-#include <string>
-#include <utility>
-#include <vector>
 
 
 namespace fuse_models
@@ -107,7 +107,9 @@ protected:
     fuse_core::UUID yaw_uuid;             //!< The uuid of the associated orientation variable
     fuse_core::UUID vel_linear_uuid;      //!< The uuid of the associated linear velocity variable
     fuse_core::UUID vel_yaw_uuid;         //!< The uuid of the associated angular velocity variable
-    fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated linear acceleration variable
+    fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated linear acceleration
+                                          //!< variable
+
     tf2_2d::Transform pose;               //!< Map-frame pose
     tf2_2d::Vector2 velocity_linear;      //!< Body-frame linear velocity
     double velocity_yaw{0.0};             //!< Body-frame yaw velocity
@@ -218,17 +220,19 @@ protected:
   rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
   rclcpp::Logger logger_;  //!< The sensor model's logger
 
-  rclcpp::Duration buffer_length_;                    //!< The length of the state history
+  rclcpp::Duration buffer_length_;                 //!< The length of the state history
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
-  fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created motion model segments
+  fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created
+                                                   //!< motion model segments
   fuse_core::Matrix8d process_noise_covariance_;   //!< Process noise covariance matrix
-  bool scale_process_noise_{false};                //!< Whether to scale the process noise covariance pose by the norm
-                                                   //!< of the current state twist
-  double velocity_norm_min_{1e-3};                 //!< The minimum velocity/twist norm allowed when scaling the
-                                                   //!< process noise covariance
-  bool disable_checks_{false};    //!< Whether to disable the validation checks for the current and predicted state,
-                                  //!< including the process noise covariance after it is scaled and
-                                  //!< multiplied by dt
+  bool scale_process_noise_{false};                //!< Whether to scale the process noise
+                                                   //!< covariance pose by the norm of the current
+                                                   //!< state twist
+  double velocity_norm_min_{1e-3};                 //!< The minimum velocity/twist norm allowed when
+                                                   //!< scaling the process noise covariance
+  bool disable_checks_{false};    //!< Whether to disable the validation checks for the current and
+                                  //!< predicted state, including the process noise covariance after
+                                  //!< it is scaled and multiplied by dt
   StateHistory state_history_;    //!< History of optimized graph pose estimates
 };
 

@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
-#define FUSE_MODELS__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#ifndef FUSE_MODELS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
+#define FUSE_MODELS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
@@ -47,12 +47,13 @@
 /**
  * @brief Dummy variable implementation for testing
  */
-class ExampleVariable: public fuse_core::Variable
+class ExampleVariable : public fuse_core::Variable
 {
 public:
   FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  ExampleVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_(0.0)
+  ExampleVariable()
+  : fuse_core::Variable(fuse_core::uuid::generate()), data_(0.0)
   {
   }
 
@@ -91,14 +92,14 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template < class Archive >
+  template<class Archive>
   void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object < fuse_core::Variable > (*this);
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
     archive & data_;
   }
 };
 
 BOOST_CLASS_EXPORT(ExampleVariable);
 
-#endif  // FUSE_MODELS__TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#endif  // FUSE_MODELS__TEST_EXAMPLE_VARIABLE_HPP_  // NOLINT{build/header_guard}

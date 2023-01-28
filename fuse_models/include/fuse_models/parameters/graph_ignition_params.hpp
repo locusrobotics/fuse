@@ -35,9 +35,10 @@
 #ifndef FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_HPP_
 #define FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_HPP_
 
+#include <string>
+
 #include <fuse_models/parameters/parameter_base.hpp>
 
-#include <string>
 
 namespace fuse_models
 {

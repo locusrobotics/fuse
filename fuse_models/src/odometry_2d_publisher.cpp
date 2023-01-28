@@ -225,9 +225,10 @@ void Odometry2DPublisher::notifyCallback(
       } catch (const std::exception & e) {
         RCLCPP_WARN_STREAM(
           logger_,
-          "An error occurred computing the covariance information for " << latest_stamp.nanoseconds()
-                                                                        << ". The covariance will be set to zero.\n" <<
-            e.what());
+          "An error occurred computing the covariance information for "
+            << latest_stamp.nanoseconds()
+            << ". The covariance will be set to zero.\n"
+            << e.what());
         std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
         std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
         std::fill(

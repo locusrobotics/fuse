@@ -34,6 +34,10 @@
 #ifndef FUSE_MODELS__UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_HPP_
 #define FUSE_MODELS__UNICYCLE_2D_STATE_KINEMATIC_CONSTRAINT_HPP_
 
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -48,10 +52,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-
-#include <ostream>
-#include <string>
-#include <vector>
 
 
 namespace fuse_models

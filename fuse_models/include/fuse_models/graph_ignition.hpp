@@ -35,6 +35,10 @@
 #ifndef FUSE_MODELS__GRAPH_IGNITION_HPP_
 #define FUSE_MODELS__GRAPH_IGNITION_HPP_
 
+#include <atomic>
+#include <memory>
+#include <string>
+
 #include <fuse_msgs/srv/set_graph.hpp>
 #include <fuse_models/parameters/graph_ignition_params.hpp>
 
@@ -46,7 +50,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
 
-#include <atomic>
 
 namespace fuse_models
 {
@@ -173,7 +176,8 @@ protected:
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
-  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr reset_client_;  //!< Service client used to call the "reset" service on the optimizer
+  //!< Service client used to call the "reset" service on the optimizer
+  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr reset_client_;
   rclcpp::Service<fuse_msgs::srv::SetGraph>::SharedPtr set_graph_service_;
   rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr sub_;
 

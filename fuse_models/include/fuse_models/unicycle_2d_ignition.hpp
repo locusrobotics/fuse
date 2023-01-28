@@ -34,6 +34,10 @@
 #ifndef FUSE_MODELS__UNICYCLE_2D_IGNITION_HPP_
 #define FUSE_MODELS__UNICYCLE_2D_IGNITION_HPP_
 
+#include <atomic>
+#include <memory>
+#include <string>
+
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/uuid.hpp>
@@ -44,8 +48,6 @@
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
-
-#include <atomic>
 
 
 namespace fuse_models
@@ -199,7 +201,8 @@ protected:
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 
-  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr reset_client_;  //!< Service client used to call the "reset" service on the optimizer
+  //!< Service client used to call the "reset" service on the optimizer
+  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr reset_client_;
   rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr set_pose_service_;
   rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr set_pose_deprecated_service_;
 

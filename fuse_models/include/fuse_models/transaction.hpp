@@ -35,6 +35,8 @@
 #ifndef FUSE_MODELS__TRANSACTION_HPP_
 #define FUSE_MODELS__TRANSACTION_HPP_
 
+#include <string>
+
 #include <fuse_models/parameters/transaction_params.hpp>
 
 #include <fuse_core/async_sensor_model.hpp>
@@ -42,6 +44,7 @@
 
 #include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <rclcpp/rclcpp.hpp>
+
 
 namespace fuse_models
 {
@@ -119,7 +122,8 @@ protected:
 
   rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr sub_;
 
-  fuse_core::TransactionDeserializer transaction_deserializer_;  //!< Deserializer for SerializedTransaction messages
+  //!< Deserializer for SerializedTransaction messages
+  fuse_core::TransactionDeserializer transaction_deserializer_;
 };
 
 }  // namespace fuse_models

@@ -34,6 +34,12 @@
 #ifndef FUSE_MODELS__COMMON__SENSOR_CONFIG_HPP_
 #define FUSE_MODELS__COMMON__SENSOR_CONFIG_HPP_
 
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 #include <fuse_models/common/variable_traits.hpp>
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -43,12 +49,6 @@
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <rclcpp/logging.hpp>
-
-#include <algorithm>
-#include <functional>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 
 namespace fuse_models

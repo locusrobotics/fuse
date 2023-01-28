@@ -248,13 +248,13 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
 
   auto constraint1 = ExampleConstraint::make_shared(
     "test",
-    std::initializer_list<fuse_core::UUID>{variable1->uuid(), variable2->uuid()});    // NOLINT(whitespace/braces)
+    std::initializer_list<fuse_core::UUID>{variable1->uuid(), variable2->uuid()});    // NOLINT
   constraint1->data = 1.5;
   graph.addConstraint(constraint1);
 
   auto constraint2 = ExampleConstraint::make_shared(
     "test",
-    std::initializer_list<fuse_core::UUID>{variable2->uuid(), variable3->uuid()});    // NOLINT(whitespace/braces)
+    std::initializer_list<fuse_core::UUID>{variable2->uuid(), variable3->uuid()});    // NOLINT
   constraint2->data = -3.7;
   graph.addConstraint(constraint2);
 
@@ -361,13 +361,13 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
 
   auto constraint1 = ExampleConstraint::make_shared(
     "test",
-    std::initializer_list<fuse_core::UUID>{variable1->uuid(), variable2->uuid()});    // NOLINT(whitespace/braces)
+    std::initializer_list<fuse_core::UUID>{variable1->uuid(), variable2->uuid()});    // NOLINT
   constraint1->data = 1.5;
   graph.addConstraint(constraint1);
 
   auto constraint2 = ExampleConstraint::make_shared(
     "test",
-    std::initializer_list<fuse_core::UUID>{variable2->uuid(), variable3->uuid()});    // NOLINT(whitespace/braces)
+    std::initializer_list<fuse_core::UUID>{variable2->uuid(), variable3->uuid()});    // NOLINT
   constraint2->data = -3.7;
   graph.addConstraint(constraint2);
 

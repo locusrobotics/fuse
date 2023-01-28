@@ -36,7 +36,8 @@
 #define FUSE_MODELS__PARAMETERS__UNICYCLE_2D_IGNITION_PARAMS_H_
 
 #warning \
-  This header is obsolete, please include fuse_models/parameters/unicycle_2d_ignition_params.hpp instead
+  This header is obsolete, please include fuse_models/parameters/unicycle_2d_ignition_params.hpp \
+  instead
 
 #include <fuse_models/parameters/unicycle_2d_ignition_params.hpp>
 

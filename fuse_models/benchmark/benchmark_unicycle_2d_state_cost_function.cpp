@@ -99,8 +99,9 @@ private:
 };
 
 // Cost function process noise and covariance
-const double Unicycle2DStateCostFunction::process_noise_diagonal[] =
-{1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9};
+const double Unicycle2DStateCostFunction::process_noise_diagonal[] = {
+  1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9
+};
 
 const fuse_core::Matrix8d Unicycle2DStateCostFunction::covariance =
   fuse_core::Vector8d(process_noise_diagonal).asDiagonal();
@@ -149,8 +150,9 @@ BENCHMARK_F(
   AutoDiffUnicycle2DStateCostFunction)(benchmark::State & state)
 {
   // Create cost function using automatic differentiation on the cost functor
-  ceres::AutoDiffCostFunction<fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1,
-    2>
+  ceres::AutoDiffCostFunction<
+    fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2
+  >
   cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
 
   for (auto _ : state) {

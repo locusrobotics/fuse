@@ -34,6 +34,9 @@
 #ifndef FUSE_MODELS__PARAMETERS__ODOMETRY_2D_PARAMS_HPP_
 #define FUSE_MODELS__PARAMETERS__ODOMETRY_2D_PARAMS_HPP_
 
+#include <string>
+#include <vector>
+
 #include <fuse_models/parameters/parameter_base.hpp>
 
 #include <fuse_core/loss.hpp>
@@ -42,9 +45,6 @@
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
-
-#include <string>
-#include <vector>
 
 
 namespace fuse_models
@@ -182,13 +182,15 @@ public:
   bool disable_checks {false};
   bool independent {true};
   bool use_twist_covariance {true};
-  fuse_core::Matrix3d minimum_pose_relative_covariance;    //!< Minimum pose relative covariance matrix
-  fuse_core::Matrix3d twist_covariance_offset;    //!< Offset already added to the twist covariance matrix, that will be
-                                                  //!< substracted in order to recover the raw
-                                                  //!< values
+  fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance
+                                                         //!< matrix
+  fuse_core::Matrix3d twist_covariance_offset;    //!< Offset already added to the twist covariance
+                                                  //!< matrix, that will be substracted in order to
+                                                  //!< recover the raw values
   int queue_size {10};
-  rclcpp::Duration tf_timeout {0, 0};      //!< The maximum time to wait for a transform to become available
-  rclcpp::Duration throttle_period {0, 0};      //!< The throttle period duration in seconds
+  rclcpp::Duration tf_timeout {0, 0};  //!< The maximum time to wait for a transform to become
+                                       //!< available
+  rclcpp::Duration throttle_period {0, 0};  //!< The throttle period duration in seconds
   bool throttle_use_wall_time {false};      //!< Whether to throttle using ros::WallTime or not
   std::string topic {};
   std::string pose_target_frame {};

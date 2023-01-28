@@ -34,6 +34,13 @@
 #ifndef FUSE_MODELS__PARAMETERS__ODOMETRY_2D_PUBLISHER_PARAMS_HPP_
 #define FUSE_MODELS__PARAMETERS__ODOMETRY_2D_PUBLISHER_PARAMS_HPP_
 
+#include <ceres/covariance.h>
+
+#include <algorithm>
+#include <cassert>
+#include <string>
+#include <vector>
+
 #include <fuse_models/parameters/parameter_base.hpp>
 
 #include <fuse_core/ceres_options.hpp>
@@ -41,13 +48,6 @@
 #include <fuse_core/parameter.hpp>
 
 #include <rclcpp/logging.hpp>
-
-#include <ceres/covariance.h>
-
-#include <algorithm>
-#include <cassert>
-#include <string>
-#include <vector>
 
 
 namespace fuse_models
@@ -189,8 +189,10 @@ public:
       RCLCPP_FATAL_STREAM(
         interfaces.get_node_logging_interface()->get_logger(),
         "Invalid frame configuration! Please note:\n"
-          << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n"
-          << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n"
+          << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be "
+          << "unique\n"
+          << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be "
+          << "unique\n"
           << " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
 
       assert(frames_valid);
@@ -208,19 +210,19 @@ public:
   }
 
   bool publish_tf {true};    //!< Whether to publish/broadcast the TF transform or not
-  bool invert_tf{false};     //!< Whether to broadcast the inverse of the TF transform or not. When the inverse is
-                             //!< broadcasted, the transform is inverted and the header.frame_id and
-                             //!< child_frame_id are swapped, i.e. the odometry output
-                             //!< header.frame_id is set to the base_link_output_frame_id and the
-                             //!< child_frame_id to the world_frame_id
+  bool invert_tf{false};     //!< Whether to broadcast the inverse of the TF transform or not. When
+                             //!< the inverse is broadcasted, the transform is inverted and the
+                             //!< header.frame_id and child_frame_id are swapped, i.e. the odometry
+                             //!< output header.frame_id is set to the base_link_output_frame_id and
+                             //!< the child_frame_id to the world_frame_id
   bool predict_to_current_time {false};
   bool predict_with_acceleration {false};
   double publish_frequency {10.0};
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
   bool scale_process_noise{false};
   double velocity_norm_min{1e-3};
-  rclcpp::Duration covariance_throttle_period {0, 0};    //!< The throttle period duration in seconds to compute the
-  //!< covariance
+  rclcpp::Duration covariance_throttle_period {0, 0};  //!< The throttle period duration in seconds
+                                                       //!< to compute the covariance
   rclcpp::Duration tf_cache_time {10, 0};
   rclcpp::Duration tf_timeout {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
   int queue_size {1};

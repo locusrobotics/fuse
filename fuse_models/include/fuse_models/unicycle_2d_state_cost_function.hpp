@@ -34,13 +34,13 @@
 #ifndef FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTION_HPP_
 #define FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTION_HPP_
 
+#include <ceres/sized_cost_function.h>
+
 #include <fuse_models/unicycle_2d_predict.hpp>
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
-
-#include <ceres/sized_cost_function.h>
 
 
 namespace fuse_models
@@ -259,7 +259,8 @@ public:
 
 private:
   double dt_;
-  fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
+  fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root
+                           //!< information matrix
 };
 
 Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(
