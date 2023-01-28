@@ -69,8 +69,8 @@ typename std::vector<T>::reverse_iterator erase(
   // https://stackoverflow.com/questions/1830158/how-to-call-erase-with-a-reverse-iterator
   // Basically a reverse iterator access the element one place before the element it points at.
   // E.g. The reverse iterator rbegin points at end, but accesses end-1.
-  // When you delete something, you need to increment the reverse iterator first, then convert it to a standard
-  // iterator for the erase operation.
+  // When you delete something, you need to increment the reverse iterator first, then convert it to
+  // a standard iterator for the erase operation.
   std::advance(position, 1);
   container.erase(position.base());
   return position;
@@ -219,13 +219,14 @@ void FixedLagSmoother::optimizationLoop()
       // Apply motion models
       auto new_transaction = fuse_core::Transaction::make_shared();
       // DANGER: processQueue obtains a lock from the pending_transactions_mutex_
-      //         We do this to ensure state of the graph does not change between unlocking the pending_transactions
-      //         queue and obtaining the lock for the graph. But we have now obtained two different locks. If we are
-      //         not extremely careful, we could get a deadlock.
-      //  TODO(CH3): We might have to make sure lag_expiration_ has been initialised
+      //         We do this to ensure state of the graph does not change between unlocking the
+      //         pending_transactions queue and obtaining the lock for the graph. But we have now
+      //         obtained two different locks. If we are not extremely careful, we could get a
+      //         deadlock.
+      // TODO(CH3): We might have to make sure lag_expiration_ has been initialised
       processQueue(*new_transaction, lag_expiration_);
-      // Skip this optimization cycle if the transaction is empty because something failed while processing the pending
-      // transactions queue.
+      // Skip this optimization cycle if the transaction is empty because something failed while
+      // processing the pending transactions queue.
       if (new_transaction->empty()) {
         continue;
       }
@@ -258,7 +259,8 @@ void FixedLagSmoother::optimizationLoop()
       const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
 
-      // Abort if optimization failed. Not converging is not a failure because the solution found is usable.
+      // Abort if optimization failed. Not converging is not a failure because the solution found is
+      // usable.
       if (!summary_.IsSolutionUsable()) {
         RCLCPP_FATAL_STREAM(
           logger_,
@@ -328,25 +330,27 @@ void FixedLagSmoother::processQueue(
     return;
   }
 
-  // If we just started because an ignition sensor transaction was received, we try to process it individually. This is
-  // important because we need to update the graph with the ignition sensor transaction in order to get the motion
-  // models notified of the initial state. The motion models will typically maintain a state history in order to create
-  // motion model constraints with the optimized variables from the updated graph. If we do not process the ignition
-  // sensor transaction individually, the motion model constraints created for the other queued transactions will not be
-  // able to use any optimized variables from the graph because it is not been optimized yet, and they will have to use
-  // a default zero state instead. This can easily lead to local minima because the variables in the graph are not
-  // initialized properly, i.e. they do not take the ignition sensor transaction into account.
+  // If we just started because an ignition sensor transaction was received, we try to process it
+  // individually. This is important because we need to update the graph with the ignition sensor
+  // transaction in order to get the motion models notified of the initial state. The motion models
+  // will typically maintain a state history in order to create motion model constraints with the
+  // optimized variables from the updated graph. If we do not process the ignition sensor
+  // transaction individually, the motion model constraints created for the other queued
+  // transactions will not be able to use any optimized variables from the graph because it is not
+  // been optimized yet, and they will have to use a default zero state instead. This can easily
+  // lead to local minima because the variables in the graph are not initialized properly, i.e. they
+  // do not take the ignition sensor transaction into account.
   if (ignited_) {
-    // The ignition sensor transaction is assumed to be at the end of the queue, because it must be the oldest one.
-    // If there is more than one ignition sensor transaction in the queue, it is always the oldest one that started
-    // things up.
+    // The ignition sensor transaction is assumed to be at the end of the queue, because it must be
+    // the oldest one. If there is more than one ignition sensor transaction in the queue, it is
+    // always the oldest one that started things up.
     ignited_ = false;
 
     const auto transaction_rbegin = pending_transactions_.rbegin();
     auto & element = *transaction_rbegin;
     if (!sensor_models_.at(element.sensor_name).ignition) {
-      // We just started, but the oldest transaction is not from an ignition sensor. We will still process the
-      // transaction, but we do not enforce it is processed individually.
+      // We just started, but the oldest transaction is not from an ignition sensor. We will still
+      // process the transaction, but we do not enforce it is processed individually.
       RCLCPP_ERROR_STREAM(
         logger_,
         "The queued transaction with timestamp " << element.stamp().nanoseconds() << " from sensor "
@@ -354,21 +358,22 @@ void FixedLagSmoother::processQueue(
                                                  << "This transaction will not be processed individually.");
     } else {
       if (applyMotionModels(element.sensor_name, *element.transaction)) {
-        // Processing was successful. Add the results to the final transaction, delete this one, and return, so the
-        // transaction from the ignition sensor is processed individually.
+        // Processing was successful. Add the results to the final transaction, delete this one, and
+        // return, so the transaction from the ignition sensor is processed individually.
         transaction.merge(*element.transaction, true);
         erase(pending_transactions_, transaction_rbegin);
       } else {
-        // The motion model processing failed. When this happens to an ignition sensor transaction there is no point on
-        // trying again next time, so we ignore this transaction.
+        // The motion model processing failed. When this happens to an ignition sensor transaction
+        // there is no point on trying again next time, so we ignore this transaction.
         RCLCPP_ERROR_STREAM(
           logger_,
           "The queued ignition transaction with timestamp " << element.stamp().nanoseconds() << " from sensor "
                                                             << element.sensor_name <<
             " could not be processed. Ignoring this ignition transaction.");
 
-        // Remove the ignition transaction that just failed and purge all transactions after it. But if we find another
-        // ignition transaction, we schedule it to be processed in the next optimization cycle.
+        // Remove the ignition transaction that just failed and purge all transactions after it. But
+        // if we find another ignition transaction, we schedule it to be processed in the next
+        // optimization cycle.
         erase(pending_transactions_, transaction_rbegin);
 
         const auto pending_ignition_transaction_iter =
@@ -378,20 +383,21 @@ void FixedLagSmoother::processQueue(
             return sensor_models_.at(element.sensor_name).ignition;
           });                 // NOLINT(whitespace/braces)
         if (pending_ignition_transaction_iter == pending_transactions_.rend()) {
-          // There is no other ignition transaction pending. We simply roll back to not started state and all other
-          // pending transactions will be handled later in the transaction callback, as usual.
+          // There is no other ignition transaction pending. We simply roll back to not started
+          // state and all other pending transactions will be handled later in the transaction
+          // callback, as usual.
           started_ = false;
         } else {
-          // Erase all transactions before the other ignition transaction pending. This other ignition transaction will
-          // be processed in the next optimization cycle.
+          // Erase all transactions before the other ignition transaction pending. This other
+          // ignition transaction will be processed in the next optimization cycle.
           pending_transactions_.erase(
             pending_ignition_transaction_iter.base(), pending_transactions_.rbegin().base());
           ignited_ = true;
         }
       }
 
-      // There are no more pending transactions to process in this optimization cycle, or they should be processed in
-      // the next one.
+      // There are no more pending transactions to process in this optimization cycle, or they
+      // should be processed in the next one.
       return;
     }
   }
@@ -421,7 +427,8 @@ void FixedLagSmoother::processQueue(
       // We should not process transactions from this sensor
       ++transaction_riter;
     } else if (applyMotionModels(element.sensor_name, *element.transaction)) {
-      // Processing was successful. Add the results to the final transaction, delete this one, and move to the next.
+      // Processing was successful. Add the results to the final transaction, delete this one, and
+      // move to the next.
       transaction.merge(*element.transaction, true);
       transaction_riter = erase(pending_transactions_, transaction_riter);
     } else {
@@ -465,8 +472,8 @@ bool FixedLagSmoother::resetServiceCallback(
   ignited_ = false;
   setStartTime(rclcpp::Time(0, 1, RCL_ROS_TIME));  // NOTE(CH3): INITIALIZED!
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
-  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
-  //         prevent the possibility of deadlocks.
+  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme
+  //         here to prevent the possibility of deadlocks.
   {
     std::lock_guard<std::mutex> lock(optimization_mutex_);
     // Clear all pending transactions
@@ -509,7 +516,8 @@ void FixedLagSmoother::transactionCallback(
     std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
 
     // Add the new transaction to the pending set
-    // The pending set is arranged "smallest stamp last" to making popping off the back more efficient
+    // The pending set is arranged "smallest stamp last" to making popping off the back more
+    // efficient
     auto comparator = [](const rclcpp::Time & value, const TransactionQueueElement & element)
       {
         return value >= element.stamp();
@@ -534,8 +542,9 @@ void FixedLagSmoother::transactionCallback(
         //  - Either before or exactly at the start time
         //  - Or with a minimum time before the minimum time of this ignition sensor transaction
         //
-        // TODO(efernandez) Do '&min_time = std::as_const(start_ime)' when C++17 is supported and we can use
-        //                  std::as_const: https://en.cppreference.com/w/cpp/utility/as_const
+        // TODO(efernandez) Do '&min_time = std::as_const(start_ime)' when C++17 is supported and we
+        //                  can use std::as_const:
+        //                  https://en.cppreference.com/w/cpp/utility/as_const
         pending_transactions_.erase(
           std::remove_if(
             pending_transactions_.begin(), pending_transactions_.end(),
@@ -546,7 +555,8 @@ void FixedLagSmoother::transactionCallback(
             }),                 // NOLINT(whitespace/braces)
           pending_transactions_.end());
       } else {
-        // And purge out old transactions to limit the pending size while waiting for an ignition sensor
+        // And purge out old transactions to limit the pending size while waiting for an ignition
+        // sensor
         auto purge_time = rclcpp::Time(0, 0, RCL_ROS_TIME);  // NOTE(CH3): Uninitialized
         auto last_pending_time = pending_transactions_.front().stamp();
 
@@ -597,7 +607,8 @@ diagnostic_msgs::msg::DiagnosticStatus makeDiagnosticStatus(
  * - FAILURE, USER_FAILURE     -> ERROR (default)
  *
  * @param[in] termination_type The optimization termination type
- * @return The diagnostic status with the level and message corresponding to the optimization termination type
+ * @return The diagnostic status with the level and message corresponding to the optimization
+ *         termination type
  */
 diagnostic_msgs::msg::DiagnosticStatus terminationTypeToDiagnosticStatus(
   const ceres::TerminationType termination_type)
@@ -633,7 +644,8 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
   }
 
   if (started) {
-    // Add some optimization summary report fields to the diagnostics status if the optimizer has started
+    // Add some optimization summary report fields to the diagnostics status if the optimizer has
+    // started
     auto summary = decltype(summary_)();
     {
       const std::unique_lock<std::mutex> lock(optimization_mutex_, std::try_to_lock);
@@ -656,8 +668,8 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
       status.mergeSummary(terminationTypeToDiagnosticStatus(summary.termination_type));
     }
 
-    // Add time since the last optimization request time. This is useful to detect if no transactions are received for
-    // too long
+    // Add time since the last optimization request time. This is useful to detect if no
+    // transactions are received for too long
     auto optimization_deadline = decltype(optimization_deadline_)();
     {
       const std::unique_lock<std::mutex> lock(optimization_requested_mutex_, std::try_to_lock);

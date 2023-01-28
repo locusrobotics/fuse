@@ -82,7 +82,8 @@ Optimizer::Optimizer(
     graph_ = std::move(fuse_graphs::HashGraph::make_unique(hash_graph_params));
   }
 
-  //add a ros1 style callback queue so that transactions can be processed in the optimiser's executor
+  //add a ros1 style callback queue so that transactions can be processed in the optimiser's
+  //executor
   interfaces_.get_node_waitables_interface()->add_waitable(
     callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 
@@ -164,7 +165,8 @@ void Optimizer::loadMotionModels()
   // now load the models defined above
 
   for (const ModelConfig & config : motion_model_config) {
-    // Create a motion_model object using pluginlib. This will throw if the plugin name is not found.
+    // Create a motion_model object using pluginlib. This will throw if the plugin name is not
+    // found.
     auto motion_model = motion_model_loader_.createUniqueInstance(config.type);
     // Initialize the motion_model
     motion_model->initialize(interfaces_, config.name);
@@ -445,9 +447,10 @@ void Optimizer::injectCallback(
   const std::string & sensor_name,
   fuse_core::Transaction::SharedPtr transaction)
 {
-  // We are going to insert a call to the derived class's transactionCallback() method into the global callback queue.
-  // This returns execution to the sensor's thread quickly by moving the transaction processing to the optimizer's
-  // thread. And by using the existing ROS callback queue, we simplify the threading model of the optimizer.
+  // We are going to insert a call to the derived class's transactionCallback() method into the
+  // global callback queue. This returns execution to the sensor's thread quickly by moving the
+  // transaction processing to the optimizer's thread. And by using the existing ROS callback queue,
+  // we simplify the threading model of the optimizer.
   auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
     std::bind(&Optimizer::transactionCallback, this, sensor_name, std::move(transaction)));
   callback_queue_->addCallback(callback);

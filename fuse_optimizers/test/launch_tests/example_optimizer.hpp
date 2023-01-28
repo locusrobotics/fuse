@@ -42,8 +42,8 @@
 
 
 /**
- * @brief Example optimizer that exposes the motion and sensor models, and the publishers, so we can check the expected
- * ones are loaded.
+ * @brief Example optimizer that exposes the motion and sensor models, and the publishers, so we can
+ *        check the expected ones are loaded.
  */
 class ExampleOptimizer : public fuse_optimizers::Optimizer
 {

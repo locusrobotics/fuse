@@ -59,11 +59,13 @@ namespace fuse_optimizers
 {
 
 /**
- * @brief A fixed-lag smoother implementation that marginalizes out variables that are older than a defined lag time
+ * @brief A fixed-lag smoother implementation that marginalizes out variables that are older than a
+ *        defined lag time
  *
- * This implementation assumes that all added variable types are either derived from the fuse_variables::Stamped class,
- * or are directly connected to at least one fuse_variables::Stamped variable via a constraint. The current time of
- * the fixed-lag smoother is determined by the newest stamp of all added fuse_variables::Stamped variables.
+ * This implementation assumes that all added variable types are either derived from the
+ * fuse_variables::Stamped class, or are directly connected to at least one fuse_variables::Stamped
+ * variable via a constraint. The current time of the fixed-lag smoother is determined by the newest
+ * stamp of all added fuse_variables::Stamped variables.
  *
  * During optimization:
  *  (1) new variables and constraints are added to the graph
@@ -71,11 +73,12 @@ namespace fuse_optimizers
  *  (3) all motion models, sensors, and publishers are notified of the updated graph
  *  (4) all variables older than "current time - lag duration" are marginalized out.
  *
- * Optimization is performed at a fixed frequency, controlled by the \p optimization_frequency parameter. Received
- * sensor transactions are queued while the optimization is processing, then applied to the graph at the start of the
- * next optimization cycle. If the previous optimization is not yet complete when the optimization period elapses,
- * then a warning will be logged but a new optimization will *not* be started. The previous optimization will run to
- * completion, and the next optimization will not begin until the next scheduled optimization period.
+ * Optimization is performed at a fixed frequency, controlled by the \p optimization_frequency
+ * parameter. Received sensor transactions are queued while the optimization is processing, then
+ * applied to the graph at the start of the next optimization cycle. If the previous optimization is
+ * not yet complete when the optimization period elapses, then a warning will be logged but a new
+ * optimization will *not* be started. The previous optimization will run to completion, and the
+ * next optimization will not begin until the next scheduled optimization period.
  *
  * Parameters:
  *  - lag_duration (float, default: 5.0) The duration of the smoothing window in seconds
@@ -85,8 +88,8 @@ namespace fuse_optimizers
  *      type: string  (The plugin loader class string for the desired motion model type)
  *    - ...
  *    @endcode
- *  - optimization_frequency (float, default: 10.0) The target frequency for optimization cycles. If an optimization
- *                                                  takes longer than expected, an optimization cycle may be skipped.
+ *  - optimization_frequency (float, default: 10.0) The target frequency for optimization cycles. If
+ *    an optimization takes longer than expected, an optimization cycle may be skipped.
  *  - publishers (struct array) The set of publisher plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this publisher)
@@ -100,11 +103,10 @@ namespace fuse_optimizers
  *      motion_models: [name1, name2, ...]  (An optional list of motion model names that should be applied)
  *    - ...
  *    @endcode
- *  - transaction_timeout (float, default: 0.10) The maximum time to wait for motion models to be generated for a
- *                                               received transactions. Transactions are processes sequentially, so
- *                                               no new transactions will be added to the graph while waiting for
- *                                               motion models to be generated. Once the timeout expires, that
- *                                               transaction will be deleted from the queue.
+ *  - transaction_timeout (float, default: 0.10) The maximum time to wait for motion models to be
+ *    generated for a received transactions. Transactions are processes sequentially, so no new
+ *    transactions will be added to the graph while waiting for motion models to be generated. Once
+ *    the timeout expires, that transaction will be deleted from the queue.
  */
 class FixedLagSmoother : public Optimizer
 {
@@ -145,12 +147,12 @@ protected:
   /**
    * @brief Queue of Transaction objects, sorted by timestamp.
    *
-   * Note: Because the queue size of the fixed-lag smoother is expected to be small, the sorted queue is implemented
-   * using a std::vector. The queue size must exceed several hundred entries before a std::set will outperform a
-   * sorted vector.
+   * Note: Because the queue size of the fixed-lag smoother is expected to be small, the sorted
+   * queue is implemented using a std::vector. The queue size must exceed several hundred entries
+   * before a std::set will outperform a sorted vector.
    *
-   * Also, we sort the queue with the smallest stamp last. This allows us to clear the queue using the more
-   * efficient pop_back() operation.
+   * Also, we sort the queue with the smallest stamp last. This allows us to clear the queue using
+   * the more efficient pop_back() operation.
    */
   using TransactionQueue = std::vector<TransactionQueueElement>;
 
@@ -167,8 +169,9 @@ protected:
   // Guarded by pending_transactions_mutex_
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
-                                           //!< optimizer yet. Transactions are added by the main thread, and removed
-                                           //!< and processed by the optimization thread.
+                                           //!< optimizer yet. Transactions are added by the main
+                                           //!< thread, and removed and processed by the
+                                           //!< optimization thread.
 
   // Guarded by optimization_mutex_
   std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
@@ -183,7 +186,8 @@ protected:
   rclcpp::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers a warning if exceeded.
   bool optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
-                                                    //!< until a new optimization is requested by the main thread
+                                                    //!< until a new optimization is requested by
+                                                    //!< the main thread
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
@@ -199,14 +203,16 @@ protected:
   void autostart();
 
   /**
-   * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is called
+   * @brief Perform any required preprocessing steps before \p computeVariablesToMarginalize() is
+   *        called
    *
-   * All new transactions that will be applied to the graph are provided. This does not include the marginal
-   * transaction that is computed later.
+   * All new transactions that will be applied to the graph are provided. This does not include the
+   * marginal transaction that is computed later.
    *
    * This method will be called before the graph has been updated.
    *
-   * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
+   * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to
+   *                            the graph
    */
   void preprocessMarginalization(const fuse_core::Transaction & new_transaction);
 
@@ -218,49 +224,55 @@ protected:
   /**
    * @brief Compute the set of variables that should be marginalized from the graph
    *
-   * This will be called after \p preprocessMarginalization() and after the graph has been updated with the any
-   * previous marginal transactions and new transactions.
+   * This will be called after \p preprocessMarginalization() and after the graph has been updated
+   * with the any previous marginal transactions and new transactions.
    *
    * @param[in] lag_expiration The oldest timestamp that should remain in the graph
-   * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
+   * @return A container with the set of variables to marginalize out. Order of the variables is not
+   *         specified.
    */
   std::vector<fuse_core::UUID> computeVariablesToMarginalize(const rclcpp::Time & lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
    *
-   * The transaction containing the actual changed to the graph is supplied. This will be called before the
-   * transaction is actually applied to the graph.
+   * The transaction containing the actual changed to the graph is supplied. This will be called
+   * before the transaction is actually applied to the graph.
    *
-   * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
-   *                                 variables.
+   * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the
+   *                                 requested variables.
    */
   void postprocessMarginalization(const fuse_core::Transaction & marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
    *
-   * This function waits for an optimization or shutdown signal, then either calls optimize() or exits appropriately.
+   * This function waits for an optimization or shutdown signal, then either calls optimize() or
+   * exits appropriately.
    */
   void optimizationLoop();
 
   /**
    * @brief Callback fired at a fixed frequency to trigger a new optimization cycle.
    *
-   * This callback checks if a current optimization cycle is still running. If not, a new optimization cycle is started.
-   * If so, we simply wait for the next timer event to start another optimization cycle.
+   * This callback checks if a current optimization cycle is still running. If not, a new
+   * optimization cycle is started. If so, we simply wait for the next timer event to start another
+   * optimization cycle.
    */
   void optimizerTimerCallback();
 
   /**
-   * @brief Generate motion model constraints for pending transactions and combine them into a single transaction
+   * @brief Generate motion model constraints for pending transactions and combine them into a
+   *        single transaction
    *
-   * Transactions are processed sequentially based on timestamp. If motion models are successfully generated for a
-   * pending transactions, that transaction is merged into the combined transaction and removed from the pending
-   * queue. If motion models fail to generate after the configured transaction_timeout_, the transaction will be
-   * deleted from the pending queue and a warning will be displayed.
+   * Transactions are processed sequentially based on timestamp. If motion models are successfully
+   * generated for a pending transactions, that transaction is merged into the combined transaction
+   * and removed from the pending queue. If motion models fail to generate after the configured
+   * transaction_timeout_, the transaction will be deleted from the pending queue and a warning will
+   * be displayed.
    *
-   * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
+   * @param[out] transaction The transaction object to be augmented with pending motion model and
+   *                         sensor transactions
    * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
   void processQueue(fuse_core::Transaction & transaction, const rclcpp::Time & lag_expiration);
@@ -294,13 +306,15 @@ protected:
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction
    *
-   * This callback is responsible for ensuring all associated motion models are applied before any other processing
-   * takes place. See Optimizer::applyMotionModels() for a helper function that does just that.
+   * This callback is responsible for ensuring all associated motion models are applied before any
+   * other processing takes place. See Optimizer::applyMotionModels() for a helper function that
+   * does just that.
    *
    * This implementation shares ownership of the transaction object.
    *
    * @param[in] name        The name of the sensor that produced the Transaction
-   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
+   * @param[in] transaction The populated Transaction object created by the loaded SensorModel
+   *                        plugin
    */
   void transactionCallback(
     const std::string & sensor_name,

@@ -50,10 +50,11 @@ namespace fuse_optimizers
 /**
  * @brief Object designed to track the timestamps associated with each variable
  *
- * If the variable is derived from a fuse_variables::Stamped type, then the variable's stamp is used. If a variable
- * is not derived from a fuse_variables::Stamped type, then the timestamp of the newest fuse_variables::Stamped
- * variable *directly connected* to the unstamped variable is used. If an unstamped variable is not directly connected
- * to any variable, then it is assigned a zero timestamp.
+ * If the variable is derived from a fuse_variables::Stamped type, then the variable's stamp is
+ * used. If a variable is not derived from a fuse_variables::Stamped type, then the timestamp of the
+ * newest fuse_variables::Stamped variable *directly connected* to the unstamped variable is used.
+ * If an unstamped variable is not directly connected to any variable, then it is assigned a zero
+ * timestamp.
  */
 class VariableStampIndex
 {
@@ -107,19 +108,19 @@ public:
   /**
    * @brief Update the index with the information from a marginal transaction
    *
-   * Only a subset of information is used from the marginal transaction. We do not want to track the variable
-   * connections induced by marginal factors.
+   * Only a subset of information is used from the marginal transaction. We do not want to track the
+   * variable connections induced by marginal factors.
    *
    * @param[in] transaction The set of variables and constraints to remove
    */
   void addMarginalTransaction(const fuse_core::Transaction & transaction);
 
   /**
-   * @brief Add all variables that are not directly connected to a stamped variable with a timestamp greater than or
-   *        equal to the provided stamp
+   * @brief Add all variables that are not directly connected to a stamped variable with a timestamp
+   *        greater than or equal to the provided stamp
    *
-   * @param[in]  stamp  The reference timestamp. Only variables not associated with timestamps greater than or equal to
-   *                    this will be added to the output container
+   * @param[in]  stamp  The reference timestamp. Only variables not associated with timestamps
+   *                    greater than or equal to this will be added to the output container
    * @param[out] result An output iterator capable of receiving fuse_core::UUID objects
    */
   template<typename OutputUuidIterator>
@@ -136,7 +137,8 @@ public:
     // Now find all of the variables connected to the recent variables
     std::unordered_set<fuse_core::UUID> connected_variable_uuids;
     for (const auto & recent_variable_uuid : recent_variable_uuids) {
-      // Add the recent variable to ensure connected_variable_uuids is a superset of recent_variable_uuids
+      // Add the recent variable to ensure connected_variable_uuids is a superset of
+      // recent_variable_uuids
       connected_variable_uuids.insert(recent_variable_uuid);
 
       const auto variables_iter = variables_.find(recent_variable_uuid);
@@ -184,7 +186,8 @@ protected:
   void applyAddedVariables(const fuse_core::Transaction & transaction);
 
   /**
-   * @brief Update this VariableStampIndex with the removed constraints from the provided transaction
+   * @brief Update this VariableStampIndex with the removed constraints from the provided
+   *        transaction
    */
   void applyRemovedConstraints(const fuse_core::Transaction & transaction);
 

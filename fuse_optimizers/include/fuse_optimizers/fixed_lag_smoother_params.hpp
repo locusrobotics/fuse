@@ -63,9 +63,10 @@ public:
   /**
    * @brief The target duration for optimization cycles
    *
-   * If an optimization takes longer than expected, an optimization cycle may be skipped. The optimization period
-   * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
-   * parameter in Hz. "optimization_frequency" will be prioritized.
+   * If an optimization takes longer than expected, an optimization cycle may be skipped. The
+   * optimization period may be specified in either the "optimization_period" parameter in seconds,
+   * or in the "optimization_frequency" parameter in Hz. "optimization_frequency" will be
+   * prioritized.
    */
   rclcpp::Duration optimization_period {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
 
@@ -77,8 +78,9 @@ public:
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
    *
-   * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
-   * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
+   * Transactions are processed sequentially, so no new transactions will be added to the graph
+   * while waiting for motion models to be generated. Once the timeout expires, that transaction
+   * will be deleted from the queue.
    */
   rclcpp::Duration transaction_timeout {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
 

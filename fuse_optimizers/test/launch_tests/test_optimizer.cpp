@@ -72,7 +72,8 @@ TEST(Optimizer, Constructor)
   ASSERT_TRUE(std::is_sorted(expected_publishers.begin(), expected_publishers.end()))
     << expected_publishers << " is not sorted.";
 
-  // Compute the symmetric difference between the expected and actual motion and sensor models, and publishers:
+  // Compute the symmetric difference between the expected and actual motion and sensor models, and
+  // publishers:
   const auto difference_motion_models = set_symmetric_difference(
     expected_motion_models,
     motion_models);
@@ -81,8 +82,8 @@ TEST(Optimizer, Constructor)
     sensor_models);
   const auto difference_publishers = set_symmetric_difference(expected_publishers, publishers);
 
-  // Check the symmetric difference is empty, i.e. the actual motion and sensor models, and publishers are the same as
-  // the expected ones:
+  // Check the symmetric difference is empty, i.e. the actual motion and sensor models, and
+  // publishers are the same as the expected ones:
   EXPECT_TRUE(difference_motion_models.empty())
     << "Actual: " << motion_models << "\nExpected: " << expected_motion_models
     << "\nDifference: " << difference_motion_models;

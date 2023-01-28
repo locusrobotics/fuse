@@ -72,8 +72,9 @@ void VariableStampIndex::addNewTransaction(const fuse_core::Transaction & transa
 void VariableStampIndex::addMarginalTransaction(const fuse_core::Transaction & transaction)
 {
   // Only the removed variables and removed constraints should be applied to the VariableStampIndex
-  // No variables will be added by a marginal transaction, and the added constraints add variable links
-  // that we *do not* want to track. These links are merely an artifact of the marginalization process.
+  // No variables will be added by a marginal transaction, and the added constraints add variable
+  // links that we *do not* want to track. These links are merely an artifact of the marginalization
+  // process.
   applyRemovedConstraints(transaction);
   applyRemovedVariables(transaction);
 }

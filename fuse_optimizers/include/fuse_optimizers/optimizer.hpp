@@ -64,9 +64,9 @@ namespace fuse_optimizers
  *  - The optimizer computes the optimal variable values
  *  - The optimizer provides access to the optimal variable values to the publishers
  *
- * Optimizer implementations are not required to use this base class; it is simply provided as a convenience
- * class that implements the mechanics of the information flow contract. Derived classes can then concentrate
- * on the details of when and what to optimize.
+ * Optimizer implementations are not required to use this base class; it is simply provided as a
+ * convenience class that implements the mechanics of the information flow contract. Derived classes
+ * can then concentrate on the details of when and what to optimize.
  *
  * This base class provides functions for:
  *  - Loading the set of motion model plugins as configured on the parameter server
@@ -114,8 +114,8 @@ public:
   virtual ~Optimizer();
 
 protected:
-  // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type rather annoying
-  // as it is not equivalent to Class::UniquePtr
+  // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type
+  // rather annoying as it is not equivalent to Class::UniquePtr
   using MotionModelUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::MotionModel>;
   using MotionModels = std::unordered_map<std::string, MotionModelUniquePtr>;
   using PublisherUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::Publisher>;
@@ -171,9 +171,10 @@ protected:
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
    *
    * @param[in] sensor_name The name of the sensor that produced the Transaction
-   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models
-   *                        to generate connected constraints.
-   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
+   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to
+   *                        the motion models to generate connected constraints.
+   * @param[in] transaction The populated Transaction object created by the loaded SensorModel
+   *                        plugin
    */
   virtual void transactionCallback(
     const std::string & sensor_name,
@@ -201,18 +202,20 @@ protected:
   void loadSensorModels();
 
   /**
-   * @brief Given a transaction and some timestamps, augment the transaction with constraints from all associated
-   * motion models.
+   * @brief Given a transaction and some timestamps, augment the transaction with constraints from
+   *        all associated motion models.
    *
-   * If no timestamps are provided, or no motion models are associated with this sensor, the transaction is left
-   * unmodified. If an associated motion model is unavailable, this will throw an exception.
+   * If no timestamps are provided, or no motion models are associated with this sensor, the
+   * transaction is left unmodified. If an associated motion model is unavailable, this will throw
+   * an exception.
    *
    * @param[in]  name        The name of the sensor that produced the Transaction
-   * @param[in]  timestamps  Any timestamps associated with the added variables. These are sent to the motion models
-   *                         to generate connected constraints.
-   * @param[out] transaction The Transaction object will be augmented with constraints and variables from the motion
-   *                         models
-   * @return                 Flag indicating if all motion model constraints were successfully generated
+   * @param[in]  timestamps  Any timestamps associated with the added variables. These are sent to
+   *                         the motion models to generate connected constraints.
+   * @param[out] transaction The Transaction object will be augmented with constraints and variables
+   *                         from the motion models
+   * @return                 Flag indicating if all motion model constraints were successfully
+   *                         generated
    */
   bool applyMotionModels(
     const std::string & sensor_name,
@@ -221,7 +224,8 @@ protected:
   /**
    * @brief Send the sensors, motion models, and publishers updated graph information
    *
-   * @param[in] transaction A read-only pointer to a transaction containing all recent additions and removals
+   * @param[in] transaction A read-only pointer to a transaction containing all recent additions and
+   *                        removals
    * @param[in] graph       A read-only pointer to the graph object
    */
   void notify(
@@ -232,14 +236,16 @@ protected:
    * @brief Inject a transaction callback function into the global callback queue
    *
    * @param[in] sensor_name The name of the sensor that produced the Transaction
-   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
+   * @param[in] transaction The populated Transaction object created by the loaded SensorModel
+   *                        plugin
    */
   void injectCallback(
     const std::string & sensor_name,
     fuse_core::Transaction::SharedPtr transaction);
 
   /**
-   * @brief Clear all of the callbacks inserted into the callback queue by the injectCallback() method
+   * @brief Clear all of the callbacks inserted into the callback queue by the injectCallback()
+   *        method
    */
   void clearCallbacks();
 

@@ -86,8 +86,8 @@ std::ostream & operator<<(std::ostream & os, const std::unordered_map<K, V> & m)
 }
 
 /**
- * @brief Helper function to compute the symmetric difference between a sorted std::vector<std::string> and the keys of
- * an std::unordered_map<std::string, T>
+ * @brief Helper function to compute the symmetric difference between a sorted
+ *        std::vector<std::string> and the keys of an std::unordered_map<std::string, T>
  *
  * @param[in] lhs A sorted vector of strings
  * @param[in] rhs An unordered map of key strings

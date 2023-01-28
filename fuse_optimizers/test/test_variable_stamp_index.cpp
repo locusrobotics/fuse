@@ -93,7 +93,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -149,7 +150,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -217,7 +219,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
@@ -359,8 +362,8 @@ TEST(VariableStampIndex, MarginalTransaction)
   transaction.addConstraint(c5);
   index.addNewTransaction(transaction);
 
-  // Now create a fake marginal transaction. The constraint connections should *not* change the unstamped variable
-  // timestamps
+  // Now create a fake marginal transaction. The constraint connections should *not* change the
+  // unstamped variable timestamps
   auto marginal = fuse_core::Transaction();
   marginal.removeVariable(x1->uuid());
   marginal.removeConstraint(c1->uuid());

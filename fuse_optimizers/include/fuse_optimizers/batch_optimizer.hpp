@@ -59,13 +59,15 @@ namespace fuse_optimizers
 /**
  * @brief A simple optimizer implementation that uses batch optimization
  *
- * The batch optimization takes place in a separate thread. Received sensor transactions are queued while the
- * optimization is processing, then applied to the graph at the start of the next optimization cycle. Optimization
- * cycles are started at a fixed frequency. If the previous optimization is not yet complete when the optimization
- * period elapses, then a new optimization will not be started. The previous optimization will run to completion, and
- * the next optimization will not begin until the next scheduled optimization period. For batch optimization problems
- * that continuously grow in size, this means that the optimization period is not overly important. The time spent
- * waiting versus the time spent optimizing will approach zero as the problem size increases.
+ * The batch optimization takes place in a separate thread. Received sensor transactions are queued
+ * while the optimization is processing, then applied to the graph at the start of the next
+ * optimization cycle. Optimization cycles are started at a fixed frequency. If the previous
+ * optimization is not yet complete when the optimization period elapses, then a new optimization
+ * will not be started. The previous optimization will run to completion, and the next optimization
+ * will not begin until the next scheduled optimization period. For batch optimization problems that
+ * continuously grow in size, this means that the optimization period is not overly important. The
+ * time spent waiting versus the time spent optimizing will approach zero as the problem size
+ * increases.
  *
  * Parameters:
  *  - motion_models (struct array) The set of motion model plugins to load
@@ -74,7 +76,8 @@ namespace fuse_optimizers
  *      type: string  (The plugin loader class string for the desired motion model type)
  *    - ...
  *    @endcode
- *  - optimization_period (float, default: 10.0) The minimum time delay, in seconds, between optimization cycles.
+ *  - optimization_period (float, default: 10.0) The minimum time delay, in seconds, between
+ *                                               optimization cycles.
  *  - publishers (struct array) The set of publisher plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this publisher)
@@ -85,14 +88,17 @@ namespace fuse_optimizers
  *    @code{.yaml}
  *    - name: string  (A unique name for this sensor model)
  *      type: string  (The plugin loader class string for the desired sensor model type)
- *      motion_models: [name1, name2, ...]  (An optional list of motion model names that should be applied)
+ *      motion_models: [name1, name2, ...]  (An optional list of motion model names that should be
+ *                                           applied)
  *    - ...
  *    @endcode
- *  - transaction_timeout (float, default: 10.0) The maximum time to wait for motion models to be generated for a
- *                                               received transactions. Transactions are processes sequentially, so
- *                                               no new transactions will be added to the graph while waiting for
- *                                               motion models to be generated. Once the timeout expires, that
- *                                               transaction will be deleted from the queue.
+ *
+ *  - transaction_timeout (float, default: 10.0) The maximum time to wait for motion models to be
+ *                                               generated for a received transactions. Transactions
+ *                                               are processes sequentially, so no new transactions
+ *                                               will be added to the graph while waiting for motion
+ *                                               models to be generated. Once the timeout expires,
+ *                                               that transaction will be deleted from the queue.
  */
 class BatchOptimizer : public Optimizer
 {
@@ -135,26 +141,29 @@ protected:
   /**
    * @brief Queue of Transaction objects, sorted by timestamp.
    *
-   * Note: Because the queue is sorted on insert, the insert operation is O(logN). However, it is far more likely that
-   * the computer will run out of memory before the insertion time grows large enough to surpass the sensor update
-   * period.
+   * Note: Because the queue is sorted on insert, the insert operation is O(logN). However, it is
+   * far more likely that the computer will run out of memory before the insertion time grows large
+   * enough to surpass the sensor update period.
    */
   using TransactionQueue = std::multimap<rclcpp::Time, TransactionQueueElement>;
 
   fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate constraints and variables
-                                                            //!< from multiple sensors and motions models before being
-                                                            //!< applied to the graph.
+                                                            //!< from multiple sensors and motions
+                                                            //!< models before being applied to the
+                                                            //!< graph.
   std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction across different threads
   ParameterType params_;  //!< Configuration settings for this optimizer
   std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization thread to wait
-                                                    //!< until a new optimization is requested by the main thread
+                                                    //!< until a new optimization is requested by
+                                                    //!< the main thread
   std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been added to the
-                                           //!< optimizer yet. Transactions are added by the main thread, and removed
-                                           //!< and processed by the optimization thread.
+                                           //!< optimizer yet. Transactions are added by the main
+                                           //!< thread, and removed and processed by the
+                                           //!< optimization thread.
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
@@ -162,40 +171,45 @@ protected:
   /**
    * @brief Generate motion model constraints for pending transactions
    *
-   * Transactions are processed sequentially based on timestamp. If motion models are successfully generated for a
-   * pending transactions, that transaction is merged into the combined_transaction_ variable and removed from the
-   * pending queue. If motion models fail to generate after the configured transaction_timeout_, the transaction
-   * will be deleted from the pending queue and a warning will be displayed.
+   * Transactions are processed sequentially based on timestamp. If motion models are successfully
+   * generated for a pending transactions, that transaction is merged into the combined_transaction_
+   * variable and removed from the pending queue. If motion models fail to generate after the
+   * configured transaction_timeout_, the transaction will be deleted from the pending queue and a
+   * warning will be displayed.
    */
   void applyMotionModelsToQueue();
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
    *
-   * This function waits for an optimization or shutdown signal, then either calls optimize() or exits appropriately.
+   * This function waits for an optimization or shutdown signal, then either calls optimize() or
+   * exits appropriately.
    */
   void optimizationLoop();
 
   /**
    * @brief Callback fired at a fixed frequency to trigger a new optimization cycle.
    *
-   * This callback checks if a current optimization cycle is still running. If not, a new optimization cycle is started.
-   * If so, we simply wait for the next timer event to start another optimization cycle.
+   * This callback checks if a current optimization cycle is still running. If not, a new
+   * optimization cycle is started. If so, we simply wait for the next timer event to start another
+   * optimization cycle.
    */
   void optimizerTimerCallback();
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction
    *
-   * This callback is responsible for ensuring all associated motion models are applied before any other processing
-   * takes place. See Optimizer::applyMotionModels() for a helper function that does just that.
+   * This callback is responsible for ensuring all associated motion models are applied before any
+   * other processing takes place. See Optimizer::applyMotionModels() for a helper function that
+   * does just that.
    *
    * This implementation shares ownership of the transaction object.
    *
    * @param[in] name        The name of the sensor that produced the Transaction
-   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to the motion models
-   *                        to generate connected constraints.
-   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
+   * @param[in] stamps      Any timestamps associated with the added variables. These are sent to
+   *                        the motion models to generate connected constraints.
+   * @param[in] transaction The populated Transaction object created by the loaded SensorModel
+   *                        plugin
    */
   void transactionCallback(
     const std::string & sensor_name,

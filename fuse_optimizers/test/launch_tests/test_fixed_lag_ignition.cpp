@@ -158,8 +158,8 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   ASSERT_EQ(rclcpp::Time(odom_msg.header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
-  // If we did our job correctly, the initial variable values should be the same as the service call state, give or
-  // take the motion model forward prediction.
+  // If we did our job correctly, the initial variable values should be the same as the service call
+  // state, give or take the motion model forward prediction.
   EXPECT_NEAR(100.1, odom_msg.pose.pose.position.x, 0.10);
   EXPECT_NEAR(100.2, odom_msg.pose.pose.position.y, 0.10);
   EXPECT_NEAR(0.8660, odom_msg.pose.pose.orientation.z, 0.10);

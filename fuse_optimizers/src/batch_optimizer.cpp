@@ -93,8 +93,8 @@ void BatchOptimizer::applyMotionModelsToQueue()
     current_time = pending_transactions_.rbegin()->first;
   }
 
-  // TODO(CH3): We might have to check for time validity here?
-  // Attempt to process each pending transaction
+  // TODO(CH3): We might have to check for time validity here? Attempt to process each pending
+  //            transaction
   while (!pending_transactions_.empty()) {
     auto & element = pending_transactions_.begin()->second;
     // Apply the motion models to the transaction
@@ -116,7 +116,8 @@ void BatchOptimizer::applyMotionModelsToQueue()
         break;
       }
     }
-    // Merge the sensor+motion model transactions into a combined transaction that will be applied directly to the graph
+    // Merge the sensor+motion model transactions into a combined transaction that will be applied
+    // directly to the graph
     {
       std::lock_guard<std::mutex> combined_transaction_lock(combined_transaction_mutex_);
       combined_transaction_->merge(*element.transaction, true);
