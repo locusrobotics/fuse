@@ -69,17 +69,27 @@ void SerializedPublisher::initialize(
 void SerializedPublisher::onInit()
 {
   // Configure the publisher
-  frame_id_ = fuse_core::getParam(interfaces_, "frame_id", frame_id_);
+  frame_id_ = fuse_core::getParam(
+    interfaces_,
+    fuse_core::joinParameterName(name_, "frame_id"), frame_id_);
 
   bool latch = false;
-  latch = fuse_core::getParam(interfaces_, "latch", latch);
+  latch = fuse_core::getParam(
+    interfaces_,
+    fuse_core::joinParameterName(name_, "latch"), latch);
 
   rclcpp::Duration graph_throttle_period{0, 0};
-  fuse_core::getPositiveParam(interfaces_, "graph_throttle_period", graph_throttle_period, false);
+  fuse_core::getPositiveParam(
+    interfaces_,
+    fuse_core::joinParameterName(name_, "graph_throttle_period"),
+    graph_throttle_period, false);
 
   bool graph_throttle_use_wall_time{false};
   graph_throttle_use_wall_time =
-    fuse_core::getParam(interfaces_, "graph_throttle_use_wall_time", graph_throttle_use_wall_time);
+    fuse_core::getParam(
+      interfaces_,
+      fuse_core::joinParameterName(name_, "graph_throttle_use_wall_time"),
+      graph_throttle_use_wall_time);
 
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
 
