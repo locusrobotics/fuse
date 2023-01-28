@@ -31,7 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/time.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -81,7 +80,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
       "/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
-  ASSERT_TRUE(fuse_core::wait_for_valid(node->get_clock(), rclcpp::Duration::from_seconds(1.0)));
+  ASSERT_TRUE(node->get_clock()->wait_until_started(rclcpp::Duration::from_seconds(1.0)));
 
   // Wait for the optimizer to be ready
   auto set_pose_client = node->create_client<fuse_msgs::srv::SetPose>("/fixed_lag_node/set_pose");

@@ -39,7 +39,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 
-#include <fuse_core/time.hpp>
+#include <rclcpp/time.hpp>
 
 #include <unordered_map>
 #include <unordered_set>

@@ -40,7 +40,6 @@ add_library(${PROJECT_NAME}
   src/loss.cpp
   src/parameter.cpp
   src/serialization.cpp
-  src/time.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
   src/transaction_deserializer.cpp

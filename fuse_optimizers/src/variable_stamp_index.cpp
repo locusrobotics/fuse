@@ -38,7 +38,7 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/stamped.hpp>
 
-#include <fuse_core/time.hpp>
+#include <rclcpp/time.hpp>
 
 #include <algorithm>
 #include <stdexcept>

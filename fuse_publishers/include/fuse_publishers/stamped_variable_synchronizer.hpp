@@ -38,11 +38,12 @@
 
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_variables/stamped.hpp>
+
+#include <rclcpp/time.hpp>
 
 
 namespace fuse_publishers
@@ -295,7 +296,7 @@ rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(
   const fuse_core::Graph & graph)
 {
   // Clear the previous stamp if the variable was deleted
-  if (fuse_core::is_valid(latest_common_stamp_) &&
+  if (0u != latest_common_stamp_.nanoseconds() &&
     !detail::all_variables_exist<Ts...>::value(graph, latest_common_stamp_, device_id_))
   {
     latest_common_stamp_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
@@ -303,7 +304,7 @@ rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(
   // Search the transaction for more recent variables
   updateTime(transaction.addedVariables(), graph);
   // If no common timestamp was found, search the whole graph for the most recent variable set
-  if (!fuse_core::is_valid(latest_common_stamp_)) {
+  if (0u == latest_common_stamp_.nanoseconds()) {
     updateTime(graph.getVariables(), graph);
   }
   return latest_common_stamp_;

@@ -38,12 +38,12 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_optimizers/variable_stamp_index.h>
 #include <fuse_variables/stamped.hpp>
-#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <gtest/gtest.h>
+#include <rclcpp/time.hpp>
 
 #include <algorithm>
 #include <iterator>

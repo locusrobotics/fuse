@@ -34,12 +34,12 @@
 #include <ostream>
 
 #include <boost/serialization/export.hpp>
-#include <fuse_core/time.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
 #include <fuse_variables/stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_variables
 {

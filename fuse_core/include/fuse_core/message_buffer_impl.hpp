@@ -40,8 +40,8 @@
 #include <utility>
 
 #include <boost/iterator/transform_iterator.hpp>
-#include <fuse_core/time.hpp>
 #include <rclcpp/duration.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_core
 {

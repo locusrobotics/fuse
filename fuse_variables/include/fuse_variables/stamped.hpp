@@ -38,10 +38,10 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
-#include <fuse_core/time.hpp>
 
 #include <boost/serialization/access.hpp>
 
+#include <rclcpp/time.hpp>
 
 namespace fuse_variables
 {
