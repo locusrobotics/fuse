@@ -194,11 +194,11 @@ public:
   }
 
 private:
-  Ogre::SceneNode * root_node_;
-  Ogre::SceneNode * relative_pose_line_node_;
-  Ogre::SceneNode * error_line_node_;
-  Ogre::SceneNode * relative_pose_axes_node_;
-  Ogre::SceneNode * text_node_;
+  Ogre::SceneNode * root_node_ = nullptr;
+  Ogre::SceneNode * relative_pose_line_node_ = nullptr;
+  Ogre::SceneNode * error_line_node_ = nullptr;
+  Ogre::SceneNode * relative_pose_axes_node_ = nullptr;
+  Ogre::SceneNode * text_node_ = nullptr;
 
   std::shared_ptr<BillboardLine> relative_pose_line_;
   std::shared_ptr<BillboardLine> error_line_;

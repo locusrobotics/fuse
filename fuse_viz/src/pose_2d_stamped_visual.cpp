@@ -90,10 +90,10 @@ Pose2DStampedVisual::Pose2DStampedVisual(
 Pose2DStampedVisual::~Pose2DStampedVisual()
 {
   delete text_;
-  scene_manager_->destroySceneNode(sphere_node_->getName());
-  scene_manager_->destroySceneNode(axes_node_->getName());
-  scene_manager_->destroySceneNode(text_node_->getName());
-  scene_manager_->destroySceneNode(root_node_->getName());
+  scene_manager_->destroySceneNode(sphere_node_);
+  scene_manager_->destroySceneNode(axes_node_);
+  scene_manager_->destroySceneNode(text_node_);
+  scene_manager_->destroySceneNode(root_node_);
 }
 
 void Pose2DStampedVisual::setPose2DStamped(

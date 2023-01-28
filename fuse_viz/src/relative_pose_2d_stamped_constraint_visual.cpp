@@ -117,11 +117,11 @@ RelativePose2DStampedConstraintVisual::RelativePose2DStampedConstraintVisual(
 RelativePose2DStampedConstraintVisual::~RelativePose2DStampedConstraintVisual()
 {
   delete text_;
-  scene_manager_->destroySceneNode(relative_pose_line_node_->getName());
-  scene_manager_->destroySceneNode(error_line_node_->getName());
-  scene_manager_->destroySceneNode(relative_pose_axes_node_->getName());
-  scene_manager_->destroySceneNode(text_node_->getName());
-  scene_manager_->destroySceneNode(root_node_->getName());
+  scene_manager_->destroySceneNode(relative_pose_line_node_);
+  scene_manager_->destroySceneNode(error_line_node_);
+  scene_manager_->destroySceneNode(relative_pose_axes_node_);
+  scene_manager_->destroySceneNode(text_node_);
+  scene_manager_->destroySceneNode(root_node_);
 }
 
 void RelativePose2DStampedConstraintVisual::setConstraint(

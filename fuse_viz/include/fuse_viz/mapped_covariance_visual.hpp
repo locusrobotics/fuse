@@ -221,12 +221,12 @@ private:
   void updateOrientation(const Eigen::Matrix6d & covariance, ShapeIndex index);
   void updateOrientationVisibility();
 
-  Ogre::SceneNode * root_node_;
-  Ogre::SceneNode * fixed_orientation_node_;
-  Ogre::SceneNode * position_scale_node_;
-  Ogre::SceneNode * position_node_;
+  Ogre::SceneNode * root_node_ = nullptr;
+  Ogre::SceneNode * fixed_orientation_node_ = nullptr;
+  Ogre::SceneNode * position_scale_node_ = nullptr;
+  Ogre::SceneNode * position_node_ = nullptr;
 
-  Ogre::SceneNode * orientation_root_node_;
+  Ogre::SceneNode * orientation_root_node_ = nullptr;
   Ogre::SceneNode * orientation_offset_node_[kNumOriShapes];
 
   rviz_rendering::Shape * position_shape_;                    //!< Ellipse used for the position

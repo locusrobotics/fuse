@@ -315,16 +315,16 @@ MappedCovarianceVisual::MappedCovarianceVisual(
 MappedCovarianceVisual::~MappedCovarianceVisual()
 {
   delete position_shape_;
-  scene_manager_->destroySceneNode(position_node_->getName());
+  scene_manager_->destroySceneNode(position_node_);
 
   for (int i = 0; i < kNumOriShapes; i++) {
     delete orientation_shape_[i];
-    scene_manager_->destroySceneNode(orientation_offset_node_[i]->getName());
+    scene_manager_->destroySceneNode(orientation_offset_node_[i]);
   }
 
-  scene_manager_->destroySceneNode(position_scale_node_->getName());
-  scene_manager_->destroySceneNode(fixed_orientation_node_->getName());
-  scene_manager_->destroySceneNode(root_node_->getName());
+  scene_manager_->destroySceneNode(position_scale_node_);
+  scene_manager_->destroySceneNode(fixed_orientation_node_);
+  scene_manager_->destroySceneNode(root_node_);
 }
 
 void MappedCovarianceVisual::setCovariance(const geometry_msgs::msg::PoseWithCovariance & pose)
