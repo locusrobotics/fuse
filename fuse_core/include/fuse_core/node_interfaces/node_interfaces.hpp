@@ -17,7 +17,19 @@
 
 #include <memory>
 
-#include "fuse_core/node_interfaces/node_interfaces_helpers.hpp"
+
+#include <rclcpp/node_interfaces/node_interfaces.hpp>
+#include <rclcpp/node_interfaces/node_base_interface.hpp>
+#include <rclcpp/node_interfaces/node_clock_interface.hpp>
+#include <rclcpp/node_interfaces/node_graph_interface.hpp>
+#include <rclcpp/node_interfaces/node_logging_interface.hpp>
+#include <rclcpp/node_interfaces/node_parameters_interface.hpp>
+#include <rclcpp/node_interfaces/node_services_interface.hpp>
+#include <rclcpp/node_interfaces/node_time_source_interface.hpp>
+#include <rclcpp/node_interfaces/node_timers_interface.hpp>
+#include <rclcpp/node_interfaces/node_topics_interface.hpp>
+#include <rclcpp/node_interfaces/node_waitables_interface.hpp>
+
 
 #define ALL_FUSE_CORE_NODE_INTERFACES \
   fuse_core::node_interfaces::Base, \
@@ -31,134 +43,23 @@
   fuse_core::node_interfaces::Topics, \
   fuse_core::node_interfaces::Waitables
 
-
 namespace fuse_core
 {
 namespace node_interfaces
 {
+typedef rclcpp::node_interfaces::NodeBaseInterface Base;
+typedef rclcpp::node_interfaces::NodeClockInterface Clock;
+typedef rclcpp::node_interfaces::NodeGraphInterface Graph;
+typedef rclcpp::node_interfaces::NodeLoggingInterface Logging;
+typedef rclcpp::node_interfaces::NodeParametersInterface Parameters;
+typedef rclcpp::node_interfaces::NodeServicesInterface Services;
+typedef rclcpp::node_interfaces::NodeTimeSourceInterface TimeSource;
+typedef rclcpp::node_interfaces::NodeTimersInterface Timers;
+typedef rclcpp::node_interfaces::NodeTopicsInterface Topics;
+typedef rclcpp::node_interfaces::NodeWaitablesInterface Waitables;
 
-/// TODO(CH3): Remove this once https://github.com/ros2/rclcpp/pull/2041 is merged and released
-
-/// A helper class for aggregating node interfaces
-template<typename ... InterfaceTs>
-class NodeInterfaces
-  : public std::enable_shared_from_this<NodeInterfaces<InterfaceTs...>>, public InterfaceTs ...
-{
-  static_assert(0 != sizeof ...(InterfaceTs), "Template parameters must be populated!");
-
-public:
-  RCLCPP_SMART_PTR_DEFINITIONS(NodeInterfaces)
-
-  /// Create a new NodeInterfaces object with no bound node interfaces.
-  NodeInterfaces()
-  : InterfaceTs()... {}
-
-  /// Create a new NodeInterfaces object bound with the passed in node-like object's interfaces.
-  /**
-   * Specify which interfaces you want to bind using the template parameters by specifying
-   * interface support classes to use. Any unmentioned interfaces will be unavailable to bind.
-   *
-   * You may use any of the available support classes in
-   * node_interfaces/node_interfaces_helpers.hpp:
-   *   - Base:       Supports NodeBaseInterface
-   *   - Clock:      Supports NodeClockInterface
-   *   - Graph:      Supports NodeGraphInterface
-   *   - Logging:    Supports NodeLoggingInterface
-   *   - Parameters: Supports NodeParametersInterface
-   *   - Services:   Supports NodeServicesInterface
-   *   - TimeSource: Supports NodeTimeSourceInterface
-   *   - Timers:     Supports NodeTimersInterface
-   *   - Topics:     Supports NodeTopicsInterface
-   *   - Waitables:  Supports NodeWaitablesInterface
-   *
-   * Or you can define your own interface support classes!
-   *
-   * Each of the support classes should define:
-   *   - Default constructor
-   *   - Templated constructor taking NodeT
-   *   - get_node_<interface_name>_interface()
-   *   - set_node_<interface_name>_interface()
-   *
-   * Usage example:
-   *   - ```NodeInterfaces<rclcpp::node_interfaces::Base>(node)``` will bind just the
-   *        NodeBaseInterface.
-   *   - ```NodeInterfaces< rclcpp::node_interfaces::Base, rclcpp::node_interfaces::Clock>(node)```
-   *        will bind both the NodeBaseInterface and NodeClockInterface.
-   *
-   * \param[in] node Node-like object to bind the interfaces of.
-   */
-  template<typename NodeT>
-  NodeInterfaces(NodeT & node)  // NOLINT(runtime/explicit)
-  : InterfaceTs(node)... {}           // Implicit constructor for node-like passing to functions
-
-  /// SharedPtr Constructor
-  template<typename NodeT>
-  NodeInterfaces(std::shared_ptr<NodeT> node)  // NOLINT(runtime/explicit)
-  : InterfaceTs(node ? *node : throw std::runtime_error("Passed in NodeT is nullptr!"))... {}
-};
-
-
-/// Create a new NodeInterfaces object bound with no node interfaces.
-/**
- * Specify which interfaces you want to bind using the template parameters by specifying
- * interface support classes to use. Any unmentioned interfaces will be unavailable to bind.
- *
- * This method will return a NodeInterfaces with no bound interfaces. You must set them using
- * ```NodeInterfaces->set_<interface_name>_interface(InterfaceT::SharedPtr interface)```
- *
- * See the rclcpp::node_interfaces::NodeInterfaces class for usage examples and support classes.
- *
- * \sa rclcpp::node_interfaces::NodeInterfaces
- * \param[in] node Node-like object to bind the interfaces of.
- * \returns a NodeInterfaces::SharedPtr supporting the stated interfaces, but bound with none of
- *          them
- */
-template<typename ... InterfaceTs>
-typename NodeInterfaces<InterfaceTs...>::SharedPtr
-get_node_interfaces()
-{
-  static_assert(0 != sizeof ...(InterfaceTs), "Template parameters must be populated!");
-  return std::make_shared<NodeInterfaces<InterfaceTs...>>();
-}
-
-/// Create a new NodeInterfaces object bound with the passed in node-like object's interfaces.
-/**
- * Specify which interfaces you want to bind using the template parameters by specifying
- * interface support classes to use. Any unmentioned interfaces will be unavailable to bind.
- *
- * See the rclcpp::node_interfaces::NodeInterfaces class for usage examples and support classes.
- *
- * \sa rclcpp::node_interfaces::NodeInterfaces
- * \param[in] node Node-like object to bind the interfaces of.
- * \returns a NodeInterfaces::SharedPtr bound with the node-like objects's interfaces
- */
-template<typename ... InterfaceTs, typename NodeT>
-typename NodeInterfaces<InterfaceTs...>::SharedPtr
-get_node_interfaces(NodeT & node)
-{
-  static_assert(0 != sizeof ...(InterfaceTs), "Template parameters must be populated!");
-  return std::make_shared<NodeInterfaces<InterfaceTs...>>(node);
-}
-
-/// Create a new NodeInterfaces object bound with the passed in node-like shared_ptr's interfaces.
-/**
- * Specify which interfaces you want to bind using the template parameters by specifying
- * interface support classes to use. Any unmentioned interfaces will be unavailable to bind.
- *
- * See the rclcpp::node_interfaces::NodeInterfaces class for usage examples and support classes.
- *
- * \sa rclcpp::node_interfaces::NodeInterfaces
- * \param[in] node Node-like object to bind the interfaces of.
- * \returns a NodeInterfaces::SharedPtr bound with the node-like objects's interfaces
- */
-template<typename ... InterfaceTs, typename NodeT>
-typename NodeInterfaces<InterfaceTs...>::SharedPtr
-get_node_interfaces(std::shared_ptr<NodeT> node)
-{
-  static_assert(0 != sizeof ...(InterfaceTs), "Template parameters must be populated!");
-  return std::make_shared<NodeInterfaces<InterfaceTs...>>(node);
-}
-
+template<typename ... InterfacesTs>
+using NodeInterfaces = ::rclcpp::node_interfaces::NodeInterfaces<InterfacesTs...>;
 }  // namespace node_interfaces
 }  // namespace fuse_core
 
