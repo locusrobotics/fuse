@@ -150,10 +150,10 @@ public:
 private:
   void setPose2DStamped(const Ogre::Vector3 & position, const Ogre::Quaternion & orientation);
 
-  Ogre::SceneNode * root_node_;
-  Ogre::SceneNode * sphere_node_;
-  Ogre::SceneNode * axes_node_;
-  Ogre::SceneNode * text_node_;
+  Ogre::SceneNode * root_node_ = nullptr;
+  Ogre::SceneNode * sphere_node_ = nullptr;
+  Ogre::SceneNode * axes_node_ = nullptr;
+  Ogre::SceneNode * text_node_ = nullptr;
 
   bool visible_;
 
