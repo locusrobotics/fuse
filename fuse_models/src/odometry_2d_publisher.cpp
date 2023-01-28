@@ -31,19 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/odometry_2d_publisher.hpp>
-#include <fuse_models/unicycle_2d_predict.hpp>
-#include <fuse_models/common/sensor_proc.hpp>
-
-#include <fuse_core/async_publisher.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/uuid.hpp>
-
-#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
-#include <nav_msgs/msg/odometry.hpp>
-#include <pluginlib/class_list_macros.hpp>
-#include <tf2_2d/tf2_2d.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
@@ -54,6 +41,18 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <fuse_core/async_publisher.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/odometry_2d_publisher.hpp>
+#include <fuse_models/unicycle_2d_predict.hpp>
+#include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <tf2_2d/tf2_2d.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Odometry2DPublisher, fuse_core::Publisher)

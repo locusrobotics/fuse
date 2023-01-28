@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__COMMON_SENSOR_PROC_HPP_
-#define FUSE_MODELS__COMMON_SENSOR_PROC_HPP_
+#ifndef FUSE_MODELS__COMMON__SENSOR_PROC_HPP_
+#define FUSE_MODELS__COMMON__SENSOR_PROC_HPP_
 
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
@@ -1265,4 +1265,4 @@ inline void scaleProcessNoiseCovariance(
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__COMMON_SENSOR_PROC_HPP_
+#endif  // FUSE_MODELS__COMMON__SENSOR_PROC_HPP_

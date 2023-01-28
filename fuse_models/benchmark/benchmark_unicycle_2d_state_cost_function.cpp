@@ -31,15 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_state_cost_function.hpp>
-#include <fuse_models/unicycle_2d_state_cost_functor.hpp>
-
 #include <benchmark/benchmark.h>
-
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <vector>
+
+#include <fuse_models/unicycle_2d_state_cost_function.hpp>
+#include <fuse_models/unicycle_2d_state_cost_functor.hpp>
 
 class Unicycle2DStateCostFunction : public benchmark::Fixture
 {

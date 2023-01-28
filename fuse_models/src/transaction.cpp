@@ -33,7 +33,6 @@
  */
 
 #include <fuse_models/transaction.hpp>
-
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
 

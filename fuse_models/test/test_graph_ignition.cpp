@@ -32,31 +32,28 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <gtest/gtest.h>
+
+#include <chrono>
+#include <future>
+#include <string>
+#include <utility>
+
+#include <boost/range/algorithm.hpp>
+#include <boost/range/size.hpp>
+#include "example_constraint.hpp"
+#include "example_variable.hpp"
+#include "example_variable_stamped.hpp"
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/graph_deserializer.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_msgs/srv/set_graph.hpp>
 #include <fuse_models/graph_ignition.hpp>
-#include <rclcpp/rclcpp.hpp>
-
-#include <nav_msgs/msg/path.hpp>
+#include <fuse_msgs/srv/set_graph.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
-
-#include "example_constraint.h"
-#include "example_variable.h"
-#include "example_variable_stamped.h"
-
-#include <gtest/gtest.h>
-
-#include <boost/range/algorithm.hpp>
-#include <boost/range/size.hpp>
-
-#include <chrono>
-#include <future>
-#include <utility>
-#include <string>
+#include <nav_msgs/msg/path.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 /**
  * @brief Promise used to communicate between the tests and the callback

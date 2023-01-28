@@ -31,22 +31,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
-#include <fuse_models/unicycle_2d_state_cost_function.hpp>
+#include <Eigen/Dense>
 
+#include <ostream>
+#include <string>
+
+#include <boost/serialization/export.hpp>
+#include <fuse_models/unicycle_2d_state_cost_function.hpp>
+#include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
-#include <Eigen/Dense>
-
-#include <ostream>
-#include <string>
-
 
 namespace fuse_models
 {

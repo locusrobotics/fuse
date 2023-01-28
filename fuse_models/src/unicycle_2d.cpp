@@ -31,27 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_predict.hpp>
-#include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
-#include <fuse_models/unicycle_2d.hpp>
-#include <fuse_models/common/sensor_proc.hpp>
-#include <fuse_models/parameters/parameter_base.hpp>
-
 #include <Eigen/Dense>
-#include <fuse_core/async_motion_model.hpp>
-#include <fuse_core/constraint.hpp>
-#include <fuse_core/parameter.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
-#include <fuse_variables/orientation_2d_stamped.hpp>
-#include <fuse_variables/position_2d_stamped.hpp>
-#include <fuse_variables/velocity_angular_2d_stamped.hpp>
-#include <fuse_variables/velocity_linear_2d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-#include <pluginlib/class_list_macros.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
 
 #include <stdexcept>
@@ -59,6 +39,25 @@
 #include <utility>
 #include <vector>
 
+#include <fuse_core/async_motion_model.hpp>
+#include <fuse_core/constraint.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/parameters/parameter_base.hpp>
+#include <fuse_models/unicycle_2d.hpp>
+#include <fuse_models/unicycle_2d_predict.hpp>
+#include <fuse_models/unicycle_2d_state_kinematic_constraint.hpp>
+#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
+#include <fuse_variables/orientation_2d_stamped.hpp>
+#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <fuse_variables/velocity_angular_2d_stamped.hpp>
+#include <fuse_variables/velocity_linear_2d_stamped.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 // Register this motion model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2D, fuse_core::MotionModel)

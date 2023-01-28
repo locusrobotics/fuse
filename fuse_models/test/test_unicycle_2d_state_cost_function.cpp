@@ -31,20 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_state_cost_function.hpp>
-#include <fuse_models/unicycle_2d_state_cost_functor.hpp>
-
-#include <gtest/gtest.h>
-#include <fuse_core/ceres_macros.hpp>
-#include <fuse_core/eigen_gtest.hpp>
-
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/gradient_checker.h>
 #include <Eigen/Dense>
+#include <gtest/gtest.h>
 
 #include <limits>
 #include <vector>
 
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_models/unicycle_2d_state_cost_function.hpp>
+#include <fuse_models/unicycle_2d_state_cost_functor.hpp>
 
 TEST(CostFunction, evaluateCostFunction)
 {

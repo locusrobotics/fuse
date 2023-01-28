@@ -31,15 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_constraint.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/eigen_gtest.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_models/unicycle_2d_ignition.hpp>
-#include <fuse_msgs/srv/set_pose.hpp>
-#include <fuse_msgs/srv/set_pose_deprecated.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -48,6 +39,15 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <fuse_constraints/absolute_constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_models/unicycle_2d_ignition.hpp>
+#include <fuse_msgs/srv/set_pose.hpp>
+#include <fuse_msgs/srv/set_pose_deprecated.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 using fuse_constraints::AbsolutePosition2DStampedConstraint;
 using fuse_constraints::AbsoluteOrientation2DStampedConstraint;

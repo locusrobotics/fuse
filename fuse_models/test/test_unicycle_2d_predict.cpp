@@ -31,16 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_predict.hpp>
-
 #include <gtest/gtest.h>
-#include <tf2_2d/tf2_2d.hpp>
-#include <fuse_core/eigen_gtest.hpp>
 
 #include <array>
 #include <limits>
 #include <vector>
 
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_models/unicycle_2d_predict.hpp>
+#include <tf2_2d/tf2_2d.hpp>
 
 TEST(Predict, predictDirectVals)
 {

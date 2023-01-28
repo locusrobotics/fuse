@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__PARAMETERS_PARAMETER_BASE_HPP_
-#define FUSE_MODELS__PARAMETERS_PARAMETER_BASE_HPP_
+#ifndef FUSE_MODELS__PARAMETERS__PARAMETER_BASE_HPP_
+#define FUSE_MODELS__PARAMETERS__PARAMETER_BASE_HPP_
 
 #include <fuse_models/common/sensor_config.hpp>
 #include <fuse_core/parameter.hpp>
@@ -95,4 +95,4 @@ inline std::vector<size_t> loadSensorConfig(
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__PARAMETERS_PARAMETER_BASE_HPP_
+#endif  // FUSE_MODELS__PARAMETERS__PARAMETER_BASE_HPP_

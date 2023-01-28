@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__COMMON_SENSOR_CONFIG_HPP_
-#define FUSE_MODELS__COMMON_SENSOR_CONFIG_HPP_
+#ifndef FUSE_MODELS__COMMON__SENSOR_CONFIG_HPP_
+#define FUSE_MODELS__COMMON__SENSOR_CONFIG_HPP_
 
 #include <fuse_models/common/variable_traits.hpp>
 
@@ -145,4 +145,4 @@ std::vector<size_t> getDimensionIndices(const std::vector<std::string> & dimensi
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__COMMON_SENSOR_CONFIG_HPP_
+#endif  // FUSE_MODELS__COMMON__SENSOR_CONFIG_HPP_

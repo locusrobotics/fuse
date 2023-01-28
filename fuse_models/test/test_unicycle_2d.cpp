@@ -3,9 +3,10 @@
  * Unauthorized copying of this file, via any medium, is strictly prohibited
  * Proprietary and confidential
  ***************************************************************************/
-#include <fuse_models/unicycle_2d.hpp>
+#include <gtest/gtest.h>
 
 #include <fuse_graphs/hash_graph.hpp>
+#include <fuse_models/unicycle_2d.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
@@ -13,9 +14,6 @@
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
-
-#include <gtest/gtest.h>
-
 
 /**
  * @brief Derived class used in unit tests to expose protected functions

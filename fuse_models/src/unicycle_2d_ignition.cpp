@@ -31,7 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_ignition.hpp>
+#include <Eigen/Dense>
+#include <tf2/convert.h>
+#include <tf2/LinearMath/Quaternion.h>
+
+#include <exception>
+#include <stdexcept>
 
 #include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_core/async_sensor_model.hpp>
@@ -40,27 +45,19 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_core/uuid.hpp>
+#include <fuse_models/unicycle_2d_ignition.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
-#include <fuse_variables/stamped.hpp>
-
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <std_srvs/srv/empty.hpp>
-#include <tf2/convert.h>
-#include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-
-#include <Eigen/Dense>
-
-#include <exception>
-#include <stdexcept>
-
 
 // Register this motion model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2DIgnition, fuse_core::SensorModel);

@@ -31,21 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/sensor_proc.hpp>
-#include <fuse_models/odometry_2d.hpp>
+#include <memory>
+#include <utility>
 
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
-
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/odometry_2d.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <memory>
-#include <utility>
-
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Odometry2D, fuse_core::SensorModel)
