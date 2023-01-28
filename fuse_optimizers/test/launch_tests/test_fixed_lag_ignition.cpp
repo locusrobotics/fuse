@@ -31,15 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <gtest/gtest.h>
+
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/wait_for_message.hpp>
 #include <std_srvs/srv/empty.hpp>
-
-#include <gtest/gtest.h>
-
 
 class FixedLagIgnitionFixture : public ::testing::Test
 {

@@ -32,14 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_core/callback_wrapper.hpp>
-#include <fuse_core/graph.hpp>
-#include <fuse_core/parameter.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_optimizers/optimizer.hpp>
-#include <fuse_graphs/hash_graph.hpp>
-
 #include <chrono>
 #include <functional>
 #include <numeric>
@@ -48,6 +40,13 @@
 #include <utility>
 #include <vector>
 
+#include <fuse_core/callback_wrapper.hpp>
+#include <fuse_core/graph.hpp>
+#include <fuse_core/parameter.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_graphs/hash_graph.hpp>
+#include <fuse_optimizers/optimizer.hpp>
 #include <rclcpp/time.hpp>
 
 namespace fuse_optimizers

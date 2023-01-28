@@ -36,6 +36,7 @@
 #define FUSE_OPTIMIZERS__TEST_COMMON_HPP_
 
 #include <algorithm>
+#include <iterator>
 #include <ostream>
 #include <string>
 #include <unordered_map>

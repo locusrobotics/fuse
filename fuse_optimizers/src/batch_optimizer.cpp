@@ -32,17 +32,16 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <utility>
+
 #include <fuse_core/transaction.hpp>
 #include <fuse_optimizers/batch_optimizer.hpp>
 #include <fuse_optimizers/optimizer.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <algorithm>
-#include <mutex>
-#include <string>
-#include <utility>
-#include <thread>
-
 
 namespace fuse_optimizers
 {

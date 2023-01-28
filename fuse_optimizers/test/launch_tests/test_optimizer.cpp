@@ -31,16 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_graphs/hash_graph.hpp>
-#include "example_optimizer.hpp"
-#include "common.hpp"
-
-#include <gtest/gtest.h>
-
 #include <algorithm>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "common.hpp"
+#include "example_optimizer.hpp"
+#include <fuse_graphs/hash_graph.hpp>
+
+#include <gtest/gtest.h>  // NOLINT
 
 
 TEST(Optimizer, Constructor)

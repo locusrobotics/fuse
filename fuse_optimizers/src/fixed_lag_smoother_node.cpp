@@ -37,7 +37,6 @@
 #include <fuse_optimizers/fixed_lag_smoother.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);

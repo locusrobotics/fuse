@@ -32,18 +32,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_optimizers/variable_stamp_index.hpp>
-
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-#include <fuse_variables/stamped.hpp>
-
-#include <rclcpp/time.hpp>
-
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
 
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_optimizers/variable_stamp_index.hpp>
+#include <fuse_variables/stamped.hpp>
+#include <rclcpp/time.hpp>
 
 namespace fuse_optimizers
 {
