@@ -52,21 +52,24 @@ namespace fuse_models
 {
 
 /**
- * @brief A ignition sensor designed to be used to reset the optimizer graph to an input graph. This is useful for
- * debugging purposes because it allows to play back the recorded transactions from a previous run starting from the
- * same graph, so we obtain the same intermediate graphs and publishers' outputs. This is specially useful when we
- * cannot record all the graph messages because that would take too much bandwidth or disk, so the recorded graph must
- * be throttled.
+ * @brief A ignition sensor designed to be used to reset the optimizer graph to an input graph. This
+ *        is useful for debugging purposes because it allows to play back the recorded transactions
+ *        from a previous run starting from the same graph, so we obtain the same intermediate
+ *        graphs and publishers' outputs. This is specially useful when we cannot record all the
+ *        graph messages because that would take too much bandwidth or disk, so the recorded graph
+ *        must be throttled.
  *
- * This class publishes a transaction equivalent to the supplied graph. When the sensor is first loaded, it does not
- * send any transactions. It waits for a graph to do so. Whenever a graph is received, either
- * on the set_graph service or the topic, this ignition sensor resets the optimizer then publishes a new transaction
- * equivalent to the specified graph.
+ * This class publishes a transaction equivalent to the supplied graph. When the sensor is first
+ * loaded, it does not send any transactions. It waits for a graph to do so. Whenever a graph is
+ * received, either on the set_graph service or the topic, this ignition sensor resets the optimizer
+ * then publishes a new transaction equivalent to the specified graph.
  *
  * Parameters:
  *  - ~queue_size (int, default: 10) The subscriber queue size for the graph messages
- *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before sending a transaction
- *  - ~set_graph_service (string, default: "set_graph") The name of the set_graph service to advertise
+ *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before
+ *     sending a transaction
+ *  - ~set_graph_service (string, default: "set_graph") The name of the set_graph service to
+ *     advertise
  *  - ~topic (string, default: "graph") The topic name for received Graph messages
  */
 class GraphIgnition : public fuse_core::AsyncSensorModel
@@ -98,20 +101,22 @@ public:
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
    *
-   * As a very special case, we are overriding the start() method instead of providing an onStart() implementation.
-   * This is because the GraphIgnition sensor calls reset() on the optimizer, which in turn calls stop() and start(). If
-   * we used the AsyncSensorModel implementations of start() and stop(), the system would hang inside of one callback
-   * function while waiting for another callback to complete.
+   * As a very special case, we are overriding the start() method instead of providing an onStart()
+   * implementation. This is because the GraphIgnition sensor calls reset() on the optimizer, which
+   * in turn calls stop() and start(). If we used the AsyncSensorModel implementations of start()
+   * and stop(), the system would hang inside of one callback function while waiting for another
+   * callback to complete.
    */
   void start() override;
 
   /**
    * @brief Unsubscribe from the input topic to stop sending transactions to the optimizer
    *
-   * As a very special case, we are overriding the stop() method instead of providing an onStop() implementation.
-   * This is because the GraphIgnition sensor calls reset() on the optimizer, which in turn calls stop() and start(). If
-   * we used the AsyncSensorModel implementations of start() and stop(), the system would hang inside of one callback
-   * function while waiting for another callback to complete.
+   * As a very special case, we are overriding the stop() method instead of providing an onStop()
+   * implementation. This is because the GraphIgnition sensor calls reset() on the optimizer, which
+   * in turn calls stop() and start(). If we used the AsyncSensorModel implementations of start()
+   * and stop(), the system would hang inside of one callback function while waiting for another
+   * callback to complete.
    */
   void stop() override;
 
@@ -137,8 +142,8 @@ protected:
   /**
    * @brief Process a received graph from one of the ROS comm channels
    *
-   * This method validates the input graph, resets the optimizer, then constructs and sends the initial state
-   * constraints (by calling sendGraph()).
+   * This method validates the input graph, resets the optimizer, then constructs and sends the
+   * initial state constraints (by calling sendGraph()).
    *
    * @param[in] msg - The graph message
    */

@@ -50,21 +50,23 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces 2D linear acceleration constraints from information published by another
- * node
+ * @brief An adapter-type sensor that produces 2D linear acceleration constraints from information
+ *        published by another node
  *
- * This sensor subscribes to a geometry_msgs::msg::AccelWithCovarianceStamped topic and converts each received message
- * into a 2D linear acceleration variable and constraint.
+ * This sensor subscribes to a geometry_msgs::msg::AccelWithCovarianceStamped topic and converts
+ * each received message into a 2D linear acceleration variable and constraint.
  *
  * Parameters:
- *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
+ *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
+ *    publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the twist messages
  *  - target_frame (string) The target frame_id to transform the data into before using it
  *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::msg::AccelWithCovarianceStamped) Acceleration information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::AccelWithCovarianceStamped) Acceleration information at a given
+ *     timestamp
  */
 class Acceleration2D : public fuse_core::AsyncSensorModel
 {
@@ -102,9 +104,10 @@ protected:
   /**
    * @brief Perform any required initialization for the sensor model
    *
-   * This could include things like reading from the parameter server or subscribing to topics. The class's node
-   * handles will be properly initialized before SensorModel::onInit() is called. Spinning of the callback queue will
-   * not begin until after the call to SensorModel::onInit() completes.
+   * This could include things like reading from the parameter server or subscribing to topics. The
+   * class's node handles will be properly initialized before SensorModel::onInit() is called.
+   * Spinning of the callback queue will not begin until after the call to SensorModel::onInit()
+   * completes.
    */
   void onInit() override;
 

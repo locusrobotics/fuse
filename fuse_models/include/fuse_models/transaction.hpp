@@ -47,11 +47,12 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces transactions with the same added and removed constraints from an input
- * transaction. This is useful for debugging purposes because it allows to play back the recorded transactions.
+ * @brief An adapter-type sensor that produces transactions with the same added and removed
+ *        constraints from an input transaction. This is useful for debugging purposes because it
+ *        allows to play back the recorded transactions.
  *
- * This sensor subscribes to a fuse_msgs::msg::SerializedTransaction topic and deserializes each received message into a
- * transaction.
+ * This sensor subscribes to a fuse_msgs::msg::SerializedTransaction topic and deserializes each
+ * received message into a transaction.
  *
  * Parameters:
  *  - ~queue_size (int, default: 10) The subscriber queue size for the transaction messages

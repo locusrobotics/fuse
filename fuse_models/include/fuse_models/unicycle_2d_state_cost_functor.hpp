@@ -57,8 +57,8 @@ namespace fuse_models
  *   x acceleration
  *   y acceleration
  *
- * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost function that
- * applies a prior constraint on both the entire state vector.
+ * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost
+ * function that applies a prior constraint on both the entire state vector.
  *
  * The cost function is of the form:
  *
@@ -71,14 +71,14 @@ namespace fuse_models
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
  *
- * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
- * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
- * function of the form
+ * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and
+ * proj is a function that projects the state variables from time t1 to time t2. In case the user is
+ * interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
- * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the square root
- * information matrix (the inverse of the covariance).
+ * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
+ * square root information matrix (the inverse of the covariance).
  */
 class Unicycle2DStateCostFunctor
 {
@@ -89,8 +89,8 @@ public:
    * @brief Construct a cost function instance
    *
    * @param[in] dt The time delta across which to generate the kinematic model cost
-   * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
-   *              (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
+   * @param[in] A The residual weighting matrix, most likely the square root information matrix in
+   *              order (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
   Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d & A);
 

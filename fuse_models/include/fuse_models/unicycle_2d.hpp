@@ -55,19 +55,21 @@ namespace fuse_models
 {
 
 /**
- * @brief A fuse_models 2D kinematic model that generates kinematic constraints between provided time stamps, and adds
- * those constraints to the fuse graph.
+ * @brief A fuse_models 2D kinematic model that generates kinematic constraints between provided
+ *        time stamps, and adds those constraints to the fuse graph.
  *
- * This class uses a unicycle kinematic model for the robot. It is equivalent to the motion model that one would have
- * if setting all 3D variable values to 0 in the robot_localization state estimation nodes.
+ * This class uses a unicycle kinematic model for the robot. It is equivalent to the motion model
+ * that one would have if setting all 3D variable values to 0 in the robot_localization state
+ * estimation nodes.
  *
  * Parameters:
- *  - ~device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
+ *  - ~device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
+ *     publish
  *  - ~device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - ~buffer_length (double) The length of the graph state buffer and state history, in seconds
- *  - ~process_noise_diagonal (vector of doubles) An 8-dimensional vector containing the diagonal values for the
- *                                                process noise covariance matrix. Variable order is (x, y, yaw,
- *                                                x_vel, y_vel, yaw_vel, x_acc, y_acc).
+ *  - ~process_noise_diagonal (vector of doubles) An 8-dimensional vector containing the diagonal
+ *     values for the process noise covariance matrix. Variable order is (x, y, yaw, x_vel, y_vel,
+ *     yaw_vel, x_acc, y_acc).
  */
 class Unicycle2D : public fuse_core::AsyncMotionModel
 {
@@ -114,18 +116,23 @@ protected:
     void print(std::ostream & stream = std::cout) const;
 
     /**
-     * @brief Validate the state components: pose, linear velocity, yaw velocity and linear acceleration.
+     * @brief Validate the state components: pose, linear velocity, yaw velocity and linear
+     *        acceleration.
      *
-     * This validates the state components are finite. It throws an exception if any validation check fails.
+     * This validates the state components are finite. It throws an exception if any validation
+     * check fails.
      */
     void validate() const;
   };
   using StateHistory = std::map<rclcpp::Time, StateHistoryElement>;
 
   /**
-   * @brief Augment a transaction structure such that the provided timestamps are connected by motion model constraints.
-   * @param[in]  stamps      The set of timestamps that should be connected by motion model constraints
-   * @param[out] transaction The transaction object that should be augmented with motion model constraints
+   * @brief Augment a transaction structure such that the provided timestamps are connected by
+   *        motion model constraints.
+   * @param[in]  stamps      The set of timestamps that should be connected by motion model
+   *                         constraints
+   * @param[out] transaction The transaction object that should be augmented with motion model
+   *                         constraints
    * @return                 True if the motion models were generated successfully, false otherwise
    */
   bool applyCallback(fuse_core::Transaction & transaction) override;
@@ -133,16 +140,20 @@ protected:
   /**
    * @brief Generate a single motion model segment between the specified timestamps.
    *
-   * This function is used by the timestamp manager to generate just the new motion model segments required to
-   * fulfill a query.
+   * This function is used by the timestamp manager to generate just the new motion model segments
+   * required to fulfill a query.
    *
-   * @param[in]  beginning_stamp The beginning timestamp of the motion model constraints to be generated.
-   *                             \p beginning_stamp is guaranteed to be less than \p ending_stamp.
-   * @param[in]  ending_stamp    The ending timestamp of the motion model constraints to be generated.
-   *                             \p ending_stamp is guaranteed to be greater than \p beginning_stamp.
-   * @param[out] constraints     One or more motion model constraints between the requested timestamps.
-   * @param[out] variables       One or more variables at both the \p beginning_stamp and \p ending_stamp. The
-   *                             variables should include initial values for the optimizer.
+   * @param[in]  beginning_stamp The beginning timestamp of the motion model constraints to be
+   *                             generated. \p beginning_stamp is guaranteed to be less than \p
+   *                             ending_stamp.
+   * @param[in]  ending_stamp    The ending timestamp of the motion model constraints to be
+   *                             generated. \p ending_stamp is guaranteed to be greater than \p
+   *                             beginning_stamp.
+   * @param[out] constraints     One or more motion model constraints between the requested
+   *                             timestamps.
+   * @param[out] variables       One or more variables at both the \p beginning_stamp and \p
+   *                             ending_stamp. The variables should include initial values for the
+   *                             optimizer.
    */
   void generateMotionModel(
     const rclcpp::Time & beginning_stamp,
@@ -151,8 +162,10 @@ protected:
     std::vector<fuse_core::Variable::SharedPtr> & variables);
 
   /**
-   * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received from the optimizer
-   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed whenever needed.
+   * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received
+   *        from the optimizer
+   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
+   *                  whenever needed.
    */
   void onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph) override;
 
@@ -167,7 +180,8 @@ protected:
   void onStart() override;
 
   /**
-   * @brief Update all of the estimated states in the state history container using the optimized values from the graph
+   * @brief Update all of the estimated states in the state history container using the optimized
+   *        values from the graph
    * @param[in] graph         The graph object containing updated variable values
    * @param[in] state_history The state history object to be updated
    * @param[in] buffer_length States older than this in the history will be pruned
@@ -180,12 +194,13 @@ protected:
   /**
    * @brief Validate the motion model state #1, state #2 and process noise covariance
    *
-   * This validates the motion model states and process noise covariance are valid. It throws an exception if any
-   * validation check fails.
+   * This validates the motion model states and process noise covariance are valid. It throws an
+   * exception if any validation check fails.
    *
    * @param[in] state1                   The first/oldest state
    * @param[in] state2                   The second/newest state
-   * @param[in] process_noise_covariance The process noise covariance, after it is scaled and multiplied by dt
+   * @param[in] process_noise_covariance The process noise covariance, after it is scaled and
+   *                                     multiplied by dt
    */
   static void validateMotionModel(
     const StateHistoryElement & state1, const StateHistoryElement & state2,

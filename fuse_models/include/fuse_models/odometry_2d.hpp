@@ -53,29 +53,30 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
- * published by another node
+ * @brief An adapter-type sensor that produces pose (relative or absolute) and velocity constraints
+ *        from sensor data published by another node
  *
  * This sensor subscribes to a nav_msgs::msg::Odometry topic and:
- *   1. Creates relative or absolute pose variables and constraints. If the \p differential parameter is set to false
- *      (the default), the  measurement will be treated as an absolute constraint. If it is set to true, consecutive
- *      measurements will be used to generate relative pose constraints.
- *   2. Creates 2D velocity variables and constraints.
+ * 1. Creates relative or absolute pose variables and constraints. If the \p differential parameter
+ * is set to false (the default), the  measurement will be treated as an absolute constraint. If it
+ * is set to true, consecutive measurements will be used to generate relative pose constraints. 2.
+ * Creates 2D velocity variables and constraints.
  *
- * This sensor really just separates out the pose and twist components of the message, and processes them just like the
- * Pose2D and Twist2D classes.
+ * This sensor really just separates out the pose and twist components of the message, and processes
+ * them just like the Pose2D and Twist2D classes.
  *
  * Parameters:
- *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
+ *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
+ *    publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - topic (string) The topic to which to subscribe for the pose messages
- *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to create relative pose
- *      constraints using consecutive measurements.
- *  - pose_target_frame (string) Pose data will be transformed into this frame before it is fused. This frame should be
- *      a world-fixed frame, typically 'odom' or 'map'.
- *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it is fused. This
- *      frame should be a body-relative frame, typically 'base_link'.
+ *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to
+ *    create relative pose constraints using consecutive measurements.
+ *  - pose_target_frame (string) Pose data will be transformed into this frame before it is fused.
+ *    This frame should be a world-fixed frame, typically 'odom' or 'map'.
+ *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it
+ *    is fused. This frame should be a body-relative frame, typically 'base_link'.
  *
  * Subscribes:
  *  - \p topic (nav_msgs::msg::Odometry) Odometry information at a given timestep
@@ -116,9 +117,10 @@ protected:
   /**
    * @brief Perform any required initialization for the sensor model
    *
-   * This could include things like reading from the parameter server or subscribing to topics. The class's node
-   * handles will be properly initialized before SensorModel::onInit() is called. Spinning of the callback queue will
-   * not begin until after the call to SensorModel::onInit() completes.
+   * This could include things like reading from the parameter server or subscribing to topics. The
+   * class's node handles will be properly initialized before SensorModel::onInit() is called.
+   * Spinning of the callback queue will not begin until after the call to SensorModel::onInit()
+   * completes.
    */
   void onInit() override;
 
@@ -136,7 +138,8 @@ protected:
    * @brief Process a pose message in differential mode
    *
    * @param[in] pose - The pose message to process in differential mode
-   * @param[in] twist - The twist message used in case the twist covariance is used in differential mode
+   * @param[in] twist - The twist message used in case the twist covariance is used in differential
+   *                    mode
    * @param[in] validate - Whether to validate the pose and twist coavriance or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */

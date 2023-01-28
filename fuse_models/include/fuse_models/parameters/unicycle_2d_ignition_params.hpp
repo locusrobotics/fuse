@@ -155,8 +155,8 @@ public:
 
 
   /**
-   * @brief Flag indicating if an initial state transaction should be sent on startup, or only in response to a
-   *        set_pose service call or topic message.
+   * @brief Flag indicating if an initial state transaction should be sent on startup, or only in
+   *        response to a set_pose service call or topic message.
    */
   bool publish_on_startup {true};
 
@@ -190,13 +190,15 @@ public:
    *
    * Standard deviations are provided as an 8-dimensional vector in the order:
    *   (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
-   * The covariance matrix is created placing the squared standard deviations along the diagonal of an 8x8 matrix.
+   * The covariance matrix is created placing the squared standard deviations along the diagonal of
+   * an 8x8 matrix.
    */
   std::vector<double> initial_sigma {1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9,
     1.0e-9};
 
   /**
-   * @brief The initial value of the 8-dimension state vector (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
+   * @brief The initial value of the 8-dimension state vector (x, y, yaw, x_vel, y_vel, yaw_vel,
+   *        x_acc, y_acc)
    */
   std::vector<double> initial_state {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 

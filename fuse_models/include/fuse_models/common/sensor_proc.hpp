@@ -166,10 +166,12 @@ inline std::vector<size_t> mergeIndices(
 }
 
 /**
- * @brief Method to create sub-measurements from full measurements and append them to existing partial measurements
+ * @brief Method to create sub-measurements from full measurements and append them to existing
+ *        partial measurements
  *
  * @param[in] mean_full - The full mean vector from which we will generate the sub-measurement
- * @param[in] covariance_full - The full covariance matrix from which we will generate the sub-measurement
+ * @param[in] covariance_full - The full covariance matrix from which we will generate the sub-
+ *                              measurement
  * @param[in] indices - The indices we want to include in the sub-measurement
  * @param[in,out] mean_partial - The partial measurement mean to which we want to append
  * @param[in,out] covariance_partial - The partial measurement covariance to which we want to append
@@ -191,7 +193,8 @@ inline void populatePartialMeasurement(
 }
 
 /**
- * @brief Method to validate partial measurements, that checks for finite values and covariance properties
+ * @brief Method to validate partial measurements, that checks for finite values and covariance
+ *        properties
  *
  * @param[in] mean_partial - The partial measurement mean we want to validate
  * @param[in] covariance_partial - The partial measurement covariance we want to validate
@@ -259,19 +262,23 @@ bool transformMessage(
 }
 
 /**
- * @brief Extracts 2D pose data from a PoseWithCovarianceStamped message and adds that data to a fuse Transaction
+ * @brief Extracts 2D pose data from a PoseWithCovarianceStamped message and adds that data to a
+ *        fuse Transaction
  *
- * This method effectively adds two variables (2D position and 2D orientation) and a 2D pose constraint to the given
- * \p transaction. The pose data is extracted from the \p pose message. Only 2D data is used. The data will be
- * automatically transformed into the \p target_frame before it is used.
+ * This method effectively adds two variables (2D position and 2D orientation) and a 2D pose
+ * constraint to the given \p transaction. The pose data is extracted from the \p pose message. Only
+ * 2D data is used. The data will be automatically transformed into the \p target_frame before it is
+ * used.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose - The PoseWithCovarianceStamped message from which we will extract the pose data
  * @param[in] loss - The loss function for the 2D pose constraint generated
- * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is used
+ * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is
+ *                           used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
- * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
+ *                       constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -379,29 +386,33 @@ inline bool processAbsolutePoseWithCovariance(
 }
 
 /**
- * @brief Extracts relative 2D pose data from a PoseWithCovarianceStamped and adds that data to a fuse Transaction
+ * @brief Extracts relative 2D pose data from a PoseWithCovarianceStamped and adds that data to a
+ *        fuse Transaction
  *
- * This method computes the delta between two poses and creates the required fuse variables and constraints, and then
- * adds them to the given \p transaction. Only 2D data is used. The pose delta is calculated as
+ * This method computes the delta between two poses and creates the required fuse variables and
+ * constraints, and then adds them to the given \p transaction. Only 2D data is used. The pose delta
+ * is calculated as
  *
  * pose_relative = pose_absolute1^-1 * pose_absolute2
  *
- * Additionally, the covariance of each pose message is rotated into the robot's base frame at the time of
- * pose_absolute1. They are then added in the constraint if the pose measurements are independent.
- * Otherwise, if the pose measurements are dependent, the covariance of pose_absolute1 is substracted from the
- * covariance of pose_absolute2. A small minimum relative covariance is added to avoid getting a zero or
- * ill-conditioned covariance. This could happen if both covariance matrices are the same or very similar, e.g. when
- * pose_absolute1 == pose_absolute2, it's possible that the covariance is the same for both poses.
+ * Additionally, the covariance of each pose message is rotated into the robot's base frame at the
+ * time of pose_absolute1. They are then added in the constraint if the pose measurements are
+ * independent. Otherwise, if the pose measurements are dependent, the covariance of pose_absolute1
+ * is substracted from the covariance of pose_absolute2. A small minimum relative covariance is
+ * added to avoid getting a zero or ill-conditioned covariance. This could happen if both covariance
+ * matrices are the same or very similar, e.g. when pose_absolute1 == pose_absolute2, it's possible
+ * that the covariance is the same for both poses.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The second (and temporally later) PoseWithCovarianceStamped message
  * @param[in] independent - Whether the pose measurements are indepent or not
- * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always added to the
- *                                               resulting pose relative covariance
+ * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always
+ *                                               added to the resulting pose relative covariance
  * @param[in] loss - The loss function for the 2D pose constraint generated
- * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
+ *                       constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -735,29 +746,34 @@ inline bool processDifferentialPoseWithCovariance(
 }
 
 /**
- * @brief Extracts relative 2D pose data from a PoseWithCovarianceStamped and adds that data to a fuse Transaction
+ * @brief Extracts relative 2D pose data from a PoseWithCovarianceStamped and adds that data to a
+ *        fuse Transaction
  *
- * This method computes the delta between two poses and creates the required fuse variables and constraints, and then
- * adds them to the given \p transaction. Only 2D data is used. The pose delta is calculated as
+ * This method computes the delta between two poses and creates the required fuse variables and
+ * constraints, and then adds them to the given \p transaction. Only 2D data is used. The pose delta
+ * is calculated as
  *
  * pose_relative = pose_absolute1^-1 * pose_absolute2
  *
- * Additionally, the twist covariance of the last message is used to compute the relative pose covariance using the time
- * difference between the pose_absolute2 and pose_absolute1 time stamps. This assumes the pose measurements are
- * dependent. A small minimum relative covariance is added to avoid getting a zero or ill-conditioned covariance. This
- * could happen if the twist covariance is very small, e.g. when the twist is zero.
+ * Additionally, the twist covariance of the last message is used to compute the relative pose
+ * covariance using the time difference between the pose_absolute2 and pose_absolute1 time stamps.
+ * This assumes the pose measurements are dependent. A small minimum relative covariance is added to
+ * avoid getting a zero or ill-conditioned covariance. This could happen if the twist covariance is
+ * very small, e.g. when the twist is zero.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The second (and temporally later) PoseWithCovarianceStamped message
  * @param[in] twist - The second (and temporally later) TwistWithCovarianceStamped message
- * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always added to the
- *                                               resulting pose relative covariance
- * @param[in] twist_covariance_offset - The twist covariance offset that was added to the twist covariance and must be
- *                                       substracted from it before computing the pose relative covariance from it
+ * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always
+ *                                               added to the resulting pose relative covariance
+ * @param[in] twist_covariance_offset - The twist covariance offset that was added to the twist
+ *                                      covariance and must be substracted from it before computing
+ *                                      the pose relative covariance from it
  * @param[in] loss - The loss function for the 2D pose constraint generated
- * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
+ *                       constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -927,20 +943,27 @@ inline bool processDifferentialPoseWithTwistCovariance(
 }
 
 /**
- * @brief Extracts velocity data from a TwistWithCovarianceStamped and adds that data to a fuse Transaction
+ * @brief Extracts velocity data from a TwistWithCovarianceStamped and adds that data to a fuse
+ *        Transaction
  *
- * This method effectively adds two variables (2D linear velocity and 2D angular velocity) and their respective
- * constraints to the given \p transaction. The velocity data is extracted from the \p twist message. Only 2D data is
- * used. The data will be automatically transformed into the \p target_frame before it is used.
+ * This method effectively adds two variables (2D linear velocity and 2D angular velocity) and their
+ * respective constraints to the given \p transaction. The velocity data is extracted from the \p
+ * twist message. Only 2D data is used. The data will be automatically transformed into the \p
+ * target_frame before it is used.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
- * @param[in] twist - The TwistWithCovarianceStamped message from which we will extract the twist data
- * @param[in] linear_velocity_loss - The loss function for the 2D linear velocity constraint generated
- * @param[in] angular_velocity_loss - The loss function for the 2D angular velocity constraint generated
- * @param[in] target_frame - The frame ID into which the twist data will be transformed before it is used
+ * @param[in] twist - The TwistWithCovarianceStamped message from which we will extract the twist
+ *                    data
+ * @param[in] linear_velocity_loss - The loss function for the 2D linear velocity constraint
+ *                                   generated
+ * @param[in] angular_velocity_loss - The loss function for the 2D angular velocity constraint
+ *                                    generated
+ * @param[in] target_frame - The frame ID into which the twist data will be transformed before it is
+ *                           used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
- * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
+ *                       constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -1087,19 +1110,24 @@ inline bool processTwistWithCovariance(
 }
 
 /**
- * @brief Extracts linear acceleration data from an AccelWithCovarianceStamped and adds that data to a fuse Transaction
+ * @brief Extracts linear acceleration data from an AccelWithCovarianceStamped and adds that data to
+ *        a fuse Transaction
  *
- * This method effectively adds a linear acceleration variable and constraint to the given to the given \p transaction.
- * The acceleration data is extracted from the \p acceleration message. Only 2D data is used. The data will be
- * automatically transformed into the \p target_frame before it is used.
+ * This method effectively adds a linear acceleration variable and constraint to the given to the
+ * given \p transaction. The acceleration data is extracted from the \p acceleration message. Only
+ * 2D data is used. The data will be automatically transformed into the \p target_frame before it is
+ * used.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
  * @param[in] device_id - The UUID of the machine
- * @param[in] acceleration - The AccelWithCovarianceStamped message from which we will extract the acceleration data
+ * @param[in] acceleration - The AccelWithCovarianceStamped message from which we will extract the
+ *                           acceleration data
  * @param[in] loss - The loss function for the 2D linear acceleration constraint generated
- * @param[in] target_frame - The frame ID into which the acceleration data will be transformed before it is used
+ * @param[in] target_frame - The frame ID into which the acceleration data will be transformed
+ *                           before it is used
  * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
- * @param[in] validate - Whether to validate the measurements or not. If the validation fails no constraint is added
+ * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
+ *                       constraint is added
  * @param[out] transaction - The generated variables and constraints are added to this transaction
  * @return true if any constraints were added, false otherwise
  */
@@ -1195,8 +1223,9 @@ inline bool processAccelWithCovariance(
 /**
  * @brief Scales the process noise covariance pose by the norm of the velocity
  *
- * @param[in, out] process_noise_covariance - The process noise covariance to scale. Only the pose components (x, y,
- *                                            yaw) are scaled, and they are assumed to be in the top left 3x3 corner
+ * @param[in, out] process_noise_covariance - The process noise covariance to scale. Only the pose
+ *                 components (x, y, yaw) are scaled, and they are assumed to be in the top left 3x3
+ *                 corner
  * @param[in] velocity_linear - The linear velocity
  * @param[in] velocity_yaw - The yaw velocity
  * @param[in] velocity_norm_min - The minimum velocity norm

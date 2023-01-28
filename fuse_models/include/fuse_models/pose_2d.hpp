@@ -52,24 +52,27 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces absolute or relative pose constraints from information published by
- * another node.
+ * @brief An adapter-type sensor that produces absolute or relative pose constraints from
+ *        information published by another node.
  *
- * This sensor subscribes to a geometry_msgs::msg::PoseWithCovarianceStamped topic and converts each received message
- * into an absolute or relative pose constraint. If the \p differential parameter is set to false (the default), the
- * measurement will be treated as an absolute constraint. If it is set to true, consecutive measurements will be used
- * to generate relative pose constraints.
+ * This sensor subscribes to a geometry_msgs::msg::PoseWithCovarianceStamped topic and converts each
+ * received message into an absolute or relative pose constraint. If the \p differential parameter
+ * is set to false (the default), the measurement will be treated as an absolute constraint. If it
+ * is set to true, consecutive measurements will be used to generate relative pose constraints.
  *
  * Parameters:
- *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
+ *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
+ *    publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - topic (string) The topic to which to subscribe for the pose messages (required if \p subscribe is true)
- *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to create relative pose
- *      constraints using consecutive measurements.
+ *  - topic (string) The topic to which to subscribe for the pose messages (required if \p subscribe
+ *    is true)
+ *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to
+ *    create relative pose constraints using consecutive measurements.
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::msg::PoseWithCovarianceStamped) Absolute pose information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::PoseWithCovarianceStamped) Absolute pose information at a given
+ *     timestamp
  */
 class Pose2D : public fuse_core::AsyncSensorModel
 {
@@ -107,9 +110,10 @@ protected:
   /**
    * @brief Perform any required initialization for the sensor model
    *
-   * This could include things like reading from the parameter server or subscribing to topics. The class's node
-   * handles will be properly initialized before SensorModel::onInit() is called. Spinning of the callback queue will
-   * not begin until after the call to SensorModel::onInit() completes.
+   * This could include things like reading from the parameter server or subscribing to topics. The
+   * class's node handles will be properly initialized before SensorModel::onInit() is called.
+   * Spinning of the callback queue will not begin until after the call to SensorModel::onInit()
+   * completes.
    */
   void onInit() override;
 

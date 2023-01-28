@@ -115,8 +115,8 @@ std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string & di
 /**
  * @brief Utility method to convert a vector of dimension names to a vector of dimension indices
  *
- * Note that the dimensions are sorted, and so the order in which the user specifies them will have no bearing when
- * the measurement vectors and covariances are actually built elsewhere.
+ * Note that the dimensions are sorted, and so the order in which the user specifies them will have
+ * no bearing when the measurement vectors and covariances are actually built elsewhere.
  *
  * @param[in] dimension_names - The dimension names to convert
  * @return a vector of indices that are consistent with the enumerations for that variable type

@@ -50,19 +50,23 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces absolute velocity constraints from information published by another node
+ * @brief An adapter-type sensor that produces absolute velocity constraints from information
+ *        published by another node
  *
- * This sensor subscribes to a geometry_msgs::msg::TwistWithCovarianceStamped topic and converts each received message
- * into two absolute velocity constraints (one for linear velocity, and one for angular).
+ * This sensor subscribes to a geometry_msgs::msg::TwistWithCovarianceStamped topic and converts
+ * each received message into two absolute velocity constraints (one for linear velocity, and one
+ * for angular).
  *
  * Parameters:
- *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to publish
+ *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
+ *    publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the twist messages
  *  - topic (string) The topic to which to subscribe for the twist messages
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::msg::TwistWithCovarianceStamped) Absolute velocity information at a given timestamp
+ *  - \p topic (geometry_msgs::msg::TwistWithCovarianceStamped) Absolute velocity information at a
+ *     given timestamp
  */
 class Twist2D : public fuse_core::AsyncSensorModel
 {

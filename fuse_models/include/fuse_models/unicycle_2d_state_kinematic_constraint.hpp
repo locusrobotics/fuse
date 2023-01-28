@@ -60,8 +60,8 @@ namespace fuse_models
 /**
  * @brief A class that represents a kinematic constraint between 2D states at two different times
  *
- * The fuse_models 2D state is a combination of 2D position, 2D orientation, 2D linear velocity, 2D angular velocity,
- * and 2D linear acceleration.
+ * The fuse_models 2D state is a combination of 2D position, 2D orientation, 2D linear velocity, 2D
+ * angular velocity, and 2D linear acceleration.
  */
 class Unicycle2DStateKinematicConstraint : public fuse_core::Constraint
 {
@@ -76,7 +76,8 @@ public:
   /**
    * @brief Create a constraint using a time delta and a kinematic model cost functor
    *
-   * The constraint is created between two states. The state is broken up into multiple fuse variable types.
+   * The constraint is created between two states. The state is broken up into multiple fuse
+   * variable types.
    *
    * @param[in] source The name of the sensor or motion model that generated this constraint
    * @param[in] position1 Position component variable of the fist state
@@ -89,8 +90,8 @@ public:
    * @param[in] linear_velocity2 Linear velocity component variable of the second state
    * @param[in] yaw_velocity2 Yaw velocity component variable of the second state
    * @param[in] linear_acceleration2 Linear acceleration component variable of the second state
-   * @param[in] covariance - The covariance matrix used to weight the constraint. Order is
-   *                         (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
+   * @param[in] covariance - The covariance matrix used to weight the constraint. Order is (x, y,
+   *                         yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
   Unicycle2DStateKinematicConstraint(
     const std::string & source,
@@ -112,7 +113,8 @@ public:
   virtual ~Unicycle2DStateKinematicConstraint() = default;
 
   /**
-   * @brief Read-only access to the time delta between the first and second state (really, between the position1 and
+   * @brief Read-only access to the time delta between the first and second state (really, between
+   *        the position1 and
    position2 variables in the constructor)
    */
   double dt() const {return dt_;}
@@ -144,9 +146,10 @@ public:
   /**
    * @brief Construct an instance of this constraint's cost function
    *
-   * The function caller will own the new cost function instance. It is the responsibility of the caller to delete
-   * the cost function object when it is no longer needed. If the pointer is provided to a Ceres::Problem object, the
-   * Ceres::Problem object will takes ownership of the pointer and delete it during destruction.
+   * The function caller will own the new cost function instance. It is the responsibility of the
+   * caller to delete the cost function object when it is no longer needed. If the pointer is
+   * provided to a Ceres::Problem object, the Ceres::Problem object will takes ownership of the
+   * pointer and delete it during destruction.
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
@@ -161,7 +164,8 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
