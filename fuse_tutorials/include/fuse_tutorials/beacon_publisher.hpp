@@ -34,6 +34,8 @@
 #ifndef FUSE_TUTORIALS__BEACON_PUBLISHER_HPP_
 #define FUSE_TUTORIALS__BEACON_PUBLISHER_HPP_
 
+#include <string>
+
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -41,7 +43,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <string>
 
 namespace fuse_tutorials
 {

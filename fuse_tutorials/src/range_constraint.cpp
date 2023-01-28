@@ -31,16 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_tutorials/range_constraint.hpp>
-#include <fuse_tutorials/range_cost_functor.hpp>
-
-#include <pluginlib/class_list_macros.hpp>
-
-#include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>
 
 #include <ostream>
 #include <string>
+
+#include <boost/serialization/export.hpp>
+#include <fuse_tutorials/range_constraint.hpp>
+#include <fuse_tutorials/range_cost_functor.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_tutorials
 {

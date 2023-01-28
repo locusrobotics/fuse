@@ -31,6 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cmath>
+#include <memory>
+#include <random>
+#include <vector>
+
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
@@ -39,12 +44,6 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
-
-
-#include <cmath>
-#include <memory>
-#include <random>
-#include <vector>
 
 static constexpr double SITE_WIDTH = 100.0;  //!< The width/length of the test area in meters
 static constexpr double BEACON_SPACING = 20.0;  //!< The distance between each range beacon

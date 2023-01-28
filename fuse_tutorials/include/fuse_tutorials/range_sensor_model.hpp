@@ -34,13 +34,15 @@
 #ifndef FUSE_TUTORIALS__RANGE_SENSOR_MODEL_HPP_
 #define FUSE_TUTORIALS__RANGE_SENSOR_MODEL_HPP_
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/uuid.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <memory>
-#include <unordered_map>
 
 namespace fuse_tutorials
 {

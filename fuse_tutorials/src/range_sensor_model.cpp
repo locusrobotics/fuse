@@ -31,13 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_tutorials/range_sensor_model.hpp>
-
 #include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/sensor_model.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_tutorials/range_constraint.hpp>
+#include <fuse_tutorials/range_sensor_model.hpp>
 #include <fuse_variables/point_2d_landmark.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>

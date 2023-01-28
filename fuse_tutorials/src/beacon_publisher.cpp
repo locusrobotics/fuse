@@ -31,21 +31,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_tutorials/beacon_publisher.hpp>
+#include <string>
+#include <vector>
 
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/util.hpp>
+#include <fuse_tutorials/beacon_publisher.hpp>
 #include <fuse_variables/point_2d_landmark.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
-
-#include <string>
-#include <vector>
 
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher);
