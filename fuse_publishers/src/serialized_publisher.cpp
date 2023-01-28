@@ -85,11 +85,10 @@ void SerializedPublisher::onInit()
     graph_throttle_period, false);
 
   bool graph_throttle_use_wall_time{false};
-  graph_throttle_use_wall_time =
-    fuse_core::getParam(
-      interfaces_,
-      fuse_core::joinParameterName(name_, "graph_throttle_use_wall_time"),
-      graph_throttle_use_wall_time);
+  graph_throttle_use_wall_time = fuse_core::getParam(
+    interfaces_,
+    fuse_core::joinParameterName(name_, "graph_throttle_use_wall_time"),
+    graph_throttle_use_wall_time);
 
   graph_publisher_throttled_callback_.setThrottlePeriod(graph_throttle_period);
 

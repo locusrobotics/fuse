@@ -62,7 +62,7 @@ struct Imu2DParams : public ParameterBase
      * @brief Method for loading parameter values from ROS.
      *
      * @param[in] interfaces - The node interfaces with which to load parameters
-     * @param[in] namespace_string - The parameter namespace to use
+     * @param[in] ns - The parameter namespace to use
      */
     void loadFromROS(
       fuse_core::node_interfaces::NodeInterfaces<
@@ -70,46 +70,44 @@ struct Imu2DParams : public ParameterBase
         fuse_core::node_interfaces::Logging,
         fuse_core::node_interfaces::Parameters
       > interfaces,
-      const std::string& namespace_string)
+      const std::string& ns)
     {
-      std::string ns = get_well_formatted_param_namespace_string(namespace_string);
-
       angular_velocity_indices =
-        loadSensorConfig<fuse_variables::VelocityAngular2DStamped>(interfaces, ns + "angular_velocity_dimensions");
+        loadSensorConfig<fuse_variables::VelocityAngular2DStamped>(interfaces, fuse_core::joinParameterName(ns, "angular_velocity_dimensions"));
       linear_acceleration_indices =
-        loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(interfaces, ns + "linear_acceleration_dimensions");
-      orientation_indices = loadSensorConfig<fuse_variables::Orientation2DStamped>(interfaces, ns + "orientation_dimensions");
+        loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(interfaces, fuse_core::joinParameterName(ns, "linear_acceleration_dimensions"));
+      orientation_indices = loadSensorConfig<fuse_variables::Orientation2DStamped>(interfaces, fuse_core::joinParameterName(ns, "orientation_dimensions"));
 
-      differential = fuse_core::getParam(interfaces, ns + "differential", differential);
-      disable_checks = fuse_core::getParam(interfaces, ns + "disable_checks", disable_checks);
-      queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
+      differential = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "differential"), differential);
+      disable_checks = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "disable_checks"), disable_checks);
+      queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
       fuse_core::getPositiveParam(interfaces, "tf_timeout", tf_timeout, false);
 
       fuse_core::getPositiveParam(interfaces, "throttle_period", throttle_period, false);
-      throttle_use_wall_time = fuse_core::getParam(interfaces, ns + "throttle_use_wall_time", throttle_use_wall_time);
+      throttle_use_wall_time = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "throttle_use_wall_time"), throttle_use_wall_time);
 
-      remove_gravitational_acceleration = fuse_core::getParam(interfaces, ns + "remove_gravitational_acceleration", remove_gravitational_acceleration);
-      gravitational_acceleration = fuse_core::getParam(interfaces, ns + "gravitational_acceleration", gravitational_acceleration);
-      fuse_core::getParamRequired(interfaces, ns + "topic", topic);
+      remove_gravitational_acceleration = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "remove_gravitational_acceleration"), remove_gravitational_acceleration);
+      gravitational_acceleration = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "gravitational_acceleration"), gravitational_acceleration);
+      fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
 
       if (differential)
       {
-        independent = fuse_core::getParam(interfaces, ns + "independent", independent);
-        use_twist_covariance = fuse_core::getParam(interfaces, ns + "use_twist_covariance", use_twist_covariance);
+        independent = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "independent"), independent);
+        use_twist_covariance = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "use_twist_covariance"), use_twist_covariance);
 
         minimum_pose_relative_covariance =
-            fuse_core::getCovarianceDiagonalParam<3>(interfaces, ns + "minimum_pose_relative_covariance_diagonal", 0.0);
+            fuse_core::getCovarianceDiagonalParam<3>(interfaces, fuse_core::joinParameterName(ns, "minimum_pose_relative_covariance_diagonal"), 0.0);
         twist_covariance_offset =
-            fuse_core::getCovarianceDiagonalParam<3>(interfaces, ns + "twist_covariance_offset_diagonal", 0.0);
+            fuse_core::getCovarianceDiagonalParam<3>(interfaces, fuse_core::joinParameterName(ns, "twist_covariance_offset_diagonal"), 0.0);
       }
 
-      acceleration_target_frame = fuse_core::getParam(interfaces, ns + "acceleration_target_frame", acceleration_target_frame);
-      orientation_target_frame = fuse_core::getParam(interfaces, ns + "orientation_target_frame", orientation_target_frame);
-      twist_target_frame = fuse_core::getParam(interfaces, ns + "twist_target_frame", twist_target_frame);
+      acceleration_target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "acceleration_target_frame"), acceleration_target_frame);
+      orientation_target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "orientation_target_frame"), orientation_target_frame);
+      twist_target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "twist_target_frame"), twist_target_frame);
 
-      pose_loss = fuse_core::loadLossConfig(interfaces, ns + "pose_loss");
-      angular_velocity_loss = fuse_core::loadLossConfig(interfaces, ns + "angular_velocity_loss");
-      linear_acceleration_loss = fuse_core::loadLossConfig(interfaces, ns + "linear_acceleration_loss");
+      pose_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "pose_loss"));
+      angular_velocity_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "angular_velocity_loss"));
+      linear_acceleration_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "linear_acceleration_loss"));
     }
 
     bool differential { false };

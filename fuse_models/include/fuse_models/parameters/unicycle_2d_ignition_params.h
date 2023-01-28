@@ -61,7 +61,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
      * @brief Method for loading parameter values from ROS.
      *
      * @param[in] interfaces - The node interfaces with which to load parameters
-     * @param[in] namespace_string - The parameter namespace to use
+     * @param[in] ns - The parameter namespace to use
      */
     void loadFromROS(
       fuse_core::node_interfaces::NodeInterfaces<
@@ -69,19 +69,17 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         fuse_core::node_interfaces::Logging,
         fuse_core::node_interfaces::Parameters
       > interfaces,
-      const std::string& namespace_string)
+      const std::string& ns)
     {
-      std::string ns = get_well_formatted_param_namespace_string(namespace_string);
-
-      publish_on_startup = fuse_core::getParam(interfaces, ns + "publish_on_startup", publish_on_startup);
-      queue_size = fuse_core::getParam(interfaces, ns + "queue_size", queue_size);
-      reset_service = fuse_core::getParam(interfaces, ns + "reset_service", reset_service);
-      set_pose_service = fuse_core::getParam(interfaces, ns + "set_pose_service", set_pose_service);
-      set_pose_deprecated_service = fuse_core::getParam(interfaces, ns + "set_pose_deprecated_service", set_pose_deprecated_service);
-      topic = fuse_core::getParam(interfaces, ns + "topic", topic);
+      publish_on_startup = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_on_startup"), publish_on_startup);
+      queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
+      reset_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "reset_service"), reset_service);
+      set_pose_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "set_pose_service"), set_pose_service);
+      set_pose_deprecated_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "set_pose_deprecated_service"), set_pose_deprecated_service);
+      topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
 
       std::vector<double> sigma_vector;
-      sigma_vector = fuse_core::getParam(interfaces, ns + "initial_sigma", sigma_vector);
+      sigma_vector = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "initial_sigma"), sigma_vector);
       if (!sigma_vector.empty())
       {
         if (sigma_vector.size() != 8)
@@ -103,7 +101,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
       }
 
       std::vector<double> state_vector;
-      state_vector = fuse_core::getParam(interfaces, ns + "initial_state", state_vector);
+      state_vector = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "initial_state"), state_vector);
       if (!state_vector.empty())
       {
         if (state_vector.size() != 8)
@@ -123,7 +121,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         initial_state.swap(state_vector);
       }
 
-      loss = fuse_core::loadLossConfig(interfaces, ns + "loss");
+      loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "loss"));
     }
 
 

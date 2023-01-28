@@ -213,7 +213,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
   options.arguments(
   {
     "--ros-args",
-    "-p", "frame_id:=test_map"});
+    "-p", "test_publisher.frame_id:=test_map"});
   auto node = rclcpp::Node::make_shared("test_path_2d_publisher_node", options);
   executor_->add_node(node);
 

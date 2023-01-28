@@ -208,10 +208,8 @@ void Unicycle2D::onInit()
   logger_ = interfaces_.get_node_logging_interface()->get_logger();
   clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  std::string ns = fuse_models::parameters::get_well_formatted_param_namespace_string(name_);
-
   std::vector<double> process_noise_diagonal;
-  process_noise_diagonal = fuse_core::getParam(interfaces_, ns + "process_noise_diagonal", process_noise_diagonal);
+  process_noise_diagonal = fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "process_noise_diagonal"), process_noise_diagonal);
 
   if (process_noise_diagonal.size() != 8)
   {
@@ -220,13 +218,13 @@ void Unicycle2D::onInit()
 
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
-  scale_process_noise_ = fuse_core::getParam(interfaces_, ns + "scale_process_noise", scale_process_noise_);
-  velocity_norm_min_ = fuse_core::getParam(interfaces_, ns + "velocity_norm_min", velocity_norm_min_);
+  scale_process_noise_ = fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "scale_process_noise"), scale_process_noise_);
+  velocity_norm_min_ = fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "velocity_norm_min"), velocity_norm_min_);
 
-  disable_checks_ = fuse_core::getParam(interfaces_, ns + "disable_checks", disable_checks_);
+  disable_checks_ = fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "disable_checks"), disable_checks_);
 
   double buffer_length = 3.0;
-  buffer_length = fuse_core::getParam(interfaces_, ns + "buffer_length", buffer_length);
+  buffer_length = fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "buffer_length"), buffer_length);
 
   if (buffer_length < 0.0)
   {
