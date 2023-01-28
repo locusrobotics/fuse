@@ -89,30 +89,32 @@ namespace fuse_publishers
  * Parameters:
  *  - base_frame (string, default: base_link)  Name for the robot's base frame
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *    publish
+ *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - map_frame (string, default: map)  Name for the robot's map frame
  *  - odom_frame (string, default: odom)  Name for the robot's odom frame (or {empty} if the frame
- *    map->base should be published to tf instead of map->odom)
+ *                                        map->base should be published to tf instead of map->odom)
  *  - publish_to_tf (bool, default: false)  Flag indicating that the optimized pose should be
- *    published to tf
+ *                                          published to tf
  *  - tf_cache_time (seconds, default: 10.0)  How long to keep a history of transforms (for
- *    map->odom lookup)
+ *                                            map->odom lookup)
  *  - tf_publish_frequency (Hz, default: 10.0)  How often the latest pose should be published to tf
  *  - tf_timeout (seconds, default: 0.1)  The maximum amount of time to wait for a transform to
- *    become available
+ *                                        become available
  *
  * Publishes:
  *  - pose (geometry_msgs::msg::PoseStamped)  The most recent optimized robot pose (i.e. the
- *    map->base transform)
+ *                                            map->base transform)
  *  - pose_with_covariance (geometry_msgs::msg::PoseWithCovarianceStamped)  The most recent
- *    optimized robot pose and covariance (i.e. the map->base transform)
+ *                                                                          optimized robot pose and
+ *                                                                          covariance (i.e. the
+ *                                                                          map->base transform)
  *  - tf (tf2_msgs::msg::TFMessage)  The most recent map->odom transform (or map->base if the
- *    odom_frame is empty)
+ *                                   odom_frame is empty)
  *
  * Subscribes:
  *  - tf, tf_static (tf2_msgs::msg::TFMessage)  Used to lookup the current odom->base frame, if
- *    needed
+ *                                              needed
  */
 class Pose2DPublisher : public fuse_core::AsyncPublisher
 {

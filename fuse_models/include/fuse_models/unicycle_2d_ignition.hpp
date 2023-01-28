@@ -67,22 +67,25 @@ namespace fuse_models
  *
  * Parameters:
  *  - ~device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *     publish
+ *                                                                            publish
  *  - ~device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - ~initial_sigma (vector of doubles) An 8-dimensional vector containing the standard deviations
- *     for the initial state values. The covariance matrix is created placing the squared standard
- *     deviations along the diagonal of an 8x8 matrix. Variable order is (x, y, yaw, x_vel, y_vel,
- *     yaw_vel, x_acc, y_acc).
+ *                                       for the initial state values. The covariance matrix is
+ *                                       created placing the squared standard deviations along the
+ *                                       diagonal of an 8x8 matrix. Variable order is (x, y, yaw,
+ *                                       x_vel, y_vel, yaw_vel, x_acc, y_acc).
  *  - ~initial_state (vector of doubles) An 8-dimensional vector containing the initial values for
- *     the state. Variable order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc).
+ *                                       the state. Variable order is (x, y, yaw, x_vel, y_vel,
+ *                                       yaw_vel, x_acc, y_acc).
  *  - ~queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before
- *     sending a transaction
+ *                                                sending a transaction
  *  - ~set_pose_deprecated_service (string, default: "set_pose_deprecated") The name of the
- *     set_pose_deprecated service
+ *                                                                          set_pose_deprecated
+ *                                                                          service
  *  - ~set_pose_service (string, default: "set_pose") The name of the set_pose service to advertise
  *  - ~topic (string, default: "set_pose") The topic name for received PoseWithCovarianceStamped
- *     messages
+ *                                         messages
  */
 class Unicycle2DIgnition : public fuse_core::AsyncSensorModel
 {

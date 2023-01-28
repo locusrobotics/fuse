@@ -64,12 +64,13 @@ namespace fuse_models
  *
  * Parameters:
  *  - ~device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *     publish
+ *                                                                            publish
  *  - ~device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - ~buffer_length (double) The length of the graph state buffer and state history, in seconds
  *  - ~process_noise_diagonal (vector of doubles) An 8-dimensional vector containing the diagonal
- *     values for the process noise covariance matrix. Variable order is (x, y, yaw, x_vel, y_vel,
- *     yaw_vel, x_acc, y_acc).
+ *                                                values for the process noise covariance matrix.
+ *                                                Variable order is (x, y, yaw, x_vel, y_vel,
+ *                                                yaw_vel, x_acc, y_acc).
  */
 class Unicycle2D : public fuse_core::AsyncMotionModel
 {

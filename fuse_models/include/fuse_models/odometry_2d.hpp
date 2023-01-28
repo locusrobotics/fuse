@@ -69,16 +69,19 @@ namespace fuse_models
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *    publish
+ *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - topic (string) The topic to which to subscribe for the pose messages
  *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to
- *    create relative pose constraints using consecutive measurements.
+ *                                        create relative pose constraints using consecutive
+ *                                        measurements.
  *  - pose_target_frame (string) Pose data will be transformed into this frame before it is fused.
- *    This frame should be a world-fixed frame, typically 'odom' or 'map'.
+ *                               This frame should be a world-fixed frame, typically 'odom' or
+ *                               'map'.
  *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it
- *    is fused. This frame should be a body-relative frame, typically 'base_link'.
+ *                                is fused. This frame should be a body-relative frame, typically
+ *                                'base_link'.
  *
  * Subscribes:
  *  - \p topic (nav_msgs::msg::Odometry) Odometry information at a given timestep

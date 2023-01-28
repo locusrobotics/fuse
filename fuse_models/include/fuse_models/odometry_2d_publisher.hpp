@@ -68,37 +68,41 @@ namespace fuse_models
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *    publish
+ *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - publish_tf (bool, default: true)  Whether to publish the generated pose data as a transform to
- *    the tf tree
+ *                                      the tf tree
  *  - predict_to_current_time (bool, default: false) The tf publication happens at a fixed rate.
- *    This parameter specifies whether we should predict, using the 2D unicycle model, the state at
- *    the time of the tf publication, rather than the last posterior (optimized) state.
+ *                                                   This parameter specifies whether we should
+ *                                                   predict, using the 2D unicycle model, the state
+ *                                                   at the time of the tf publication, rather than
+ *                                                   the last posterior (optimized) state.
  *  - publish_frequency (double, default: 10.0)  How often, in Hz, we publish the filtered state
- *    data and broadcast the transform
+ *                                               data and broadcast the transform
  *  - tf_cache_time (double, default: 10.0)  The length of our tf cache (only used if the
- *    world_frame_id and the map_frame_id are the same)
+ *                                           world_frame_id and the map_frame_id are the same)
  *  - tf_timeout (double, default: 0.1)  Our tf lookup timeout period (only used if the
- *    world_frame_id and the map_frame_id are the same)
+ *                                       world_frame_id and the map_frame_id are the same)
  *  - queue_size (int, default: 1)  The size of our ROS publication queue
  *  - map_frame_id (string, default: "map")  Our map frame_id
  *  - odom_frame_id (string, default: "odom")  Our odom frame_id
  *  - base_link_frame_id (string, default: "base_link")  Our base_link (body) frame_id
  *  - world_frame_id (string, default: "odom")  The frame_id that will be published as the parent
- *    frame for the output. Must be either the map_frame_id or the odom_frame_id.
+ *                                              frame for the output. Must be either the
+ *                                              map_frame_id or the odom_frame_id.
  *  - topic (string, default: "odometry/filtered")  The ROS topic to which we will publish the
- *    filtered state data
+ *                                                  filtered state data
  *
  * Publishes:
  *  - odometry/filtered (nav_msgs::msg::Odometry)  The most recent optimized state, gives as an
- *    odometry message
+ *                                                 odometry message
  *  - tf (via a tf2_ros::TransformBroadcaster)  The most recent optimized state, as a tf transform
  *
  * Subscribes:
  *  - tf, tf_static (tf2_msgs::msg::TFMessage)  Subscribes to tf data to obtain the requisite
- *    odom->base_link transform, but only if the world_frame_id is set to the value of the
- *    map_frame_id.
+ *                                              odom->base_link transform, but only if the
+ *                                              world_frame_id is set to the value of the
+ *                                              map_frame_id.
  */
 class Odometry2DPublisher : public fuse_core::AsyncPublisher
 {

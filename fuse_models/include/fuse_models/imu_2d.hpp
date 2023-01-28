@@ -70,22 +70,27 @@ namespace fuse_models
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *    publish
+ *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - topic (string) The topic to which to subscribe for the pose messages
  *  - differential (bool, default: false) Whether we should fuse orientation measurements
- *    absolutely, or to create relative orientation constraints using consecutive measurements.
+ *                                        absolutely, or to create relative orientation constraints
+ *                                        using consecutive measurements.
  *  - remove_gravitational_acceleration (bool, default: false) Whether we should remove acceleration
- *    due to gravity from the acceleration values produced by the IMU before fusing
+ *                                                             due to gravity from the acceleration
+ *                                                             values produced by the IMU before
+ *                                                             fusing
  *  - gravitational_acceleration (double, default: 9.80665) Acceleration due to gravity, in
- *    meters/sec^2. This value is only used if \p remove_gravitational_acceleration is true
+ *                                                          meters/sec^2. This value is only used if
+ *                                                          \p remove_gravitational_acceleration is
+ *                                                          true
  *  - orientation_target_frame (string) Orientation data will be transformed into this frame before
- *    it is fused.
+ *                                      it is fused.
  *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it
- *    is fused.
+ *                                is fused.
  *  - acceleration_target_frame (string) Acceleration data will be transformed into this frame
- *    before it is fused.
+ *                                       before it is fused.
  *
  * Subscribes:
  *  - \p topic (sensor_msgs::msg::Imu) IMU data at a given timestep

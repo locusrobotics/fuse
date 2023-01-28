@@ -70,9 +70,9 @@ namespace fuse_models
  * Parameters:
  *  - ~queue_size (int, default: 10) The subscriber queue size for the graph messages
  *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before
- *     sending a transaction
+ *                                                sending a transaction
  *  - ~set_graph_service (string, default: "set_graph") The name of the set_graph service to
- *     advertise
+ *                                                      advertise
  *  - ~topic (string, default: "graph") The topic name for received Graph messages
  */
 class GraphIgnition : public fuse_core::AsyncSensorModel

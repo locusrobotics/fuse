@@ -64,17 +64,18 @@ namespace fuse_models
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
- *    publish
+ *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - topic (string) The topic to which to subscribe for the pose messages (required if \p subscribe
- *    is true)
+ *                   is true)
  *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to
- *    create relative pose constraints using consecutive measurements.
+ *                                        create relative pose constraints using consecutive
+ *                                        measurements.
  *
  * Subscribes:
  *  - \p topic (geometry_msgs::msg::PoseWithCovarianceStamped) Absolute pose information at a given
- *     timestamp
+ *                                                             timestamp
  */
 class Pose2D : public fuse_core::AsyncSensorModel
 {
