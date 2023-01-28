@@ -31,9 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_tutorials/range_constraint.h>
+#include <fuse_tutorials/range_constraint.hpp>
+#include <fuse_tutorials/range_cost_functor.hpp>
 
-#include <fuse_tutorials/range_cost_functor.h>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
