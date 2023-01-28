@@ -50,42 +50,48 @@ TEST(Optimizer, Constructor)
   ExampleOptimizer optimizer(node);
 
   // Check the motion and sensor models, and publishers were loaded:
-  const auto& motion_models = optimizer.getMotionModels();
-  const auto& sensor_models = optimizer.getSensorModels();
-  const auto& publishers = optimizer.getPublishers();
+  const auto & motion_models = optimizer.getMotionModels();
+  const auto & sensor_models = optimizer.getSensorModels();
+  const auto & publishers = optimizer.getPublishers();
 
   EXPECT_FALSE(motion_models.empty());
   EXPECT_FALSE(sensor_models.empty());
   EXPECT_FALSE(publishers.empty());
 
   // Check the expected motion and sensor models, and publisher were loaded:
-  const std::vector<std::string> expected_motion_models = { "noisy_unicycle_2d", "unicycle_2d" };
-  const std::vector<std::string> expected_sensor_models = { "imu", "laser_localization",  // NOLINT(whitespace/braces)
-                                                            "unicycle_2d_ignition", "wheel_odometry" };
-  const std::vector<std::string> expected_publishers = { "odometry_publisher", "serialized_publisher" };
+  const std::vector<std::string> expected_motion_models = {"noisy_unicycle_2d", "unicycle_2d"};
+  const std::vector<std::string> expected_sensor_models = {"imu", "laser_localization",   // NOLINT(whitespace/braces)
+    "unicycle_2d_ignition", "wheel_odometry"};
+  const std::vector<std::string> expected_publishers =
+  {"odometry_publisher", "serialized_publisher"};
 
   ASSERT_TRUE(std::is_sorted(expected_motion_models.begin(), expected_motion_models.end()))
-      << expected_motion_models << " is not sorted.";
+    << expected_motion_models << " is not sorted.";
   ASSERT_TRUE(std::is_sorted(expected_sensor_models.begin(), expected_sensor_models.end()))
-      << expected_sensor_models << " is not sorted.";
+    << expected_sensor_models << " is not sorted.";
   ASSERT_TRUE(std::is_sorted(expected_publishers.begin(), expected_publishers.end()))
-      << expected_publishers << " is not sorted.";
+    << expected_publishers << " is not sorted.";
 
   // Compute the symmetric difference between the expected and actual motion and sensor models, and publishers:
-  const auto difference_motion_models = set_symmetric_difference(expected_motion_models, motion_models);
-  const auto difference_sensor_models = set_symmetric_difference(expected_sensor_models, sensor_models);
+  const auto difference_motion_models = set_symmetric_difference(
+    expected_motion_models,
+    motion_models);
+  const auto difference_sensor_models = set_symmetric_difference(
+    expected_sensor_models,
+    sensor_models);
   const auto difference_publishers = set_symmetric_difference(expected_publishers, publishers);
 
   // Check the symmetric difference is empty, i.e. the actual motion and sensor models, and publishers are the same as
   // the expected ones:
   EXPECT_TRUE(difference_motion_models.empty())
-      << "Actual: " << motion_models << "\nExpected: " << expected_motion_models
-      << "\nDifference: " << difference_motion_models;
+    << "Actual: " << motion_models << "\nExpected: " << expected_motion_models
+    << "\nDifference: " << difference_motion_models;
   EXPECT_TRUE(difference_sensor_models.empty())
-      << "Actual: " << sensor_models << "\nExpected: " << expected_sensor_models
-      << "\nDifference: " << difference_sensor_models;
+    << "Actual: " << sensor_models << "\nExpected: " << expected_sensor_models
+    << "\nDifference: " << difference_sensor_models;
   EXPECT_TRUE(difference_publishers.empty())
-      << "Actual: " << publishers << "\nExpected: " << expected_publishers << "\nDifference: " << difference_publishers;
+    << "Actual: " << publishers << "\nExpected: " << expected_publishers << "\nDifference: " <<
+    difference_publishers;
 }
 
 

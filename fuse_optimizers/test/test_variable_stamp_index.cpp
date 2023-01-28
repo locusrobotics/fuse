@@ -60,8 +60,8 @@ class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamp
 public:
   FUSE_VARIABLE_DEFINITIONS(StampedVariable)
 
-  explicit StampedVariable(const rclcpp::Time& stamp = rclcpp::Time(0, 0, RCL_ROS_TIME)) :
-    fuse_core::Variable(fuse_core::uuid::generate()),
+  explicit StampedVariable(const rclcpp::Time & stamp = rclcpp::Time(0, 0, RCL_ROS_TIME))
+  : fuse_core::Variable(fuse_core::uuid::generate()),
     fuse_variables::Stamped(stamp),
     data_{}
   {
@@ -72,17 +72,17 @@ public:
     return 1;
   }
 
-  const double* data() const override
+  const double * data() const override
   {
     return &data_;
   }
 
-  double* data() override
+  double * data() override
   {
     return &data_;
   }
 
-  void print(std::ostream& /*stream = std::cout*/) const override
+  void print(std::ostream & /*stream = std::cout*/) const override
   {
   }
 
@@ -99,7 +99,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Variable>(*this);
     archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
@@ -117,8 +117,8 @@ class UnstampedVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(UnstampedVariable)
 
-  UnstampedVariable() :
-    fuse_core::Variable(fuse_core::uuid::generate()),
+  UnstampedVariable()
+  : fuse_core::Variable(fuse_core::uuid::generate()),
     data_{}
   {
   }
@@ -128,17 +128,17 @@ public:
     return 1;
   }
 
-  const double* data() const override
+  const double * data() const override
   {
     return &data_;
   }
 
-  double* data() override
+  double * data() override
   {
     return &data_;
   }
 
-  void print(std::ostream& /*stream = std::cout*/) const override
+  void print(std::ostream & /*stream = std::cout*/) const override
   {
   }
 
@@ -155,7 +155,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Variable>(*this);
     archive & data_;
@@ -174,38 +174,40 @@ public:
 
   GenericConstraint() = default;
 
-  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids) :
-    Constraint(source, variable_uuids)
+  GenericConstraint(
+    const std::string & source,
+    std::initializer_list<fuse_core::UUID> variable_uuids)
+  : Constraint(source, variable_uuids)
   {
   }
 
-  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1) :
-    fuse_core::Constraint(source, {variable1})
+  explicit GenericConstraint(const std::string & source, const fuse_core::UUID & variable1)
+  : fuse_core::Constraint(source, {variable1})
   {
   }
 
   GenericConstraint(
-    const std::string& source,
-    const fuse_core::UUID& variable1,
-    const fuse_core::UUID& variable2) :
-      fuse_core::Constraint(source, {variable1, variable2})
+    const std::string & source,
+    const fuse_core::UUID & variable1,
+    const fuse_core::UUID & variable2)
+  : fuse_core::Constraint(source, {variable1, variable2})
   {
   }
 
   GenericConstraint(
-    const std::string& source,
-    const fuse_core::UUID& variable1,
-    const fuse_core::UUID& variable2,
-    const fuse_core::UUID& variable3) :
-      fuse_core::Constraint(source, {variable1, variable2, variable3})
+    const std::string & source,
+    const fuse_core::UUID & variable1,
+    const fuse_core::UUID & variable2,
+    const fuse_core::UUID & variable3)
+  : fuse_core::Constraint(source, {variable1, variable2, variable3})
   {
   }
 
-  void print(std::ostream& /*stream = std::cout*/) const override
+  void print(std::ostream & /*stream = std::cout*/) const override
   {
   }
 
-  ceres::CostFunction* costFunction() const override
+  ceres::CostFunction * costFunction() const override
   {
     return nullptr;
   }
@@ -221,7 +223,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
   }

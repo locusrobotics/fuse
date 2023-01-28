@@ -126,10 +126,10 @@ protected:
     fuse_core::Transaction::SharedPtr transaction;
 
     TransactionQueueElement(
-      const std::string& sensor_name,
-      fuse_core::Transaction::SharedPtr transaction) :
-        sensor_name(sensor_name),
-        transaction(std::move(transaction)) {}
+      const std::string & sensor_name,
+      fuse_core::Transaction::SharedPtr transaction)
+    : sensor_name(sensor_name),
+      transaction(std::move(transaction)) {}
   };
 
   /**
@@ -198,14 +198,14 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
    */
   void transactionCallback(
-    const std::string& sensor_name,
+    const std::string & sensor_name,
     fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
    * @brief Update and publish diagnotics
    * @param[in] status The diagnostic status
    */
-  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status) override;
+  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status) override;
 };
 
 }  // namespace fuse_optimizers

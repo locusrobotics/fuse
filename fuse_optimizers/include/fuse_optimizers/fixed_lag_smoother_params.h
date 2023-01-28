@@ -35,7 +35,8 @@
 #ifndef FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_H_
 #define FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_H_
 
-#warning This header is obsolete, please include fuse_optimizers/fixed_lag_smoother_params.hpp instead
+#warning \
+  This header is obsolete, please include fuse_optimizers/fixed_lag_smoother_params.hpp instead
 
 #include <fuse_optimizers/fixed_lag_smoother_params.hpp>
 

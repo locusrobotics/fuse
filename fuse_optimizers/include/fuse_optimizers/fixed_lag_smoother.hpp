@@ -137,9 +137,9 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    const rclcpp::Time& stamp() const { return transaction->stamp(); }
-    const rclcpp::Time& minStamp() const { return transaction->minStamp(); }
-    const rclcpp::Time& maxStamp() const { return transaction->maxStamp(); }
+    const rclcpp::Time & stamp() const {return transaction->stamp();}
+    const rclcpp::Time & minStamp() const {return transaction->minStamp();}
+    const rclcpp::Time & maxStamp() const {return transaction->maxStamp();}
   };
 
   /**
@@ -187,7 +187,7 @@ protected:
 
   // Guarded by start_time_mutex_
   mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  rclcpp::Time start_time_ { 0, 0, RCL_ROS_TIME };  //!< The timestamp of the first ignition sensor transaction
+  rclcpp::Time start_time_ {0, 0, RCL_ROS_TIME};    //!< The timestamp of the first ignition sensor transaction
 
   // Ordering ROS objects with callbacks last
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
@@ -208,7 +208,7 @@ protected:
    *
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to the graph
    */
-  void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+  void preprocessMarginalization(const fuse_core::Transaction & new_transaction);
 
   /**
    * @brief Compute the oldest timestamp that is part of the configured lag window
@@ -224,7 +224,7 @@ protected:
    * @param[in] lag_expiration The oldest timestamp that should remain in the graph
    * @return A container with the set of variables to marginalize out. Order of the variables is not specified.
    */
-  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const rclcpp::Time& lag_expiration);
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const rclcpp::Time & lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -235,7 +235,7 @@ protected:
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the requested
    *                                 variables.
    */
-  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
+  void postprocessMarginalization(const fuse_core::Transaction & marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
@@ -263,7 +263,7 @@ protected:
    * @param[out] transaction The transaction object to be augmented with pending motion model and sensor transactions
    * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
-  void processQueue(fuse_core::Transaction& transaction, const rclcpp::Time& lag_expiration);
+  void processQueue(fuse_core::Transaction & transaction, const rclcpp::Time & lag_expiration);
 
   /**
    * @brief Service callback that resets the optimizer to its original state
@@ -285,7 +285,7 @@ protected:
   /**
    * @brief Thread-safe write access to the optimizer start time
    */
-  void setStartTime(const rclcpp::Time& start_time)
+  void setStartTime(const rclcpp::Time & start_time)
   {
     std::lock_guard<std::mutex> lock(start_time_mutex_);
     start_time_ = start_time;
@@ -303,14 +303,14 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
    */
   void transactionCallback(
-    const std::string& sensor_name,
+    const std::string & sensor_name,
     fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
    * @brief Update and publish diagnotics
    * @param[in] status The diagnostic status
    */
-  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status) override;
+  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status) override;
 };
 
 }  // namespace fuse_optimizers

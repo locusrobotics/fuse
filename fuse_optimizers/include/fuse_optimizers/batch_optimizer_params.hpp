@@ -62,7 +62,7 @@ public:
    * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
    * parameter in Hz. "optimization_frequency" will be prioritized.
    */
-  rclcpp::Duration optimization_period { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
+  rclcpp::Duration optimization_period {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
 
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
@@ -70,7 +70,7 @@ public:
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
    * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
    */
-  rclcpp::Duration transaction_timeout { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
+  rclcpp::Duration transaction_timeout {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
 
   /**
    * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
@@ -90,8 +90,10 @@ public:
     > interfaces)
   {
     // Read settings from the parameter server
-    double optimization_frequency{ -1.0 };
-    optimization_frequency = fuse_core::getParam(interfaces, "optimization_frequency", optimization_frequency);
+    double optimization_frequency{-1.0};
+    optimization_frequency = fuse_core::getParam(
+      interfaces, "optimization_frequency",
+      optimization_frequency);
     fuse_core::getPositiveParam(interfaces, "optimization_period", optimization_period);
 
     if (optimization_frequency != -1.0) {

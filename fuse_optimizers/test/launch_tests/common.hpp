@@ -49,13 +49,12 @@
  * @param[in] v A vector to print into the stream
  * @return The output stream with the vector printed into it
  */
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
+template<typename T>
+std::ostream & operator<<(std::ostream & os, const std::vector<T> & v)
 {
   os << '[';
 
-  if (!v.empty())
-  {
+  if (!v.empty()) {
     std::copy(v.begin(), v.end() - 1, std::ostream_iterator<T>(os, ", "));
     os << v.back();
   }
@@ -72,13 +71,12 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
  * @param[in] m An unordered map with the keys to print into the stream
  * @return The output stream with the vector printed into it
  */
-template <typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const std::unordered_map<K, V>& m)
+template<typename K, typename V>
+std::ostream & operator<<(std::ostream & os, const std::unordered_map<K, V> & m)
 {
   os << '[';
 
-  for (const auto& entry : m)
-  {
+  for (const auto & entry : m) {
     os << entry.first << ", ";
   }
 
@@ -95,21 +93,25 @@ std::ostream& operator<<(std::ostream& os, const std::unordered_map<K, V>& m)
  * @param[in] rhs An unordered map of key strings
  * @return A vector with the symmetric difference strings
  */
-template <typename T>
-std::vector<std::string> set_symmetric_difference(const std::vector<std::string>& lhs,
-                                                  const std::unordered_map<std::string, T>& rhs)
+template<typename T>
+std::vector<std::string> set_symmetric_difference(
+  const std::vector<std::string> & lhs,
+  const std::unordered_map<std::string, T> & rhs)
 {
   // Retrieve the keys:
   std::vector<std::string> rhs_keys;
-  std::transform(rhs.begin(), rhs.end(), std::back_inserter(rhs_keys),
-                 [](const auto& pair) { return pair.first; });  // NOLINT(whitespace/braces)
+  std::transform(
+    rhs.begin(), rhs.end(), std::back_inserter(rhs_keys),
+    [](const auto & pair) {return pair.first;});                // NOLINT(whitespace/braces)
 
   // Sort the keys so we can use std::set_symmetric_difference:
   std::sort(rhs_keys.begin(), rhs_keys.end());
 
   // Compute the symmetric difference:
   std::vector<std::string> diff;
-  std::set_symmetric_difference(lhs.begin(), lhs.end(), rhs_keys.begin(), rhs_keys.end(), std::back_inserter(diff));
+  std::set_symmetric_difference(
+    lhs.begin(), lhs.end(), rhs_keys.begin(),
+    rhs_keys.end(), std::back_inserter(diff));
 
   return diff;
 }

@@ -73,12 +73,12 @@ public:
   /**
    * @brief Return true if no variables exist in the index
    */
-  bool empty() const { return variables_.empty() && constraints_.empty(); }
+  bool empty() const {return variables_.empty() && constraints_.empty();}
 
   /**
    * @brief Returns the number of variables in the index
    */
-  size_t size() const { return variables_.size(); }
+  size_t size() const {return variables_.size();}
 
   /**
    * @brief Clear all tracked state
@@ -102,7 +102,7 @@ public:
    *
    * @param[in] transaction The set of variables and constraints to add and remove
    */
-  void addNewTransaction(const fuse_core::Transaction& transaction);
+  void addNewTransaction(const fuse_core::Transaction & transaction);
 
   /**
    * @brief Update the index with the information from a marginal transaction
@@ -112,7 +112,7 @@ public:
    *
    * @param[in] transaction The set of variables and constraints to remove
    */
-  void addMarginalTransaction(const fuse_core::Transaction& transaction);
+  void addMarginalTransaction(const fuse_core::Transaction & transaction);
 
   /**
    * @brief Add all variables that are not directly connected to a stamped variable with a timestamp greater than or
@@ -122,36 +122,29 @@ public:
    *                    this will be added to the output container
    * @param[out] result An output iterator capable of receiving fuse_core::UUID objects
    */
-  template <typename OutputUuidIterator>
-  void query(const rclcpp::Time& stamp, OutputUuidIterator result) const
+  template<typename OutputUuidIterator>
+  void query(const rclcpp::Time & stamp, OutputUuidIterator result) const
   {
     // First get all of the stamped variables greater than or equal to the input stamp
     std::unordered_set<fuse_core::UUID> recent_variable_uuids;
-    for (const auto& variable_stamp_pair : stamped_index_)
-    {
-      if (variable_stamp_pair.second >= stamp)
-      {
+    for (const auto & variable_stamp_pair : stamped_index_) {
+      if (variable_stamp_pair.second >= stamp) {
         recent_variable_uuids.insert(variable_stamp_pair.first);
       }
     }
 
     // Now find all of the variables connected to the recent variables
     std::unordered_set<fuse_core::UUID> connected_variable_uuids;
-    for (const auto& recent_variable_uuid : recent_variable_uuids)
-    {
+    for (const auto & recent_variable_uuid : recent_variable_uuids) {
       // Add the recent variable to ensure connected_variable_uuids is a superset of recent_variable_uuids
       connected_variable_uuids.insert(recent_variable_uuid);
 
       const auto variables_iter = variables_.find(recent_variable_uuid);
-      if (variables_iter != variables_.end())
-      {
-        for (const auto& connected_constraint_uuid : variables_iter->second)
-        {
+      if (variables_iter != variables_.end()) {
+        for (const auto & connected_constraint_uuid : variables_iter->second) {
           const auto constraints_iter = constraints_.find(connected_constraint_uuid);
-          if (constraints_iter != constraints_.end())
-          {
-            for (const auto& connected_variable_uuid : constraints_iter->second)
-            {
+          if (constraints_iter != constraints_.end()) {
+            for (const auto & connected_variable_uuid : constraints_iter->second) {
               connected_variable_uuids.insert(connected_variable_uuid);
             }
           }
@@ -160,10 +153,8 @@ public:
     }
 
     // Return the set of variables that are not connected
-    for (const auto& variable : variables_)
-    {
-      if (connected_variable_uuids.find(variable.first) == connected_variable_uuids.end())
-      {
+    for (const auto & variable : variables_) {
+      if (connected_variable_uuids.find(variable.first) == connected_variable_uuids.end()) {
         *result = variable.first;
         ++result;
       }
@@ -174,31 +165,33 @@ protected:
   using StampedMap = std::unordered_map<fuse_core::UUID, rclcpp::Time>;
   StampedMap stamped_index_;  //!< Container that holds the UUID->Stamp mapping for fuse_variables::Stamped variables
 
-  using VariableToConstraintsMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;
+  using VariableToConstraintsMap = std::unordered_map<fuse_core::UUID,
+      std::unordered_set<fuse_core::UUID>>;
   VariableToConstraintsMap variables_;
 
-  using ConstraintToVariablesMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;
+  using ConstraintToVariablesMap = std::unordered_map<fuse_core::UUID,
+      std::unordered_set<fuse_core::UUID>>;
   ConstraintToVariablesMap constraints_;
 
   /**
    * @brief Update this VariableStampIndex with the added constraints from the provided transaction
    */
-  void applyAddedConstraints(const fuse_core::Transaction& transaction);
+  void applyAddedConstraints(const fuse_core::Transaction & transaction);
 
   /**
    * @brief Update this VariableStampIndex with the added variables from the provided transaction
    */
-  void applyAddedVariables(const fuse_core::Transaction& transaction);
+  void applyAddedVariables(const fuse_core::Transaction & transaction);
 
   /**
    * @brief Update this VariableStampIndex with the removed constraints from the provided transaction
    */
-  void applyRemovedConstraints(const fuse_core::Transaction& transaction);
+  void applyRemovedConstraints(const fuse_core::Transaction & transaction);
 
   /**
    * @brief Update this VariableStampIndex with the removed variables from the provided transaction
    */
-  void applyRemovedVariables(const fuse_core::Transaction& transaction);
+  void applyRemovedVariables(const fuse_core::Transaction & transaction);
 };
 
 }  // namespace fuse_optimizers
