@@ -125,7 +125,7 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
+  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
@@ -158,7 +158,7 @@ protected:
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
   void process(
-    const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+    const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
     std::function<void()> post_process = nullptr);
 
   /**
@@ -169,7 +169,7 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
+  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose);
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,

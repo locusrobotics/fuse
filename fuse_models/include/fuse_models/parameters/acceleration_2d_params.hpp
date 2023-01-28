@@ -54,45 +54,74 @@ namespace parameters
  */
 struct Acceleration2DParams : public ParameterBase
 {
-  public:
-    /**
-     * @brief Method for loading parameter values from ROS.
-     *
-     * @param[in] interfaces - The node interfaces with which to load parameters
-     * @param[in] ns - The parameter namespace to use
-     */
-    void loadFromROS(
-      fuse_core::node_interfaces::NodeInterfaces<
-        fuse_core::node_interfaces::Base,
-        fuse_core::node_interfaces::Logging,
-        fuse_core::node_interfaces::Parameters
-      > interfaces,
-      const std::string& ns)
-    {
-      indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(interfaces, fuse_core::joinParameterName(ns, "dimensions"));
+public:
+  /**
+   * @brief Method for loading parameter values from ROS.
+   *
+   * @param[in] interfaces - The node interfaces with which to load parameters
+   * @param[in] ns - The parameter namespace to use
+   */
+  void loadFromROS(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string & ns)
+  {
+    indices = loadSensorConfig<fuse_variables::AccelerationLinear2DStamped>(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "dimensions"));
 
-      disable_checks = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "disable_checks"), disable_checks);
-      queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
-      fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_timeout"), tf_timeout, false);
+    disable_checks =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "disable_checks"),
+      disable_checks);
+    queue_size = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "queue_size"),
+      queue_size);
+    fuse_core::getPositiveParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "tf_timeout"), tf_timeout,
+      false);
 
-      fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "throttle_period"), throttle_period, false);
-      throttle_use_wall_time = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "throttle_use_wall_time"), throttle_use_wall_time);
+    fuse_core::getPositiveParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "throttle_period"), throttle_period,
+      false);
+    throttle_use_wall_time =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "throttle_use_wall_time"),
+      throttle_use_wall_time);
 
-      fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
-      fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
+    fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
+    fuse_core::getParamRequired(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "target_frame"),
+      target_frame);
 
-      loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "loss"));
-    }
+    loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "loss"));
+  }
 
-    bool disable_checks { false };
-    int queue_size { 10 };
-    rclcpp::Duration tf_timeout { 0, 0 };  //!< The maximum time to wait for a transform to become available
-    rclcpp::Duration throttle_period { 0, 0 };  //!< The throttle period duration in seconds
-    bool throttle_use_wall_time { false };  //!< Whether to throttle using ros::WallTime or not
-    std::string topic {};
-    std::string target_frame {};
-    std::vector<size_t> indices;
-    fuse_core::Loss::SharedPtr loss;
+  bool disable_checks {false};
+  int queue_size {10};
+  rclcpp::Duration tf_timeout {0, 0};      //!< The maximum time to wait for a transform to become available
+  rclcpp::Duration throttle_period {0, 0};      //!< The throttle period duration in seconds
+  bool throttle_use_wall_time {false};      //!< Whether to throttle using ros::WallTime or not
+  std::string topic {};
+  std::string target_frame {};
+  std::vector<size_t> indices;
+  fuse_core::Loss::SharedPtr loss;
 };
 
 }  // namespace parameters

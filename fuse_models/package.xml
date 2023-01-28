@@ -7,9 +7,9 @@
   <version>0.4.2</version>
   <description>fuse plugins that implement various kinematic and sensor models</description>
 
-  <author email="tmoore@locusrobotics.com">Tom Moore</author>
-  <license>BSD</license>
   <maintainer email="tmoore@locusrobotics.com">Tom Moore</maintainer>
+  <license>BSD</license>
+  <author email="tmoore@locusrobotics.com">Tom Moore</author>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 

@@ -92,7 +92,7 @@ public:
    * @brief Callback for twist messages
    * @param[in] msg - The twist message to process
    */
-  void process(const geometry_msgs::msg::TwistWithCovarianceStamped& msg);
+  void process(const geometry_msgs::msg::TwistWithCovarianceStamped & msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -132,7 +132,8 @@ protected:
 
   rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr sub_;
 
-  using TwistThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::TwistWithCovarianceStamped>;
+  using TwistThrottledCallback =
+    fuse_core::ThrottledMessageCallback<geometry_msgs::msg::TwistWithCovarianceStamped>;
   TwistThrottledCallback throttled_callback_;
 };
 

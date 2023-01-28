@@ -76,30 +76,106 @@ public:
       fuse_core::node_interfaces::Logging,
       fuse_core::node_interfaces::Parameters
     > interfaces,
-    const std::string& ns)
+    const std::string & ns)
   {
-    publish_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_tf"), publish_tf);
-    invert_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "invert_tf"), invert_tf);
-    predict_to_current_time = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "predict_to_current_time"), predict_to_current_time);
-    predict_with_acceleration = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "predict_with_acceleration"), predict_with_acceleration);
-    publish_frequency = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_frequency"), publish_frequency);
+    publish_tf = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "publish_tf"),
+      publish_tf);
+    invert_tf = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "invert_tf"),
+      invert_tf);
+    predict_to_current_time =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "predict_to_current_time"),
+      predict_to_current_time);
+    predict_with_acceleration =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "predict_with_acceleration"),
+      predict_with_acceleration);
+    publish_frequency =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "publish_frequency"),
+      publish_frequency);
 
-    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(interfaces, fuse_core::joinParameterName(ns, "process_noise_diagonal"), 0.0);
-    scale_process_noise = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "scale_process_noise"), scale_process_noise);
-    velocity_norm_min = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "velocity_norm_min"), velocity_norm_min);
+    process_noise_covariance = fuse_core::getCovarianceDiagonalParam<8>(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "process_noise_diagonal"), 0.0);
+    scale_process_noise =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "scale_process_noise"),
+      scale_process_noise);
+    velocity_norm_min =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "velocity_norm_min"),
+      velocity_norm_min);
 
-    fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "covariance_throttle_period"), covariance_throttle_period, false);
+    fuse_core::getPositiveParam(
+      interfaces,
+      fuse_core::joinParameterName(
+        ns,
+        "covariance_throttle_period"), covariance_throttle_period,
+      false);
 
-    fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_cache_time"), tf_cache_time, false);
-    fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_timeout"), tf_timeout, false);
+    fuse_core::getPositiveParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "tf_cache_time"), tf_cache_time,
+      false);
+    fuse_core::getPositiveParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "tf_timeout"), tf_timeout,
+      false);
 
-    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
+    queue_size = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "queue_size"),
+      queue_size);
 
-    map_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "map_frame_id"), map_frame_id);
-    odom_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "odom_frame_id"), odom_frame_id);
-    base_link_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "base_link_frame_id"), base_link_frame_id);
-    base_link_output_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "base_link_output_frame_id"), base_link_output_frame_id);
-    world_frame_id = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "world_frame_id"), world_frame_id);
+    map_frame_id = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "map_frame_id"),
+      map_frame_id);
+    odom_frame_id = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "odom_frame_id"),
+      odom_frame_id);
+    base_link_frame_id =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "base_link_frame_id"),
+      base_link_frame_id);
+    base_link_output_frame_id =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "base_link_output_frame_id"),
+      base_link_output_frame_id);
+    world_frame_id =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "world_frame_id"),
+      world_frame_id);
 
     const bool frames_valid =
       map_frame_id != odom_frame_id &&
@@ -109,46 +185,51 @@ public:
       odom_frame_id != base_link_output_frame_id &&
       (world_frame_id == map_frame_id || world_frame_id == odom_frame_id);
 
-    if (!frames_valid)
-    {
-      RCLCPP_FATAL_STREAM(interfaces.get_node_logging_interface()->get_logger(),
+    if (!frames_valid) {
+      RCLCPP_FATAL_STREAM(
+        interfaces.get_node_logging_interface()->get_logger(),
         "Invalid frame configuration! Please note:\n"
-        << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n"
-        << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n"
-        << " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
+          << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be unique\n"
+          << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be unique\n"
+          << " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
 
       assert(frames_valid);
     }
 
     topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
-    acceleration_topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "acceleration_topic"), acceleration_topic);
+    acceleration_topic =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "acceleration_topic"),
+      acceleration_topic);
 
     fuse_core::loadCovarianceOptionsFromROS(interfaces, covariance_options, "covariance_options");
   }
 
-  bool publish_tf { true };  //!< Whether to publish/broadcast the TF transform or not
-  bool invert_tf{ false };   //!< Whether to broadcast the inverse of the TF transform or not. When the inverse is
+  bool publish_tf {true};    //!< Whether to publish/broadcast the TF transform or not
+  bool invert_tf{false};     //!< Whether to broadcast the inverse of the TF transform or not. When the inverse is
                              //!< broadcasted, the transform is inverted and the header.frame_id and child_frame_id are
                              //!< swapped, i.e. the odometry output header.frame_id is set to the
                              //!< base_link_output_frame_id and the child_frame_id to the world_frame_id
-  bool predict_to_current_time { false };
-  bool predict_with_acceleration { false };
-  double publish_frequency { 10.0 };
+  bool predict_to_current_time {false};
+  bool predict_with_acceleration {false};
+  double publish_frequency {10.0};
   fuse_core::Matrix8d process_noise_covariance;   //!< Process noise covariance matrix
-  bool scale_process_noise{ false };
-  double velocity_norm_min{ 1e-3 };
-  rclcpp::Duration covariance_throttle_period { 0, 0 };  //!< The throttle period duration in seconds to compute the
-                                                     //!< covariance
-  rclcpp::Duration tf_cache_time { 10, 0 };
-  rclcpp::Duration tf_timeout { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
-  int queue_size { 1 };
-  std::string map_frame_id { "map" };
-  std::string odom_frame_id { "odom" };
-  std::string base_link_frame_id { "base_link" };
-  std::string base_link_output_frame_id { base_link_frame_id };
-  std::string world_frame_id { odom_frame_id };
-  std::string topic { "odometry/filtered" };
-  std::string acceleration_topic { "acceleration/filtered" };
+  bool scale_process_noise{false};
+  double velocity_norm_min{1e-3};
+  rclcpp::Duration covariance_throttle_period {0, 0};    //!< The throttle period duration in seconds to compute the
+  //!< covariance
+  rclcpp::Duration tf_cache_time {10, 0};
+  rclcpp::Duration tf_timeout {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
+  int queue_size {1};
+  std::string map_frame_id {"map"};
+  std::string odom_frame_id {"odom"};
+  std::string base_link_frame_id {"base_link"};
+  std::string base_link_output_frame_id {base_link_frame_id};
+  std::string world_frame_id {odom_frame_id};
+  std::string topic {"odometry/filtered"};
+  std::string acceleration_topic {"acceleration/filtered"};
   ceres::Covariance::Options covariance_options;
 };
 

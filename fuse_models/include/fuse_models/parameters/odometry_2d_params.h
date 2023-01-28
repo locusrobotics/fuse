@@ -35,7 +35,8 @@
 #ifndef FUSE_MODELS__PARAMETERS__ODOMETRY_2D_PARAMS_H_
 #define FUSE_MODELS__PARAMETERS__ODOMETRY_2D_PARAMS_H_
 
-#warning This header is obsolete, please include fuse_models/parameters/odometry_2d_params.hpp instead
+#warning \
+  This header is obsolete, please include fuse_models/parameters/odometry_2d_params.hpp instead
 
 #include <fuse_models/parameters/odometry_2d_params.hpp>
 

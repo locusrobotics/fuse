@@ -94,7 +94,7 @@ public:
    * @brief Callback for acceleration messages
    * @param[in] msg - The acceleration message to process
    */
-  void process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg);
+  void process(const geometry_msgs::msg::AccelWithCovarianceStamped & msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device

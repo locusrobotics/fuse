@@ -56,124 +56,154 @@ namespace parameters
  */
 struct Unicycle2DIgnitionParams : public ParameterBase
 {
-  public:
-    /**
-     * @brief Method for loading parameter values from ROS.
-     *
-     * @param[in] interfaces - The node interfaces with which to load parameters
-     * @param[in] ns - The parameter namespace to use
-     */
-    void loadFromROS(
-      fuse_core::node_interfaces::NodeInterfaces<
-        fuse_core::node_interfaces::Base,
-        fuse_core::node_interfaces::Logging,
-        fuse_core::node_interfaces::Parameters
-      > interfaces,
-      const std::string& ns)
-    {
-      publish_on_startup = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_on_startup"), publish_on_startup);
-      queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
-      reset_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "reset_service"), reset_service);
-      set_pose_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "set_pose_service"), set_pose_service);
-      set_pose_deprecated_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "set_pose_deprecated_service"), set_pose_deprecated_service);
-      topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
+public:
+  /**
+   * @brief Method for loading parameter values from ROS.
+   *
+   * @param[in] interfaces - The node interfaces with which to load parameters
+   * @param[in] ns - The parameter namespace to use
+   */
+  void loadFromROS(
+    fuse_core::node_interfaces::NodeInterfaces<
+      fuse_core::node_interfaces::Base,
+      fuse_core::node_interfaces::Logging,
+      fuse_core::node_interfaces::Parameters
+    > interfaces,
+    const std::string & ns)
+  {
+    publish_on_startup =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "publish_on_startup"),
+      publish_on_startup);
+    queue_size = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "queue_size"),
+      queue_size);
+    reset_service = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "reset_service"),
+      reset_service);
+    set_pose_service =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "set_pose_service"),
+      set_pose_service);
+    set_pose_deprecated_service =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "set_pose_deprecated_service"),
+      set_pose_deprecated_service);
+    topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
 
-      std::vector<double> sigma_vector;
-      sigma_vector = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "initial_sigma"), sigma_vector);
-      if (!sigma_vector.empty())
-      {
-        if (sigma_vector.size() != 8)
-        {
-          throw std::invalid_argument("The supplied initial_sigma parameter must be length 8, but "
-                                      "is actually length " +
-                                      std::to_string(sigma_vector.size()));
-        }
-        auto is_sigma_valid = [](const double sigma)
+    std::vector<double> sigma_vector;
+    sigma_vector = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "initial_sigma"),
+      sigma_vector);
+    if (!sigma_vector.empty()) {
+      if (sigma_vector.size() != 8) {
+        throw std::invalid_argument(
+                "The supplied initial_sigma parameter must be length 8, but "
+                "is actually length " +
+                std::to_string(sigma_vector.size()));
+      }
+      auto is_sigma_valid = [](const double sigma)
         {
           return std::isfinite(sigma) && (sigma > 0);
         };
-        if (!std::all_of(sigma_vector.begin(), sigma_vector.end(), is_sigma_valid))
-        {
-          throw std::invalid_argument("The supplied initial_sigma parameter must contain valid floating point values. "
-                                      "NaN, Inf, and values <= 0 are not acceptable.");
-        }
-        initial_sigma.swap(sigma_vector);
+      if (!std::all_of(sigma_vector.begin(), sigma_vector.end(), is_sigma_valid)) {
+        throw std::invalid_argument(
+                "The supplied initial_sigma parameter must contain valid floating point values. "
+                "NaN, Inf, and values <= 0 are not acceptable.");
       }
+      initial_sigma.swap(sigma_vector);
+    }
 
-      std::vector<double> state_vector;
-      state_vector = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "initial_state"), state_vector);
-      if (!state_vector.empty())
-      {
-        if (state_vector.size() != 8)
-        {
-          throw std::invalid_argument("The supplied initial_state parameter must be length 8, but is actually length " +
-                                      std::to_string(state_vector.size()));
-        }
-        auto is_state_valid = [](const double state)
+    std::vector<double> state_vector;
+    state_vector = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "initial_state"),
+      state_vector);
+    if (!state_vector.empty()) {
+      if (state_vector.size() != 8) {
+        throw std::invalid_argument(
+                "The supplied initial_state parameter must be length 8, but is actually length " +
+                std::to_string(state_vector.size()));
+      }
+      auto is_state_valid = [](const double state)
         {
           return std::isfinite(state);
         };
-        if (!std::all_of(state_vector.begin(), state_vector.end(), is_state_valid))
-        {
-          throw std::invalid_argument("The supplied initial_state parameter must contain valid floating point values. "
-                                      "NaN, Inf, etc are not acceptable.");
-        }
-        initial_state.swap(state_vector);
+      if (!std::all_of(state_vector.begin(), state_vector.end(), is_state_valid)) {
+        throw std::invalid_argument(
+                "The supplied initial_state parameter must contain valid floating point values. "
+                "NaN, Inf, etc are not acceptable.");
       }
-
-      loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "loss"));
+      initial_state.swap(state_vector);
     }
 
+    loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "loss"));
+  }
 
-    /**
-     * @brief Flag indicating if an initial state transaction should be sent on startup, or only in response to a
-     *        set_pose service call or topic message.
-     */
-    bool publish_on_startup { true };
 
-    /**
-     * @brief The size of the subscriber queue for the set_pose topic
-     */
-    int queue_size { 10 };
+  /**
+   * @brief Flag indicating if an initial state transaction should be sent on startup, or only in response to a
+   *        set_pose service call or topic message.
+   */
+  bool publish_on_startup {true};
 
-    /**
-     * @brief The name of the reset service to call before sending transactions to the optimizer
-     */
-    std::string reset_service { "~/reset" };
+  /**
+   * @brief The size of the subscriber queue for the set_pose topic
+   */
+  int queue_size {10};
 
-    /**
-     * @brief The name of the set_pose service to advertise
-     */
-    std::string set_pose_service { "set_pose" };
+  /**
+   * @brief The name of the reset service to call before sending transactions to the optimizer
+   */
+  std::string reset_service {"~/reset"};
 
-    /**
-     * @brief The name of the deprecated set_pose service without return codes
-     */
-    std::string set_pose_deprecated_service { "set_pose_deprecated" };
+  /**
+   * @brief The name of the set_pose service to advertise
+   */
+  std::string set_pose_service {"set_pose"};
 
-    /**
-     * @brief The topic name for received PoseWithCovarianceStamped messages
-     */
-    std::string topic { "set_pose" };
+  /**
+   * @brief The name of the deprecated set_pose service without return codes
+   */
+  std::string set_pose_deprecated_service {"set_pose_deprecated"};
 
-    /**
-     * @brief The uncertainty of the initial state value
-     *
-     * Standard deviations are provided as an 8-dimensional vector in the order:
-     *   (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
-     * The covariance matrix is created placing the squared standard deviations along the diagonal of an 8x8 matrix.
-     */
-    std::vector<double> initial_sigma {1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9};
+  /**
+   * @brief The topic name for received PoseWithCovarianceStamped messages
+   */
+  std::string topic {"set_pose"};
 
-    /**
-     * @brief The initial value of the 8-dimension state vector (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
-     */
-    std::vector<double> initial_state {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  /**
+   * @brief The uncertainty of the initial state value
+   *
+   * Standard deviations are provided as an 8-dimensional vector in the order:
+   *   (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
+   * The covariance matrix is created placing the squared standard deviations along the diagonal of an 8x8 matrix.
+   */
+  std::vector<double> initial_sigma {1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9,
+    1.0e-9};
 
-    /**
-     * @brief Loss function
-     */
-    fuse_core::Loss::SharedPtr loss;
+  /**
+   * @brief The initial value of the 8-dimension state vector (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
+   */
+  std::vector<double> initial_state {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+  /**
+   * @brief Loss function
+   */
+  fuse_core::Loss::SharedPtr loss;
 };
 
 }  // namespace parameters

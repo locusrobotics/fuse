@@ -52,36 +52,36 @@ namespace fuse_models
 {
 
 Unicycle2DStateKinematicConstraint::Unicycle2DStateKinematicConstraint(
-  const std::string& source,
-  const fuse_variables::Position2DStamped& position1,
-  const fuse_variables::Orientation2DStamped& yaw1,
-  const fuse_variables::VelocityLinear2DStamped& linear_velocity1,
-  const fuse_variables::VelocityAngular2DStamped& yaw_velocity1,
-  const fuse_variables::AccelerationLinear2DStamped& linear_acceleration1,
-  const fuse_variables::Position2DStamped& position2,
-  const fuse_variables::Orientation2DStamped& yaw2,
-  const fuse_variables::VelocityLinear2DStamped& linear_velocity2,
-  const fuse_variables::VelocityAngular2DStamped& yaw_velocity2,
-  const fuse_variables::AccelerationLinear2DStamped& linear_acceleration2,
-  const fuse_core::Matrix8d& covariance) :
-    fuse_core::Constraint(
-      source,
-      {position1.uuid(),
-       yaw1.uuid(),
-       linear_velocity1.uuid(),
-       yaw_velocity1.uuid(),
-       linear_acceleration1.uuid(),
-       position2.uuid(),
-       yaw2.uuid(),
-       linear_velocity2.uuid(),
-       yaw_velocity2.uuid(),
-       linear_acceleration2.uuid()}),  // NOLINT
-    dt_((position2.stamp() - position1.stamp()).seconds()),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+  const std::string & source,
+  const fuse_variables::Position2DStamped & position1,
+  const fuse_variables::Orientation2DStamped & yaw1,
+  const fuse_variables::VelocityLinear2DStamped & linear_velocity1,
+  const fuse_variables::VelocityAngular2DStamped & yaw_velocity1,
+  const fuse_variables::AccelerationLinear2DStamped & linear_acceleration1,
+  const fuse_variables::Position2DStamped & position2,
+  const fuse_variables::Orientation2DStamped & yaw2,
+  const fuse_variables::VelocityLinear2DStamped & linear_velocity2,
+  const fuse_variables::VelocityAngular2DStamped & yaw_velocity2,
+  const fuse_variables::AccelerationLinear2DStamped & linear_acceleration2,
+  const fuse_core::Matrix8d & covariance)
+: fuse_core::Constraint(
+    source,
+    {position1.uuid(),
+      yaw1.uuid(),
+      linear_velocity1.uuid(),
+      yaw_velocity1.uuid(),
+      linear_acceleration1.uuid(),
+      position2.uuid(),
+      yaw2.uuid(),
+      linear_velocity2.uuid(),
+      yaw_velocity2.uuid(),
+      linear_acceleration2.uuid()}),   // NOLINT
+  dt_((position2.stamp() - position1.stamp()).seconds()),
+  sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-void Unicycle2DStateKinematicConstraint::print(std::ostream& stream) const
+void Unicycle2DStateKinematicConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -100,7 +100,7 @@ void Unicycle2DStateKinematicConstraint::print(std::ostream& stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
+ceres::CostFunction * Unicycle2DStateKinematicConstraint::costFunction() const
 {
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could use automatic
   // differentiation as follows:

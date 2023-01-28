@@ -47,7 +47,7 @@ namespace fuse_models
 namespace common
 {
 
-template <typename T>
+template<typename T>
 struct is_linear_2d
 {
   static const bool value = false;
@@ -71,7 +71,7 @@ struct is_linear_2d<fuse_variables::Position2DStamped>
   static const bool value = true;
 };
 
-template <typename T>
+template<typename T>
 struct is_angular_2d
 {
   static const bool value = false;

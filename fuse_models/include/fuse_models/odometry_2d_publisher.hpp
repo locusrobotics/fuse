@@ -159,16 +159,16 @@ protected:
    * @return true if the checks pass, false otherwise
    */
   bool getState(
-    const fuse_core::Graph& graph,
-    const rclcpp::Time& stamp,
-    const fuse_core::UUID& device_id,
-    fuse_core::UUID& position_uuid,
-    fuse_core::UUID& orientation_uuid,
-    fuse_core::UUID& velocity_linear_uuid,
-    fuse_core::UUID& velocity_angular_uuid,
-    fuse_core::UUID& acceleration_linear_uuid,
-    nav_msgs::msg::Odometry& odometry,
-    geometry_msgs::msg::AccelWithCovarianceStamped& acceleration);
+    const fuse_core::Graph & graph,
+    const rclcpp::Time & stamp,
+    const fuse_core::UUID & device_id,
+    fuse_core::UUID & position_uuid,
+    fuse_core::UUID & orientation_uuid,
+    fuse_core::UUID & velocity_linear_uuid,
+    fuse_core::UUID & velocity_angular_uuid,
+    fuse_core::UUID & acceleration_linear_uuid,
+    nav_msgs::msg::Odometry & odometry,
+    geometry_msgs::msg::AccelWithCovarianceStamped & acceleration);
 
   /**
    * @brief Timer callback method for the filtered state publication and tf broadcasting
@@ -180,10 +180,10 @@ protected:
    * @brief Object that searches for the most recent common timestamp for a set of variables
    */
   using Synchronizer = fuse_publishers::StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
-                                                                    fuse_variables::Position2DStamped,
-                                                                    fuse_variables::VelocityLinear2DStamped,
-                                                                    fuse_variables::VelocityAngular2DStamped,
-                                                                    fuse_variables::AccelerationLinear2DStamped>;
+      fuse_variables::Position2DStamped,
+      fuse_variables::VelocityLinear2DStamped,
+      fuse_variables::VelocityAngular2DStamped,
+      fuse_variables::AccelerationLinear2DStamped>;
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,
@@ -203,7 +203,7 @@ protected:
 
   rclcpp::Time latest_stamp_;
   rclcpp::Time latest_covariance_stamp_;
-  bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
+  bool latest_covariance_valid_{false};    //!< Whether the latest covariance computed is valid or not
   nav_msgs::msg::Odometry odom_output_;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output_;
 
@@ -217,7 +217,7 @@ protected:
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_ = nullptr;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{ 10.0 };  //!< A ros::console filter to print delayed
+  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{10.0};    //!< A ros::console filter to print delayed
                                                                       //!< throttle messages, that can be reset on start
 
   rclcpp::TimerBase::SharedPtr publish_timer_;

@@ -35,7 +35,8 @@
 #ifndef FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_H_
 #define FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_H_
 
-#warning This header is obsolete, please include fuse_models/parameters/graph_ignition_params.hpp instead
+#warning \
+  This header is obsolete, please include fuse_models/parameters/graph_ignition_params.hpp instead
 
 #include <fuse_models/parameters/graph_ignition_params.hpp>
 

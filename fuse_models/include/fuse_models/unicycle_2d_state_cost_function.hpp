@@ -48,7 +48,7 @@ namespace fuse_models
 
 /**
  * @brief Create a cost function for a 2D state vector
- * 
+ *
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -72,7 +72,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -94,7 +94,7 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in order
    *              (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A);
+  Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d & A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -115,9 +115,10 @@ public:
    *                         computed for the parameters where jacobians[i] is not NULL.
    * @return The return value indicates whether the computation of the residuals and/or jacobians was successful or not.
    */
-  bool Evaluate(double const* const* parameters,
-                double* residuals,
-                double** jacobians) const override
+  bool Evaluate(
+    double const * const * parameters,
+    double * residuals,
+    double ** jacobians) const override
   {
     double position_pred_x;
     double position_pred_y;
@@ -163,8 +164,7 @@ public:
     Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_);
 
-    if (jacobians)
-    {
+    if (jacobians) {
       // It might be possible to simplify the code below implementing something like this but using compile-time
       // template recursion.
       //
@@ -179,36 +179,31 @@ public:
       // }
 
       // Update jacobian wrt position1
-      if (jacobians[0])
-      {
+      if (jacobians[0]) {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
         jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt yaw1
-      if (jacobians[1])
-      {
+      if (jacobians[1]) {
         Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[1]);
         jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt vel_linear1
-      if (jacobians[2])
-      {
+      if (jacobians[2]) {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
         jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt vel_yaw1
-      if (jacobians[3])
-      {
+      if (jacobians[3]) {
         Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[3]);
         jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt acc_linear1
-      if (jacobians[4])
-      {
+      if (jacobians[4]) {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
         jacobian.applyOnTheLeft(-A_);
       }
@@ -231,36 +226,31 @@ public:
       // }
 
       // Jacobian wrt position2
-      if (jacobians[5])
-      {
+      if (jacobians[5]) {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[5]);
         jacobian = A_.block<8, 2>(0, 0);
       }
 
       // Jacobian wrt yaw2
-      if (jacobians[6])
-      {
+      if (jacobians[6]) {
         Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[6]);
         jacobian = A_.col(2);
       }
 
       // Jacobian wrt vel_linear2
-      if (jacobians[7])
-      {
+      if (jacobians[7]) {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[7]);
         jacobian = A_.block<8, 2>(0, 3);
       }
 
       // Jacobian wrt vel_yaw2
-      if (jacobians[8])
-      {
+      if (jacobians[8]) {
         Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[8]);
         jacobian = A_.col(5);
       }
 
       // Jacobian wrt acc_linear2
-      if (jacobians[9])
-      {
+      if (jacobians[9]) {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[9]);
         jacobian = A_.block<8, 2>(0, 6);
       }
@@ -274,8 +264,10 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
+Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(
+  const double dt,
+  const fuse_core::Matrix8d & A)
+: dt_(dt),
   A_(A)
 {
 }

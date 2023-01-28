@@ -35,7 +35,8 @@
 #ifndef FUSE_MODELS__PARAMETERS__TRANSACTION_PARAMS_H_
 #define FUSE_MODELS__PARAMETERS__TRANSACTION_PARAMS_H_
 
-#warning This header is obsolete, please include fuse_models/parameters/transaction_params.hpp instead
+#warning \
+  This header is obsolete, please include fuse_models/parameters/transaction_params.hpp instead
 
 #include <fuse_models/parameters/transaction_params.hpp>
 

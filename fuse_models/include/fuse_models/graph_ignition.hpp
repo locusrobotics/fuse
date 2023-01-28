@@ -119,7 +119,7 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg);
+  void subscriberCallback(const fuse_msgs::msg::SerializedGraph & msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
@@ -143,7 +143,7 @@ protected:
    * @param[in] msg - The graph message
    */
   void process(
-    const fuse_msgs::msg::SerializedGraph& msg, std::function<void()> post_process = nullptr);
+    const fuse_msgs::msg::SerializedGraph & msg, std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph
@@ -151,7 +151,7 @@ protected:
    * @param[in] graph - The graph
    * @param[in] stamp - The graph stamp
    */
-  void sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp);
+  void sendGraph(const fuse_core::Graph & graph, const rclcpp::Time & stamp);
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,

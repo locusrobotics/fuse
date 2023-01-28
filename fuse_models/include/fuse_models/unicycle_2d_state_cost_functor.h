@@ -35,7 +35,8 @@
 #ifndef FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTOR_H_
 #define FUSE_MODELS__UNICYCLE_2D_STATE_COST_FUNCTOR_H_
 
-#warning This header is obsolete, please include fuse_models/unicycle_2d_state_cost_functor.hpp instead
+#warning \
+  This header is obsolete, please include fuse_models/unicycle_2d_state_cost_functor.hpp instead
 
 #include <fuse_models/unicycle_2d_state_cost_functor.hpp>
 

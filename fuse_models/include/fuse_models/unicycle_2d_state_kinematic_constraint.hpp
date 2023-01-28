@@ -93,18 +93,18 @@ public:
    *                         (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
   Unicycle2DStateKinematicConstraint(
-    const std::string& source,
-    const fuse_variables::Position2DStamped& position1,
-    const fuse_variables::Orientation2DStamped& yaw1,
-    const fuse_variables::VelocityLinear2DStamped& linear_velocity1,
-    const fuse_variables::VelocityAngular2DStamped& yaw_velocity1,
-    const fuse_variables::AccelerationLinear2DStamped& linear_acceleration1,
-    const fuse_variables::Position2DStamped& position2,
-    const fuse_variables::Orientation2DStamped& yaw2,
-    const fuse_variables::VelocityLinear2DStamped& linear_velocity2,
-    const fuse_variables::VelocityAngular2DStamped& yaw_velocity2,
-    const fuse_variables::AccelerationLinear2DStamped& linear_acceleration2,
-    const fuse_core::Matrix8d& covariance);
+    const std::string & source,
+    const fuse_variables::Position2DStamped & position1,
+    const fuse_variables::Orientation2DStamped & yaw1,
+    const fuse_variables::VelocityLinear2DStamped & linear_velocity1,
+    const fuse_variables::VelocityAngular2DStamped & yaw_velocity1,
+    const fuse_variables::AccelerationLinear2DStamped & linear_acceleration1,
+    const fuse_variables::Position2DStamped & position2,
+    const fuse_variables::Orientation2DStamped & yaw2,
+    const fuse_variables::VelocityLinear2DStamped & linear_velocity2,
+    const fuse_variables::VelocityAngular2DStamped & yaw_velocity2,
+    const fuse_variables::AccelerationLinear2DStamped & linear_acceleration2,
+    const fuse_core::Matrix8d & covariance);
 
   /**
    * @brief Destructor
@@ -115,28 +115,31 @@ public:
    * @brief Read-only access to the time delta between the first and second state (really, between the position1 and
    position2 variables in the constructor)
    */
-  double dt() const { return dt_; }
+  double dt() const {return dt_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
    * Order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  const fuse_core::Matrix8d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::Matrix8d & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
    * Order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  fuse_core::Matrix8d covariance() const { return (sqrt_information_.transpose() * sqrt_information_).inverse(); }
+  fuse_core::Matrix8d covariance() const
+  {
+    return (sqrt_information_.transpose() * sqrt_information_).inverse();
+  }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
+  void print(std::ostream & stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -147,7 +150,7 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction* costFunction() const override;
+  ceres::CostFunction * costFunction() const override;
 
 protected:
   double dt_;  //!< The time delta for the constraint
@@ -164,7 +167,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template<class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive & dt_;

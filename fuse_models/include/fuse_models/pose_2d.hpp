@@ -99,7 +99,7 @@ public:
    * @brief Callback for pose messages
    * @param[in] msg - The pose message to process
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
+  void process(const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -130,8 +130,9 @@ protected:
    * @param[in] validate - Whether to validate the pose or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
-  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
-                           fuse_core::Transaction& transaction);
+  void processDifferential(
+    const geometry_msgs::msg::PoseWithCovarianceStamped & pose, const bool validate,
+    fuse_core::Transaction & transaction);
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,

@@ -65,7 +65,7 @@ struct ParameterBase
       fuse_core::node_interfaces::Logging,
       fuse_core::node_interfaces::Parameters
     > interfaces,
-    const std::string& ns) = 0;
+    const std::string & ns) = 0;
 };
 
 /**
@@ -77,15 +77,14 @@ struct ParameterBase
  * @param[in] name - The ROS parameter name for the sensor configuration parameter
  * @return A vector with the dimension indices, that would be empty if the parameter does not exist
  */
-template <typename T>
+template<typename T>
 inline std::vector<size_t> loadSensorConfig(
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
-  const std::string& name)
+  const std::string & name)
 {
   std::vector<std::string> dimensions;
   dimensions = fuse_core::getParam(interfaces, name, dimensions);
-  if (!dimensions.empty())
-  {
+  if (!dimensions.empty()) {
     return common::getDimensionIndices<T>(dimensions);
   }
 

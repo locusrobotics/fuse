@@ -43,7 +43,8 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Transaction, fuse_core::SensorModel)
 namespace fuse_models
 {
 
-Transaction::Transaction() : fuse_core::AsyncSensorModel(1)
+Transaction::Transaction()
+: fuse_core::AsyncSensorModel(1)
 {
 }
 
@@ -81,7 +82,7 @@ void Transaction::onStop()
   sub_.reset();
 }
 
-void Transaction::process(const fuse_msgs::msg::SerializedTransaction& msg)
+void Transaction::process(const fuse_msgs::msg::SerializedTransaction & msg)
 {
   // Deserialize and send the transaction to the plugin's parent
   sendTransaction(transaction_deserializer_.deserialize(msg)->clone());

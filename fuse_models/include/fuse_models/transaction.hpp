@@ -104,7 +104,7 @@ protected:
    * @brief Callback for transaction messages
    * @param[in] msg - The transaction message to process
    */
-  void process(const fuse_msgs::msg::SerializedTransaction& msg);
+  void process(const fuse_msgs::msg::SerializedTransaction & msg);
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,

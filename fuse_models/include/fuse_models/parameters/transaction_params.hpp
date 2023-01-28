@@ -65,13 +65,17 @@ public:
       fuse_core::node_interfaces::Logging,
       fuse_core::node_interfaces::Parameters
     > interfaces,
-    const std::string& ns)
+    const std::string & ns)
   {
-    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
+    queue_size = fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "queue_size"),
+      queue_size);
     fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
   }
 
-  int queue_size{ 10 };
+  int queue_size{10};
   std::string topic{};
 };
 

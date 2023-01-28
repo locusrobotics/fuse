@@ -76,14 +76,14 @@ inline void predict(
   const T acc_linear1_x,
   const T acc_linear1_y,
   const T dt,
-  T& position2_x,
-  T& position2_y,
-  T& yaw2,
-  T& vel_linear2_x,
-  T& vel_linear2_y,
-  T& vel_yaw2,
-  T& acc_linear2_x,
-  T& acc_linear2_y)
+  T & position2_x,
+  T & position2_y,
+  T & yaw2,
+  T & vel_linear2_x,
+  T & vel_linear2_y,
+  T & vel_yaw2,
+  T & acc_linear2_x,
+  T & acc_linear2_y)
 {
   // There are better models for this projection, but this matches the one used by r_l.
   T sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses this model
@@ -134,15 +134,15 @@ inline void predict(
   const double acc_linear1_x,
   const double acc_linear1_y,
   const double dt,
-  double& position2_x,
-  double& position2_y,
-  double& yaw2,
-  double& vel_linear2_x,
-  double& vel_linear2_y,
-  double& vel_yaw2,
-  double& acc_linear2_x,
-  double& acc_linear2_y,
-  double** jacobians)
+  double & position2_x,
+  double & position2_y,
+  double & yaw2,
+  double & vel_linear2_x,
+  double & vel_linear2_y,
+  double & vel_yaw2,
+  double & acc_linear2_x,
+  double & acc_linear2_y,
+  double ** jacobians)
 {
   // There are better models for this projection, but this matches the one used by r_l.
   const double sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses this model
@@ -166,68 +166,62 @@ inline void predict(
 
   fuse_core::wrapAngle2D(yaw2);
 
-  if (jacobians)
-  {
+  if (jacobians) {
     // Jacobian wrt position1
-    if (jacobians[0])
-    {
+    if (jacobians[0]) {
       Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
       jacobian << 1, 0,
-                  0, 1,
-                  0, 0,
-                  0, 0,
-                  0, 0,
-                  0, 0,
-                  0, 0,
-                  0, 0;
+        0, 1,
+        0, 0,
+        0, 0,
+        0, 0,
+        0, 0,
+        0, 0,
+        0, 0;
     }
 
     // Jacobian wrt yaw1
-    if (jacobians[1])
-    {
+    if (jacobians[1]) {
       Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[1]);
       jacobian << -delta_y_rot, delta_x_rot, 1, 0, 0, 0, 0, 0;
     }
 
     // Jacobian wrt vel_linear1
-    if (jacobians[2])
-    {
+    if (jacobians[2]) {
       const double cy_dt = cy * dt;
       const double sy_dt = sy * dt;
 
       Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
       jacobian << cy_dt, -sy_dt,
-                  sy_dt,  cy_dt,
-                      0, 0,
-                      1, 0,
-                      0, 1,
-                      0, 0,
-                      0, 0,
-                      0, 0;
+        sy_dt, cy_dt,
+        0, 0,
+        1, 0,
+        0, 1,
+        0, 0,
+        0, 0,
+        0, 0;
     }
 
     // Jacobian wrt vel_yaw1
-    if (jacobians[3])
-    {
+    if (jacobians[3]) {
       Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[3]);
       jacobian << 0, 0, dt, 0, 0, 1, 0, 0;
     }
 
     // Jacobian wrt acc_linear1
-    if (jacobians[4])
-    {
+    if (jacobians[4]) {
       const double cy_half_dt2 = cy * half_dt2;
       const double sy_half_dt2 = sy * half_dt2;
 
       Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
       jacobian << cy_half_dt2, -sy_half_dt2,
-                  sy_half_dt2,  cy_half_dt2,
-                            0, 0,
-                           dt, 0,
-                            0, dt,
-                            0, 0,
-                            1, 0,
-                            0, 1;
+        sy_half_dt2, cy_half_dt2,
+        0, 0,
+        dt, 0,
+        0, dt,
+        0, 0,
+        1, 0,
+        0, 1;
     }
   }
 }
@@ -248,17 +242,17 @@ inline void predict(
  */
 template<typename T>
 inline void predict(
-  const T* const position1,
-  const T* const yaw1,
-  const T* const vel_linear1,
-  const T* const vel_yaw1,
-  const T* const acc_linear1,
+  const T * const position1,
+  const T * const yaw1,
+  const T * const vel_linear1,
+  const T * const vel_yaw1,
+  const T * const acc_linear1,
   const T dt,
-  T* const position2,
-  T* const yaw2,
-  T* const vel_linear2,
-  T* const vel_yaw2,
-  T* const acc_linear2)
+  T * const position2,
+  T * const yaw2,
+  T * const vel_linear2,
+  T * const vel_yaw2,
+  T * const acc_linear2)
 {
   predict(
     position1[0],
@@ -294,16 +288,16 @@ inline void predict(
  * @param[in] jacobian - The jacobian wrt the state
  */
 inline void predict(
-  const tf2_2d::Transform& pose1,
-  const tf2_2d::Vector2& vel_linear1,
+  const tf2_2d::Transform & pose1,
+  const tf2_2d::Vector2 & vel_linear1,
   const double vel_yaw1,
-  const tf2_2d::Vector2& acc_linear1,
+  const tf2_2d::Vector2 & acc_linear1,
   const double dt,
-  tf2_2d::Transform& pose2,
-  tf2_2d::Vector2& vel_linear2,
-  double& vel_yaw2,
-  tf2_2d::Vector2& acc_linear2,
-  fuse_core::Matrix8d& jacobian)
+  tf2_2d::Transform & pose2,
+  tf2_2d::Vector2 & vel_linear2,
+  double & vel_yaw2,
+  tf2_2d::Vector2 & acc_linear2,
+  fuse_core::Matrix8d & jacobian)
 {
   double x_pred {};
   double y_pred {};
@@ -317,15 +311,14 @@ inline void predict(
   // Instead, we need to create a vector of Eigen::RowMajor matrices per parameter block and later reconstruct the
   // fuse_core::Matrix8d with the full jacobian.
   // The parameter blocks have the following sizes: {position1: 2, yaw1: 1, vel_linear1: 2, vel_yaw1: 1, acc_linear1: 2}
-  static constexpr size_t num_residuals{ 8 };
-  static constexpr size_t num_parameter_blocks{ 5 };
+  static constexpr size_t num_residuals{8};
+  static constexpr size_t num_parameter_blocks{5};
   static const std::array<size_t, num_parameter_blocks> block_sizes = {2, 1, 2, 1, 2};
 
   std::array<fuse_core::MatrixXd, num_parameter_blocks> J;
-  std::array<double*, num_parameter_blocks> jacobians;
+  std::array<double *, num_parameter_blocks> jacobians;
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i)
-  {
+  for (size_t i = 0; i < num_parameter_blocks; ++i) {
     J[i].resize(num_residuals, block_sizes[i]);
     jacobians[i] = J[i].data();
   }
@@ -374,15 +367,15 @@ inline void predict(
  * @param[in] acc_linear2 - The second linear acceleration
  */
 inline void predict(
-  const tf2_2d::Transform& pose1,
-  const tf2_2d::Vector2& vel_linear1,
+  const tf2_2d::Transform & pose1,
+  const tf2_2d::Vector2 & vel_linear1,
   const double vel_yaw1,
-  const tf2_2d::Vector2& acc_linear1,
+  const tf2_2d::Vector2 & acc_linear1,
   const double dt,
-  tf2_2d::Transform& pose2,
-  tf2_2d::Vector2& vel_linear2,
-  double& vel_yaw2,
-  tf2_2d::Vector2& acc_linear2)
+  tf2_2d::Transform & pose2,
+  tf2_2d::Vector2 & vel_linear2,
+  double & vel_yaw2,
+  tf2_2d::Vector2 & acc_linear2)
 {
   double x_pred {};
   double y_pred {};

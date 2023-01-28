@@ -62,7 +62,7 @@ namespace common
  * @param[in] dimension - The erroneous dimension name
  * @throws runtime_error
  */
-inline void throwDimensionError(const std::string& dimension)
+inline void throwDimensionError(const std::string & dimension)
 {
   std::string error = "Dimension " + dimension + " is not valid for this type.";
   RCLCPP_ERROR_STREAM(rclcpp::get_logger("fuse"), error);
@@ -78,12 +78,12 @@ inline void throwDimensionError(const std::string& dimension)
  * @return the index of the enumerated dimension for that type
  * @throws runtime_error if the dimension name is invalid
  */
-template <typename T>
-std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(const std::string& dimension)
+template<typename T>
+std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(const std::string & dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
-  if (lower_dim == "x") return static_cast<size_t>(T::X);
-  if (lower_dim == "y") return static_cast<size_t>(T::Y);
+  if (lower_dim == "x") {return static_cast<size_t>(T::X);}
+  if (lower_dim == "y") {return static_cast<size_t>(T::Y);}
 
   throwDimensionError(dimension);
 
@@ -99,11 +99,13 @@ std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(const std::string& dime
  * @return the index of the enumerated dimension for that type
  * @throws runtime_error if the dimension name is invalid
  */
-template <typename T>
-std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string& dimension)
+template<typename T>
+std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string & dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
-  if (lower_dim == "yaw" || lower_dim == "z") return static_cast<size_t>(fuse_variables::Orientation2DStamped::YAW);
+  if (lower_dim == "yaw" || lower_dim == "z") {
+    return static_cast<size_t>(fuse_variables::Orientation2DStamped::YAW);
+  }
 
   throwDimensionError(dimension);
 
@@ -120,8 +122,8 @@ std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string& dim
  * @return a vector of indices that are consistent with the enumerations for that variable type
  * @throws runtime_error if any dimension name is invalid
  */
-template <typename T>
-std::vector<size_t> getDimensionIndices(const std::vector<std::string>& dimension_names)
+template<typename T>
+std::vector<size_t> getDimensionIndices(const std::vector<std::string> & dimension_names)
 {
   std::vector<size_t> indices;
   indices.reserve(dimension_names.size());
