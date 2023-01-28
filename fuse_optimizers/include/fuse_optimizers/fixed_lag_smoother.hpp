@@ -90,7 +90,8 @@ namespace fuse_optimizers
  *    - ...
  *    @endcode
  *  - optimization_frequency (float, default: 10.0) The target frequency for optimization cycles. If
- *    an optimization takes longer than expected, an optimization cycle may be skipped.
+ *                                                  an optimization takes longer than expected, an
+ *                                                  optimization cycle may be skipped.
  *  - publishers (struct array) The set of publisher plugins to load
  *    @code{.yaml}
  *    - name: string  (A unique name for this publisher)
@@ -105,9 +106,12 @@ namespace fuse_optimizers
  *    - ...
  *    @endcode
  *  - transaction_timeout (float, default: 0.10) The maximum time to wait for motion models to be
- *    generated for a received transactions. Transactions are processes sequentially, so no new
- *    transactions will be added to the graph while waiting for motion models to be generated. Once
- *    the timeout expires, that transaction will be deleted from the queue.
+ *                                               generated for a received transactions.
+ *                                               Transactions are processes sequentially, so no new
+ *                                               transactions will be added to the graph while
+ *                                               waiting for motion models to be generated. Once the
+ *                                               timeout expires, that transaction will be deleted
+ *                                               from the queue.
  */
 class FixedLagSmoother : public Optimizer
 {
