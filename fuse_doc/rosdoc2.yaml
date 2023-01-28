@@ -2,9 +2,10 @@ type: 'rosdoc2 config'
 version: 1
 ---
 settings:
-  output_dir: ''
+    # Don't generate a defalt index file, this package provides its own.
+    generate_package_index: false
 builders:
-  - sphinx: {
-    name: 'sphinx',
-    sphinx_sourcedir: "doc"
-  }
+    - sphinx: {
+        name: 'fuse_doc',
+        output_dir: ''
+    }

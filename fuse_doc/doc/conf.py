@@ -1,9 +1,13 @@
 import sys
 import os
 
-import catkin_pkg.package
-catkin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-catkin_package = catkin_pkg.package.parse_package(os.path.join(catkin_dir, catkin_pkg.package.PACKAGE_MANIFEST_FILENAME))
+rosdoc2_settings = {
+    # Not using doxygen, so no need for breathe and exhale
+    "enable_breathe": False,
+    "enable_exhale": False,
+    # Fuse has it's own look
+    "override_theme": False,
+}
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -21,8 +25,9 @@ master_doc = 'index'
 project = u'fuse'
 copyright = u'2018, Locus Robotics'
 author = u'Stephen Williams'
-version = catkin_package.version
-release = catkin_package.version
+# TODO(sloretz) how to get this information using rosdoc2?
+# version = catkin_package.version
+# release = catkin_package.version
 
 language = None
 exclude_patterns = ['.build']
