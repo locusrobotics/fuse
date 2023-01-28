@@ -4,7 +4,7 @@
   <name>fuse</name>
   <version>0.4.2</version>
   <description>
-    The fuse metapackage
+    The fuse metapackage.
   </description>
 
   <maintainer email="swilliams@locusrobotics.com">Stephen Williams</maintainer>

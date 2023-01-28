@@ -7,8 +7,9 @@
   </description>
 
   <maintainer email="efernandez@clearpath.ai">Enrique Fernandez</maintainer>
-  <author email="efernandez@clearpath.ai">Enrique Fernandez</author>
+
   <license>BSD</license>
+  <author email="efernandez@clearpath.ai">Enrique Fernandez</author>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
@@ -29,6 +30,5 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <rosdoc config="rosdoc.yaml" />
   </export>
 </package>

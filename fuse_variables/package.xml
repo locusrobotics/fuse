@@ -4,7 +4,7 @@
   <name>fuse_variables</name>
   <version>0.4.2</version>
   <description>
-    The fuse_variables package provides a set of commonly used variable types, such as 2D and 3D positions,
+    The fuse_variables package provides a set of commonly used variable types, such as 2D and 3D positions, \
     orientations, velocities, and accelerations.
   </description>
 
@@ -33,6 +33,5 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <rosdoc config="rosdoc.yaml" />
   </export>
 </package>

@@ -1,6 +1,0 @@
- - builder: doxygen
-   output_dir: api
-   homepage: https://docs.ros.org/en/api/fuse_doc/html/index.html
-   file_patterns: '*.cpp *.h'
-   exclude_patterns: '*/test/*'
-
