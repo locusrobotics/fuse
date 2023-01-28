@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_optimizers/variable_stamp_index.h>
+#include <fuse_optimizers/variable_stamp_index.hpp>
 
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>

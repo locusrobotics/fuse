@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_OPTIMIZER_H
-#define FUSE_OPTIMIZERS_OPTIMIZER_H
+#ifndef FUSE_OPTIMIZERS__OPTIMIZER_HPP_
+#define FUSE_OPTIMIZERS__OPTIMIZER_HPP_
 
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <fuse_core/callback_wrapper.hpp>
@@ -261,4 +261,4 @@ protected:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_OPTIMIZER_H
+#endif  // FUSE_OPTIMIZERS__OPTIMIZER_HPP_

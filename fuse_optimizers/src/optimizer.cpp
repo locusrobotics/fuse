@@ -37,7 +37,7 @@
 #include <fuse_core/parameter.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/optimizer.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 
 #include <chrono>

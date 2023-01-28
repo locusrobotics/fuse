@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
-#define FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
+#ifndef FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_HPP_
+#define FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_HPP_
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
@@ -203,4 +203,4 @@ protected:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_VARIABLE_STAMP_INDEX_H
+#endif  // FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_HPP_

@@ -32,14 +32,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
-#define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
+#ifndef FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_HPP_
+#define FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_HPP_
 
 #include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>
-#include <fuse_optimizers/fixed_lag_smoother_params.h>
-#include <fuse_optimizers/optimizer.h>
-#include <fuse_optimizers/variable_stamp_index.h>
+#include <fuse_optimizers/fixed_lag_smoother_params.hpp>
+#include <fuse_optimizers/optimizer.hpp>
+#include <fuse_optimizers/variable_stamp_index.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 #include <fuse_constraints/marginalize_variables.hpp>
 
@@ -315,4 +315,4 @@ protected:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_H
+#endif  // FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_HPP_

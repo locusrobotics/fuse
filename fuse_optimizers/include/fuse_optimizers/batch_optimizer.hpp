@@ -32,14 +32,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
-#define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
+#ifndef FUSE_OPTIMIZERS__BATCH_OPTIMIZER_HPP_
+#define FUSE_OPTIMIZERS__BATCH_OPTIMIZER_HPP_
 
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
-#include <fuse_optimizers/batch_optimizer_params.h>
-#include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/batch_optimizer_params.hpp>
+#include <fuse_optimizers/optimizer.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 
 #include <atomic>
@@ -210,4 +210,4 @@ protected:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_BATCH_OPTIMIZER_H
+#endif  // FUSE_OPTIMIZERS__BATCH_OPTIMIZER_HPP_

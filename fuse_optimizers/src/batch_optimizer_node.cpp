@@ -33,7 +33,7 @@
  */
 
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_optimizers/batch_optimizer.h>
+#include <fuse_optimizers/batch_optimizer.hpp>
 
 
 int main(int argc, char **argv)

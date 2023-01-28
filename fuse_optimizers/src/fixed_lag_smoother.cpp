@@ -32,14 +32,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_optimizers/fixed_lag_smoother.h>
+#include <fuse_optimizers/fixed_lag_smoother.hpp>
 
 #include <fuse_constraints/marginalize_variables.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/optimizer.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>

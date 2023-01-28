@@ -33,8 +33,8 @@
  */
 
 #include <fuse_core/transaction.hpp>
-#include <fuse_optimizers/batch_optimizer.h>
-#include <fuse_optimizers/optimizer.h>
+#include <fuse_optimizers/batch_optimizer.hpp>
+#include <fuse_optimizers/optimizer.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>

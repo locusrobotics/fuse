@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
-#define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
+#ifndef FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_HPP_
+#define FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_HPP_
 
 #include <fuse_core/ceres_options.hpp>
 #include <fuse_core/parameter.hpp>
@@ -128,4 +128,4 @@ public:
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
+#endif  // FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_HPP_

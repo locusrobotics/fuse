@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,53 +32,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_
-#define FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_
+#ifndef FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_H_
+#define FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_H_
 
-#include <fuse_optimizers/optimizer.hpp>
+#warning This header is obsolete, please include fuse_optimizers/variable_stamp_index.hpp instead
 
-#include <string>
-#include <utility>
+#include <fuse_optimizers/variable_stamp_index.hpp>
 
-
-/**
- * @brief Example optimizer that exposes the motion and sensor models, and the publishers, so we can check the expected
- * ones are loaded.
- */
-class ExampleOptimizer : public fuse_optimizers::Optimizer
-{
-public:
-  FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer)
-
-  ExampleOptimizer(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    fuse_core::Graph::UniquePtr graph = nullptr
-  ) : fuse_optimizers::Optimizer(interfaces, std::move(graph))
-  {
-  }
-
-  const MotionModels& getMotionModels() const
-  {
-    return motion_models_;
-  }
-
-  const SensorModels& getSensorModels() const
-  {
-    return sensor_models_;
-  }
-
-  const Publishers& getPublishers() const
-  {
-    return publishers_;
-  }
-
-  void transactionCallback(
-      const std::string& sensor_name,
-      fuse_core::Transaction::SharedPtr transaction) override
-  {
-    (void)sensor_name;
-    (void)transaction;
-  }
-};
-
-#endif  // FUSE_OPTIMIZERS__TEST_EXAMPLE_OPTIMIZER_HPP_
+#endif  // FUSE_OPTIMIZERS__VARIABLE_STAMP_INDEX_H_

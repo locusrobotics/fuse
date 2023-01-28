@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_TEST_COMMON_H
-#define FUSE_OPTIMIZERS_TEST_COMMON_H
+#ifndef FUSE_OPTIMIZERS__TEST_COMMON_HPP_
+#define FUSE_OPTIMIZERS__TEST_COMMON_HPP_
 
 #include <algorithm>
 #include <ostream>
@@ -115,4 +115,4 @@ std::vector<std::string> set_symmetric_difference(const std::vector<std::string>
 }
 
 
-#endif  // FUSE_OPTIMIZERS_TEST_COMMON_H
+#endif  // FUSE_OPTIMIZERS__TEST_COMMON_HPP_
