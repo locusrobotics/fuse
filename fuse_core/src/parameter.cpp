@@ -83,4 +83,21 @@ detail::list_parameter_override_prefixes(
   }
   return output_names;
 }
+
+std::string joinParameterName(const std::string & left, const std::string & right)
+{
+  if (left.empty()) {
+    return right;
+  }
+  if (right.empty()) {
+    return left;
+  }
+  if ('.' != left.back() && '.' != right.front() ) {
+    return left + '.' + right;
+  }
+  if ('.' == left.back() && '.' == right.front()) {
+    return left + right.substr(1);
+  }
+  return left + right;
+}
 }  // namespace fuse_core

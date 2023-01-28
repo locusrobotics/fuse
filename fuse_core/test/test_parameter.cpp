@@ -95,3 +95,13 @@ TEST(parameter, list_parameter_override_prefixes)
     EXPECT_NE(matches.end(), matches.find("baz"));
   }
 }
+
+TEST(parameter, joinParameterName)
+{
+  EXPECT_EQ("foo.bar", fuse_core::joinParameterName("foo", "bar"));
+  EXPECT_EQ("foo.bar", fuse_core::joinParameterName("foo.", "bar"));
+  EXPECT_EQ("foo.bar", fuse_core::joinParameterName("foo", ".bar"));
+  EXPECT_EQ("foo.bar", fuse_core::joinParameterName("foo.", ".bar"));
+  EXPECT_EQ("foo", fuse_core::joinParameterName("foo", ""));
+  EXPECT_EQ("bar", fuse_core::joinParameterName("", "bar"));
+}

@@ -49,6 +49,9 @@
 namespace fuse_core
 {
 
+// Helper function to get a namespace string with a '.' suffix, but only if not empty
+std::string joinParameterName(const std::string & left, const std::string & right);
+
 // NOTE(CH3): Some of these basically mimic the behavior from rclcpp's node.hpp, but for interfaces
 
 /**
