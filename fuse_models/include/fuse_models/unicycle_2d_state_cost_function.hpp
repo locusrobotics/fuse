@@ -99,15 +99,20 @@ public:
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    *
-   * @param[in] parameters - Parameter blocks: 0 : position1 - First position (array with x at index
-   *                         0, y at index 1) 1 : yaw1 - First yaw 2 : vel_linear1 - First linear
-   *                         velocity (array with x at index 0, y at index 1) 3 : vel_yaw1 - First
-   *                         yaw velocity 4 : acc_linear1 - First linear acceleration (array with x
-   *                         at index 0, y at index 1) 5 : position2 - Second position (array with x
-   *                         at index 0, y at index 1) 6 : yaw2 - Second yaw 7 : vel_linear2 -
-   *                         Second linear velocity (array with x at index 0, y at index 1) 8 :
-   *                         vel_yaw2 - Second yaw velocity 9 : acc_linear2 - Second linear
-   *                         acceleration (array with x at index 0, y at index 1)
+   * @param[in] parameters - Parameter blocks:
+   *                         0 : position1 - First position (array with x at index 0, y at index 1)
+   *                         1 : yaw1 - First yaw
+   *                         2 : vel_linear1 - First linear velocity (array with x at index 0, y at
+   *                             index 1)
+   *                         3 : vel_yaw1 - First yaw velocity
+   *                         4 : acc_linear1 - First linear acceleration (array with x at index 0, y
+   *                             at index 1)
+   *                         5 : position2 - Second position (array with x at index 0, y at index 1)
+   *                         6 : yaw2 - Second yaw
+   *                         7 : vel_linear2 - Second linear velocity (array with x at index 0, y at
+   *                             index 1)
+   *                         8 : vel_yaw2 - Second yaw velocity 9 : acc_linear2 - Second linear
+   *                             acceleration (array with x at index 0, y at index 1)
    * @param[out] residual - The computed residual (error)
    * @param[out] jacobians - Jacobians of the residuals wrt the parameters. Only computed if not
    *                         NULL, and only computed for the parameters where jacobians[i] is not
@@ -173,8 +178,11 @@ public:
       // {
       //   if (jacobians[i])
       //   {
-      // Eigen::Map<fuse_core::Matrix<double, 8, ParameterDims::GetDim(i)>> jacobian(jacobians[i]);
-      // jacobian.applyOnTheLeft(-A_); } }
+      //     Eigen::Map<fuse_core::Matrix<double, 8, ParameterDims::GetDim(i)>> jacobian(
+      //       jacobians[i]);
+      //     jacobian.applyOnTheLeft(-A_);
+      //   }
+      // }
 
       // Update jacobian wrt position1
       if (jacobians[0]) {

@@ -59,10 +59,11 @@ namespace fuse_models
  *        and linear acceleration constraints from IMU sensor data published by another node
  *
  * This sensor subscribes to a sensor_msgs::msg::Imu topic and:
- * 1. Creates relative or absolute orientation and constraints. If the \p differential parameter is
- * set to false (the default), the orientation measurement will be treated as an absolute
- * constraint. If it is set to true, consecutive measurements will be used to generate relative
- * orientation constraints. 2. Creates 2D velocity variables and constraints.
+ * 1. Creates relative or absolute orientation and constraints. If the \p differential parameter
+ *    is set to false (the default), the orientation measurement will be treated as an absolute
+ *    constraint. If it is set to true, consecutive measurements will be used to generate relative
+ *    orientation constraints.
+ * 2. Creates 2D velocity variables and constraints.
  *
  * This sensor really just separates out the orientation, angular velocity, and linear acceleration
  * components of the message, and processes them just like the Pose2D, Twist2D, and Acceleration2D

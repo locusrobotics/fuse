@@ -60,9 +60,10 @@ namespace fuse_models
  *
  * This sensor subscribes to a nav_msgs::msg::Odometry topic and:
  * 1. Creates relative or absolute pose variables and constraints. If the \p differential parameter
- * is set to false (the default), the  measurement will be treated as an absolute constraint. If it
- * is set to true, consecutive measurements will be used to generate relative pose constraints. 2.
- * Creates 2D velocity variables and constraints.
+ *    is set to false (the default), the  measurement will be treated as an absolute constraint. If
+ *    it is set to true, consecutive measurements will be used to generate relative pose
+ *    constraints.
+ * 2. Creates 2D velocity variables and constraints.
  *
  * This sensor really just separates out the pose and twist components of the message, and processes
  * them just like the Pose2D and Twist2D classes.
