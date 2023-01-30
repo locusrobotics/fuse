@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,51 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_PARAMETERS_TRANSACTION_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_TRANSACTION_PARAMS_H
+#ifndef FUSE_MODELS__PARAMETERS__TRANSACTION_PARAMS_H_
+#define FUSE_MODELS__PARAMETERS__TRANSACTION_PARAMS_H_
 
-#include <fuse_models/parameters/parameter_base.h>
+#warning \
+  This header is obsolete, please include fuse_models/parameters/transaction_params.hpp instead
 
-#include <fuse_core/parameter.hpp>
+#include <fuse_models/parameters/transaction_params.hpp>
 
-#include <string>
-
-namespace fuse_models
-{
-
-namespace parameters
-{
-
-/**
- * @brief Defines the set of parameters required by the Transaction class
- */
-struct TransactionParams : public fuse_models::parameters::ParameterBase
-{
-public:
-  /**
-   * @brief Method for loading parameter values from ROS.
-   *
-   * @param[in] interfaces - The node interfaces with which to load parameters
-   * @param[in] ns - The parameter namespace to use
-   */
-  void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string& ns)
-  {
-    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
-    fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
-  }
-
-  int queue_size{ 10 };
-  std::string topic{};
-};
-
-}  // namespace parameters
-
-}  // namespace fuse_models
-
-#endif  // FUSE_MODELS_PARAMETERS_TRANSACTION_PARAMS_H
+#endif  // FUSE_MODELS__PARAMETERS__TRANSACTION_PARAMS_H_

@@ -32,81 +32,94 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_TEST_EXAMPLE_VARIABLE_STAMPED_H  // NOLINT{build/header_guard}
-#define FUSE_MODELS_TEST_EXAMPLE_VARIABLE_STAMPED_H  // NOLINT{build/header_guard}
+#ifndef FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
+#define FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}
 
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
+#include <string>
+
+#include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_core/variable.hpp>
-#include <fuse_variables/stamped.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+
 /**
- * @brief Dummy variable stamped implementation for testing
+ * @brief Dummy constraint implementation for testing
  */
-class ExampleVariableStamped : public fuse_core::Variable, public fuse_variables::Stamped
+class ExampleConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(ExampleVariableStamped)
+  FUSE_CONSTRAINT_DEFINITIONS(ExampleConstraint)
 
-  ExampleVariableStamped() = default;
+  ExampleConstraint() = default;
 
-  explicit ExampleVariableStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
-    : fuse_core::Variable(fuse_core::uuid::generate(detail::type(), stamp, device_id))
-    , Stamped(stamp, device_id)
-    , data_(0.0)
+  ExampleConstraint(
+    const std::string & source,
+    std::initializer_list<fuse_core::UUID> variable_uuid_list)
+  : fuse_core::Constraint(source, variable_uuid_list), data(0.0)
   {
   }
 
-  size_t size() const override
+  template<typename VariableUuidIterator>
+  ExampleConstraint(
+    const std::string & source, VariableUuidIterator first,
+    VariableUuidIterator last)
+  : fuse_core::Constraint(source, first, last), data(0.0)
   {
-    return 1;
   }
 
-  const double* data() const override
-  {
-    return &data_;
-  }
-
-  double* data() override
-  {
-    return &data_;
-  }
-
-  void print(std::ostream& stream = std::cout) const override
+  void print(std::ostream & stream = std::cout) const override
   {
     stream << type() << ":\n"
+           << "  source: " << source() << '\n'
            << "  uuid: " << uuid() << '\n'
-           << "  stamp: " << stamp().nanoseconds() << '\n'
-           << "  device_id: " << deviceId() << '\n'
-           << "  data: " << data_ << '\n';
+           << "  variables: [";
+
+    const auto & variable_uuids = variables();
+    if (!variable_uuids.empty()) {
+      std::copy(
+        variable_uuids.begin(),
+        variable_uuids.end() - 1, std::ostream_iterator<fuse_core::UUID>(stream, ", "));
+      stream << variable_uuids.back();
+    }
+
+    stream << "]\n"
+           << "  data: " << data << '\n';
   }
 
-private:
-  double data_;
+  ceres::CostFunction * costFunction() const override
+  {
+    return nullptr;
+  }
 
+  double data;  // Public member variable just for testing
+
+private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  template<class Archive>
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive& boost::serialization::base_object<fuse_variables::Stamped>(*this);
-    archive& data_;
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & data;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleVariableStamped);
+BOOST_CLASS_EXPORT(ExampleConstraint);
 
-#endif  // FUSE_MODELS_TEST_EXAMPLE_VARIABLE_STAMPED_H  // NOLINT{build/header_guard}
+#endif  // FUSE_MODELS__TEST_EXAMPLE_CONSTRAINT_HPP_  // NOLINT{build/header_guard}

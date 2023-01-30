@@ -31,16 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/acceleration_2d.h>
-
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
-
+#include <fuse_models/acceleration_2d.hpp>
+#include <fuse_models/common/sensor_proc.hpp>
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Acceleration2D, fuse_core::SensorModel)
@@ -48,8 +45,8 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Acceleration2D, fuse_core::SensorModel)
 namespace fuse_models
 {
 
-Acceleration2D::Acceleration2D() :
-  fuse_core::AsyncSensorModel(1),
+Acceleration2D::Acceleration2D()
+: fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   logger_(rclcpp::get_logger("uninitialized")),
   throttled_callback_(std::bind(&Acceleration2D::process, this, std::placeholders::_1))
@@ -81,11 +78,11 @@ void Acceleration2D::onInit()
     throttled_callback_.setClock(clock_);
   }
 
-  if (params_.indices.empty())
-  {
-    RCLCPP_WARN_STREAM(logger_,
-                      "No dimensions were specified. Data from topic "
-                       << fuse_core::joinTopicName(name_, params_.topic) << " will be ignored.");
+  if (params_.indices.empty()) {
+    RCLCPP_WARN_STREAM(
+      logger_,
+      "No dimensions were specified. Data from topic "
+        << fuse_core::joinTopicName(name_, params_.topic) << " will be ignored.");
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -100,8 +97,7 @@ void Acceleration2D::onInit()
 
 void Acceleration2D::onStart()
 {
-  if (!params_.indices.empty())
-  {
+  if (!params_.indices.empty()) {
     rclcpp::SubscriptionOptions sub_options;
     sub_options.callback_group = cb_group_;
 
@@ -125,7 +121,7 @@ void Acceleration2D::onStop()
   sub_.reset();
 }
 
-void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg)
+void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped & msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();

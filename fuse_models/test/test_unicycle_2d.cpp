@@ -3,9 +3,10 @@
  * Unauthorized copying of this file, via any medium, is strictly prohibited
  * Proprietary and confidential
  ***************************************************************************/
-#include <fuse_models/unicycle_2d.h>
+#include <gtest/gtest.h>
 
 #include <fuse_graphs/hash_graph.hpp>
+#include <fuse_models/unicycle_2d.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
@@ -13,9 +14,6 @@
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <rclcpp/duration.hpp>
 #include <rclcpp/time.hpp>
-
-#include <gtest/gtest.h>
-
 
 /**
  * @brief Derived class used in unit tests to expose protected functions
@@ -35,7 +33,8 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   auto yaw1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1, 0));
   auto linear_velocity1 = fuse_variables::VelocityLinear2DStamped::make_shared(rclcpp::Time(1, 0));
   auto yaw_velocity1 = fuse_variables::VelocityAngular2DStamped::make_shared(rclcpp::Time(1, 0));
-  auto linear_acceleration1 = fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(1, 0));
+  auto linear_acceleration1 =
+    fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(1, 0));
   position1->x() = 1.1;
   position1->y() = 2.1;
   yaw1->yaw() = 3.1;
@@ -48,7 +47,8 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   auto yaw2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(2, 0));
   auto linear_velocity2 = fuse_variables::VelocityLinear2DStamped::make_shared(rclcpp::Time(2, 0));
   auto yaw_velocity2 = fuse_variables::VelocityAngular2DStamped::make_shared(rclcpp::Time(2, 0));
-  auto linear_acceleration2 = fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(2, 0));
+  auto linear_acceleration2 =
+    fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(2, 0));
   position2->x() = 1.2;
   position2->y() = 2.2;
   yaw2->yaw() = M_PI / 2.0;
@@ -61,7 +61,8 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   auto yaw3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(3, 0));
   auto linear_velocity3 = fuse_variables::VelocityLinear2DStamped::make_shared(rclcpp::Time(3, 0));
   auto yaw_velocity3 = fuse_variables::VelocityAngular2DStamped::make_shared(rclcpp::Time(3, 0));
-  auto linear_acceleration3 = fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(3, 0));
+  auto linear_acceleration3 =
+    fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(3, 0));
   position3->x() = 1.3;
   position3->y() = 2.3;
   yaw3->yaw() = 3.3;
@@ -74,7 +75,8 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   auto yaw4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(4, 0));
   auto linear_velocity4 = fuse_variables::VelocityLinear2DStamped::make_shared(rclcpp::Time(4, 0));
   auto yaw_velocity4 = fuse_variables::VelocityAngular2DStamped::make_shared(rclcpp::Time(4, 0));
-  auto linear_acceleration4 = fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(4, 0));
+  auto linear_acceleration4 =
+    fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(4, 0));
   position4->x() = 1.4;
   position4->y() = 2.4;
   yaw4->yaw() = 3.4;
@@ -87,7 +89,8 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   auto yaw5 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(5, 0));
   auto linear_velocity5 = fuse_variables::VelocityLinear2DStamped::make_shared(rclcpp::Time(5, 0));
   auto yaw_velocity5 = fuse_variables::VelocityAngular2DStamped::make_shared(rclcpp::Time(5, 0));
-  auto linear_acceleration5 = fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(5, 0));
+  auto linear_acceleration5 =
+    fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(5, 0));
   position5->x() = 1.5;
   position5->y() = 2.5;
   yaw5->yaw() = 3.5;
@@ -116,66 +119,68 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   state_history.emplace(
     position1->stamp(),
     Unicycle2DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-      position1->uuid(),
-      yaw1->uuid(),
-      linear_velocity1->uuid(),
-      yaw_velocity1->uuid(),
-      linear_acceleration1->uuid(),
-      tf2_2d::Transform(1.0, 0.0, 0.0),
-      tf2_2d::Vector2(0.0, 0.0),
-      0.0,
-      tf2_2d::Vector2(0.0, 0.0)});  // NOLINT(whitespace/braces)
+    position1->uuid(),
+    yaw1->uuid(),
+    linear_velocity1->uuid(),
+    yaw_velocity1->uuid(),
+    linear_acceleration1->uuid(),
+    tf2_2d::Transform(1.0, 0.0, 0.0),
+    tf2_2d::Vector2(0.0, 0.0),
+    0.0,
+    tf2_2d::Vector2(0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position2->stamp(),
     Unicycle2DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-      position2->uuid(),
-      yaw2->uuid(),
-      linear_velocity2->uuid(),
-      yaw_velocity2->uuid(),
-      linear_acceleration2->uuid(),
-      tf2_2d::Transform(2.0, 0.0, 0.0),
-      tf2_2d::Vector2(0.0, 0.0),
-      0.0,
-      tf2_2d::Vector2(0.0, 0.0)});  // NOLINT(whitespace/braces)
+    position2->uuid(),
+    yaw2->uuid(),
+    linear_velocity2->uuid(),
+    yaw_velocity2->uuid(),
+    linear_acceleration2->uuid(),
+    tf2_2d::Transform(2.0, 0.0, 0.0),
+    tf2_2d::Vector2(0.0, 0.0),
+    0.0,
+    tf2_2d::Vector2(0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position3->stamp(),
     Unicycle2DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-      position3->uuid(),
-      yaw3->uuid(),
-      linear_velocity3->uuid(),
-      yaw_velocity3->uuid(),
-      linear_acceleration3->uuid(),
-      tf2_2d::Transform(3.0, 0.0, 0.0),
-      tf2_2d::Vector2(0.0, 0.0),
-      0.0,
-      tf2_2d::Vector2(0.0, 0.0)});  // NOLINT(whitespace/braces)
+    position3->uuid(),
+    yaw3->uuid(),
+    linear_velocity3->uuid(),
+    yaw_velocity3->uuid(),
+    linear_acceleration3->uuid(),
+    tf2_2d::Transform(3.0, 0.0, 0.0),
+    tf2_2d::Vector2(0.0, 0.0),
+    0.0,
+    tf2_2d::Vector2(0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position4->stamp(),
     Unicycle2DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-      position4->uuid(),
-      yaw4->uuid(),
-      linear_velocity4->uuid(),
-      yaw_velocity4->uuid(),
-      linear_acceleration4->uuid(),
-      tf2_2d::Transform(4.0, 0.0, 0.0),
-      tf2_2d::Vector2(0.0, 0.0),
-      0.0,
-      tf2_2d::Vector2(0.0, 0.0)});  // NOLINT(whitespace/braces)
+    position4->uuid(),
+    yaw4->uuid(),
+    linear_velocity4->uuid(),
+    yaw_velocity4->uuid(),
+    linear_acceleration4->uuid(),
+    tf2_2d::Transform(4.0, 0.0, 0.0),
+    tf2_2d::Vector2(0.0, 0.0),
+    0.0,
+    tf2_2d::Vector2(0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position5->stamp(),
     Unicycle2DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-      position5->uuid(),
-      yaw5->uuid(),
-      linear_velocity5->uuid(),
-      yaw_velocity5->uuid(),
-      linear_acceleration5->uuid(),
-      tf2_2d::Transform(5.0, 0.0, 0.0),
-      tf2_2d::Vector2(0.0, 0.0),
-      0.0,
-      tf2_2d::Vector2(0.0, 0.0)});  // NOLINT(whitespace/braces)
+    position5->uuid(),
+    yaw5->uuid(),
+    linear_velocity5->uuid(),
+    yaw_velocity5->uuid(),
+    linear_acceleration5->uuid(),
+    tf2_2d::Transform(5.0, 0.0, 0.0),
+    tf2_2d::Vector2(0.0, 0.0),
+    0.0,
+    tf2_2d::Vector2(0.0, 0.0)});    // NOLINT(whitespace/braces)
 
   // Update the state history
-  Unicycle2DModelTest::updateStateHistoryEstimates(graph, state_history, rclcpp::Duration::from_seconds(10.0));
+  Unicycle2DModelTest::updateStateHistoryEstimates(
+    graph, state_history, rclcpp::Duration::from_seconds(
+      10.0));
 
   // Check the state estimates in the state history
   {
@@ -269,7 +274,9 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
   {
     // The fifth entry is missing from the graph. It will get predicted from previous state.
     // These values were verified with Octave
-    auto expected_pose = tf2_2d::Transform(-3.9778707804360529, -8.9511455751801616, -2.7663706143591722);
+    auto expected_pose = tf2_2d::Transform(
+      -3.9778707804360529, -8.9511455751801616,
+      -2.7663706143591722);
     auto actual_pose = state_history[rclcpp::Time(5, 0)].pose;
     EXPECT_NEAR(expected_pose.x(), actual_pose.x(), 1.0e-9);
     EXPECT_NEAR(expected_pose.y(), actual_pose.y(), 1.0e-9);

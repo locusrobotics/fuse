@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,66 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
-#define FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
 
-#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
-#include <fuse_variables/orientation_2d_stamped.hpp>
-#include <fuse_variables/position_2d_stamped.hpp>
-#include <fuse_variables/velocity_angular_2d_stamped.hpp>
-#include <fuse_variables/velocity_linear_2d_stamped.hpp>
+#ifndef FUSE_MODELS__COMMON__VARIABLE_TRAITS_H_
+#define FUSE_MODELS__COMMON__VARIABLE_TRAITS_H_
 
+#warning This header is obsolete, please include fuse_models/common/variable_traits.hpp instead
 
-namespace fuse_models
-{
+#include <fuse_models/common/variable_traits.hpp>
 
-namespace common
-{
-
-template <typename T>
-struct is_linear_2d
-{
-  static const bool value = false;
-};
-
-template<>
-struct is_linear_2d<fuse_variables::AccelerationLinear2DStamped>
-{
-  static const bool value = true;
-};
-
-template<>
-struct is_linear_2d<fuse_variables::VelocityLinear2DStamped>
-{
-  static const bool value = true;
-};
-
-template<>
-struct is_linear_2d<fuse_variables::Position2DStamped>
-{
-  static const bool value = true;
-};
-
-template <typename T>
-struct is_angular_2d
-{
-  static const bool value = false;
-};
-
-template<>
-struct is_angular_2d<fuse_variables::Orientation2DStamped>
-{
-  static const bool value = true;
-};
-
-template<>
-struct is_angular_2d<fuse_variables::VelocityAngular2DStamped>
-{
-  static const bool value = true;
-};
-
-}  // namespace common
-
-}  // namespace fuse_models
-
-#endif  // FUSE_MODELS_COMMON_VARIABLE_TRAITS_H
+#endif  // FUSE_MODELS__COMMON__VARIABLE_TRAITS_H_

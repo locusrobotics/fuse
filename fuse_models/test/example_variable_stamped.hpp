@@ -32,27 +32,35 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
-#define FUSE_MODELS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#ifndef FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_HPP_  // NOLINT{build/header_guard}
+#define FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_HPP_  // NOLINT{build/header_guard}
 
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
+#include <fuse_variables/stamped.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
 /**
- * @brief Dummy variable implementation for testing
+ * @brief Dummy variable stamped implementation for testing
  */
-class ExampleVariable : public fuse_core::Variable
+class ExampleVariableStamped : public fuse_core::Variable, public fuse_variables::Stamped
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
+  FUSE_VARIABLE_DEFINITIONS(ExampleVariableStamped)
 
-  ExampleVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_(0.0)
+  ExampleVariableStamped() = default;
+
+  explicit ExampleVariableStamped(
+    const rclcpp::Time & stamp,
+    const fuse_core::UUID & device_id = fuse_core::uuid::NIL)
+  : fuse_core::Variable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
+    Stamped(stamp, device_id),
+    data_(0.0)
   {
   }
 
@@ -61,20 +69,22 @@ public:
     return 1;
   }
 
-  const double* data() const override
+  const double * data() const override
   {
     return &data_;
   }
 
-  double* data() override
+  double * data() override
   {
     return &data_;
   }
 
-  void print(std::ostream& stream = std::cout) const override
+  void print(std::ostream & stream = std::cout) const override
   {
     stream << type() << ":\n"
            << "  uuid: " << uuid() << '\n'
+           << "  stamp: " << stamp().nanoseconds() << '\n'
+           << "  device_id: " << deviceId() << '\n'
            << "  data: " << data_ << '\n';
   }
 
@@ -85,19 +95,21 @@ private:
   friend class boost::serialization::access;
 
   /**
-   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the
+   *        archive
    *
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  template<class Archive>
+  void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive& data_;
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
+    archive & data_;
   }
 };
 
-BOOST_CLASS_EXPORT(ExampleVariable);
+BOOST_CLASS_EXPORT(ExampleVariableStamped);
 
-#endif  // FUSE_MODELS_TEST_EXAMPLE_VARIABLE_H  // NOLINT{build/header_guard}
+#endif  // FUSE_MODELS__TEST_EXAMPLE_VARIABLE_STAMPED_HPP_  // NOLINT{build/header_guard}

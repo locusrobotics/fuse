@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,68 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_MODELS_PARAMETERS_GRAPH_IGNITION_PARAMS_H
-#define FUSE_MODELS_PARAMETERS_GRAPH_IGNITION_PARAMS_H
+#ifndef FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_H_
+#define FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_H_
 
-#include <fuse_models/parameters/parameter_base.h>
+#warning \
+  This header is obsolete, please include fuse_models/parameters/graph_ignition_params.hpp instead
 
-#include <string>
+#include <fuse_models/parameters/graph_ignition_params.hpp>
 
-namespace fuse_models
-{
-
-namespace parameters
-{
-
-/**
- * @brief Defines the set of parameters required by the GraphIgnition class
- */
-struct GraphIgnitionParams : public fuse_models::parameters::ParameterBase
-{
-public:
-  /**
-   * @brief Method for loading parameter values from ROS.
-   *
-   * @param[in] interfaces - The node interfaces with which to load parameters
-   * @param[in] ns - The parameter namespace to use
-   */
-  void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string& ns)
-  {
-    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
-    reset_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "reset_service"), reset_service);
-    set_graph_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "set_graph_service"), set_graph_service);
-    topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
-  }
-
-  /**
-   * @brief The size of the subscriber queue for the topic
-   */
-  int queue_size{ 10 };
-
-  /**
-   * @brief The name of the reset service to call before sending transactions to the optimizer
-   */
-  std::string reset_service{ "~/reset" };
-
-  /**
-   * @brief The name of the set_graph service to advertise
-   */
-  std::string set_graph_service{ "set_graph" };
-
-  /**
-   * @brief The topic name for received SerializedGraph messages
-   */
-  std::string topic{ "graph" };
-};
-
-}  // namespace parameters
-
-}  // namespace fuse_models
-
-#endif  // FUSE_MODELS_PARAMETERS_GRAPH_IGNITION_PARAMS_H
+#endif  // FUSE_MODELS__PARAMETERS__GRAPH_IGNITION_PARAMS_H_

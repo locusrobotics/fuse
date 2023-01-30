@@ -31,16 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_predict.h>
-
 #include <gtest/gtest.h>
-#include <tf2_2d/tf2_2d.hpp>
-#include <fuse_core/eigen_gtest.hpp>
 
 #include <array>
 #include <limits>
 #include <vector>
 
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_models/unicycle_2d_predict.hpp>
+#include <tf2_2d/tf2_2d.hpp>
 
 TEST(Predict, predictDirectVals)
 {
@@ -348,13 +347,12 @@ TEST(Predict, predictJacobians)
   const std::array<size_t, 5> block_sizes = {2, 1, 2, 1, 2};
   const auto num_parameter_blocks = block_sizes.size();
 
-  const size_t num_residuals{ 8 };
+  const size_t num_residuals{8};
 
   std::array<fuse_core::MatrixXd, num_parameter_blocks> J;
-  std::array<double*, num_parameter_blocks> jacobians;
+  std::array<double *, num_parameter_blocks> jacobians;
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i)
-  {
+  for (size_t i = 0; i < num_parameter_blocks; ++i) {
     J[i].resize(num_residuals, block_sizes[i]);
     jacobians[i] = J[i].data();
   }
@@ -433,18 +431,18 @@ TEST(Predict, predictJacobians)
 
   fuse_core::Matrix8d J_autodiff;
   J_autodiff << jet_position2_x.v,
-                jet_position2_y.v,
-                jet_yaw2.v,
-                jet_vel_linear2_x.v,
-                jet_vel_linear2_y.v,
-                jet_vel_yaw2.v,
-                jet_acc_linear2_x.v,
-                jet_acc_linear2_y.v;
+    jet_position2_y.v,
+    jet_yaw2.v,
+    jet_vel_linear2_x.v,
+    jet_vel_linear2_y.v,
+    jet_vel_yaw2.v,
+    jet_acc_linear2_x.v,
+    jet_acc_linear2_y.v;
 
   J_autodiff.transposeInPlace();
 
   const Eigen::IOFormat HeavyFmt(
-      Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+    Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
 
   EXPECT_MATRIX_NEAR(J_autodiff, J_analytic, std::numeric_limits<double>::epsilon())
     << "Autodiff Jacobian =\n" << J_autodiff.format(HeavyFmt)

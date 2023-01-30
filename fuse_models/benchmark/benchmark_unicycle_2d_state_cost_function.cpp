@@ -31,15 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/unicycle_2d_state_cost_function.h>
-#include <fuse_models/unicycle_2d_state_cost_functor.h>
-
 #include <benchmark/benchmark.h>
-
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <vector>
+
+#include <fuse_models/unicycle_2d_state_cost_function.hpp>
+#include <fuse_models/unicycle_2d_state_cost_functor.hpp>
 
 class Unicycle2DStateCostFunction : public benchmark::Fixture
 {
@@ -47,35 +46,34 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   Unicycle2DStateCostFunction()
-    : jacobians(num_parameter_blocks)
+  : jacobians(num_parameter_blocks)
     , J(num_parameter_blocks)
   {
-    for (size_t i = 0; i < num_parameter_blocks; ++i)
-    {
+    for (size_t i = 0; i < num_parameter_blocks; ++i) {
       J[i].resize(num_residuals, block_sizes[i]);
       jacobians[i] = J[i].data();
     }
   }
 
   // Analytic cost function
-  static constexpr double dt{ 0.1 };
+  static constexpr double dt{0.1};
   static const fuse_core::Matrix8d sqrt_information;
 
   static const fuse_models::Unicycle2DStateCostFunction cost_function;
 
   // Parameters
-  static const double* parameters[];
+  static const double * parameters[];
 
   // Residuals
   fuse_core::Vector8d residuals;
 
-  static const std::vector<int32_t>& block_sizes;
+  static const std::vector<int32_t> & block_sizes;
   static const size_t num_parameter_blocks;
 
   static const size_t num_residuals;
 
   // Jacobians
-  std::vector<double*> jacobians;
+  std::vector<double *> jacobians;
 
 private:
   // Cost function process noise and covariance
@@ -101,13 +99,15 @@ private:
 };
 
 // Cost function process noise and covariance
-const double Unicycle2DStateCostFunction::process_noise_diagonal[] = { 1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9 };
+const double Unicycle2DStateCostFunction::process_noise_diagonal[] = {
+  1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9
+};
 
 const fuse_core::Matrix8d Unicycle2DStateCostFunction::covariance =
-    fuse_core::Vector8d(process_noise_diagonal).asDiagonal();
+  fuse_core::Vector8d(process_noise_diagonal).asDiagonal();
 
 // Parameter blocks
-const double Unicycle2DStateCostFunction::position1[] = { 0.0, 0.0 };
+const double Unicycle2DStateCostFunction::position1[] = {0.0, 0.0};
 const double Unicycle2DStateCostFunction::yaw1[] = {0.0};
 const double Unicycle2DStateCostFunction::vel_linear1[] = {1.0, 0.0};
 const double Unicycle2DStateCostFunction::vel_yaw1[] = {1.570796327};
@@ -120,36 +120,42 @@ const double Unicycle2DStateCostFunction::vel_yaw2[] = {1.570796327};
 const double Unicycle2DStateCostFunction::acc_linear2[] = {1.0, 0.0};
 
 // Analytic cost function
-const fuse_core::Matrix8d Unicycle2DStateCostFunction::sqrt_information(covariance.inverse().llt().matrixU());
+const fuse_core::Matrix8d Unicycle2DStateCostFunction::sqrt_information(covariance.inverse().llt().
+  matrixU());
 
-const fuse_models::Unicycle2DStateCostFunction Unicycle2DStateCostFunction::cost_function{ dt, sqrt_information };
+const fuse_models::Unicycle2DStateCostFunction Unicycle2DStateCostFunction::cost_function{dt,
+  sqrt_information};
 
 // Parameters
-const double* Unicycle2DStateCostFunction::parameters[] = {  // NOLINT(whitespace/braces)
-  position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
+const double * Unicycle2DStateCostFunction::parameters[] = {  // NOLINT(whitespace/braces)
+  position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, position2, yaw2, vel_linear2, vel_yaw2,
+  acc_linear2
 };
 
-const std::vector<int32_t>& Unicycle2DStateCostFunction::block_sizes = cost_function.parameter_block_sizes();
+const std::vector<int32_t> & Unicycle2DStateCostFunction::block_sizes =
+  cost_function.parameter_block_sizes();
 const size_t Unicycle2DStateCostFunction::num_parameter_blocks = block_sizes.size();
 
 const size_t Unicycle2DStateCostFunction::num_residuals = cost_function.num_residuals();
 
-BENCHMARK_F(Unicycle2DStateCostFunction, AnalyticUnicycle2DCostFunction)(benchmark::State& state)
+BENCHMARK_F(Unicycle2DStateCostFunction, AnalyticUnicycle2DCostFunction)(benchmark::State & state)
 {
-  for (auto _ : state)
-  {
+  for (auto _ : state) {
     cost_function.Evaluate(parameters, residuals.data(), jacobians.data());
   }
 }
 
-BENCHMARK_F(Unicycle2DStateCostFunction, AutoDiffUnicycle2DStateCostFunction)(benchmark::State& state)
+BENCHMARK_F(
+  Unicycle2DStateCostFunction,
+  AutoDiffUnicycle2DStateCostFunction)(benchmark::State & state)
 {
   // Create cost function using automatic differentiation on the cost functor
-  ceres::AutoDiffCostFunction<fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>
-      cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
+  ceres::AutoDiffCostFunction<
+    fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2
+  >
+  cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
 
-  for (auto _ : state)
-  {
+  for (auto _ : state) {
     cost_function_autodiff.Evaluate(parameters, residuals.data(), jacobians.data());
   }
 }

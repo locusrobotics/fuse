@@ -31,21 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/odometry_2d.h>
+#include <memory>
+#include <utility>
 
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
-
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/odometry_2d.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <memory>
-#include <utility>
-
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Odometry2D, fuse_core::SensorModel)
@@ -53,8 +50,8 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Odometry2D, fuse_core::SensorModel)
 namespace fuse_models
 {
 
-Odometry2D::Odometry2D() :
-  fuse_core::AsyncSensorModel(1),
+Odometry2D::Odometry2D()
+: fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   logger_(rclcpp::get_logger("uninitialized")),
   throttled_callback_(std::bind(&Odometry2D::process, this, std::placeholders::_1))
@@ -87,13 +84,14 @@ void Odometry2D::onInit()
   }
 
   if (params_.position_indices.empty() &&
-      params_.orientation_indices.empty() &&
-      params_.linear_velocity_indices.empty() &&
-      params_.angular_velocity_indices.empty())
+    params_.orientation_indices.empty() &&
+    params_.linear_velocity_indices.empty() &&
+    params_.angular_velocity_indices.empty())
   {
-    RCLCPP_WARN_STREAM(logger_,
-                       "No dimensions were specified. Data from topic " << params_.topic
-                       << " will be ignored.");
+    RCLCPP_WARN_STREAM(
+      logger_,
+      "No dimensions were specified. Data from topic " << params_.topic
+                                                       << " will be ignored.");
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -109,9 +107,9 @@ void Odometry2D::onInit()
 void Odometry2D::onStart()
 {
   if (!params_.position_indices.empty() ||
-      !params_.orientation_indices.empty() ||
-      !params_.linear_velocity_indices.empty() ||
-      !params_.angular_velocity_indices.empty())
+    !params_.orientation_indices.empty() ||
+    !params_.linear_velocity_indices.empty() ||
+    !params_.angular_velocity_indices.empty())
   {
     previous_pose_.reset();
 
@@ -138,7 +136,7 @@ void Odometry2D::onStop()
   sub_.reset();
 }
 
-void Odometry2D::process(const nav_msgs::msg::Odometry& msg)
+void Odometry2D::process(const nav_msgs::msg::Odometry & msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -156,12 +154,9 @@ void Odometry2D::process(const nav_msgs::msg::Odometry& msg)
 
   const bool validate = !params_.disable_checks;
 
-  if (params_.differential)
-  {
+  if (params_.differential) {
     processDifferential(*pose, twist, validate, *transaction);
-  }
-  else
-  {
+  } else {
     common::processAbsolutePoseWithCovariance(
       name(),
       device_id_,
@@ -195,42 +190,42 @@ void Odometry2D::process(const nav_msgs::msg::Odometry& msg)
   sendTransaction(transaction);
 }
 
-void Odometry2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
-                                     const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
-                                     fuse_core::Transaction& transaction)
+void Odometry2D::processDifferential(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
+  const geometry_msgs::msg::TwistWithCovarianceStamped & twist, const bool validate,
+  fuse_core::Transaction & transaction)
 {
   auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
   transformed_pose->header.frame_id =
-      params_.pose_target_frame.empty() ? pose.header.frame_id : params_.pose_target_frame;
+    params_.pose_target_frame.empty() ? pose.header.frame_id : params_.pose_target_frame;
 
-  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose))
-  {
-    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
-                                "Cannot transform pose message with stamp "
-                                << rclcpp::Time(pose.header.stamp).nanoseconds() << " to pose target frame " << params_.pose_target_frame);
+  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose)) {
+    RCLCPP_WARN_STREAM_THROTTLE(
+      logger_, *clock_, 5.0 * 1000,
+      "Cannot transform pose message with stamp "
+        << rclcpp::Time(
+        pose.header.stamp).nanoseconds() << " to pose target frame " << params_.pose_target_frame);
     return;
   }
 
-  if (!previous_pose_)
-  {
+  if (!previous_pose_) {
     previous_pose_ = std::move(transformed_pose);
     return;
   }
 
-  if (params_.use_twist_covariance)
-  {
+  if (params_.use_twist_covariance) {
     geometry_msgs::msg::TwistWithCovarianceStamped transformed_twist;
     transformed_twist.header.frame_id =
-        params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
+      params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 
-    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist))
-    {
-      RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
-                                  "Cannot transform twist message with stamp " << rclcpp::Time(twist.header.stamp).nanoseconds()
-                                  << " to twist target frame " << params_.twist_target_frame);
-    }
-    else
-    {
+    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist)) {
+      RCLCPP_WARN_STREAM_THROTTLE(
+        logger_, *clock_, 5.0 * 1000,
+        "Cannot transform twist message with stamp " << rclcpp::Time(
+          twist.header.stamp).nanoseconds()
+                                                     << " to twist target frame " <<
+          params_.twist_target_frame);
+    } else {
       common::processDifferentialPoseWithTwistCovariance(
         name(),
         device_id_,
@@ -245,9 +240,7 @@ void Odometry2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianc
         validate,
         transaction);
     }
-  }
-  else
-  {
+  } else {
     common::processDifferentialPoseWithCovariance(
       name(),
       device_id_,

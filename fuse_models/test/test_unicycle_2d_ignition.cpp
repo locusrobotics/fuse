@@ -31,15 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/absolute_constraint.hpp>
-#include <fuse_core/eigen.hpp>
-#include <fuse_core/eigen_gtest.hpp>
-#include <fuse_core/transaction.hpp>
-#include <fuse_models/unicycle_2d_ignition.h>
-#include <fuse_msgs/srv/set_pose.hpp>
-#include <fuse_msgs/srv/set_pose_deprecated.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -48,6 +39,15 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <fuse_constraints/absolute_constraint.hpp>
+#include <fuse_core/eigen.hpp>
+#include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/transaction.hpp>
+#include <fuse_models/unicycle_2d_ignition.hpp>
+#include <fuse_msgs/srv/set_pose.hpp>
+#include <fuse_msgs/srv/set_pose_deprecated.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 using fuse_constraints::AbsolutePosition2DStampedConstraint;
 using fuse_constraints::AbsoluteOrientation2DStampedConstraint;
@@ -72,14 +72,12 @@ void transactionCallback(fuse_core::Transaction::SharedPtr transaction)
 /**
  * @brief Helper function for fetching the desired constraint from a transaction
  */
-template <typename Derived>
-const Derived* getConstraint(const fuse_core::Transaction& transaction)
+template<typename Derived>
+const Derived * getConstraint(const fuse_core::Transaction & transaction)
 {
-  for (const auto& constraint : transaction.addedConstraints())
-  {
-    auto derived = dynamic_cast<const Derived*>(&constraint);
-    if (derived)
-    {
+  for (const auto & constraint : transaction.addedConstraints()) {
+    auto derived = dynamic_cast<const Derived *>(&constraint);
+    if (derived) {
       return derived;
     }
   }
@@ -108,21 +106,22 @@ public:
   {
     executor_->cancel();
     if (spinner_.joinable()) {
-     spinner_.join();
+      spinner_.join();
     }
     executor_.reset();
     rclcpp::shutdown();
   }
 
-   std::thread spinner_;  //!< Internal thread for spinning the executor
-   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::thread spinner_;   //!< Internal thread for spinning the executor
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
 
 TEST_F(Unicycle2DIgnitionTestFixture, InitialTransaction)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "ignition_sensor.initial_state:="
     "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
@@ -202,7 +201,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SkipInitialTransaction)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "ignition_sensor.initial_state:="
     "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
@@ -230,7 +230,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "ignition_sensor.initial_state:="
     "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
@@ -267,7 +268,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
   EXPECT_TRUE(result.get()->success);
 
-  // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
+  // The ignition sensor should publish a transaction in response to the service call. Wait for the
+  // callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
   ASSERT_TRUE(status == std::future_status::ready);
 
@@ -329,7 +331,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments({
+  options.arguments(
+  {
     "--ros-args",
     "-p", "ignition_sensor.initial_state:="
     "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
@@ -360,12 +363,14 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
   srv->pose.pose.covariance[0] = 1.0;
   srv->pose.pose.covariance[7] = 2.0;
   srv->pose.pose.covariance[35] = 3.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>("/unicycle_2d_ignition_test/set_pose_deprecated");
+  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>(
+    "/unicycle_2d_ignition_test/set_pose_deprecated");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
 
-  // The ignition sensor should publish a transaction in response to the service call. Wait for the callback to fire.
+  // The ignition sensor should publish a transaction in response to the service call. Wait for the
+  // callback to fire.
   auto status = callback_future.wait_for(std::chrono::seconds(5));
   ASSERT_TRUE(status == std::future_status::ready);
 

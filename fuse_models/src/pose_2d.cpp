@@ -31,19 +31,16 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_models/common/sensor_proc.h>
-#include <fuse_models/pose_2d.h>
-
-#include <fuse_core/transaction.hpp>
-#include <fuse_core/uuid.hpp>
-
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <pluginlib/class_list_macros.hpp>
-#include <rclcpp/rclcpp.hpp>
-
 #include <memory>
 #include <utility>
 
+#include <fuse_core/transaction.hpp>
+#include <fuse_core/uuid.hpp>
+#include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/pose_2d.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Pose2D, fuse_core::SensorModel)
@@ -51,8 +48,8 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Pose2D, fuse_core::SensorModel)
 namespace fuse_models
 {
 
-Pose2D::Pose2D() :
-  fuse_core::AsyncSensorModel(1),
+Pose2D::Pose2D()
+: fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
   logger_(rclcpp::get_logger("uninitialized")),
   throttled_callback_(std::bind(&Pose2D::process, this, std::placeholders::_1))
@@ -85,11 +82,12 @@ void Pose2D::onInit()
   }
 
   if (params_.position_indices.empty() &&
-      params_.orientation_indices.empty())
+    params_.orientation_indices.empty())
   {
-    RCLCPP_WARN_STREAM(logger_,
-                       "No dimensions were specified. Data from topic " << params_.topic
-                       << " will be ignored.");
+    RCLCPP_WARN_STREAM(
+      logger_,
+      "No dimensions were specified. Data from topic " << params_.topic
+                                                       << " will be ignored.");
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -105,7 +103,7 @@ void Pose2D::onInit()
 void Pose2D::onStart()
 {
   if (!params_.position_indices.empty() ||
-      !params_.orientation_indices.empty())
+    !params_.orientation_indices.empty())
   {
     rclcpp::SubscriptionOptions sub_options;
     sub_options.callback_group = cb_group_;
@@ -130,7 +128,7 @@ void Pose2D::onStop()
   sub_.reset();
 }
 
-void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
+void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -138,12 +136,9 @@ void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
 
   const bool validate = !params_.disable_checks;
 
-  if (params_.differential)
-  {
+  if (params_.differential) {
     processDifferential(msg, validate, *transaction);
-  }
-  else
-  {
+  } else {
     common::processAbsolutePoseWithCovariance(
       name(),
       device_id_,
@@ -162,22 +157,23 @@ void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
   sendTransaction(transaction);
 }
 
-void Pose2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
-                                 fuse_core::Transaction& transaction)
+void Pose2D::processDifferential(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & pose, const bool validate,
+  fuse_core::Transaction & transaction)
 {
   auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  transformed_pose->header.frame_id = params_.target_frame.empty() ? pose.header.frame_id : params_.target_frame;
+  transformed_pose->header.frame_id =
+    params_.target_frame.empty() ? pose.header.frame_id : params_.target_frame;
 
-  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose))
-  {
-    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
-                                "Cannot transform pose message with stamp " << rclcpp::Time(pose.header.stamp).nanoseconds()
-                                << " to target frame " << params_.target_frame);
+  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose)) {
+    RCLCPP_WARN_STREAM_THROTTLE(
+      logger_, *clock_, 5.0 * 1000,
+      "Cannot transform pose message with stamp " << rclcpp::Time(pose.header.stamp).nanoseconds()
+                                                  << " to target frame " << params_.target_frame);
     return;
   }
 
-  if (previous_pose_msg_)
-  {
+  if (previous_pose_msg_) {
     common::processDifferentialPoseWithCovariance(
       name(),
       device_id_,

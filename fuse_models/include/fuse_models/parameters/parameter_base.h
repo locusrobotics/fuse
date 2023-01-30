@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,69 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
-#define FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
 
-#include <fuse_models/common/sensor_config.h>
-#include <fuse_core/parameter.hpp>
+#ifndef FUSE_MODELS__PARAMETERS__PARAMETER_BASE_H_
+#define FUSE_MODELS__PARAMETERS__PARAMETER_BASE_H_
 
-#include <stdexcept>
-#include <string>
-#include <vector>
+#warning This header is obsolete, please include fuse_models/parameters/parameter_base.hpp instead
 
+#include <fuse_models/parameters/parameter_base.hpp>
 
-namespace fuse_models
-{
-
-namespace parameters
-{
-
-struct ParameterBase
-{
-  ParameterBase() = default;
-  virtual ~ParameterBase() = default;
-
-  /**
-   * @brief Method for loading parameter values from ROS.
-   *
-   * @param[in] interfaces - The node interfaces with which to load parameters
-   * @param[in] ns - The parameter namespace to use
-   */
-  virtual void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string& ns) = 0;
-};
-
-/**
- * @brief Utility method to load a sensor configuration, i.e. the dimension indices
- *
- * @tparam T - The variable type the dimension indices belong to
- *
- * @param[in] nh - The node interfaces with which to load parameters
- * @param[in] name - The ROS parameter name for the sensor configuration parameter
- * @return A vector with the dimension indices, that would be empty if the parameter does not exist
- */
-template <typename T>
-inline std::vector<size_t> loadSensorConfig(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
-  const std::string& name)
-{
-  std::vector<std::string> dimensions;
-  dimensions = fuse_core::getParam(interfaces, name, dimensions);
-  if (!dimensions.empty())
-  {
-    return common::getDimensionIndices<T>(dimensions);
-  }
-
-  return {};
-}
-
-}  // namespace parameters
-
-}  // namespace fuse_models
-
-#endif  // FUSE_MODELS_PARAMETERS_PARAMETER_BASE_H
+#endif  // FUSE_MODELS__PARAMETERS__PARAMETER_BASE_H_
