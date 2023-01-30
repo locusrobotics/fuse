@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,100 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
-#define FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
+#ifndef FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_H_
+#define FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_H_
 
-#include <fuse_core/ceres_options.hpp>
-#include <fuse_core/parameter.hpp>
-#include <rclcpp/rclcpp.hpp>
+#warning \
+  This header is obsolete, please include fuse_optimizers/fixed_lag_smoother_params.hpp instead
 
-#include <ceres/solver.h>
+#include <fuse_optimizers/fixed_lag_smoother_params.hpp>
 
-#include <algorithm>
-#include <string>
-#include <vector>
-
-
-namespace fuse_optimizers
-{
-
-/**
- * @brief Defines the set of parameters required by the fuse_optimizers::FixedLagSmoother class
- */
-struct FixedLagSmootherParams
-{
-public:
-  /**
-   * @brief The duration of the smoothing window in seconds
-   */
-  rclcpp::Duration lag_duration { 5, 0 };
-
-  /**
-   * @brief The target duration for optimization cycles
-   *
-   * If an optimization takes longer than expected, an optimization cycle may be skipped. The optimization period
-   * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
-   * parameter in Hz. "optimization_frequency" will be prioritized.
-   */
-  rclcpp::Duration optimization_period { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
-
-  /**
-   * @brief The topic name of the advertised reset service
-   */
-  std::string reset_service { "~/reset" };
-
-  /**
-   * @brief The maximum time to wait for motion models to be generated for a received transaction.
-   *
-   * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
-   * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
-   */
-  rclcpp::Duration transaction_timeout { 0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1)) };
-
-  /**
-   * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
-   */
-  ceres::Solver::Options solver_options;
-
-  /**
-   * @brief Method for loading parameter values from ROS.
-   *
-
-   * @param[in] node - The node used to load the parameter
-   */
-  void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces)
-  {
-    // Read settings from the parameter server
-    fuse_core::getPositiveParam(interfaces, "lag_duration", lag_duration);
-
-    double optimization_frequency{ -1.0 };
-    optimization_frequency = fuse_core::getParam(interfaces, "optimization_frequency", optimization_frequency);
-    fuse_core::getPositiveParam(interfaces, "optimization_period", optimization_period);
-
-    if (optimization_frequency != -1.0) {
-      if (optimization_frequency < 0) {
-        RCLCPP_WARN_STREAM(
-          interfaces.get_node_logging_interface()->get_logger(),
-          "The requested optimization_frequency parameter is < 0. Using the optimization_period"
-          "parameter instead!");
-      }
-      optimization_period =
-        rclcpp::Duration::from_seconds(1.0 / optimization_frequency);
-    }
-
-    fuse_core::getParam(interfaces, "reset_service", reset_service);
-
-    fuse_core::getPositiveParam(interfaces, "transaction_timeout", transaction_timeout);
-
-    fuse_core::loadSolverOptionsFromROS(interfaces, solver_options, "solver_options");
-  }
-};
-
-}  // namespace fuse_optimizers
-
-#endif  // FUSE_OPTIMIZERS_FIXED_LAG_SMOOTHER_PARAMS_H
+#endif  // FUSE_OPTIMIZERS__FIXED_LAG_SMOOTHER_PARAMS_H_

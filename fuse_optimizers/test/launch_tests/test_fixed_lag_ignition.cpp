@@ -31,15 +31,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <gtest/gtest.h>
+
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/wait_for_message.hpp>
 #include <std_srvs/srv/empty.hpp>
-
-#include <gtest/gtest.h>
-
 
 class FixedLagIgnitionFixture : public ::testing::Test
 {
@@ -61,13 +60,13 @@ public:
   {
     executor_->cancel();
     if (spinner_.joinable()) {
-     spinner_.join();
+      spinner_.join();
     }
     executor_.reset();
   }
 
-   std::thread spinner_;  //!< Internal thread for spinning the executor
-   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::thread spinner_;   //!< Internal thread for spinning the executor
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
 
 TEST_F(FixedLagIgnitionFixture, SetInitialState)
@@ -77,7 +76,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   auto relative_pose_publisher =
     node->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-      "/relative_pose", 1);
+    "/relative_pose", 1);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(node->get_clock()->wait_until_started(rclcpp::Duration::from_seconds(1.0)));
@@ -110,7 +109,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   // I need to wait for those subscribers to be ready before sending them sensor data.
   rclcpp::Time subscriber_timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
   while ((relative_pose_publisher->get_subscription_count() < 1u) &&
-         (node->now() < subscriber_timeout))
+    (node->now() < subscriber_timeout))
   {
     rclcpp::sleep_for(std::chrono::milliseconds(10));
   }
@@ -151,15 +150,15 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(1.0);
   auto odom_msg = nav_msgs::msg::Odometry();
   while ((odom_msg.header.stamp != rclcpp::Time(3, 0, RCL_ROS_TIME)) &&
-         (node->now() < result_timeout))
+    (node->now() < result_timeout))
   {
     rclcpp::wait_for_message(odom_msg, node, "/odom", std::chrono::seconds(1));
   }
   ASSERT_EQ(rclcpp::Time(odom_msg.header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
-  // If we did our job correctly, the initial variable values should be the same as the service call state, give or
-  // take the motion model forward prediction.
+  // If we did our job correctly, the initial variable values should be the same as the service call
+  // state, give or take the motion model forward prediction.
   EXPECT_NEAR(100.1, odom_msg.pose.pose.position.x, 0.10);
   EXPECT_NEAR(100.2, odom_msg.pose.pose.position.y, 0.10);
   EXPECT_NEAR(0.8660, odom_msg.pose.pose.orientation.z, 0.10);

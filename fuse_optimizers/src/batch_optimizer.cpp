@@ -32,16 +32,16 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fuse_core/transaction.hpp>
-#include <fuse_optimizers/batch_optimizer.h>
-#include <fuse_optimizers/optimizer.h>
-#include <rclcpp/rclcpp.hpp>
-
 #include <algorithm>
 #include <mutex>
 #include <string>
-#include <utility>
 #include <thread>
+#include <utility>
+
+#include <fuse_core/transaction.hpp>
+#include <fuse_optimizers/batch_optimizer.hpp>
+#include <fuse_optimizers/optimizer.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 
 namespace fuse_optimizers
@@ -50,8 +50,8 @@ namespace fuse_optimizers
 BatchOptimizer::BatchOptimizer(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
-):
-  fuse_optimizers::Optimizer(interfaces, std::move(graph)),
+)
+: fuse_optimizers::Optimizer(interfaces, std::move(graph)),
   combined_transaction_(fuse_core::Transaction::make_shared()),
   optimization_request_(false),
   start_time_(rclcpp::Time::max()),
@@ -77,8 +77,7 @@ BatchOptimizer::~BatchOptimizer()
   // Wake up any sleeping threads
   optimization_requested_.notify_all();
   // Wait for the threads to shutdown
-  if (optimization_thread_.joinable())
-  {
+  if (optimization_thread_.joinable()) {
     optimization_thread_.join();
   }
 }
@@ -89,38 +88,35 @@ void BatchOptimizer::applyMotionModelsToQueue()
   std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
   rclcpp::Time current_time;
   // Use the most recent transaction time as the current time
-  if (!pending_transactions_.empty())
-  {
+  if (!pending_transactions_.empty()) {
     // Use the most recent transaction time as the current time
     current_time = pending_transactions_.rbegin()->first;
   }
 
-  // TODO(CH3): We might have to check for time validity here?
-  // Attempt to process each pending transaction
-  while (!pending_transactions_.empty())
-  {
-    auto& element = pending_transactions_.begin()->second;
+  // TODO(CH3): We might have to check for time validity here? Attempt to process each pending
+  //            transaction
+  while (!pending_transactions_.empty()) {
+    auto & element = pending_transactions_.begin()->second;
     // Apply the motion models to the transaction
-    if (!applyMotionModels(element.sensor_name, *element.transaction))
-    {
-      if (element.transaction->stamp() + params_.transaction_timeout < current_time)
-      {
+    if (!applyMotionModels(element.sensor_name, *element.transaction)) {
+      if (element.transaction->stamp() + params_.transaction_timeout < current_time) {
         // Warn that this transaction has expired, then skip it.
-        RCLCPP_ERROR_STREAM(logger_,
-                            "The queued transaction with timestamp " << element.transaction->stamp().nanoseconds()
-                            << " could not be processed after " << (current_time - element.transaction->stamp()).nanoseconds()
-                            << " seconds, which is greater than the 'transaction_timeout' value of "
-                            << params_.transaction_timeout.nanoseconds() << ". Ignoring this transaction.");
+        RCLCPP_ERROR_STREAM(
+          logger_,
+          "The queued transaction with timestamp "
+            << element.transaction->stamp().nanoseconds() << " could not be processed after "
+            << (current_time - element.transaction->stamp()).nanoseconds()
+            << " seconds, which is greater than the 'transaction_timeout' value of "
+            << params_.transaction_timeout.nanoseconds() << ". Ignoring this transaction.");
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
-      }
-      else
-      {
+      } else {
         // Stop processing future transactions. Try again next time.
         break;
       }
     }
-    // Merge the sensor+motion model transactions into a combined transaction that will be applied directly to the graph
+    // Merge the sensor+motion model transactions into a combined transaction that will be applied
+    // directly to the graph
     {
       std::lock_guard<std::mutex> combined_transaction_lock(combined_transaction_mutex_);
       combined_transaction_->merge(*element.transaction, true);
@@ -133,20 +129,23 @@ void BatchOptimizer::applyMotionModelsToQueue()
 void BatchOptimizer::optimizationLoop()
 {
   // Optimize constraints until told to exit
-  while (interfaces_.get_node_base_interface()->get_context()->is_valid())
-  {
+  while (interfaces_.get_node_base_interface()->get_context()->is_valid()) {
     // Wait for the next signal to start the next optimization cycle
     {
       std::unique_lock<std::mutex> lock(optimization_requested_mutex_);
       optimization_requested_.wait(
         lock,
-        [this]{
-          return optimization_request_ || !interfaces_.get_node_base_interface()->get_context()->is_valid();
+        [this] {
+          /* *INDENT-OFF* */
+          return (
+            optimization_request_ ||
+            !interfaces_.get_node_base_interface()->get_context()->is_valid()
+          );
+          /* *INDENT-ON* */
         });
     }
     // If a shutdown is requested, exit now.
-    if (!interfaces_.get_node_base_interface()->get_context()->is_valid())
-    {
+    if (!interfaces_.get_node_base_interface()->get_context()->is_valid()) {
       break;
     }
     // Copy the combined transaction so it can be shared with all the plugins
@@ -172,8 +171,7 @@ void BatchOptimizer::optimizationLoop()
 void BatchOptimizer::optimizerTimerCallback()
 {
   // If an "ignition" transaction hasn't been received, then we can't do anything yet.
-  if (!started_)
-  {
+  if (!started_) {
     return;
   }
   // Attempt to generate motion models for any queued transactions
@@ -186,14 +184,13 @@ void BatchOptimizer::optimizerTimerCallback()
   // If there is some pending work, trigger the next optimization cycle.
   // If the optimizer has not completed the previous optimization cycle, then it
   // will not be waiting on the condition variable signal, so nothing will happen.
-  if (optimization_request_)
-  {
+  if (optimization_request_) {
     optimization_requested_.notify_one();
   }
 }
 
 void BatchOptimizer::transactionCallback(
-  const std::string& sensor_name,
+  const std::string & sensor_name,
   fuse_core::Transaction::SharedPtr transaction)
 {
   // Add the new transaction to the pending set
@@ -203,30 +200,28 @@ void BatchOptimizer::transactionCallback(
 
   rclcpp::Time transaction_time = transaction->stamp();
   rclcpp::Time last_pending_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
-  if (!started_ || transaction_time >= start_time_)
-  {
+  if (!started_ || transaction_time >= start_time_) {
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-    pending_transactions_.emplace(transaction_time, TransactionQueueElement(sensor_name, std::move(transaction)));
+    pending_transactions_.emplace(
+      transaction_time,
+      TransactionQueueElement(sensor_name, std::move(transaction)));
     last_pending_time = pending_transactions_.rbegin()->first;
   }
   // If we haven't "started" yet...
-  if (!started_)
-  {
+  if (!started_) {
     // Check if this transaction "starts" the system
-    if (sensor_models_.at(sensor_name).ignition)
-    {
+    if (sensor_models_.at(sensor_name).ignition) {
       started_ = true;
       start_time_ = transaction_time;
     }
     // Purge old transactions from the pending queue
     rclcpp::Time purge_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
-    if (started_)
-    {
+    if (started_) {
       purge_time = start_time_;
-    }
-    // prevent a bad subtraction
-    else if (rclcpp::Time(params_.transaction_timeout.nanoseconds(), last_pending_time.get_clock_type())
-             < last_pending_time)
+    } else if (  // prevent a bad subtraction  // NOLINT
+      rclcpp::Time(
+        params_.transaction_timeout.nanoseconds(), last_pending_time.get_clock_type()
+      ) < last_pending_time)
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }
@@ -235,13 +230,12 @@ void BatchOptimizer::transactionCallback(
     pending_transactions_.erase(pending_transactions_.begin(), purge_iter);
   }
   // If we have "started", attempt to process any pending transactions
-  if (started_)
-  {
+  if (started_) {
     applyMotionModelsToQueue();
   }
 }
 
-void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status)
+void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status)
 {
   status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "BatchOptimizer");
 

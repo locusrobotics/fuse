@@ -34,11 +34,10 @@
 
 #include <fuse_graphs/hash_graph.hpp>
 #include <fuse_graphs/hash_graph_params.hpp>
-#include <fuse_optimizers/fixed_lag_smoother.h>
+#include <fuse_optimizers/fixed_lag_smoother.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<rclcpp::Node>("fixed_lag_smoother_node");
