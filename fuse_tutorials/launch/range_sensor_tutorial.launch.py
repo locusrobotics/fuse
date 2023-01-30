@@ -14,11 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch_ros.actions import SetParameter, Node
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
 from launch.substitutions import PathJoinSubstitution
 
 
@@ -27,8 +26,8 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(package="tf2_ros",
-             executable = "static_transform_publisher",
-             arguments = ['0', '0', '0', '0', '0', '0', 'map', 'odom']),
+             executable="static_transform_publisher",
+             arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom']),
         Node(
             package='fuse_tutorials',
             executable='range_sensor_simulator',
