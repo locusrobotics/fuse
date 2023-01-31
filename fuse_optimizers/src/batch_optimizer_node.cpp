@@ -39,7 +39,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<rclcpp::Node>("batch_optimizer_node");
-  auto optimizer = std::make_shared<fuse_optimizers::BatchOptimizer>(node);
+  auto optimizer = std::make_shared<fuse_optimizers::BatchOptimizer>(*node);
 
   rclcpp::spin(node);
   rclcpp::shutdown();

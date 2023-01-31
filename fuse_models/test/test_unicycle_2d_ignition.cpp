@@ -136,7 +136,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, InitialTransaction)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // The ignition sensor should publish a transaction immediately. Wait for the callback to fire.
@@ -218,7 +218,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SkipInitialTransaction)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // The ignition sensor should publish a transaction immediately. Wait for the callback to fire.
@@ -249,7 +249,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Call the SetPose service
@@ -350,7 +350,7 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
 
   // Create an ignition sensor and register the callback
   fuse_models::Unicycle2DIgnition ignition_sensor;
-  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Call the SetPose service

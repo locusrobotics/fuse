@@ -89,7 +89,7 @@ TEST_F(TestAsyncPublisher, OnInit)
   for (int i = 0; i < 50; i++) {
     auto node = rclcpp::Node::make_shared("test_async_pub_node");
     MyPublisher publisher;
-    publisher.initialize(node, "my_publisher_" + std::to_string(i));
+    publisher.initialize(*node, "my_publisher_" + std::to_string(i));
     EXPECT_TRUE(publisher.initialized);
   }
 }
@@ -98,16 +98,16 @@ TEST_F(TestAsyncPublisher, DoubleInit)
 {
   auto node = rclcpp::Node::make_shared("test_async_pub_node");
   MyPublisher publisher;
-  publisher.initialize(node, "my_publisher");
+  publisher.initialize(*node, "my_publisher");
   EXPECT_TRUE(publisher.initialized);
-  EXPECT_THROW(publisher.initialize(node, "test"), std::runtime_error);
+  EXPECT_THROW(publisher.initialize(*node, "test"), std::runtime_error);
 }
 
 TEST_F(TestAsyncPublisher, notifyCallback)
 {
   auto node = rclcpp::Node::make_shared("test_async_pub_node");
   MyPublisher publisher;
-  publisher.initialize(node, "my_publisher");
+  publisher.initialize(*node, "my_publisher");
 
   // Execute the notify() method in this thread. This should push a call to
   // MyPublisher::notifyCallback() into MyPublisher's callback queue, which will get executed by
