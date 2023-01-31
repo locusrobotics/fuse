@@ -228,7 +228,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
 
   // Create an ignition sensor and register the callback
   fuse_models::GraphIgnition ignition_sensor;
-  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Create graph
@@ -341,7 +341,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
 
   // Create an ignition sensor and register the callback
   fuse_models::GraphIgnition ignition_sensor;
-  ignition_sensor.initialize(node, "ignition_sensor", &transactionCallback);
+  ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
   // Create graph

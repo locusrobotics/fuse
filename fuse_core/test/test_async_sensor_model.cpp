@@ -98,7 +98,7 @@ TEST_F(TestAsyncSensorModel, OnInit)
   for (int i = 0; i < 50; i++) {
     MySensor sensor;
     auto node = rclcpp::Node::make_shared("test_async_sensor_model_node");
-    sensor.initialize(node, "my_sensor_" + std::to_string(i), &transactionCallback);
+    sensor.initialize(*node, "my_sensor_" + std::to_string(i), &transactionCallback);
     EXPECT_TRUE(sensor.initialized);
   }
 }
@@ -107,16 +107,16 @@ TEST_F(TestAsyncSensorModel, DoubleInit)
 {
   MySensor sensor_model;
   auto node = rclcpp::Node::make_shared("test_async_sensor_model_node");
-  sensor_model.initialize(node, "my_sensor_model", &transactionCallback);
+  sensor_model.initialize(*node, "my_sensor_model", &transactionCallback);
   EXPECT_TRUE(sensor_model.initialized);
-  EXPECT_THROW(sensor_model.initialize(node, "test", &transactionCallback), std::runtime_error);
+  EXPECT_THROW(sensor_model.initialize(*node, "test", &transactionCallback), std::runtime_error);
 }
 
 TEST_F(TestAsyncSensorModel, OnGraphUpdate)
 {
   MySensor sensor;
   auto node = rclcpp::Node::make_shared("test_async_sensor_model_node");
-  sensor.initialize(node, "my_sensor", &transactionCallback);
+  sensor.initialize(*node, "my_sensor", &transactionCallback);
 
   // Execute the graph callback in this thread. This should push a call to MySensor::onGraphUpdate()
   // into MySensor's callback queue, which will get executed by MySensor's async spinner.
@@ -142,7 +142,7 @@ TEST_F(TestAsyncSensorModel, SendTransaction)
 {
   MySensor sensor;
   auto node = rclcpp::Node::make_shared("test_async_sensor_model_node");
-  sensor.initialize(node, "my_sensor", &transactionCallback);
+  sensor.initialize(*node, "my_sensor", &transactionCallback);
 
   // Use the sensor "sendTransaction()" method to execute the transaction callback. This will get
   // executed immediately.

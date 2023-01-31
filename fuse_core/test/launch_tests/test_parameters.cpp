@@ -75,28 +75,28 @@ TEST_F(TestParameters, getPositiveParam)
   // Load a positive parameter:
   {
     double parameter{default_value};
-    fuse_core::getPositiveParam(node, "positive_parameter", parameter);
+    fuse_core::getPositiveParam(*node, "positive_parameter", parameter);
     EXPECT_EQ(3.0, parameter);
   }
 
   // Load a negative parameter:
   {
     double parameter{default_value};
-    fuse_core::getPositiveParam(node, "negative_parameter", parameter);
+    fuse_core::getPositiveParam(*node, "negative_parameter", parameter);
     EXPECT_EQ(default_value, parameter);
   }
 
   // Load a zero parameter:
   {
     double parameter{default_value};
-    fuse_core::getPositiveParam(node, "zero_parameter", parameter);
+    fuse_core::getPositiveParam(*node, "zero_parameter", parameter);
     EXPECT_EQ(default_value, parameter);
   }
 
   // Load a zero parameter allowing zero (not strict):
   {
     double parameter{default_value};
-    fuse_core::getPositiveParam(node, "zero_parameter", parameter, false);
+    fuse_core::getPositiveParam(*node, "zero_parameter", parameter, false);
     EXPECT_EQ(0.0, parameter);
   }
 }
@@ -125,7 +125,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
 
     try {
       const auto covariance =
-        fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance);
+        fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -147,7 +147,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
 
     try {
       const auto covariance =
-        fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance);
+        fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance);
 
       EXPECT_EQ(Size, covariance.rows());
       EXPECT_EQ(Size, covariance.cols());
@@ -168,7 +168,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
     ASSERT_FALSE(node->has_parameter(parameter_name));
 
     EXPECT_THROW(
-      fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+      fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance),
       std::invalid_argument);
   }
 
@@ -179,7 +179,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
     ASSERT_FALSE(node->has_parameter(parameter_name));
 
     EXPECT_THROW(
-      fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+      fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance),
       std::invalid_argument);
   }
 
@@ -190,7 +190,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
     ASSERT_FALSE(node->has_parameter(parameter_name));
 
     EXPECT_THROW(
-      fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+      fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance),
       std::invalid_argument);
   }
 
@@ -202,7 +202,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
 
     ASSERT_FALSE(node->has_parameter(parameter_name));
     EXPECT_THROW(
-      fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+      fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance),
       rclcpp::exceptions::InvalidParameterTypeException);
 
     // NOTE(CH3): A covariance diagonal with invalid element type used to not throw, and used to
@@ -220,7 +220,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
 
     ASSERT_FALSE(node->has_parameter(parameter_name));
     EXPECT_THROW(
-      fuse_core::getCovarianceDiagonalParam<Size>(node, parameter_name, default_variance),
+      fuse_core::getCovarianceDiagonalParam<Size>(*node, parameter_name, default_variance),
       rclcpp::exceptions::InvalidParameterTypeException);
 
     // NOTE(CH3): A covariance diagonal with invalid element type used to not throw, and used to

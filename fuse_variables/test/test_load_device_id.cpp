@@ -72,7 +72,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id1_node");
     node->declare_parameter("device_id", std::string("01234567-89AB-CDEF-0123-456789ABCDEF"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -86,7 +86,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id2_node");
     node->declare_parameter("device_id", std::string("01234567-89ab-cdef-0123-456789abcdef"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -100,7 +100,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id3_node");
     node->declare_parameter("device_id", std::string("0123456789ABCDEF0123456789ABCDEF"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -114,7 +114,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id4_node");
     node->declare_parameter("device_id", std::string("0123456789abcdef0123456789abcdef"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -128,7 +128,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id5_node");
     node->declare_parameter("device_id", std::string("{01234567-89ab-cdef-0123-456789abcdef}"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -142,7 +142,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id6_node");
     node->declare_parameter("device_id", std::string("{01234567-89AB-CDEF-0123-456789ABCDEF}"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x01, 0x23, 0x45, 0x67,
@@ -156,12 +156,12 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id7_node");
     node->declare_parameter("device_id", std::string("{THIS IS NOT VALID!!! 123456789ABCDEF}"));
-    EXPECT_THROW(fuse_variables::loadDeviceId(node), std::runtime_error);
+    EXPECT_THROW(fuse_variables::loadDeviceId(*node), std::runtime_error);
   }
   {
     auto node = rclcpp::Node::make_shared("name_node");
     node->declare_parameter("device_name", std::string("Test"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected =
     {
       0x5B, 0x23, 0x43, 0x6D,
@@ -175,7 +175,7 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("none_node");
     node->declare_parameter("some_other_parameter", 1);
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(node);
+    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
     fuse_core::UUID expected = fuse_core::uuid::NIL;
     EXPECT_EQ(expected, actual);
   }

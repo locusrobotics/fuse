@@ -416,7 +416,7 @@ int main(int argc, char ** argv)
   state.vyaw = state.vx / ROBOT_PATH_RADIUS;
 
   // Send the initial localization pose to the state estimator
-  initializeStateEstimation(node, state, clock, logger);
+  initializeStateEstimation(*node, state, clock, logger);
 
   // Simulate the robot traveling in a circular path
   auto rate = rclcpp::Rate(10.0);
