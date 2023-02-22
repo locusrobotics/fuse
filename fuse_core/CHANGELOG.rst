@@ -24,6 +24,37 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* 0.5.0
+* Update changelogs
+* Fix Ceres 2.0.0 API support (#273)
+  * Pass kNumResiduals to the internal AutoDiff function.
+  Ceres added this argument in https://github.com/ceres-solver/ceres-solver/commit/e7a30359ee754057f9bd7b349c98c291138d91f4 we need to pass it else template substitution fails.
+  * Pass kLocalSize instead of kGlobalSize
+  Upstream commit made me assume kGlobalSize, but that threw at runtime when the tests ran.
+  This seems to work, also put a using statement there to make roslint happy.
+  Co-authored-by: Ivor Wanders <ivor@iwanders.net>
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* [RST-4390] Allow variables to be held constant during optimization (#243)
+  * Add support for holding variables constant
+  * Create a 'fixed' landmark
+  * Added initial support for marginalizing constant variables
+* [RST-4455] Fix C++17 compile issue and simplify matrix serialization at the same time (#244)
+* Adding doxygen to all packages (#241)
+* Add unstamped 3D point variable (#233) (#239)
+  * Add unstamped 3D landmark variable
+  * Add landmark test and new uuid generator
+  Co-authored-by: Stephen Williams <swilliams@locusrobotics.com>
+  Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
+* [RST-3474] Created a getConstraintCosts() method
+  * Created a getConstraintCosts() method for reporting the costs and residuals of individual constraints
+* [RST-2831] Support for optimization bounds (#235)
+* Added a time-limited optimization option to the Graph class (#234)
+* Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
