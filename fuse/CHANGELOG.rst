@@ -5,6 +5,12 @@ Changelog for package fuse
 0.5.0 (2022-02-23)
 ------------------
 
+Forthcoming
+-----------
+* 0.5.0
+* Update changelogs
+* Contributors: Gary Servin
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
