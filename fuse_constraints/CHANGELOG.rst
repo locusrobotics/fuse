@@ -14,8 +14,8 @@ Changelog for package fuse_constraints
 * Adding doxygen to all packages (#241)
 * Contributors: Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.6.0 (2023-02-22)
+------------------
 * 0.5.0
 * Update changelogs
 * [RST-4186] Fix fuse macro names (#263)

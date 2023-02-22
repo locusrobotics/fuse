@@ -7,8 +7,8 @@ Changelog for package fuse_loss
 * Adding doxygen to all packages (#241)
 * Contributors: Tom Moore
 
-Forthcoming
------------
+0.6.0 (2023-02-22)
+------------------
 * 0.5.0
 * Update changelogs
 * Adding doxygen to all packages (#241)

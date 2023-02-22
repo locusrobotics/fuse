@@ -11,8 +11,8 @@ Changelog for package fuse_models
 * [RST-3451] Delay some transform warnings so startup is less chatty
 * Contributors: Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.6.0 (2023-02-22)
+------------------
 * 0.5.0
 * Update changelogs
 * [RST-4186] Fix fuse macro names (#263)
