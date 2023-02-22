@@ -5,8 +5,8 @@ Changelog for package fuse
 0.5.0 (2022-02-23)
 ------------------
 
-Forthcoming
------------
+0.6.0 (2023-02-22)
+------------------
 * 0.5.0
 * Update changelogs
 * Contributors: Gary Servin

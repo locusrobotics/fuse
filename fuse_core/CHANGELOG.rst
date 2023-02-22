@@ -24,8 +24,8 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.6.0 (2023-02-22)
+------------------
 * 0.5.0
 * Update changelogs
 * Fix Ceres 2.0.0 API support (#273)

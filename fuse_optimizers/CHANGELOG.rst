@@ -12,8 +12,8 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.6.0 (2023-02-22)
+------------------
 * 0.5.0
 * Update changelogs
 * [RST-4186] Fix fuse macro names (#263)
