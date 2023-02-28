@@ -10,6 +10,16 @@ Changelog for package fuse_publishers
 * Adding doxygen to all packages (#241)
 * Contributors: Stephen Williams, Tom Moore
 
+0.6.0 (2023-02-22)
+------------------
+* 0.5.0
+* Update changelogs
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* Adding doxygen to all packages (#241)
+* Contributors: Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
