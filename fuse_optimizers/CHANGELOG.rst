@@ -2,8 +2,8 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2023-03-03)
+------------------
 * Use upstream rclcpp::node_interfaces::NodeInterfaces (`#313 <https://github.com/locusrobotics/fuse/issues/313>`_)
   * Use upstream rclcpp::node_interfaces::NodeInterfaces
   * Dereference node arguments to NodeInterfaces

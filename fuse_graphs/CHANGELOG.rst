@@ -2,8 +2,8 @@
 Changelog for package fuse_graphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2023-03-03)
+------------------
 * fuse -> ROS 2 : Doc Generation (`#278 <https://github.com/locusrobotics/fuse/issues/278>`_)
   * Port doc generation and fix package.xml for linting
   * Fix small bugs in package.xml
