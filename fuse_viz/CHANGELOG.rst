@@ -2,6 +2,9 @@
 Changelog for package fuse_viz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.0 (2023-03-03)
 ------------------
 * Fix fuse viz crash (`#312 <https://github.com/locusrobotics/fuse/issues/312>`_)

@@ -2,6 +2,11 @@
 Changelog for package fuse_tutorials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixing rviz2 dependency (`#320 <https://github.com/locusrobotics/fuse/issues/320>`_)
+* Contributors: Tom Moore
+
 1.0.0 (2023-03-03)
 ------------------
 * Use upstream rclcpp::node_interfaces::NodeInterfaces (`#313 <https://github.com/locusrobotics/fuse/issues/313>`_)
