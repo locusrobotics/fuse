@@ -2,6 +2,27 @@
 Changelog for package fuse_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fuse -> ROS 2 : Doc Generation (`#278 <https://github.com/locusrobotics/fuse/issues/278>`_)
+  * Port doc generation and fix package.xml for linting
+  * Fix small bugs in package.xml
+  * Use default rosdoc2 settings
+  * Use default rosdoc2 settings
+  * Update fuse_doc for rosdoc2
+  ---------
+  Co-authored-by: Shane Loretz <sloretz@google.com>
+* fuse -> ROS 2 fuse_models: Port fuse_models (`#304 <https://github.com/locusrobotics/fuse/issues/304>`_)
+  * Port messages
+  * Port fuse_models
+  * Fix alloc error and some bugs
+  * Wait on result
+* Fuse -> ROS 2 fuse_core: Partial port of fuse_core (`#281 <https://github.com/locusrobotics/fuse/issues/281>`_)
+  Co-authored-by: Brett Downing
+* fuse -> ROS 2 fuse_msgs : Port package and ignore unported packages for now (`#277 <https://github.com/locusrobotics/fuse/issues/277>`_)
+  Co-authored-by: Tom Moore <tmoore@locusrobotics.com>
+* Contributors: methylDragon
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)

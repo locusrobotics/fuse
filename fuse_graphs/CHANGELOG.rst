@@ -2,6 +2,46 @@
 Changelog for package fuse_graphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fuse -> ROS 2 : Doc Generation (`#278 <https://github.com/locusrobotics/fuse/issues/278>`_)
+  * Port doc generation and fix package.xml for linting
+  * Fix small bugs in package.xml
+  * Use default rosdoc2 settings
+  * Use default rosdoc2 settings
+  * Update fuse_doc for rosdoc2
+  ---------
+  Co-authored-by: Shane Loretz <sloretz@google.com>
+* fuse -> ROS 2 fuse_models: Port fuse_models (`#304 <https://github.com/locusrobotics/fuse/issues/304>`_)
+  * Port messages
+  * Port fuse_models
+  * Fix alloc error and some bugs
+  * Wait on result
+* fuse -> ROS 2 fuse_graphs: Linting (`#297 <https://github.com/locusrobotics/fuse/issues/297>`_)
+* fuse -> ROS 2 fuse_graphs : Port fuse_graphs (`#289 <https://github.com/locusrobotics/fuse/issues/289>`_)
+* fuse -> ROS 2 fuse_loss: Port fuse_loss (`#287 <https://github.com/locusrobotics/fuse/issues/287>`_)
+* fuse -> ROS 2 fuse_core: Linting (`#292 <https://github.com/locusrobotics/fuse/issues/292>`_)
+* fuse -> ROS 2 fuse_core : Parameters and Tests (`#286 <https://github.com/locusrobotics/fuse/issues/286>`_)
+  Co-authored-by: Shane Loretz <sloretz@osrfoundation.org>
+  Co-authored-by: Ivor Wanders <ivor@iwanders.net>
+* fuse -> ROS 2 : Port Time (`#283 <https://github.com/locusrobotics/fuse/issues/283>`_)
+* fuse -> ROS 2: Clean up macro usage warnings (`#280 <https://github.com/locusrobotics/fuse/issues/280>`_)
+* fuse -> ROS 2 fuse_msgs : Port package and ignore unported packages for now (`#277 <https://github.com/locusrobotics/fuse/issues/277>`_)
+  Co-authored-by: Tom Moore <tmoore@locusrobotics.com>
+* [RST-4186] Fix fuse macro names (`#263 <https://github.com/locusrobotics/fuse/issues/263>`_)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* [RST-4390] Allow variables to be held constant during optimization (`#243 <https://github.com/locusrobotics/fuse/issues/243>`_)
+  * Add support for holding variables constant
+  * Create a 'fixed' landmark
+  * Added initial support for marginalizing constant variables
+* Adding doxygen to all packages (`#241 <https://github.com/locusrobotics/fuse/issues/241>`_)
+* [RST-3474] Created a getConstraintCosts() method
+  * Created a getConstraintCosts() method for reporting the costs and residuals of individual constraints
+* [RST-2831] Support for optimization bounds (`#235 <https://github.com/locusrobotics/fuse/issues/235>`_)
+* Added a time-limited optimization option to the Graph class (`#234 <https://github.com/locusrobotics/fuse/issues/234>`_)
+* Contributors: Stephen Williams, Tom Moore, methylDragon
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)

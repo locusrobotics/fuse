@@ -2,6 +2,37 @@
 Changelog for package fuse_loss
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fuse -> ROS 2 : Doc Generation (`#278 <https://github.com/locusrobotics/fuse/issues/278>`_)
+  * Port doc generation and fix package.xml for linting
+  * Fix small bugs in package.xml
+  * Use default rosdoc2 settings
+  * Use default rosdoc2 settings
+  * Update fuse_doc for rosdoc2
+  ---------
+  Co-authored-by: Shane Loretz <sloretz@google.com>
+* fuse -> ROS 2 fuse_models: Port fuse_models (`#304 <https://github.com/locusrobotics/fuse/issues/304>`_)
+  * Port messages
+  * Port fuse_models
+  * Fix alloc error and some bugs
+  * Wait on result
+* fuse -> ROS 2 fuse_graphs : Port fuse_graphs (`#289 <https://github.com/locusrobotics/fuse/issues/289>`_)
+* fuse -> ROS 2 fuse_variables: Linting (`#296 <https://github.com/locusrobotics/fuse/issues/296>`_)
+  * Migrate to .hpp files
+  * Create redirection headers
+  * Make xmllint and uncrustify happy
+  * Wrap most comment lines
+  * Satisfy cpplint
+* fuse -> ROS 2 fuse_loss: Linting (`#295 <https://github.com/locusrobotics/fuse/issues/295>`_)
+* fuse -> ROS 2 fuse_loss: Port fuse_loss (`#287 <https://github.com/locusrobotics/fuse/issues/287>`_)
+* fuse -> ROS 2 fuse_core: Linting (`#292 <https://github.com/locusrobotics/fuse/issues/292>`_)
+* fuse -> ROS 2: Clean up macro usage warnings (`#280 <https://github.com/locusrobotics/fuse/issues/280>`_)
+* fuse -> ROS 2 fuse_msgs : Port package and ignore unported packages for now (`#277 <https://github.com/locusrobotics/fuse/issues/277>`_)
+  Co-authored-by: Tom Moore <tmoore@locusrobotics.com>
+* Adding doxygen to all packages (`#241 <https://github.com/locusrobotics/fuse/issues/241>`_)
+* Contributors: Tom Moore, methylDragon
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)

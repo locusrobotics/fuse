@@ -2,6 +2,39 @@
 Changelog for package fuse_viz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix fuse viz crash (`#312 <https://github.com/locusrobotics/fuse/issues/312>`_)
+* fuse -> ROS 2 : Doc Generation (`#278 <https://github.com/locusrobotics/fuse/issues/278>`_)
+  * Port doc generation and fix package.xml for linting
+  * Fix small bugs in package.xml
+  * Use default rosdoc2 settings
+  * Use default rosdoc2 settings
+  * Update fuse_doc for rosdoc2
+  ---------
+  Co-authored-by: Shane Loretz <sloretz@google.com>
+* fuse -> ROS 2 fuse_viz : Linting (`#306 <https://github.com/locusrobotics/fuse/issues/306>`_)
+* ROS 2 port of fuse_viz (`#301 <https://github.com/locusrobotics/fuse/issues/301>`_)
+  * Initial attempt at porting fuse_viz
+  * Make sure suitesparse can be found downstream
+  * Plugin library names can't have lib/ prefix
+  * Plugin library names can't have lib/ prefix
+  * Add lint tests (they currently fail)
+* fuse -> ROS 2 fuse_constraints : Linting (`#298 <https://github.com/locusrobotics/fuse/issues/298>`_)
+* fuse -> ROS 2 fuse_variables: Linting (`#296 <https://github.com/locusrobotics/fuse/issues/296>`_)
+  * Migrate to .hpp files
+  * Create redirection headers
+  * Make xmllint and uncrustify happy
+  * Wrap most comment lines
+  * Satisfy cpplint
+* fuse -> ROS 2 fuse_core: Linting (`#292 <https://github.com/locusrobotics/fuse/issues/292>`_)
+* fuse -> ROS 2 : Port Logging (`#279 <https://github.com/locusrobotics/fuse/issues/279>`_)
+  Co-authored-by: Tom Moore <tmoore@locusrobotics.com>
+* fuse -> ROS 2 fuse_msgs : Port package and ignore unported packages for now (`#277 <https://github.com/locusrobotics/fuse/issues/277>`_)
+  Co-authored-by: Tom Moore <tmoore@locusrobotics.com>
+* Adding doxygen to all packages (`#241 <https://github.com/locusrobotics/fuse/issues/241>`_)
+* Contributors: Shane Loretz, Tom Moore, methylDragon
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
