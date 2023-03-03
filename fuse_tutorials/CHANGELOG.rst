@@ -2,8 +2,8 @@
 Changelog for package fuse_tutorials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2023-03-03)
+------------------
 * Fixing rviz2 dependency (`#320 <https://github.com/locusrobotics/fuse/issues/320>`_)
 * Contributors: Tom Moore
 
