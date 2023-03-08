@@ -47,7 +47,8 @@
 #include <string>
 #include <thread>
 #include <vector>
-
+#include <utility>
+#include <unordered_set>
 
 namespace fuse_optimizers
 {
