@@ -166,10 +166,8 @@ public:
   void startOptimization() override;
 
 protected:
-
   // Read-only after construction
   ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
-
 };
 
 }  // namespace fuse_optimizers

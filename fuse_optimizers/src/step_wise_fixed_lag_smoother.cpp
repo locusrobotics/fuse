@@ -63,15 +63,12 @@ StepWiseFixedLagSmoother::StepWiseFixedLagSmoother(
   // add its own marginal constraints source to the optimization steps
   if (params_.optimization_steps.empty())
   {
-    params_.optimization_steps.push_back({ros::this_node::getName()});
+    params_.optimization_steps.push_back({ros::this_node::getName()}); // NOLINT
   }
   else
   {
     params_.optimization_steps[0].push_back(ros::this_node::getName());
   }
-
-  // Start the optimization thread
-  // optimization_thread_ = std::thread(&StepWiseFixedLagSmoother::optimizationLoop, this);
 }
 
 void StepWiseFixedLagSmoother::startOptimization()
@@ -150,7 +147,7 @@ void StepWiseFixedLagSmoother::optimizationLoop()
         {
           ROS_DEBUG_STREAM("type: " << type);
         }
-        
+
         fuse_core::Transaction::SharedPtr new_transaction_for_loop = new_transaction->clone();
 
         // Keep only the sensor models that will be optimized in this loop
@@ -168,7 +165,7 @@ void StepWiseFixedLagSmoother::optimizationLoop()
         {
           new_transaction_for_loop->removeConstraint(i);
         }
-        
+
         // skip if there are no elements for optimization in this optimization step
         if (boost::empty(new_transaction_for_loop->addedConstraints()) || new_transaction_for_loop->empty())
         {
@@ -177,7 +174,7 @@ void StepWiseFixedLagSmoother::optimizationLoop()
         }
 
         ROS_DEBUG_STREAM("New transaction within optimization step: " << *new_transaction_for_loop);
-      
+
         // Update the graph
         try
         {

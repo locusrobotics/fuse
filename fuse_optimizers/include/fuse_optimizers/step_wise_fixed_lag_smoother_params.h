@@ -57,11 +57,11 @@ namespace fuse_optimizers
 struct StepWiseFixedLagSmootherParams : FixedLagSmootherParams
 {
 public:
-
   /**
    * @brief The ordered list of steps for the optimization with each source inside
    *
-   * The optimization is performed sequentially where each step adds more constraints from different sources to the graph. 
+   * The optimization is performed sequentially where each step adds
+   * more constraints from different sources to the graph.
    */
   std::vector<std::vector<std::string>> optimization_steps;
 
@@ -73,13 +73,13 @@ public:
   void loadFromROS(const ros::NodeHandle& nh)
   {
     FixedLagSmootherParams::loadFromROS(nh);
-    
+
     // load optimization steps
     XmlRpc::XmlRpcValue optimization_steps_raw;
     fuse_core::getParamRequired<XmlRpc::XmlRpcValue>(nh, "optimization_steps", optimization_steps_raw);
 
     ROS_ASSERT(optimization_steps_raw.getType() == XmlRpc::XmlRpcValue::TypeArray);
-    
+
     for (int step_i = 0; step_i < optimization_steps_raw.size(); ++step_i)
     {
       ROS_ASSERT(optimization_steps_raw[step_i].getType() == XmlRpc::XmlRpcValue::TypeStruct);
@@ -87,14 +87,15 @@ public:
       ROS_ASSERT(optimization_steps_raw[step_i]["sources"].getType() == XmlRpc::XmlRpcValue::TypeArray);
 
       std::vector<std::string> optimization_step_sources;
-      
+
       for (int source_i = 0; source_i < optimization_steps_raw[step_i]["sources"].size(); ++source_i)
       {
         ROS_ASSERT(optimization_steps_raw[step_i]["sources"][source_i].getType() == XmlRpc::XmlRpcValue::TypeString);
 
-        optimization_step_sources.push_back(static_cast<std::string>(optimization_steps_raw[step_i]["sources"][source_i]));
+        optimization_step_sources.push_back(
+            static_cast<std::string>(optimization_steps_raw[step_i]["sources"][source_i]));
       }
-      
+
       optimization_steps.push_back(optimization_step_sources);
     }
   }
