@@ -361,6 +361,7 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_timestamp_manager
     PRIVATE
       include
+      ${CMAKE_CURRENT_SOURCE_DIR}
       ${Boost_INCLUDE_DIRS}
       ${catkin_INCLUDE_DIRS}
       ${CERES_INCLUDE_DIRS}
