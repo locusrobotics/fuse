@@ -131,7 +131,7 @@ void Pose2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped&
   auto transformed_pose = std::make_unique<geometry_msgs::PoseWithCovarianceStamped>();
   transformed_pose->header.frame_id = params_.target_frame.empty() ? pose.header.frame_id : params_.target_frame;
 
-  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
+  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose, params_.tf_timeout))
   {
     ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp "
                                       << pose.header.stamp << " to target frame " << params_.target_frame);

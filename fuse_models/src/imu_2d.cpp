@@ -222,7 +222,7 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
   transformed_pose->header.frame_id =
       params_.orientation_target_frame.empty() ? pose.header.frame_id : params_.orientation_target_frame;
 
-  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose))
+  if (!common::transformMessage(tf_buffer_, pose, *transformed_pose, params_.tf_timeout))
   {
     ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform pose message with stamp " << pose.header.stamp
                                                                               << " to orientation target frame "
@@ -242,7 +242,7 @@ void Imu2D::processDifferential(const geometry_msgs::PoseWithCovarianceStamped& 
     transformed_twist.header.frame_id =
         params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 
-    if (!common::transformMessage(tf_buffer_, twist, transformed_twist))
+    if (!common::transformMessage(tf_buffer_, twist, transformed_twist, params_.tf_timeout))
     {
       ROS_WARN_STREAM_THROTTLE(5.0, "Cannot transform twist message with stamp " << twist.header.stamp
                                                                                  << " to twist target frame "
