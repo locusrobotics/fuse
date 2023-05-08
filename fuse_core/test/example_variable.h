@@ -58,7 +58,7 @@ public:
   {
   }
 
-  ExampleVariable(const ros::Time& stamp) :
+  explicit ExampleVariable(const ros::Time& stamp) :
     fuse_core::Variable(fuse_core::uuid::generate("ExampleVariable", stamp)),
     data_(0.0)
   {
