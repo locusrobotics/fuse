@@ -364,11 +364,11 @@ void Unicycle2D::generateMotionModel(
       rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
 
     // apply to x and y velocity
-    process_noise_covariance.block<2,2>(3,3) = rotation_matrix * process_noise_covariance.block<2,2>(3,3) *
+    process_noise_covariance.block<2, 2>(3, 3) = rotation_matrix * process_noise_covariance.block<2, 2>(3, 3) *
                                                 rotation_matrix.transpose();
 
     // apply to x and y acceleration
-    process_noise_covariance.block<2,2>(6,6) = rotation_matrix * process_noise_covariance.block<2,2>(6,6) *
+    process_noise_covariance.block<2, 2>(6, 6) = rotation_matrix * process_noise_covariance.block<2, 2>(6, 6) *
                                                 rotation_matrix.transpose();
   }
 
