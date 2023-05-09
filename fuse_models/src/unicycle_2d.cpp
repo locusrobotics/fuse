@@ -204,6 +204,10 @@ void Unicycle2D::onInit()
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
   private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
+  private_node_handle_.param("rotate_process_noise_covariance_to_state_orientation",
+                            rotate_process_noise_covariance_to_state_orientation_,
+                            rotate_process_noise_covariance_to_state_orientation_);
+
   private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
 
   private_node_handle_.param("disable_checks", disable_checks_, disable_checks_);
@@ -348,8 +352,27 @@ void Unicycle2D::generateMotionModel(
   state_history_.emplace(beginning_stamp, std::move(state1));
   state_history_.emplace(ending_stamp, std::move(state2));
 
-  // Scale process noise covariance pose by the norm of the current state twist
+
   auto process_noise_covariance = process_noise_covariance_;
+
+  // Rotate the process noise covariance with the yaw angle of the current state orientation
+  if (rotate_process_noise_covariance_to_state_orientation_)
+  {
+    auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
+    // apply to x and y position
+    process_noise_covariance.topLeftCorner<2, 2>() =
+      rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
+
+    // apply to x and y velocity
+    process_noise_covariance.block<2,2>(3,3) = rotation_matrix * process_noise_covariance.block<2,2>(3,3) *
+                                                rotation_matrix.transpose();
+
+    // apply to x and y acceleration
+    process_noise_covariance.block<2,2>(6,6) = rotation_matrix * process_noise_covariance.block<2,2>(6,6) *
+                                                rotation_matrix.transpose();
+  }
+
+  // Scale process noise covariance pose by the norm of the current state twist
   if (scale_process_noise_)
   {
     common::scaleProcessNoiseCovariance(process_noise_covariance, state1.velocity_linear, state1.velocity_yaw,
