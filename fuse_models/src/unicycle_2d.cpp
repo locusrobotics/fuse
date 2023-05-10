@@ -204,9 +204,6 @@ void Unicycle2D::onInit()
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
   private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
-  private_node_handle_.param("rotate_process_noise_covariance_to_state_orientation",
-                             rotate_process_noise_covariance_to_state_orientation_,
-                             rotate_process_noise_covariance_to_state_orientation_);
 
   private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
 
@@ -355,14 +352,11 @@ void Unicycle2D::generateMotionModel(
   auto process_noise_covariance = process_noise_covariance_;
 
   // Rotate the process noise covariance with the yaw angle of the current state orientation
-  if (rotate_process_noise_covariance_to_state_orientation_)
-  {
-    const auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
-    // apply only to x and y position as the other state variables are already along the
-    // current state orientation
-    process_noise_covariance.topLeftCorner<2, 2>() =
-      rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
-  }
+  const auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
+  // Apply only to x and y position as the other state variables are already along the
+  // current state orientation
+  process_noise_covariance.topLeftCorner<2, 2>() =
+    rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
 
   // Scale process noise covariance pose by the norm of the current state twist
   if (scale_process_noise_)

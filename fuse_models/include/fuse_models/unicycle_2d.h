@@ -189,9 +189,6 @@ protected:
   fuse_core::Matrix8d process_noise_covariance_;   //!< Process noise covariance matrix
   bool scale_process_noise_{ false };              //!< Whether to scale the process noise covariance pose by the norm
                                                    //!< of the current state twist
-  bool rotate_process_noise_covariance_to_state_orientation_{ false };  //!< Whether to rotate the process noise
-                                                                        //!< covariance to the orientation of the
-                                                                        //!< current state using its yaw angle
   double velocity_norm_min_{ 1e-3 };               //!< The minimum velocity/twist norm allowed when scaling the
                                                    //!< process noise covariance
   bool disable_checks_{ false };  //!< Whether to disable the validation checks for the current and predicted state,
