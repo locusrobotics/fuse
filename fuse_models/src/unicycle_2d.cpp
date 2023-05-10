@@ -359,17 +359,10 @@ void Unicycle2D::generateMotionModel(
   if (rotate_process_noise_covariance_to_state_orientation_)
   {
     auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
-    // apply to x and y position
+    // apply only to x and y position as the other state variables are already along the
+    // current state orientation
     process_noise_covariance.topLeftCorner<2, 2>() =
       rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
-
-    // apply to x and y velocity
-    process_noise_covariance.block<2, 2>(3, 3) = rotation_matrix * process_noise_covariance.block<2, 2>(3, 3) *
-                                                rotation_matrix.transpose();
-
-    // apply to x and y acceleration
-    process_noise_covariance.block<2, 2>(6, 6) = rotation_matrix * process_noise_covariance.block<2, 2>(6, 6) *
-                                                rotation_matrix.transpose();
   }
 
   // Scale process noise covariance pose by the norm of the current state twist
