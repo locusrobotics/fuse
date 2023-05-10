@@ -205,8 +205,8 @@ void Unicycle2D::onInit()
 
   private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
   private_node_handle_.param("rotate_process_noise_covariance_to_state_orientation",
-                            rotate_process_noise_covariance_to_state_orientation_,
-                            rotate_process_noise_covariance_to_state_orientation_);
+                             rotate_process_noise_covariance_to_state_orientation_,
+                             rotate_process_noise_covariance_to_state_orientation_);
 
   private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
 
@@ -352,13 +352,12 @@ void Unicycle2D::generateMotionModel(
   state_history_.emplace(beginning_stamp, std::move(state1));
   state_history_.emplace(ending_stamp, std::move(state2));
 
-
   auto process_noise_covariance = process_noise_covariance_;
 
   // Rotate the process noise covariance with the yaw angle of the current state orientation
   if (rotate_process_noise_covariance_to_state_orientation_)
   {
-    auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
+    const auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
     // apply only to x and y position as the other state variables are already along the
     // current state orientation
     process_noise_covariance.topLeftCorner<2, 2>() =
