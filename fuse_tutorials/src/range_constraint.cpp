@@ -34,7 +34,7 @@
 #include <fuse_tutorials/range_constraint.h>
 
 #include <fuse_tutorials/range_cost_functor.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <ceres/autodiff_cost_function.h>

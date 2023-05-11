@@ -38,7 +38,7 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
-#include <pluginlib/class_loader.h>
+#include <pluginlib/class_loader.hpp>
 
 
 namespace fuse_core

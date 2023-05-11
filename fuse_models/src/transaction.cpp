@@ -34,7 +34,7 @@
 
 #include <fuse_models/transaction.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 
 // Register this sensor model with ROS as a plugin.

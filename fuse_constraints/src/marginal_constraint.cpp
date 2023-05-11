@@ -35,7 +35,7 @@
 
 #include <fuse_constraints/marginal_cost_function.h>
 #include <fuse_core/constraint.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 #include <Eigen/Core>

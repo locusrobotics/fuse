@@ -50,7 +50,7 @@
 #include <fuse_variables/stamped.h>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <std_srvs/Empty.h>
 #include <tf2/convert.h>
 #include <tf2/LinearMath/Quaternion.h>
