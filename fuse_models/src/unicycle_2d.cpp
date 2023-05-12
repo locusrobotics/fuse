@@ -48,7 +48,7 @@
 #include <fuse_variables/velocity_angular_2d_stamped.h>
 #include <fuse_variables/velocity_linear_2d_stamped.h>
 #include <fuse_variables/stamped.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 #include <tf2/utils.h>
 

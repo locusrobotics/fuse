@@ -113,7 +113,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -164,7 +164,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_unicycle_2d
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -180,7 +180,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_unicycle_2d_predict
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -197,7 +197,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_unicycle_2d_state_cost_function
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -223,7 +223,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_graph_ignition
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -239,7 +239,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_unicycle_2d_ignition
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -254,7 +254,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_sensor_proc
     PROPERTIES
-      CXX_STANDARD 14
+      CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -275,7 +275,7 @@ if(CATKIN_ENABLE_TESTING)
       )
       set_target_properties(benchmark_unicycle_2d_state_cost_function
         PROPERTIES
-          CXX_STANDARD 14
+          CXX_STANDARD 17
           CXX_STANDARD_REQUIRED YES
       )
     endif()

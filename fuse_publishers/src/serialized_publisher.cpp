@@ -41,7 +41,7 @@
 #include <fuse_core/transaction_deserializer.h>
 #include <fuse_msgs/SerializedGraph.h>
 #include <fuse_msgs/SerializedTransaction.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 
 

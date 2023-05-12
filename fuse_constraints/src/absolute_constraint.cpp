@@ -33,7 +33,7 @@
  */
 #include <fuse_constraints/absolute_constraint.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 

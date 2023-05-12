@@ -35,7 +35,7 @@
 #define FUSE_CORE_LOSS_LOADER_H
 
 #include <fuse_core/loss.h>
-#include <pluginlib/class_loader.h>
+#include <pluginlib/class_loader.hpp>
 
 #include <string>
 
