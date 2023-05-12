@@ -73,6 +73,9 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
@@ -85,7 +88,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
