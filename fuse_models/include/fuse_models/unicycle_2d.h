@@ -124,10 +124,10 @@ protected:
   bool applyCallback(fuse_core::Transaction& transaction) override;
 
   /**
-   * @brief Generate a single motion model segment between the specified timestamps.
+   * @brief Generator function for providing to the \c TimestampManager to create a single motion model segment
+   * between the specified timestamps.
    *
-   * This function is used by the timestamp manager to generate just the new motion model segments required to
-   * fulfill a query.
+   * This function is effectively using \c generateMotionModel.
    *
    * @param[in]  beginning_stamp The beginning timestamp of the motion model constraints to be generated.
    *                             \p beginning_stamp is guaranteed to be less than \p ending_stamp.
@@ -137,9 +137,46 @@ protected:
    * @param[out] variables       One or more variables at both the \p beginning_stamp and \p ending_stamp. The
    *                             variables should include initial values for the optimizer.
    */
-  void generateMotionModel(
+  void generateMotionModelGenerator(
     const ros::Time& beginning_stamp,
     const ros::Time& ending_stamp,
+    std::vector<fuse_core::Constraint::SharedPtr>& constraints,
+    std::vector<fuse_core::Variable::SharedPtr>& variables);
+
+  /**
+   * @brief Generate a single motion model segment between the specified timestamps.
+   *
+   * This function is used by the timestamp manager to generate just the new motion model segments required to
+   * fulfill a query.
+   *
+   * @param[in]  beginning_stamp The beginning timestamp of the motion model constraints to be generated.
+   *                             \p beginning_stamp is guaranteed to be less than \p ending_stamp.
+   * @param[in]  ending_stamp    The ending timestamp of the motion model constraints to be generated.
+   *                             \p ending_stamp is guaranteed to be greater than \p beginning_stamp.
+   * @param[in]  state_history   The state history object to be updated
+   * @param[in]  device_id       The UUID of the device to be published
+   * @param[in]  name            The unique name for this motion model instance
+   * @param[in]  process_noise_covariance Process noise covariance matrix
+   * @param[in]  scale_process_noise  Whether to scale the process noise covariance pose by the norm
+                                      of the current state twist.
+   * @param[in]  velocity_norm_min  The minimum velocity/twist norm allowed when scaling the
+                                    process noise covariance
+   * @param[in]  disable_checks  Whether to disable the validation checks for the current and predicted state,
+                                 including the process noise covariance after it is scaled and multiplied by dt.
+   * @param[out] constraints     One or more motion model constraints between the requested timestamps.
+   * @param[out] variables       One or more variables at both the \p beginning_stamp and \p ending_stamp. The
+   *                             variables should include initial values for the optimizer.
+   */
+  static void generateMotionModel(
+    const ros::Time& beginning_stamp,
+    const ros::Time& ending_stamp,
+    StateHistory& state_history,
+    const fuse_core::UUID& device_id,
+    const std::string name,
+    fuse_core::Matrix8d process_noise_covariance,
+    const bool scale_process_noise,
+    const double velocity_norm_min,
+    const bool disable_checks,
     std::vector<fuse_core::Constraint::SharedPtr>& constraints,
     std::vector<fuse_core::Variable::SharedPtr>& variables);
 
