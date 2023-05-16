@@ -5,9 +5,6 @@
  ***************************************************************************/
 #include <fuse_models/unicycle_2d.h>
 
-#include <string>
-#include <vector>
-
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_graphs/hash_graph.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -21,8 +18,11 @@
 #include <gtest/gtest.h>
 #include <fuse_core/eigen_gtest.h>
 
+#include <string>
+#include <vector>
+
 /**
- * @brief Derived class used in unit tests to expose protected functions
+ * @brief Derived class used in unit tests to expose protected/private functions and variables
  */
 class Unicycle2DModelTest : public fuse_models::Unicycle2D
 {
@@ -30,8 +30,27 @@ public:
   using fuse_models::Unicycle2D::updateStateHistoryEstimates;
   using fuse_models::Unicycle2D::StateHistoryElement;
   using fuse_models::Unicycle2D::StateHistory;
-
   using fuse_models::Unicycle2D::generateMotionModel;
+
+  void setProcessNoiseCovariance(const fuse_core::Matrix8d& process_noise_covariance)
+  {
+    process_noise_covariance_ = process_noise_covariance;
+  }
+
+  void setStateHistory(const StateHistory& state_history)
+  {
+    state_history_ = state_history;
+  }
+
+  void setScaleProcessNoise(const bool& scale_process_noise)
+  {
+    scale_process_noise_ = scale_process_noise;
+  }
+
+  void setDisableChecks(const bool& disable_checks)
+  {
+    disable_checks_ = disable_checks;
+  }
 };
 
 TEST(Unicycle2D, UpdateStateHistoryEstimates)
@@ -331,29 +350,23 @@ TEST(Unicycle2D, generateMotionModel)
       yaw_velocity1->yaw(),
       tf2_2d::Vector2(linear_acceleration1->x(), linear_acceleration1->y())});  // NOLINT(whitespace/braces)
 
-  const fuse_core::UUID device_id{{0}};
-  const std::string name = "";
+  Unicycle2DModelTest unicycle_2d_model_test;
+
+  unicycle_2d_model_test.setStateHistory(state_history);
 
   std::vector<double> process_noise_diagonal{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
-  fuse_core::Matrix8d process_noise_covariance = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
+  unicycle_2d_model_test.setProcessNoiseCovariance(fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal());
 
-  const bool scale_process_noise = false;
-  const double velocity_norm_min = 0.0;
-  const bool disable_checks = false;
+  unicycle_2d_model_test.setScaleProcessNoise(false);
+  unicycle_2d_model_test.setDisableChecks(false);
+
   std::vector<fuse_core::Constraint::SharedPtr> constraints;
   std::vector<fuse_core::Variable::SharedPtr> variables;
 
   // Generate the motion model
-  Unicycle2DModelTest::generateMotionModel(
+  unicycle_2d_model_test.generateMotionModel(
     beginning_stamp,
     ending_stamp,
-    state_history,
-    device_id,
-    name,
-    process_noise_covariance,
-    scale_process_noise,
-    velocity_norm_min,
-    disable_checks,
     constraints,
     variables);
 
@@ -440,5 +453,11 @@ TEST(Unicycle2D, generateMotionModel)
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  ros::init(argc, argv, "unicycle_2d_test");
+  auto spinner = ros::AsyncSpinner(1);
+  spinner.start();
+  int ret = RUN_ALL_TESTS();
+  spinner.stop();
+  ros::shutdown();
+  return ret;
 }

@@ -119,7 +119,7 @@ Unicycle2D::Unicycle2D() :
   fuse_core::AsyncMotionModel(1),
   buffer_length_(ros::DURATION_MAX),
   device_id_(fuse_core::uuid::NIL),
-  timestamp_manager_(&Unicycle2D::generateMotionModelGenerator, this, ros::DURATION_MAX)
+  timestamp_manager_(&Unicycle2D::generateMotionModel, this, ros::DURATION_MAX)
 {
 }
 
@@ -204,9 +204,7 @@ void Unicycle2D::onInit()
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
 
   private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
-
   private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
-
   private_node_handle_.param("disable_checks", disable_checks_, disable_checks_);
 
   double buffer_length = 3.0;
@@ -229,41 +227,23 @@ void Unicycle2D::onStart()
   state_history_.clear();
 }
 
-void Unicycle2D::generateMotionModelGenerator(
-  const ros::Time& beginning_stamp,
-  const ros::Time& ending_stamp,
-  std::vector<fuse_core::Constraint::SharedPtr>& constraints,
-  std::vector<fuse_core::Variable::SharedPtr>& variables)
-{
-  generateMotionModel(beginning_stamp, ending_stamp, state_history_, device_id_, name(),
-                      process_noise_covariance_, scale_process_noise_, velocity_norm_min_, disable_checks_,
-                      constraints, variables);
-}
-
 void Unicycle2D::generateMotionModel(
   const ros::Time& beginning_stamp,
   const ros::Time& ending_stamp,
-  StateHistory& state_history,
-  const fuse_core::UUID& device_id,
-  const std::string name,
-  fuse_core::Matrix8d process_noise_covariance,
-  const bool scale_process_noise,
-  const double velocity_norm_min,
-  const bool disable_checks,
   std::vector<fuse_core::Constraint::SharedPtr>& constraints,
   std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
-  assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history.empty()));
+  assert(beginning_stamp < ending_stamp || (beginning_stamp == ending_stamp && state_history_.empty()));
 
   StateHistoryElement base_state;
   ros::Time base_time;
 
   // Find an entry that is > beginning_stamp
   // The entry that is <= will be the one before it
-  auto base_state_pair_it = state_history.upper_bound(beginning_stamp);
-  if (base_state_pair_it == state_history.begin())
+  auto base_state_pair_it = state_history_.upper_bound(beginning_stamp);
+  if (base_state_pair_it == state_history_.begin())
   {
-    ROS_WARN_STREAM_COND_NAMED(!state_history.empty(), "UnicycleModel", "Unable to locate a state in this history "
+    ROS_WARN_STREAM_COND_NAMED(!state_history_.empty(), "UnicycleModel", "Unable to locate a state in this history "
                                "with stamp <= " << beginning_stamp << ". Variables will all be initialized to 0.");
     base_time = beginning_stamp;
   }
@@ -300,13 +280,13 @@ void Unicycle2D::generateMotionModel(
 
   if (dt == 0.0)
   {
-    state1.position_uuid = fuse_variables::Position2DStamped(beginning_stamp, device_id).uuid();
-    state1.yaw_uuid = fuse_variables::Orientation2DStamped(beginning_stamp, device_id).uuid();
-    state1.vel_linear_uuid = fuse_variables::VelocityLinear2DStamped(beginning_stamp, device_id).uuid();
-    state1.vel_yaw_uuid = fuse_variables::VelocityAngular2DStamped(beginning_stamp, device_id).uuid();
-    state1.acc_linear_uuid = fuse_variables::AccelerationLinear2DStamped(beginning_stamp, device_id).uuid();
+    state1.position_uuid = fuse_variables::Position2DStamped(beginning_stamp, device_id_).uuid();
+    state1.yaw_uuid = fuse_variables::Orientation2DStamped(beginning_stamp, device_id_).uuid();
+    state1.vel_linear_uuid = fuse_variables::VelocityLinear2DStamped(beginning_stamp, device_id_).uuid();
+    state1.vel_yaw_uuid = fuse_variables::VelocityAngular2DStamped(beginning_stamp, device_id_).uuid();
+    state1.acc_linear_uuid = fuse_variables::AccelerationLinear2DStamped(beginning_stamp, device_id_).uuid();
 
-    state_history.emplace(beginning_stamp, std::move(state1));
+    state_history_.emplace(beginning_stamp, std::move(state1));
 
     return;
   }
@@ -325,16 +305,16 @@ void Unicycle2D::generateMotionModel(
     state2.acceleration_linear);
 
   // Define the fuse variables required for this constraint
-  auto position1 = fuse_variables::Position2DStamped::make_shared(beginning_stamp, device_id);
-  auto yaw1 = fuse_variables::Orientation2DStamped::make_shared(beginning_stamp, device_id);
-  auto velocity_linear1 = fuse_variables::VelocityLinear2DStamped::make_shared(beginning_stamp, device_id);
-  auto velocity_yaw1 = fuse_variables::VelocityAngular2DStamped::make_shared(beginning_stamp, device_id);
-  auto acceleration_linear1 = fuse_variables::AccelerationLinear2DStamped::make_shared(beginning_stamp, device_id);
-  auto position2 = fuse_variables::Position2DStamped::make_shared(ending_stamp, device_id);
-  auto yaw2 = fuse_variables::Orientation2DStamped::make_shared(ending_stamp, device_id);
-  auto velocity_linear2 = fuse_variables::VelocityLinear2DStamped::make_shared(ending_stamp, device_id);
-  auto velocity_yaw2 = fuse_variables::VelocityAngular2DStamped::make_shared(ending_stamp, device_id);
-  auto acceleration_linear2 = fuse_variables::AccelerationLinear2DStamped::make_shared(ending_stamp, device_id);
+  auto position1 = fuse_variables::Position2DStamped::make_shared(beginning_stamp, device_id_);
+  auto yaw1 = fuse_variables::Orientation2DStamped::make_shared(beginning_stamp, device_id_);
+  auto velocity_linear1 = fuse_variables::VelocityLinear2DStamped::make_shared(beginning_stamp, device_id_);
+  auto velocity_yaw1 = fuse_variables::VelocityAngular2DStamped::make_shared(beginning_stamp, device_id_);
+  auto acceleration_linear1 = fuse_variables::AccelerationLinear2DStamped::make_shared(beginning_stamp, device_id_);
+  auto position2 = fuse_variables::Position2DStamped::make_shared(ending_stamp, device_id_);
+  auto yaw2 = fuse_variables::Orientation2DStamped::make_shared(ending_stamp, device_id_);
+  auto velocity_linear2 = fuse_variables::VelocityLinear2DStamped::make_shared(ending_stamp, device_id_);
+  auto velocity_yaw2 = fuse_variables::VelocityAngular2DStamped::make_shared(ending_stamp, device_id_);
+  auto acceleration_linear2 = fuse_variables::AccelerationLinear2DStamped::make_shared(ending_stamp, device_id_);
 
   position1->data()[fuse_variables::Position2DStamped::X] = state1.pose.x();
   position1->data()[fuse_variables::Position2DStamped::Y] = state1.pose.y();
@@ -364,8 +344,10 @@ void Unicycle2D::generateMotionModel(
   state2.vel_yaw_uuid = velocity_yaw2->uuid();
   state2.acc_linear_uuid = acceleration_linear2->uuid();
 
-  state_history.emplace(beginning_stamp, std::move(state1));
-  state_history.emplace(ending_stamp, std::move(state2));
+  state_history_.emplace(beginning_stamp, std::move(state1));
+  state_history_.emplace(ending_stamp, std::move(state2));
+
+  auto process_noise_covariance = process_noise_covariance_;
 
   // Rotate the process noise covariance with the yaw angle of the current state orientation
   const auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
@@ -375,16 +357,16 @@ void Unicycle2D::generateMotionModel(
     rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
 
   // Scale process noise covariance pose by the norm of the current state twist
-  if (scale_process_noise)
+  if (scale_process_noise_)
   {
     common::scaleProcessNoiseCovariance(process_noise_covariance, state1.velocity_linear, state1.velocity_yaw,
-                                        velocity_norm_min);
+                                        velocity_norm_min_);
   }
 
   // Validate
   process_noise_covariance *= dt;
 
-  if (!disable_checks)
+  if (!disable_checks_)
   {
     try
     {
@@ -392,14 +374,14 @@ void Unicycle2D::generateMotionModel(
     }
     catch (const std::runtime_error& ex)
     {
-      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid '" << name << "' motion model: " << ex.what());
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid '" << name() << "' motion model: " << ex.what());
       return;
     }
   }
 
   // Create the constraints for this motion model segment
   auto constraint = fuse_models::Unicycle2DStateKinematicConstraint::make_shared(
-    name,
+    name(),
     *position1,
     *yaw1,
     *velocity_linear1,
