@@ -49,10 +49,8 @@
 #include <utility>
 #include <vector>
 
-
 namespace fuse_optimizers
 {
-
 /**
  * @brief A base class that can be used to build fuse optimizer nodes
  *
@@ -103,10 +101,8 @@ public:
    * @param[in] node_handle         A node handle in the global namespace
    * @param[in] private_node_handle A node handle in the node's private namespace
    */
-  Optimizer(
-    fuse_core::Graph::UniquePtr graph,
-    const ros::NodeHandle& node_handle = ros::NodeHandle(),
-    const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
+  Optimizer(fuse_core::Graph::UniquePtr graph, const ros::NodeHandle& node_handle = ros::NodeHandle(),
+            const ros::NodeHandle& private_node_handle = ros::NodeHandle("~"));
 
   /**
    * @brief Destructor
@@ -144,25 +140,25 @@ protected:
   using SensorModels = std::unordered_map<std::string, SensorModelInfo>;
 
   // Some internal book-keeping data structures
-  using MotionModelGroup = std::vector<std::string>;  //!< A set of motion model names
+  using MotionModelGroup = std::vector<std::string>;                                 //!< A set of motion model names
   using AssociatedMotionModels = std::unordered_map<std::string, MotionModelGroup>;  //!< sensor -> motion models group
 
   AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used for each sensor
-  fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and constraints
+  fuse_core::Graph::UniquePtr graph_;                //!< The graph object that holds all variables and constraints
 
   // Ordering ROS objects with callbacks last
-  ros::NodeHandle node_handle_;  //!< Node handle in the public namespace for subscribing and advertising
+  ros::NodeHandle node_handle_;          //!< Node handle in the public namespace for subscribing and advertising
   ros::NodeHandle private_node_handle_;  //!< Node handle in the private namespace for reading configuration settings
   pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader for MotionModels
-  MotionModels motion_models_;  //!< The set of motion models, addressable by name
+  MotionModels motion_models_;                                     //!< The set of motion models, addressable by name
   pluginlib::ClassLoader<fuse_core::Publisher> publisher_loader_;  //!< Pluginlib class loader for Publishers
   Publishers publishers_;  //!< The set of publishers to execute after every graph optimization
   pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
-  ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer
-  double diagnostic_updater_timer_period_{ 1.0 };  //!< Diagnostic updater timer period in seconds
+  ros::Timer diagnostic_updater_timer_;             //!< Diagnostic updater timer
+  double diagnostic_updater_timer_period_{ 1.0 };   //!< Diagnostic updater timer period in seconds
 
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
@@ -172,9 +168,7 @@ protected:
    *                        to generate connected constraints.
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
    */
-  virtual void transactionCallback(
-    const std::string& sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) = 0;
+  virtual void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server
@@ -211,9 +205,7 @@ protected:
    *                         models
    * @return                 Flag indicating if all motion model constraints were successfully generated
    */
-  bool applyMotionModels(
-    const std::string& sensor_name,
-    fuse_core::Transaction& transaction) const;
+  bool applyMotionModels(const std::string& sensor_name, fuse_core::Transaction& transaction) const;
 
   /**
    * @brief Send the sensors, motion models, and publishers updated graph information
@@ -221,19 +213,15 @@ protected:
    * @param[in] transaction A read-only pointer to a transaction containing all recent additions and removals
    * @param[in] graph       A read-only pointer to the graph object
    */
-  void notify(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph);
+  void notify(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph);
 
-   /**
-   * @brief Inject a transaction callback function into the global callback queue
-   *
-   * @param[in] sensor_name The name of the sensor that produced the Transaction
-   * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
-   */
-  void injectCallback(
-    const std::string& sensor_name,
-    fuse_core::Transaction::SharedPtr transaction);
+  /**
+  * @brief Inject a transaction callback function into the global callback queue
+  *
+  * @param[in] sensor_name The name of the sensor that produced the Transaction
+  * @param[in] transaction The populated Transaction object created by the loaded SensorModel plugin
+  */
+  void injectCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction);
 
   /**
    * @brief Clear all of the callbacks inserted into the callback queue by the injectCallback() method

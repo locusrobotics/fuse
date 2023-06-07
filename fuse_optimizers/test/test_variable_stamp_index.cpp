@@ -51,7 +51,6 @@
 #include <string>
 #include <vector>
 
-
 /**
  * @brief Create a simple stamped Variable for testing
  */
@@ -60,10 +59,8 @@ class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamp
 public:
   FUSE_VARIABLE_DEFINITIONS(StampedVariable);
 
-  explicit StampedVariable(const ros::Time& stamp = ros::Time(0, 0)) :
-    fuse_core::Variable(fuse_core::uuid::generate()),
-    fuse_variables::Stamped(stamp),
-    data_{}
+  explicit StampedVariable(const ros::Time& stamp = ros::Time(0, 0))
+    : fuse_core::Variable(fuse_core::uuid::generate()), fuse_variables::Stamped(stamp), data_{}
   {
   }
 
@@ -98,12 +95,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& boost::serialization::base_object<fuse_variables::Stamped>(*this);
+    archive& data_;
   }
 };
 
@@ -117,9 +114,7 @@ class UnstampedVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(UnstampedVariable);
 
-  UnstampedVariable() :
-    fuse_core::Variable(fuse_core::uuid::generate()),
-    data_{}
+  UnstampedVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_{}
   {
   }
 
@@ -154,11 +149,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 
@@ -174,30 +169,24 @@ public:
 
   GenericConstraint() = default;
 
-  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids) :
-    Constraint(source, variable_uuids)
+  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids)
+    : Constraint(source, variable_uuids)
   {
   }
 
-  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1) :
-    fuse_core::Constraint(source, {variable1})
+  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1)
+    : fuse_core::Constraint(source, { variable1 })
   {
   }
 
-  GenericConstraint(
-    const std::string& source,
-    const fuse_core::UUID& variable1,
-    const fuse_core::UUID& variable2) :
-      fuse_core::Constraint(source, {variable1, variable2})
+  GenericConstraint(const std::string& source, const fuse_core::UUID& variable1, const fuse_core::UUID& variable2)
+    : fuse_core::Constraint(source, { variable1, variable2 })
   {
   }
 
-  GenericConstraint(
-    const std::string& source,
-    const fuse_core::UUID& variable1,
-    const fuse_core::UUID& variable2,
-    const fuse_core::UUID& variable3) :
-      fuse_core::Constraint(source, {variable1, variable2, variable3})
+  GenericConstraint(const std::string& source, const fuse_core::UUID& variable1, const fuse_core::UUID& variable2,
+                    const fuse_core::UUID& variable3)
+    : fuse_core::Constraint(source, { variable1, variable2, variable3 })
   {
   }
 
@@ -220,15 +209,14 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
   }
 };
 
 BOOST_CLASS_EXPORT(GenericConstraint);
-
 
 TEST(VariableStampIndex, Size)
 {
@@ -261,7 +249,7 @@ TEST(VariableStampIndex, CurrentStamp)
   auto index = fuse_optimizers::VariableStampIndex();
 
   // Verify the current stamp is 0
-  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
 
   // Add an unstamped variable
   auto x1 = UnstampedVariable::make_shared();
@@ -270,7 +258,7 @@ TEST(VariableStampIndex, CurrentStamp)
   index.addNewTransaction(transaction1);
 
   // Verify the current stamp is still 0
-  EXPECT_EQ(ros::Time(0, 0), index.currentStamp());
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
 
   // Add a stamped variable
   auto x2 = StampedVariable::make_shared(ros::Time(1, 0));
@@ -279,7 +267,105 @@ TEST(VariableStampIndex, CurrentStamp)
   index.addNewTransaction(transaction2);
 
   // Verify the current stamp is now Time(1, 0)
-  EXPECT_EQ(ros::Time(1, 0), index.currentStamp());
+  EXPECT_EQ(ros::Time(1, 0), index[index.numStates() - 1]);
+}
+
+TEST(VariableStampIndex, FirstStamp)
+{
+  // Create an empty index
+  auto index = fuse_optimizers::VariableStampIndex();
+
+  // Verify the current stamp is 0
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
+
+  // Add an unstamped variable
+  auto x1 = UnstampedVariable::make_shared();
+  auto transaction1 = fuse_core::Transaction();
+  transaction1.addVariable(x1);
+  index.addNewTransaction(transaction1);
+
+  // Verify the current stamp is still 0
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
+
+  // Add two stamped variables
+  auto x2 = StampedVariable::make_shared(ros::Time(1, 0));
+  auto transaction2 = fuse_core::Transaction();
+  transaction2.addVariable(x2);
+  index.addNewTransaction(transaction2);
+
+  auto x3 = StampedVariable::make_shared(ros::Time(2, 0));
+  auto transaction3 = fuse_core::Transaction();
+  transaction3.addVariable(x3);
+  index.addNewTransaction(transaction3);
+
+  // Verify the current stamp is now Time(1, 0)
+  EXPECT_EQ(ros::Time(1, 0), index[0]);
+}
+
+TEST(VariableStampIndex, NumSates)
+{
+  // Create an empty index
+  auto index = fuse_optimizers::VariableStampIndex();
+
+  // Verify the current stamp is 0
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
+
+  // Add an unstamped variable
+  auto x1 = UnstampedVariable::make_shared();
+  auto transaction1 = fuse_core::Transaction();
+  transaction1.addVariable(x1);
+  index.addNewTransaction(transaction1);
+
+  // Verify the current stamp is still 0
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
+
+  // Add N stamped variables
+  int N = 10;
+
+  for (int i = 0; i < N; i++)
+  {
+    auto x = StampedVariable::make_shared(ros::Time(i, 0));
+    auto transaction = fuse_core::Transaction();
+    transaction.addVariable(x);
+    index.addNewTransaction(transaction);
+  }
+
+  // Verify the number of unique stamps
+  EXPECT_EQ(N, index.numStates());
+}
+
+TEST(VariableStampIndex, ithStamp)
+{
+  // Create an empty index
+  auto index = fuse_optimizers::VariableStampIndex();
+
+  // Verify the current stamp is 0
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
+
+  // Add an unstamped variable
+  auto x1 = UnstampedVariable::make_shared();
+  auto transaction1 = fuse_core::Transaction();
+  transaction1.addVariable(x1);
+  index.addNewTransaction(transaction1);
+
+  // Verify the current stamp is still 0
+  EXPECT_EQ(ros::Time(0, 0), index[index.numStates() - 1]);
+
+  // Add N stamped variables
+  int N = 10;
+  for (int i = 0; i < N; i++)
+  {
+    auto x = StampedVariable::make_shared(ros::Time(i, 0));
+    auto transaction = fuse_core::Transaction();
+    transaction.addVariable(x);
+    index.addNewTransaction(transaction);
+  }
+
+  // Verify the stamps of the states using ithStamp function
+  for (int i = 0; i < N; i++)
+  {
+    EXPECT_EQ(ros::Time(i, 0), index[i]);
+  }
 }
 
 TEST(VariableStampIndex, Query)
@@ -318,7 +404,7 @@ TEST(VariableStampIndex, Query)
   index.query(ros::Time(1, 500000), std::back_inserter(actual1));
   EXPECT_EQ(expected1, actual1);
 
-  auto expected2 = std::vector<fuse_core::UUID>{x1->uuid(), l1->uuid()};
+  auto expected2 = std::vector<fuse_core::UUID>{ x1->uuid(), l1->uuid() };
   std::sort(expected2.begin(), expected2.end());
   auto actual2 = std::vector<fuse_core::UUID>();
   index.query(ros::Time(2, 500000), std::back_inserter(actual2));
@@ -371,7 +457,7 @@ TEST(VariableStampIndex, MarginalTransaction)
   EXPECT_EQ(4u, index.size());
 
   // And the marginal constraint x3->l1 should not affect future queries
-  auto expected = std::vector<fuse_core::UUID>{l1->uuid()};
+  auto expected = std::vector<fuse_core::UUID>{ l1->uuid() };
   std::sort(expected.begin(), expected.end());
   auto actual = std::vector<fuse_core::UUID>();
   index.query(ros::Time(2, 500000), std::back_inserter(actual));
@@ -379,7 +465,7 @@ TEST(VariableStampIndex, MarginalTransaction)
   EXPECT_EQ(expected, actual);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

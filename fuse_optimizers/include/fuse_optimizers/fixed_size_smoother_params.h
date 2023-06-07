@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,20 +31,42 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_graphs/hash_graph.h>
-#include <fuse_graphs/hash_graph_params.h>
-#include <fuse_optimizers/fixed_lag_smoother.h>
-#include <fuse_optimizers/fixed_lag_smoother_params.h>
-#include <ros/ros.h>
+#ifndef FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_PARAMS_H
+#define FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_PARAMS_H
 
-int main(int argc, char** argv)
+#include <fuse_core/parameter.h>
+#include <fuse_optimizers/windowed_optimizer_params.h>
+#include <ros/node_handle.h>
+
+namespace fuse_optimizers
 {
-  ros::init(argc, argv, "fixed_lag_smoother_node");
-  ros::NodeHandle private_node_handle("~");
-  fuse_graphs::HashGraphParams hash_graph_params;
-  hash_graph_params.loadFromROS(private_node_handle);
-  fuse_optimizers::FixedLagSmoother optimizer(fuse_graphs::HashGraph::make_unique(hash_graph_params));
-  ros::spin();
+/**
+ * @brief Defines the set of parameters required by the fuse_optimizers::FixedSizeSmoother class
+ */
+struct FixedSizeSmootherParams : public WindowedOptimizerParams
+{
+public:
+  SMART_PTR_DEFINITIONS(FixedSizeSmootherParams);
 
-  return 0;
-}
+  /**
+   * @brief Thenumber of unique stamps in the window
+   */
+  int num_states{ 10 };
+
+  /**
+   * @brief Method for loading parameter values from ROS.
+   *
+   * @param[in] nh - The ROS node handle with which to load parameters
+   */
+  void loadFromROS(const ros::NodeHandle& nh)
+  {
+    WindowedOptimizerParams::loadFromROS(nh);
+
+    // Read settings from the parameter server
+    fuse_core::getPositiveParam(nh, "num_states", num_states);
+  }
+};
+
+}  // namespace fuse_optimizers
+
+#endif  // FUSE_OPTIMIZERS_FIXED_SIZE_SMOOTHER_PARAMS_H

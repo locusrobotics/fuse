@@ -38,7 +38,6 @@
 
 #include <gtest/gtest.h>
 
-
 TEST(FixedLagIgnition, SetInitialState)
 {
   // Time should be valid after ros::init() returns in main(). But it doesn't hurt to verify.
@@ -72,8 +71,7 @@ TEST(FixedLagIgnition, SetInitialState)
   // The 'set_pose' service call triggers all of the sensors to resubscribe to their topics.
   // I need to wait for those subscribers to be ready before sending them sensor data.
   ros::WallTime subscriber_timeout = ros::WallTime::now() + ros::WallDuration(1.0);
-  while ((relative_pose_publisher.getNumSubscribers() < 1u) &&
-         (ros::WallTime::now() < subscriber_timeout))
+  while ((relative_pose_publisher.getNumSubscribers() < 1u) && (ros::WallTime::now() < subscriber_timeout))
   {
     ros::WallDuration(0.01).sleep();
   }
@@ -113,8 +111,7 @@ TEST(FixedLagIgnition, SetInitialState)
   // Wait for the optimizer to process all queued transactions
   ros::Time result_timeout = ros::Time::now() + ros::Duration(3.0);
   auto odom_msg = nav_msgs::Odometry::ConstPtr();
-  while ((!odom_msg || odom_msg->header.stamp != ros::Time(3, 0)) &&
-         (ros::Time::now() < result_timeout))
+  while ((!odom_msg || odom_msg->header.stamp != ros::Time(3, 0)) && (ros::Time::now() < result_timeout))
   {
     odom_msg = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom", ros::Duration(1.0));
   }

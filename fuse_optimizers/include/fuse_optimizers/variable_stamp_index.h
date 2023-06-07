@@ -71,12 +71,26 @@ public:
   /**
    * @brief Return true if no variables exist in the index
    */
-  bool empty() const { return variables_.empty() && constraints_.empty(); }
+  bool empty() const
+  {
+    return variables_.empty() && constraints_.empty();
+  }
 
   /**
    * @brief Returns the number of variables in the index
    */
-  size_t size() const { return variables_.size(); }
+  size_t size() const
+  {
+    return variables_.size();
+  }
+
+  /**
+   * @brief Returns the number of stamped robot states
+   */
+  int numStates() const
+  {
+    return unique_stamps_.size();
+  }
 
   /**
    * @brief Clear all tracked state
@@ -86,12 +100,15 @@ public:
     stamped_index_.clear();
     variables_.clear();
     constraints_.clear();
+    unique_stamps_.clear();
   }
 
   /**
-   * @brief Returns the most recent timestamp associated with any variable
+   * @brief Provides a random access operator the the unique timestamps
+   *
+   * @param[in] i index to access, if negative Time(0) is returned
    */
-  ros::Time currentStamp() const;
+  ros::Time operator[](int i);
 
   /**
    * @brief Update the index with the information from the added transactions
@@ -175,6 +192,9 @@ protected:
 
   using ConstraintToVariablesMap = std::unordered_map<fuse_core::UUID, std::unordered_set<fuse_core::UUID>>;
   ConstraintToVariablesMap constraints_;
+
+  using StampToVariablesMap = std::map<uint64_t, std::unordered_set<fuse_core::UUID>>;
+  StampToVariablesMap unique_stamps_;  //!< This holds all the unique stamps to track total number of robot "states"
 
   /**
    * @brief Update this VariableStampIndex with the added constraints from the provided transaction

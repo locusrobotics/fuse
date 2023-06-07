@@ -45,20 +45,22 @@
 
 namespace fuse_optimizers
 {
-ros::Time VariableStampIndex::currentStamp() const
+ros::Time VariableStampIndex::operator[](int i)
 {
-  auto compare_stamps = [](const StampedMap::value_type& lhs, const StampedMap::value_type& rhs)
+  if (unique_stamps_.empty() || i < 0)
   {
-    return lhs.second < rhs.second;
-  };
-  auto iter = std::max_element(stamped_index_.begin(), stamped_index_.end(), compare_stamps);
-  if (iter != stamped_index_.end())
+    return ros::Time(0, 0);
+  }
+  else if ((size_t)i < unique_stamps_.size())
   {
-    return iter->second;
+    uint64_t stamp_id = (*std::next(unique_stamps_.begin(), i)).first;
+    ros::Time stamp;
+    stamp.fromNSec(stamp_id);
+    return stamp;
   }
   else
   {
-    return ros::Time(0, 0);
+    throw std::runtime_error("Index exceeds size of Variable Stamp Index.");
   }
 }
 
@@ -98,7 +100,17 @@ void VariableStampIndex::applyAddedVariables(const fuse_core::Transaction& trans
     auto stamped_variable = dynamic_cast<const fuse_variables::Stamped*>(&variable);
     if (stamped_variable)
     {
+      uint64_t stamp = stamped_variable->stamp().toNSec();
       stamped_index_[variable.uuid()] = stamped_variable->stamp();
+      if (unique_stamps_.find(stamp) != unique_stamps_.end())
+      {
+        unique_stamps_[stamp].insert(variable.uuid());
+      }
+      else
+      {
+        std::unordered_set<fuse_core::UUID> set = { variable.uuid() };
+        unique_stamps_.insert({ stamp, set });
+      }
     }
     variables_[variable.uuid()];  // Add an empty set of constraints
   }
@@ -120,6 +132,20 @@ void VariableStampIndex::applyRemovedVariables(const fuse_core::Transaction& tra
 {
   for (const auto& variable_uuid : transaction.removedVariables())
   {
+    // remove from unique stamps
+    auto stamp = stamped_index_[variable_uuid].toNSec();
+    if (unique_stamps_.find(stamp) != unique_stamps_.end())
+    {
+      if (unique_stamps_[stamp].find(variable_uuid) != unique_stamps_[stamp].end())
+      {
+        unique_stamps_[stamp].erase(variable_uuid);
+      }
+      if (unique_stamps_[stamp].size() == 0)
+      {
+        unique_stamps_.erase(stamp);
+      }
+    }
+
     stamped_index_.erase(variable_uuid);
     variables_.erase(variable_uuid);
   }
