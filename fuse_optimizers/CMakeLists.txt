@@ -212,4 +212,34 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
+
+  # Fixed-lag Smoother test
+  add_rostest_gtest(test_fixed_lag_smoother
+    test/fixed_lag_smoother.test
+    test/test_fixed_lag_smoother.cpp
+  )
+  add_dependencies(test_fixed_lag_smoother
+    fixed_lag_smoother_node
+  )
+  target_include_directories(test_fixed_lag_smoother
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${fuse_models_INCLUDE_DIRS}
+      ${geometry_msgs_INCLUDE_DIRS}
+      ${nav_msgs_INCLUDE_DIRS}
+      ${rostest_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_fixed_lag_smoother
+    ${catkin_LIBRARIES}
+    ${fuse_models_LIBRARIES}
+    ${geometry_msgs_LIBRARIES}
+    ${nav_msgs_LIBRARIES}
+    ${rostest_LIBRARIES}
+  )
+  set_target_properties(test_fixed_lag_smoother
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 endif()
