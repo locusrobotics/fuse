@@ -43,6 +43,7 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/manifold.hpp>
 #include <fuse_core/serialization.hpp>
+#include <fuse_core/uuid.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -136,6 +137,14 @@ public:
    */
   fuse_core::Manifold * manifold() const override {return nullptr;}
 #endif
+
+protected:
+  /**
+   * @brief Construct a point 3D variable given a landmarks id
+   *
+   * @param[in] landmark_id  The id associated to a landmark
+   */
+  Point3DLandmark(const fuse_core::UUID & uuid, const uint64_t & landmark_id);
 
 private:
   // Allow Boost Serialization access to private methods

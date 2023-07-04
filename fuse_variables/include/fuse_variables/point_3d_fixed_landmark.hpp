@@ -34,13 +34,11 @@
 #ifndef FUSE_VARIABLES__POINT_3D_FIXED_LANDMARK_HPP_
 #define FUSE_VARIABLES__POINT_3D_FIXED_LANDMARK_HPP_
 
-#include <ostream>
-
 #include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/manifold.hpp>
 #include <fuse_core/serialization.hpp>
-#include <fuse_variables/fixed_size_variable.hpp>
+#include <fuse_variables/point_3d_landmark.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -52,24 +50,15 @@ namespace fuse_variables
 /**
  * @brief Variable representing a 3D point landmark that exists across time.
  *
- * This is commonly used to represent locations of visual features. The UUID of this class is
- * constant after construction and dependent on a user input database id. As such, the database id
- * cannot be altered after construction.
+ * This is commonly used to represent locations of visual features. This class differs from the Point3DLandmark in that
+ * the value of the landmark is held constant during optimization. This is appropriate if the landmark positions are
+ * known or were previously estimated to sufficient accuracy. The UUID of this class is constant after construction and
+ * dependent on a user input database id. As such, the database id cannot be altered after construction.
  */
-class Point3DFixedLandmark : public FixedSizeVariable<3>
+class Point3DFixedLandmark : public Point3DLandmark
 {
 public:
   FUSE_VARIABLE_DEFINITIONS(Point3DFixedLandmark)
-
-  /**
-   * @brief Can be used to directly index variables in the data array
-   */
-  enum : size_t
-  {
-    X = 0,
-    Y = 1,
-    Z = 2
-  };
 
   /**
    * @brief Default constructor
@@ -84,51 +73,9 @@ public:
   explicit Point3DFixedLandmark(const uint64_t & landmark_id);
 
   /**
-   * @brief Read-write access to the X-axis position.
-   */
-  double & x() {return data_[X];}
-
-  /**
-   * @brief Read-only access to the X-axis position.
-   */
-  const double & x() const {return data_[X];}
-
-  /**
-   * @brief Read-write access to the Y-axis position.
-   */
-  double & y() {return data_[Y];}
-
-  /**
-   * @brief Read-only access to the Y-axis position.
-   */
-  const double & y() const {return data_[Y];}
-
-  /**
-   * @brief Read-write access to the Z-axis position.
-   */
-  double & z() {return data_[Z];}
-
-  /**
-   * @brief Read-only access to the Z-axis position.
-   */
-  const double & z() const {return data_[Z];}
-
-  /**
-   * @brief Read-only access to the id
-   */
-  const uint64_t & id() const {return id_;}
-
-  /**
-   * @brief Print a human-readable description of the variable to the provided stream.
-   *
-   * @param[out] stream The stream to write to. Defaults to stdout.
-   */
-  void print(std::ostream & stream = std::cout) const override;
-
-  /**
    * @brief Specifies if the value of the variable should not be changed during optimization
    */
-  bool holdConstant() const override;
+  bool holdConstant() const override {return true;}
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -142,7 +89,6 @@ public:
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
-  uint64_t id_ {0};
 
   /**
    * @brief The Boost Serialize method that serializes all of the data members in to/out of the
@@ -154,8 +100,7 @@ private:
   template<class Archive>
   void serialize(Archive & archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & id_;
+    archive & boost::serialization::base_object<Point3DLandmark>(*this);
   }
 };
 
