@@ -31,38 +31,18 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <ostream>
-
 #include <boost/serialization/export.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_variables/fixed_size_variable.hpp>
 #include <fuse_variables/point_3d_fixed_landmark.hpp>
+#include <fuse_variables/point_3d_landmark.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_variables
 {
 Point3DFixedLandmark::Point3DFixedLandmark(const uint64_t & landmark_id)
-: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)),
-  id_(landmark_id)
+: Point3DLandmark(fuse_core::uuid::generate(detail::type(), landmark_id), landmark_id)
 {
-}
-
-void Point3DFixedLandmark::print(std::ostream & stream) const
-{
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  size: " << size() << "\n"
-         << "  landmark id: " << id() << "\n"
-         << "  data:\n"
-         << "  - x: " << x() << "\n"
-         << "  - y: " << y() << "\n"
-         << "  - z: " << z() << "\n";
-}
-
-bool Point3DFixedLandmark::holdConstant() const
-{
-  return true;
 }
 
 }  // namespace fuse_variables
