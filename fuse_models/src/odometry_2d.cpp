@@ -199,7 +199,7 @@ void Odometry2D::processDifferential(
   transformed_pose->header.frame_id =
     params_.pose_target_frame.empty() ? pose.header.frame_id : params_.pose_target_frame;
 
-  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose)) {
+  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose, params_.tf_timeout)) {
     RCLCPP_WARN_STREAM_THROTTLE(
       logger_, *clock_, 5.0 * 1000,
       "Cannot transform pose message with stamp "
@@ -218,7 +218,7 @@ void Odometry2D::processDifferential(
     transformed_twist.header.frame_id =
       params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
 
-    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist)) {
+    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist, params_.tf_timeout)) {
       RCLCPP_WARN_STREAM_THROTTLE(
         logger_, *clock_, 5.0 * 1000,
         "Cannot transform twist message with stamp " << rclcpp::Time(
