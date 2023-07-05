@@ -24,6 +24,7 @@
   <depend>fuse_publishers</depend>
   <depend>fuse_variables</depend>
   <depend>geometry_msgs</depend>
+  <depend>imu_transformer</depend>
   <depend>nav_msgs</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
@@ -39,6 +40,7 @@
 
   <exec_depend>message_runtime</exec_depend>
 
+  <test_depend>angles</test_depend>
   <!-- The official rosdep has an entry for Google's benchmark deb
        (https://github.com/ros/rosdistro/blob/2cbcebdedcc1e827501acfecaf2386cd33f26809/rosdep/base.yaml#L232-L239)
        since https://github.com/ros/rosdistro/pull/23163 got merged.
@@ -52,7 +54,13 @@
        For this reason we conditionally test_depend on benchmark only if the $ROS_DISTRO is ROS Melodic or newer.
   -->
   <test_depend condition="$ROS_DISTRO >= melodic">benchmark</test_depend>
+  <test_depend>controller_manager</test_depend>
+  <test_depend>diff_drive_controller</test_depend>
+  <test_depend>gazebo_ros</test_depend>
+  <test_depend>joint_state_controller</test_depend>
+  <test_depend>robot_state_publisher</test_depend>
   <test_depend>rostest</test_depend>
+  <test_depend>xacro</test_depend>
 
   <export>
     <fuse_core plugin="${prefix}/fuse_plugins.xml" />

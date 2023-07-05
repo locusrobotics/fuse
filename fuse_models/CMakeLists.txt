@@ -11,6 +11,7 @@ find_package(
     fuse_publishers
     fuse_variables
     geometry_msgs
+    imu_transformer
     message_generation
     nav_msgs
     pluginlib
@@ -149,6 +150,7 @@ install(
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
+  find_package(catkin REQUIRED COMPONENTS angles)
 
   # Lint tests
   roslint_add_test()
@@ -224,6 +226,22 @@ if(CATKIN_ENABLE_TESTING)
   set_target_properties(test_graph_ignition
     PROPERTIES
       CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Imu2D tests
+  add_rostest_gtest(
+    test_imu_2d
+    test/imu_2d.test
+    test/test_imu_2d.cpp
+  )
+  target_link_libraries(test_imu_2d
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_imu_2d
+    PROPERTIES
+      CXX_STANDARD 14
       CXX_STANDARD_REQUIRED YES
   )
 

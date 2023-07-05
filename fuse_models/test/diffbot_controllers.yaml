@@ -1,0 +1,16 @@
+# Publish all joint states
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+# Diff drive controller
+diffbot_controller:
+  type: "diff_drive_controller/DiffDriveController"
+  left_wheel: 'wheel_0_joint'
+  right_wheel: 'wheel_1_joint'
+  publish_rate: 50.0 # defaults to 50
+  initial_pose_covariance_diagonal:  [0.001, 0.001, 0.01]
+  cmd_vel_timeout: 20.0 # we test this separately, give plenty for the other tests
+  k_l: 0.01
+  k_r: 0.01
+  wheel_resolution: 0.001
