@@ -36,6 +36,7 @@
 
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
+#include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 
 #include <boost/serialization/access.hpp>
@@ -111,6 +112,15 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+protected:
+  /**
+   * @brief Construct a point 2D variable given a UUID and a landmarks id
+   *
+   * @param[in] uuid  The UUID for this variable
+   * @param[in] landmark_id  The id associated to a landmark
+   */
+  Point2DLandmark(const fuse_core::UUID& uuid, const uint64_t& landmark_id);
 
 private:
   // Allow Boost Serialization access to private methods

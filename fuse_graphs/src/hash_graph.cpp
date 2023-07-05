@@ -34,7 +34,7 @@
 #include <fuse_graphs/hash_graph.h>
 
 #include <fuse_core/uuid.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <cpr_scalopus/common.h>
 

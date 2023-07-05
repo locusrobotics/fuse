@@ -2,6 +2,44 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2022-02-23)
+------------------
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* Make 2D versions of the landmark variables (#250)
+* [RST-4390] Allow variables to be held constant during optimization (#243)
+  * Add support for holding variables constant
+  * Create a 'fixed' landmark
+  * Added initial support for marginalizing constant variables
+* Adding doxygen to all packages (#241)
+* Add unstamped 3D point variable (#233) (#239)
+  * Add unstamped 3D landmark variable
+  * Add landmark test and new uuid generator
+  Co-authored-by: Stephen Williams <swilliams@locusrobotics.com>
+  Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
+* Contributors: Stephen Williams, Tom Moore
+
+0.6.0 (2023-02-22)
+------------------
+* 0.5.0
+* Update changelogs
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* Make 2D versions of the landmark variables (#250)
+* [RST-4390] Allow variables to be held constant during optimization (#243)
+  * Add support for holding variables constant
+  * Create a 'fixed' landmark
+  * Added initial support for marginalizing constant variables
+* Adding doxygen to all packages (#241)
+* Add unstamped 3D point variable (#233) (#239)
+  * Add unstamped 3D landmark variable
+  * Add landmark test and new uuid generator
+  Co-authored-by: Stephen Williams <swilliams@locusrobotics.com>
+  Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
+* Contributors: Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)

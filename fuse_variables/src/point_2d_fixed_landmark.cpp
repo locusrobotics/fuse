@@ -35,35 +35,16 @@
 
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
-#include <fuse_variables/fixed_size_variable.h>
-#include <pluginlib/class_list_macros.h>
+#include <fuse_variables/point_2d_landmark.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
-
-#include <ostream>
 
 namespace fuse_variables
 {
 Point2DFixedLandmark::Point2DFixedLandmark(const uint64_t& landmark_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)),
-  id_(landmark_id)
+  Point2DLandmark(fuse_core::uuid::generate(detail::type(), landmark_id), landmark_id)
 {
-}
-
-void Point2DFixedLandmark::print(std::ostream& stream) const
-{
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  size: " << size() << "\n"
-         << "  landmark id: " << id() << "\n"
-         << "  data:\n"
-         << "  - x: " << x() << "\n"
-         << "  - y: " << y() << "\n";
-}
-
-bool Point2DFixedLandmark::holdConstant() const
-{
-  return true;
 }
 
 }  // namespace fuse_variables
