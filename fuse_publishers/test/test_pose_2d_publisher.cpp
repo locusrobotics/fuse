@@ -73,24 +73,24 @@ public:
     position1->x() = 1.01;
     position1->y() = 2.01;
     auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1234, 10));
-    orientation1->yaw() = 3.01;
+    orientation1->setYaw(3.01);
     auto position2 = fuse_variables::Position2DStamped::make_shared(ros::Time(1235, 10));
     position2->x() = 1.02;
     position2->y() = 2.02;
     auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1235, 10));
-    orientation2->yaw() = 3.02;
+    orientation2->setYaw(3.02);
     auto position3 = fuse_variables::Position2DStamped::make_shared(ros::Time(1235, 9));
     position3->x() = 1.03;
     position3->y() = 2.03;
     auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1235, 9));
-    orientation3->yaw() = 3.03;
+    orientation3->setYaw(3.03);
     auto position4 = fuse_variables::Position2DStamped::make_shared(ros::Time(1235, 11),
                                                                     fuse_core::uuid::generate("kitt"));
     position4->x() = 1.04;
     position4->y() = 2.04;
     auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1235, 11),
                                                                           fuse_core::uuid::generate("kitt"));
-    orientation4->yaw() = 3.04;
+    orientation4->setYaw(3.04);
 
     transaction_->addInvolvedStamp(position1->stamp());
     transaction_->addInvolvedStamp(orientation1->stamp());

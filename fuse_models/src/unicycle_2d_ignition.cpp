@@ -256,10 +256,10 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::PoseWithCovarianceStampe
   position->x() = pose.pose.pose.position.x;
   position->y() = pose.pose.pose.position.y;
   auto orientation = fuse_variables::Orientation2DStamped::make_shared(stamp, device_id_);
-  orientation->yaw() = fuse_core::getYaw(pose.pose.pose.orientation.w,
-                                         pose.pose.pose.orientation.x,
-                                         pose.pose.pose.orientation.y,
-                                         pose.pose.pose.orientation.z);
+  orientation->setYaw(fuse_core::getYaw(pose.pose.pose.orientation.w,
+                                        pose.pose.pose.orientation.x,
+                                        pose.pose.pose.orientation.y,
+                                        pose.pose.pose.orientation.z));
   auto linear_velocity = fuse_variables::VelocityLinear2DStamped::make_shared(stamp, device_id_);
   linear_velocity->x() = params_.initial_state[3];
   linear_velocity->y() = params_.initial_state[4];
@@ -295,7 +295,7 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::PoseWithCovarianceStampe
   auto orientation_constraint = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
     name(),
     *orientation,
-    fuse_core::Vector1d(orientation->yaw()),
+    fuse_core::Vector1d(orientation->getYaw()),
     orientation_cov);
   auto linear_velocity_constraint = fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
     name(),
@@ -332,7 +332,7 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::PoseWithCovarianceStampe
   sendTransaction(transaction);
 
   ROS_INFO_STREAM("Received a set_pose request (stamp: " << stamp << ", x: " << position->x() << ", y: " <<
-                  position->y() << ", yaw: " << orientation->yaw() << ")");
+                  position->y() << ", yaw: " << orientation->getYaw() << ")");
 }
 
 }  // namespace fuse_models

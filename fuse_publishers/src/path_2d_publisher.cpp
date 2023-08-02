@@ -114,7 +114,7 @@ void Path2DPublisher::notifyCallback(
       pose.pose.position.x = position->x();
       pose.pose.position.y = position->y();
       pose.pose.position.z = 0.0;
-      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation->yaw()));
+      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation->getYaw()));
       poses.push_back(std::move(pose));
     }
   }
