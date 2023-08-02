@@ -178,7 +178,7 @@ public:
   /**
    * @brief Write access to the heading angle.
    */
-  void setYaw(const double yaw) { data_[YAW] = yaw; }
+  void setYaw(const double yaw) { data_[YAW] = fuse_core::wrapAngle2D(yaw); }
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
