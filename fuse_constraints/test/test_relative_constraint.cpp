@@ -460,11 +460,11 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   auto x1 = fuse_variables::Orientation2DStamped::make_shared(
     rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("t800"));
-  x1->yaw() = 0.7;
+  x1->setYaw(0.7);
   auto x2 = fuse_variables::Orientation2DStamped::make_shared(
     rclcpp::Time(1235, 5678),
     fuse_core::uuid::generate("t800"));
-  x2->yaw() = -2.2;
+  x2->setYaw(-2.2);
   // Create an absolute constraint
   fuse_core::VectorXd mean(1);
   mean << 1.0;
@@ -524,8 +524,8 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
   // Check
-  EXPECT_NEAR(1.0, x1->yaw(), 1.0e-5);
-  EXPECT_NEAR(1.1, x2->yaw(), 1.0e-5);
+  EXPECT_NEAR(1.0, x1->getYaw(), 1.0e-5);
+  EXPECT_NEAR(1.1, x2->getYaw(), 1.0e-5);
   // Compute the covariance
   std::vector<std::pair<const double *, const double *>> covariance_blocks;
   covariance_blocks.emplace_back(x1->data(), x1->data());

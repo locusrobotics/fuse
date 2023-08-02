@@ -315,11 +315,12 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
   position->x() = pose.pose.pose.position.x;
   position->y() = pose.pose.pose.position.y;
   auto orientation = fuse_variables::Orientation2DStamped::make_shared(stamp, device_id_);
-  orientation->yaw() = fuse_core::getYaw(
-    pose.pose.pose.orientation.w,
-    pose.pose.pose.orientation.x,
-    pose.pose.pose.orientation.y,
-    pose.pose.pose.orientation.z);
+  orientation->setYaw(
+    fuse_core::getYaw(
+      pose.pose.pose.orientation.w,
+      pose.pose.pose.orientation.x,
+      pose.pose.pose.orientation.y,
+      pose.pose.pose.orientation.z));
   auto linear_velocity = fuse_variables::VelocityLinear2DStamped::make_shared(stamp, device_id_);
   linear_velocity->x() = params_.initial_state[3];
   linear_velocity->y() = params_.initial_state[4];
@@ -340,7 +341,7 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
   position_cov << pose.pose.covariance[0], pose.pose.covariance[1],
     pose.pose.covariance[6], pose.pose.covariance[7];
   auto orientation_mean = fuse_core::VectorXd(1);
-  orientation_mean << orientation->yaw();
+  orientation_mean << orientation->getYaw();
   auto orientation_cov = fuse_core::MatrixXd(1, 1);
   orientation_cov << pose.pose.covariance[35];
   auto linear_velocity_mean = fuse_core::VectorXd(2);
@@ -411,7 +412,7 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
     logger_,
     "Received a set_pose request (stamp: " << rclcpp::Time(stamp).nanoseconds()
                                            << ", x: " << position->x() << ", y: "
-                                           << position->y() << ", yaw: " << orientation->yaw() <<
+                                           << position->y() << ", yaw: " << orientation->getYaw() <<
       ")");
 }
 

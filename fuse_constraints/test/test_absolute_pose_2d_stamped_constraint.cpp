@@ -100,7 +100,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   // generated. Create the variables
   auto orientation_variable = Orientation2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
-  orientation_variable->yaw() = 0.8;
+  orientation_variable->setYaw(0.8);
   auto position_variable = Position2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
@@ -150,7 +150,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   // Check
   EXPECT_NEAR(1.0, position_variable->x(), 1.0e-5);
   EXPECT_NEAR(2.0, position_variable->y(), 1.0e-5);
-  EXPECT_NEAR(3.0, orientation_variable->yaw(), 1.0e-5);
+  EXPECT_NEAR(3.0, orientation_variable->getYaw(), 1.0e-5);
   // Compute the covariance
   std::vector<std::pair<const double *, const double *>> covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
@@ -193,7 +193,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   // generated. Create the variables
   auto orientation_variable = Orientation2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
-  orientation_variable->yaw() = 0.8;
+  orientation_variable->setYaw(0.8);
   auto position_variable = Position2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
@@ -271,7 +271,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   // Check
   EXPECT_NEAR(1.0, position_variable->x(), 1.0e-5);
   EXPECT_NEAR(2.0, position_variable->y(), 1.0e-5);
-  EXPECT_NEAR(3.0, orientation_variable->yaw(), 1.0e-5);
+  EXPECT_NEAR(3.0, orientation_variable->getYaw(), 1.0e-5);
 
   // Compute the covariance
   std::vector<std::pair<const double *, const double *>> covariance_blocks;

@@ -414,7 +414,7 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
   auto variable = fuse_variables::Orientation2DStamped::make_shared(
     rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("tiktok"));
-  variable->yaw() = 0.7;
+  variable->setYaw(0.7);
   // Create an absolute constraint
   fuse_core::VectorXd mean(1);
   mean << 7.0;
@@ -445,7 +445,7 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
   // Check
-  EXPECT_NEAR(7.0 - 2 * M_PI, variable->yaw(), 1.0e-5);
+  EXPECT_NEAR(7.0 - 2 * M_PI, variable->getYaw(), 1.0e-5);
   // Compute the covariance
   std::vector<std::pair<const double *, const double *>> covariance_blocks;
   covariance_blocks.emplace_back(variable->data(), variable->data());

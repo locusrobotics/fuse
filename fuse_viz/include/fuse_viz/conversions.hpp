@@ -90,7 +90,7 @@ inline tf2::Vector3 toTF(const fuse_variables::Position2DStamped & position)
 
 inline tf2::Quaternion toTF(const fuse_variables::Orientation2DStamped & orientation)
 {
-  return {tf2::Vector3{0, 0, 1}, orientation.yaw()};
+  return {tf2::Vector3{0, 0, 1}, orientation.getYaw()};
 }
 
 inline tf2::Transform toTF(
