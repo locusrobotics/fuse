@@ -83,7 +83,7 @@ bool findPose(
     pose.position.y = position_variable.y();
     pose.position.z = 0.0;
     pose.orientation =
-      tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
+      tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.getYaw()));
   } catch (const std::exception & e) {
     RCLCPP_WARN_STREAM_THROTTLE(
       logger, clock, 10.0 * 1000,

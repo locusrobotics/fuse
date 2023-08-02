@@ -242,7 +242,7 @@ TEST(Orientation2DStamped, Optimization)
   // Create a Orientation2DStamped
   Orientation2DStamped orientation(
     rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
-  orientation.yaw() = 1.5;
+  orientation.setYaw(1.5);
 
   // Create a simple a constraint
   ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(
@@ -262,7 +262,7 @@ TEST(Orientation2DStamped, Optimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(3.0, orientation.yaw(), 1.0e-5);
+  EXPECT_NEAR(3.0, orientation.getYaw(), 1.0e-5);
 }
 
 TEST(Orientation2DStamped, Serialization)
@@ -270,7 +270,7 @@ TEST(Orientation2DStamped, Serialization)
   // Create a Orientation2DStamped
   Orientation2DStamped expected(
     rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
-  expected.yaw() = 1.5;
+  expected.setYaw(1.5);
 
   // Serialize the variable into an archive
   std::stringstream stream;
@@ -289,5 +289,5 @@ TEST(Orientation2DStamped, Serialization)
   // Compare
   EXPECT_EQ(expected.deviceId(), actual.deviceId());
   EXPECT_EQ(expected.stamp(), actual.stamp());
-  EXPECT_EQ(expected.yaw(), actual.yaw());
+  EXPECT_EQ(expected.getYaw(), actual.getYaw());
 }

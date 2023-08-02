@@ -37,7 +37,7 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
     fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(1, 0));
   position1->x() = 1.1;
   position1->y() = 2.1;
-  yaw1->yaw() = 3.1;
+  yaw1->setYaw(3.1);
   linear_velocity1->x() = 1.0;
   linear_velocity1->y() = 0.0;
   yaw_velocity1->yaw() = 0.0;
@@ -51,7 +51,7 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
     fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(2, 0));
   position2->x() = 1.2;
   position2->y() = 2.2;
-  yaw2->yaw() = M_PI / 2.0;
+  yaw2->setYaw(M_PI / 2.0);
   linear_velocity2->x() = 0.0;
   linear_velocity2->y() = 1.0;
   yaw_velocity2->yaw() = 0.0;
@@ -65,7 +65,7 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
     fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(3, 0));
   position3->x() = 1.3;
   position3->y() = 2.3;
-  yaw3->yaw() = 3.3;
+  yaw3->setYaw(3.3);
   linear_velocity3->x() = 4.3;
   linear_velocity3->y() = 5.3;
   yaw_velocity3->yaw() = 6.3;
@@ -79,7 +79,7 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
     fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(4, 0));
   position4->x() = 1.4;
   position4->y() = 2.4;
-  yaw4->yaw() = 3.4;
+  yaw4->setYaw(3.4);
   linear_velocity4->x() = 4.4;
   linear_velocity4->y() = 5.4;
   yaw_velocity4->yaw() = 6.4;
@@ -93,7 +93,7 @@ TEST(Unicycle2D, UpdateStateHistoryEstimates)
     fuse_variables::AccelerationLinear2DStamped::make_shared(rclcpp::Time(5, 0));
   position5->x() = 1.5;
   position5->y() = 2.5;
-  yaw5->yaw() = 3.5;
+  yaw5->setYaw(3.5);
   linear_velocity5->x() = 4.5;
   linear_velocity5->y() = 5.5;
   yaw_velocity5->yaw() = 6.5;
