@@ -48,6 +48,13 @@ namespace fuse_optimizers
 {
 
 BatchOptimizer::BatchOptimizer(
+  const rclcpp::NodeOptions & options
+)
+: BatchOptimizer::BatchOptimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES>() , nullptr)
+{
+}
+
+BatchOptimizer::BatchOptimizer(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
 )

@@ -106,6 +106,15 @@ public:
   FUSE_SMART_PTR_DEFINITIONS(BatchOptimizer)
   using ParameterType = BatchOptimizerParams;
 
+/**
+ * @brief Component default constructor
+ *
+ * @param[in] options          rclcpp node options
+ */
+  BatchOptimizer(
+    const rclcpp::NodeOptions & options
+  );
+
   /**
    * @brief Constructor
    *
