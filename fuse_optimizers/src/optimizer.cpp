@@ -57,7 +57,7 @@ Optimizer::Optimizer(
   const rclcpp::NodeOptions & options,
   fuse_core::Graph::UniquePtr graph
 )
-: node_ (std::make_shared<rclcpp::Node>(node_name, options)),
+: node_(std::make_shared<rclcpp::Node>(node_name, options)),
   interfaces_(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES>(*node_)),
   clock_(interfaces_.get_node_clock_interface()->get_clock()),
   logger_(interfaces_.get_node_logging_interface()->get_logger()),

@@ -107,11 +107,11 @@ public:
   using ParameterType = BatchOptimizerParams;
 
 /**
- * @brief Component default constructor
+ * @brief Component constructor
  *
- * @param[in] options          rclcpp node options
+ * @param[in] options               rclcpp node options
  */
-  BatchOptimizer(
+  explicit BatchOptimizer(
     const rclcpp::NodeOptions & options
   );
 

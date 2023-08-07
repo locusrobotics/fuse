@@ -50,8 +50,25 @@ namespace fuse_optimizers
 BatchOptimizer::BatchOptimizer(
   const rclcpp::NodeOptions & options
 )
-: BatchOptimizer::BatchOptimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES>() , nullptr)
+: fuse_optimizers::Optimizer("batch_optimizer_node", options),
+  combined_transaction_(fuse_core::Transaction::make_shared()),
+  optimization_request_(false),
+  start_time_(rclcpp::Time::max()),
+  started_(false)
 {
+  params_.loadFromROS(interfaces_);
+
+  // Configure a timer to trigger optimizations
+  optimize_timer_ = rclcpp::create_timer(
+    interfaces_,
+    clock_,
+    params_.optimization_period,
+    std::bind(&BatchOptimizer::optimizerTimerCallback, this),
+    interfaces_.get_node_base_interface()->get_default_callback_group()
+  );
+
+  // Start the optimization thread
+  optimization_thread_ = std::thread(&BatchOptimizer::optimizationLoop, this);
 }
 
 BatchOptimizer::BatchOptimizer(
