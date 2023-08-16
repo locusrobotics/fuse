@@ -80,7 +80,7 @@ bool findPose(
     pose.position.x = position_variable.x();
     pose.position.y = position_variable.y();
     pose.position.z = 0.0;
-    pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
+    pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.getYaw()));
   }
   catch (const std::exception& e)
   {

@@ -92,10 +92,12 @@ static inline T getRoll(const T w, const T x, const T y, const T z)
 /**
  * @brief Returns the Euler yaw angle from a quaternion
  *
+ * Returned angle is in the range [-Pi, +Pi]
+ *
  * @param[in] w The quaternion real-valued component
  * @param[in] x The quaternion x-axis component
- * @param[in] y The quaternion x-axis component
- * @param[in] z The quaternion x-axis component
+ * @param[in] y The quaternion y-axis component
+ * @param[in] z The quaternion z-axis component
  * @return      The quaternion's Euler yaw angle component
  */
 template <typename T>
