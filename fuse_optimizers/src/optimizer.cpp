@@ -53,58 +53,6 @@ namespace fuse_optimizers
 {
 
 Optimizer::Optimizer(
-  const std::string& node_name,
-  const rclcpp::NodeOptions & options,
-  fuse_core::Graph::UniquePtr graph
-)
-: node_(std::make_shared<rclcpp::Node>(node_name, options)),
-  interfaces_(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES>(*node_)),
-  clock_(interfaces_.get_node_clock_interface()->get_clock()),
-  logger_(interfaces_.get_node_logging_interface()->get_logger()),
-  graph_(std::move(graph)),
-  motion_model_loader_("fuse_core", "fuse_core::MotionModel"),
-  publisher_loader_("fuse_core", "fuse_core::Publisher"),
-  sensor_model_loader_("fuse_core", "fuse_core::SensorModel"),
-  diagnostic_updater_(
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_clock_interface(),
-    interfaces_.get_node_logging_interface(),
-    interfaces_.get_node_parameters_interface(),
-    interfaces_.get_node_timers_interface(),
-    interfaces_.get_node_topics_interface()
-  ),
-  callback_queue_(std::make_shared<fuse_core::CallbackAdapter>(
-      interfaces_.get_node_base_interface()->get_context()))
-{
-  RCLCPP_INFO(logger_, "Running optimizer constructor");
-  if (!graph) {
-    fuse_graphs::HashGraphParams hash_graph_params;
-    hash_graph_params.loadFromROS(interfaces_);
-    graph_ = std::move(fuse_graphs::HashGraph::make_unique(hash_graph_params));
-  }
-
-  // add a ros1 style callback queue so that transactions can be processed in the optimiser's
-  // executor
-  interfaces_.get_node_waitables_interface()->add_waitable(
-    callback_queue_, (rclcpp::CallbackGroup::SharedPtr) nullptr);
-
-  diagnostic_updater_.add(
-    interfaces_.get_node_base_interface()->get_namespace(), this, &Optimizer::setDiagnostics);
-  diagnostic_updater_.setHardwareID("fuse");
-
-  // Wait for a valid time before loading any of the plugins
-  clock_->wait_until_started();
-
-  // Load all configured plugins
-  loadMotionModels();
-  loadSensorModels();
-  loadPublishers();
-
-  // Start all the plugins
-  startPlugins();
-}
-
-Optimizer::Optimizer(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
 )
@@ -566,11 +514,6 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & sta
   status.add(
     "Publishers",
     std::accumulate(publishers_.begin(), publishers_.end(), std::string(), print_key));
-}
-
-rclcpp::node_interfaces::NodeBaseInterface::SharedPtr Optimizer::get_node_base_interface()
-{
-  return interfaces_.get_node_base_interface();
 }
 
 }  // namespace fuse_optimizers
