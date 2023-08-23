@@ -120,15 +120,6 @@ public:
   using ParameterType = FixedLagSmootherParams;
 
   /**
-   * @brief Component constructor
-   *
- * @param[in] options               rclcpp node options
-   */
-  explicit FixedLagSmoother(
-    const rclcpp::NodeOptions & options
-  );
-
-  /**
    * @brief Constructor
    *
    * @param[in] interfaces          The node interfaces for the node driving the optimizer

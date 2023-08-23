@@ -55,12 +55,12 @@ target_link_libraries(${PROJECT_NAME}
 ament_target_dependencies(${PROJECT_NAME} diagnostic_updater)
 
 ## batch_optimizer node
-add_executable(batch_optimizer_node src/batch_optimizer_node.cpp)
-target_link_libraries(batch_optimizer_node ${PROJECT_NAME})
+# add_executable(batch_optimizer_node src/batch_optimizer_node.cpp)
+# target_link_libraries(batch_optimizer_node ${PROJECT_NAME})
 
 ## fixed_lag_smoother node
-add_executable(fixed_lag_smoother_node src/fixed_lag_smoother_node.cpp)
-target_link_libraries(fixed_lag_smoother_node ${PROJECT_NAME})
+# add_executable(fixed_lag_smoother_node src/fixed_lag_smoother_node.cpp)
+# target_link_libraries(fixed_lag_smoother_node ${PROJECT_NAME})
 
 ## batch_optimizer component
 add_library(batch_optimizer_component SHARED src/batch_optimizer_component.cpp)
@@ -73,8 +73,8 @@ ament_target_dependencies(
 target_link_libraries(batch_optimizer_component ${PROJECT_NAME})
 
 rclcpp_components_register_node(
-  batch_optimizer_component PLUGIN "fuse_optimizers::BatchOptimizer" EXECUTABLE
-  BatchOptimizerExecutable)
+  batch_optimizer_component PLUGIN "fuse_optimizers::BatchOptimizerComponent" EXECUTABLE
+  batch_optimizer_node)
 
 ## fixed_lag_smoother component
 add_library(fixed_lag_smoother_component SHARED src/fixed_lag_smoother_component.cpp)
@@ -87,8 +87,8 @@ ament_target_dependencies(
 target_link_libraries(fixed_lag_smoother_component ${PROJECT_NAME})
 
 rclcpp_components_register_node(
-  fixed_lag_smoother_component PLUGIN "fuse_optimizers::FixedLagSmoother" EXECUTABLE
-  FixedLagSmootherExecutable)
+  fixed_lag_smoother_component PLUGIN "fuse_optimizers::FixedLagSmootherComponent" EXECUTABLE
+  fixed_lag_smoother_node)
 
 #############
 ## Testing ##

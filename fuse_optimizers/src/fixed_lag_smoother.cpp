@@ -79,49 +79,6 @@ namespace fuse_optimizers
 {
 
 FixedLagSmoother::FixedLagSmoother(
-  const rclcpp::NodeOptions & options
-)
-: fuse_optimizers::Optimizer("fixed_lag_smoother_node", options),
-  ignited_(false),
-  optimization_running_(true),
-  started_(false),
-  optimization_request_(false)
-{
-  params_.loadFromROS(interfaces_);
-
-  // Test for auto-start
-  autostart();
-
-  // Start the optimization thread
-  optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
-
-  // Configure a timer to trigger optimizations
-  optimize_timer_ = rclcpp::create_timer(
-    interfaces_,
-    clock_,
-    params_.optimization_period,
-    std::bind(&FixedLagSmoother::optimizerTimerCallback, this),
-    interfaces_.get_node_base_interface()->get_default_callback_group()
-  );
-  // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = rclcpp::create_service<std_srvs::srv::Empty>(
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_services_interface(),
-    fuse_core::joinTopicName(
-      interfaces_.get_node_base_interface()->get_name(),
-      params_.reset_service),
-    std::bind(
-      &FixedLagSmoother::resetServiceCallback,
-      this,
-      std::placeholders::_1,
-      std::placeholders::_2
-    ),
-    rclcpp::ServicesQoS(),
-    interfaces_.get_node_base_interface()->get_default_callback_group()
-  );
-}
-
-FixedLagSmoother::FixedLagSmoother(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   fuse_core::Graph::UniquePtr graph
 )

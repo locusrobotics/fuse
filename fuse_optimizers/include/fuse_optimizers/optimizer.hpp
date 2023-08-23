@@ -98,20 +98,7 @@ class Optimizer
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)
 
-  /**
-   * @brief Component Constructor
-   *
-   * @param[in] node_name           Name for rclcpp Node
-   * @param[in] options             Options for rclcpp Node
-   * @param[in] graph               The graph used with the optimizer
-   */
-  Optimizer(
-    const std::string& node_name,
-    const rclcpp::NodeOptions & options,
-    fuse_core::Graph::UniquePtr graph = nullptr
-  );
-
-  /**
+    /**
    * @brief Constructor
    *
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
@@ -127,19 +114,7 @@ public:
    */
   virtual ~Optimizer();
 
-  /**
-   * @brief get_node_base_interface method needed for composition
-   */
-  rclcpp::node_interfaces::NodeBaseInterface::SharedPtr get_node_base_interface();
-
 protected:
-
-  /**
-   * @brief Shared ptr to optimizer node
-   */
-
-  //  TODO node type should be generalized 
-  std::shared_ptr<rclcpp::Node> node_;
 
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type
   // rather annoying as it is not equivalent to Class::UniquePtr
