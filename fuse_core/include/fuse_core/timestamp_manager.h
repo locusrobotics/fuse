@@ -35,6 +35,7 @@
 #define FUSE_CORE_TIMESTAMP_MANAGER_H
 
 #include <fuse_core/constraint.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>

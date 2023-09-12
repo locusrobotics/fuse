@@ -206,13 +206,6 @@ protected:
    */
   void loadSensorModels();
 
-    /**
-   * @brief Configure the error handler plugin specified on the parameter server
-   *
-   * If the parameter server configuration is invalid or missing, it will default to basicErrorHandler.
-   */
-  void loadErrorHandler();
-
   /**
    * @brief Given a transaction and some timestamps, augment the transaction with constraints from all associated
    * motion models.
@@ -271,14 +264,6 @@ protected:
    * @param[in] status The diagnostic status
    */
   virtual void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status);
-
-  void invalidArgumentCallback(const std::string& info);
-
-  void logicErrorCallback(const std::string& info);
-  
-  void runtimeErrorCallback(const std::string& info);
-
-  void outOfRangeErrorCallback(const std::string& info);
 };
 
 }  // namespace fuse_optimizers

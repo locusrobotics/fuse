@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2022, Locus Robotics
+ *  Copyright (c) 2023, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -36,60 +36,113 @@
 #define FUSE_CORE_ERROR_HANDLER_H
 
 #include "ros/ros.h"
+#include <string>
 
-namespace fuse_core 
+/**
+ * @brief A class that handles errors that can occur in fuse. 
+ * 
+ * By default, fuse optimizers handle any errors that come up by throwing a relevant exception. However,
+ * while this is generically exceptable, in practical systems it's sometimes not sufficient to just 
+ * throw exceptions and hope that the rest of the system goes on while fuse resets and fixes itself.
+ * 
+ * This class exists to allow for handling generic classes of errors using whatever callback the user sees fit to use. 
+ * I recommend registering new callbacks that are bound to an Optimizer instance for more specific functionality.
+ * 
+ * A note: By default, the base Optimizer class registers the basic callbacks that throw error specific exceptions. 
+ * basicCallback below should never be used, and is only provided for simplifying initialisation.
+ */
+
+namespace fuse_core
 {
-  
-  class ErrorHandler 
+
+class ErrorHandler
+{
+  public:
+  static ErrorHandler& getHandler()
   {
-    public:
-    
-    static void initializeErrorHandler(const std::string& type)
-    {
-      // If the plugin name is not found, this will throw
-      // auto handler = error_handler_loader_.createInstance(type);
-      // handler->initialize("handler");
-      // error_handler_internal_ = handler;
-    }
-
-    static void invalidArgument(const std::string& info)
-    {
-      // error_handler_internal_->invalidArgument(info);
-    }
-
-    static void runtimeError(const std::string& info)
-    {
-      // error_handler_internal_->runtimeError(info);
-    }
-
-    static void outOfRangeError(const std::string& info)
-    {
-      // error_handler_internal_->outOfRangeError(info);
-    }
-
-    static void logicError(const std::string& info)
-    {
-      // error_handler_internal_->logicError(info);
-    }
-
-    static void registerLogicError(std::function<void(const std::string&)> cb)
-    {
-        logic_error_cb_ = cb;
-    }
+    static ErrorHandler handler {};
+    return handler;
+  }
 
 
-    static std::function<void(const std::string&)> logic_error_cb_;
-    protected:
-    ErrorHandler() = default;
+  void invalidArgument(const std::string& info)
+  {
+    invalid_argument_cb_(info);
+  }
 
-    ros::NodeHandle nh_;
+  void runtimeError(const std::string& info)
+  {
+    runtime_error_cb_(info);
+  }
 
-  };
+  void outOfRangeError(const std::string& info)
+  {
+    out_of_range_cb_(info);
+  }
+
+  void logicError(const std::string& info)
+  {
+    logic_error_cb_(info);
+  }
+
+  void registerinvalidArgumentErrorCb(std::function<void(const std::string&)> cb)
+  {
+    invalid_argument_cb_ = cb;
+  }
+
+  void registerRuntimeErrorCb(std::function<void(const std::string&)> cb)
+  {
+      runtime_error_cb_ = cb;
+  }
+
+  void registerOutOfRangeErrorCb(std::function<void(const std::string&)> cb)
+  {
+      out_of_range_cb_ = cb;
+  }
+
+  void registerLogicErrorCb(std::function<void(const std::string&)> cb)
+  {
+      logic_error_cb_ = cb;
+  }
+
+  private:
+  ErrorHandler()
+  {
+    invalid_argument_cb_ = invalidArgumentCallback;
+    runtime_error_cb_ = runtimeErrorCallback;
+    out_of_range_cb_ = outOfRangeErrorCallback;
+    logic_error_cb_ = logicErrorCallback;
+  }
+
+  ~ErrorHandler() {}
+  std::function<void(const std::string&)> invalid_argument_cb_;
+  std::function<void(const std::string&)> runtime_error_cb_;
+  std::function<void(const std::string&)> out_of_range_cb_;
+  std::function<void(const std::string&)> logic_error_cb_;
 
 
-  // boost::shared_ptr<fuse_core::ErrorHandlerInternal> ErrorHandler::error_handler_internal_ = boost::make_shared<fuse_core::BasicErrorHandler>();
-  // pluginlib::ClassLoader<fuse_core::ErrorHandlerInternal> ErrorHandler::error_handler_loader_("fuse_core", "fuse_core::BasicErrorHandler");
-}
+  /*
+  * Default error handling behavior
+  */
+  static void invalidArgumentCallback(std::string info)
+  {
+    throw std::invalid_argument(info);
+  }
+  static void logicErrorCallback(std::string info)
+  {
+    throw std::logic_error(info);
+  }
+  static void runtimeErrorCallback(std::string info)
+  {
+    throw std::runtime_error(info);
+  }
+  static void outOfRangeErrorCallback(std::string info)
+  {
+    throw std::out_of_range(info);
+  }
+};
+
+}  // namespace fuse_core
 
 
-#endif // FUSE_CORE_ERROR_HANDLER_H
+#endif  // FUSE_CORE_ERROR_HANDLER_H

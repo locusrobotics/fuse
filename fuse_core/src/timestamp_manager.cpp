@@ -74,7 +74,8 @@ void TimestampManager::query(
     && (stamps.front() < motion_model_history_.begin()->first)
     && (stamps.front() < (motion_model_history_.rbegin()->first - buffer_length_)))
   {
-    throw std::invalid_argument("All timestamps must be within the defined buffer length of the motion model");
+    ErrorHandler::getHandler().invalidArgument("All timestamps must be within the " \
+                                              "defined buffer length of the motion model");
   }
   // Create a list of all the required timestamps involved in motion model segments that must be created
   // Add all of the existing timestamps between the first and last input stamp
