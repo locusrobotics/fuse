@@ -313,7 +313,7 @@ inline bool processAbsolutePoseWithCovariance(
   auto orientation = fuse_variables::Orientation2DStamped::make_shared(pose.header.stamp, device_id);
   position->x() = absolute_pose_2d.x();
   position->y() = absolute_pose_2d.y();
-  orientation->yaw() = absolute_pose_2d.yaw();
+  orientation->setYaw(absolute_pose_2d.yaw());
 
   // Create the pose for the constraint
   fuse_core::Vector3d pose_mean;
@@ -432,13 +432,13 @@ inline bool processDifferentialPoseWithCovariance(
     fuse_variables::Orientation2DStamped::make_shared(pose1.header.stamp, device_id);
   position1->x() = pose1_2d.x();
   position1->y() = pose1_2d.y();
-  orientation1->yaw() = pose1_2d.yaw();
+  orientation1->setYaw(pose1_2d.yaw());
 
   auto position2 = fuse_variables::Position2DStamped::make_shared(pose2.header.stamp, device_id);
   auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(pose2.header.stamp, device_id);
   position2->x() = pose2_2d.x();
   position2->y() = pose2_2d.y();
-  orientation2->yaw() = pose2_2d.yaw();
+  orientation2->setYaw(pose2_2d.yaw());
 
   // Create the delta for the constraint
   const double sy = ::sin(-pose1_2d.yaw());
@@ -780,13 +780,13 @@ inline bool processDifferentialPoseWithTwistCovariance(
     fuse_variables::Orientation2DStamped::make_shared(pose1.header.stamp, device_id);
   position1->x() = pose1_2d.x();
   position1->y() = pose1_2d.y();
-  orientation1->yaw() = pose1_2d.yaw();
+  orientation1->setYaw(pose1_2d.yaw());
 
   auto position2 = fuse_variables::Position2DStamped::make_shared(pose2.header.stamp, device_id);
   auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(pose2.header.stamp, device_id);
   position2->x() = pose2_2d.x();
   position2->y() = pose2_2d.y();
-  orientation2->yaw() = pose2_2d.yaw();
+  orientation2->setYaw(pose2_2d.yaw());
 
   // Create the delta for the constraint
   const auto delta = pose1_2d.inverseTimes(pose2_2d);

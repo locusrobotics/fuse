@@ -288,7 +288,7 @@ bool Odometry2DPublisher::getState(
     odometry.pose.pose.position.x = position_variable.x();
     odometry.pose.pose.position.y = position_variable.y();
     odometry.pose.pose.position.z = 0.0;
-    odometry.pose.pose.orientation = tf2::toMsg(tf2_2d::Rotation(orientation_variable.yaw()));
+    odometry.pose.pose.orientation = tf2::toMsg(tf2_2d::Rotation(orientation_variable.getYaw()));
     odometry.twist.twist.linear.x = velocity_linear_variable.x();
     odometry.twist.twist.linear.y = velocity_linear_variable.y();
     odometry.twist.twist.linear.z = 0.0;
