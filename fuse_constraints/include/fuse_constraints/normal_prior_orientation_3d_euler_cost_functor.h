@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS_NORMAL_PRIOR_ORIENTATION_3D_EULER_COST_FUNCTOR_H
 
 #include <fuse_core/eigen.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/util.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 
@@ -105,7 +106,7 @@ public:
 
     for (size_t i = 0; i < axes_.size(); ++i)
     {
-      T angle;
+      T angle = T(0);
       switch (axes_[i])
       {
         case Euler::ROLL:
@@ -125,7 +126,7 @@ public:
         }
         default:
         {
-          throw std::runtime_error("The provided axis specified is unknown. "
+          fuse_core::ErrorHandler::getHandler().runtimeError("The provided axis specified is unknown. "
                                    "I should probably be more informative here");
         }
       }

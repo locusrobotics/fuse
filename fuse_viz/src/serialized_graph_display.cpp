@@ -51,6 +51,7 @@
 #include <fuse_viz/serialized_graph_display.h>
 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/graph.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -249,7 +250,7 @@ void SerializedGraphDisplay::processMessage(const fuse_msgs::SerializedGraph::Co
       {
         delete constraint_source_property;
 
-        throw std::runtime_error("Failed to insert " + description);
+        fuse_core::ErrorHandler::getHandler().runtimeError("Failed to insert " + description);
       }
 
       show_constraints_property_->addChild(constraint_source_property,

@@ -38,6 +38,7 @@
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.h>
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/loss.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
@@ -196,18 +197,18 @@ inline void validatePartialMeasurement(
 {
   if (!mean_partial.allFinite())
   {
-    throw std::runtime_error("Invalid partial mean " + fuse_core::to_string(mean_partial));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid partial mean " + fuse_core::to_string(mean_partial));
   }
 
   if (!fuse_core::isSymmetric(covariance_partial, precision))
   {
-    throw std::runtime_error("Non-symmetric partial covariance matrix\n" +
+    fuse_core::ErrorHandler::getHandler().runtimeError("Non-symmetric partial covariance matrix\n" +
                              fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 
   if (!fuse_core::isPositiveDefinite(covariance_partial))
   {
-    throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
+    fuse_core::ErrorHandler::getHandler().runtimeError("Non-positive-definite partial covariance matrix\n" +
                              fuse_core::to_string(covariance_partial, Eigen::FullPrecision));
   }
 }

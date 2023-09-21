@@ -55,6 +55,22 @@
 namespace fuse_core
 {
 
+/**
+ * @brief Used to provide different error handlers for a given context
+ */
+enum class Context: int
+{
+  CORE = 0,
+  CONSTRAINT = 1,
+  GRAPH = 2,
+  LOSS = 3,
+  MODEL = 4,
+  OPTIMIZER = 5,
+  PUBLISHER = 6,
+  VARIABLE = 7,
+  VIZ = 8
+};
+
 class ErrorHandler
 {
   public:

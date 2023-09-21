@@ -36,6 +36,7 @@
 #include <fuse_constraints/absolute_constraint.h>
 #include <fuse_core/async_sensor_model.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/sensor_model.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/util.h>
@@ -181,12 +182,12 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
   // Verify we are in the correct state to process set pose requests
   if (!started_)
   {
-    throw std::runtime_error("Attempting to set the pose while the sensor is stopped.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Attempting to set the pose while the sensor is stopped.");
   }
   // Validate the requested pose and covariance before we do anything
   if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y))
   {
-    throw std::invalid_argument("Attempting to set the pose to an invalid position (" +
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose to an invalid position (" +
                                 std::to_string(pose.pose.pose.position.x) + ", " +
                                 std::to_string(pose.pose.pose.position.y) + ").");
   }
@@ -196,7 +197,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
                                     pose.pose.pose.orientation.w * pose.pose.pose.orientation.w);
   if (std::abs(orientation_norm - 1.0) > 1.0e-3)
   {
-    throw std::invalid_argument("Attempting to set the pose to an invalid orientation (" +
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose to an invalid orientation (" +
                                 std::to_string(pose.pose.pose.orientation.x) + ", " +
                                 std::to_string(pose.pose.pose.orientation.y) + ", " +
                                 std::to_string(pose.pose.pose.orientation.z) + ", " +
@@ -207,19 +208,19 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
                   pose.pose.covariance[6], pose.pose.covariance[7];
   if (!fuse_core::isSymmetric(position_cov))
   {
-    throw std::invalid_argument("Attempting to set the pose with a non-symmetric position covariance matri\n " +
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a non-symmetric position covariance matri\n " +
                                 fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
   if (!fuse_core::isPositiveDefinite(position_cov))
   {
-    throw std::invalid_argument("Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
                                 fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
   auto orientation_cov = fuse_core::Matrix1d();
   orientation_cov << pose.pose.covariance[35];
   if (orientation_cov(0) <= 0.0)
   {
-    throw std::invalid_argument("Attempting to set the pose with a non-positive-definite orientation covariance "
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a non-positive-definite orientation covariance "
                                 "matrix " + fuse_core::to_string(orientation_cov) + ".");
   }
 
@@ -236,7 +237,7 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
     if (!reset_client_.call(srv))
     {
       // The reset() service failed. Propagate that failure to the caller of this service.
-      throw std::runtime_error("Failed to call the '" + reset_client_.getService() + "' service.");
+      fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call the '" + reset_client_.getService() + "' service.");
     }
   }
 

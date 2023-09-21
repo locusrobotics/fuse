@@ -33,6 +33,7 @@
  */
 
 #include <fuse_models/graph_ignition.h>
+#include <fuse_core/error_handler.h>
 
 #include <std_srvs/Empty.h>
 
@@ -113,7 +114,7 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
   // Verify we are in the correct state to process set graph requests
   if (!started_)
   {
-    throw std::runtime_error("Attempting to set the graph while the sensor is stopped.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Attempting to set the graph while the sensor is stopped.");
   }
 
   // Deserialize the graph message
@@ -122,12 +123,12 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
   // Validate the requested graph before we do anything
   if (boost::empty(graph->getConstraints()))
   {
-    throw std::runtime_error("Attempting to set a graph with no constraints.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Attempting to set a graph with no constraints.");
   }
 
   if (boost::empty(graph->getVariables()))
   {
-    throw std::runtime_error("Attempting to set a graph with no variables.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Attempting to set a graph with no variables.");
   }
 
   // Tell the optimizer to reset before providing the initial state
@@ -143,7 +144,7 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
     if (!reset_client_.call(srv))
     {
       // The reset() service failed. Propagate that failure to the caller of this service.
-      throw std::runtime_error("Failed to call the '" + reset_client_.getService() + "' service.");
+      fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call the '" + reset_client_.getService() + "' service.");
     }
   }
 

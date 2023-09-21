@@ -62,7 +62,7 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
   {
     const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
     ROS_FATAL_STREAM(error);
-    throw std::runtime_error(error);
+    fuse_core::ErrorHandler::getHandler().runtimeError(error);
   }
 }
 

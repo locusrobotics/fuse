@@ -33,6 +33,7 @@
  */
 #include <fuse_graphs/hash_graph.h>
 
+#include <fuse_core/error_handler.h>
 #include <fuse_core/uuid.h>
 #include <pluginlib/class_list_macros.hpp>
 
@@ -127,7 +128,7 @@ bool HashGraph::addConstraint(fuse_core::Constraint::SharedPtr constraint)
   {
     if (!variableExists(variable_uuid))
     {
-      throw std::logic_error("Attempting to add a constraint (" + fuse_core::uuid::to_string(constraint->uuid()) +
+      fuse_core::ErrorHandler::getHandler().logicError("Attempting to add a constraint (" + fuse_core::uuid::to_string(constraint->uuid()) +
                              ") that uses an unknown variable (" + fuse_core::uuid::to_string(variable_uuid) + ").");
     }
   }
@@ -165,7 +166,7 @@ const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& con
   auto constraints_iter = constraints_.find(constraint_uuid);
   if (constraints_iter == constraints_.end())
   {
-    throw std::out_of_range("The constraint UUID " + fuse_core::uuid::to_string(constraint_uuid) + " does not exist.");
+    fuse_core::ErrorHandler::getHandler().outOfRangeError("The constraint UUID " + fuse_core::uuid::to_string(constraint_uuid) + " does not exist.");
   }
   return *constraints_iter->second;
 }
@@ -207,8 +208,11 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(cons
   else
   {
     // We only want to throw if the requested variable does not exist.
-    throw std::logic_error("Attempting to access constraints connected to variable ("
+    fuse_core::ErrorHandler::getHandler().logicError("Attempting to access constraints connected to variable ("
         + fuse_core::uuid::to_string(variable_uuid) + "), but that variable does not exist in this graph.");
+    // Only here to satisfy compiler warnings. Be warned that if your ErrorHandler doesn't throw an exception of some kind,
+    // this may exhibit undesirable behavior.
+    return fuse_core::Graph::const_constraint_range();
   }
 }
 
@@ -245,7 +249,7 @@ bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
   auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
   if (cross_reference_iter != constraints_by_variable_uuid_.end() && !cross_reference_iter->second.empty())
   {
-    throw std::logic_error("Attempting to remove a variable (" + fuse_core::uuid::to_string(variable_uuid)
+    fuse_core::ErrorHandler::getHandler().logicError("Attempting to remove a variable (" + fuse_core::uuid::to_string(variable_uuid)
       + ") that is used by existing constraints (" + fuse_core::uuid::to_string(cross_reference_iter->second.front())
       + " plus " + std::to_string(cross_reference_iter->second.size() - 1) + " others).");
   }
@@ -264,7 +268,7 @@ const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variabl
   auto variables_iter = variables_.find(variable_uuid);
   if (variables_iter == variables_.end())
   {
-    throw std::out_of_range("The variable UUID " + fuse_core::uuid::to_string(variable_uuid) + " does not exist.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID " + fuse_core::uuid::to_string(variable_uuid) + " does not exist.");
   }
   return *variables_iter->second;
 }
@@ -337,13 +341,13 @@ void HashGraph::getCovariance(
     auto variable1_iter = variables_.find(request.first);
     if (variable1_iter == variables_.end())
     {
-      throw std::out_of_range("The variable UUID " + fuse_core::uuid::to_string(request.first)
+      fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID " + fuse_core::uuid::to_string(request.first)
                             + " does not exist.");
     }
     auto variable2_iter = variables_.find(request.second);
     if (variable2_iter == variables_.end())
     {
-      throw std::out_of_range("The variable UUID " + fuse_core::uuid::to_string(request.second)
+      fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID " + fuse_core::uuid::to_string(request.second)
                             + " does not exist.");
     }
     // Both variables exist. Continue processing.
@@ -374,7 +378,7 @@ void HashGraph::getCovariance(
   ceres::Covariance covariance(options);
   if (!covariance.Compute(unique_covariance_blocks, &problem))
   {
-    throw std::runtime_error("Could not compute requested covariance blocks.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Could not compute requested covariance blocks.");
   }
   // Populate the computed covariance blocks into the output variable.
   if (use_tangent_space)
@@ -388,7 +392,7 @@ void HashGraph::getCovariance(
                                                        output_matrix.data()))
       {
         const auto& request = covariance_requests.at(i);
-        throw std::runtime_error("Could not get covariance block for variable UUIDs " +
+        fuse_core::ErrorHandler::getHandler().runtimeError("Could not get covariance block for variable UUIDs " +
                                  fuse_core::uuid::to_string(request.first) + " and " +
                                  fuse_core::uuid::to_string(request.second) + ".");
       }
@@ -405,7 +409,7 @@ void HashGraph::getCovariance(
                                          output_matrix.data()))
       {
         const auto& request = covariance_requests.at(i);
-        throw std::runtime_error("Could not get covariance block for variable UUIDs " +
+        fuse_core::ErrorHandler::getHandler().runtimeError("Could not get covariance block for variable UUIDs " +
                                  fuse_core::uuid::to_string(request.first) + " and " +
                                  fuse_core::uuid::to_string(request.second) + ".");
       }

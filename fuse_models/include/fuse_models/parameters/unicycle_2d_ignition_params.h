@@ -38,6 +38,7 @@
 
 #include <fuse_core/loss.h>
 #include <fuse_core/parameter.h>
+#include <fuse_core/error_handler.h>
 #include <ros/node_handle.h>
 
 #include <algorithm>
@@ -77,7 +78,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
       {
         if (sigma_vector.size() != 8)
         {
-          throw std::invalid_argument("The supplied initial_sigma parameter must be length 8, but is actually length " +
+          fuse_core::ErrorHandler::getHandler().invalidArgument("The supplied initial_sigma parameter must be length 8, but is actually length " +
                                       std::to_string(sigma_vector.size()));
         }
         auto is_sigma_valid = [](const double sigma)
@@ -86,7 +87,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         };
         if (!std::all_of(sigma_vector.begin(), sigma_vector.end(), is_sigma_valid))
         {
-          throw std::invalid_argument("The supplied initial_sigma parameter must contain valid floating point values. "
+          fuse_core::ErrorHandler::getHandler().invalidArgument("The supplied initial_sigma parameter must contain valid floating point values. "
                                       "NaN, Inf, and values <= 0 are not acceptable.");
         }
         initial_sigma.swap(sigma_vector);
@@ -97,7 +98,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
       {
         if (state_vector.size() != 8)
         {
-          throw std::invalid_argument("The supplied initial_state parameter must be length 8, but is actually length " +
+          fuse_core::ErrorHandler::getHandler().invalidArgument("The supplied initial_state parameter must be length 8, but is actually length " +
                                       std::to_string(state_vector.size()));
         }
         auto is_state_valid = [](const double state)
@@ -106,7 +107,7 @@ struct Unicycle2DIgnitionParams : public ParameterBase
         };
         if (!std::all_of(state_vector.begin(), state_vector.end(), is_state_valid))
         {
-          throw std::invalid_argument("The supplied initial_state parameter must contain valid floating point values. "
+          fuse_core::ErrorHandler::getHandler().invalidArgument("The supplied initial_state parameter must contain valid floating point values. "
                                       "NaN, Inf, etc are not acceptable.");
         }
         initial_state.swap(state_vector);

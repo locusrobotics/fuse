@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/ceres_options.h>
+#include <fuse_core/error_handler.h>
 
 #include <ros/node_handle.h>
 
@@ -195,7 +196,7 @@ void loadSolverOptionsFromROS(const ros::NodeHandle& nh, ceres::Solver::Options&
   std::string error;
   if (!solver_options.IsValid(&error))
   {
-    throw std::invalid_argument("Invalid solver options in parameter " + nh.getNamespace() + ". Error: " + error);
+    ErrorHandler::getHandler().invalidArgument("Invalid solver options in parameter " + nh.getNamespace() + ". Error: " + error);
   }
 }
 
