@@ -357,7 +357,7 @@ inline bool processAbsolutePoseWithCovariance(
 
   if (validate) {
     try {
-      validatePartialMeasurement(pose_mean_partial, pose_covariance_partial);
+      validatePartialMeasurement(pose_mean_partial, pose_covariance_partial, 1e-4);
     } catch (const std::runtime_error & ex) {
       RCLCPP_ERROR_STREAM_THROTTLE(
         rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
@@ -912,7 +912,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
     try {
       validatePartialMeasurement(
         pose_relative_mean_partial, pose_relative_covariance_partial,
-        1e-6);
+        1e-4);
     } catch (const std::runtime_error & ex) {
       RCLCPP_ERROR_STREAM_THROTTLE(
         rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
@@ -1044,7 +1044,7 @@ inline bool processTwistWithCovariance(
 
     if (validate) {
       try {
-        validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial);
+        validatePartialMeasurement(linear_vel_mean_partial, linear_vel_covariance_partial, 1e-4);
       } catch (const std::runtime_error & ex) {
         RCLCPP_ERROR_STREAM_THROTTLE(
           rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
@@ -1084,7 +1084,7 @@ inline bool processTwistWithCovariance(
 
     if (validate) {
       try {
-        validatePartialMeasurement(angular_vel_vector, angular_vel_covariance);
+        validatePartialMeasurement(angular_vel_vector, angular_vel_covariance, 1e-4);
       } catch (const std::runtime_error & ex) {
         RCLCPP_ERROR_STREAM_THROTTLE(
           rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0,
@@ -1197,7 +1197,7 @@ inline bool processAccelWithCovariance(
 
   if (validate) {
     try {
-      validatePartialMeasurement(accel_mean_partial, accel_covariance_partial);
+      validatePartialMeasurement(accel_mean_partial, accel_covariance_partial, 1e-4);
     } catch (const std::runtime_error & ex) {
       RCLCPP_ERROR_STREAM_THROTTLE(
         rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
