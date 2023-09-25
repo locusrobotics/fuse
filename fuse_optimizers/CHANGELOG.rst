@@ -24,8 +24,8 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.7.0 (2023-09-25)
+------------------
 * Print graph & transaction on optimization failure (#321)
 * Update devel to build on Ubuntu Jammy (22.04) (#326)
   * Update to C++17 for use with Ubuntu Jammy
