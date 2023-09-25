@@ -40,6 +40,36 @@ Changelog for package fuse_variables
   Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* [RST-7809] Fix optimization errors when the orientation is initialized at +PI (#334)
+  * Add some unit tests for the 2D orientation constraints; Create getters/setters for the 2D orientation variable is preparation for a fix.
+  * Force the 2D orientation value to be is minimum phase
+* Derive the fixed landmarks from the standard landmarks (#259)
+* Update devel to build on Ubuntu Jammy (22.04) (#326)
+  * Update to C++17 for use with Ubuntu Jammy
+  * Include Rviz and Eigen as system includes, which supresses warnings within the included libraries
+  * use pluginlib and class_list_macros .hpp include instead of deprecated .h From: Lucas Walter <wsacul@gmail.com>
+* 0.6.0
+* Update changelogs
+* 0.5.0
+* Update changelogs
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* Make 2D versions of the landmark variables (#250)
+* [RST-4390] Allow variables to be held constant during optimization (#243)
+  * Add support for holding variables constant
+  * Create a 'fixed' landmark
+  * Added initial support for marginalizing constant variables
+* Adding doxygen to all packages (#241)
+* Add unstamped 3D point variable (#233) (#239)
+  * Add unstamped 3D landmark variable
+  * Add landmark test and new uuid generator
+  Co-authored-by: Stephen Williams <swilliams@locusrobotics.com>
+  Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
+* Contributors: Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)

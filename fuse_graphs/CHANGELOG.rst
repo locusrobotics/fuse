@@ -36,6 +36,30 @@ Changelog for package fuse_graphs
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Update devel to build on Ubuntu Jammy (22.04) (#326)
+  * Update to C++17 for use with Ubuntu Jammy
+  * Include Rviz and Eigen as system includes, which supresses warnings within the included libraries
+  * use pluginlib and class_list_macros .hpp include instead of deprecated .h From: Lucas Walter <wsacul@gmail.com>
+* 0.6.0
+* Update changelogs
+* 0.5.0
+* Update changelogs
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* [RST-4390] Allow variables to be held constant during optimization (#243)
+  * Add support for holding variables constant
+  * Create a 'fixed' landmark
+  * Added initial support for marginalizing constant variables
+* Adding doxygen to all packages (#241)
+* [RST-3474] Created a getConstraintCosts() method
+  * Created a getConstraintCosts() method for reporting the costs and residuals of individual constraints
+* [RST-2831] Support for optimization bounds (#235)
+* Added a time-limited optimization option to the Graph class (#234)
+* Contributors: Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
