@@ -14,8 +14,8 @@ Changelog for package fuse_loss
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Tom Moore
 
-Forthcoming
------------
+0.7.0 (2023-09-25)
+------------------
 * Update devel to build on Ubuntu Jammy (22.04) (#326)
   * Update to C++17 for use with Ubuntu Jammy
   * Include Rviz and Eigen as system includes, which supresses warnings within the included libraries

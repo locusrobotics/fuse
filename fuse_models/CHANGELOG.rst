@@ -22,8 +22,8 @@ Changelog for package fuse_models
 * [RST-3451] Delay some transform warnings so startup is less chatty
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.7.0 (2023-09-25)
+------------------
 * [RST-7809] Fix optimization errors when the orientation is initialized at +PI (#334)
   * Add some unit tests for the 2D orientation constraints; Create getters/setters for the 2D orientation variable is preparation for a fix.
   * Force the 2D orientation value to be is minimum phase
