@@ -14,6 +14,15 @@ Changelog for package fuse_doc
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Tom Moore
 
+Forthcoming
+-----------
+* 0.6.0
+* Update changelogs
+* 0.5.0
+* Update changelogs
+* Adding doxygen to all packages (#241)
+* Contributors: Gary Servin, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
