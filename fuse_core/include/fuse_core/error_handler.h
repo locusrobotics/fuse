@@ -37,6 +37,8 @@
 
 #include "ros/ros.h"
 #include <string>
+#include <utility>
+#include <unordered_map>
 
 /**
  * @brief A class that handles errors that can occur in fuse. 
@@ -46,96 +48,203 @@
  * throw exceptions and hope that the rest of the system goes on while fuse resets and fixes itself.
  * 
  * This class exists to allow for handling generic classes of errors using whatever callback the user sees fit to use. 
- * I recommend registering new callbacks that are bound to an Optimizer instance for more specific functionality.
+ * The default behavior is to throw the relevant exception. Any function that has void return and accepts a string
+ * can be used for this, however.
  * 
- * A note: By default, the base Optimizer class registers the basic callbacks that throw error specific exceptions. 
- * basicCallback below should never be used, and is only provided for simplifying initialisation.
+ * The error handler also allows for different error handlers to be used in different contexts. It assumes that unless
+ * otherwise specified, all error handling is done generically. However, errors in particular contexts can be handled
+ * with unique callbacks as needed. 
+ * 
+ * It's recommended that you register any needed error non-default callbacks during Optimizer startup.
  */
 
 namespace fuse_core
 {
 
 /**
- * @brief Used to provide different error handlers for a given context
+ * @brief Used to provide different error handlers for a given context. 
  */
-enum class Context: int
+enum class ErrorContext: int
 {
-  CORE = 0,
-  CONSTRAINT = 1,
-  GRAPH = 2,
-  LOSS = 3,
-  MODEL = 4,
-  OPTIMIZER = 5,
-  PUBLISHER = 6,
-  VARIABLE = 7,
-  VIZ = 8
+  GENERIC,
+  CORE,
+  CONSTRAINT,
+  GRAPH,
+  LOSS,
+  MODEL,
+  OPTIMIZER,
+  PUBLISHER,
+  VARIABLE,
+  VIZ
 };
 
 class ErrorHandler
 {
+  using ErrorCb = std::function<void(const std::string&)>;
   public:
+  /**
+   * @brief Gets a reference to the error handler.
+   *
+   * @param[out] handler - reference to the error handler
+   */
   static ErrorHandler& getHandler()
   {
     static ErrorHandler handler {};
     return handler;
   }
 
-
-  void invalidArgument(const std::string& info)
+  /**
+   * @brief Use whatever callback is registered to handle an invalid argument error for a given context.
+   *
+   * @param[in] info      A string containing information about the error.
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   * @throws std::out_of_range if no callback has been registered for the provided context
+   */
+  void invalidArgument(const std::string& info, ErrorContext context = ErrorContext::GENERIC)
   {
-    invalid_argument_cb_(info);
+    try
+    {
+      auto cb = invalid_argument_cbs_.at(context);
+      cb(info);
+    }
+    catch(const std::out_of_range& e)
+    {
+      throw std::out_of_range("Failed to call invalidArgument Error handling, no callback found for error " + info);
+    }
+  }
+  /**
+   * @brief Use whatever callback is registered to handle a runtime error for a given context.
+   *
+   * @param[in] info      A string containing information about the error.
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   * @throws std::out_of_range if no callback has been registered for the provided context
+   */
+  void runtimeError(const std::string& info, ErrorContext context = ErrorContext::GENERIC)
+  {
+    try
+    {
+      auto cb = runtime_error_cbs_.at(context);
+      cb(info);
+    }
+    catch(const std::out_of_range& e)
+    {
+      throw std::out_of_range("Failed to call runtimeError Error handling, no callback found for error " + info);
+    }
   }
 
-  void runtimeError(const std::string& info)
+  /**
+   * @brief Use whatever callback is registered to handle an out of range error for a given context.
+   *
+   * @param[in] info      A string containing information about the error.
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   * @throws std::out_of_range if no callback has been registered for the provided context
+   */
+  void outOfRangeError(const std::string& info, ErrorContext context = ErrorContext::GENERIC)
   {
-    runtime_error_cb_(info);
+    try
+    {
+      auto cb = out_of_range_cbs_.at(context);
+      cb(info);
+    }
+    catch(const std::out_of_range& e)
+    {
+      throw std::out_of_range("Failed to call outOfRangeError handling, no callback found for error " + info);
+    }
   }
 
-  void outOfRangeError(const std::string& info)
+  /**
+   * @brief Use whatever callback is registered to handle a logic error for a given context.
+   *
+   * @param[in] info      A string containing information about the error.
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   * @throws std::out_of_range if no callback has been registered for the provided context
+   */
+  void logicError(const std::string& info, ErrorContext context = ErrorContext::GENERIC)
   {
-    out_of_range_cb_(info);
+    try
+    {
+      auto cb = logic_error_cbs_.at(context);
+      cb(info);
+    }
+    catch(const std::out_of_range& e)
+    {
+      throw std::out_of_range("Failed to call logicError handling, no callback found for error " + info);
+    }
   }
 
-  void logicError(const std::string& info)
+  /**
+   * @brief Register a callback to be used for invalid argument errors in a particular context
+   *
+   * @param[in] cb        The callback to be registered
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   */
+  void registerinvalidArgumentErrorCb(ErrorCb cb, ErrorContext context = ErrorContext::GENERIC)
   {
-    logic_error_cb_(info);
+    invalid_argument_cbs_[context] = cb;
   }
 
-  void registerinvalidArgumentErrorCb(std::function<void(const std::string&)> cb)
+  /**
+   * @brief Register a callback to be used for runtime errors in a particular context
+   *
+   * @param[in] cb        The callback to be registered
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   */
+  void registerRuntimeErrorCb(ErrorCb cb, ErrorContext context = ErrorContext::GENERIC)
   {
-    invalid_argument_cb_ = cb;
+    runtime_error_cbs_[context] = cb;
   }
 
-  void registerRuntimeErrorCb(std::function<void(const std::string&)> cb)
+  /**
+   * @brief Register a callback to be used for out of range errors in a particular context
+   *
+   * @param[in] cb        The callback to be registered
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   */
+  void registerOutOfRangeErrorCb(ErrorCb cb, ErrorContext context = ErrorContext::GENERIC)
   {
-      runtime_error_cb_ = cb;
+    out_of_range_cbs_[context] = cb;
   }
 
-  void registerOutOfRangeErrorCb(std::function<void(const std::string&)> cb)
+  /**
+   * @brief Register a callback to be used for logic errors in a particular context
+   *
+   * @param[in] cb        The callback to be registered
+   * @param[in] context   The Error Context, which dictates what callback is used. Defaults to ErrorContext::Generic
+   */
+  void registerLogicErrorCb(ErrorCb cb, ErrorContext context = ErrorContext::GENERIC)
   {
-      out_of_range_cb_ = cb;
+    logic_error_cbs_[context] = cb;
   }
 
-  void registerLogicErrorCb(std::function<void(const std::string&)> cb)
+  // Should be used only for teardown and setup during unit tests
+  void reset()
   {
-      logic_error_cb_ = cb;
+    invalid_argument_cbs_.clear();
+    runtime_error_cbs_.clear();
+    out_of_range_cbs_.clear();
+    logic_error_cbs_.clear();
+
+    invalid_argument_cbs_.insert(std::make_pair(ErrorContext::GENERIC, invalidArgumentCallback));
+    runtime_error_cbs_.insert(std::make_pair(ErrorContext::GENERIC, runtimeErrorCallback));
+    out_of_range_cbs_.insert(std::make_pair(ErrorContext::GENERIC, outOfRangeErrorCallback));
+    logic_error_cbs_.insert(std::make_pair(ErrorContext::GENERIC, logicErrorCallback));
   }
 
   private:
   ErrorHandler()
   {
-    invalid_argument_cb_ = invalidArgumentCallback;
-    runtime_error_cb_ = runtimeErrorCallback;
-    out_of_range_cb_ = outOfRangeErrorCallback;
-    logic_error_cb_ = logicErrorCallback;
+    invalid_argument_cbs_[ErrorContext::GENERIC] = invalidArgumentCallback;
+    runtime_error_cbs_[ErrorContext::GENERIC] = runtimeErrorCallback;
+    out_of_range_cbs_[ErrorContext::GENERIC] = outOfRangeErrorCallback;
+    logic_error_cbs_[ErrorContext::GENERIC] = logicErrorCallback;
   }
 
   ~ErrorHandler() {}
-  std::function<void(const std::string&)> invalid_argument_cb_;
-  std::function<void(const std::string&)> runtime_error_cb_;
-  std::function<void(const std::string&)> out_of_range_cb_;
-  std::function<void(const std::string&)> logic_error_cb_;
 
+  std::unordered_map<ErrorContext, ErrorCb> invalid_argument_cbs_;
+  std::unordered_map<ErrorContext, ErrorCb> runtime_error_cbs_;
+  std::unordered_map<ErrorContext, ErrorCb> out_of_range_cbs_;
+  std::unordered_map<ErrorContext, ErrorCb> logic_error_cbs_;
 
   /*
   * Default error handling behavior

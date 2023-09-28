@@ -196,7 +196,8 @@ void loadSolverOptionsFromROS(const ros::NodeHandle& nh, ceres::Solver::Options&
   std::string error;
   if (!solver_options.IsValid(&error))
   {
-    ErrorHandler::getHandler().invalidArgument("Invalid solver options in parameter " + nh.getNamespace() + ". Error: " + error);
+    ErrorHandler::getHandler().invalidArgument(
+      "Invalid solver options in parameter " + nh.getNamespace() + ". Error: " + error);
   }
 }
 
