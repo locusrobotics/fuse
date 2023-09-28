@@ -322,7 +322,8 @@ LinearTerm linearize(
   }
   if (!success)
   {
-    fuse_core::ErrorHandler::getHandler().runtimeError("Error in evaluating the cost function. There are two possible reasons. "
+    fuse_core::ErrorHandler::getHandler().runtimeError("Error in evaluating the cost function. "
+                             "There are two possible reasons. "
                              "Either the CostFunction did not evaluate and fill all residual and jacobians "
                              "that were requested or there was a non-finite value (nan/infinite) generated "
                              "during the jacobian computation.");

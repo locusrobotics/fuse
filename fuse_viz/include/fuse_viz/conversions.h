@@ -138,16 +138,18 @@ inline tf2::Transform getPose(const fuse_core::Graph& graph, const fuse_core::UU
   const auto position = dynamic_cast<const fuse_variables::Position2DStamped*>(&graph.getVariable(position_uuid));
   if (!position)
   {
-    fuse_core::ErrorHandler::getHandler().runtimeError("Failed to get variable " + fuse_core::uuid::to_string(position_uuid) +
-                             " from graph as fuse_variables::Position2DStamped.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Failed to get variable "
+                                                      + fuse_core::uuid::to_string(position_uuid) +
+                                                      " from graph as fuse_variables::Position2DStamped.");
   }
 
   const auto orientation =
       dynamic_cast<const fuse_variables::Orientation2DStamped*>(&graph.getVariable(orientation_uuid));
   if (!orientation)
   {
-    fuse_core::ErrorHandler::getHandler().runtimeError("Failed to get variable " + fuse_core::uuid::to_string(orientation_uuid) +
-                             " from graph as fuse_variables::Orientation2DStamped.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Failed to get variable "
+                                                      + fuse_core::uuid::to_string(orientation_uuid) +
+                                                      " from graph as fuse_variables::Orientation2DStamped.");
   }
 
   return getPose(*position, *orientation);

@@ -160,7 +160,6 @@ protected:
   Publishers publishers_;  //!< The set of publishers to execute after every graph optimization
   pluginlib::ClassLoader<fuse_core::SensorModel> sensor_model_loader_;  //!< Pluginlib class loader for SensorModels
   SensorModels sensor_models_;  //!< The set of sensor models, addressable by name
-  
 
   diagnostic_updater::Updater diagnostic_updater_;  //!< Diagnostic updater
   ros::Timer diagnostic_updater_timer_;  //!< Diagnostic updater timer

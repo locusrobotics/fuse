@@ -144,7 +144,8 @@ void GraphIgnition::process(const fuse_msgs::SerializedGraph& msg)
     if (!reset_client_.call(srv))
     {
       // The reset() service failed. Propagate that failure to the caller of this service.
-      fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call the '" + reset_client_.getService() + "' service.");
+      fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call the '"
+                                                         + reset_client_.getService() + "' service.");
     }
   }
 

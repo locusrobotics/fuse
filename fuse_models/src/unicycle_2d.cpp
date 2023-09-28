@@ -166,7 +166,8 @@ void Unicycle2D::StateHistoryElement::validate() const
 
   if (!std::isfinite(acceleration_linear))
   {
-    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid linear acceleration " + std::to_string(acceleration_linear));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid linear acceleration "
+                                                       + std::to_string(acceleration_linear));
   }
 }
 
@@ -214,7 +215,8 @@ void Unicycle2D::onInit()
 
   if (buffer_length < 0.0)
   {
-    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid negative buffer length of " + std::to_string(buffer_length) + " specified.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid negative buffer length of "
+                                                        + std::to_string(buffer_length) + " specified.");
   }
 
   buffer_length_ = (buffer_length == 0.0) ? ros::DURATION_MAX : ros::Duration(buffer_length);

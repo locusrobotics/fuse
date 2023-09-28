@@ -208,20 +208,25 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
                   pose.pose.covariance[6], pose.pose.covariance[7];
   if (!fuse_core::isSymmetric(position_cov))
   {
-    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a non-symmetric position covariance matri\n " +
-                                fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a "
+                                                          "non-symmetric position covariance matri\n " +
+                                                          fuse_core::to_string(position_cov, Eigen::FullPrecision)
+                                                           + ".");
   }
   if (!fuse_core::isPositiveDefinite(position_cov))
   {
-    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
-                                fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a "
+                                                          "non-positive-definite position covariance matrix\n" +
+                                                          fuse_core::to_string(position_cov, Eigen::FullPrecision)
+                                                          + ".");
   }
   auto orientation_cov = fuse_core::Matrix1d();
   orientation_cov << pose.pose.covariance[35];
   if (orientation_cov(0) <= 0.0)
   {
-    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a non-positive-definite orientation covariance "
-                                "matrix " + fuse_core::to_string(orientation_cov) + ".");
+    fuse_core::ErrorHandler::getHandler().invalidArgument("Attempting to set the pose with a "
+                                                          "non-positive-definite orientation covariance "
+                                                          "matrix " + fuse_core::to_string(orientation_cov) + ".");
   }
 
   // Tell the optimizer to reset before providing the initial state
@@ -237,7 +242,9 @@ void Unicycle2DIgnition::process(const geometry_msgs::PoseWithCovarianceStamped&
     if (!reset_client_.call(srv))
     {
       // The reset() service failed. Propagate that failure to the caller of this service.
-      fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call the '" + reset_client_.getService() + "' service.");
+      fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call the '"
+                                                        + reset_client_.getService()
+                                                        + "' service.");
     }
   }
 

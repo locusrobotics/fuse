@@ -128,8 +128,10 @@ bool HashGraph::addConstraint(fuse_core::Constraint::SharedPtr constraint)
   {
     if (!variableExists(variable_uuid))
     {
-      fuse_core::ErrorHandler::getHandler().logicError("Attempting to add a constraint (" + fuse_core::uuid::to_string(constraint->uuid()) +
-                             ") that uses an unknown variable (" + fuse_core::uuid::to_string(variable_uuid) + ").");
+      fuse_core::ErrorHandler::getHandler().logicError("Attempting to add a constraint ("
+                                                      + fuse_core::uuid::to_string(constraint->uuid()) +
+                                                      ") that uses an unknown variable ("
+                                                      + fuse_core::uuid::to_string(variable_uuid) + ").");
     }
   }
   // Add the constraint to the list of known constraints
@@ -166,7 +168,9 @@ const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& con
   auto constraints_iter = constraints_.find(constraint_uuid);
   if (constraints_iter == constraints_.end())
   {
-    fuse_core::ErrorHandler::getHandler().outOfRangeError("The constraint UUID " + fuse_core::uuid::to_string(constraint_uuid) + " does not exist.");
+    fuse_core::ErrorHandler::getHandler().outOfRangeError("The constraint UUID "
+                                                          + fuse_core::uuid::to_string(constraint_uuid)
+                                                          + " does not exist.");
   }
   return *constraints_iter->second;
 }
@@ -210,7 +214,8 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(cons
     // We only want to throw if the requested variable does not exist.
     fuse_core::ErrorHandler::getHandler().logicError("Attempting to access constraints connected to variable ("
         + fuse_core::uuid::to_string(variable_uuid) + "), but that variable does not exist in this graph.");
-    // Only here to satisfy compiler warnings. Be warned that if your ErrorHandler doesn't throw an exception of some kind,
+    // Only here to satisfy compiler warnings. Be warned that if your ErrorHandler
+    // doesn't throw an exception of some kind,
     // this may exhibit undesirable behavior.
     return fuse_core::Graph::const_constraint_range();
   }
@@ -249,7 +254,8 @@ bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
   auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
   if (cross_reference_iter != constraints_by_variable_uuid_.end() && !cross_reference_iter->second.empty())
   {
-    fuse_core::ErrorHandler::getHandler().logicError("Attempting to remove a variable (" + fuse_core::uuid::to_string(variable_uuid)
+    fuse_core::ErrorHandler::getHandler().logicError("Attempting to remove a variable ("
+      + fuse_core::uuid::to_string(variable_uuid)
       + ") that is used by existing constraints (" + fuse_core::uuid::to_string(cross_reference_iter->second.front())
       + " plus " + std::to_string(cross_reference_iter->second.size() - 1) + " others).");
   }
@@ -268,7 +274,9 @@ const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variabl
   auto variables_iter = variables_.find(variable_uuid);
   if (variables_iter == variables_.end())
   {
-    fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID " + fuse_core::uuid::to_string(variable_uuid) + " does not exist.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID "
+                                                      + fuse_core::uuid::to_string(variable_uuid)
+                                                      + " does not exist.");
   }
   return *variables_iter->second;
 }
@@ -341,14 +349,16 @@ void HashGraph::getCovariance(
     auto variable1_iter = variables_.find(request.first);
     if (variable1_iter == variables_.end())
     {
-      fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID " + fuse_core::uuid::to_string(request.first)
-                            + " does not exist.");
+      fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID "
+                                                        + fuse_core::uuid::to_string(request.first)
+                                                        + " does not exist.");
     }
     auto variable2_iter = variables_.find(request.second);
     if (variable2_iter == variables_.end())
     {
-      fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID " + fuse_core::uuid::to_string(request.second)
-                            + " does not exist.");
+      fuse_core::ErrorHandler::getHandler().runtimeError("The variable UUID "
+                                                        + fuse_core::uuid::to_string(request.second)
+                                                        + " does not exist.");
     }
     // Both variables exist. Continue processing.
     // Create the output covariance matrix
