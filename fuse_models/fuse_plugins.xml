@@ -12,6 +12,19 @@
     </description>
   </class>
 
+  <class type="fuse_models::Unicycle3DStateKinematicConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A class that represents a kinematic constraint between 3D states at two different times.
+    </description>
+  </class>
+
+  <class type="fuse_models::Unicycle3D" base_class_type="fuse_core::MotionModel">
+    <description>
+    A fuse_models 3D kinematic model that generates kinematic constraints between provided time stamps, and adds
+    those constraints to the fuse graph.
+    </description>
+  </class>
+  
   <class type="fuse_models::Odometry2DPublisher" base_class_type="fuse_core::Publisher">
     <description>
     Publisher plugin that publishes a nav_msgs::msg::Odometry message and broadcasts a tf transform for optimized 2D

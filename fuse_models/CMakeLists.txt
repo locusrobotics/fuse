@@ -51,6 +51,9 @@ add_library(${PROJECT_NAME}
   src/unicycle_2d.cpp
   src/unicycle_2d_ignition.cpp
   src/unicycle_2d_state_kinematic_constraint.cpp
+  src/unicycle_3d.cpp
+  # src/unicycle_3d_ignition.cpp
+  src/unicycle_3d_state_kinematic_constraint.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"

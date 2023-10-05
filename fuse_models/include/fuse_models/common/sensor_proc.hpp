@@ -1266,6 +1266,58 @@ inline void scaleProcessNoiseCovariance(
     velocity * process_noise_covariance.topLeftCorner<3, 3>() * velocity.transpose();
 }
 
+/**
+ * @brief Scales the process noise covariance pose by the norm of the velocity
+ *
+ * @param[in, out] process_noise_covariance - The process noise covariance to scale. Only the pose
+ *                 components (x, y, z, roll, pitch, yaw) are scaled, and they are assumed to be in the 
+ *                 top left 6x6 corner
+ * @param[in] velocity_linear - The linear velocity
+ * @param[in] velocity_angular - The angular velocity
+ * @param[in] velocity_linear_norm_min - The minimum linear velocity norm
+ * @param[in] velocity_angular_norm_min - The minimum angular velocity norm
+ */
+inline void scaleProcessNoiseCovariance(
+  fuse_core::Matrix15d & process_noise_covariance,
+  const fuse_core::Vector3d & velocity_linear, 
+  const fuse_core::Vector3d & velocity_angular,
+  const double velocity_linear_norm_min,
+  const double velocity_angular_norm_min)
+{
+  fuse_core::Matrix6d velocity;
+  velocity.setIdentity();
+  velocity.topLeftCorner<3, 3>().diagonal() *=
+    std::max(
+    velocity_linear_norm_min,
+    velocity_linear.norm());
+  velocity.bottomRightCorner<3, 3>().diagonal() *=
+    std::max(
+    velocity_angular_norm_min,
+    velocity_angular.norm());
+  process_noise_covariance.topLeftCorner<6, 6>() =
+    velocity * process_noise_covariance.topLeftCorner<6, 6>() * velocity.transpose();
+}
+
+inline void scaleProcessNoiseCovariance(
+  fuse_core::Matrix16d & process_noise_covariance,
+  const fuse_core::Vector3d & velocity_linear, 
+  const fuse_core::Vector3d & velocity_angular,
+  const double velocity_linear_norm_min,
+  const double velocity_angular_norm_min)
+{
+  fuse_core::Matrix3d velocity;
+  velocity.setIdentity();
+  velocity.topLeftCorner<3, 3>().diagonal() *=
+    std::max(
+    velocity_linear_norm_min,
+    velocity_linear.norm());
+  // velocity.bottomRightCorner<3, 3>().diagonal() *=
+  //   std::max(
+  //   velocity_angular_norm_min,
+  //   velocity_angular.norm());
+  process_noise_covariance.topLeftCorner<3, 3>() =
+    velocity * process_noise_covariance.topLeftCorner<3, 3>() * velocity.transpose();
+}
 }  // namespace common
 
 }  // namespace fuse_models
