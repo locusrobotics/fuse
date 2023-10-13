@@ -105,6 +105,9 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
     ${CERES_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}

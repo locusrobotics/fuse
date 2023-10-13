@@ -31,8 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/serialization.h>
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#include <ceres/autodiff_manifold.h>
+#else
 #include <fuse_core/autodiff_local_parameterization.h>
+#endif
 #include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/stamped.h>
@@ -107,37 +112,54 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+struct Orientation3DFunctor
+{
+  template<typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
+#else
 struct Orientation3DPlus
 {
   template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+#endif
   {
     T q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
     ceres::QuaternionProduct(x, q_delta, x_plus_delta);
     return true;
   }
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+
+  template<typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
+#else
 };
 
 struct Orientation3DMinus
 {
   template<typename T>
-  bool operator()(const T* q1, const T* q2, T* delta) const
+  bool operator()(const T* y, const T* x, T* y_minus_x) const
+#endif
   {
     T q1_inverse[4];
-    q1_inverse[0] = q1[0];
-    q1_inverse[1] = -q1[1];
-    q1_inverse[2] = -q1[2];
-    q1_inverse[3] = -q1[3];
+    q1_inverse[0] = y[0];
+    q1_inverse[1] = -y[1];
+    q1_inverse[2] = -y[2];
+    q1_inverse[3] = -y[3];
     T q_delta[4];
-    ceres::QuaternionProduct(q1_inverse, q2, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, delta);
+    ceres::QuaternionProduct(q1_inverse, x, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
     return true;
   }
 };
 
 using Orientation3DLocalParameterization =
-    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3>;
+#else
+fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+#endif
 
 TEST(Orientation3DStamped, Plus)
 {
@@ -193,14 +215,22 @@ TEST(Orientation3DStamped, PlusJacobian)
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0;
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+        bool success = parameterization->PlusJacobian(x, actual.data());
+#else
         bool success = parameterization->ComputeJacobian(x, actual.data());
+#endif
 
         fuse_core::MatrixXd expected(4, 3);
         expected << 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0;
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+        reference.PlusJacobian(x, expected.data());
+#else
         reference.ComputeJacobian(x, expected.data());
+#endif
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
@@ -233,13 +263,21 @@ TEST(Orientation3DStamped, MinusJacobian)
         actual << 0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0;
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+        bool success = parameterization->MinusJacobian(x, actual.data());
+#else
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
+#endif
 
         fuse_core::MatrixXd expected(3, 4);
         expected << 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0;
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+        reference.MinusJacobian(x, expected.data());
+#else
         reference.ComputeMinusJacobian(x, expected.data());
+#endif
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");

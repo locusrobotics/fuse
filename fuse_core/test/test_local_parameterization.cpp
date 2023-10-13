@@ -31,37 +31,61 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/ceres_macros.h>
+
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#include <ceres/autodiff_manifold.h>
+#else
 #include <fuse_core/autodiff_local_parameterization.h>
+#endif
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
 
 #include <gtest/gtest.h>
 
 
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+struct TestFunctor
+{
+  template<typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
+#else
 struct Plus
 {
   template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+#endif
   {
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
     x_plus_delta[1] = x[1] + 5.0 * delta[1];
     x_plus_delta[2] = x[2];
     return true;
   }
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+
+  template<typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
+#else
 };
 
 struct Minus
 {
   template<typename T>
-  bool operator()(const T* x1, const T* x2, T* delta) const
+  bool operator()(const T* y, const T* x, T* y_minus_x) const
+#endif
   {
-    delta[0] = (x2[0] - x1[0]) / 2.0;
-    delta[1] = (x2[1] - x1[1]) / 5.0;
+    y_minus_x[0] = (x[0] - y[0]) / 2.0;
+    y_minus_x[1] = (x[1] - y[1]) / 5.0;
     return true;
   }
 };
 
-using TestLocalParameterization = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
+using TestLocalParameterization =
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+ceres::AutoDiffManifold<TestFunctor, 3, 2>;
+#else
+fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
+#endif
 
 
 TEST(LocalParameterization, Plus)
@@ -85,7 +109,11 @@ TEST(LocalParameterization, PlusJacobian)
 
   double x[3] = {1.0, 2.0, 3.0};
   fuse_core::MatrixXd actual(3, 2);
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+  bool success = parameterization.PlusJacobian(x, actual.data());
+#else
   bool success = parameterization.ComputeJacobian(x, actual.data());
+#endif
 
   fuse_core::MatrixXd expected(3, 2);
   expected << 2.0, 0.0,
@@ -116,7 +144,11 @@ TEST(LocalParameterization, MinusJacobian)
 
   double x[3] = {1.0, 2.0, 3.0};
   fuse_core::MatrixXd actual(2, 3);
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+  bool success = parameterization.MinusJacobian(x, actual.data());
+#else
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
+#endif
 
   fuse_core::MatrixXd expected(2, 3);
   expected << 0.5, 0.0, 0.0,

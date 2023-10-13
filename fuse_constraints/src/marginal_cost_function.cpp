@@ -33,6 +33,7 @@
  */
 #include <fuse_constraints/marginal_cost_function.h>
 
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/local_parameterization.h>
 
@@ -97,8 +98,13 @@ bool MarginalCostFunction::Evaluate(
         if (local_parameterizations_[i])
         {
           const auto& local_parameterization = local_parameterizations_[i];
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+          fuse_core::MatrixXd J_local(local_parameterization->TangentSize(), local_parameterization->AmbientSize());
+          local_parameterization->MinusJacobian(parameters[i], J_local.data());
+#else
           fuse_core::MatrixXd J_local(local_parameterization->LocalSize(), local_parameterization->GlobalSize());
           local_parameterization->ComputeMinusJacobian(parameters[i], J_local.data());
+#endif
           Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i] * J_local;
         }
         else
