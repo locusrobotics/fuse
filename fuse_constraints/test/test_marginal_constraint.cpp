@@ -207,11 +207,11 @@ TEST(MarginalConstraint, LocalParameterization)
   fuse_core::Vector1d expected_residuals;
   expected_residuals << 10.581088914;  // 5.0 * 0.15  +  6.0 * -0.2  +  7.0 * 0.433012702   +   8.0
   fuse_core::MatrixXd expected_jacobian1(1, 4);
-  expected_jacobian1 << -13.29593, 3.86083, 9.164586, 12.818822;
+  expected_jacobian1 << 13.29593, -3.86083, -9.164586, -12.818822;
   // A1 * J_local
-  // [5.0, 6.0, 7.0] * [-0.720368,  1.491122,  1.052086,  -0.388248]
-  //                   [-0.388248, -1.052086,  1.491122,   0.720368]
-  //                   [-1.052086,  0.388248, -0.720368,   1.491122]
+  // [5.0, 6.0, 7.0] * [0.720368, -1.491122, -1.052086,  0.388248]
+  //                   [0.388248,  1.052086, -1.491122, -0.720368]
+  //                   [1.052086, -0.388248,  0.720368, -1.491122]
 
   EXPECT_MATRIX_NEAR(expected_residuals, actual_residuals, 1.0e-5);
   EXPECT_MATRIX_NEAR(expected_jacobian1, actual_jacobian1, 1.0e-5);

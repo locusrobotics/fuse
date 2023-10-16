@@ -151,8 +151,8 @@ TEST(LocalParameterization, MinusJacobian)
 #endif
 
   fuse_core::MatrixXd expected(2, 3);
-  expected << 0.5, 0.0, 0.0,
-              0.0, 0.2, 0.0;
+  expected << -0.5, 0.0, 0.0,
+              0.0, -0.2, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
