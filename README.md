@@ -169,5 +169,5 @@ libraries can be shared or kept private at the discretion of their authors.
 * [Constraints](doc/Constraints.md)
 * Sensor Models -- coming soon
 * Motion Models -- coming soon
-* Publishers -- coming soon
+* [Publishers](doc/Publishers.md)
 * Optimizers -- coming soon
