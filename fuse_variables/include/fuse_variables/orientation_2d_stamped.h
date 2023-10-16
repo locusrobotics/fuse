@@ -121,7 +121,7 @@ public:
     const double* /*x*/,
     double* jacobian) const override
   {
-    jacobian[0] = 1.0;
+    jacobian[0] = -1.0;
     return true;
   }
 
