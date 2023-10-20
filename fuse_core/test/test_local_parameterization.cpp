@@ -158,6 +158,38 @@ TEST(LocalParameterization, MinusJacobian)
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
 }
 
+TEST(LocalParameterization, MinusSameVariablesIsZero)
+{
+  TestLocalParameterization parameterization;
+
+  double x1[3] = {1.0, 2.0, 3.0};
+  double actual[2] = {0.0, 0.0};
+  bool success = parameterization.Minus(x1, x1, actual);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.0, actual[0], 1.0e-5);
+  EXPECT_NEAR(0.0, actual[1], 1.0e-5);
+}
+
+TEST(LocalParameterization, PlusMinus)
+{
+  TestLocalParameterization parameterization;
+
+  const double x1[3] = {1.0, 2.0, 3.0};
+  const double delta[2] = {0.5, 1.0};
+  double x2[3] = {0.0, 0.0, 0.0};
+  bool success = parameterization.Plus(x1, delta, x2);
+
+  ASSERT_TRUE(success);
+
+  double actual[2] = {0.0, 0.0};
+  success = parameterization.Minus(x1, x2, actual);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(delta[0], actual[0], 1.0e-5);
+  EXPECT_NEAR(delta[1], actual[1], 1.0e-5);
+}
+
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
