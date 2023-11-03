@@ -33,6 +33,14 @@
     </description>
   </class>
 
+  <class type="fuse_models::Odometry3DPublisher" base_class_type="fuse_core::Publisher">
+    <description>
+    Publisher plugin that publishes a nav_msgs::msg::Odometry message and broadcasts a tf transform for optimized 3D
+    state data (combination of Position3DStamped, Orientation3DStamped, VelocityLinear3DStamped, and
+    VelocityAngular3DStamped).
+    </description>
+  </class>
+
   <class type="fuse_models::Acceleration2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces 2D linear acceleration constraints from information published by
@@ -59,6 +67,12 @@
     published by another node
     </description>
   </class>
+  <class type="fuse_models::Odometry3D" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
+    published by another node
+    </description>
+  </class>
   <class type="fuse_models::Pose2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces absolute or relative pose constraints from information published by
@@ -79,6 +93,11 @@
   <class type="fuse_models::Unicycle2DIgnition" base_class_type="fuse_core::SensorModel">
     <description>
     A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
+    </description>
+  </class>
+  <class type="fuse_models::Unicycle3DIgnition" base_class_type="fuse_core::SensorModel">
+    <description>
+    A fuse_models ignition sensor designed to be used in conjunction with the unicycle 3D motion model.
     </description>
   </class>
 </library>

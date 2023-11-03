@@ -404,7 +404,6 @@ void FixedLagSmoother::processQueue(
       return;
     }
   }
-
   // Use the most recent transaction time as the current time
   const auto current_time = pending_transactions_.front().stamp();
 

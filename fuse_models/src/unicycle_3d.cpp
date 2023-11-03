@@ -175,7 +175,7 @@ bool Unicycle3D::applyCallback(fuse_core::Transaction & transaction)
   // manager, in turn, makes calls to the generateMotionModel() function.
   try {
     // Now actually generate the motion model segments
-    timestamp_manager_.query(transaction, true);
+    timestamp_manager_.query(transaction, true); 
   } catch (const std::exception & e) {
     RCLCPP_ERROR_STREAM_THROTTLE(
       logger_, *clock_, 10.0 * 1000,
@@ -320,8 +320,6 @@ void Unicycle3D::generateMotionModel(
   } else {
     state1 = base_state;
   }
-  std::cout << "state1:" << std::endl;
-  state1.print(std::cout);
 
   // If dt is zero, we only need to update the state history:
   const double dt = (ending_stamp - beginning_stamp).seconds();
@@ -354,8 +352,6 @@ void Unicycle3D::generateMotionModel(
     state2.vel_angular,
     state2.acc_linear);
 
-  std::cout << "state2:" << std::endl;
-  state2.print(std::cout);
 
   // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position3DStamped::make_shared(beginning_stamp, device_id_);
@@ -384,16 +380,6 @@ void Unicycle3D::generateMotionModel(
   position1->data()[fuse_variables::Position3DStamped::Y] = state1.position.y();
   position1->data()[fuse_variables::Position3DStamped::Z] = state1.position.z();
 
-  // fuse_core::Quaternion q;
-  // q = Eigen::AngleAxisd(state1.orientation.x(), Eigen::Vector3d::UnitX()) *
-  //   Eigen::AngleAxisd(state1.orientation.y(), Eigen::Vector3d::UnitY()) *
-  //   Eigen::AngleAxisd(state1.orientation.z(), Eigen::Vector3d::UnitZ());
-  
-  // orientation1->data()[fuse_variables::Orientation3DStamped::X] = q.x();
-  // orientation1->data()[fuse_variables::Orientation3DStamped::Y] = q.y();
-  // orientation1->data()[fuse_variables::Orientation3DStamped::Z] = q.z();
-  // orientation1->data()[fuse_variables::Orientation3DStamped::W] = q.w();
-
   orientation1->data()[fuse_variables::Orientation3DStamped::X] = state1.orientation.x();
   orientation1->data()[fuse_variables::Orientation3DStamped::Y] = state1.orientation.y();
   orientation1->data()[fuse_variables::Orientation3DStamped::Z] = state1.orientation.z();
@@ -418,15 +404,6 @@ void Unicycle3D::generateMotionModel(
   position2->data()[fuse_variables::Position3DStamped::Y] = state2.position.y();
   position2->data()[fuse_variables::Position3DStamped::Z] = state2.position.z();
   
-  // q = Eigen::AngleAxisd(state2.orientation.x(), Eigen::Vector3d::UnitX()) *
-    // Eigen::AngleAxisd(state2.orientation.y(), Eigen::Vector3d::UnitY()) *
-    // Eigen::AngleAxisd(state2.orientation.z(), Eigen::Vector3d::UnitZ());
-// 
-  // orientation2->data()[fuse_variables::Orientation3DStamped::X] = q.x();
-  // orientation2->data()[fuse_variables::Orientation3DStamped::Y] = q.y();
-  // orientation2->data()[fuse_variables::Orientation3DStamped::Z] = q.z();
-  // orientation2->data()[fuse_variables::Orientation3DStamped::Z] = q.w();
-
   orientation2->data()[fuse_variables::Orientation3DStamped::X] = state2.orientation.x();
   orientation2->data()[fuse_variables::Orientation3DStamped::Y] = state2.orientation.y();
   orientation2->data()[fuse_variables::Orientation3DStamped::Z] = state2.orientation.z();
@@ -621,7 +598,7 @@ void Unicycle3D::updateStateHistoryEstimates(
 
 void Unicycle3D::validateMotionModel(
   const StateHistoryElement & state1, const StateHistoryElement & state2,
-  const fuse_core::Matrix16d & process_noise_covariance)
+  const fuse_core::Matrix15d & process_noise_covariance)
 {
   try {
     state1.validate();

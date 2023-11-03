@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_3D_COST_FUNCTOR_HPP_
-#define FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_3D_COST_FUNCTOR_HPP_
+#ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_3D_EULER_COST_FUNCTOR_HPP_
+#define FUSE_CONSTRAINTS__NORMAL_DELTA_ORIENTATION_3D_EULER_COST_FUNCTOR_HPP_
 
 #include <ceres/rotation.h>
 #include <Eigen/Core>
@@ -48,18 +48,17 @@ namespace fuse_constraints
 
 /**
  * @brief Implements a cost function that models a difference between 3D orientation variables
- *        (quaternion)
+ *        (quaternion, but converted in RPY for residual computation)
  *
  * The cost function is of the form:
  *
  *             ||                                  ||^2
- *   cost(x) = || A * AngleAxis(b^-1 * q1^-1 * q2) ||
+ *   cost(x) = || A * quat2rpy(b^-1 * q1^-1 * q2) ||
  *             ||                                  ||
  *
  * where the matrix A and the vector b are fixed, and q1 and q2 are the variables, represented as
- * quaternions. The AngleAxis function converts a quaternion into a 3-vector of the form theta*k,
- * where k is the unit vector axis of rotation and theta is the angle of rotation. The A matrix is
- * applied to the angle-axis 3-vector.
+ * quaternions. The quat2rpy function converts a quaternion into a euler angles vector. 
+ * The A matrix is applied to the euler angles vector.
  *
  * In case the user is interested in implementing a cost function of the form
  *
@@ -68,23 +67,27 @@ namespace fuse_constraints
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
  * square root information matrix (the inverse of the covariance).
  */
-class NormalDeltaOrientation3DCostFunctor
+class NormalDeltaOrientation3DEulerCostFunctor
 {
 public:
   FUSE_MAKE_ALIGNED_OPERATOR_NEW()
+  using Euler = fuse_variables::Orientation3DStamped::Euler;
 
   /**
    * @brief Construct a cost function instance
    *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
    *              order (x, y, z)
-   * @param[in] b The measured change between the two orientation variables
+   * @param[in] b The measured change between the two orientation variables (quaternion)
+   * @param[in] axes The axes to be considered in the cost function
    */
-  NormalDeltaOrientation3DCostFunctor(
+  NormalDeltaOrientation3DEulerCostFunctor(
     const fuse_core::Matrix3d & A,
-    const fuse_core::Vector4d & b)
+    const fuse_core::Vector4d & b,
+    std::vector<Euler> axes)
   : A_(A),
-    b_(b)
+    b_(b),
+    axes_(axes)
   {
   }
 
@@ -116,13 +119,45 @@ public:
     ceres::QuaternionProduct(orientation1_inverse, orientation2, difference);
     T error[4];
     ceres::QuaternionProduct(observation_inverse, difference, error);
-    ceres::QuaternionToAngleAxis(error, residuals);
-
+    // instead of QuaternionToAngleAxis we implement QuaternionToRPY 
+    // and filter the result based on the requested measurement axes 
+    // ceres::QuaternionToAngleAxis(error, residuals);
+    
+    for (size_t i = 0; i < axes_.size(); ++i) {
+      T angle;
+      switch (axes_[i]) {
+        case Euler::ROLL:
+          {
+            angle = fuse_core::getRoll(
+              error[0], error[1], error[2], error[3]);
+            break;
+          }
+        case Euler::PITCH:
+          {
+            angle =
+              fuse_core::getPitch(
+                error[0], error[1], error[2], error[3]);
+            break;
+          }
+        case Euler::YAW:
+          {
+            angle =
+              fuse_core::getYaw(
+                error[0], error[1], error[2], error[3]);
+            break;
+          }
+        default:
+          {
+            throw std::runtime_error(
+                    "The provided axis specified is unknown. "
+                    "I should probably be more informative here");
+          }
+      }
+      residuals[i] = angle;
+    }
     // Scale the residuals by the square root information matrix to account for the measurement
     // uncertainty.
-    // TODO: Probably here we can set 3 as row dimension instead of Eigen::Dynamic
-    // Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
-    Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residuals, A_.rows());
+    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
     residuals_map.applyOnTheLeft(A_.template cast<T>());
 
     return true;
@@ -132,6 +167,7 @@ private:
   fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root
                            //!< information matrix
   fuse_core::Vector4d b_;  //!< The measured difference between orientation1 and orientation2
+  std::vector<Euler> axes_; //!< The axes to use for the orientation error.
 };
 
 }  // namespace fuse_constraints

@@ -62,7 +62,7 @@ Unicycle3DStateKinematicConstraint::Unicycle3DStateKinematicConstraint(
   const fuse_variables::VelocityLinear3DStamped & velocity_linear2,
   const fuse_variables::VelocityAngular3DStamped & velocity_angular2,
   const fuse_variables::AccelerationLinear3DStamped & acceleration_linear2,
-  const fuse_core::Matrix16d & covariance)
+  const fuse_core::Matrix15d & covariance)
 : fuse_core::Constraint( // TODO: check if there is a constructor for these arguments
     source,
     {position1.uuid(),
@@ -104,7 +104,8 @@ ceres::CostFunction * Unicycle3DStateKinematicConstraint::costFunction() const
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
   // use automatic differentiation as follows:
   //
-  return new ceres::AutoDiffCostFunction<Unicycle3DStateCostFunctor, 16, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>( new Unicycle3DStateCostFunctor(dt_, sqrt_information_));
+  return new ceres::AutoDiffCostFunction<Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
+    new Unicycle3DStateCostFunctor(dt_, sqrt_information_));
   //
   // which requires:
   //

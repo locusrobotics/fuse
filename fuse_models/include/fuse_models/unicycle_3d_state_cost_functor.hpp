@@ -34,6 +34,7 @@
 #ifndef FUSE_MODELS__UNICYCLE_3D_STATE_COST_FUNCTOR_HPP_
 #define FUSE_MODELS__UNICYCLE_3D_STATE_COST_FUNCTOR_HPP_
 
+// #include <fuse_models/unicycle_3d_predict_no_vec.hpp>
 #include <fuse_models/unicycle_3d_predict.hpp>
 
 #include <fuse_core/eigen.hpp>
@@ -49,7 +50,7 @@ namespace fuse_models
  *
  * The state vector includes the following quantities, given in this order:
  *   pose translation x, y, z
- *   pose orientation (in quaternion) x, y, z, w
+ *   pose orientation (in quaternion) w, x, y, z
  *   linear velocity x, y, z
  *   angular velocity x, y, z
  *   linear acceleration x, y, z
@@ -89,21 +90,21 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
    *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc)
    */
-  Unicycle3DStateCostFunctor(const double dt, const fuse_core::Matrix16d & A);
+  Unicycle3DStateCostFunctor(const double dt, const fuse_core::Matrix15d & A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
-   * @param[in] position1 - First position (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] orientation1 - First orientation (array with x at index 0, y at index 1, z at index 2, w at index 3)
-   * @param[in] vel_linear1 - First linear velocity (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] vel_angular1 - First angular velocity (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] acc_linear1 - First linear acceleration (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] position2 - Second position (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] orientation2 - Second orientation (array with x at index 0, y at index 1, z at index 2, w at index 3)
-   * @param[in] vel_linear2 - Second linear velocity (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] vel_angular2 - Second angular velocity (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] acc_linear2 - Second linear acceleration (array with x at index 0, y at index 1, z at index 2)
-   * @param[out] residual - The computed residual (error)
+   * @param[in] position1    - First position (array with x at index 0, y at index 1, z at index 2)
+   * @param[in] orientation1 - First orientation (array with w at index 0, x at index 1, y at index 2, z at index 3) check this order
+   * @param[in] vel_linear1  - First linear velocity (array with x at index 0, y at index 1, z at index 2)
+   * @param[in] vel_angular1 - First angular velocity (array with vroll at index 0, vpitch at index 1, vyaw at index 2)
+   * @param[in] acc_linear1  - First linear acceleration (array with x at index 0, y at index 1, z at index 2)
+   * @param[in] dt - The time delta across which to predict the state
+   * @param[out] position2 - Second position (array with x at index 0, y at index 1, z at index 2)
+   * @param[out] orientation2 - Second orientation (array with w at index 0, x at index 1, y at index 2, z at index 3) check this order
+   * @param[out] vel_linear2  - Second velocity (array with x at index 0, y at index 1, z at index 2)
+   * @param[out] vel_angular2 - Second yaw velocity (array with vroll at index 0, vpitch at index 1, vyaw at index 2)
+   * @param[out] acc_linear2  - Second linear acceleration (array with x at index 0, y at index 1, z at index 2)
    */
   template<typename T>
   bool operator()(
@@ -121,13 +122,13 @@ public:
 
 private:
   double dt_;
-  fuse_core::Matrix16d A_;  //!< The residual weighting matrix, most likely the square root
+  fuse_core::Matrix15d A_;  //!< The residual weighting matrix, most likely the square root
                            //!< information matrix
 };
 
 Unicycle3DStateCostFunctor::Unicycle3DStateCostFunctor(
   const double dt,
-  const fuse_core::Matrix16d & A)
+  const fuse_core::Matrix15d & A)
 : dt_(dt),
   A_(A)
 {
@@ -147,11 +148,11 @@ bool Unicycle3DStateCostFunctor::operator()(
   const T * const acc_linear2,
   T * residual) const
 {
-  T position_pred[3];
-  T orientation_pred[4];
-  T vel_linear_pred[3];
-  T vel_angular_pred[3];
-  T acc_linear_pred[3];
+  T position_pred[3] {T(0.0)};
+  T orientation_pred[4] {T(0.0)};
+  T vel_linear_pred[3] {T(0.0)};
+  T vel_angular_pred[3] {T(0.0)};
+  T acc_linear_pred[3] {T(0.0)};
   predict(
     position1,
     orientation1,
@@ -165,12 +166,9 @@ bool Unicycle3DStateCostFunctor::operator()(
     vel_angular_pred,
     acc_linear_pred);
 
-  Eigen::Map<Eigen::Matrix<T, 16, 1>> residuals_map(residual);
-  Eigen::Map<Eigen::Quaternion<T>> q_pred(orientation_pred);
-  Eigen::Quaternion<T> q2(orientation2[3], orientation2[0], orientation2[1], orientation2[2]);
-  Eigen::Quaternion<T> q_res;
-  // q_pred(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
-  q_res = q2.inverse() * q_pred;
+  Eigen::Map<Eigen::Matrix<T, 15, 1>> residuals_map(residual);
+  Eigen::Map<const Eigen::Quaternion<T>> q_pred(orientation_pred), q2(orientation2);
+  Eigen::Quaternion<T> q_res = q2.inverse() * q_pred;
 
   residuals_map(0) = T(position2[0] - position_pred[0]);
   residuals_map(1) = T(position2[1] - position_pred[1]);
@@ -178,19 +176,16 @@ bool Unicycle3DStateCostFunctor::operator()(
   residuals_map(3) = T(q_res.x());
   residuals_map(4) = T(q_res.y());
   residuals_map(5) = T(q_res.z());
-  residuals_map(6) = T(q_res.w());
-  residuals_map(7) = T(vel_linear2[0] - vel_linear_pred[0]);
-  residuals_map(8) = T(vel_linear2[1] - vel_linear_pred[1]);
-  residuals_map(9) = T(vel_linear2[2] - vel_linear_pred[2]);
-  residuals_map(10) = T(vel_angular2[0] - vel_angular_pred[0]);
-  residuals_map(11) = T(vel_angular2[1] - vel_angular_pred[1]);
-  residuals_map(12) = T(vel_angular2[2] - vel_angular_pred[2]);
-  residuals_map(13) = T(acc_linear2[0] - acc_linear_pred[0]);
-  residuals_map(14) = T(acc_linear2[1] - acc_linear_pred[1]);
-  residuals_map(15) = T(acc_linear2[2] - acc_linear_pred[2]);
-
-  // This should be already done in the predict function
-  // fuse_core::wrapAngle2D(residuals_map(2));
+  // residuals_map(6) = T(q_res.w());
+  residuals_map(6) = T(vel_linear2[0] - vel_linear_pred[0]);
+  residuals_map(7) = T(vel_linear2[1] - vel_linear_pred[1]);
+  residuals_map(8) = T(vel_linear2[2] - vel_linear_pred[2]);
+  residuals_map(9) = T(vel_angular2[0] - vel_angular_pred[0]);
+  residuals_map(10) = T(vel_angular2[1] - vel_angular_pred[1]);
+  residuals_map(11) = T(vel_angular2[2] - vel_angular_pred[2]);
+  residuals_map(12) = T(acc_linear2[0] - acc_linear_pred[0]);
+  residuals_map(13) = T(acc_linear2[1] - acc_linear_pred[1]);
+  residuals_map(14) = T(acc_linear2[2] - acc_linear_pred[2]);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.

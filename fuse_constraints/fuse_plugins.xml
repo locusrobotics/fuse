@@ -5,9 +5,21 @@
     the 2D angular acceleration.
     </description>
   </class>
+  <class type="fuse_constraints::AbsoluteAccelerationAngular3DStampedConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents either prior information about a 3D angular acceleration, or a direct measurement of
+    the 2D angular acceleration.
+    </description>
+  </class>
   <class type="fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 2D linear acceleration, or a direct measurement of
+    the 2D linear acceleration.
+    </description>
+  </class>
+  <class type="fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents either prior information about a 3D linear acceleration, or a direct measurement of
     the 2D linear acceleration.
     </description>
   </class>
@@ -35,9 +47,21 @@
     the 2D angular velocity.
     </description>
   </class>
+  <class type="fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents either prior information about a 3D angular velocity, or a direct measurement of
+    the 2D angular velocity.
+    </description>
+  </class>
   <class type="fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 2D linear velocity, or a direct measurement of
+    the 2D linear velocity.
+    </description>
+  </class>
+  <class type="fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents either prior information about a 3D linear velocity, or a direct measurement of
     the 2D linear velocity.
     </description>
   </class>
@@ -60,7 +84,12 @@
   </class>
   <class type="fuse_constraints::AbsolutePose3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
-    A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose.
+    A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose in quat.
+    </description>
+  </class>
+  <class type="fuse_constraints::AbsolutePose3DStampedEulerConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose in rpy.
     </description>
   </class>
   <class type="fuse_constraints::MarginalConstraint" base_class_type="fuse_core::Constraint">
@@ -116,6 +145,11 @@
   <class type="fuse_constraints::RelativePose3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents a measurement on the difference between two 3D poses.
+    </description>
+  </class>
+  <class type="fuse_constraints::RelativePose3DStampedEulerConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents a measurement on the difference between two 3D poses in rpy.
     </description>
   </class>
 </library>

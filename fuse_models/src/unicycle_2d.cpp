@@ -174,8 +174,6 @@ bool Unicycle2D::applyCallback(fuse_core::Transaction & transaction)
   // manager, in turn, makes calls to the generateMotionModel() function.
   try {
     // Now actually generate the motion model segments
-    std::cout << "Transaction: " << std::endl;
-    transaction.print(std::cout);
     timestamp_manager_.query(transaction, true);
   } catch (const std::exception & e) {
     RCLCPP_ERROR_STREAM_THROTTLE(
@@ -311,8 +309,6 @@ void Unicycle2D::generateMotionModel(
   } else {
     state1 = base_state;
   }
-  // std::cout << "State1: " << state1 << std::endl;
-  state1.print(std::cout);
 
   // If dt is zero, we only need to update the state history:
   const double dt = (ending_stamp - beginning_stamp).seconds();
@@ -344,10 +340,7 @@ void Unicycle2D::generateMotionModel(
     state2.velocity_linear,
     state2.velocity_yaw,
     state2.acceleration_linear);
-  
-  // std::cout << "State2: " << state2 << std::endl;
-  state2.print(std::cout);
-
+   
   // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position2DStamped::make_shared(beginning_stamp, device_id_);
   auto yaw1 = fuse_variables::Orientation2DStamped::make_shared(beginning_stamp, device_id_);

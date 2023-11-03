@@ -82,21 +82,28 @@ public:
 
   int GlobalSize() const override
   {
+    // the manifold is the quaternion space, which is 4D
     return 4;
   }
 
   int LocalSize() const override
   {
+    // the local tangent space is the angle-axis space, which is 3D
     return 3;
   }
 
+  // the box-plus operator: given a quaternion x and a tangent vector delta, this function computes
+  // the perturbed quaternion x_plus_delta
   bool Plus(
     const double * x,
     const double * delta,
     double * x_plus_delta) const override
   {
     double q_delta[4];
+    // exponential map: transform a delta in tangent space into a delta in the manifold
     ceres::AngleAxisToQuaternion(delta, q_delta);
+    // manifold group product operation (in this case is the quaternion product)
+    // this combines the delta with the current value
     ceres::QuaternionProduct(x, q_delta, x_plus_delta);
     return true;
   }

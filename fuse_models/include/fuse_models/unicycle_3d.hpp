@@ -109,12 +109,12 @@ protected:
     fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated linear acceleration
                                           //!< variable
 
-    fuse_core::Vector3d position;         //!< Map-frame position
+    fuse_core::Vector3d position = fuse_core::Vector3d::Zero();         //!< Map-frame position
     // fuse_core::Vector3d orientation;      //!< Map-frame orientation (roll, pitch, yaw)
-    fuse_core::Quaternion orientation;      //!< Map-frame orientation (quaternion)
-    fuse_core::Vector3d vel_linear;       //!< Body-frame linear velocities
-    fuse_core::Vector3d vel_angular;      //!< Body-frame angular velocities
-    fuse_core::Vector3d acc_linear;       //!< Body-frame linear (angular not needed) accelerations
+    fuse_core::Quaternion orientation = {1.0, 0.0, 0.0, 0.0};      //!< Map-frame orientation (quaternion)
+    fuse_core::Vector3d vel_linear = fuse_core::Vector3d::Zero();       //!< Body-frame linear velocities
+    fuse_core::Vector3d vel_angular = fuse_core::Vector3d::Zero();      //!< Body-frame angular velocities
+    fuse_core::Vector3d acc_linear = fuse_core::Vector3d::Zero();       //!< Body-frame linear (angular not needed) accelerations
 
     void print(std::ostream & stream = std::cout) const;
 
@@ -207,7 +207,7 @@ protected:
    */
   static void validateMotionModel(
     const StateHistoryElement & state1, const StateHistoryElement & state2,
-    const fuse_core::Matrix16d & process_noise_covariance);
+    const fuse_core::Matrix15d & process_noise_covariance);
 
   fuse_core::node_interfaces::NodeInterfaces<
     fuse_core::node_interfaces::Base,
@@ -225,7 +225,7 @@ protected:
   fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
   fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created
                                                    //!< motion model segments
-  fuse_core::Matrix16d process_noise_covariance_;  //!< Process noise covariance matrix
+  fuse_core::Matrix15d process_noise_covariance_;  //!< Process noise covariance matrix
   bool scale_process_noise_{false};                //!< Whether to scale the process noise
                                                    //!< covariance pose by the norm of the current
                                                    //!< state twist

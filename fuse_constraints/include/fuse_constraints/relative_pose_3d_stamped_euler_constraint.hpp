@@ -31,8 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__UNICYCLE_3D_STATE_KINEMATIC_CONSTRAINT_HPP_
-#define FUSE_MODELS__UNICYCLE_3D_STATE_KINEMATIC_CONSTRAINT_HPP_
+#ifndef FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
+#define FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
+
+#include <Eigen/Dense>
 
 #include <ostream>
 #include <string>
@@ -43,100 +45,81 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
-#include <fuse_variables/velocity_angular_3d_stamped.hpp>
-#include <fuse_variables/velocity_linear_3d_stamped.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
 
-namespace fuse_models
+namespace fuse_constraints
 {
 
 /**
- * @brief A class that represents a kinematic constraint between 3D states at two different times
+ * @brief A constraint that represents a measurement on the difference between two 3D poses 
+ *        with orientation in rpy.
  *
- * The fuse_models 3D state is a combination of 3D position, 3D orientation, 3D linear velocity, 3D
- * angular velocity, and 3D linear acceleration.
+ * This type of constraint arises in many situations. Many types of incremental odometry
+ * measurements (e.g., visual odometry) measure the change in the pose, not the pose directly. This
+ * constraint holds the measured 3D pose change and the measurement uncertainty/covariance.
  */
-class Unicycle3DStateKinematicConstraint : public fuse_core::Constraint
+class RelativePose3DStampedEulerConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Unicycle3DStateKinematicConstraint)
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativePose3DStampedEulerConstraint)
+  using Euler = fuse_variables::Orientation3DStamped::Euler;
 
   /**
    * @brief Default constructor
    */
-  Unicycle3DStateKinematicConstraint() = default;
+  RelativePose3DStampedEulerConstraint() = default;
 
   /**
-   * @brief Create a constraint using a time delta and a kinematic model cost functor
+   * @brief Constructor
    *
-   * The constraint is created between two states. The state is broken up into multiple fuse
-   * variable types.
-   *
-   * @param[in] source The name of the sensor or motion model that generated this constraint
-   * @param[in] position1 Position component variable of the fist state
-   * @param[in] orientation1 Orientation component variable of the first state
-   * @param[in] velocity_linear1 Linear velocity component variable of the first state
-   * @param[in] velocity_angular1 Angular velocity component variable of the first state
-   * @param[in] acceleration_linear1 Linear acceleration component variable of the first state
-   * @param[in] position2 Position component variable of the second state
-   * @param[in] orientation2 Orientation component variable of the second state
-   * @param[in] velocity_linear2 Linear velocity component variable of the second state
-   * @param[in] velocity_angular2 Angular velocity component variable of the second state
-   * @param[in] acceleration_linear2 Linear acceleration component variable of the second state
-   * @param[in] covariance - The covariance matrix used to weight the constraint. Order is (x, y, z,
-   *                         roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
-   *                         x_acc, y_acc, z_acc)
+   * @param[in] source            The name of the sensor or motion model that generated this constraint
+   * @param[in] position1         The variable representing the position components of the first pose
+   * @param[in] orientation1      The variable representing the orientation components of the first pose
+   * @param[in] position2         The variable representing the position components of the second pose
+   * @param[in] orientation2      The variable representing the orientation components of the second pose
+   * @param[in] delta             The measured change in the pose (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
+   * @param[in] covariance        The measurement covariance (6x6 matrix: dx, dy, dz, dqx, dqy, dqz)
+   * @param[in] linear_indices    The indices of the linear variables in the variable vector
+   * @param[in] angular_indices   The indices of the angular variables in the variable vector
    */
-  Unicycle3DStateKinematicConstraint(
+  RelativePose3DStampedEulerConstraint(
     const std::string & source,
     const fuse_variables::Position3DStamped & position1,
     const fuse_variables::Orientation3DStamped & orientation1,
-    const fuse_variables::VelocityLinear3DStamped & velocity_linear1,
-    const fuse_variables::VelocityAngular3DStamped & velocity_angular1,
-    const fuse_variables::AccelerationLinear3DStamped & acceleration_linear1,
     const fuse_variables::Position3DStamped & position2,
     const fuse_variables::Orientation3DStamped & orientation2,
-    const fuse_variables::VelocityLinear3DStamped & velocity_linear2,
-    const fuse_variables::VelocityAngular3DStamped & velocity_angular2,
-    const fuse_variables::AccelerationLinear3DStamped & acceleration_linear2,
-    const fuse_core::Matrix15d & covariance);
+    const fuse_core::VectorXd & delta,
+    const fuse_core::MatrixXd & covariance,
+    const std::vector<size_t> & linear_indices,
+    const std::vector<size_t> & angular_indices);
 
   /**
    * @brief Destructor
    */
-  virtual ~Unicycle3DStateKinematicConstraint() = default;
+  virtual ~RelativePose3DStampedEulerConstraint() = default;
 
   /**
-   * @brief Read-only access to the time delta between the first and second state (really, between
-   *        the position1 and position2 variables in the constructor)
+   * @brief Read-only access to the measured pose change.
    */
-  double dt() const {return dt_;}
+  const fuse_core::Vector7d & delta() const {return delta_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
-   *
-   * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
-   *           x_acc, y_acc, z_acc)
    */
-  const fuse_core::Matrix15d & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
-   *
-   * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
-   *           x_acc, y_acc, z_acc)
+   * 
+   * Order is (x, y, z, roll, pitch, yaw)
    */
-  fuse_core::Matrix15d covariance() const
-  {
-    return (sqrt_information_.transpose() * sqrt_information_).inverse();
-  }
+  fuse_core::Matrix6d covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -146,7 +129,7 @@ public:
   void print(std::ostream & stream = std::cout) const override;
 
   /**
-   * @brief Construct an instance of this constraint's cost function
+   * @brief Access the cost function for this constraint
    *
    * The function caller will own the new cost function instance. It is the responsibility of the
    * caller to delete the cost function object when it is no longer needed. If the pointer is
@@ -158,8 +141,10 @@ public:
   ceres::CostFunction * costFunction() const override;
 
 protected:
-  double dt_;  //!< The time delta for the constraint
-  fuse_core::Matrix15d sqrt_information_;  //!< The square root information matrix
+  fuse_core::Vector7d delta_;  //!< The measured pose change (dx, dy, dz, dqw, dqx, dqy, dqz)
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the
+                                          //!< covariance matrix)
+  std::vector<Euler> axes_; //!< The axes to use for the orientation error.
 
 private:
   // Allow Boost Serialization access to private methods
@@ -176,13 +161,14 @@ private:
   void serialize(Archive & archive, const unsigned int /* version */)
   {
     archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & dt_;
+    archive & delta_;
     archive & sqrt_information_;
+    archive & axes_;
   }
 };
 
-}  // namespace fuse_models
+}  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_models::Unicycle3DStateKinematicConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose3DStampedEulerConstraint);
 
-#endif  // FUSE_MODELS__UNICYCLE_3D_STATE_KINEMATIC_CONSTRAINT_HPP_
+#endif  // FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_

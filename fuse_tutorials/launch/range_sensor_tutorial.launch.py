@@ -41,7 +41,9 @@ def generate_launch_description():
             output='screen',
             parameters=[PathJoinSubstitution([
                 pkg_dir, 'config', 'range_sensor_tutorial.yaml'
-            ])]
+            ])],
+            # prefix=["gdbserver localhost:3000"],
+            emulate_tty=True,
         ),
         Node(
             package='rviz2',

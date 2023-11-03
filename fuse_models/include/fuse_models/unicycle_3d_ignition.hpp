@@ -41,7 +41,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_models/parameters/unicycle_2d_ignition_params.hpp>
+#include <fuse_models/parameters/unicycle_3d_ignition_params.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 
@@ -58,12 +58,12 @@ namespace fuse_models
  *        motion model.
  *
  * This class publishes a transaction that contains a prior on each state subvariable used in the
- * unicycle 3D motion model (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
- * yaw_vel, x_acc, and y_acc). When the sensor is first loaded, it publishes a single transaction 
+ * unicycle 3D motion model (x, y, z, qx, qy, qz, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+ * yaw_vel, x_acc, y_acc, z_acc). When the sensor is first loaded, it publishes a single transaction 
  * with the configured initial state and covariance.
  * Additionally, whenever a pose is received, either on the set_pose service or the topic, this
  * ignition sensor resets the optimizer then publishes a new transaction with a prior at the
- * specified pose. Priors on (x_vel, y_vel, yaw_vel, x_acc, and y_acc) continue to use the values
+ * specified pose. Priors on velocities and accelerations continue to use the values
  * configured on the parameter server.
  *
  * Parameters:
@@ -78,7 +78,7 @@ namespace fuse_models
  *                                       yaw_vel, x_acc, y_acc, z_acc).
  *  - ~initial_state (vector of doubles) A 15-dimensional vector containing the initial values for
  *                                       the state. Variable order is (x, y, z, 
- *                                       roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+ *                                       qx, qy, qz, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
  *                                       yaw_vel, x_acc, y_acc, z_acc).
  *  - ~queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before

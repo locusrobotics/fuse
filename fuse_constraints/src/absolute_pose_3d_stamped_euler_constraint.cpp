@@ -34,37 +34,42 @@
 #include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
+#include <algorithm>
 #include <string>
-#include <vector>
 
 #include <boost/serialization/export.hpp>
-#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
-#include <fuse_constraints/normal_prior_pose_2d.hpp>
+#include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
+#include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
 
-AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
+AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
   const std::string & source,
-  const fuse_variables::Position2DStamped & position,
-  const fuse_variables::Orientation2DStamped & orientation,
-  const fuse_core::VectorXd & partial_mean,
-  const fuse_core::MatrixXd & partial_covariance,
+  const fuse_variables::Position3DStamped & position,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const fuse_core::Vector7d & mean,
+  const fuse_core::Matrix6d & covariance,
   const std::vector<size_t> & linear_indices,
   const std::vector<size_t> & angular_indices)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})  // NOLINT(whitespace/braces)
+: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})  // NOLINT
 {
-  size_t total_variable_size = position.size() + orientation.size();
-  size_t total_indices = linear_indices.size() + angular_indices.size();
-
-  assert(partial_mean.rows() == static_cast<int>(total_indices));
-  assert(partial_covariance.rows() == static_cast<int>(total_indices));
-  assert(partial_covariance.cols() == static_cast<int>(total_indices));
+  axes_.resize(angular_indices.size());
+  std::transform(
+    angular_indices.begin(), angular_indices.end(), axes_.begin(),
+    [](const size_t index) 
+    {return static_cast<Euler>(index + 1UL);});
+  
+  // merge indices
+  std::vector<size_t> total_indices;
+  total_indices.reserve(linear_indices.size() + angular_indices.size());
+  std::copy(linear_indices.begin(), linear_indices.end(), std::back_inserter(total_indices));
+  std::copy(angular_indices.begin(), angular_indices.end(), std::back_inserter(total_indices));
 
   // Compute the sqrt information of the provided cov matrix
-  fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
-  std::cout << "partial_sqrt_information: \n" << partial_sqrt_information << std::endl;
+  fuse_core::Matrix6d sqrt_information = covariance.inverse().llt().matrixU();
+  // std::cout << "sqrt_information = " << "\n" << sqrt_information << std::endl;
 
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper
   // Variable order
@@ -72,25 +77,28 @@ AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
   // What are we doing here? The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
   // If we are measuring a subset of dimensions, we only want to produce costs for the measured
   // dimensions. But the variable vectors will be full sized. We can make this all work out by
-  // creating a non-square A matrix, where each row computes a cost for one measured dimensions,
+  // creating a non-square A, where each row computes a cost for one measured dimensions,
   // and the columns are in the order defined by the variable.
-  mean_ = fuse_core::VectorXd::Zero(total_variable_size);
-  sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices, total_variable_size);
+  
+  // build partial mean and information matrix
+  mean_ = fuse_core::Vector7d::Zero();
+  sqrt_information_ = fuse_core::Matrix6d::Zero();
+
   for (size_t i = 0; i < linear_indices.size(); ++i) {
-    mean_(linear_indices[i]) = partial_mean(i);
-    sqrt_information_.col(linear_indices[i]) = partial_sqrt_information.col(i);
+    mean_(linear_indices[i]) = mean(linear_indices[i]);
   }
 
-  for (size_t i = linear_indices.size(); i < total_indices; ++i) {
-    size_t final_index = position.size() + angular_indices[i - linear_indices.size()];
-    mean_(final_index) = partial_mean(i);
-    sqrt_information_.col(final_index) = partial_sqrt_information.col(i);
-  }
-  std::cout << "mean_: \n" << mean_.transpose() << std::endl;
-  std::cout << "sqrt_information_: \n" << sqrt_information_ << std::endl;
+  mean_.tail(4) = mean.tail(4);
+
+  for (auto& i : total_indices) {
+    sqrt_information_.col(i) = sqrt_information.col(i);
+  }  
+
+  // std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
+  // std::cout << "mean_ = " << mean_.transpose() << std::endl;
 }
 
-fuse_core::Matrix3d AbsolutePose2DStampedConstraint::covariance() const
+fuse_core::Matrix6d AbsolutePose3DStampedEulerConstraint::covariance() const
 {
   // We want to compute:
   // cov = (sqrt_info' * sqrt_info)^-1
@@ -104,7 +112,7 @@ fuse_core::Matrix3d AbsolutePose2DStampedConstraint::covariance() const
   return pinv * pinv.transpose();
 }
 
-void AbsolutePose2DStampedConstraint::print(std::ostream & stream) const
+void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -120,12 +128,13 @@ void AbsolutePose2DStampedConstraint::print(std::ostream & stream) const
   }
 }
 
-ceres::CostFunction * AbsolutePose2DStampedConstraint::costFunction() const
+ceres::CostFunction * AbsolutePose3DStampedEulerConstraint::costFunction() const
 {
-  return new NormalPriorPose2D(sqrt_information_, mean_);
+  return new ceres::AutoDiffCostFunction<NormalPriorPose3DEulerCostFunctor, 6, 3, 4>(
+    new NormalPriorPose3DEulerCostFunctor(sqrt_information_, mean_, axes_));
 }
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose2DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose2DStampedConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose3DStampedEulerConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose3DStampedEulerConstraint, fuse_core::Constraint);

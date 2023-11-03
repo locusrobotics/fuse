@@ -55,6 +55,7 @@ using Vector7d = Eigen::Matrix<double, 7, 1>;
 using Vector8d = Eigen::Matrix<double, 8, 1>;
 using Vector9d = Eigen::Matrix<double, 9, 1>;
 using Vector15d = Eigen::Matrix<double, 15, 1>;
+using Vector16d = Eigen::Matrix<double, 16, 1>;
 
 using MatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using Matrix1d = Eigen::Matrix<double, 1, 1, Eigen::RowMajor>;

@@ -39,33 +39,34 @@
 #include <stdexcept>
 
 #include <fuse_constraints/absolute_constraint.hpp>
+#include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/sensor_model.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_models/unicycle_2d_ignition.hpp>
+#include <fuse_models/unicycle_3d_ignition.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
-#include <fuse_variables/acceleration_linear_2d_stamped.hpp>
-#include <fuse_variables/orientation_2d_stamped.hpp>
-#include <fuse_variables/position_2d_stamped.hpp>
+#include <fuse_variables/acceleration_linear_3d_stamped.hpp>
+#include <fuse_variables/orientation_3d_stamped.hpp>
+#include <fuse_variables/position_3d_stamped.hpp>
 #include <fuse_variables/stamped.hpp>
-#include <fuse_variables/velocity_angular_2d_stamped.hpp>
-#include <fuse_variables/velocity_linear_2d_stamped.hpp>
+#include <fuse_variables/velocity_angular_3d_stamped.hpp>
+#include <fuse_variables/velocity_linear_3d_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <std_srvs/srv/empty.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2DIgnition, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle3DIgnition, fuse_core::SensorModel);
 
 namespace fuse_models
 {
 
-Unicycle2DIgnition::Unicycle2DIgnition()
+Unicycle3DIgnition::Unicycle3DIgnition()
 : fuse_core::AsyncSensorModel(1),
   started_(false),
   initial_transaction_sent_(false),
@@ -74,7 +75,7 @@ Unicycle2DIgnition::Unicycle2DIgnition()
 {
 }
 
-void Unicycle2DIgnition::initialize(
+void Unicycle3DIgnition::initialize(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   const std::string & name,
   fuse_core::TransactionCallback transaction_callback)
@@ -83,7 +84,7 @@ void Unicycle2DIgnition::initialize(
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
 }
 
-void Unicycle2DIgnition::onInit()
+void Unicycle3DIgnition::onInit()
 {
   logger_ = interfaces_.get_node_logging_interface()->get_logger();
   clock_ = interfaces_.get_node_clock_interface()->get_clock();
@@ -112,7 +113,7 @@ void Unicycle2DIgnition::onInit()
     interfaces_,
     params_.topic,
     params_.queue_size,
-    std::bind(&Unicycle2DIgnition::subscriberCallback, this, std::placeholders::_1),
+    std::bind(&Unicycle3DIgnition::subscriberCallback, this, std::placeholders::_1),
     sub_options
   );
 
@@ -123,7 +124,7 @@ void Unicycle2DIgnition::onInit()
       interfaces_.get_node_base_interface()->get_name(),
       params_.set_pose_service),
     std::bind(
-      &Unicycle2DIgnition::setPoseServiceCallback, this, std::placeholders::_1,
+      &Unicycle3DIgnition::setPoseServiceCallback, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3),
     rclcpp::ServicesQoS(),
     cb_group_
@@ -135,14 +136,14 @@ void Unicycle2DIgnition::onInit()
       interfaces_.get_node_base_interface()->get_name(),
       params_.set_pose_deprecated_service),
     std::bind(
-      &Unicycle2DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
+      &Unicycle3DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3),
     rclcpp::ServicesQoS(),
     cb_group_
   );
 }
 
-void Unicycle2DIgnition::start()
+void Unicycle3DIgnition::start()
 {
   started_ = true;
 
@@ -151,25 +152,30 @@ void Unicycle2DIgnition::start()
   //                 transaction immediately, if requested
   if (params_.publish_on_startup && !initial_transaction_sent_) {
     auto pose = geometry_msgs::msg::PoseWithCovarianceStamped();
+    tf2::Quaternion q;
+    q.setRPY(params_.initial_state[3], params_.initial_state[4], params_.initial_state[5]);
     pose.header.stamp = clock_->now();
     pose.pose.pose.position.x = params_.initial_state[0];
     pose.pose.pose.position.y = params_.initial_state[1];
-    pose.pose.pose.orientation =
-      tf2::toMsg(tf2::Quaternion(tf2::Vector3(0.0, 0.0, 1.0), params_.initial_state[2]));
-    pose.pose.covariance[0] = params_.initial_sigma[0] * params_.initial_sigma[0];
-    pose.pose.covariance[7] = params_.initial_sigma[1] * params_.initial_sigma[1];
-    pose.pose.covariance[35] = params_.initial_sigma[2] * params_.initial_sigma[2];
+    pose.pose.pose.position.z = params_.initial_state[2];
+    pose.pose.pose.orientation.x = q.x();
+    pose.pose.pose.orientation.y = q.y();
+    pose.pose.pose.orientation.z = q.z();
+    pose.pose.pose.orientation.w = q.w();
+    for (size_t i = 0; i < 6; i++) {
+      pose.pose.covariance[i * 7] = params_.initial_sigma[i] * params_.initial_sigma[i];
+    }
     sendPrior(pose);
     initial_transaction_sent_ = true;
   }
 }
 
-void Unicycle2DIgnition::stop()
+void Unicycle3DIgnition::stop()
 {
   started_ = false;
 }
 
-void Unicycle2DIgnition::subscriberCallback(
+void Unicycle3DIgnition::subscriberCallback(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
 {
   try {
@@ -179,7 +185,7 @@ void Unicycle2DIgnition::subscriberCallback(
   }
 }
 
-bool Unicycle2DIgnition::setPoseServiceCallback(
+bool Unicycle3DIgnition::setPoseServiceCallback(
   rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
   std::shared_ptr<rmw_request_id_t> request_id,
   const fuse_msgs::srv::SetPose::Request::SharedPtr req)
@@ -202,7 +208,7 @@ bool Unicycle2DIgnition::setPoseServiceCallback(
   return true;
 }
 
-bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
+bool Unicycle3DIgnition::setPoseDeprecatedServiceCallback(
   rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
   std::shared_ptr<rmw_request_id_t> request_id,
   const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req)
@@ -222,7 +228,7 @@ bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
   return true;
 }
 
-void Unicycle2DIgnition::process(
+void Unicycle3DIgnition::process(
   const geometry_msgs::msg::PoseWithCovarianceStamped & pose, std::function<void()> post_process)
 {
   // Verify we are in the correct state to process set pose requests
@@ -230,11 +236,12 @@ void Unicycle2DIgnition::process(
     throw std::runtime_error("Attempting to set the pose while the sensor is stopped.");
   }
   // Validate the requested pose and covariance before we do anything
-  if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y)) {
+  if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y) || !std::isfinite(pose.pose.pose.position.z)) {
     throw std::invalid_argument(
             "Attempting to set the pose to an invalid position (" +
             std::to_string(pose.pose.pose.position.x) + ", " +
-            std::to_string(pose.pose.pose.position.y) + ").");
+            std::to_string(pose.pose.pose.position.y) + ", " +
+            std::to_string(pose.pose.pose.position.z) + ").");
   }
   auto orientation_norm = std::sqrt(
     pose.pose.pose.orientation.x * pose.pose.pose.orientation.x +
@@ -249,12 +256,18 @@ void Unicycle2DIgnition::process(
             std::to_string(pose.pose.pose.orientation.z) + ", " +
             std::to_string(pose.pose.pose.orientation.w) + ").");
   }
-  auto position_cov = fuse_core::Matrix2d();
-  position_cov << pose.pose.covariance[0], pose.pose.covariance[1],
-    pose.pose.covariance[6], pose.pose.covariance[7];
+  auto position_cov = fuse_core::Matrix3d();
+  // for (size_t i = 0; i < 3; i++) {
+  //   for (size_t j = 0; j < 3; j++) {
+  //     position_cov(i, j) = pose.pose.covariance[i * 6 + j];
+  //   }
+  // }
+  position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2],
+                  pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
+                  pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
   if (!fuse_core::isSymmetric(position_cov)) {
     throw std::invalid_argument(
-            "Attempting to set the pose with a non-symmetric position covariance matri\n " +
+            "Attempting to set the pose with a non-symmetric position covariance matrix\n " +
             fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
   if (!fuse_core::isPositiveDefinite(position_cov)) {
@@ -262,14 +275,25 @@ void Unicycle2DIgnition::process(
             "Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
             fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
-  auto orientation_cov = fuse_core::Matrix1d();
-  orientation_cov << pose.pose.covariance[35];
-  if (orientation_cov(0) <= 0.0) {
+  auto orientation_cov = fuse_core::Matrix3d();
+  // for (size_t i = 0; i < 3; i++) {
+  //   for (size_t j = 0; j < 3; j++) {
+  //     position_cov(i, j) = pose.pose.covariance[3+i * 6 + j];
+  //   }
+  // }
+  orientation_cov << pose.pose.covariance[21], pose.pose.covariance[22], pose.pose.covariance[23],
+                     pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
+                     pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
+  if (!fuse_core::isSymmetric(orientation_cov)) {
     throw std::invalid_argument(
-            "Attempting to set the pose with a non-positive-definite orientation covariance "
-            "matrix " + fuse_core::to_string(orientation_cov) + ".");
+            "Attempting to set the pose with a non-symmetric orientation covariance matrix\n " +
+            fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
   }
-
+  if (!fuse_core::isPositiveDefinite(orientation_cov)) {
+    throw std::invalid_argument(
+            "Attempting to set the pose with a non-positive-definite orientation_cov covariance matrix\n" +
+            fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
+  }
   // Tell the optimizer to reset before providing the initial state
   if (!params_.reset_service.empty()) {
     // Wait for the reset service
@@ -304,79 +328,104 @@ void Unicycle2DIgnition::process(
   }
 }
 
-void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
+void Unicycle3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
 {
   const auto & stamp = pose.header.stamp;
 
   // Create variables for the full state.
   // The initial values of the pose are extracted from the provided PoseWithCovarianceStamped
   // message. The remaining dimensions are provided as parameters to the parameter server.
-  auto position = fuse_variables::Position2DStamped::make_shared(stamp, device_id_);
+  auto position = fuse_variables::Position3DStamped::make_shared(stamp, device_id_);
   position->x() = pose.pose.pose.position.x;
   position->y() = pose.pose.pose.position.y;
-  auto orientation = fuse_variables::Orientation2DStamped::make_shared(stamp, device_id_);
-  orientation->yaw() = fuse_core::getYaw(
-    pose.pose.pose.orientation.w,
-    pose.pose.pose.orientation.x,
-    pose.pose.pose.orientation.y,
-    pose.pose.pose.orientation.z);
-  auto linear_velocity = fuse_variables::VelocityLinear2DStamped::make_shared(stamp, device_id_);
-  linear_velocity->x() = params_.initial_state[3];
-  linear_velocity->y() = params_.initial_state[4];
-  auto angular_velocity = fuse_variables::VelocityAngular2DStamped::make_shared(stamp, device_id_);
-  angular_velocity->yaw() = params_.initial_state[5];
-  auto linear_acceleration = fuse_variables::AccelerationLinear2DStamped::make_shared(
-    stamp,
-    device_id_);
-  linear_acceleration->x() = params_.initial_state[6];
-  linear_acceleration->y() = params_.initial_state[7];
+  position->z() = pose.pose.pose.position.z;
+  auto orientation = fuse_variables::Orientation3DStamped::make_shared(stamp, device_id_);
+  orientation->w() = pose.pose.pose.orientation.w;
+  orientation->x() = pose.pose.pose.orientation.x;
+  orientation->y() = pose.pose.pose.orientation.y;
+  orientation->z() = pose.pose.pose.orientation.z;
+  auto linear_velocity = fuse_variables::VelocityLinear3DStamped::make_shared(stamp, device_id_);
+  linear_velocity->x() = params_.initial_state[6];
+  linear_velocity->y() = params_.initial_state[7];
+  linear_velocity->z() = params_.initial_state[8];
+  auto angular_velocity = fuse_variables::VelocityAngular3DStamped::make_shared(stamp, device_id_);
+  angular_velocity->roll() = params_.initial_state[9];
+  angular_velocity->pitch() = params_.initial_state[10];
+  angular_velocity->yaw() = params_.initial_state[11];
+  auto linear_acceleration = fuse_variables::AccelerationLinear3DStamped::make_shared(stamp, device_id_);
+  linear_acceleration->x() = params_.initial_state[12];
+  linear_acceleration->y() = params_.initial_state[13];
+  linear_acceleration->z() = params_.initial_state[14];
 
   // Create the covariances for each variable
   // The pose covariances are extracted from the provided PoseWithCovarianceStamped message.
   // The remaining covariances are provided as parameters to the parameter server.
-  auto position_cov = fuse_core::Matrix2d();
-  position_cov << pose.pose.covariance[0], pose.pose.covariance[1],
-    pose.pose.covariance[6], pose.pose.covariance[7];
-  auto orientation_cov = fuse_core::Matrix1d();
-  orientation_cov << pose.pose.covariance[35];
-  auto linear_velocity_cov = fuse_core::Matrix2d();
-  linear_velocity_cov << params_.initial_sigma[3] * params_.initial_sigma[3], 0.0,
-    0.0, params_.initial_sigma[4] * params_.initial_sigma[4];
-  auto angular_velocity_cov = fuse_core::Matrix1d();
-  angular_velocity_cov << params_.initial_sigma[5] * params_.initial_sigma[5];
-  auto linear_acceleration_cov = fuse_core::Matrix2d();
-  linear_acceleration_cov << params_.initial_sigma[6] * params_.initial_sigma[6], 0.0,
-    0.0, params_.initial_sigma[7] * params_.initial_sigma[7];
+  auto position_cov = fuse_core::Matrix3d();
+  auto orientation_cov = fuse_core::Matrix3d();
+  auto linear_velocity_cov = fuse_core::Matrix3d();
+  auto angular_velocity_cov = fuse_core::Matrix3d();
+  auto linear_acceleration_cov = fuse_core::Matrix3d();
 
+  // for (size_t i = 0; i < 3; i++) {
+  //   for (size_t j = 0; j < 3; j++) {
+  //     position_cov(i, j) = pose.pose.covariance[i * 6 + j];
+  //     orientation_cov(i, j) = pose.pose.covariance[(i + 3) * 6 + j + 3];
+  //     if (i == j) {
+  //       linear_velocity_cov(i, j) = params_.initial_sigma[6 + i] * params_.initial_sigma[6 + i];
+  //       angular_velocity_cov(i, j) = params_.initial_sigma[9 + i] * params_.initial_sigma[9 + i];
+  //       linear_acceleration_cov(i, j) = params_.initial_sigma[12 + i] * params_.initial_sigma[12 + i];
+  //     }
+  //   }
+  // }
+
+  position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2],
+                  pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
+                  pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
+
+  orientation_cov << pose.pose.covariance[21], pose.pose.covariance[22], pose.pose.covariance[23],
+                     pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
+                     pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
+  
+  linear_velocity_cov << params_.initial_sigma[6] * params_.initial_sigma[6], 0.0, 0.0,
+                         0.0, params_.initial_sigma[7] * params_.initial_sigma[7], 0.0,
+                         0.0, 0.0, params_.initial_sigma[8] * params_.initial_sigma[8];
+ 
+  angular_velocity_cov << params_.initial_sigma[9] * params_.initial_sigma[9], 0.0, 0.0,
+                          0.0, params_.initial_sigma[10] * params_.initial_sigma[10], 0.0,
+                          0.0, 0.0, params_.initial_sigma[11] * params_.initial_sigma[11];
+  
+  linear_acceleration_cov << params_.initial_sigma[12] * params_.initial_sigma[12], 0.0, 0.0,
+                             0.0, params_.initial_sigma[13] * params_.initial_sigma[13], 0.0,
+                             0.0, 0.0, params_.initial_sigma[14] * params_.initial_sigma[14];
   // Create absolute constraints for each variable
-  auto position_constraint = fuse_constraints::AbsolutePosition2DStampedConstraint::make_shared(
+  auto position_constraint = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
     name(),
     *position,
-    fuse_core::Vector2d(position->x(), position->y()),
+    fuse_core::Vector3d(position->x(), position->y(), position->z()),
     position_cov);
   auto orientation_constraint =
-    fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
+    fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
     name(),
     *orientation,
-    fuse_core::Vector1d(orientation->yaw()),
+    fuse_core::Quaternion(orientation->w(), orientation->x(), orientation->y(), orientation->z()),
     orientation_cov);
   auto linear_velocity_constraint =
-    fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
+    fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint::make_shared(
     name(),
     *linear_velocity,
-    fuse_core::Vector2d(linear_velocity->x(), linear_velocity->y()),
+    fuse_core::Vector3d(linear_velocity->x(), linear_velocity->y(), linear_velocity->z()),
     linear_velocity_cov);
   auto angular_velocity_constraint =
-    fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
+    fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint::make_shared(
     name(),
     *angular_velocity,
-    fuse_core::Vector1d(angular_velocity->yaw()),
+    fuse_core::Vector3d(angular_velocity->roll(), angular_velocity->pitch(), angular_velocity->yaw()),
     angular_velocity_cov);
   auto linear_acceleration_constraint =
-    fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
+    fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint::make_shared(
     name(),
     *linear_acceleration,
-    fuse_core::Vector2d(linear_acceleration->x(), linear_acceleration->y()),
+    fuse_core::Vector3d(linear_acceleration->x(), linear_acceleration->y(), linear_acceleration->z()),
     linear_acceleration_cov);
 
   // Create the transaction
@@ -401,8 +450,9 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
     logger_,
     "Received a set_pose request (stamp: " << rclcpp::Time(stamp).nanoseconds()
                                            << ", x: " << position->x() << ", y: "
-                                           << position->y() << ", yaw: " << orientation->yaw() <<
-      ")");
+                                           << position->y() << ", z: " << position->z() 
+                                           << ", roll: " << orientation->roll()
+                                           << ", pitch: " << orientation->pitch()
+                                           << ", yaw: " << orientation->yaw() << ")");
 }
-
 }  // namespace fuse_models
