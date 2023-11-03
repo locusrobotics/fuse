@@ -58,7 +58,7 @@ namespace fuse_variables
 /**
  * @brief A LocalParameterization class for 3D Orientations.
  *
- * 3D orientations add and subtract nonlinearly. Additionally, the typcial 3D orientation
+ * 3D orientations add and subtract nonlinearly. Additionally, the typical 3D orientation
  * representation is a quaternion, which has 4 degrees of freedom to parameterize a 3D space. This
  * local parameterization uses the Rodrigues/angle-axis formulas to combine 3D rotations, along with
  * the appropriate "analytic" derivatives.

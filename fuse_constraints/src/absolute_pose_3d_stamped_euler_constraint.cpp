@@ -39,7 +39,8 @@
 
 #include <boost/serialization/export.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
-#include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
+// #include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
+#include <fuse_constraints/normal_prior_pose_3d.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
@@ -130,8 +131,10 @@ void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * AbsolutePose3DStampedEulerConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<NormalPriorPose3DEulerCostFunctor, 6, 3, 4>(
-    new NormalPriorPose3DEulerCostFunctor(sqrt_information_, mean_, axes_));
+  // return new ceres::AutoDiffCostFunction<NormalPriorPose3DEulerCostFunctor, 6, 3, 4>(
+    // new NormalPriorPose3DEulerCostFunctor(sqrt_information_, mean_, axes_));
+  
+  return new NormalPriorPose3D(sqrt_information_, mean_);
 }
 
 }  // namespace fuse_constraints
