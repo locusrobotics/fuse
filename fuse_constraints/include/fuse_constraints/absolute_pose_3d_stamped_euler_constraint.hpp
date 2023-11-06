@@ -100,7 +100,7 @@ public:
     const fuse_variables::Position3DStamped & position,
     const fuse_variables::Orientation3DStamped & orientation,
     const fuse_core::Vector7d & mean,
-    const fuse_core::Matrix6d & covariance,
+    const fuse_core::MatrixXd & covariance,
     const std::vector<size_t> & linear_indices,
     const std::vector<size_t> & angular_indices);
   

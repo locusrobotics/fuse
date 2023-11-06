@@ -153,7 +153,8 @@ void Unicycle3DIgnition::start()
   if (params_.publish_on_startup && !initial_transaction_sent_) {
     auto pose = geometry_msgs::msg::PoseWithCovarianceStamped();
     tf2::Quaternion q;
-    q.setRPY(params_.initial_state[3], params_.initial_state[4], params_.initial_state[5]);
+    // q.setRPY(params_.initial_state[3], params_.initial_state[4], params_.initial_state[5]);
+    q.setEuler(params_.initial_state[5], params_.initial_state[4], params_.initial_state[3]);
     pose.header.stamp = clock_->now();
     pose.pose.pose.position.x = params_.initial_state[0];
     pose.pose.pose.position.y = params_.initial_state[1];

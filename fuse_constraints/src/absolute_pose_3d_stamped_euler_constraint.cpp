@@ -51,7 +51,7 @@ AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
   const fuse_variables::Position3DStamped & position,
   const fuse_variables::Orientation3DStamped & orientation,
   const fuse_core::Vector7d & mean,
-  const fuse_core::Matrix6d & covariance,
+  const fuse_core::MatrixXd & covariance,
   const std::vector<size_t> & linear_indices,
   const std::vector<size_t> & angular_indices)
 : fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})  // NOLINT
@@ -69,8 +69,8 @@ AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
   std::copy(angular_indices.begin(), angular_indices.end(), std::back_inserter(total_indices));
 
   // Compute the sqrt information of the provided cov matrix
-  fuse_core::Matrix6d sqrt_information = covariance.inverse().llt().matrixU();
-  // std::cout << "sqrt_information = " << "\n" << sqrt_information << std::endl;
+  fuse_core::MatrixXd partial_sqrt_information = covariance.inverse().llt().matrixU();
+  std::cout << "partial_sqrt_information: \n" << partial_sqrt_information << std::endl;
 
   // Assemble a mean vector and sqrt information matrix from the provided values, but in proper
   // Variable order
@@ -82,21 +82,28 @@ AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
   // and the columns are in the order defined by the variable.
   
   // build partial mean and information matrix
+  // TODO: find a way to insert the zeros inside the full mean vector
   mean_ = fuse_core::Vector7d::Zero();
   sqrt_information_ = fuse_core::Matrix6d::Zero();
 
   for (size_t i = 0; i < linear_indices.size(); ++i) {
     mean_(linear_indices[i]) = mean(linear_indices[i]);
+    sqrt_information_.col(linear_indices[i]) = partial_sqrt_information.col(i);
   }
 
   mean_.tail(4) = mean.tail(4);
 
-  for (auto& i : total_indices) {
-    sqrt_information_.col(i) = sqrt_information.col(i);
+  // for (auto& i : total_indices) {
+    // sqrt_information_.col(i) = sqrt_information.col(i);
+  // }
+  for (size_t i = linear_indices.size(); i < total_indices.size(); ++i) {
+    size_t final_index = position.size() + angular_indices[i - linear_indices.size()];
+    // mean_(final_index) = partial_mean(i);
+    sqrt_information_.col(final_index) = partial_sqrt_information.col(i);
   }  
 
-  // std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
-  // std::cout << "mean_ = " << mean_.transpose() << std::endl;
+  std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
+  std::cout << "mean_ = " << mean_.transpose() << std::endl;
 }
 
 fuse_core::Matrix6d AbsolutePose3DStampedEulerConstraint::covariance() const
@@ -121,7 +128,7 @@ void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
          << "  position variable: " << variables().at(0) << "\n"
          << "  orientation variable: " << variables().at(1) << "\n"
          << "  mean: " << mean().transpose() << "\n"
-         << "  sqrt_info: " << sqrtInformation() << "\n";
+         << "  sqrt_info: \n" << sqrtInformation() << "\n";
 
   if (loss()) {
     stream << "  loss: ";

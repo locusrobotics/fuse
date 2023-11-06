@@ -62,45 +62,39 @@ bool NormalPriorPose3D::Evaluate(
   full_residuals_vector[1] = parameters[0][1] - b_[1];  // position y
   full_residuals_vector[2] = parameters[0][2] - b_[2];  // position z
 
-  // double * qb_inverse[4], q_or[4], q_res[4];
-
-  // qb_inverse = {
-  //      b_(3),
-  //     -b_(4),
-  //     -b_(5),
-  //     -b_(6)
-  //   };
-
-  // q_or = {
-  //     parameters[1][0],
-  //     parameters[1][1],
-  //     parameters[1][2],
-  //     parameters[1][3]
-  //   };
-
-  // ceres::QuaternionProduct(qb_inverse, q_or, q_res);
-
-  Eigen::Map<const Eigen::Quaterniond> q_orientation_map(parameters[1]);
+  // Eigen::Map<const Eigen::Quaterniond> q_orientation_map(parameters[1]);
+  auto q_orientation_map = Eigen::Quaterniond(parameters[1][0], parameters[1][1], parameters[1][2], parameters[1][3]);
   auto qb_inv = Eigen::Quaterniond(b_(3), b_(4), b_(5), b_(6)).conjugate();
   auto q_res = qb_inv * q_orientation_map;
   
   full_residuals_vector[3] = fuse_core::getRoll(q_res.w(), q_res.x(), q_res.y(), q_res.z());  // orientation roll
   full_residuals_vector[4] = fuse_core::getPitch(q_res.w(), q_res.x(), q_res.y(), q_res.z()); // orientation pitch
   full_residuals_vector[5] = fuse_core::getYaw(q_res.w(), q_res.x(), q_res.y(), q_res.z());   // orientation yaw
+
+  std::cout << "q_res: " << q_res.w() << ", " << q_res.x() << ", " << q_res.y() << ", " << q_res.z() << std::endl;
+  std::cout << "full_residuals_vector: " << full_residuals_vector.transpose() << std::endl;
   
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
-  Eigen::Map<fuse_core::VectorXd> residuals_vector(residuals, num_residuals());
+  Eigen::Map<Eigen::VectorXd> residuals_vector(residuals, num_residuals());
   residuals_vector = A_ * full_residuals_vector;
 
   if (jacobians != nullptr) {
     // Jacobian of the position residuals wrt position parameters block (max 3x3)
     if (jacobians[0] != nullptr) {
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 3) = A_.leftCols<3>();
+      Eigen::Map<Eigen::MatrixXd> j0_map(jacobians[0], num_residuals(), 3);
+      j0_map.setZero();
+      j0_map.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
+      // j0_map.leftCols<3>() = A_.block<3, 3>(0, 0);
+      j0_map.applyOnTheLeft(A_);
     }
 
     // Jacobian of the orientation residuals wrt orientation parameters block (max 3x4)
     if (jacobians[1] != nullptr) {
+      
+      Eigen::Map<Eigen::MatrixXd> j1_map(jacobians[1], num_residuals(), 4);
+      j1_map.setZero();
+      
       // We make use of the chain rule of derivatives:
       // First: compute the jacobian of the quaternion product wrt orientation parameters
       fuse_core::Matrix4d dqprod_dq1;
@@ -125,12 +119,37 @@ bool NormalPriorPose3D::Evaluate(
       dqprod_dq1(3, 3) =  qb_inv.w();
 
       // Second: compute the jacobian of the quat2eul function wrt the quaternion residual
-      Eigen::Matrix3_4d dquat2eul_dq;
+      Eigen::Matrix<double, 3, 4> dquat2eul_dq;
       covariance_geometry::jacobianQuaternionToRPY(q_res, dquat2eul_dq);
+      Eigen::PermutationMatrix<4> perm;
+      perm.indices() = {1, 2, 3, 0};
+      dquat2eul_dq.applyOnTheRight(perm);
 
       // Third: apply the chain rule
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), 3) = A_.rightCols<3>() * dquat2eul_dq * dqprod_dq1;
+      // j1_map.rightCols<3>() = (A_.block<3, 3>(3, 3) * dquat2eul_dq * dqprod_dq1).transpose();
+      j1_map.block<3, 4>(3, 0) = dquat2eul_dq * dqprod_dq1;
+      j1_map.applyOnTheLeft(A_);
     }
+
+    std::cout << "residuals: " << residuals_vector.transpose() << std::endl;
+    std::cout << "jacobians[0] : " << std::endl;
+    for (size_t i = 0; i < 24; i++)
+    {
+      if (i % 3 == 0)
+        std::cout << std::endl;
+      std::cout << jacobians[0][i] << ", ";
+    }
+    std::cout << std::endl;
+    std::cout << "eigen jacobians[0]: " << std::endl << Eigen::Map<Eigen::MatrixXd>(jacobians[0], num_residuals(), 3) << std::endl;
+
+    std::cout << "jacobians[1] : " << std::endl;
+    for (size_t i = 0; i < 24; i++)
+    {
+      if (i % 4 == 0)
+        std::cout << std::endl;
+      std::cout << jacobians[1][i] << ", ";
+    } 
+    std::cout << "eigen jacobians[1]: " << std::endl << Eigen::Map<Eigen::MatrixXd>(jacobians[1], num_residuals(), 4) << std::endl;
   }
   return true;
 }

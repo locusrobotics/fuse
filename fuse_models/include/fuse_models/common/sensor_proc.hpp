@@ -218,14 +218,14 @@ inline void populatePartialMeasurement(
   fuse_core::MatrixXd & covariance_partial)
 {
   covariance_partial.setZero();
-  for (auto & i : indices) {
-    covariance_partial.col(i) = covariance_full.col(i);
-  }
-  // for (size_t r = 0; r < indices.size(); ++r) {
-  //   for (size_t c = 0; c < indices.size(); ++c) {
-  //     covariance_partial(r, c) = covariance_full(indices[r], indices[c]);
-  //   }
+  // for (auto & i : indices) {
+  //   covariance_partial.col(i) = covariance_full.col(i);
   // }
+  for (size_t r = 0; r < indices.size(); ++r) {
+    for (size_t c = 0; c < indices.size(); ++c) {
+      covariance_partial(r, c) = covariance_full(indices[r], indices[c]);
+    }
+  }
 }
 
 /**
@@ -422,6 +422,8 @@ inline bool processAbsolutePoseWithCovariance(
       return false;
     }
   }
+  std::cout << "Pose mean partial: \n" << pose_mean_partial << std::endl;
+  std::cout << "Pose covariance partial: \n" << pose_covariance_partial << std::endl;
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -520,9 +522,13 @@ inline bool processAbsolutePose3DWithCovariance(
   Eigen::Map<const fuse_core::Matrix6d> cov_map(pose.pose.covariance.data());
   fuse_core::Matrix6d pose_covariance = cov_map;  // TODO check how to avoid this to not doing copies
 
+  const auto indices = mergeIndices(position_indices, orientation_indices, position->size());
+  fuse_core::MatrixXd pose_covariance_partial(indices.size(), indices.size());
+  populatePartialMeasurement(pose_covariance, indices, pose_covariance_partial);
+
   if (validate) {
     try {
-      validatePartialMeasurement(pose_mean, pose_covariance, 1e-5);
+      validatePartialMeasurement(pose_mean, pose_covariance_partial, 1e-5);
     } catch (const std::runtime_error & ex) {
       RCLCPP_ERROR_STREAM_THROTTLE(
         rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
@@ -539,7 +545,7 @@ inline bool processAbsolutePose3DWithCovariance(
     *position,
     *orientation,
     pose_mean,
-    pose_covariance,
+    pose_covariance_partial,
     position_indices,
     orientation_indices);
   
