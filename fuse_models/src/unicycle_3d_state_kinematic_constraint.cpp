@@ -63,7 +63,7 @@ Unicycle3DStateKinematicConstraint::Unicycle3DStateKinematicConstraint(
   const fuse_variables::VelocityAngular3DStamped & velocity_angular2,
   const fuse_variables::AccelerationLinear3DStamped & acceleration_linear2,
   const fuse_core::Matrix15d & covariance)
-: fuse_core::Constraint( // TODO: check if there is a constructor for these arguments
+: fuse_core::Constraint(
     source,
     {position1.uuid(),
       orientation1.uuid(),

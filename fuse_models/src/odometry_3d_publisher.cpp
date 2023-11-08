@@ -198,7 +198,7 @@ void Odometry3DPublisher::notifyCallback(
         covariance_requests.emplace_back(acceleration_linear_uuid, acceleration_linear_uuid);
 
         std::vector<std::vector<double>> covariance_matrices;
-        graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options);
+        graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options, true);
 
         odom_output.pose.covariance[0] = covariance_matrices[0][0]; // cov(x, x)
         odom_output.pose.covariance[1] = covariance_matrices[0][1]; // cov(x, y)
@@ -407,7 +407,7 @@ bool Odometry3DPublisher::getState(
     auto acceleration_linear_variable =
       dynamic_cast<const fuse_variables::AccelerationLinear3DStamped &>(
       graph.getVariable(acceleration_linear_uuid));
-
+    
     odometry.pose.pose.position.x = position_variable.x();
     odometry.pose.pose.position.y = position_variable.y();
     odometry.pose.pose.position.z = position_variable.z();
@@ -469,8 +469,6 @@ void Odometry3DPublisher::publishTimerCallback()
 
   tf2::Transform pose;
   tf2::fromMsg(odom_output.pose.pose, pose);
-  // covariance_geometry::PoseQuaternionCovarianceRPY pose;
-  // covariance_geometry::fromROS(odom_output.pose, pose);
 
   // If requested, we need to project our state forward in time using the 3D kinematic model
   if (params_.predict_to_current_time) {

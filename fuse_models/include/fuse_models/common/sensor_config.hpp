@@ -152,13 +152,13 @@ std::enable_if_t<is_angular_3d<T>::value, size_t> toIndex(const std::string & di
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "roll" || lower_dim == "x") {
-    return static_cast<size_t>(T::Euler::ROLL) - 1UL;
+    return static_cast<size_t>(T::Euler::ROLL) - 4UL;
   }
   if (lower_dim == "pitch" || lower_dim == "y") {
-    return static_cast<size_t>(T::Euler::PITCH) - 1UL;
+    return static_cast<size_t>(T::Euler::PITCH) - 4UL;
   }
   if (lower_dim == "yaw" || lower_dim == "z") {
-    return static_cast<size_t>(T::Euler::YAW) - 1UL;
+    return static_cast<size_t>(T::Euler::YAW) - 4UL;
   }
 
   throwDimensionError(dimension);

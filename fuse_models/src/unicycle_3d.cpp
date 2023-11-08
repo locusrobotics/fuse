@@ -70,10 +70,10 @@ inline bool isfinite(const fuse_core::Vector3d & vector)
   return std::isfinite(vector.x()) && std::isfinite(vector.y() && std::isfinite(vector.z()));
 }
 
-inline bool isfinite(const fuse_core::Quaternion & quaternion)
+inline bool isNormalized(const fuse_core::Quaternion & q)
 {
-  return std::isfinite(quaternion.x()) && std::isfinite(quaternion.y()) &&
-         std::isfinite(quaternion.z()) && std::isfinite(quaternion.w());
+  return std::sqrt(q.w() * q.w() + q.x() * q.x() + q.y() * q.y() + q.z() * q.z()) - 1.0 <
+         Eigen::NumTraits<double>::dummy_precision();
 }
 
 std::string to_string(const fuse_core::Vector3d & vector)
@@ -155,7 +155,7 @@ void Unicycle3D::StateHistoryElement::validate() const
   if (!std::isfinite(position)) {
     throw std::runtime_error("Invalid position " + std::to_string(position));
   }
-  if (!std::isfinite(orientation)) {
+  if (!std::isNormalized(orientation)) {
     throw std::runtime_error("Invalid orientation " + std::to_string(orientation));
   }
   if (!std::isfinite(vel_linear)) {
@@ -351,7 +351,6 @@ void Unicycle3D::generateMotionModel(
     state2.vel_linear,
     state2.vel_angular,
     state2.acc_linear);
-
 
   // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position3DStamped::make_shared(beginning_stamp, device_id_);

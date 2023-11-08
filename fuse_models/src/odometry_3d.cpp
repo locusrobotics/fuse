@@ -65,7 +65,6 @@ void Odometry3D::initialize(
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
-  std::cout << "Odometry3D initialized" << std::endl;
 }
 
 void Odometry3D::onInit()
@@ -136,7 +135,6 @@ void Odometry3D::onStop()
 void Odometry3D::process(const nav_msgs::msg::Odometry & msg)
 {
   // Create a transaction object
-  std::cout << "Odometry3D process" << std::endl;
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg.header.stamp);
 
@@ -184,7 +182,6 @@ void Odometry3D::process(const nav_msgs::msg::Odometry & msg)
     *transaction,
     params_.tf_timeout);
 
-  transaction->print(std::cout);
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);
 }

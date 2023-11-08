@@ -34,7 +34,6 @@
 #ifndef FUSE_MODELS__UNICYCLE_3D_STATE_COST_FUNCTOR_HPP_
 #define FUSE_MODELS__UNICYCLE_3D_STATE_COST_FUNCTOR_HPP_
 
-// #include <fuse_models/unicycle_3d_predict_no_vec.hpp>
 #include <fuse_models/unicycle_3d_predict.hpp>
 
 #include <fuse_core/eigen.hpp>
@@ -167,16 +166,36 @@ bool Unicycle3DStateCostFunctor::operator()(
     acc_linear_pred);
 
   Eigen::Map<Eigen::Matrix<T, 15, 1>> residuals_map(residual);
-  Eigen::Map<const Eigen::Quaternion<T>> q_pred(orientation_pred), q2(orientation2);
-  Eigen::Quaternion<T> q_res = q2.inverse() * q_pred;
+  // Eigen::Map<const Eigen::Quaternion<T>> q_pred(orientation_pred), q2(orientation2);
+  // Eigen::Quaternion<T> q_res = q2.inverse() * q_pred;
 
+  T orientation_pred_rpy[3];
+  T orientation2_rpy[3];
+
+  orientation_pred_rpy[0] = 
+    fuse_core::getRoll(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
+  orientation_pred_rpy[1] =
+    fuse_core::getPitch(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
+  orientation_pred_rpy[2] =
+    fuse_core::getYaw(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
+  
+  orientation2_rpy[0] =
+    fuse_core::getRoll(orientation2[0], orientation2[1], orientation2[2], orientation2[3]);
+  orientation2_rpy[1] =
+    fuse_core::getPitch(orientation2[0], orientation2[1], orientation2[2], orientation2[3]);
+  orientation2_rpy[2] =
+    fuse_core::getYaw(orientation2[0], orientation2[1], orientation2[2], orientation2[3]);
+  
   residuals_map(0) = T(position2[0] - position_pred[0]);
   residuals_map(1) = T(position2[1] - position_pred[1]);
   residuals_map(2) = T(position2[2] - position_pred[2]);
-  residuals_map(3) = T(q_res.x());
-  residuals_map(4) = T(q_res.y());
-  residuals_map(5) = T(q_res.z());
+  // residuals_map(3) = T(q_res.x());
+  // residuals_map(4) = T(q_res.y());
+  // residuals_map(5) = T(q_res.z());
   // residuals_map(6) = T(q_res.w());
+  residuals_map(3) = T(orientation2_rpy[0] - orientation_pred_rpy[0]);
+  residuals_map(4) = T(orientation2_rpy[1] - orientation_pred_rpy[1]);
+  residuals_map(5) = T(orientation2_rpy[2] - orientation_pred_rpy[2]);
   residuals_map(6) = T(vel_linear2[0] - vel_linear_pred[0]);
   residuals_map(7) = T(vel_linear2[1] - vel_linear_pred[1]);
   residuals_map(8) = T(vel_linear2[2] - vel_linear_pred[2]);
