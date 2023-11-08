@@ -87,11 +87,6 @@
     A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose in quat.
     </description>
   </class>
-  <class type="fuse_constraints::AbsolutePose3DStampedEulerConstraint" base_class_type="fuse_core::Constraint">
-    <description>
-    A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose in rpy.
-    </description>
-  </class>
   <class type="fuse_constraints::MarginalConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents remaining marginal information on a set of variables.
@@ -145,11 +140,6 @@
   <class type="fuse_constraints::RelativePose3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents a measurement on the difference between two 3D poses.
-    </description>
-  </class>
-  <class type="fuse_constraints::RelativePose3DStampedEulerConstraint" base_class_type="fuse_core::Constraint">
-    <description>
-    A constraint that represents a measurement on the difference between two 3D poses in rpy.
     </description>
   </class>
 </library>
