@@ -61,6 +61,12 @@
     acceleration constraints from IMU sensor data published by another node
     </description>
   </class>
+  <class type="fuse_models::Imu3D" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces 3D orientation (relative or absolute), angular velocity, and linear
+    acceleration constraints from IMU sensor data published by another node
+    </description>
+  </class>
   <class type="fuse_models::Odometry2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
