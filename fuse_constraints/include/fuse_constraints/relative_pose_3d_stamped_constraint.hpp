@@ -93,6 +93,29 @@ public:
     const fuse_variables::Orientation3DStamped & orientation2,
     const fuse_core::Vector7d & delta,
     const fuse_core::Matrix6d & covariance);
+  
+  /**
+   * @brief Constructor (version for partial measurements)
+   *
+   * @param[in] source              The name of the sensor or motion model that generated this constraint
+   * @param[in] position1           The variable representing the position components of the first pose
+   * @param[in] orientation1        The variable representing the orientation components of the first pose
+   * @param[in] position2           The variable representing the position components of the second pose
+   * @param[in] orientation2        The variable representing the orientation components of the second pose
+   * @param[in] delta               The measured change in the pose
+   *                                (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
+   * @param[in] partial_covariance  The measurement subset covariance (max 6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] variable_indices    The indices of the measured variables
+   */  
+  RelativePose3DStampedConstraint(
+    const std::string & source,
+    const fuse_variables::Position3DStamped & position1,
+    const fuse_variables::Orientation3DStamped & orientation1,
+    const fuse_variables::Position3DStamped & position2,
+    const fuse_variables::Orientation3DStamped & orientation2,
+    const fuse_core::Vector7d & delta,
+    const fuse_core::MatrixXd & partial_covariance,
+    const std::vector<size_t> & variable_indices);
 
   /**
    * @brief Destructor
@@ -107,15 +130,12 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    */
-  const fuse_core::Matrix6d & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    */
-  fuse_core::Matrix6d covariance() const
-  {
-    return (sqrt_information_.transpose() * sqrt_information_).inverse();
-  }
+  fuse_core::MatrixXd covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -138,7 +158,7 @@ public:
 
 protected:
   fuse_core::Vector7d delta_;  //!< The measured pose change (dx, dy, dz, dqw, dqx, dqy, dqz)
-  fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix (derived from the
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the
                                           //!< covariance matrix)
 
 private:

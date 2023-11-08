@@ -35,6 +35,7 @@
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_HPP_
 
 #include <Eigen/Core>
+#include <glog/logging.h>
 
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
@@ -79,7 +80,7 @@ public:
    *              order (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
-  NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);
+  NormalPriorPose3DCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector7d & b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -88,19 +89,21 @@ public:
   bool operator()(const T * const position, const T * const orientation, T * residual) const;
 
 private:
-  fuse_core::Matrix6d A_;
+  fuse_core::MatrixXd A_;
   fuse_core::Vector7d b_;
 
   NormalPriorOrientation3DCostFunctor orientation_functor_;
 };
 
 NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(
-  const fuse_core::Matrix6d & A,
+  const fuse_core::MatrixXd & A,
   const fuse_core::Vector7d & b)
 : A_(A),
   b_(b),
   orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
 {
+  CHECK_GT(A_.rows(), 0);
+  CHECK_EQ(A_.cols(), 6);
 }
 
 template<typename T>
@@ -108,19 +111,20 @@ bool NormalPriorPose3DCostFunctor::operator()(
   const T * const position, const T * const orientation,
   T * residual) const
 {
+  T full_residuals[6];
   // Compute the position error
-  residual[0] = position[0] - T(b_(0));
-  residual[1] = position[1] - T(b_(1));
-  residual[2] = position[2] - T(b_(2));
+  full_residuals[0] = position[0] - T(b_(0));
+  full_residuals[1] = position[1] - T(b_(1));
+  full_residuals[2] = position[2] - T(b_(2));
 
   // Use the 3D orientation cost functor to compute the orientation delta
-  orientation_functor_(orientation, &residual[3]);
+  orientation_functor_(orientation, &full_residuals[3]);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
-  residual_map.applyOnTheLeft(A_.template cast<T>());
-
+  Eigen::Map<Eigen::Vector<T, 6>> full_residuals_map(full_residuals);
+  Eigen::Map<Eigen::Vector<T, Eigen::Dynamic>> residuals_map(residual, A_.rows());
+  residuals_map = A_.template cast<T>() * full_residuals_map;
   return true;
 }
 

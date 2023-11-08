@@ -94,6 +94,25 @@ public:
     const fuse_variables::Orientation3DStamped & orientation,
     const fuse_core::Vector7d & mean,
     const fuse_core::Matrix6d & covariance);
+  
+    /**
+   * @brief Create a constraint using a measurement/prior of the 3D pose (version for partial measurements)
+   *
+   * @param[in] source              The name of the sensor or motion model that generated this constraint
+   * @param[in] position            The variable representing the position components of the pose
+   * @param[in] orientation         The variable representing the orientation components of the pose
+   * @param[in] mean                The measured/prior pose as a vector
+   *                                (7x1 vector: x, y, z, qw, qx, qy, qz)
+   * @param[in] partial_covariance  The measurement subset covariance (max 6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] variable_indices    The indices of the measured variables
+   */
+  AbsolutePose3DStampedConstraint(
+    const std::string & source,
+    const fuse_variables::Position3DStamped & position,
+    const fuse_variables::Orientation3DStamped & orientation,
+    const fuse_core::Vector7d & mean,
+    const fuse_core::MatrixXd & partial_covariance,
+    const std::vector<size_t> & variable_indices);
 
   /**
    * @brief Destructor
@@ -112,17 +131,14 @@ public:
    *
    * Order is (x, y, z, qx, qy, qz)
    */
-  const fuse_core::Matrix6d & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
    * Order is (x, y, z, qx, qy, qz)
    */
-  fuse_core::Matrix6d covariance() const
-  {
-    return (sqrt_information_.transpose() * sqrt_information_).inverse();
-  }
+  fuse_core::Matrix6d covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -145,7 +161,7 @@ public:
 
 protected:
   fuse_core::Vector7d mean_;  //!< The measured/prior mean vector for this variable
-  fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 
 private:
   // Allow Boost Serialization access to private methods
