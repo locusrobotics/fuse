@@ -185,6 +185,18 @@ inline std::string AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>::
   return "fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint";
 }
 
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::VelocityAngular3DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::VelocityLinear3DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint";
+}
+
 }  // namespace fuse_constraints
 
 #endif  // FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_IMPL_HPP_
