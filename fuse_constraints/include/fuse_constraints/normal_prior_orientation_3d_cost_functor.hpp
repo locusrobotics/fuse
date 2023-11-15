@@ -36,6 +36,7 @@
 
 #include <ceres/rotation.h>
 #include <Eigen/Core>
+#include <glog/logging.h>
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -80,11 +81,13 @@ public:
    * @param[in] b The orientation measurement or prior in order (w, x, y, z)
    */
   NormalPriorOrientation3DCostFunctor(
-    const fuse_core::Matrix3d & A,
+    const fuse_core::MatrixXd & A,
     const fuse_core::Vector4d & b)
   : A_(A),
     b_(b)
   {
+    CHECK_GT(A_.rows(), 0);
+    CHECK_EQ(A_.cols(), 3);
   }
 
   /**
@@ -96,6 +99,8 @@ public:
     using fuse_variables::Orientation3DStamped;
 
     // Compute the delta quaternion
+    T full_residuals[3];
+
     T variable[4] =
     {
       orientation[0],
@@ -114,18 +119,19 @@ public:
 
     T difference[4];
     ceres::QuaternionProduct(observation_inverse, variable, difference);
-    ceres::QuaternionToAngleAxis(difference, residuals);
+    ceres::QuaternionToAngleAxis(difference, full_residuals);
 
     // Scale the residuals by the square root information matrix to account for the measurement
     // uncertainty.
-    Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residuals);
-    residuals_map.applyOnTheLeft(A_.template cast<T>());
+    Eigen::Map<Eigen::Matrix<T, 3, 1>> full_residuals_map(full_residuals);
+    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
+    residuals_map = A_.template cast<T>() * full_residuals_map;
 
     return true;
   }
 
 private:
-  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
                            //!< information matrix
   fuse_core::Vector4d b_;  //!< The measured 3D orientation (quaternion) value
 };
