@@ -47,10 +47,8 @@
 
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
-#include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.hpp>
-#include <fuse_constraints/relative_pose_3d_stamped_euler_constraint.hpp>
 #include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/loss.hpp>
@@ -517,7 +515,7 @@ inline bool processAbsolutePose3DWithCovariance(
     
   // Set the components which are not measured to zero
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
-  std::replace_if(
+    std::replace_if(
     pose_mean.data(), pose_mean.data() + pose_mean.size(),
     [&indices, &pose_mean](const double & value) {
       return std::find(indices.begin(), indices.end(), &value - pose_mean.data()) == indices.end();
@@ -557,7 +555,7 @@ inline bool processAbsolutePose3DWithCovariance(
       return false;
     }
   }
-  
+    
   auto constraint = fuse_constraints::AbsolutePose3DStampedConstraint::make_shared(
     source,
     *position,
