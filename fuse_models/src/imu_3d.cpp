@@ -167,7 +167,7 @@ void Imu3D::process(const sensor_msgs::msg::Imu & msg)
   twist.twist.covariance[33] = msg.angular_velocity_covariance[6];
   twist.twist.covariance[34] = msg.angular_velocity_covariance[7];
   twist.twist.covariance[35] = msg.angular_velocity_covariance[8];
-
+ 
   const bool validate = !params_.disable_checks;
 
   if (params_.differential) {
@@ -256,7 +256,7 @@ void Imu3D::processDifferential(
     params_.orientation_target_frame.empty() ? pose.header.frame_id : params_.
     orientation_target_frame;
 
-  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose)) {
+  if (!common::transformMessage(*tf_buffer_, pose, *transformed_pose, params_.tf_timeout)) {
     RCLCPP_WARN_STREAM_THROTTLE(
       logger_, *clock_, 5.0 * 1000,
       "Cannot transform pose message with stamp " << rclcpp::Time(
@@ -266,9 +266,9 @@ void Imu3D::processDifferential(
     return;
   }
 
-  if (!previous_pose_) {
+    if (!previous_pose_) {
     previous_pose_ = std::move(transformed_pose);
-    return;
+        return;
   }
 
   // if (params_.use_twist_covariance) {
