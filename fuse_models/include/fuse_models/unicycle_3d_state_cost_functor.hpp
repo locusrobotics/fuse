@@ -148,7 +148,7 @@ bool Unicycle3DStateCostFunctor::operator()(
   T * residual) const
 {
   T position_pred[3] {T(0.0)};
-  T orientation_pred[4] {T(0.0)};
+  T orientation_pred[4] {T(0.0)}; // storage order: w, x, y, z
   T vel_linear_pred[3] {T(0.0)};
   T vel_angular_pred[3] {T(0.0)};
   T acc_linear_pred[3] {T(0.0)};
@@ -166,9 +166,7 @@ bool Unicycle3DStateCostFunctor::operator()(
     acc_linear_pred);
 
   Eigen::Map<Eigen::Matrix<T, 15, 1>> residuals_map(residual);
-  // Eigen::Map<const Eigen::Quaternion<T>> q_pred(orientation_pred), q2(orientation2);
-  // Eigen::Quaternion<T> q_res = q2.inverse() * q_pred;
-
+  
   T orientation_pred_rpy[3];
   T orientation2_rpy[3];
 
@@ -189,10 +187,6 @@ bool Unicycle3DStateCostFunctor::operator()(
   residuals_map(0) = T(position2[0] - position_pred[0]);
   residuals_map(1) = T(position2[1] - position_pred[1]);
   residuals_map(2) = T(position2[2] - position_pred[2]);
-  // residuals_map(3) = T(q_res.x());
-  // residuals_map(4) = T(q_res.y());
-  // residuals_map(5) = T(q_res.z());
-  // residuals_map(6) = T(q_res.w());
   residuals_map(3) = T(orientation2_rpy[0] - orientation_pred_rpy[0]);
   residuals_map(4) = T(orientation2_rpy[1] - orientation_pred_rpy[1]);
   residuals_map(5) = T(orientation2_rpy[2] - orientation_pred_rpy[2]);
@@ -205,6 +199,10 @@ bool Unicycle3DStateCostFunctor::operator()(
   residuals_map(12) = T(acc_linear2[0] - acc_linear_pred[0]);
   residuals_map(13) = T(acc_linear2[1] - acc_linear_pred[1]);
   residuals_map(14) = T(acc_linear2[2] - acc_linear_pred[2]);
+
+  fuse_core::wrapAngle2D(residuals_map(3));
+  fuse_core::wrapAngle2D(residuals_map(4));
+  fuse_core::wrapAngle2D(residuals_map(5));
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.

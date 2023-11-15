@@ -5,7 +5,8 @@ set(TEST_TARGETS
   test_unicycle_2d_state_cost_function
   test_graph_ignition
   test_unicycle_2d_ignition
-  # test_unicycle_3d_predict
+  test_unicycle_3d_predict
+  test_unicycle_3d_state_cost_function
 )
 
 foreach(test_name ${TEST_TARGETS})

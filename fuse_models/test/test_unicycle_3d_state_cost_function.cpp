@@ -41,7 +41,8 @@
 
 #include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen_gtest.hpp>
-#include <fuse_models/unicycle_3d_state_cost_function.hpp>
+// #include <fuse_models/unicycle_3d_state_cost_function.hpp>
+#include <fuse_models/unicycle_3d_state_cost_functor.hpp>
 
 TEST(CostFunction, evaluateCostFunction)
 {
@@ -54,7 +55,7 @@ TEST(CostFunction, evaluateCostFunction)
   const double dt{0.1};
   const fuse_core::Matrix15d sqrt_information{covariance.inverse().llt().matrixU()};
 
-  const fuse_models::Unicycle3DStateCostFunction cost_function{dt, sqrt_information};
+  // const fuse_models::Unicycle3DStateCostFunction cost_function{dt, sqrt_information};
 
   // Evaluate cost function
   const double position1[] = {0.0, 0.0, 0.0};
@@ -64,37 +65,37 @@ TEST(CostFunction, evaluateCostFunction)
   const double acc_linear1[] = {1.0, 0.0};
 
   const double position2[] = {0.105, 0.0};
-  const double yaw2[] = {0.1570796327};
+  const double orientation2[] = {0.1570796327};
   const double vel_linear2[] = {1.1, 0.0};
   const double vel_yaw2[] = {1.570796327};
   const double acc_linear2[] = {1.0, 0.0};
 
   const double * parameters[] =
   {
-    position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
-    position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
+    position1, orientation1, vel_linear1, vel_yaw1, acc_linear1,
+    position2, orientation2, vel_linear2, vel_yaw2, acc_linear2
   };
 
-  // fuse_core::Vector8d residuals;
+  fuse_core::Vector8d residuals;
 
-  // const auto & block_sizes = cost_function.parameter_block_sizes();
-  // const auto num_parameter_blocks = block_sizes.size();
+//   const auto & block_sizes = cost_function.parameter_block_sizes();
+//   const auto num_parameter_blocks = block_sizes.size();
 
-  // const auto num_residuals = cost_function.num_residuals();
+//   const auto num_residuals = cost_function.num_residuals();
 
-  // std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
-  // std::vector<double *> jacobians(num_parameter_blocks);
+//   std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
+//   std::vector<double *> jacobians(num_parameter_blocks);
 
-  // for (size_t i = 0; i < num_parameter_blocks; ++i) {
-  //   J[i].resize(num_residuals, block_sizes[i]);
-  //   jacobians[i] = J[i].data();
-  // }
+//   for (size_t i = 0; i < num_parameter_blocks; ++i) {
+//     J[i].resize(num_residuals, block_sizes[i]);
+//     jacobians[i] = J[i].data();
+//   }
 
-  // EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
+//   EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
 
-  // // We cannot use std::numeric_limits<double>::epsilon() tolerance because with the expected state2
-  // // above the residuals are not zero for position2.x = -4.389e-16 and yaw2 = -2.776e-16
-  // EXPECT_MATRIX_NEAR(fuse_core::Vector8d::Zero(), residuals, 1e-15);
+//   // We cannot use std::numeric_limits<double>::epsilon() tolerance because with the expected state2
+//   // above the residuals are not zero for position2.x = -4.389e-16 and yaw2 = -2.776e-16
+//   EXPECT_MATRIX_NEAR(fuse_core::Vector8d::Zero(), residuals, 1e-15);
 
 //   // Check jacobians are correct using a gradient checker
 //   ceres::NumericDiffOptions numeric_diff_options;
@@ -116,9 +117,9 @@ TEST(CostFunction, evaluateCostFunction)
 //   //                  probe_results.error_log;
 
   // Create cost function using automatic differentiation on the cost functor
-  ceres::AutoDiffCostFunction<fuse_models::Unicycle3DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1,
-    2>
-  cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
+  ceres::AutoDiffCostFunction<fuse_models::Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3,
+    3>
+  cost_function_autodiff(new fuse_models::Unicycle3DStateCostFunctor(dt, sqrt_information));
   auto num_parameter_blocks = cost_function_autodiff.parameter_block_sizes().size();
   auto num_residuals = cost_function_autodiff.num_residuals();
   // Evaluate cost function that uses automatic differentiation
@@ -126,7 +127,7 @@ TEST(CostFunction, evaluateCostFunction)
   std::vector<double *> jacobians_autodiff(num_parameter_blocks);
 
   for (size_t i = 0; i < num_parameter_blocks; ++i) {
-    J_autodiff[i].resize(num_residuals, block_sizes[i]);
+    J_autodiff[i].resize(num_residuals, cost_function_autodiff.parameter_block_sizes()[i]);
     jacobians_autodiff[i] = J_autodiff[i].data();
   }
 
@@ -135,12 +136,12 @@ TEST(CostFunction, evaluateCostFunction)
       parameters, residuals.data(),
       jacobians_autodiff.data()));
 
-  const Eigen::IOFormat HeavyFmt(
-    Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+  // const Eigen::IOFormat HeavyFmt(
+  //   Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i) {
-    EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], std::numeric_limits<double>::epsilon())
-      << "Autodiff Jacobian[" << i << "] =\n" << J_autodiff[i].format(HeavyFmt)
-      << "\nAnalytic Jacobian[" << i << "] =\n" << J[i].format(HeavyFmt);
-  }
+  // for (size_t i = 0; i < num_parameter_blocks; ++i) {
+  //   EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], std::numeric_limits<double>::epsilon())
+  //     << "Autodiff Jacobian[" << i << "] =\n" << J_autodiff[i].format(HeavyFmt)
+  //     << "\nAnalytic Jacobian[" << i << "] =\n" << J[i].format(HeavyFmt);
+  // }
 }
