@@ -62,7 +62,7 @@
   <class type="fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 3D linear velocity, or a direct measurement of
-    the 2D linear velocity.
+    the 3D linear velocity.
     </description>
   </class>
   <class type="fuse_constraints::AbsoluteOrientation3DStampedConstraint" base_class_type="fuse_core::Constraint">
