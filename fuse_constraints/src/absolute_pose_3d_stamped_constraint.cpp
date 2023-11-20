@@ -116,7 +116,7 @@ void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
          << "  position variable: " << variables().at(0) << "\n"
          << "  orientation variable: " << variables().at(1) << "\n"
          << "  mean: " << mean().transpose() << "\n"
-         << "  sqrt_info: \n" << sqrtInformation() << "\n";
+         << "  sqrt_info: " << sqrtInformation() << "\n";
 
   if (loss()) {
     stream << "  loss: ";
