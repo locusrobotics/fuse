@@ -20,7 +20,7 @@
   <class type="fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 3D linear acceleration, or a direct measurement of
-    the 2D linear acceleration.
+    the 3D linear acceleration.
     </description>
   </class>
   <class type="fuse_constraints::AbsoluteOrientation2DStampedConstraint" base_class_type="fuse_core::Constraint">
