@@ -84,7 +84,7 @@
   </class>
   <class type="fuse_constraints::AbsolutePose3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
-    A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose in quat.
+    A constraint that represents either prior information about a 3D pose, or a direct measurement of the 3D pose.
     </description>
   </class>
   <class type="fuse_constraints::MarginalConstraint" base_class_type="fuse_core::Constraint">
