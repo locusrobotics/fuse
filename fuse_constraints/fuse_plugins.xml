@@ -8,7 +8,7 @@
   <class type="fuse_constraints::AbsoluteAccelerationAngular3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 3D angular acceleration, or a direct measurement of
-    the 2D angular acceleration.
+    the 3D angular acceleration.
     </description>
   </class>
   <class type="fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint" base_class_type="fuse_core::Constraint">
