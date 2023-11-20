@@ -50,7 +50,7 @@
   <class type="fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A constraint that represents either prior information about a 3D angular velocity, or a direct measurement of
-    the 2D angular velocity.
+    the 3D angular velocity.
     </description>
   </class>
   <class type="fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint" base_class_type="fuse_core::Constraint">
