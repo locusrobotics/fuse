@@ -81,16 +81,18 @@ public:
   /**
    * @brief Construct a pinhole camera variable given a camera id
    *
-   * @param[in] landmark_id  The id associated to a landmark
+   * @param[in] camera_id  The id associated to a camera
    */
   explicit PinholeCamera(const uint64_t& camera_id);
 
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
-   * @param[in] landmark_id  The id associated to a landmark
+   * @param[in] camera_id  The id associated to a camera
    */
-  // explicit PinholeCamera(const uint64_t& camera_id, const double& fx, const double& fy, const double& cx, const double& cy);
+  explicit PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id,
+                          const double& fx, const double& fy,
+                          const double& cx, const double& cy);
 
   /**
    * @brief Read-write access to the cx parameter.

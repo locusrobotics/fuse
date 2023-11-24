@@ -64,10 +64,18 @@ public:
   /**
    * @brief Construct a point 2D variable given a landmarks id
    *
-   * @param[in] camera_id  The id associated to a landmark
+   * @param[in] camera_id  The id associated to a camera
    */
   explicit PinholeCameraFixed(const uint64_t& camera_id);
 
+  /**
+   * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
+   *
+   * @param[in] camera_id  The id associated to a camera
+   */
+  explicit PinholeCameraFixed(const uint64_t& camera_id,
+                          const double& fx, const double& fy,
+                          const double& cx, const double& cy);
   /**
    * @brief Specifies if the value of the variable should not be changed during optimization
    */

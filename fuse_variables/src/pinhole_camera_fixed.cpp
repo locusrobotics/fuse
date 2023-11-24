@@ -50,6 +50,13 @@ PinholeCameraFixed::PinholeCameraFixed(const uint64_t& camera_id) :
 {
 }
 
+PinholeCameraFixed::PinholeCameraFixed(const uint64_t& camera_id,
+                              const double& fx, const double& fy,
+                              const double& cx, const double& cy)
+  : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id, fx, fy, cx, cy)
+{
+}
+
 }  // namespace fuse_variables
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::PinholeCameraFixed);

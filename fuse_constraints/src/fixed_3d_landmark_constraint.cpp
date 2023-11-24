@@ -3,7 +3,7 @@
  *
  *  Author: Oscar Mendez
  *  Created on Mon Nov 12 2023
- * 
+ *
  *  Copyright (c) 2023, Locus Robotics
  *  All rights reserved.
  *
@@ -45,25 +45,39 @@
 
 #include <string>
 
-
 namespace fuse_constraints
 {
 
 Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
-  const std::string& source,
-  const fuse_variables::Position3DStamped& position,
-  const fuse_variables::Orientation3DStamped& orientation,
-  const fuse_variables::PinholeCamera& calibration,
-  const fuse_core::Vector1d& marker_size,
-  const fuse_core::MatrixXd& observations,
-  const fuse_core::Vector7d& mean,
-  const fuse_core::Matrix6d& covariance) :
-    fuse_core::Constraint(source, {position.uuid(), orientation.uuid(), calibration.uuid()}),  // NOLINT(whitespace/braces)
-    marker_size_(marker_size),
-    observations_(observations),
-    mean_(mean),
-    sqrt_information_(covariance.inverse().llt().matrixU())
+    const std::string& source, const fuse_variables::Position3DStamped& position,
+    const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
+    const fuse_core::MatrixXd& pts3d, const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
+    const fuse_core::Matrix6d& covariance)
+  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
+  , pts3d_(pts3d)
+  , observations_(observations)
+  , mean_(mean)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
 {
+}
+
+Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
+    const std::string& source, const fuse_variables::Position3DStamped& position,
+    const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
+    const double& marker_size, const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
+    const fuse_core::Matrix6d& covariance)
+  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
+  , pts3d_(4, 3)
+  , observations_(observations)
+  , mean_(mean)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
+{
+  // Define 3D Homogeneous 3D Points at origin, assume z-up
+  pts3d_ << -1.0, -1.0, 0.0,  // NOLINT
+            -1.0,  1.0, 0.0,  // NOLINT
+             1.0, -1.0, 0.0,  // NOLINT
+             1.0,  1.0, 0.0;  // NOLINT
+  pts3d_ *= marker_size;      // Scalar Multiplication
 }
 
 void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
@@ -87,7 +101,7 @@ void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
 ceres::CostFunction* Fixed3DLandmarkConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<Fixed3DLandmarkCostFunctor, 8, 3, 4, 4>(
-    new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, marker_size_));
+      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_));
 }
 
 }  // namespace fuse_constraints
