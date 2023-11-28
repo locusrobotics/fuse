@@ -148,35 +148,7 @@ std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string & di
  * @throws runtime_error if the dimension name is invalid
  */
 template<typename T>
-std::enable_if_t<is_angular_3d<T>::value, size_t> toIndex(const std::string & dimension)
-{
-  auto lower_dim = boost::algorithm::to_lower_copy(dimension);
-  if (lower_dim == "roll" || lower_dim == "x") {
-    return static_cast<size_t>(T::Euler::ROLL) - 4UL;
-  }
-  if (lower_dim == "pitch" || lower_dim == "y") {
-    return static_cast<size_t>(T::Euler::PITCH) - 4UL;
-  }
-  if (lower_dim == "yaw" || lower_dim == "z") {
-    return static_cast<size_t>(T::Euler::YAW) - 4UL;
-  }
-
-  throwDimensionError(dimension);
-
-  return 0u;
-}
-
-/**
- * @brief Method that converts from 3D angular axis dimension names to index values
- *
- * This method is enabled only for variables that contain _only_ 3D angular quantities
- *
- * @param[in] dimension - The dimension name to convert
- * @return the index of the enumerated dimension for that type
- * @throws runtime_error if the dimension name is invalid
- */
-template<typename T>
-std::enable_if_t<is_angular_vel_3d<T>::value, size_t> toIndex(const std::string & dimension)
+std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> toIndex(const std::string & dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "roll" || lower_dim == "x") {
@@ -194,34 +166,25 @@ std::enable_if_t<is_angular_vel_3d<T>::value, size_t> toIndex(const std::string 
   return 0u;
 }
 
-// /**
-//  * @brief Method that converts from 3D angular axis dimension names to index values
-//  *
-//  * This method is enabled only for variable Orientation3DStamped
-//  *
-//  * @param[in] dimension - The dimension name to convert
-//  * @return the index of the enumerated dimension for that type
-//  * @throws runtime_error if the dimension name is invalid
-//  */
-// template<>
-// std::enable_if_t<is_angular_3d<fuse_variables::Orientation3DStamped>::value, size_t> toIndex(const std::string & dimension)
-// {
-//   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
-//   if (lower_dim == "roll" || lower_dim == "x") {
-//     return static_cast<size_t>(fuse_variables::Orientation3DStamped::Euler::ROLL) - 3UL;
-//     // Trick to obtain indices of roll, pitch, yaw as 3, 4, 5 relative to 3d pose_mean 
-//   }
-//   if (lower_dim == "pitch" || lower_dim == "y") {
-//     return static_cast<size_t>(fuse_variables::Orientation3DStamped::Euler::PITCH) - 3UL;
-//   }
-//   if (lower_dim == "yaw" || lower_dim == "z") {
-//     return static_cast<size_t>(fuse_variables::Orientation3DStamped::Euler::YAW) - 3UL;
-//   }
+template<typename T>
+std::enable_if_t<is_angular_3d<T>::value && is_orientation<T>::value, size_t> toIndex(const std::string & dimension)
+{
+  // Trick to get roll, pitch, yaw indexes as 0, 1, 2
+  auto lower_dim = boost::algorithm::to_lower_copy(dimension);
+  if (lower_dim == "roll" || lower_dim == "x") {
+    return static_cast<size_t>(fuse_variables::Orientation3DStamped::Euler::ROLL) - 4UL;
+  }
+  if (lower_dim == "pitch" || lower_dim == "y") {
+    return static_cast<size_t>(fuse_variables::Orientation3DStamped::Euler::PITCH) - 4UL;
+  }
+  if (lower_dim == "yaw" || lower_dim == "z") {
+    return static_cast<size_t>(fuse_variables::Orientation3DStamped::Euler::YAW) - 4UL;
+  }
 
-//   throwDimensionError(dimension);
+  throwDimensionError(dimension);
 
-//   return 0u;
-// }
+  return 0u;
+}
 
 /**
  * @brief Utility method to convert a vector of dimension names to a vector of dimension indices

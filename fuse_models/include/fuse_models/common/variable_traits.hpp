@@ -128,17 +128,27 @@ struct is_angular_3d<fuse_variables::Orientation3DStamped>
 {
   static const bool value = true;
 };
-template<typename T>
-struct is_angular_vel_3d
-{
-  static const bool value = false;
-};
 template<>
-struct is_angular_vel_3d<fuse_variables::VelocityAngular3DStamped>
+struct is_angular_3d<fuse_variables::VelocityAngular3DStamped>
 {
   static const bool value = true;
 };
 
+template<typename T>
+struct is_orientation
+{
+  static const bool value = false;
+};
+template<>
+struct is_orientation<fuse_variables::Orientation2DStamped>
+{
+  static const bool value = true;
+};
+template<>
+struct is_orientation<fuse_variables::Orientation3DStamped>
+{
+  static const bool value = true;
+};
 }  // namespace common
 
 }  // namespace fuse_models
