@@ -304,6 +304,7 @@ void Imu3D::processDifferential(
     device_id_,
     *previous_pose_,
     *transformed_pose,
+    params_.independent,
     params_.minimum_pose_relative_covariance,
     params_.pose_loss,
     {},

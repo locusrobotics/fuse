@@ -125,12 +125,12 @@ public:
     fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
 
     if (differential) {
+      independent = fuse_core::getParam(
+        interfaces, fuse_core::joinParameterName(
+          ns,
+          "independent"),
+        independent);
       // TODO: understand if this is needed
-      // independent = fuse_core::getParam(
-      //   interfaces, fuse_core::joinParameterName(
-      //     ns,
-      //     "independent"),
-      //   independent);
       // use_twist_covariance =
       //   fuse_core::getParam(
       //   interfaces, fuse_core::joinParameterName(

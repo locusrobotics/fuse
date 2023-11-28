@@ -144,13 +144,11 @@ public:
       pose_target_frame);
 
     if (differential) {
-      // This can be avoided since we are calculating relative pose covariance with
-      // covariance_geometry
-      // independent = fuse_core::getParam(
-      //   interfaces, fuse_core::joinParameterName(
-      //     ns,
-      //     "independent"),
-      //   independent);
+      independent = fuse_core::getParam(
+        interfaces, fuse_core::joinParameterName(
+          ns,
+          "independent"),
+        independent);
       // use_twist_covariance =
       //   fuse_core::getParam(
       //   interfaces, fuse_core::joinParameterName(
