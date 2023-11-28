@@ -59,24 +59,27 @@ TEST(CostFunction, evaluateCostFunction)
 
   // Evaluate cost function
   const double position1[] = {0.0, 0.0, 0.0};
-  const double orientation1[] = {0.0, 0.0, 0.0};
-  const double vel_linear1[] = {1.0, 0.0};
-  const double vel_yaw1[] = {1.570796327};
-  const double acc_linear1[] = {1.0, 0.0};
+  const double orientation1[] = {1.0, 0.0, 0.0, 0.0};
+  const double vel_linear1[] = {1.0, 0.0, 0.0};
+  const double vel_angular1[] = {0.0, 0.0, 1.570796327};
+  const double acc_linear1[] = {1.0, 0.0, 0.0};
 
-  const double position2[] = {0.105, 0.0};
-  const double orientation2[] = {0.1570796327};
-  const double vel_linear2[] = {1.1, 0.0};
-  const double vel_yaw2[] = {1.570796327};
-  const double acc_linear2[] = {1.0, 0.0};
+  const double position2[] = {0.105, 0.0, 0.0};
+  Eigen::Quaterniond q2 = Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitZ()) *
+                          Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+                          Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
+  const double orientation2[] = {q2.w(), q2.x(), q2.y(), q2.z()};
+  const double vel_linear2[] = {1.1, 0.0, 0.0};
+  const double vel_angular2[] = {0.0, 0.0, 1.570796327};
+  const double acc_linear2[] = {1.0, 0.0, 0.0};
 
   const double * parameters[] =
   {
-    position1, orientation1, vel_linear1, vel_yaw1, acc_linear1,
-    position2, orientation2, vel_linear2, vel_yaw2, acc_linear2
+    position1, orientation1, vel_linear1, vel_angular1, acc_linear1,
+    position2, orientation2, vel_linear2, vel_angular2, acc_linear2
   };
 
-  fuse_core::Vector8d residuals;
+  fuse_core::Vector15d residuals;
 
 //   const auto & block_sizes = cost_function.parameter_block_sizes();
 //   const auto num_parameter_blocks = block_sizes.size();

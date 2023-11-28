@@ -147,14 +147,28 @@ bool Unicycle3DStateCostFunctor::operator()(
   const T * const acc_linear2,
   T * residual) const
 {
+  // Initialize predicted state variables
   T position_pred[3] {T(0.0)};
-  T orientation_pred[4] {T(0.0)}; // storage order: w, x, y, z
+  T orientation_pred[3] {T(0.0)};
   T vel_linear_pred[3] {T(0.0)};
   T vel_angular_pred[3] {T(0.0)};
   T acc_linear_pred[3] {T(0.0)};
+
+  // Convert orientation variables from quaternion to roll-pitch-yaw
+  const T orientation1_rpy[3] {
+    fuse_core::getRoll(orientation1[0], orientation1[1], orientation1[2], orientation1[3]),
+    fuse_core::getPitch(orientation1[0], orientation1[1], orientation1[2], orientation1[3]),
+    fuse_core::getYaw(orientation1[0], orientation1[1], orientation1[2], orientation1[3])
+  };
+  const T orientation2_rpy[3] {
+    fuse_core::getRoll(orientation2[0], orientation2[1], orientation2[2], orientation2[3]),
+    fuse_core::getPitch(orientation2[0], orientation2[1], orientation2[2], orientation2[3]),
+    fuse_core::getYaw(orientation2[0], orientation2[1], orientation2[2], orientation2[3])
+  };
+
   predict(
     position1,
-    orientation1,
+    orientation1_rpy,
     vel_linear1,
     vel_angular1,
     acc_linear1,
@@ -164,41 +178,23 @@ bool Unicycle3DStateCostFunctor::operator()(
     vel_linear_pred,
     vel_angular_pred,
     acc_linear_pred);
-
+  
   Eigen::Map<Eigen::Matrix<T, 15, 1>> residuals_map(residual);
-  
-  T orientation_pred_rpy[3];
-  T orientation2_rpy[3];
-
-  orientation_pred_rpy[0] = 
-    fuse_core::getRoll(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
-  orientation_pred_rpy[1] =
-    fuse_core::getPitch(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
-  orientation_pred_rpy[2] =
-    fuse_core::getYaw(orientation_pred[0], orientation_pred[1], orientation_pred[2], orientation_pred[3]);
-  
-  orientation2_rpy[0] =
-    fuse_core::getRoll(orientation2[0], orientation2[1], orientation2[2], orientation2[3]);
-  orientation2_rpy[1] =
-    fuse_core::getPitch(orientation2[0], orientation2[1], orientation2[2], orientation2[3]);
-  orientation2_rpy[2] =
-    fuse_core::getYaw(orientation2[0], orientation2[1], orientation2[2], orientation2[3]);
-  
-  residuals_map(0) = T(position2[0] - position_pred[0]);
-  residuals_map(1) = T(position2[1] - position_pred[1]);
-  residuals_map(2) = T(position2[2] - position_pred[2]);
-  residuals_map(3) = T(orientation2_rpy[0] - orientation_pred_rpy[0]);
-  residuals_map(4) = T(orientation2_rpy[1] - orientation_pred_rpy[1]);
-  residuals_map(5) = T(orientation2_rpy[2] - orientation_pred_rpy[2]);
-  residuals_map(6) = T(vel_linear2[0] - vel_linear_pred[0]);
-  residuals_map(7) = T(vel_linear2[1] - vel_linear_pred[1]);
-  residuals_map(8) = T(vel_linear2[2] - vel_linear_pred[2]);
-  residuals_map(9) = T(vel_angular2[0] - vel_angular_pred[0]);
-  residuals_map(10) = T(vel_angular2[1] - vel_angular_pred[1]);
-  residuals_map(11) = T(vel_angular2[2] - vel_angular_pred[2]);
-  residuals_map(12) = T(acc_linear2[0] - acc_linear_pred[0]);
-  residuals_map(13) = T(acc_linear2[1] - acc_linear_pred[1]);
-  residuals_map(14) = T(acc_linear2[2] - acc_linear_pred[2]);
+  residuals_map(0) = position2[0] - position_pred[0];
+  residuals_map(1) = position2[1] - position_pred[1];
+  residuals_map(2) = position2[2] - position_pred[2];
+  residuals_map(3) = orientation2_rpy[0] - orientation_pred[0];
+  residuals_map(4) = orientation2_rpy[1] - orientation_pred[1];
+  residuals_map(5) = orientation2_rpy[2] - orientation_pred[2];
+  residuals_map(6) = vel_linear2[0] - vel_linear_pred[0];
+  residuals_map(7) = vel_linear2[1] - vel_linear_pred[1];
+  residuals_map(8) = vel_linear2[2] - vel_linear_pred[2];
+  residuals_map(9) = vel_angular2[0] - vel_angular_pred[0];
+  residuals_map(10) = vel_angular2[1] - vel_angular_pred[1];
+  residuals_map(11) = vel_angular2[2] - vel_angular_pred[2];
+  residuals_map(12) = acc_linear2[0] - acc_linear_pred[0];
+  residuals_map(13) = acc_linear2[1] - acc_linear_pred[1];
+  residuals_map(14) = acc_linear2[2] - acc_linear_pred[2];
 
   fuse_core::wrapAngle2D(residuals_map(3));
   fuse_core::wrapAngle2D(residuals_map(4));
