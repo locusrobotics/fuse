@@ -89,7 +89,6 @@ std::string to_string(const fuse_core::Quaternion & quaternion)
   oss << quaternion;
   return oss.str();
 }
-
 }  // namespace std
 
 namespace fuse_core
@@ -217,7 +216,6 @@ void Unicycle3D::onInit()
 
   process_noise_covariance_ = fuse_core::Vector15d(process_noise_diagonal.data()).asDiagonal();
 
-  // TODO: check these parameters
   scale_process_noise_ =
     fuse_core::getParam(
     interfaces_, fuse_core::joinParameterName(
@@ -301,7 +299,6 @@ void Unicycle3D::generateMotionModel(
   }
 
   StateHistoryElement state1;
-
   // If the nearest state we had was before the beginning stamp, we need to project that state to
   // the beginning stamp
   if (base_time != beginning_stamp) {
@@ -320,7 +317,7 @@ void Unicycle3D::generateMotionModel(
   } else {
     state1 = base_state;
   }
-
+  
   // If dt is zero, we only need to update the state history:
   const double dt = (ending_stamp - beginning_stamp).seconds();
 
@@ -352,7 +349,7 @@ void Unicycle3D::generateMotionModel(
     state2.vel_angular,
     state2.acc_linear);
 
-  // Define the fuse variables required for this constraint
+    // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position3DStamped::make_shared(beginning_stamp, device_id_);
   auto orientation1 = fuse_variables::Orientation3DStamped::make_shared(beginning_stamp, device_id_);
   auto velocity_linear1 = fuse_variables::VelocityLinear3DStamped::make_shared(
@@ -402,7 +399,7 @@ void Unicycle3D::generateMotionModel(
   position2->data()[fuse_variables::Position3DStamped::X] = state2.position.x();
   position2->data()[fuse_variables::Position3DStamped::Y] = state2.position.y();
   position2->data()[fuse_variables::Position3DStamped::Z] = state2.position.z();
-  
+
   orientation2->data()[fuse_variables::Orientation3DStamped::X] = state2.orientation.x();
   orientation2->data()[fuse_variables::Orientation3DStamped::Y] = state2.orientation.y();
   orientation2->data()[fuse_variables::Orientation3DStamped::Z] = state2.orientation.z();
@@ -528,13 +525,13 @@ void Unicycle3D::updateStateHistoryEstimates(
   {
     const auto & current_stamp = current_iter->first;
     auto & current_state = current_iter->second;
-    if (graph.variableExists(current_state.position_uuid) &&
+        if (graph.variableExists(current_state.position_uuid) &&
       graph.variableExists(current_state.orientation_uuid) &&
       graph.variableExists(current_state.vel_linear_uuid) &&
       graph.variableExists(current_state.vel_angular_uuid) &&
       graph.variableExists(current_state.acc_linear_uuid))
     {
-      // This pose does exist in the graph. Update it directly.
+            // This pose does exist in the graph. Update it directly.
       const auto & position = graph.getVariable(current_state.position_uuid);
       const auto & orientation = graph.getVariable(current_state.orientation_uuid);
       const auto & vel_linear = graph.getVariable(current_state.vel_linear_uuid);
@@ -574,7 +571,7 @@ void Unicycle3D::updateStateHistoryEstimates(
       auto previous_iter = std::prev(current_iter);
       const auto & previous_stamp = previous_iter->first;
       const auto & previous_state = previous_iter->second;
-
+      
       // This state is not in the graph yet, so we can't update/correct the value in our state
       // history. However, the state *before* this one may have been corrected (or one of its
       // predecessors may have been), so we can use that corrected value, along with our prediction
@@ -610,7 +607,6 @@ void Unicycle3D::validateMotionModel(
   } catch (const std::runtime_error & ex) {
     throw std::runtime_error("Invalid state #2: " + std::string(ex.what()));
   }
-  // TODO: check validate covariance for 15x15 matrixes
   try {
     fuse_core::validateCovariance(process_noise_covariance);
   } catch (const std::runtime_error & ex) {
