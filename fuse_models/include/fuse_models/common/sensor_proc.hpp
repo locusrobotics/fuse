@@ -76,6 +76,7 @@
 #include <tf2_2d/tf2_2d.hpp>
 #include <tf2_2d/transform.hpp>
 
+#include "covariance_geometry/pose_composition.hpp"
 #include "covariance_geometry/pose_covariance_representation.hpp"
 #include "covariance_geometry/pose_covariance_composition.hpp"
 #include "covariance_geometry_ros/utils.hpp"
@@ -178,7 +179,6 @@ inline std::vector<size_t> mergeIndices(
   return merged_indices;
 }
 
-// TODO: is possible to enlarge this to work with eigen maps and view of those?
 /**
  * @brief Method to create sub-measurements from full measurements and append them to existing
  *        partial measurements
@@ -498,20 +498,27 @@ inline bool processAbsolutePose3DWithCovariance(
       return false;
     }
   }
-
   // Convert the ROS message into tf2 transform
   tf2::Transform tf2_pose;
   tf2::fromMsg(transformed_message.pose.pose, tf2_pose);
 
+  // Create the pose variable
+  auto position = fuse_variables::Position3DStamped::make_shared(pose.header.stamp, device_id);
+  position->x() = tf2_pose.getOrigin().x();
+  position->y() = tf2_pose.getOrigin().y();
+  position->z() = tf2_pose.getOrigin().z();
+  auto orientation = fuse_variables::Orientation3DStamped::make_shared(pose.header.stamp, device_id);
+  orientation->x() = tf2_pose.getRotation().x();
+  orientation->y() = tf2_pose.getRotation().y();
+  orientation->z() = tf2_pose.getRotation().z();
+  orientation->w() = tf2_pose.getRotation().w();
+
   // Fill eigen pose in RPY representation
   fuse_core::Vector6d pose_mean;
-  pose_mean(0) = tf2_pose.getOrigin().x();
-  pose_mean(1) = tf2_pose.getOrigin().y();
-  pose_mean(2) = tf2_pose.getOrigin().z();
-  tf2::Matrix3x3(tf2_pose.getRotation()).getRPY(
-    pose_mean(3), pose_mean(4), pose_mean(5));
-  
-  Eigen::Map<fuse_core::Matrix6d> pose_covariance_map(transformed_message.pose.covariance.data());
+  pose_mean.head<3>() << tf2_pose.getOrigin().x(), tf2_pose.getOrigin().y(), tf2_pose.getOrigin().z();
+  tf2::Matrix3x3(tf2_pose.getRotation()).getRPY(pose_mean(3), pose_mean(4), pose_mean(5));
+
+  Eigen::Map<const fuse_core::Matrix6d> pose_covariance_map(transformed_message.pose.covariance.data());
     
   // Set the components which are not measured to zero
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
@@ -526,18 +533,6 @@ inline bool processAbsolutePose3DWithCovariance(
 
   tf2::Quaternion q_partial;
   q_partial.setRPY(pose_mean(3), pose_mean(4), pose_mean(5));
-  
-  // Create the pose variable
-  auto position = fuse_variables::Position3DStamped::make_shared(pose.header.stamp, device_id);
-  auto orientation =
-    fuse_variables::Orientation3DStamped::make_shared(pose.header.stamp, device_id);
-  position->x() = pose_mean(0);
-  position->y() = pose_mean(1);
-  position->z() = pose_mean(2);
-  orientation->x() = q_partial.getX();
-  orientation->y() = q_partial.getY();
-  orientation->z() = q_partial.getZ();
-  orientation->w() = q_partial.getW();
 
   // Create the pose for the constraint
   fuse_core::Vector7d pose_mean_partial;
@@ -958,6 +953,7 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The second (and temporally later) PoseWithCovarianceStamped message
+ * @param[in] independent - Whether the pose measurements are indepent or not
  * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always
  *                                               added to the resulting pose relative covariance
  * @param[in] loss - The loss function for the 2D pose constraint generated
@@ -973,6 +969,7 @@ inline bool processDifferentialPose3DWithCovariance(
   const fuse_core::UUID & device_id,
   const geometry_msgs::msg::PoseWithCovarianceStamped & pose1,
   const geometry_msgs::msg::PoseWithCovarianceStamped & pose2,
+  const bool independent,
   const fuse_core::Matrix6d & minimum_pose_relative_covariance,
   const fuse_core::Loss::SharedPtr & loss,
   const std::vector<size_t> & position_indices,
@@ -980,30 +977,106 @@ inline bool processDifferentialPose3DWithCovariance(
   const bool validate,
   fuse_core::Transaction & transaction)
 {
-  // Pipeline to consider only the measured positions and orientations 
-  // Convert the ROS message into tf2 transform
-  // Fill eigen pose in RPY representation  
-  // Set the components which are not measured to zero
-  // Create the pose variable for the graph
-  // Create the pose for the constraint (in quaternion)
-  // Create the constraint
+  // TODO:: we should probably remove covariance_geometry dependency
 
   // Convert from ROS msg to covariance geometry types 
   // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
   // Position is Eigen::Vector3d
   // Quaternion is Eigen::Quaterniond
   // Covariance is Eigen::Matrix6d
-  // TODO: implement a fromROS method which outputs PoseRPYCovariance directly
   covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
   covariance_geometry::fromROS(pose1.pose, p1);
   covariance_geometry::fromROS(pose2.pose, p2);
   
-  // Create the delta for the constraint and the relative covariance
-  covariance_geometry::ComposePoseQuaternionCovarianceRPY(
-    covariance_geometry::inversePose3DQuaternionCovarianceRPY(p1), 
-    p2, 
-    p12);
+// Create the pose variables
+  auto position1 = fuse_variables::Position3DStamped::make_shared(pose1.header.stamp, device_id);
+  auto orientation1 =
+    fuse_variables::Orientation3DStamped::make_shared(pose1.header.stamp, device_id);
+  position1->x() = p1.first.first.x();
+  position1->y() = p1.first.first.y();
+  position1->z() = p1.first.first.z();
+  orientation1->x() = p1.first.second.x();
+  orientation1->y() = p1.first.second.y();
+  orientation1->z() = p1.first.second.z();
+  orientation1->w() = p1.first.second.w();
 
+  auto position2 = fuse_variables::Position3DStamped::make_shared(pose2.header.stamp, device_id);
+  auto orientation2 = 
+    fuse_variables::Orientation3DStamped::make_shared(pose2.header.stamp, device_id);
+  position2->x() = p2.first.first.x();
+  position2->y() = p2.first.first.y();
+  position2->z() = p2.first.first.z();
+  orientation2->x() = p2.first.second.x();
+  orientation2->y() = p2.first.second.y();
+  orientation2->z() = p2.first.second.z();
+  orientation2->w() = p2.first.second.w();
+
+  // Create the delta for the constraint 
+  if (independent) {
+    covariance_geometry::ComposePoseQuaternionCovarianceRPY(
+      covariance_geometry::inversePose3DQuaternionCovarianceRPY(p1), 
+      p2, 
+      p12
+    );
+  } else {
+    // TODO: check this method, results are nosense
+    // Here we assume that poses are computed incrementally, so: p2 = p1 * p12.
+    // We know cov1 and cov2 and we should substract the first to the second in order
+    // to obtain the relative pose covariance. But first the 2 of them have to be in the
+    // same reference frame, moreover we need to rotate the result in p12 reference frame 
+    // The covariance propagation of p2 = p1 * p12 is:
+    //
+    // C2 = J_p1 * C1 * J_p1^T + J_p12 * C12 * J_p12^T
+    //
+    // where C1, C2, C12 are the covariance matrices of p1, p2 and dp, respectively, and J_p1 and
+    // J_p12 are the jacobians of the equation (pose composition) wrt p1 and p12, respectively.
+    //
+    // Therefore, the covariance C12 of the relative pose p12 is:
+    //
+    // C12 = J_p12^-1 * (C2 - J_p1 * C1 * J_p1^T) * J_p12^-T
+    
+    // First we need to convert covariances from RPY(6x6) to Quat(7x7)
+    covariance_geometry::PoseQuaternionCovariance p1_q, p2_q, p12_q;
+    covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
+      p1,
+      p1_q 
+    );
+    covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
+      p2,
+      p2_q 
+    );
+    // Then we need to compute the delta pose
+    covariance_geometry::ComposePose3DQuaternion(
+      covariance_geometry::InversePose(p1_q.first), 
+      p2_q.first, 
+      p12_q.first
+    );
+    // Now we have to compute pose composition jacobians so we can rotate covariances
+    Eigen::Matrix7d j_p1;
+    Eigen::Matrix7d j_p12;
+    Eigen::Matrix4d j_qn;
+    j_p1.setZero();
+    j_p12.setZero();
+    j_qn.setZero();
+    covariance_geometry::jacobianQuaternionNormalization(p2_q.first.second, j_qn);
+    covariance_geometry::JacobianPosePoseCompositionA(p1_q.first, p12_q.first, j_p1);
+    j_p1.block<4, 4>(3, 3).applyOnTheLeft(j_qn);
+    covariance_geometry::JacobianPosePoseCompositionB(p1_q.first, j_p12);
+    j_p12.block<4, 4>(3, 3).applyOnTheLeft(j_qn);
+    Eigen::Matrix7d j_p12_inv = j_p12.colPivHouseholderQr().solve(Eigen::Matrix7d::Identity());
+    p12_q.second = j_p12_inv * (p2_q.second - j_p1 * p1_q.second * j_p1.transpose()) * 
+      j_p12_inv.transpose();
+    
+    // Now again convert the delta pose back to covariance in RPY(6x6)
+    covariance_geometry::Pose3DQuaternionCovarianceTo3DQuaternionCovarianceRPY(
+      p12_q,
+      p12
+    );
+  }
+  // std::cout << "Relative pose: " << std::endl;
+  // std::cout << "  Position: " << p12.first.first.transpose() << std::endl;
+  // std::cout << "  Rotation: " << p12.first.second << std::endl;
+  // std::cout << "  Covariance: " << p12.second << std::endl;
   // Convert the poses into RPY representation
   covariance_geometry::PoseRPYCovariance p1_rpy, p2_rpy, p12_rpy;
   covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DRPYCovariance(
@@ -1012,7 +1085,8 @@ inline bool processDifferentialPose3DWithCovariance(
     p2, p2_rpy);
   covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DRPYCovariance(
     p12, p12_rpy);
-
+  
+  p12_rpy.second += minimum_pose_relative_covariance;
   // Set the components which are not measured to zero
   // p1_partial
   std::replace_if(
@@ -1079,29 +1153,6 @@ inline bool processDifferentialPose3DWithCovariance(
   covariance_geometry::Pose3DRPYCovarianceTo3DQuaternionCovarianceRPY(
     p12_rpy, p12_partial);
   
-  // Create the pose variables
-  auto position1 = fuse_variables::Position3DStamped::make_shared(pose1.header.stamp, device_id);
-  auto orientation1 =
-    fuse_variables::Orientation3DStamped::make_shared(pose1.header.stamp, device_id);
-  position1->x() = p1_partial.first.first.x();
-  position1->y() = p1_partial.first.first.y();
-  position1->z() = p1_partial.first.first.z();
-  orientation1->x() = p1_partial.first.second.x();
-  orientation1->y() = p1_partial.first.second.y();
-  orientation1->z() = p1_partial.first.second.z();
-  orientation1->w() = p1_partial.first.second.w();
-
-  auto position2 = fuse_variables::Position3DStamped::make_shared(pose2.header.stamp, device_id);
-  auto orientation2 = 
-    fuse_variables::Orientation3DStamped::make_shared(pose2.header.stamp, device_id);
-  position2->x() = p2_partial.first.first.x();
-  position2->y() = p2_partial.first.first.y();
-  position2->z() = p2_partial.first.first.z();
-  orientation2->x() = p2_partial.first.second.x();
-  orientation2->y() = p2_partial.first.second.y();
-  orientation2->z() = p2_partial.first.second.z();
-  orientation2->w() = p2_partial.first.second.w();
-  
   // Create mean vector and partial covariance matrix for the constraint
   fuse_core::Vector7d pose_relative_mean;
   pose_relative_mean << 
@@ -1112,7 +1163,7 @@ inline bool processDifferentialPose3DWithCovariance(
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
   fuse_core::MatrixXd pose_relative_covariance(indices.size(), indices.size());
   populatePartialMeasurement(
-    p12_partial.second + minimum_pose_relative_covariance,
+    p12_partial.second,
     indices,
     pose_relative_covariance);
 
@@ -1595,13 +1646,13 @@ inline bool processTwist3DWithCovariance(
       transformed_message.twist.twist.linear.z;
    
     // Create the covariance for the constraint
-    // TODO check if this the correct way for not doing copies
+    // TODO: check how to only map linear 3x3 part of the covariance
     Eigen::Map<const fuse_core::Matrix6d> linear_vel_covariance_map(
-      transformed_message.twist.covariance.data()) ;
-    // fuse_core::Matrix3d linear_vel_covariance = cov_map.block<3, 3>(0, 0);
+      transformed_message.twist.covariance.data());
     
     // Build the sub-vector and sub-matrices based on the requested indices
     fuse_core::VectorXd linear_vel_mean_partial(linear_indices.size());
+
     fuse_core::MatrixXd linear_vel_covariance_partial(linear_vel_mean_partial.rows(),
       linear_vel_mean_partial.rows());
 
@@ -1654,8 +1705,8 @@ inline bool processTwist3DWithCovariance(
       transformed_message.twist.twist.angular.z;
 
     // Create the covariance for the constraint
+    // TODO: check how to only map angular 3x3 part of the covariance
     Eigen::Map<const fuse_core::Matrix6d> angular_vel_cov_map(transformed_message.twist.covariance.data());
-    // fuse_core::Matrix3d angular_vel_covariance = cov_map.block<3,3>(3,3);
 
     // Build the sub-vector and sub-matrices based on the requested indices
     fuse_core::VectorXd angular_vel_mean_partial(angular_indices.size());
@@ -1877,7 +1928,7 @@ inline bool processAccel3DWithCovariance(
     transformed_message.accel.accel.linear.y,
     transformed_message.accel.accel.linear.z;
 
-  Eigen::Map<fuse_core::Matrix3d> accel_covariance_map(transformed_message.accel.covariance.data());
+  Eigen::Map<const fuse_core::Matrix3d> accel_covariance_map(transformed_message.accel.covariance.data());
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd accel_mean_partial(indices.size());
