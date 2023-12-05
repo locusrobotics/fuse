@@ -242,7 +242,7 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
-  # Absolute Pose 3D Stamped Constraint Tests
+  # Fixed 3D Landmark Constraint Tests
   catkin_add_gtest(test_fixed_3d_landmark_constraint
     test/test_fixed_3d_landmark_constraint.cpp
   )

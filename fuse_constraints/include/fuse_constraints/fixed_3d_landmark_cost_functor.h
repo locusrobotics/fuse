@@ -55,7 +55,7 @@ namespace fuse_constraints
  *
  * The cost function is of the form:
  *
- *   cost(x) = || A * (K * [R_q | p] * [R_{b(3:6)} | b(0:2))] * X) - x  ||
+ *   cost(x) = || A * (K * [R_q | p] * [R_{b(3:6)} | b(0:2))] * X - x) ||
  *
  * where, the matrix A and the vector b are fixed, p is the camera position variable, and q is the camera orientation
  * variable, K is the calibration matrix created from the calibration variable, X is the set of marker 3D points,
@@ -157,17 +157,6 @@ bool Fixed3DLandmarkCostFunctor::operator()(const T* const position, const T* co
       T(0.0), calibration[1], calibration[3], T(0.0),   // NOLINT
       T(0.0), T(0.0), T(1.0), T(0.0),                   // NOLINT
       T(0.0), T(0.0), T(0.0), T(1.0);                   // NOLINT
-
-  // Create Marker Transform Matrix (Tm)
-  T qm[4] = { T(b_(3)), T(b_(4)), T(b_(5)), T(b_(6)) };
-  T rm[9];
-  ceres::QuaternionToRotation(qm, rm);
-
-  Eigen::Matrix<T, 4, 4, Eigen::RowMajor> Tm;
-  Tm << rm[0], rm[1], rm[2], T(b_(0)),  // NOLINT
-      rm[3], rm[4], rm[5], T(b_(1)),    // NOLINT
-      rm[6], rm[7], rm[8], T(b_(2)),    // NOLINT
-      T(0.0), T(0.0), T(0.0), T(1.0);   // NOLINT
 
   // Create Camera Translation Matrix from Params.
   T q[4] = { orientation[0], orientation[1], orientation[2], orientation[3] };

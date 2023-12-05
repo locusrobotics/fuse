@@ -63,7 +63,7 @@ namespace fuse_constraints
  *
  * A landmark is represented as a 3D pose (3D position and a 3D orientation). This class takes 
  * the ground truth location of the 3D landmark and applies a reprojection-error based constraint
- * an constraint on The position, orientation and calibration of the camera that observed the landmark.
+ * an constraint on the position, orientation and calibration of the camera that observed the landmark.
  * 
  * In most cases, the camera calibration should be held fixed as a single landmark does not present enough
  * points to accurate constrain the pose AND the calibraton.
@@ -83,14 +83,14 @@ public:
    * @brief Create a constraint using a known 3D fiducial marker
    *
    * @param[in] source        The name of the sensor or motion model that generated this constraint
-   * @param[in] position      The variable representing the position components of the marker pose
+   * @param[in] position      The variable representing the position components of the landmark pose
    * @param[in] orientation   The variable representing the orientation components of the marker pose
    * @param[in] calibraton    The intrinsic calibration parameters of the camera (4x1 vector: cx, cy, fx, fy).
    *                          NOTE: Best practice is to fix this variable unless we have several observations
    *                          with the same camera
    * @param[in] pts3d         Matrix of 3D points in marker coordiate frame.
    * @param[in] observations  The 2D (pixel) observations of each marker's corners.
-   * @param[in] mean          The measured/prior pose of the markeras a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
+   * @param[in] mean          The measured/prior pose of the marker as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
    * @param[in] covariance    The measurement/prior marker pose covariance (6x6 matrix: x, y, z, qx, qy, qz)
    */
   Fixed3DLandmarkConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
@@ -101,7 +101,7 @@ public:
                             const fuse_core::Matrix6d& covariance);
 
   /**
-   * @brief Create a constraint using a known 3D fiducial marker. Convinience constructor for the special case of
+   * @brief Create a constraint using a known 3D fiducial marker. Convenience constructor for the special case of
    *        an ARTag with 4 corners.
    *
    * @param[in] source        The name of the sensor or motion model that generated this constraint
@@ -112,7 +112,7 @@ public:
    *                          with the same camera
    * @param[in] marker_size   The size of the marker, in meters. Assumed to be square.
    * @param[in] observations  The 2D (pixel) observations of each marker's corners.
-   * @param[in] mean          The measured/prior pose of the markeras a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
+   * @param[in] mean          The measured/prior pose of the marker as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
    * @param[in] covariance    The measurement/prior marker pose covariance (6x6 matrix: x, y, z, qx, qy, qz)
    */
   Fixed3DLandmarkConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
@@ -196,8 +196,8 @@ public:
   ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::MatrixXd pts3d_;             //!< THe 3D points in marker Coordinate frame
-  fuse_core::MatrixXd observations_;      //!< The 2D observations of the marker at postion mean_
+  fuse_core::MatrixXd pts3d_;             //!< The 3D points in marker Coordinate frame
+  fuse_core::MatrixXd observations_;      //!< The 2D observations (in pixel space) of the marker at postion mean_
   fuse_core::Vector7d mean_;              //!< The measured/prior mean vector for this variable
   fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix
 
