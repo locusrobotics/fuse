@@ -531,7 +531,7 @@ void Unicycle3D::updateStateHistoryEstimates(
       graph.variableExists(current_state.vel_angular_uuid) &&
       graph.variableExists(current_state.acc_linear_uuid))
     {
-            // This pose does exist in the graph. Update it directly.
+      // This pose does exist in the graph. Update it directly.
       const auto & position = graph.getVariable(current_state.position_uuid);
       const auto & orientation = graph.getVariable(current_state.orientation_uuid);
       const auto & vel_linear = graph.getVariable(current_state.vel_linear_uuid);
@@ -539,8 +539,8 @@ void Unicycle3D::updateStateHistoryEstimates(
       const auto & acc_linear = graph.getVariable(current_state.acc_linear_uuid);
 
       current_state.position.x() = position.data()[fuse_variables::Position3DStamped::X];
-      current_state.position.x() = position.data()[fuse_variables::Position3DStamped::Y];
-      current_state.position.x() = position.data()[fuse_variables::Position3DStamped::Z];
+      current_state.position.y() = position.data()[fuse_variables::Position3DStamped::Y];
+      current_state.position.z() = position.data()[fuse_variables::Position3DStamped::Z];
 
       current_state.orientation.x() = orientation.data()[fuse_variables::Orientation3DStamped::X];
       current_state.orientation.y() = orientation.data()[fuse_variables::Orientation3DStamped::Y];
