@@ -59,6 +59,9 @@ Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
   , mean_(mean)
   , sqrt_information_(covariance.inverse().llt().matrixU())
 {
+  assert(pts3d_.cols() == 3);
+  assert(observations_.cols() == 2);
+  assert(pts3d_.rows() == observations_.rows());
 }
 
 Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
@@ -78,6 +81,10 @@ Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
              1.0, -1.0, 0.0,  // NOLINT
              1.0,  1.0, 0.0;  // NOLINT
   pts3d_ *= marker_size;      // Scalar Multiplication
+
+  assert(pts3d_.cols() == 3);
+  assert(observations_.cols() == 2);
+  assert(pts3d_.rows() == observations_.rows());
 }
 
 void Fixed3DLandmarkConstraint::print(std::ostream& stream) const

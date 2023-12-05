@@ -123,10 +123,10 @@ Fixed3DLandmarkCostFunctor::Fixed3DLandmarkCostFunctor(const fuse_core::MatrixXd
   : A_(A)
   , b_(b)
   , obs_(obs)
-  , pts3d_(pts3d)
+  , pts3d_(pts3d.transpose())  // Transpose from Nx3 to 3xN to make math easier.
   , orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
 {
-  pts3d_.transposeInPlace();  // Assume we get Nx3, so transform to 3xN
+  assert(pts3d_.rows() == 3);  // Check if we have 3xN
 
   // Create Marker Transform Matrix (Tm)
   double qm[4] = { b_(3), b_(4), b_(5), b_(6) };
