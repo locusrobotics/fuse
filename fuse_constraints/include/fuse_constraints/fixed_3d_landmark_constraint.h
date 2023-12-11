@@ -63,10 +63,10 @@ namespace fuse_constraints
  *
  * A landmark is represented as a 3D pose (3D position and a 3D orientation). This class takes 
  * the ground truth location of the 3D landmark and applies a reprojection-error based constraint
- * an constraint on the position, orientation and calibration of the camera that observed the landmark.
+ * on the position, orientation and calibration of the camera that observed the landmark.
  * 
  * In most cases, the camera calibration should be held fixed as a single landmark does not present enough
- * points to accurate constrain the pose AND the calibraton.
+ * points to accurately constrain the pose AND the calibraton.
  * 
  */
 class Fixed3DLandmarkConstraint : public fuse_core::Constraint

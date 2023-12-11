@@ -114,8 +114,6 @@ private:
   fuse_core::Vector7d b_;
   fuse_core::MatrixXd obs_;
   fuse_core::MatrixXd pts3d_;
-
-  NormalPriorOrientation3DCostFunctor orientation_functor_;
 };
 
 Fixed3DLandmarkCostFunctor::Fixed3DLandmarkCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector7d& b,
@@ -124,7 +122,6 @@ Fixed3DLandmarkCostFunctor::Fixed3DLandmarkCostFunctor(const fuse_core::MatrixXd
   , b_(b)
   , obs_(obs)
   , pts3d_(pts3d.transpose())  // Transpose from Nx3 to 3xN to make math easier.
-  , orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
 {
   assert(pts3d_.rows() == 3);  // Check if we have 3xN
 
