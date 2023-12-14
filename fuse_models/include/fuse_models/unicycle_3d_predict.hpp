@@ -503,57 +503,145 @@ inline void predict(
   fuse_core::Vector3d & vel_angular2,
   fuse_core::Vector3d & acc_linear2)
 {
-  // Convert quaternion to eigen
   fuse_core::Vector3d rpy(
     fuse_core::getRoll(orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z()),
     fuse_core::getPitch(orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z()),
     fuse_core::getYaw(orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z())
   );
-  // 3D material point projection model which matches the one used by r_l.
-  const double sr = ceres::sin(rpy.x());
-  const double cr = ceres::cos(rpy.x());
-  const double sp = ceres::sin(rpy.y());
-  const double cp = ceres::cos(rpy.y());
-  const double sy = ceres::sin(rpy.z());  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses this model
-  const double cy = ceres::cos(rpy.z());
-  const double cpi = 1.0 / cp;
 
-  fuse_core::Matrix3d tf_pos, tf_rot;
-  tf_pos(0, 0) = (cy * cp);
-  tf_pos(0, 1) = (cy * sp * sr - sy * cr);
-  tf_pos(0, 2) = (cy * sp * cr + sy * sr);
-  tf_pos(1, 0) = (sy * cp);
-  tf_pos(1, 1) = (sy * sp * sr + cy * cr);
-  tf_pos(1, 2) = (sy * sp * cr - cy * sr);
-  tf_pos(2, 0) = (-sp);
-  tf_pos(2, 1) = (cp * sr);
-  tf_pos(2, 2) = (cp * cr);
-
-  tf_rot(0, 0) = 1.0;
-  tf_rot(0, 1) = sr * sp * cpi;
-  tf_rot(0, 2) = cr * sp * cpi;
-  tf_rot(1, 0) = 0.0;
-  tf_rot(1, 1) = cr;
-  tf_rot(1, 2) = -sr;
-  tf_rot(2, 0) = 0.0;
-  tf_rot(2, 1) = sr * cpi;
-  tf_rot(2, 2) = cr * cpi;
-
-  // Project the state
-  position2 = position1 + tf_pos * vel_linear1 * dt + tf_pos * acc_linear1 * 0.5 * dt * dt;
-  rpy = rpy + tf_rot * vel_angular1 * dt;
-  vel_linear2 = vel_linear1 + acc_linear1 * dt;
-  vel_angular2 = vel_angular1;
-  acc_linear2 = acc_linear1;
-
-  fuse_core::wrapAngle2D(rpy.x());
-  fuse_core::wrapAngle2D(rpy.y());
-  fuse_core::wrapAngle2D(rpy.z());
+  predict(
+    position1.x(),
+    position1.y(),
+    position1.z(),
+    rpy.x(),
+    rpy.y(),
+    rpy.z(),
+    vel_linear1.x(),
+    vel_linear1.y(),
+    vel_linear1.z(),
+    vel_angular1.x(),
+    vel_angular1.y(),
+    vel_angular1.z(),
+    acc_linear1.x(),
+    acc_linear1.y(),
+    acc_linear1.z(),
+    dt,
+    position2.x(),
+    position2.y(),
+    position2.z(),
+    rpy.x(),
+    rpy.y(),
+    rpy.z(),
+    vel_linear2.x(),
+    vel_linear2.y(),
+    vel_linear2.z(),
+    vel_angular2.x(),
+    vel_angular2.y(),
+    vel_angular2.z(),
+    acc_linear2.x(),
+    acc_linear2.y(),
+    acc_linear2.z());
 
   // Convert back to quaternion
   orientation2 = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
                 Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
                 Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
+}
+
+/**
+ * @brief Given a state and time delta, predicts a new state
+ * @param[in] position1    - First position
+ * @param[in] orientation1 - First orientation (quaternion)
+ * @param[in] vel_linear1  - First linear velocity
+ * @param[in] vel_angular1 - First angular velocity
+ * @param[in] acc_linear1  - First linear acceleration
+ * @param[in] dt - The time delta across which to predict the state
+ * @param[out] position2    - Second position
+ * @param[out] orientation2 - Second orientation (quaternion)
+ * @param[out] vel_linear2  - Second linear velocity
+ * @param[out] vel_angular2 - Second angular velocity
+ * @param[out] acc_linear2  - Second linear acceleration
+ * @param[out] jacobian - Jacobian wrt the state
+ */
+inline void predict(
+  const fuse_core::Vector3d & position1,
+  const fuse_core::Quaternion & orientation1,
+  const fuse_core::Vector3d & vel_linear1,
+  const fuse_core::Vector3d & vel_angular1,
+  const fuse_core::Vector3d & acc_linear1,
+  const double dt,
+  fuse_core::Vector3d & position2,
+  fuse_core::Quaternion & orientation2,
+  fuse_core::Vector3d & vel_linear2,
+  fuse_core::Vector3d & vel_angular2,
+  fuse_core::Vector3d & acc_linear2,
+  fuse_core::Matrix15d & jacobian)
+{
+
+  double quat[4] = {orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z()};
+  double rpy[3];
+  double jacobian_quat2rpy[12];
+  fuse_core::quat2rpy(quat, rpy, jacobian_quat2rpy);
+
+  // fuse_core::Matrix15d is Eigen::RowMajor, so we cannot use pointers to the columns where each
+  // parameter block starts. Instead, we need to create a vector of Eigen::RowMajor matrices per
+  // parameter block and later reconstruct the fuse_core::Matrix15d with the full jacobian. The
+  // parameter blocks have the following sizes: {position1: 3, orientation1: 4, vel_linear1: 3, 
+  // vel_angular1: 3, acc_linear1: 3}
+
+  static constexpr size_t num_residuals{15};
+  static constexpr size_t num_parameter_blocks{5};
+  static const std::array<size_t, num_parameter_blocks> block_sizes = {3, 4, 3, 3, 3};
+
+  std::array<fuse_core::MatrixXd, num_parameter_blocks> J;
+  std::array<double *, num_parameter_blocks> jacobians;
+
+  for (size_t i = 0; i < num_parameter_blocks; ++i) {
+    J[i].resize(num_residuals, block_sizes[i]);
+    jacobians[i] = J[i].data();
+  }
+
+  predict(
+    position1.x(),
+    position1.y(),
+    position1.z(),
+    rpy[0],
+    rpy[1],
+    rpy[2],
+    vel_linear1.x(),
+    vel_linear1.y(),
+    vel_linear1.z(),
+    vel_angular1.x(),
+    vel_angular1.y(),
+    vel_angular1.z(),
+    acc_linear1.x(),
+    acc_linear1.y(),
+    acc_linear1.z(),
+    dt,
+    position2.x(),
+    position2.y(),
+    position2.z(),
+    rpy[0],
+    rpy[1],
+    rpy[2],
+    vel_linear2.x(),
+    vel_linear2.y(),
+    vel_linear2.z(),
+    vel_angular2.x(),
+    vel_angular2.y(),
+    vel_angular2.z(),
+    acc_linear2.x(),
+    acc_linear2.y(),
+    acc_linear2.z(),
+    jacobians.data(),
+    jacobian_quat2rpy);
+
+  jacobian << J[0], J[1], J[2], J[3], J[4];
+
+  // Convert back to quaternion
+  orientation2 = Eigen::AngleAxisd(rpy[2], Eigen::Vector3d::UnitZ()) *
+                Eigen::AngleAxisd(rpy[1], Eigen::Vector3d::UnitY()) *
+                Eigen::AngleAxisd(rpy[0], Eigen::Vector3d::UnitX());
 }
 
 }  // namespace fuse_models

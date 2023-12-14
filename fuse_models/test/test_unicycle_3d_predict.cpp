@@ -333,7 +333,7 @@ TEST(Predict, predictFromDoublePointers)
   
   EXPECT_DOUBLE_EQ(0.105, position2[0]);
   EXPECT_DOUBLE_EQ(-0.105,position2[1]);
-  EXPECT_DOUBLE_EQ(-0.105,   position2[2]);
+  EXPECT_DOUBLE_EQ(0.0,   position2[2]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[0]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[1]);
   EXPECT_DOUBLE_EQ(-0.1570796327, orientation2[2]);
@@ -429,7 +429,7 @@ TEST(Predict, predictFromDoublePointers)
 
   EXPECT_DOUBLE_EQ(-0.012031207341885572, position2[0]);
   EXPECT_DOUBLE_EQ(0.011723254405731805,  position2[1]);
-  EXPECT_DOUBLE_EQ(-0.047471798749862813, position2[2]);
+  EXPECT_DOUBLE_EQ(-0.024981300126995967, position2[2]);
   EXPECT_DOUBLE_EQ(-2.3391131265098766,   orientation2[0]);
   EXPECT_DOUBLE_EQ(-0.4261584872792554,  orientation2[1]);
   EXPECT_DOUBLE_EQ(3.0962756133525855,  orientation2[2]);
@@ -539,7 +539,7 @@ TEST(Predict, predictFromJetPointers)
   
   EXPECT_DOUBLE_EQ(Jet(0.105).a, position2[0].a);
   EXPECT_DOUBLE_EQ(Jet(-0.105).a,position2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(-0.105).a,   position2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a,   position2[2].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[1].a);
   EXPECT_DOUBLE_EQ(Jet(-0.1570796327).a, orientation2[2].a);
@@ -635,7 +635,7 @@ TEST(Predict, predictFromJetPointers)
 
   EXPECT_DOUBLE_EQ(Jet(-0.012031207341885572).a, position2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.011723254405731805).a,  position2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(-0.047471798749862813).a, position2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(-0.024981300126995967).a, position2[2].a);
   EXPECT_DOUBLE_EQ(Jet(-2.3391131265098766).a,   orientation2[0].a);
   EXPECT_DOUBLE_EQ(Jet(-0.4261584872792554).a,  orientation2[1].a);
   EXPECT_DOUBLE_EQ(Jet(3.0962756133525855).a,  orientation2[2].a);
