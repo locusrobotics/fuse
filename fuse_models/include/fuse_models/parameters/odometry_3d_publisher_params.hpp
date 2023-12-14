@@ -117,13 +117,18 @@ public:
         ns,
         "scale_process_noise"),
       scale_process_noise);
-    velocity_norm_min =
+    velocity_linear_norm_min_ =
       fuse_core::getParam(
       interfaces, fuse_core::joinParameterName(
         ns,
-        "velocity_norm_min"),
-      velocity_norm_min);
-
+        "velocity_linear_norm_min"),
+      velocity_linear_norm_min_);
+    velocity_angular_norm_min_ =
+      fuse_core::getParam(
+      interfaces, fuse_core::joinParameterName(
+        ns,
+        "velocity_angular_norm_min"),
+      velocity_angular_norm_min_);
     fuse_core::getPositiveParam(
       interfaces,
       fuse_core::joinParameterName(
@@ -220,7 +225,8 @@ public:
   double publish_frequency {10.0};
   fuse_core::Matrix15d process_noise_covariance;   //!< Process noise covariance matrix
   bool scale_process_noise{false};
-  double velocity_norm_min{1e-3};
+  double velocity_linear_norm_min_{1e-3};
+  double velocity_angular_norm_min_{1e-3};
   rclcpp::Duration covariance_throttle_period {0, 0};  //!< The throttle period duration in seconds
                                                        //!< to compute the covariance
   rclcpp::Duration tf_cache_time {10, 0};

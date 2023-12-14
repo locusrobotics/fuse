@@ -472,126 +472,105 @@ void Odometry3DPublisher::publishTimerCallback()
 
   // If requested, we need to project our state forward in time using the 3D kinematic model
   if (params_.predict_to_current_time) {
-    // TODO: this is in pause since we need to implement the jacobian of the 3D predict function
-    // rclcpp::Time timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
-    // fuse_core::Vector3d velocity_linear, velocity_angular;
-    // tf2::fromMsg(odom_output.twist.twist.linear, velocity_linear);
-    // tf2::fromMsg(odom_output.twist.twist.angular, velocity_angular);
+    rclcpp::Time timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
 
-    // const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
+    // Convert pose in Eigen representation
+    fuse_core::Vector3d position, velocity_linear, velocity_angular;
+    fuse_core::Quaternion orientation;
+    position << pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z();
+    orientation.x() = pose.getRotation().x();
+    orientation.y() = pose.getRotation().y();
+    orientation.z() = pose.getRotation().z();
+    orientation.w() = pose.getRotation().w();
+    velocity_linear << odom_output.twist.twist.linear.x, 
+      odom_output.twist.twist.linear.y, odom_output.twist.twist.linear.z;
+    velocity_angular << odom_output.twist.twist.angular.x, 
+      odom_output.twist.twist.angular.y, odom_output.twist.twist.angular.z;
 
-    // fuse_core::Matrix8d jacobian; // TODO: maybe this is not useful if we rely on covariance_geometry
+    const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
 
-    // tf2::Vector3 acceleration_linear;
-    // if (params_.predict_with_acceleration) {
-    //   tf2::fromMsg(acceleration_output.accel.accel.linear, acceleration_linear);
-    // }
+    fuse_core::Matrix15d jacobian;
 
-    // double yaw_vel;
+    fuse_core::Vector3d acceleration_linear;
+    if (params_.predict_with_acceleration) {
+      acceleration_linear << acceleration_output.accel.accel.linear.x, 
+        acceleration_output.accel.accel.linear.y, acceleration_output.accel.accel.linear.z;
+    }
 
-    // predict(
-    //   pose,
-    //   velocity_linear,
-    //   velocity_angular,
-    //   acceleration_linear,
-    //   dt,
-    //   pose,
-    //   velocity_linear,
-    //   velocity_angular,
-    //   acceleration_linear);
+    predict(
+      position,
+      orientation,
+      velocity_linear,
+      velocity_angular,
+      acceleration_linear,
+      dt,
+      position,
+      orientation,
+      velocity_linear,
+      velocity_angular,
+      acceleration_linear,
+      jacobian);
 
-    // odom_output.pose.pose.position = tf2::toMsg(pose.getOrigin());
-    // odom_output.pose.pose.orientation = tf2::toMsg(pose.getRotation());
+    // Convert back to tf2 representation
+    pose.setOrigin(tf2::Vector3(position.x(), position.y(), position.z()));
+    pose.setRotation(tf2::Quaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
 
-    // odom_output.twist.twist.linear.x = velocity_linear.x();
-    // odom_output.twist.twist.linear.y = velocity_linear.y();
-    // odom_output.twist.twist.linear.z = velocity_linear.z();
-    // odom_output.twist.twist.angular.x = velocity_angular.x();
-    // odom_output.twist.twist.angular.y = velocity_angular.y();
-    // odom_output.twist.twist.angular.z = velocity_angular.z();
+    odom_output.pose.pose.position.x = position.x();
+    odom_output.pose.pose.position.y = position.y();
+    odom_output.pose.pose.position.z = position.z();
+    odom_output.pose.pose.orientation.x = orientation.x();
+    odom_output.pose.pose.orientation.y = orientation.y();
+    odom_output.pose.pose.orientation.z = orientation.z();
+    odom_output.pose.pose.orientation.w = orientation.w();
 
-    // if (params_.predict_with_acceleration) {
-    //   acceleration_output.accel.accel.linear.x = acceleration_linear.x();
-    //   acceleration_output.accel.accel.linear.y = acceleration_linear.y();
-    //   acceleration_output.accel.accel.linear.z = acceleration_linear.z();
-    // }
+    odom_output.twist.twist.linear.x = velocity_linear.x();
+    odom_output.twist.twist.linear.y = velocity_linear.y();
+    odom_output.twist.twist.linear.z = velocity_linear.z();
+    odom_output.twist.twist.angular.x = velocity_angular.x();
+    odom_output.twist.twist.angular.y = velocity_angular.y();
+    odom_output.twist.twist.angular.z = velocity_angular.z();
 
-    // odom_output.header.stamp = timer_now;
-    // acceleration_output.header.stamp = timer_now;
+    if (params_.predict_with_acceleration) {
+      acceleration_output.accel.accel.linear.x = acceleration_linear.x();
+      acceleration_output.accel.accel.linear.y = acceleration_linear.y();
+      acceleration_output.accel.accel.linear.z = acceleration_linear.z();
+    }
 
-    // // Either the last covariance computation was skipped because there was no subscriber,
-    // // or it failed
-    // if (latest_covariance_valid) {
-    //   fuse_core::Matrix8d covariance;
-    //   covariance(0, 0) = odom_output.pose.covariance[0];
-    //   covariance(0, 1) = odom_output.pose.covariance[1];
-    //   covariance(0, 2) = odom_output.pose.covariance[5];
-    //   covariance(1, 0) = odom_output.pose.covariance[6];
-    //   covariance(1, 1) = odom_output.pose.covariance[7];
-    //   covariance(1, 2) = odom_output.pose.covariance[11];
-    //   covariance(2, 0) = odom_output.pose.covariance[30];
-    //   covariance(2, 1) = odom_output.pose.covariance[31];
-    //   covariance(2, 2) = odom_output.pose.covariance[35];
+    odom_output.header.stamp = timer_now;
+    acceleration_output.header.stamp = timer_now;
 
-    //   covariance(3, 3) = odom_output.twist.covariance[0];
-    //   covariance(3, 4) = odom_output.twist.covariance[1];
-    //   covariance(3, 5) = odom_output.twist.covariance[5];
-    //   covariance(4, 3) = odom_output.twist.covariance[6];
-    //   covariance(4, 4) = odom_output.twist.covariance[7];
-    //   covariance(4, 5) = odom_output.twist.covariance[11];
-    //   covariance(5, 3) = odom_output.twist.covariance[30];
-    //   covariance(5, 4) = odom_output.twist.covariance[31];
-    //   covariance(5, 5) = odom_output.twist.covariance[35];
+    // Either the last covariance computation was skipped because there was no subscriber,
+    // or it failed
+    if (latest_covariance_valid) {
+      fuse_core::Matrix15d covariance;
+      covariance.setZero();
+      Eigen::Map<fuse_core::Matrix6d> pose_covariance(odom_output.pose.covariance.data());
+      Eigen::Map<fuse_core::Matrix6d> twist_covariance(odom_output.twist.covariance.data());
+      Eigen::Map<fuse_core::Matrix3d> acceleration_covariance(acceleration_output.accel.covariance.data());
 
-    //   covariance(6, 6) = acceleration_output.accel.covariance[0];
-    //   covariance(6, 7) = acceleration_output.accel.covariance[1];
-    //   covariance(7, 6) = acceleration_output.accel.covariance[6];
-    //   covariance(7, 7) = acceleration_output.accel.covariance[7];
+      covariance.block<6, 6>(0, 0) = pose_covariance;
+      covariance.block<6, 6>(6, 6) = twist_covariance;
+      covariance.block<3, 3>(12, 12) = acceleration_covariance;
 
-    //   // TODO(efernandez) for now we set to zero the out-of-diagonal blocks with the correlations
-    //   //                  between pose, twist and acceleration, but we could cache them in another
-    //   //                  attribute when we retrieve the covariance from the ceres problem
-    //   covariance.topRightCorner<3, 5>().setZero();
-    //   covariance.bottomLeftCorner<5, 3>().setZero();
-    //   covariance.block<3, 2>(3, 6).setZero();
-    //   covariance.block<2, 3>(6, 3).setZero();
+      covariance = jacobian * covariance * jacobian.transpose();
 
-    //   covariance = jacobian * covariance * jacobian.transpose();
+      auto process_noise_covariance = params_.process_noise_covariance;
+      if (params_.scale_process_noise) {
+        common::scaleProcessNoiseCovariance(
+          process_noise_covariance, 
+          velocity_linear,
+          velocity_angular, 
+          params_.velocity_linear_norm_min_,
+          params_.velocity_angular_norm_min_
+          );
+      }
 
-    //   auto process_noise_covariance = params_.process_noise_covariance;
-    //   if (params_.scale_process_noise) {
-    //     common::scaleProcessNoiseCovariance(
-    //       process_noise_covariance, velocity_linear,
-    //       odom_output.twist.twist.angular.z, params_.velocity_norm_min);
-    //   }
+      covariance.noalias() += dt * process_noise_covariance;
 
-    //   covariance.noalias() += dt * process_noise_covariance;
-
-    //   odom_output.pose.covariance[0] = covariance(0, 0);
-    //   odom_output.pose.covariance[1] = covariance(0, 1);
-    //   odom_output.pose.covariance[5] = covariance(0, 2);
-    //   odom_output.pose.covariance[6] = covariance(1, 0);
-    //   odom_output.pose.covariance[7] = covariance(1, 1);
-    //   odom_output.pose.covariance[11] = covariance(1, 2);
-    //   odom_output.pose.covariance[30] = covariance(2, 0);
-    //   odom_output.pose.covariance[31] = covariance(2, 1);
-    //   odom_output.pose.covariance[35] = covariance(2, 2);
-
-    //   odom_output.twist.covariance[0] = covariance(3, 3);
-    //   odom_output.twist.covariance[1] = covariance(3, 4);
-    //   odom_output.twist.covariance[5] = covariance(3, 5);
-    //   odom_output.twist.covariance[6] = covariance(4, 3);
-    //   odom_output.twist.covariance[7] = covariance(4, 4);
-    //   odom_output.twist.covariance[11] = covariance(4, 5);
-    //   odom_output.twist.covariance[30] = covariance(5, 3);
-    //   odom_output.twist.covariance[31] = covariance(5, 4);
-    //   odom_output.twist.covariance[35] = covariance(5, 5);
-
-    //   acceleration_output.accel.covariance[0] = covariance(6, 6);
-    //   acceleration_output.accel.covariance[1] = covariance(6, 7);
-    //   acceleration_output.accel.covariance[6] = covariance(7, 6);
-    //   acceleration_output.accel.covariance[7] = covariance(7, 7);
-    // }
+      pose_covariance = covariance.block<6, 6>(0, 0);
+      twist_covariance = covariance.block<6, 6>(6, 6);
+      acceleration_covariance = covariance.block<3, 3>(12, 12);
+    }
   }
 
   odom_pub_->publish(odom_output);
