@@ -151,6 +151,86 @@ Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
 }
 
 /**
+ * @brief Compute roll, pitch, and yaw from a quaternion
+ *
+ * @param[in] q Pointer to the quaternion array (4x1)
+ * @param[in] rpy Pointer to the roll, pitch, yaw array (3x1)
+ * @param[in] jacobian Pointer to the jacobian matrix (3x4, optional)
+ */
+static inline void quat2rpy(const double * q, double * rpy, double * jacobian = nullptr) 
+{
+  rpy[0] = fuse_core::getRoll(q[0], q[1], q[2], q[3]);
+  rpy[1] = fuse_core::getPitch(q[0], q[1], q[2], q[3]);
+  rpy[2] = fuse_core::getYaw(q[0], q[1], q[2], q[3]);
+
+  if (jacobian) {
+    Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> jacobian_map(jacobian);
+    const double qw = q[0];
+    const double qx = q[1];
+    const double qy = q[2];
+    const double qz = q[3];
+    const double discr = qz * qy - qx * qz;
+    jacobian_map.setZero();
+
+    if (discr > 0.49999) {
+      // pitch = 90 deg
+      jacobian_map(2, 0) = (2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
+      jacobian_map(2, 1) = -2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
+      return;
+    } else if (discr < -0.49999) {
+      // pitch = -90 deg
+      jacobian_map(2, 0) = (-2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
+      jacobian_map(2, 1) = 2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
+      return;
+    } else {
+      // Non-degenerate case:
+      jacobian_map(0, 0) =
+        -(2.0 * qx) /
+        ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) +
+        1.0) *
+        (2.0 * qx * qx + 2.0 * qy * qy - 1.0));
+      jacobian_map(0, 1) =
+        -((2.0 * qw) / (2.0 * qx * qx + 2.0 * qy * qy - 1.0) -
+        (4.0 * qx * (2.0 * qw * qx + 2.0 * qy * qz)) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0);
+      jacobian_map(0, 2) =
+        -((2.0 * qz) / (2.0 * qx * qx + 2.0 * qy * qy - 1.0) -
+        (4.0 * qy * (2.0 * qw * qx + 2.0 * qy * qz)) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0);
+      jacobian_map(0, 3) =
+        -(2.0 * qy) /
+        ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) +
+        1.0) *
+        (2.0 * qx * qx + 2.0 * qy * qy - 1.0));
+
+      jacobian_map(1, 0) = (2.0 * qy) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+      jacobian_map(1, 1) = -(2.0 * qz) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+      jacobian_map(1, 2) = (2.0 * qw) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+      jacobian_map(1, 3) = -(2.0 * qx) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+
+      jacobian_map(2, 0) =
+        -(2.0 * qz) /
+        ((std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) +
+        1.0) *
+        (2.0 * qy * qy + 2.0 * qz * qz - 1.0));
+      jacobian_map(2, 1) =
+        -(2.0 * qy) /
+        ((std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) +
+        1.0) *
+        (2.0 * qy * qy + 2.0 * qz * qz - 1.0));
+      jacobian_map(2, 2) =
+        -((2.0 * qx) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
+        (4.0 * qy * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
+      jacobian_map(2, 3) =
+        -((2.0 * qw) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
+        (4.0 * qz * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
+    }
+  }
+}
+
+/**
  * @brief Create a compound ROS topic name from two components
  *
  * @param[in] a The first element
