@@ -37,8 +37,8 @@
 #include <string>
 
 #include <boost/serialization/export.hpp>
-// #include <fuse_models/unicycle_3d_state_cost_function.hpp>
-#include <fuse_models/unicycle_3d_state_cost_functor.hpp>
+#include <fuse_models/unicycle_3d_state_cost_function.hpp>
+// #include <fuse_models/unicycle_3d_state_cost_functor.hpp>
 #include <fuse_models/unicycle_3d_state_kinematic_constraint.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
@@ -101,16 +101,12 @@ void Unicycle3DStateKinematicConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * Unicycle3DStateKinematicConstraint::costFunction() const
 {
+  return new Unicycle3DStateCostFunction(dt_, sqrt_information_);
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
   // use automatic differentiation as follows:
   //
-  return new ceres::AutoDiffCostFunction<Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
-    new Unicycle3DStateCostFunctor(dt_, sqrt_information_));
-  //
-  // which requires:
-  //
-  // #include <fuse_models/unicycle_3d_state_cost_functor.hpp>
-  // return new Unicycle3DStateCostFunction(dt_, sqrt_information_);
+  // return new ceres::AutoDiffCostFunction<Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
+  //   new Unicycle3DStateCostFunctor(dt_, sqrt_information_));
 }
 
 }  // namespace fuse_models

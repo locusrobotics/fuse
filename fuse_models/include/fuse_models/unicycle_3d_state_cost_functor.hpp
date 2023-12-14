@@ -147,12 +147,11 @@ bool Unicycle3DStateCostFunctor::operator()(
   const T * const acc_linear2,
   T * residual) const
 {
-  // Initialize predicted state variables
-  T position_pred[3] {T(0.0)};
-  T orientation_pred[3] {T(0.0)};
-  T vel_linear_pred[3] {T(0.0)};
-  T vel_angular_pred[3] {T(0.0)};
-  T acc_linear_pred[3] {T(0.0)};
+  T position_pred[3];
+  T orientation_pred[3];
+  T vel_linear_pred[3];
+  T vel_angular_pred[3];
+  T acc_linear_pred[3];
 
   // Convert orientation variables from quaternion to roll-pitch-yaw
   const T orientation1_rpy[3] {
