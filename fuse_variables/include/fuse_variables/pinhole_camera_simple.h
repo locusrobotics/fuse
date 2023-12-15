@@ -58,87 +58,70 @@ namespace fuse_variables
  * construction and dependent on a user input database id. As such, the database id cannot be altered after
  * construction.
  */
-class PinholeCamera : public BaseCamera<4>
+class PinholeCameraSimple : public BaseCamera<3>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(PinholeCamera);
+  FUSE_VARIABLE_DEFINITIONS(PinholeCameraSimple);
 
   /**
    * @brief Can be used to directly index variables in the data array
    */
   enum : size_t
   {
-    FX = 0,
-    FY = 1,
-    CX = 2,
-    CY = 3
+    F = 0,
+    R1 = 1,
+    R2 = 2
   };
 
   /**
    * @brief Default constructor
    */
-  PinholeCamera() = default;
+  PinholeCameraSimple() = default;
 
   /**
    * @brief Construct a pinhole camera variable given a camera id
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCamera(const uint64_t& camera_id);
+  explicit PinholeCameraSimple(const uint64_t& camera_id);
 
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id,
-                          const double& fx, const double& fy,
-                          const double& cx, const double& cy);
+  explicit PinholeCameraSimple(const fuse_core::UUID& uuid, const uint64_t& camera_id,
+                              const double& f, const double& r1, const double& r2);
 
   /**
    * @brief Read-write access to the cx parameter.
    */
-  double& cx() { return data_[CX]; }
+  double& f() { return data_[F]; }
 
   /**
    * @brief Read-only access to the cx parameter.
    */
-  const double& cx() const { return data_[CX]; }
+  const double& f() const { return data_[F]; }
 
   /**
    * @brief Read-write access to the cy parameter.
    */
-  double& cy() { return data_[CY]; }
+  double& r1() { return data_[R1]; }
 
   /**
    * @brief Read-only access to the cy parameter.
    */
-  const double& cy() const { return data_[CY]; }
+  const double& r1() const { return data_[R1]; }
 
   /**
    * @brief Read-write access to the fx parameter.
    */
-  double& fx() { return data_[FX]; }
+  double& r2() { return data_[R2]; }
 
   /**
    * @brief Read-only access to the fx parameter.
    */
-  const double& fx() const { return data_[FX]; }
-
-  /**
-   * @brief Read-write access to the fy parameter.
-   */
-  double& fy() { return data_[FY]; }
-
-  /**
-   * @brief Read-only access to the fy parameter.
-   */
-  const double& fy() const { return data_[FY]; }
-
-  /**
-   * @brief Read-only access to the id
-   */
-  // const uint64_t& id() const { return id_; }
+  const double& r2() const { return data_[R2]; }
 
   /**
    * @brief Print a human-readable description of the variable to the provided
@@ -154,7 +137,7 @@ protected:
    *
    * @param[in] camera_id  The id associated to a camera_id
    */
-  PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id);
+  PinholeCameraSimple(const fuse_core::UUID& uuid, const uint64_t& camera_id);
 
 private:
   // Allow Boost Serialization access to private methods
@@ -179,6 +162,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::PinholeCamera);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::PinholeCameraSimple);
 
 #endif  // FUSE_VARIABLES_PINHOLE_CAMERA_H

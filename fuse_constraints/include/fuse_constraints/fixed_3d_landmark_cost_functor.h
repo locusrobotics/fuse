@@ -176,13 +176,35 @@ bool Fixed3DLandmarkCostFunctor::operator()(const T* const position, const T* co
 
   auto d = (obs_.cast<T>() - xp.block(0, 0, xp.rows(), 2));
 
-  for (uint i = 0; i < 4; i++)
+  T fx = calibration[0];
+  T fy = calibration[1];
+  for (uint i = 0; i < pts3d_.cols(); i++)
   {
-    residual[i * 2] = d.row(i)[0];
-    residual[i * 2 + 1] = d.row(i)[1];
+    // Get the covariance weigthing to point losses from a pose uncertainty
+    // From https://arxiv.org/pdf/2103.15980.pdf , equation A.7:
+    // dh( e A p )  =   dh(p')  *  d(e A p)
+    //     d(e)          d(p')       d(e)
+    // where e is a small increment around the SE(3) manifold of A, A is a pose, p is a point,
+    // h is the projection function, and p' = Ap = g, the jacobian is thus 2x6:
+    // J =
+    // [ (fx/gz)      (0)    (-fx * gx / gz^2)  (-fx * gx gy / gz^2)    fx(1+gx^2/gz^2)     -fx gy/gz]
+    // [     0      (fy/gz)) (-fy * gy / gz^2)     -fy(1+gy^2/gz^2)   (-fy * gx gy / gz^2)  -fy gx/gz]
+    T gx = pts3d_.cast<T>().col(i)[0];
+    T gy = pts3d_.cast<T>().col(i)[1];
+    T gz = pts3d_.cast<T>().col(i)[2];
+    T gz2 = gz*gz;
+    T gxyz = (gx*gy)/gz2;
+    Eigen::Matrix<T, 2, 6, Eigen::RowMajor> J;
+    J << fx/gz,   T(0), -fx * (gx / gz2),     -fx*gxyz,        fx*(T(1)+(gx*gx)/gz2), -fx * gy/gz,
+          T(0),  fy/gz, -fy * (gy / gz2), -fy*(T(1)+(gy*gy)/gz2),       fy*gxyz,       fy * gx/gz;
+    Eigen::Matrix<T, 2, 2, Eigen::RowMajor> A = J*A_*J.transpose();
+
+    // Weight Residuals
+    auto r = A * d.row(i).transpose();
+    residual[i * 2] = r[0];
+    residual[i * 2 + 1] = r[1];
   }
 
-  // TODO(omendez): how do we apply covariance weigthing to point losses from a pose uncertainty?
 
   return true;
 }

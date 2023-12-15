@@ -19,6 +19,13 @@ class PinholeCameraProjection():
         self.cx = 310.29060457226840
         self.cy = 237.80861559081677
 
+        # Dist Parameters
+        self.k1 =  0.13281739520782995
+        self.k2 = -0.17255676937880005
+        self.p1 = -0.0036963860577237523
+        self.p2 = -0.00884659526000406
+        self.k3 = 0.0
+
         # Make Matrix
         self.K = np.eye(4)
         self.K[0,0] = self.fx
@@ -68,8 +75,25 @@ class PinholeCameraProjection():
         x[:,1]/=x[:,2]
         x[:,2]/=x[:,2]
         return x
+    
+    def project_points_snavelly(self, camPos, pts3d):
+        Ks = np.eye(4)
+        Ks[0,0] = self.fx
+        Ks[1,1] = self.fx
+        Ks[0,2] = 0
+        Ks[1,2] = 0
 
-    def plot(self, pts2d, pts3d):
+        x = np.matmul(camPos, pts3d.transpose()).transpose()
+        x[:,0]/=-x[:,2]
+        x[:,1]/=-x[:,2]
+        x[:,2]/=-x[:,2]
+
+        r2 = x*x
+        d = 1.0 + r2*(self.k1+self.k2*r2)
+        x = Ks[0,0]*d*x
+        return x
+
+    def plot(self, pts2d, pts3d, is_snavelly=False):
 
         import matplotlib.pyplot as plt
 
@@ -79,9 +103,14 @@ class PinholeCameraProjection():
         ax.scatter(pts3d[:,0], pts3d[:,1], pts3d[:,2])
         ax = fig.add_subplot(1,2,2)
 
-        ax.scatter(pts2d[:,0], pts2d[:,1], pts2d[:,2])
-        ax.set_xlim([0, self.w])
-        ax.set_ylim([0, self.h])
+        ax.scatter(pts2d[:,0], pts2d[:,1])
+        if is_snavelly:
+            ax.set_xlim([-self.w/2, self.w/2])
+            ax.set_ylim([-self.h/2, self.h/2])
+        else:
+            ax.set_xlim([0, self.w])
+            ax.set_ylim([0, self.h])
+
         plt.show()
 
     def project_poses(self, pts3d):
@@ -108,6 +137,16 @@ class PinholeCameraProjection():
         x = self.project_points(np.eye(4), X)
         self.print_points(x, X)
         self.plot(x, X)
+
+    def OptimizationSnavelly(self):
+        print("Points for OptimizationSnavelly")
+        print(f"f = {self.fx}")
+        print(f"k1 = {self.k1}")   
+        print(f"k2 = {self.k2}")   
+        X = np.matmul(self.T, self.X.transpose()).transpose()
+        x = self.project_points_snavelly(np.eye(4), X)
+        self.print_points(x, X)
+        self.plot(x, X, True)
 
     def OptimizationScaledMarker(self):
         print("Points for OptimizationScaledMarker")
@@ -186,7 +225,8 @@ class PinholeCameraProjection():
 if __name__ == '__main__':
     tests = PinholeCameraProjection()
 
-    tests.Optimization()
-    tests.OptimizationScaledMarker()
-    tests.OptimizationPoints()
-    tests.MultiViewOptimization()
+    # tests.Optimization()
+    tests.OptimizationSnavelly()
+    # tests.OptimizationScaledMarker()
+    # tests.OptimizationPoints()
+    # tests.MultiViewOptimization()

@@ -34,7 +34,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/pinhole_camera.h>
+#include <fuse_variables/pinhole_camera_simple.h>
 
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
@@ -47,41 +47,38 @@
 
 namespace fuse_variables
 {
-PinholeCamera::PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id)
+PinholeCameraSimple::PinholeCameraSimple(const fuse_core::UUID& uuid, const uint64_t& camera_id)
   : BaseCamera(uuid, camera_id)
 {
 }
 
-PinholeCamera::PinholeCamera(const uint64_t& camera_id)
-  : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
+PinholeCameraSimple::PinholeCameraSimple(const uint64_t& camera_id)
+  : PinholeCameraSimple(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
 {
 }
 
-PinholeCamera::PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id,
-                              const double& fx, const double& fy,
-                              const double& cx, const double& cy)
-  : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
+PinholeCameraSimple::PinholeCameraSimple(const fuse_core::UUID& uuid, const uint64_t& camera_id,
+                              const double& f, const double& r1, const double& r2)
+  : PinholeCameraSimple(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
 {
-  data_[FX] = fx;
-  data_[FY] = fy;
-  data_[CX] = cx;
-  data_[CY] = cy;
+  data_[F] = f;
+  data_[R1] = r1;
+  data_[R2] = r2;
 }
 
-void PinholeCamera::print(std::ostream& stream) const
+void PinholeCameraSimple::print(std::ostream& stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
          << "  size: " << size() << "\n"
          << "  camera id: " << id() << "\n"
          << "  data:\n"
-         << "  - fx: " << fx() << "\n"
-         << "  - fy: " << fy() << "\n"
-         << "  - cx: " << cx() << "\n"
-         << "  - cy: " << cy() << "\n";
+         << "  - f: " << f() << "\n"
+         << "  - r1: " << r1() << "\n"
+         << "  - r2: " << r2() << "\n";
 }
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::PinholeCamera);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::PinholeCamera, fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::PinholeCameraSimple);
+PLUGINLIB_EXPORT_CLASS(fuse_variables::PinholeCameraSimple, fuse_core::Variable);
