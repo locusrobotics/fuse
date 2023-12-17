@@ -192,8 +192,8 @@ TEST(ReprojectionErrorSnavellyConstraint, Optimization)
 
   // Check
   EXPECT_NEAR(0.00, position_variable->x(), 1.0e-2);  // 1cm error (too few points for more accuracy)
-  EXPECT_NEAR(0.00, position_variable->y(), 1.0e-2);  
-  EXPECT_NEAR(0.00, position_variable->z(), 1.0e-2);  
+  EXPECT_NEAR(0.00, position_variable->y(), 1.0e-2);
+  EXPECT_NEAR(0.00, position_variable->z(), 1.0e-2);
 
   EXPECT_NEAR(1.0, orientation_variable->w(), 1.0e-3);
   EXPECT_NEAR(0.00, orientation_variable->x(), 1.0e-3);

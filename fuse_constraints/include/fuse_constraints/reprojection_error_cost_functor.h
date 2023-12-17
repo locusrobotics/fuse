@@ -106,7 +106,6 @@ template <typename T>
 bool ReprojectionErrorCostFunctor::operator()(const T* const position, const T* const orientation,
                                               const T* const calibration, const T* const point, T* residual) const
 {
-
   // Point to Camera CF ( X' = [R|t] X = RX + t )
   // Rotate Point (RX)
   T p[3];
