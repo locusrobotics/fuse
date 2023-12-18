@@ -73,16 +73,16 @@ public:
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit BaseCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id): 
-  FixedSizeVariable<N>(uuid), id_(camera_id){};
+  explicit BaseCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id):
+  FixedSizeVariable<N>(uuid), id_(camera_id){}
 
   /**
    * @brief Construct a pinhole camera variable given a camera id
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit BaseCamera(const uint64_t& camera_id): 
-  BaseCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id){};
+  explicit BaseCamera(const uint64_t& camera_id):
+  BaseCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id){}
 
   /**
    * @brief Read-only access to the id
