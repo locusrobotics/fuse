@@ -98,7 +98,7 @@ TEST(PinholeCameraSimple, Optimization)
   K.r2() = 5;
 
   // Create a simple a constraint
-  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 4, 4>(new CostFunctor());
+  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
