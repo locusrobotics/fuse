@@ -91,7 +91,7 @@ public:
    * @param[in] pts3d         Matrix of 3D points in marker coordiate frame.
    * @param[in] observations  The 2D (pixel) observations of each marker's corners.
    * @param[in] mean          The measured/prior pose of the marker as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
-   * @param[in] covariance    The measurement/prior marker pose covariance (6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] covariance    The detection covariance, in pixels (2x2 matrix: u, v)
    */
   Fixed3DLandmarkSimpleCovarianceConstraint(const std::string& source,
                                             const fuse_variables::Position3DStamped& position,
@@ -113,7 +113,7 @@ public:
    * @param[in] marker_size   The size of the marker, in meters. Assumed to be square.
    * @param[in] observations  The 2D (pixel) observations of each marker's corners.
    * @param[in] mean          The measured/prior pose of the marker as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
-   * @param[in] covariance    The measurement/prior marker pose covariance (6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] covariance    The detection covariance, in pixels (2x2 matrix: u, v)
    */
   Fixed3DLandmarkSimpleCovarianceConstraint(const std::string& source,
                                             const fuse_variables::Position3DStamped& position,
