@@ -90,17 +90,15 @@ bool NormalPriorPose3D::Evaluate(
   residuals_vector = A_ * full_residuals_vector;
 
   if (jacobians != nullptr) {
-    // Jacobian of the position residuals wrt position parameters block (max 3x3)
+    // Jacobian of the residuals wrt position parameter block
     if (jacobians[0] != nullptr) {
-      Eigen::Map<fuse_core::MatrixXd> j0_map(jacobians[0], num_residuals(), 3);
-      j0_map.setIdentity();
-      j0_map.applyOnTheLeft(A_.leftCols<3>());
+      Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 3) = A_.leftCols<3>();
     }
-    // Jacobian of the orientation residuals wrt orientation parameters block (max 3x4)
+    // Jacobian of the residuals wrt orientation parameter block
     if (jacobians[1] != nullptr) {
-      Eigen::Map<fuse_core::MatrixXd> j1_map(jacobians[1], num_residuals(), 4);
       Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
+      Eigen::Map<fuse_core::MatrixXd> j1_map(jacobians[1], num_residuals(), 4);
       j1_map = A_.rightCols<3>() * j_quat2angle_map * j_product_map;
     }
   }
