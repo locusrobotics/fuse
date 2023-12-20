@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,14 +32,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
 
 #include <boost/serialization/export.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
-#include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
+#include <fuse_constraints/normal_prior_pose_3d.hpp>
+// #include <ceres/autodiff_cost_function.h>
+// #include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
@@ -68,7 +70,6 @@ AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
 { 
   // Compute the partial sqrt information matrix of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
-  // std::cout << "partial_sqrt_information: \n" << partial_sqrt_information << std::endl;
 
   // Assemble a sqrt information matrix from the provided values, but in proper Variable order
   //
@@ -86,8 +87,8 @@ AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
   }
 
   // std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
-  // std::cout << "mean_ = " << mean_.transpose() << std::endl;
-}
+    // std::cout << "mean_ = " << mean_.transpose() << std::endl;
+  }
 
 fuse_core::Matrix6d AbsolutePose3DStampedConstraint::covariance() const
 {
@@ -126,9 +127,18 @@ void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, ceres::DYNAMIC, 3, 4>(
-    new NormalPriorPose3DCostFunctor(sqrt_information_, mean_), 
-    sqrt_information_.rows());
+  return new NormalPriorPose3D(sqrt_information_, mean_);
+  
+  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
+  // use automatic differentiation as follows:
+
+  // return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, ceres::DYNAMIC, 3, 4>(
+  //   new NormalPriorPose3DCostFunctor(sqrt_information_, mean_), 
+  //   sqrt_information_.rows());
+    
+  // And including the followings:
+  // #include <ceres/autodiff_cost_function.h>
+  // #include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
 }
 
 }  // namespace fuse_constraints
