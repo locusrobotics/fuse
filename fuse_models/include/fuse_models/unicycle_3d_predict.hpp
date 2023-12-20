@@ -581,7 +581,7 @@ inline void predict(
   double quat[4] = {orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z()};
   double rpy[3];
   double jacobian_quat2rpy[12];
-  fuse_core::quat2rpy(quat, rpy, jacobian_quat2rpy);
+  fuse_core::quaternion2rpy(quat, rpy, jacobian_quat2rpy);
 
   // fuse_core::Matrix15d is Eigen::RowMajor, so we cannot use pointers to the columns where each
   // parameter block starts. Instead, we need to create a vector of Eigen::RowMajor matrices per

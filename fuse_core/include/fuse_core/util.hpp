@@ -35,6 +35,7 @@
 #define FUSE_CORE__UTIL_HPP_
 
 #include <ceres/jet.h>
+#include <ceres/rotation.h>
 #include <Eigen/Core>
 
 #include <cmath>
@@ -157,7 +158,7 @@ Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
  * @param[in] rpy Pointer to the roll, pitch, yaw array (3x1)
  * @param[in] jacobian Pointer to the jacobian matrix (3x4, optional)
  */
-static inline void quat2rpy(const double * q, double * rpy, double * jacobian = nullptr) 
+static inline void quaternion2rpy(const double * q, double * rpy, double * jacobian = nullptr) 
 {
   rpy[0] = fuse_core::getRoll(q[0], q[1], q[2], q[3]);
   rpy[1] = fuse_core::getPitch(q[0], q[1], q[2], q[3]);
@@ -226,6 +227,98 @@ static inline void quat2rpy(const double * q, double * rpy, double * jacobian = 
         -((2.0 * qw) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
         (4.0 * qz * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
         (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
+    }
+  }
+}
+
+/**
+ * @brief Compute product of two quaternions and the function jacobian
+ * TODO(giafranchini): parametric jacobian computation? Atm this function is only used in 
+ * normal_prior_pose_3d cost function. There we only need the derivatives wrt quaternion W,
+ * so at the time we are only computing the jacobian wrt W
+ * 
+ * @param[in] z Pointer to the first quaternion array (4x1)
+ * @param[in] w Pointer to the second quaternion array (4x1)
+ * @param[in] z Pointer to the first quaternion array (4x1) 
+ * @param[in] jacobian Pointer to the jacobian matrix (4x4, optional)
+ */
+static inline void quaternionProduct(const double * z, const double * w, double * zw, double * jacobian = nullptr) 
+{
+  ceres::QuaternionProduct(z, w, zw);
+  if (jacobian) {
+    Eigen::Map<Eigen::Matrix<double, 4, 4, Eigen::RowMajor>> jacobian_map(jacobian);
+    jacobian_map << 
+      z[0], -z[1], -z[2], -z[3],
+      z[1],  z[0], -z[3],  z[2],
+      z[2],  z[3],  z[0], -z[1],
+      z[3], -z[2],  z[1],  z[0];
+  }
+}
+
+/**
+ * @brief Compute quaternion to AngleAxis conversion and the function jacobian
+ * 
+ * @param[in] q Pointer to the quaternion array (4x1)
+ * @param[in] angle_axis Pointer to the angle_axis array (3x1) 
+ * @param[in] jacobian Pointer to the jacobian matrix (3x4, optional)
+ */
+static inline void quaternionToAngleAxis(const double * q, double * angle_axis, double * jacobian = nullptr) 
+{
+  ceres::QuaternionToAngleAxis(q, angle_axis);
+  if (jacobian) {
+    Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> jacobian_map(jacobian);
+    const double & q0 = q[0];
+    const double & q1 = q[1];
+    const double & q2 = q[2];
+    const double & q3 = q[3];
+    const double q_sum2 = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
+    const double sin_theta2 = q1 * q1 + q2 * q2 + q3 * q3;
+    const double sin_theta = std::sqrt(sin_theta2);
+    const double cos_theta = q0;
+
+    if (std::fpclassify(sin_theta) != FP_ZERO) {
+      const double two_theta = 2.0 * 
+        (cos_theta < 0.0 ? std::atan2(-sin_theta, -cos_theta) : std::atan2(sin_theta, cos_theta));  
+      jacobian_map(0, 0) = -2.0 * q1 / q_sum2;
+      jacobian_map(0, 1) = 
+        two_theta / sin_theta + 
+        (2.0 * q0 * q1 * q1) / (sin_theta2 * q_sum2) - 
+        (q1 * q1 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(0, 2) = 
+        (2.0 * q0 * q1 * q2) / (sin_theta2 * q_sum2) - 
+        (q1 * q2 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(0, 3) =
+        (2.0 * q0 * q1 * q3) / (sin_theta2 * q_sum2) - 
+        (q1 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      
+      jacobian_map(1, 0) = -2.0 * q2 / q_sum2;
+      jacobian_map(1, 1) = 
+        (2.0 * q0 * q1 * q2) / (sin_theta2 * q_sum2) - 
+        (q1 * q2 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(1, 2) = 
+        two_theta / sin_theta + 
+        (2.0 * q0 * q2 * q2) / (sin_theta2 * q_sum2) - 
+        (q2 * q2 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(1, 3) = 
+        (2.0 * q0 * q2 * q3) / (sin_theta2 * q_sum2) - 
+        (q2 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      
+      jacobian_map(2, 0) = -2.0 * q3 / q_sum2;
+      jacobian_map(2, 1) = 
+        (2.0 * q0 * q1 * q3) / (sin_theta2 * q_sum2) - 
+        (q1 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(2, 2) = 
+        (2.0 * q0 * q2 * q3) / (sin_theta2 * q_sum2) - 
+        (q2 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(2, 3) =
+        two_theta / sin_theta + 
+        (2.0 * q0 * q3 * q3) / (sin_theta2 * q_sum2) - 
+        (q3 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+    } else {
+      jacobian_map.setZero();
+      jacobian_map(1, 1) = 2.0;
+      jacobian_map(2, 2) = 2.0;
+      jacobian_map(3, 3) = 2.0;
     }
   }
 }

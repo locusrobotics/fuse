@@ -145,8 +145,8 @@ public:
     double orientation2_rpy[3];
     double j1_quat2rpy[12];
     double j2_quat2rpy[12];
-    fuse_core::quat2rpy(parameters[1], orientation1_rpy, j1_quat2rpy);
-    fuse_core::quat2rpy(parameters[6], orientation2_rpy, j2_quat2rpy);
+    fuse_core::quaternion2rpy(parameters[1], orientation1_rpy, j1_quat2rpy);
+    fuse_core::quaternion2rpy(parameters[6], orientation2_rpy, j2_quat2rpy);
 
     predict(
       parameters[0][0],  // position1_x
