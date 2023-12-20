@@ -38,6 +38,7 @@
 
 #include <boost/serialization/export.hpp>
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
+// #include <fuse_constraints/normal_prior_orientation_3d.hpp>
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
@@ -135,9 +136,18 @@ void AbsoluteOrientation3DStampedConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * AbsoluteOrientation3DStampedConstraint::costFunction() const
 {
+  // return new NormalPriorOrientation3D(sqrt_information_, mean_);
+  
+  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
+  // use automatic differentiation as follows:
+
   return new ceres::AutoDiffCostFunction<NormalPriorOrientation3DCostFunctor, ceres::DYNAMIC, 4>(
     new NormalPriorOrientation3DCostFunctor(sqrt_information_, mean_),
     sqrt_information_.rows());
+  
+  // And including the followings:
+  // #include <ceres/autodiff_cost_function.h>
+  // #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
 }
 
 fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(

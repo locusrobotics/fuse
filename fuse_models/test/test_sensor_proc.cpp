@@ -11,7 +11,7 @@
 #include <fuse_models/common/sensor_proc.hpp>
 
 namespace fm_common = fuse_models::common;
-
+//TODO(giafranchini): Add tests for 3d sensors
 TEST(TestSuite, mergeXYPositionAndYawOrientationIndices)
 {
   const std::vector<size_t> position_indices{0, 1};

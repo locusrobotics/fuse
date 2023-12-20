@@ -45,6 +45,7 @@ add_library(${PROJECT_NAME}
   src/normal_delta_orientation_2d.cpp
   src/normal_delta_pose_2d.cpp
   src/normal_prior_orientation_2d.cpp
+  src/normal_prior_orientation_3d.cpp
   src/normal_prior_pose_2d.cpp
   src/normal_prior_pose_3d.cpp
   src/relative_constraint.cpp
