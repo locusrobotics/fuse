@@ -55,6 +55,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   rviz_common::rviz_common
   rviz_rendering::rviz_rendering
   tf2::tf2
+  tf2_geometry_msgs::tf2_geometry_msgs
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
