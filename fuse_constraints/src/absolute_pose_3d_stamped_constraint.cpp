@@ -58,56 +58,10 @@ AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
 {
 }
 
-AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector7d & mean,
-  const fuse_core::MatrixXd & partial_covariance,
-  const std::vector<size_t> & variable_indices)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
-  mean_(mean)
-{ 
-  // Compute the partial sqrt information matrix of the provided cov matrix
-  fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
-
-  // Assemble a sqrt information matrix from the provided values, but in proper Variable order
-  //
-  // What are we doing here? The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
-  // If we are measuring a subset of dimensions, we only want to produce costs for the measured
-  // dimensions. But the variable vectors will be full sized. We can make this all work out by
-  // creating a non-square A, where each row computes a cost for one measured dimensions,
-  // and the columns are in the order defined by the variable.
-  
-  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions 
-  sqrt_information_ = fuse_core::MatrixXd::Zero(variable_indices.size(), 6);
-  for (size_t i = 0; i < variable_indices.size(); ++i)
-  {
-    sqrt_information_.col(variable_indices[i]) = partial_sqrt_information.col(i);
-  }
-
-  // std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
-    // std::cout << "mean_ = " << mean_.transpose() << std::endl;
-  }
-
 fuse_core::Matrix6d AbsolutePose3DStampedConstraint::covariance() const
 {
-  if (sqrt_information_.rows() == 6)
-  {
-    return (sqrt_information_.transpose() * sqrt_information_).inverse();
-  }
-  // Otherwise we need to compute the pseudoinverse
-  // cov = (sqrt_info' * sqrt_info)^-1
-  // With some linear algebra, we can swap the transpose and the inverse.
-  // cov = (sqrt_info^-1) * (sqrt_info^-1)'
-  // But sqrt_info _may_ not be square. So we need to compute the pseudoinverse instead.
-  // Eigen doesn't have a pseudoinverse function (for probably very legitimate reasons).
-  // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
-  auto I = fuse_core::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
-  fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
-  return pinv * pinv.transpose();
+  return (sqrt_information_.transpose() * sqrt_information_).inverse();
 }
-
 
 void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
 {
@@ -132,9 +86,8 @@ ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
   // use automatic differentiation as follows:
 
-  // return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, ceres::DYNAMIC, 3, 4>(
-  //   new NormalPriorPose3DCostFunctor(sqrt_information_, mean_), 
-  //   sqrt_information_.rows());
+  // return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, 6, 3, 4>(
+  //   new NormalPriorPose3DCostFunctor(sqrt_information_, mean_);
     
   // And including the followings:
   // #include <ceres/autodiff_cost_function.h>

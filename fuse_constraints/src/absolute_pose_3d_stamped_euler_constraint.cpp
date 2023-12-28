@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,65 +32,69 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
-#include <vector>
 
 #include <boost/serialization/export.hpp>
-#include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
-#include <fuse_constraints/normal_prior_pose_2d.hpp>
+// #include <ceres/autodiff_cost_function.h>
+
+#include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
+#include <fuse_constraints/normal_prior_pose_3d_euler.hpp>
+// #include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
 
-AbsolutePose2DStampedConstraint::AbsolutePose2DStampedConstraint(
+AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
   const std::string & source,
-  const fuse_variables::Position2DStamped & position,
-  const fuse_variables::Orientation2DStamped & orientation,
-  const fuse_core::VectorXd & partial_mean,
+  const fuse_variables::Position3DStamped & position,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const fuse_core::Vector6d & mean,
+  const fuse_core::Matrix6d & covariance)
+: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
+  mean_(mean),
+  sqrt_information_(covariance.inverse().llt().matrixU())
+{ 
+}
+
+AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
+  const std::string & source,
+  const fuse_variables::Position3DStamped & position,
+  const fuse_variables::Orientation3DStamped & orientation,
+  const fuse_core::Vector6d & partial_mean,
   const fuse_core::MatrixXd & partial_covariance,
-  const std::vector<size_t> & linear_indices,
-  const std::vector<size_t> & angular_indices)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()})  // NOLINT(whitespace/braces)
-{
-  size_t total_variable_size = position.size() + orientation.size();
-  size_t total_indices = linear_indices.size() + angular_indices.size();
-
-  assert(partial_mean.rows() == static_cast<int>(total_indices));
-  assert(partial_covariance.rows() == static_cast<int>(total_indices));
-  assert(partial_covariance.cols() == static_cast<int>(total_indices));
-
-  // Compute the sqrt information of the provided cov matrix
+  const std::vector<size_t> & variable_indices)
+: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
+  mean_(partial_mean)
+{ 
+  // Compute the partial sqrt information matrix of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
 
-  // Assemble a mean vector and sqrt information matrix from the provided values, but in proper
-  // Variable order
+  // Assemble a sqrt information matrix from the provided values, but in proper Variable order
   //
   // What are we doing here? The constraint equation is defined as: cost(x) = ||A * (x - b)||^2
   // If we are measuring a subset of dimensions, we only want to produce costs for the measured
   // dimensions. But the variable vectors will be full sized. We can make this all work out by
-  // creating a non-square A matrix, where each row computes a cost for one measured dimensions,
+  // creating a non-square A, where each row computes a cost for one measured dimensions,
   // and the columns are in the order defined by the variable.
-  mean_ = fuse_core::VectorXd::Zero(total_variable_size);
-  sqrt_information_ = fuse_core::MatrixXd::Zero(total_indices, total_variable_size);
-  for (size_t i = 0; i < linear_indices.size(); ++i) {
-    mean_(linear_indices[i]) = partial_mean(i);
-    sqrt_information_.col(linear_indices[i]) = partial_sqrt_information.col(i);
-  }
-
-  for (size_t i = linear_indices.size(); i < total_indices; ++i) {
-    size_t final_index = position.size() + angular_indices[i - linear_indices.size()];
-    mean_(final_index) = partial_mean(i);
-    sqrt_information_.col(final_index) = partial_sqrt_information.col(i);
+  
+  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions 
+  sqrt_information_ = fuse_core::MatrixXd::Zero(variable_indices.size(), 6);
+  for (size_t i = 0; i < variable_indices.size(); ++i)
+  {
+    sqrt_information_.col(variable_indices[i]) = partial_sqrt_information.col(i);
   }
 }
 
-fuse_core::Matrix3d AbsolutePose2DStampedConstraint::covariance() const
+fuse_core::Matrix6d AbsolutePose3DStampedEulerConstraint::covariance() const
 {
-  // We want to compute:
+  if (sqrt_information_.rows() == 6)
+  {
+    return (sqrt_information_.transpose() * sqrt_information_).inverse();
+  }
+  // Otherwise we need to compute the pseudoinverse
   // cov = (sqrt_info' * sqrt_info)^-1
   // With some linear algebra, we can swap the transpose and the inverse.
   // cov = (sqrt_info^-1) * (sqrt_info^-1)'
@@ -101,7 +106,8 @@ fuse_core::Matrix3d AbsolutePose2DStampedConstraint::covariance() const
   return pinv * pinv.transpose();
 }
 
-void AbsolutePose2DStampedConstraint::print(std::ostream & stream) const
+
+void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -117,12 +123,23 @@ void AbsolutePose2DStampedConstraint::print(std::ostream & stream) const
   }
 }
 
-ceres::CostFunction * AbsolutePose2DStampedConstraint::costFunction() const
+ceres::CostFunction * AbsolutePose3DStampedEulerConstraint::costFunction() const
 {
-  return new NormalPriorPose2D(sqrt_information_, mean_);
+  return new NormalPriorPose3DEuler(sqrt_information_, mean_);
+  
+  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
+  // use automatic differentiation as follows:
+
+  // return new ceres::AutoDiffCostFunction<NormalPriorPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4>(
+    // new NormalPriorPose3DEulerCostFunctor(sqrt_information_, mean_), 
+    // sqrt_information_.rows());
+    
+  // And including the followings:
+  // #include <ceres/autodiff_cost_function.h>
+  // #include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
 }
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose2DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose2DStampedConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose3DStampedEulerConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose3DStampedEulerConstraint, fuse_core::Constraint);

@@ -48,6 +48,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
+#include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp> 
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_constraint.hpp>
@@ -208,11 +209,11 @@ inline void populatePartialMeasurement(
 }
 
 /**
- * @brief Method to create sub-measurements from full measurements and append them to existing
- *        partial measurements - version with covariance only
+ * @brief Method to create covariances of sub-measurements from covariances of full measurements and append 
+ * them to existing partial covariances
  *
- * @param[in] covariance_full - The full covariance matrix from which we will generate the sub-
- *                              measurement
+ * @param[in] covariance_full - The full covariance matrix from which we will generate the covariances of the 
+ *                              sub-measurement
  * @param[in] indices - The indices we want to include in the sub-measurement
  * @param[in,out] covariance_partial - The partial measurement covariance to which we want to append
  */
@@ -423,8 +424,6 @@ inline bool processAbsolutePoseWithCovariance(
       return false;
     }
   }
-  std::cout << "Pose mean partial: \n" << pose_mean_partial << std::endl;
-  std::cout << "Pose covariance partial: \n" << pose_covariance_partial << std::endl;
 
   // Create an absolute pose constraint
   auto constraint = fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
@@ -511,7 +510,7 @@ inline bool processAbsolutePose3DWithCovariance(
   orientation->z() = transformed_message.pose.pose.orientation.z;
 
   if (position_indices.size() == 3 && orientation_indices.size() == 3) {
-    // Use the full pose measurement, no need to create a partial measurement
+    // Full pose measurement, no need to create a partial one
     fuse_core::Vector7d pose_mean;
     pose_mean << transformed_message.pose.pose.position.x,
       transformed_message.pose.pose.position.y,
@@ -552,35 +551,45 @@ inline bool processAbsolutePose3DWithCovariance(
     return true;
   }
 
+  /*
+  TODO(giafranchini): in case of partial measurements, is probably better to implement something like
+  AbsolutePose3DStampedEulerConstraint. This should accept:
+  - variable indices (std::vector<size_t>)
+  And create a constraint for the partial measurement. The translational part of the cost function
+  is trivial, while the orientation part will be copied from absolute_orientation_3d_stamped_euler
+
+  PRO: 
+    - no need to double convert from quaternion to rpy and back
+    - refactor of absolute_pose_3d_stamped_constraint (and relative cost functions) with fixed size  
+  CONS:
+    - a conversion from quaternion to rpy will be performed also for measurements which are partial
+      in position but full in orientation. On the other hand, to distinguish all the cases we would need 
+      a lot of combinations
+  */
+
   // Convert the ROS message into tf2 transform
   tf2::Transform tf2_pose;
   tf2::fromMsg(transformed_message.pose.pose, tf2_pose);
   // Fill eigen pose in RPY representation
-  fuse_core::Vector6d pose_mean;
-  pose_mean.head<3>() << tf2_pose.getOrigin().x(), tf2_pose.getOrigin().y(), tf2_pose.getOrigin().z();
-  tf2::Matrix3x3(tf2_pose.getRotation()).getRPY(pose_mean(3), pose_mean(4), pose_mean(5));
+  fuse_core::Vector6d pose_mean_partial;
+  pose_mean_partial.head<3>() << tf2_pose.getOrigin().x(), tf2_pose.getOrigin().y(), tf2_pose.getOrigin().z();
+  tf2::Matrix3x3(tf2_pose.getRotation()).getRPY(pose_mean_partial(3), pose_mean_partial(4), pose_mean_partial(5));
 
   Eigen::Map<const fuse_core::Matrix6d> pose_covariance(transformed_message.pose.covariance.data());
-    
+
   // Set the components which are not measured to zero
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
-    std::replace_if(
-    pose_mean.data(), pose_mean.data() + pose_mean.size(),
-    [&indices, &pose_mean](const double & value) {
-      return std::find(indices.begin(), indices.end(), &value - pose_mean.data()) == indices.end();
+  std::replace_if(
+    pose_mean_partial.data(), pose_mean_partial.data() + pose_mean_partial.size(),
+    [&indices, &pose_mean_partial](const double & value) {
+      return std::find(indices.begin(), indices.end(), &value - pose_mean_partial.data()) == indices.end();
     }, 0.0);
-
   fuse_core::MatrixXd pose_covariance_partial(indices.size(), indices.size());
-  populatePartialMeasurement(pose_covariance, indices, pose_covariance_partial);
+  populatePartialMeasurement(
+    pose_covariance, 
+    indices, 
+    pose_covariance_partial);
 
-  tf2::Quaternion q_partial;
-  q_partial.setRPY(pose_mean(3), pose_mean(4), pose_mean(5));
-
-  // Create the pose for the constraint
-  fuse_core::Vector7d pose_mean_partial;
-  pose_mean_partial << pose_mean(0), pose_mean(1), pose_mean(2),
-    q_partial.getW(), q_partial.getX(), q_partial.getY(), q_partial.getZ();
-  
   if (validate) {
     try {
       validatePartialMeasurement(pose_mean_partial, pose_covariance_partial, 1e-5);
@@ -592,8 +601,8 @@ inline bool processAbsolutePose3DWithCovariance(
       return false;
     }
   }
-    
-  auto constraint = fuse_constraints::AbsolutePose3DStampedConstraint::make_shared(
+ 
+  auto constraint = fuse_constraints::AbsolutePose3DStampedEulerConstraint::make_shared(
     source,
     *position,
     *orientation,
@@ -604,165 +613,6 @@ inline bool processAbsolutePose3DWithCovariance(
   constraint->loss(loss);
 
   transaction.addVariable(position);
-  transaction.addVariable(orientation);
-  transaction.addConstraint(constraint);
-  transaction.addInvolvedStamp(pose.header.stamp);
-
-  return true;
-}
-
-/**
- * @brief Extracts 3D orientation data from a PoseWithCovarianceStamped message and adds that data to a
- *        fuse Transaction
- *
- * This method effectively adds a 3D orientation variable and a 3D orientation
- * constraint to the given \p transaction. The orientation data is extracted from the \p pose message. 
- * The data will be automatically transformed into the \p target_frame before it is used.
- *
- * @param[in] source - The name of the sensor or motion model that generated this constraint
- * @param[in] device_id - The UUID of the machine
- * @param[in] pose - The PoseWithCovarianceStamped message from which we will extract the orientation data
- * @param[in] loss - The loss function for the 3D pose constraint generated
- * @param[in] target_frame - The frame ID into which the pose data will be transformed before it is
- *                           used
- * @param[in] orientation_indices - The indices of the orientation variables to be added to the transaction
- * @param[in] tf_buffer - The transform buffer with which we will lookup the required transform
- * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
- *                       constraint is added
- * @param[out] transaction - The generated variables and constraints are added to this transaction
- * @return true if any constraints were added, false otherwise
- */
-inline bool processAbsoluteOrientation3DWithCovariance(
-  const std::string & source,
-  const fuse_core::UUID & device_id,
-  const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
-  const fuse_core::Loss::SharedPtr & loss,
-  const std::string & target_frame,
-  const std::vector<size_t> & orientation_indices,
-  const tf2_ros::Buffer & tf_buffer,
-  const bool validate,
-  fuse_core::Transaction & transaction,
-  const rclcpp::Duration & tf_timeout = rclcpp::Duration(0, 0))
-{
-  if (orientation_indices.empty()) {
-    return false;
-  }
-
-  geometry_msgs::msg::PoseWithCovarianceStamped transformed_message;
-  if (target_frame.empty()) {
-    transformed_message = pose;
-  } else {
-    transformed_message.header.frame_id = target_frame;
-
-    if (!transformMessage(tf_buffer, pose, transformed_message, tf_timeout)) {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(
-        rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
-        "Failed to transform pose message with stamp " << rclcpp::Time(
-          pose.header.stamp).nanoseconds() << ". Cannot create constraint.");
-      return false;
-    }
-  }
-  // Create the orientation variable
-  auto orientation = fuse_variables::Orientation3DStamped::make_shared(pose.header.stamp, device_id);
-  orientation->w() = transformed_message.pose.pose.orientation.w;
-  orientation->x() = transformed_message.pose.pose.orientation.x;
-  orientation->y() = transformed_message.pose.pose.orientation.y;
-  orientation->z() = transformed_message.pose.pose.orientation.z;
-
-  if (orientation_indices.size() == 3) {
-    // Use the full orientation measurement, no need to create a partial measurement
-    fuse_core::Vector4d orientation_mean;
-    orientation_mean << 
-      transformed_message.pose.pose.orientation.w,
-      transformed_message.pose.pose.orientation.x,
-      transformed_message.pose.pose.orientation.y,
-      transformed_message.pose.pose.orientation.z;
-
-    Eigen::Map<const fuse_core::Matrix6d> pose_covariance(transformed_message.pose.covariance.data());
-    fuse_core::Matrix3d orientation_covariance = pose_covariance.block<3,3>(3,3);
-    
-    if (validate) {
-      try {
-        validatePartialMeasurement(orientation_mean, orientation_covariance, 1e-5);
-      } catch (const std::runtime_error & ex) {
-        RCLCPP_ERROR_STREAM_THROTTLE(
-          rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
-          "Invalid partial absolute pose measurement from '" << source
-                                                             << "' source: " << ex.what());
-        return false;
-      }
-    }
-  
-    auto constraint = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
-      source,
-      *orientation,
-      orientation_mean,
-      orientation_covariance);
-
-    constraint->loss(loss);
-
-    transaction.addVariable(orientation);
-    transaction.addConstraint(constraint);
-    transaction.addInvolvedStamp(pose.header.stamp);
-
-    return true;
-  }
-
-  // TODO(giafranchini): in case of partial measurements, is probably better to use the
-  // AbsoluteOrientation3DStampedEulerConstraint, since already implements support for these. 
-
-  // Convert the ROS message into tf2 quaternion
-  tf2::Quaternion q;
-  tf2::fromMsg(transformed_message.pose.pose.orientation, q);
-  // Fill eigen orientation in RPY representation
-  fuse_core::Vector3d orientation_mean;
-  tf2::Matrix3x3(q).getRPY(orientation_mean(0), orientation_mean(1), orientation_mean(2));
-
-  Eigen::Map<const fuse_core::Matrix6d> pose_covariance(transformed_message.pose.covariance.data());
-  fuse_core::Matrix3d orientation_covariance = pose_covariance.block<3,3>(3,3);
-    
-  // Set the components which are not measured to zero
-  std::replace_if(
-    orientation_mean.data(), orientation_mean.data() + orientation_mean.size(),
-    [&orientation_indices, &orientation_mean](const double & value) {
-      return std::find(
-        orientation_indices.begin(), 
-        orientation_indices.end(), 
-        &value - orientation_mean.data()) == orientation_indices.end();
-    }, 
-    0.0);
-
-  fuse_core::MatrixXd orientation_covariance_partial(orientation_indices.size(), orientation_indices.size());
-  populatePartialMeasurement(orientation_covariance, orientation_indices, orientation_covariance_partial);
-
-  tf2::Quaternion q_partial;
-  q_partial.setRPY(orientation_mean(0), orientation_mean(1), orientation_mean(2));
-
-  // Create the orientation for the constraint
-  fuse_core::Vector4d orientation_mean_partial;
-  orientation_mean_partial << q_partial.getW(), q_partial.getX(), q_partial.getY(), q_partial.getZ();
-  
-  if (validate) {
-    try {
-      validatePartialMeasurement(orientation_mean_partial, orientation_covariance_partial, 1e-5);
-    } catch (const std::runtime_error & ex) {
-      RCLCPP_ERROR_STREAM_THROTTLE(
-        rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
-        "Invalid partial absolute pose measurement from '" << source
-                                                           << "' source: " << ex.what());
-      return false;
-    }
-  }
-    
-  auto constraint = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
-    source,
-    *orientation,
-    orientation_mean_partial,
-    orientation_covariance_partial,
-    orientation_indices);
-  
-  constraint->loss(loss);
-
   transaction.addVariable(orientation);
   transaction.addConstraint(constraint);
   transaction.addInvolvedStamp(pose.header.stamp);
@@ -1274,10 +1124,6 @@ inline bool processDifferentialPose3DWithCovariance(
       p12
     );
   }
-  // std::cout << "Relative pose: " << std::endl;
-  // std::cout << "  Position: " << p12.first.first.transpose() << std::endl;
-  // std::cout << "  Rotation: " << p12.first.second << std::endl;
-  // std::cout << "  Covariance: " << p12.second << std::endl;
   // Convert the poses into RPY representation
   covariance_geometry::PoseRPYCovariance p1_rpy, p2_rpy, p12_rpy;
   covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DRPYCovariance(
@@ -1288,6 +1134,10 @@ inline bool processDifferentialPose3DWithCovariance(
     p12, p12_rpy);
   
   p12_rpy.second += minimum_pose_relative_covariance;
+  
+  // TODO(giafranchini): here is probably better to create some new eigen poses
+  // (p1_partial, p2_partial, p12_partial) and run just one replace_if for each one of them
+
   // Set the components which are not measured to zero
   // p1_partial
   std::replace_if(

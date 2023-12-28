@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,8 +32,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_CONSTRAINT_HPP_
-#define FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_CONSTRAINT_HPP_
+
+
+#ifndef FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
+#define FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
 
 #include <Eigen/Dense>
 
@@ -58,66 +61,89 @@ namespace fuse_constraints
 
 /**
  * @brief A constraint that represents either prior information about a 3D pose, or a direct
- *        measurement of the 3D pose.
+ *        measurement of the 3D pose. 
  *
  * A 3D pose is the combination of a 3D position and a 3D orientation variable. As a convenience,
  * this class applies an absolute constraint on both variables at once. This type of constraint
  * arises in many situations. In mapping it is common to define the very first pose as the origin.
  * Some sensors, such as GPS, provide direct measurements of the robot's pose in the global frame.
  * And localization systems often match laserscans or pointclouds to a prior map (scan-to-map
- * measurements). This constraint holds the measured 3D pose and the measurement
- * uncertainty/covariance. Orientations are represented as quaternions.
+ * measurements). This constraint holds the measured 3D pose: orientation is parametrized as roll-pitch-yaw
+ * Euler angles and the covariance represents the error around each translational and rotational axis.
+ * This constraint allows measurement of a subset of the pose components given in the variable.
+ * 
+ * (Use AbsolutePose3DStampedConstraint for full pose measurements).
  */
-class AbsolutePose3DStampedConstraint : public fuse_core::Constraint
+
+class AbsolutePose3DStampedEulerConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsolutePose3DStampedConstraint)
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(AbsolutePose3DStampedEulerConstraint)
 
   /**
    * @brief Default constructor
    */
-  AbsolutePose3DStampedConstraint() = default;
+  AbsolutePose3DStampedEulerConstraint() = default;
 
   /**
    * @brief Create a constraint using a measurement/prior of the 3D pose
    *
-   * @param[in] source      The name of the sensor or motion model that generated this constraint
-   * @param[in] position    The variable representing the position components of the pose
-   * @param[in] orientation The variable representing the orientation components of the pose
-   * @param[in] mean        The measured/prior pose as a vector
-   *                        (7x1 vector: x, y, z, qw, qx, qy, qz)
-   * @param[in] covariance  The measurement/prior covariance (6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] source          The name of the sensor or motion model that generated this constraint
+   * @param[in] position        The variable representing the position components of the pose
+   * @param[in] orientation     The variable representing the orientation components of the pose
+   * @param[in] mean            The measured/prior pose as a vector
+   *                            (6x1 vector: x, y, z, roll, pitch, yaw)
+   * @param[in] covariance      The measurement/prior covariance (6x6 matrix: x, y, z, roll, pitch, yaw)
    */
-  AbsolutePose3DStampedConstraint(
+  AbsolutePose3DStampedEulerConstraint(
     const std::string & source,
     const fuse_variables::Position3DStamped & position,
     const fuse_variables::Orientation3DStamped & orientation,
-    const fuse_core::Vector7d & mean,
+    const fuse_core::Vector6d & mean,
     const fuse_core::Matrix6d & covariance);
   
   /**
+   * @brief Create a constraint using a measurement/prior of the 3D pose
+   *
+   * @param[in] source          The name of the sensor or motion model that generated this constraint
+   * @param[in] position        The variable representing the position components of the pose
+   * @param[in] orientation     The variable representing the orientation components of the pose
+   * @param[in] partial_mean    The measured/prior pose as a vector
+   *                            (6x1 vector: x, y, z, roll, pitch, yaw)
+   * @param[in] partial_covariance  The measurement/prior covariance (6x6 matrix: x, y, z, roll, pitch, yaw)
+   * @param[in] variable_indices    The indices of the measured variables
+   */
+  AbsolutePose3DStampedEulerConstraint(
+    const std::string & source,
+    const fuse_variables::Position3DStamped & position,
+    const fuse_variables::Orientation3DStamped & orientation,
+    const fuse_core::Vector6d & partial_mean,
+    const fuse_core::MatrixXd & partial_covariance,
+    const std::vector<size_t> & variable_indices);
+
+  /**
    * @brief Destructor
    */
-  virtual ~AbsolutePose3DStampedConstraint() = default;
+  virtual ~AbsolutePose3DStampedEulerConstraint() = default;
 
   /**
    * @brief Read-only access to the measured/prior vector of mean values.
    *
-   * Order is (x, y, z, qw, qx, qy, qz)
+   * Order is (x, y, z, roll, pitch, yaw)
    */
-  const fuse_core::Vector7d & mean() const {return mean_;}
+  const fuse_core::Vector6d & mean() const {return mean_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (x, y, z, qx, qy, qz)
+   * Order is (x, y, z, roll, pitch, yaw)
    */
-  const fuse_core::Matrix6d & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (x, y, z, qx, qy, qz)
+   * Order is (x, y, z, roll, pitch, yaw)
    */
   fuse_core::Matrix6d covariance() const;
 
@@ -141,8 +167,8 @@ public:
   ceres::CostFunction * costFunction() const override;
 
 protected:
-  fuse_core::Vector7d mean_;  //!< The measured/prior mean vector for this variable
-  fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix
+  fuse_core::Vector6d mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 
 private:
   // Allow Boost Serialization access to private methods
@@ -166,6 +192,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePose3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePose3DStampedEulerConstraint);
 
-#endif  // FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_CONSTRAINT_HPP_
+#endif  // FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
