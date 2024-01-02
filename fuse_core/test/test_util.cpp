@@ -81,3 +81,29 @@ TEST(Util, wrapAngle2D)
     EXPECT_EQ("~b", fuse_core::joinTopicName("a/", "~b"));
   }
 }
+
+TEST(Util, quaternion2rpy)
+{
+  double q[4] = {1.0, 0.0, 0.0, 0.0};
+  double rpy[3];
+  fuse_core::quaternion2rpy(q, rpy);
+  EXPECT_EQ(0.0, rpy[0]);
+  EXPECT_EQ(0.0, rpy[1]);
+  EXPECT_EQ(0.0, rpy[2]);
+
+  q[0] = 0.9818562;
+  q[1] = 0.0640713;
+  q[2] = 0.0911575;
+  q[3] = -0.1534393;
+
+  fuse_core::quaternion2rpy(q, rpy);
+  EXPECT_NEAR(0.1, rpy[0], 1e-6);
+  EXPECT_NEAR(0.2, rpy[1], 1e-6);
+  EXPECT_NEAR(-0.3, rpy[2], 1e-6);
+
+  //TODO(giafranchini): Add test for jacobian
+}
+
+//TODO(giafranchini): Add test for quaternionProduct
+//TODO(giafranchini): Add test for quaternionInverse
+
