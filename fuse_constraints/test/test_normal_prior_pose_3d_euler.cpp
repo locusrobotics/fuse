@@ -104,6 +104,9 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
     partial_sqrt_information.row(i) = full_sqrt_information.row(indices[i]);
   }
 
+  std::cout << "full_mean: " << full_mean << std::endl;
+  std::cout << "partial_sqrt_information: " << partial_sqrt_information << std::endl;
+
   const fuse_constraints::NormalPriorPose3DEuler cost_function{partial_sqrt_information, full_mean};
 
   // Create automatic differentiation cost function
@@ -143,14 +146,13 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }
 
-TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsOrientationOnly)
+TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsPositionOnly)
 {
   // Create cost function for a subset of residuals
-  // Version with position = 0, roll = 0
-  std::vector<int> indices = {4, 5};
-  Eigen::Vector3d rpy = Eigen::Vector3d::Random();
-  rpy(0) = 0.0;
-  full_mean << 0.0, 0.0, 0.0, rpy.x(), rpy.y(), rpy.z();
+  // Version with z = 0, orientation = 0
+  std::vector<int> indices = {0, 1};
+  Eigen::Vector3d rpy {0.0, 0.0, 0.0};
+  full_mean << 0.1, 0.5, 0.0, rpy.x(), rpy.y(), rpy.z();
   fuse_core::Matrix<double, 2, 6> partial_sqrt_information;
 
   for (size_t i = 0; i < indices.size(); ++i) {
@@ -169,13 +171,14 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }
 
-TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsPositionOnly)
+TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsOrientationOnly)
 {
   // Create cost function for a subset of residuals
-  // Version with z = 0, orientation = 0
-  std::vector<int> indices = {0, 1};
-  Eigen::Vector3d rpy {0.0, 0.0, 0.0};
-  full_mean << 0.1, 0.5, 0.0, rpy.x(), rpy.y(), rpy.z();
+  // Version with position = 0, roll = 0
+  std::vector<int> indices = {4, 5};
+  Eigen::Vector3d rpy = Eigen::Vector3d::Random();
+  rpy(0) = 0.0;
+  full_mean << 0.0, 0.0, 0.0, rpy.x(), rpy.y(), rpy.z();
   fuse_core::Matrix<double, 2, 6> partial_sqrt_information;
 
   for (size_t i = 0; i < indices.size(); ++i) {

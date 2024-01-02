@@ -61,20 +61,21 @@ bool NormalPriorPose3DEuler::Evaluate(
   double orientation_rpy[3];
   double j_quat2rpy[12];
 
+  fuse_core::quaternion2rpy(parameters[1], orientation_rpy, j_quat2rpy);
+
   // Compute the position residual
   full_residuals(0) = parameters[0][0] - b_(0);
   full_residuals(1) = parameters[0][1] - b_(1);
   full_residuals(2) = parameters[0][2] - b_(2);
 
   // Compute the orientation residual
-  fuse_core::quaternion2rpy(parameters[1], orientation_rpy, j_quat2rpy);
   full_residuals(3) = orientation_rpy[0] - b_(3);
   full_residuals(4) = orientation_rpy[1] - b_(4);
   full_residuals(5) = orientation_rpy[2] - b_(5);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  Eigen::Map<Eigen::Vector<double, Eigen::Dynamic>> residuals_map(residuals, A_.rows());
+    Eigen::Map<Eigen::Vector<double, Eigen::Dynamic>> residuals_map(residuals, A_.rows());
   residuals_map = A_ * full_residuals;
 
   if (jacobians != nullptr) {
@@ -87,7 +88,7 @@ bool NormalPriorPose3DEuler::Evaluate(
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2rpy);
       Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), 4) = 
         A_.rightCols<3>() * j_quat2angle_map;
-    }
+          }
   }
   return true;
 }
