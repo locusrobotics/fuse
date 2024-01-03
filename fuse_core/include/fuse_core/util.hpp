@@ -170,22 +170,22 @@ static inline void quaternion2rpy(const double * q, double * rpy, double * jacob
     const double qx = q[1];
     const double qy = q[2];
     const double qz = q[3];
-    const double discr = qz * qy - qx * qz;
+    const double discr = qw * qy - qx * qz; 
     jacobian_map.setZero();
 
     if (discr > 0.49999) {
       // pitch = 90 deg
-      jacobian_map(2, 0) = (2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
+            jacobian_map(2, 0) = (2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
       jacobian_map(2, 1) = -2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
       return;
     } else if (discr < -0.49999) {
       // pitch = -90 deg
-      jacobian_map(2, 0) = (-2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
+            jacobian_map(2, 0) = (-2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
       jacobian_map(2, 1) = 2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
       return;
     } else {
       // Non-degenerate case:
-      jacobian_map(0, 0) =
+            jacobian_map(0, 0) =
         -(2.0 * qx) /
         ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) +
         1.0) *

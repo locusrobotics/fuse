@@ -31,42 +31,52 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+// TODO(giafranchini): still to be implemented
 #include <ceres/autodiff_cost_function.h>
-#include <Eigen/Geometry>
 
 #include <string>
 
 #include <boost/serialization/export.hpp>
-#include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
-// #include <fuse_constraints/normal_prior_orientation_3d.hpp>
-#include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
+#include <fuse_constraints/normal_delta_pose_3d_cost_functor.hpp>
+#include <fuse_constraints/relative_pose_3d_stamped_constraint.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
 
-AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
+RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
   const std::string & source,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector4d & mean,
-  const fuse_core::Matrix3d & covariance)
-: fuse_core::Constraint(source, {orientation.uuid()}),    // NOLINT(whitespace/braces)
-  mean_(mean),
+  const fuse_variables::Position3DStamped & position1,
+  const fuse_variables::Orientation3DStamped & orientation1,
+  const fuse_variables::Position3DStamped & position2,
+  const fuse_variables::Orientation3DStamped & orientation2,
+  const fuse_core::Vector7d & delta,
+  const fuse_core::Matrix6d & covariance)
+: fuse_core::Constraint(
+    source,
+    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),  // NOLINT
+  delta_(delta),
   sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
+RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
   const std::string & source,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector4d & mean,
+  const fuse_variables::Position3DStamped & position1,
+  const fuse_variables::Orientation3DStamped & orientation1,
+  const fuse_variables::Position3DStamped & position2,
+  const fuse_variables::Orientation3DStamped & orientation2,
+  const fuse_core::Vector7d & delta,
   const fuse_core::MatrixXd & partial_covariance,
-  const std::vector<size_t> & orientation_indices)
-: fuse_core::Constraint(source, {orientation.uuid()}),    // NOLINT(whitespace/braces)
-  mean_(mean)
+  const std::vector<size_t> & variable_indices)
+: fuse_core::Constraint(
+    source,
+    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),  // NOLINT
+  delta_(delta)
 {
   // Compute the partial sqrt information matrix of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
+  // std::cout << "partial_sqrt_information: \n" << partial_sqrt_information << std::endl;
 
   // Assemble a sqrt information matrix from the provided values, but in proper Variable order
   //
@@ -77,34 +87,18 @@ AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
   // and the columns are in the order defined by the variable.
   
   // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions 
-  sqrt_information_ = fuse_core::MatrixXd::Zero(orientation_indices.size(), 3);
-  for (size_t i = 0; i < orientation_indices.size(); ++i)
+  sqrt_information_ = fuse_core::MatrixXd::Zero(variable_indices.size(), 6);
+  for (size_t i = 0; i < variable_indices.size(); ++i)
   {
-    sqrt_information_.col(orientation_indices[i]) = partial_sqrt_information.col(i);
+    sqrt_information_.col(variable_indices[i]) = partial_sqrt_information.col(i);
   }
+  // std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
+  // std::cout << "mean_ = " << mean_.transpose() << std::endl;
 }
 
-AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
-  const std::string & source,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const Eigen::Quaterniond & mean,
-  const fuse_core::Matrix3d & covariance)
-: AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), covariance)
+fuse_core::MatrixXd RelativePose3DStampedConstraint::covariance() const
 {
-}
-
-AbsoluteOrientation3DStampedConstraint::AbsoluteOrientation3DStampedConstraint(
-  const std::string & source,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const geometry_msgs::msg::Quaternion & mean,
-  const std::array<double, 9> & covariance)
-: AbsoluteOrientation3DStampedConstraint(source, orientation, toEigen(mean), toEigen(covariance))
-{
-}
-
-fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::covariance() const
-{
-  if (sqrt_information_.rows() == 3)
+  if (sqrt_information_.rows() == 6)
   {
     return (sqrt_information_.transpose() * sqrt_information_).inverse();
   }
@@ -117,65 +111,30 @@ fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::covariance() const
   // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
   auto I = fuse_core::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
   fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
-  return pinv * pinv.transpose();}
+  return pinv * pinv.transpose();
+}
 
-void AbsoluteOrientation3DStampedConstraint::print(std::ostream & stream) const
+void RelativePose3DStampedConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  orientation variable: " << variables().at(0) << "\n"
-         << "  mean: " << mean().transpose() << "\n"
+         << "  position1 variable: " << variables().at(0) << "\n"
+         << "  orientation1 variable: " << variables().at(1) << "\n"
+         << "  position2 variable: " << variables().at(2) << "\n"
+         << "  orientation2 variable: " << variables().at(3) << "\n"
+         << "  delta: " << delta().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
-
-  if (loss()) {
-    stream << "  loss: ";
-    loss()->print(stream);
-  }
 }
 
-ceres::CostFunction * AbsoluteOrientation3DStampedConstraint::costFunction() const
+ceres::CostFunction * RelativePose3DStampedConstraint::costFunction() const
 {
-  // return new NormalPriorOrientation3D(sqrt_information_, mean_);
-  
-  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
-  // use automatic differentiation as follows:
-
-  return new ceres::AutoDiffCostFunction<NormalPriorOrientation3DCostFunctor, ceres::DYNAMIC, 4>(
-    new NormalPriorOrientation3DCostFunctor(sqrt_information_, mean_),
+  return new ceres::AutoDiffCostFunction<NormalDeltaPose3DCostFunctor, ceres::DYNAMIC, 3, 4, 3, 4>(
+    new NormalDeltaPose3DCostFunctor(sqrt_information_, delta_),
     sqrt_information_.rows());
-  
-  // And including the followings:
-  // #include <ceres/autodiff_cost_function.h>
-  // #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
-}
-
-fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(
-  const Eigen::Quaterniond & quaternion)
-{
-  fuse_core::Vector4d eigen_quaternion_vector;
-  eigen_quaternion_vector << quaternion.w(), quaternion.x(), quaternion.y(), quaternion.z();
-  return eigen_quaternion_vector;
-}
-
-fuse_core::Vector4d AbsoluteOrientation3DStampedConstraint::toEigen(
-  const geometry_msgs::msg::Quaternion & quaternion)
-{
-  fuse_core::Vector4d eigen_quaternion_vector;
-  eigen_quaternion_vector << quaternion.w, quaternion.x, quaternion.y, quaternion.z;
-  return eigen_quaternion_vector;
-}
-
-fuse_core::Matrix3d AbsoluteOrientation3DStampedConstraint::toEigen(
-  const std::array<double,
-  9> & covariance)
-{
-  return fuse_core::Matrix3d(covariance.data());
 }
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsoluteOrientation3DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(
-  fuse_constraints::AbsoluteOrientation3DStampedConstraint,
-  fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose3DStampedConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePose3DStampedConstraint, fuse_core::Constraint);

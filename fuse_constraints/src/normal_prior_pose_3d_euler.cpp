@@ -36,67 +36,59 @@
 #include <glog/logging.h>
 #include <ceres/rotation.h>
 
-#include <fuse_constraints/normal_prior_pose_3d.hpp>
+#include <fuse_constraints/normal_prior_pose_3d_euler.hpp>
+#include <fuse_core/eigen.hpp>
 #include <fuse_core/util.hpp>
 
 namespace fuse_constraints
 {
 
-NormalPriorPose3D::NormalPriorPose3D(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b)
+NormalPriorPose3DEuler::NormalPriorPose3DEuler(const fuse_core::MatrixXd & A, const fuse_core::Vector6d & b)
 : A_(A),
   b_(b)
 {
+  CHECK_GT(A_.rows(), 0);
+  CHECK_EQ(A_.cols(), 6);
+  set_num_residuals(A_.rows());
 }
 
-bool NormalPriorPose3D::Evaluate(
+bool NormalPriorPose3DEuler::Evaluate(
   double const * const * parameters,
   double * residuals,
   double ** jacobians) const
 {
+  fuse_core::Vector6d full_residuals;
+  double orientation_rpy[3];
+  double j_quat2rpy[12];
 
-  double variable[4] =
-  {
-    parameters[1][0],
-    parameters[1][1],
-    parameters[1][2],
-    parameters[1][3],
-  };
+  fuse_core::quaternion2rpy(parameters[1], orientation_rpy, j_quat2rpy);
 
-  double observation_inverse[4] =
-  {
-     b_(3),
-    -b_(4),
-    -b_(5),
-    -b_(6)
-  };
+  // Compute the position residual
+  full_residuals(0) = parameters[0][0] - b_(0);
+  full_residuals(1) = parameters[0][1] - b_(1);
+  full_residuals(2) = parameters[0][2] - b_(2);
 
-  double difference[4];
-  double j_product[16];
-  double j_quat2angle[12];
+  // Compute the orientation residual
+  full_residuals(3) = orientation_rpy[0] - b_(3);
+  full_residuals(4) = orientation_rpy[1] - b_(4);
+  full_residuals(5) = orientation_rpy[2] - b_(5);
 
-  residuals[0] = parameters[0][0] - b_[0];  // position x
-  residuals[1] = parameters[0][1] - b_[1];  // position y
-  residuals[2] = parameters[0][2] - b_[2];  // position z 
-  fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
-  fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle); // orientation angle-axis
- 
-  // Scale the residuals by the square root information matrix to account for the measurement
-  // uncertainty.
-  Eigen::Map<fuse_core::Vector6d> residuals_map(residuals);
-  residuals_map.applyOnTheLeft(A_);
+  // Scale the residuals by the square root information matrix to account for
+  // the measurement uncertainty.
+    Eigen::Map<Eigen::Vector<double, Eigen::Dynamic>> residuals_map(residuals, A_.rows());
+  residuals_map = A_ * full_residuals;
 
   if (jacobians != nullptr) {
-    // Jacobian of the residuals wrt position parameter block
+    // Jacobian wrt position
     if (jacobians[0] != nullptr) {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 3) = A_.leftCols<3>();
     }
-    // Jacobian of the residuals wrt orientation parameter block
+    // Jacobian wrt orientation
     if (jacobians[1] != nullptr) {
-      Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
-      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
-      Eigen::Map<fuse_core::MatrixXd> j1_map(jacobians[1], num_residuals(), 4);
-      j1_map = A_.rightCols<3>() * j_quat2angle_map * j_product_map;
-    }
+      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2rpy);
+      Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), 4) = 
+        A_.rightCols<3>() * j_quat2angle_map;
+          }
   }
   return true;
 }

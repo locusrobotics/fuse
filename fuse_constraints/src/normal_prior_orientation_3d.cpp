@@ -36,67 +36,62 @@
 #include <glog/logging.h>
 #include <ceres/rotation.h>
 
-#include <fuse_constraints/normal_prior_pose_3d.hpp>
+#include <fuse_constraints/normal_prior_orientation_3d.hpp>
 #include <fuse_core/util.hpp>
 
 namespace fuse_constraints
 {
 
-NormalPriorPose3D::NormalPriorPose3D(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b)
+NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::MatrixXd & A, const fuse_core::Vector4d & b)
 : A_(A),
   b_(b)
 {
+  CHECK_GT(A_.rows(), 0);
+  CHECK_EQ(A_.cols(), 3);
+  set_num_residuals(A_.rows());
 }
 
-bool NormalPriorPose3D::Evaluate(
+bool NormalPriorOrientation3D::Evaluate(
   double const * const * parameters,
   double * residuals,
   double ** jacobians) const
 {
+  fuse_core::Vector3d full_residuals_vector;
 
   double variable[4] =
   {
-    parameters[1][0],
-    parameters[1][1],
-    parameters[1][2],
-    parameters[1][3],
+    parameters[0][0],
+    parameters[0][1],
+    parameters[0][2],
+    parameters[0][3],
   };
 
   double observation_inverse[4] =
   {
-     b_(3),
-    -b_(4),
-    -b_(5),
-    -b_(6)
+     b_(0),
+    -b_(1),
+    -b_(2),
+    -b_(3)
   };
 
   double difference[4];
   double j_product[16];
   double j_quat2angle[12];
 
-  residuals[0] = parameters[0][0] - b_[0];  // position x
-  residuals[1] = parameters[0][1] - b_[1];  // position y
-  residuals[2] = parameters[0][2] - b_[2];  // position z 
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
-  fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle); // orientation angle-axis
+  fuse_core::quaternionToAngleAxis(difference, &full_residuals_vector[0], j_quat2angle); // orientation angle-axis
  
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
-  Eigen::Map<fuse_core::Vector6d> residuals_map(residuals);
-  residuals_map.applyOnTheLeft(A_);
+  Eigen::Map<Eigen::VectorXd> residuals_vector(residuals, num_residuals());
+  residuals_vector = A_ * full_residuals_vector;
 
   if (jacobians != nullptr) {
-    // Jacobian of the residuals wrt position parameter block
-    if (jacobians[0] != nullptr) {
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 3) = A_.leftCols<3>();
-    }
-    // Jacobian of the residuals wrt orientation parameter block
-    if (jacobians[1] != nullptr) {
-      Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
-      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
-      Eigen::Map<fuse_core::MatrixXd> j1_map(jacobians[1], num_residuals(), 4);
-      j1_map = A_.rightCols<3>() * j_quat2angle_map * j_product_map;
-    }
+    // Jacobian of the orientation residuals wrt orientation parameters block (max 3x4)
+    Eigen::Map<fuse_core::MatrixXd> j_map(jacobians[0], num_residuals(), 4);
+    Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
+    j_map = A_ * j_quat2angle_map * j_product_map;
   }
   return true;
 }

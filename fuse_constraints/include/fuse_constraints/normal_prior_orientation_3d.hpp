@@ -32,8 +32,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_HPP_
-#define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_HPP_
+#ifndef FUSE_CONSTRAINTS__NORMAL_PRIOR_ORIENTATION_3D_HPP_
+#define FUSE_CONSTRAINTS__NORMAL_PRIOR_ORIENTATION_3D_HPP_
 
 #include <ceres/sized_cost_function.h>
 
@@ -44,41 +44,47 @@ namespace fuse_constraints
 {
 
 /**
- * @brief Create a prior cost function on both the position and orientation variables at once.
- *
- * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost
- * function that applies a prior constraint on both the position and orientation variables at once.
+ * @brief Create a prior cost function on a 3D orientation variable (quaternion)
  *
  * The cost function is of the form:
  *
- *             ||                [  x - b(0)]             ||^2
- *   cost(x) = ||  A *           [  y - b(1)]             ||
- *             ||                [  z - b(2)]             ||
- *             ||     [  quat2angleaxis(b(3-6)^-1 * q)]   ||
- * 
- * In case the user is interested in implementing a cost function of the form:
+ *             ||                         ||^2
+ *   cost(x) = || A * AngleAxis(b^-1 * q) ||
+ *             ||                         ||
+ *
+ * where the matrix A and the vector b are fixed, and q is the variable being measured, represented
+ * as a quaternion. The AngleAxis function converts a quaternion into a 3-vector of the form
+ * theta*k, where k is the unit vector axis of rotation and theta is the angle of rotation. The A
+ * matrix is applied to the angle-axis 3-vector.
+ *
+ * In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
  *
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
  * square root information matrix (the inverse of the covariance).
  */
-class NormalPriorPose3D : public ceres::SizedCostFunction<6, 3, 4>
+class NormalPriorOrientation3D : public ceres::SizedCostFunction<ceres::DYNAMIC, 4>
 {
 public:
   /**
    * @brief Construct a cost function instance
    *
+   * The residual weighting matrix can vary in size, as this cost functor can be used to compute
+   * costs for partial vectors. The number of rows of A will be the number of dimensions for which
+   * you want to compute the error, and the number of columns in A will be fixed at 3. For example,
+   * if we just want to use the values of roll and yaw, then \p A will be of size 2x3.
+   *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (x, y, z, roll, pitch, yaw)
-   * @param[in] b The pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
+   *              order (roll, pitch, yaw)
+   * @param[in] b The orientation measurement or prior in order (qw, qx, qy, qz)
    */
-  NormalPriorPose3D(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);
+  NormalPriorOrientation3D(const fuse_core::MatrixXd & A, const fuse_core::Vector4d & b);
 
   /**
    * @brief Destructor
    */
-  virtual ~NormalPriorPose3D() = default;
+  virtual ~NormalPriorOrientation3D() = default;
 
   /**
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided
@@ -90,11 +96,11 @@ public:
     double ** jacobians) const;
 
 private:
-  fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root
+  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
                            //!< information matrix
-  fuse_core::Vector7d b_;  //!< The measured 3D pose value
+  fuse_core::Vector4d b_;  //!< The measured 3D orientation value
 };
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_HPP_
+#endif  // FUSE_CONSTRAINTS__NORMAL_PRIOR_ORIENTATION_3D_HPP_

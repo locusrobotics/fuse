@@ -74,7 +74,7 @@ public:
                                                                       //!< qw, qx, qy, qz
 };
 
-TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForFullResiduals)
+TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqual)
 {
   // Create cost function
   auto q = Eigen::Quaterniond::UnitRandom();
@@ -89,118 +89,5 @@ TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
   // Compare the expected, automatic differentiation, cost function and the actual one
   // N.B. in ExpectCostFunctionsAreEqual constructor, the first argument is the expected cost function
   // and the second argument is the actual cost function 
-  ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
-}
-
-TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialPositionResiduals)
-{
-  // Create cost function for a subset of residuals
-  // Version with y position = 0
-  std::vector<int> indices = {0, 2, 3, 4, 5};
-  Eigen::Vector3d rpy {0.0, 0.0, 0.0};
-  Eigen::Quaterniond q = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
-                        Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
-                        Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
-
-  q = Eigen::Quaterniond::UnitRandom();
-  full_mean << 1.0, 0.0, 1.0, q.w(), q.x(), q.y(), q.z();
-  fuse_core::Matrix<double, 5, 6> partial_sqrt_information;
-  for (size_t i = 0; i < indices.size(); ++i) {
-    partial_sqrt_information.row(i) = full_sqrt_information.row(indices[i]);
-  }
-
-  const fuse_constraints::NormalPriorPose3D cost_function{partial_sqrt_information, full_mean};
-
-  // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
-
-  AutoDiffNormalPriorPose3D autodiff_cost_function(
-    new fuse_constraints::NormalPriorPose3DCostFunctor(partial_sqrt_information, full_mean),
-    num_residuals);
-
-  ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
-}
-
-TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialOrientationResiduals)
-{
-  // Create cost function for a subset of residuals
-  // Version with roll, pitch = 0
-  std::vector<int> indices = {0, 1, 2, 5};
-  Eigen::Vector3d rpy {0.0, 0.0, 0.1};
-  Eigen::Quaterniond q = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
-                        Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
-                        Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
-  full_mean << 1.0, 2.0, 1.0, q.w(), q.x(), q.y(), q.z();
-  fuse_core::Matrix<double, 4, 6> partial_sqrt_information;
-
-  for (size_t i = 0; i < indices.size(); ++i) {
-    partial_sqrt_information.row(i) = full_sqrt_information.row(indices[i]);
-  }
-
-  const fuse_constraints::NormalPriorPose3D cost_function{partial_sqrt_information, full_mean};
-
-  // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
-
-  AutoDiffNormalPriorPose3D autodiff_cost_function(
-    new fuse_constraints::NormalPriorPose3DCostFunctor(partial_sqrt_information, full_mean),
-    num_residuals);
-
-  ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
-}
-
-TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsOrientationOnly)
-{
-  // Create cost function for a subset of residuals
-  // Version with position = 0, roll = 0
-  std::vector<int> indices = {4, 5};
-  Eigen::Vector3d rpy {0.0, -0.2, 0.1};
-  Eigen::Quaterniond q = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
-                        Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
-                        Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
-  full_mean << 0.0, 0.0, 0.0, q.w(), q.x(), q.y(), q.z();
-  fuse_core::Matrix<double, 2, 6> partial_sqrt_information;
-
-  for (size_t i = 0; i < indices.size(); ++i) {
-    partial_sqrt_information.row(i) = full_sqrt_information.row(indices[i]);
-  }
-
-  const fuse_constraints::NormalPriorPose3D cost_function{partial_sqrt_information, full_mean};
-
-  // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
-
-  AutoDiffNormalPriorPose3D autodiff_cost_function(
-    new fuse_constraints::NormalPriorPose3DCostFunctor(partial_sqrt_information, full_mean),
-    num_residuals);
-
-  ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
-}
-
-TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsPositionOnly)
-{
-  // Create cost function for a subset of residuals
-  // Version with z = 0, orientation = 0
-  std::vector<int> indices = {0, 1};
-  Eigen::Vector3d rpy {0.0, 0.0, 0.0};
-  Eigen::Quaterniond q = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
-                        Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
-                        Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
-  full_mean << 0.1, 0.5, 0.0, q.w(), q.x(), q.y(), q.z();
-  fuse_core::Matrix<double, 2, 6> partial_sqrt_information;
-
-  for (size_t i = 0; i < indices.size(); ++i) {
-    partial_sqrt_information.row(i) = full_sqrt_information.row(indices[i]);
-  }
-
-  const fuse_constraints::NormalPriorPose3D cost_function{partial_sqrt_information, full_mean};
-
-  // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
-
-  AutoDiffNormalPriorPose3D autodiff_cost_function(
-    new fuse_constraints::NormalPriorPose3DCostFunctor(partial_sqrt_information, full_mean),
-    num_residuals);
-
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }

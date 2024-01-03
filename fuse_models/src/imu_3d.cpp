@@ -173,12 +173,13 @@ void Imu3D::process(const sensor_msgs::msg::Imu & msg)
   if (params_.differential) {
     processDifferential(*pose, validate, *transaction);
   } else {
-    common::processAbsoluteOrientation3DWithCovariance(
+    common::processAbsolutePose3DWithCovariance(
       name(),
       device_id_,
       *pose,
       params_.pose_loss,
       params_.orientation_target_frame,
+      {},
       params_.orientation_indices,
       *tf_buffer_,
       validate,
