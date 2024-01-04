@@ -138,7 +138,6 @@ public:
   /**
    * @brief Read-only access to the id
    */
-  // const uint64_t& id() const { return id_; }
 
   /**
    * @brief Print a human-readable description of the variable to the provided

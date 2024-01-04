@@ -71,6 +71,7 @@ public:
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
+   * @param[in] uuid        The UUID of the sensor
    * @param[in] camera_id  The id associated to a camera
    */
   explicit BaseCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id):
@@ -79,10 +80,11 @@ public:
   /**
    * @brief Construct a pinhole camera variable given a camera id
    *
-   * @param[in] camera_id  The id associated to a camera
+   * @param[in] camera_name  The id associated to a camera (e.g. which camera on a robot)
+   * @param[in] device_id  The device_id associated to the camera (e.g. which robot)
    */
-  explicit BaseCamera(const uint64_t& camera_id):
-  BaseCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id) {}
+explicit BaseCamera(const uint64_t& camera_id, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+  : BaseCamera(fuse_core::uuid::generate(detail::type(), camera_id, device_id)) {}
 
   /**
    * @brief Read-only access to the id

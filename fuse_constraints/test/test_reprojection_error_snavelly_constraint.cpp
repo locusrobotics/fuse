@@ -43,7 +43,7 @@
 #include <fuse_variables/point_3d_landmark.h>
 #include <fuse_variables/point_3d_fixed_landmark.h>
 #include <fuse_variables/position_3d_stamped.h>
-#include <fuse_variables/pinhole_camera_simple.h>
+#include <fuse_variables/pinhole_camera_radial.h>
 
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
@@ -55,7 +55,7 @@
 
 using fuse_constraints::ReprojectionErrorSnavellyConstraint;
 using fuse_variables::Orientation3DStamped;
-using fuse_variables::PinholeCameraSimple;
+using fuse_variables::PinholeCameraRadial;
 using fuse_variables::Point3DLandmark;
 using fuse_variables::Point3DFixedLandmark;
 using fuse_variables::Position3DStamped;
@@ -66,7 +66,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Constructor)
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Point3DLandmark point(0);
-  PinholeCameraSimple calibration_variable(0);
+  PinholeCameraRadial calibration_variable(0);
 
   fuse_core::Vector2d mean;
   mean << 320.0, 240.0;  // Centre of a 640x480 camera
@@ -86,7 +86,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Covariance)
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   Point3DLandmark point(0);
-  PinholeCameraSimple calibration_variable(0);
+  PinholeCameraRadial calibration_variable(0);
 
   fuse_core::Vector2d mean;
   mean << 320.0, 240.0;  // Centre of a 640x480 camera
@@ -125,7 +125,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Optimization)
   orientation_variable->y() = -0.189;
   orientation_variable->z() = 0.239;
 
-  auto calibration_variable = PinholeCameraSimple::make_shared(0);
+  auto calibration_variable = PinholeCameraRadial::make_shared(0);
   calibration_variable->f() = 638.34478759765620;
   calibration_variable->r1() = 0.13281739520782995;
   calibration_variable->r2() = -0.17255676937880005;
@@ -263,7 +263,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Serialization)
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
 
-  PinholeCameraSimple calibration_variable(0);
+  PinholeCameraRadial calibration_variable(0);
   calibration_variable.f() = 638.34478759765620;
   calibration_variable.r1() = 0.13281739520782995;
   calibration_variable.r2() = -0.17255676937880005;

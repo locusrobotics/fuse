@@ -140,7 +140,7 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (x, y, z, qx, qy, qz)
+   * Order is (u, v)
    */
   const fuse_core::Matrix2d& sqrtInformation() const
   {
@@ -150,7 +150,7 @@ public:
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (x, y, z, qx, qy, qz)
+   * Order is (u, v)
    */
   fuse_core::Matrix2d covariance() const
   {
@@ -160,7 +160,7 @@ public:
   /**
    * @brief Read-only access to the observation Matrix (Nx2).
    *
-   * Order is (x, y)
+   * Order is (x, y, z)
    */
   const fuse_core::MatrixXd& pts3d() const
   {
@@ -170,7 +170,7 @@ public:
   /**
    * @brief Read-only access to the observation Matrix (Nx2).
    *
-   * Order is (x, y)
+   * Order is (u, v)
    */
   const fuse_core::MatrixXd& observations() const
   {

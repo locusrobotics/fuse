@@ -180,7 +180,7 @@ bool Fixed3DLandmarkCostFunctor::operator()(const T* const position, const T* co
   T fy = calibration[1];
   for (uint i = 0; i < pts3d_.cols(); i++)
   {
-    // Get the covariance weigthing to point losses from a pose uncertainty
+    // Get the covariance weighting to point losses from a pose uncertainty
     // From https://arxiv.org/pdf/2103.15980.pdf , equation A.7:
     // dh( e A p )  =   dh(p')  *  d(e A p)
     //     d(e)          d(p')       d(e)
@@ -188,7 +188,7 @@ bool Fixed3DLandmarkCostFunctor::operator()(const T* const position, const T* co
     // h is the projection function, and p' = Ap = g, the jacobian is thus 2x6:
     // J =
     // [ (fx/gz)      (0)    (-fx * gx / gz^2)  (-fx * gx gy / gz^2)    fx(1+gx^2/gz^2)     -fx gy/gz]
-    // [     0      (fy/gz)) (-fy * gy / gz^2)     -fy(1+gy^2/gz^2)   (-fy * gx gy / gz^2)  -fy gx/gz]
+    // [     0      (fy/gz)) (-fy * gy / gz^2)     -fy(1+gy^2/gz^2)    (fy * gx gy / gz^2)  fy gx/gz]
     T gx = pts3d_.cast<T>().col(i)[0];
     T gy = pts3d_.cast<T>().col(i)[1];
     T gz = pts3d_.cast<T>().col(i)[2];

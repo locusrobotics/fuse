@@ -43,7 +43,7 @@
 #include <fuse_variables/point_3d_landmark.h>
 #include <fuse_variables/point_3d_fixed_landmark.h>
 #include <fuse_variables/position_3d_stamped.h>
-#include <fuse_variables/pinhole_camera_simple.h>
+#include <fuse_variables/pinhole_camera_radial.h>
 
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
@@ -58,7 +58,7 @@
 
 using fuse_constraints::ReprojectionErrorSnavellyConstraint;
 using fuse_variables::Orientation3DStamped;
-using fuse_variables::PinholeCameraSimple;
+using fuse_variables::PinholeCameraRadial;
 using fuse_variables::Point3DFixedLandmark;
 using fuse_variables::Point3DLandmark;
 using fuse_variables::Position3DStamped;
@@ -230,7 +230,7 @@ struct SnavelyReprojectionErrorWithQuaternions
   template <typename T>
   bool operator()(const T* const camera, const T* const point, T* residuals) const
   {
-    // camera[0,1,2,3] is are the rotation of the camera as a quaternion.
+    // camera[0,1,2,3] is the rotation of the camera as a quaternion.
     //
     // We use QuaternionRotatePoint as it does not assume that the
     // quaternion is normalized, since one of the ways to run the
@@ -276,7 +276,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Constructor)
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Point3DLandmark point(0);
-  PinholeCameraSimple calibration_variable(0);
+  PinholeCameraRadial calibration_variable(0);
 
   fuse_core::Vector2d mean;
   mean << 320.0, 240.0;  // Centre of a 640x480 camera
@@ -296,7 +296,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Covariance)
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
   Point3DLandmark point(0);
-  PinholeCameraSimple calibration_variable(0);
+  PinholeCameraRadial calibration_variable(0);
 
   fuse_core::Vector2d mean;
   mean << 320.0, 240.0;  // Centre of a 640x480 camera
@@ -355,7 +355,7 @@ TEST(ReprojectionErrorSnavellyConstraint, BAL)
 
   std::vector<Position3DStamped> cams_p(bal_problem.num_cameras());
   std::vector<Orientation3DStamped> cams_q(bal_problem.num_cameras());
-  std::vector<PinholeCameraSimple> cams_k(bal_problem.num_cameras());
+  std::vector<PinholeCameraRadial> cams_k(bal_problem.num_cameras());
   for (int i = 0; i < bal_problem.num_cameras(); i++)
   {
     auto cam = bal_problem.camera(i);
@@ -456,7 +456,7 @@ TEST(ReprojectionErrorSnavellyConstraint, Serialization)
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
   Orientation3DStamped orientation_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
 
-  PinholeCameraSimple calibration_variable(0);
+  PinholeCameraRadial calibration_variable(0);
   calibration_variable.f() = 640;
   calibration_variable.r1() = 0.1;
   calibration_variable.r2() = 0.1;

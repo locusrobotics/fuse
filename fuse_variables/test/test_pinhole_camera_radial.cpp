@@ -35,7 +35,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fuse_core/serialization.h>
-#include <fuse_variables/pinhole_camera_simple.h>
+#include <fuse_variables/pinhole_camera_radial.h>
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
@@ -47,27 +47,27 @@
 #include <sstream>
 #include <vector>
 
-using fuse_variables::PinholeCameraSimple;
+using fuse_variables::PinholeCameraRadial;
 
-TEST(PinholeCameraSimpleSimple, Type)
+TEST(PinholeCameraRadialSimple, Type)
 {
-  PinholeCameraSimple variable(0);
-  EXPECT_EQ("fuse_variables::PinholeCameraSimple", variable.type());
+  PinholeCameraRadial variable(0);
+  EXPECT_EQ("fuse_variables::PinholeCameraRadial", variable.type());
 }
 
-TEST(PinholeCameraSimple, UUID)
+TEST(PinholeCameraRadial, UUID)
 {
   // Verify two positions with the same landmark ids produce the same uuids
   {
-    PinholeCameraSimple variable1(0);
-    PinholeCameraSimple variable2(0);
+    PinholeCameraRadial variable1(0);
+    PinholeCameraRadial variable2(0);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the different landmark ids  produce different uuids
   {
-    PinholeCameraSimple variable1(0);
-    PinholeCameraSimple variable2(1);
+    PinholeCameraRadial variable1(0);
+    PinholeCameraRadial variable2(1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
@@ -89,10 +89,10 @@ struct CostFunctor
   }
 };
 
-TEST(PinholeCameraSimple, Optimization)
+TEST(PinholeCameraRadial, Optimization)
 {
   // Create a Point3DLandmark
-  PinholeCameraSimple K(0);
+  PinholeCameraRadial K(0);
   K.f() = 4.1;
   K.r1() = 3.5;
   K.r2() = 5;
@@ -119,10 +119,10 @@ TEST(PinholeCameraSimple, Optimization)
   EXPECT_NEAR(0.51, K.r2(), 1.0e-5);
 }
 
-TEST(PinholeCameraSimple, Serialization)
+TEST(PinholeCameraRadial, Serialization)
 {
   // Create a Point3DLandmark
-  PinholeCameraSimple expected(0);
+  PinholeCameraRadial expected(0);
   expected.f() = 640;
   expected.r1() = 0.5;
   expected.r2() = 0.5;
@@ -135,7 +135,7 @@ TEST(PinholeCameraSimple, Serialization)
   }
 
   // Deserialize a new variable from that same stream
-  PinholeCameraSimple actual;
+  PinholeCameraRadial actual;
   {
     fuse_core::TextInputArchive archive(stream);
     actual.deserialize(archive);

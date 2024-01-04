@@ -44,7 +44,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/position_3d_stamped.h>
-#include <fuse_variables/pinhole_camera_simple.h>
+#include <fuse_variables/pinhole_camera_radial.h>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -91,7 +91,7 @@ public:
    */
   ReprojectionErrorSnavellyConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
                                       const fuse_variables::Orientation3DStamped& orientation,
-                                      const fuse_variables::PinholeCameraSimple& calibraton,
+                                      const fuse_variables::PinholeCameraRadial& calibraton,
                                       const fuse_core::Vector2d& mean, const fuse_core::Matrix2d& covariance);
 
   /**

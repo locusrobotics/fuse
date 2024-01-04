@@ -34,8 +34,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_PINHOLE_CAMERA_SIMPLE_H
-#define FUSE_VARIABLES_PINHOLE_CAMERA_SIMPLE_H
+#ifndef FUSE_VARIABLES_PINHOLE_CAMERA_RADIAL_H
+#define FUSE_VARIABLES_PINHOLE_CAMERA_RADIAL_H
 
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
@@ -58,10 +58,10 @@ namespace fuse_variables
  * construction and dependent on a user input database id. As such, the database id cannot be altered after
  * construction.
  */
-class PinholeCameraSimple : public BaseCamera<3>
+class PinholeCameraRadial : public BaseCamera<3>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(PinholeCameraSimple);
+  FUSE_VARIABLE_DEFINITIONS(PinholeCameraRadial);
 
   /**
    * @brief Can be used to directly index variables in the data array
@@ -76,21 +76,21 @@ public:
   /**
    * @brief Default constructor
    */
-  PinholeCameraSimple() = default;
+  PinholeCameraRadial() = default;
 
   /**
    * @brief Construct a pinhole camera variable given a camera id
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCameraSimple(const uint64_t& camera_id);
+  explicit PinholeCameraRadial(const uint64_t& camera_id);
 
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCameraSimple(const fuse_core::UUID& uuid, const uint64_t& camera_id,
+  explicit PinholeCameraRadial(const fuse_core::UUID& uuid, const uint64_t& camera_id,
                               const double& f, const double& r1, const double& r2);
 
   /**
@@ -137,7 +137,7 @@ protected:
    *
    * @param[in] camera_id  The id associated to a camera_id
    */
-  PinholeCameraSimple(const fuse_core::UUID& uuid, const uint64_t& camera_id);
+  PinholeCameraRadial(const fuse_core::UUID& uuid, const uint64_t& camera_id);
 
 private:
   // Allow Boost Serialization access to private methods
@@ -162,6 +162,6 @@ private:
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::PinholeCameraSimple);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::PinholeCameraRadial);
 
-#endif  // FUSE_VARIABLES_PINHOLE_CAMERA_SIMPLE_H
+#endif  // FUSE_VARIABLES_PINHOLE_CAMERA_RADIAL_H

@@ -60,7 +60,7 @@ namespace fuse_constraints
  * where, the matrix A and the vector b are fixed, p is the camera position variable, and q is the camera orientation
  * variable, K is the calibration matrix created from the calibration variable, X is the set of marker 3D points,
  * R_b(0:3) is the Rotation matrix from the fixed landmark orentation (b(3:6)), b(0:2) is the fixed landmark position
- * and x is the 2D ovservations.
+ * and x is the 2D observations.
  *
  * Note that the covariance submatrix for the quaternion is 3x3, representing errors in the orientation local
  * parameterization tangent space. In case the user is interested in implementing a cost function of the form
@@ -80,7 +80,7 @@ public:
    *
    * @param[in] A The residual weighting matrix, most likely derived from the square root information
    *              matrix in order (u, v)
-   * @param[in] b The 2D pose measurement or prior in order (u, v
+   * @param[in] b The 2D pose measurement or prior in order (u, v)
    *
    **/
   ReprojectionErrorCostFunctor(const fuse_core::Matrix2d& A, const fuse_core::Vector2d& b);

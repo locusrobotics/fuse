@@ -51,7 +51,7 @@ namespace fuse_constraints
 ReprojectionErrorSnavellyConstraint::ReprojectionErrorSnavellyConstraint(
     const std::string& source, const fuse_variables::Position3DStamped& position,
     const fuse_variables::Orientation3DStamped& orientation,
-    const fuse_variables::PinholeCameraSimple& calibration,
+    const fuse_variables::PinholeCameraRadial& calibration,
     const fuse_core::Vector2d& mean,
     const fuse_core::Matrix2d& covariance)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
