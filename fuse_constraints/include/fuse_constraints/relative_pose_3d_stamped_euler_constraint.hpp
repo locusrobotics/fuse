@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-// TODO(giafranchini): still to be implemented
 
-#ifndef FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_CONSTRAINT_HPP_
-#define FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_CONSTRAINT_HPP_
+#ifndef FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
+#define FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
 
 #include <Eigen/Dense>
 
@@ -65,18 +64,18 @@ namespace fuse_constraints
  * measurements (e.g., visual odometry) measure the change in the pose, not the pose directly. This
  * constraint holds the measured 3D pose change and the measurement uncertainty/covariance.
  */
-class RelativePose3DStampedConstraint : public fuse_core::Constraint
+class RelativePose3DStampedEulerConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativePose3DStampedConstraint)
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(RelativePose3DStampedEulerConstraint)
 
   /**
    * @brief Default constructor
    */
-  RelativePose3DStampedConstraint() = default;
+  RelativePose3DStampedEulerConstraint() = default;
 
   /**
-   * @brief Constructor
+   * @brief Create a constraint using a measurement/prior of the relative 3D pose
    *
    * @param[in] source       The name of the sensor or motion model that generated this constraint
    * @param[in] position1    The variable representing the position components of the first pose
@@ -84,50 +83,50 @@ public:
    * @param[in] position2    The variable representing the position components of the second pose
    * @param[in] orientation2 The variable representing the orientation components of the second pose
    * @param[in] delta        The measured change in the pose
-   *                         (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
-   * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, dqx, dqy, dqz)
+   *                         (6x1 vector: dx, dy, dz, droll, dpitch, dyaw)
+   * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, droll, dpitch, dyaw)
    */
-  RelativePose3DStampedConstraint(
+  RelativePose3DStampedEulerConstraint(
     const std::string & source,
     const fuse_variables::Position3DStamped & position1,
     const fuse_variables::Orientation3DStamped & orientation1,
     const fuse_variables::Position3DStamped & position2,
     const fuse_variables::Orientation3DStamped & orientation2,
-    const fuse_core::Vector7d & delta,
+    const fuse_core::Vector6d & delta,
     const fuse_core::Matrix6d & covariance);
   
   /**
-   * @brief Constructor (version for partial measurements)
+   * @brief Create a constraint using a measurement/prior of the relative 3D pose
    *
    * @param[in] source              The name of the sensor or motion model that generated this constraint
    * @param[in] position1           The variable representing the position components of the first pose
    * @param[in] orientation1        The variable representing the orientation components of the first pose
    * @param[in] position2           The variable representing the position components of the second pose
    * @param[in] orientation2        The variable representing the orientation components of the second pose
-   * @param[in] delta               The measured change in the pose
-   *                                (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
-   * @param[in] partial_covariance  The measurement subset covariance (max 6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] partial_delta       The measured change in the pose
+   *                                (6x1 vector: dx, dy, dz, droll, dpitch, dyaw)
+   * @param[in] partial_covariance  The measurement subset covariance (max 6x6 matrix: x, y, z, droll, dpitch, dyaw)
    * @param[in] variable_indices    The indices of the measured variables
    */  
-  RelativePose3DStampedConstraint(
+  RelativePose3DStampedEulerConstraint(
     const std::string & source,
     const fuse_variables::Position3DStamped & position1,
     const fuse_variables::Orientation3DStamped & orientation1,
     const fuse_variables::Position3DStamped & position2,
     const fuse_variables::Orientation3DStamped & orientation2,
-    const fuse_core::Vector7d & delta,
+    const fuse_core::Vector6d & partial_delta,
     const fuse_core::MatrixXd & partial_covariance,
     const std::vector<size_t> & variable_indices);
 
   /**
    * @brief Destructor
    */
-  virtual ~RelativePose3DStampedConstraint() = default;
+  virtual ~RelativePose3DStampedEulerConstraint() = default;
 
   /**
    * @brief Read-only access to the measured pose change.
    */
-  const fuse_core::Vector7d & delta() const {return delta_;}
+  const fuse_core::Vector6d & delta() const {return delta_;}
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -137,7 +136,7 @@ public:
   /**
    * @brief Compute the measurement covariance matrix.
    */
-  fuse_core::MatrixXd covariance() const;
+  fuse_core::Matrix6d covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -159,7 +158,7 @@ public:
   ceres::CostFunction * costFunction() const override;
 
 protected:
-  fuse_core::Vector7d delta_;  //!< The measured pose change (dx, dy, dz, dqw, dqx, dqy, dqz)
+  fuse_core::Vector6d delta_;  //!< The measured pose change (dx, dy, dz, droll, dpitch, dyaw)
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the
                                           //!< covariance matrix)
 
@@ -185,6 +184,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose3DStampedEulerConstraint);
 
-#endif  // FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_CONSTRAINT_HPP_
+#endif  // FUSE_CONSTRAINTS__RELATIVE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
