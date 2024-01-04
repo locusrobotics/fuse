@@ -130,13 +130,12 @@ public:
           ns,
           "independent"),
         independent);
-      // TODO(giafranchini): understand if this is needed
-      // use_twist_covariance =
-      //   fuse_core::getParam(
-      //   interfaces, fuse_core::joinParameterName(
-      //     ns,
-      //     "use_twist_covariance"),
-      //   use_twist_covariance);
+      use_twist_covariance =
+        fuse_core::getParam(
+        interfaces, fuse_core::joinParameterName(
+          ns,
+          "use_twist_covariance"),
+        use_twist_covariance);
 
       minimum_pose_relative_covariance =
         fuse_core::getCovarianceDiagonalParam<6>(

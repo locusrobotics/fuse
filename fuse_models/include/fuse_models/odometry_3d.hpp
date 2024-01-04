@@ -151,6 +151,7 @@ protected:
    */
   void processDifferential(
     const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
+    const geometry_msgs::msg::TwistWithCovarianceStamped & twist,
     const bool validate,
     fuse_core::Transaction & transaction);
 
