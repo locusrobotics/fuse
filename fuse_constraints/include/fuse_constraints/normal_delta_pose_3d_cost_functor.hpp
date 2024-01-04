@@ -79,7 +79,7 @@ public:
    *              order (dx, dy, dz, dqx, dqy, dqz)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, dqw, dqx, dqy, dqz)
    */
-  NormalDeltaPose3DCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector7d & b);
+  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -93,7 +93,7 @@ public:
     T * residual) const;
 
 private:
-  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
+  fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root
                            //!< information matrix
   fuse_core::Vector7d b_;  //!< The measured difference between variable pose1 and variable pose2
 
@@ -101,15 +101,13 @@ private:
 };
 
 NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(
-  const fuse_core::MatrixXd & A,
+  const fuse_core::Matrix6d & A,
   const fuse_core::Vector7d & b)
 : A_(A),
   b_(b),
   orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will
                                                                        // not be scaled
 {
-  CHECK_GT(A_.rows(), 0);
-  CHECK_EQ(A_.cols(), 6);
 }
 
 template<typename T>
@@ -120,8 +118,6 @@ bool NormalDeltaPose3DCostFunctor::operator()(
   const T * const orientation2,
   T * residual) const
 {
-  T full_residuals[6];
-
   // Compute the position delta between pose1 and pose2
   T orientation1_inverse[4] =
   {
@@ -143,18 +139,17 @@ bool NormalDeltaPose3DCostFunctor::operator()(
     position_delta_rotated);
 
   // Compute the first three residual terms as (position_delta - b)
-  full_residuals[0] = position_delta_rotated[0] - T(b_[0]);
-  full_residuals[1] = position_delta_rotated[1] - T(b_[1]);
-  full_residuals[2] = position_delta_rotated[2] - T(b_[2]);
+  residual[0] = position_delta_rotated[0] - T(b_[0]);
+  residual[1] = position_delta_rotated[1] - T(b_[1]);
+  residual[2] = position_delta_rotated[2] - T(b_[2]);
 
   // Use the 3D orientation cost functor to compute the orientation delta
-  orientation_functor_(orientation1, orientation2, &full_residuals[3]);
+  orientation_functor_(orientation1, orientation2, &residual[3]);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  Eigen::Map<Eigen::Vector<T, 6>> full_residuals_map(full_residuals);
-  Eigen::Map<Eigen::Vector<T, Eigen::Dynamic>> residuals_map(residual, A_.rows());
-  residuals_map = A_.template cast<T>() * full_residuals_map;
+  Eigen::Map<Eigen::Vector<T, 6>> residuals_map(residual);
+  residuals_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;
 }
