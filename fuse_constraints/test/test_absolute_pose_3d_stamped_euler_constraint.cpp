@@ -325,7 +325,7 @@ TEST(AbsolutePose3DStampedEulerConstraint, OptimizationPartial)
   auto position_variable = Position3DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position_variable->x() = 1.5;
-  position_variable->y() = 0.0;
+  position_variable->y() = 1.0;
   position_variable->z() = 10.0;
 
   auto orientation_variable = Orientation3DStamped::make_shared(
