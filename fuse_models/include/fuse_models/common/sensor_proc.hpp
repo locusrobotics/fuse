@@ -223,7 +223,6 @@ inline void populatePartialMeasurement(
   const std::vector<size_t> & indices,
   fuse_core::MatrixXd & covariance_partial)
 {
-  covariance_partial.setZero();
   for (size_t r = 0; r < indices.size(); ++r) {
     for (size_t c = 0; c < indices.size(); ++c) {
       covariance_partial(r, c) = covariance_full(indices[r], indices[c]);
@@ -989,10 +988,10 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The second (and temporally later) PoseWithCovarianceStamped message
- * @param[in] independent - Whether the pose measurements are indepent or not
+ * @param[in] independent - Whether the pose measurements are independent or not
  * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always
  *                                               added to the resulting pose relative covariance
- * @param[in] loss - The loss function for the 2D pose constraint generated
+ * @param[in] loss - The loss function for the 3D pose constraint generated
  * @param[in] position_indices - The indices of the position variables to be added to the transaction
  * @param[in] orientation_indices - The indices of the orientation variables to be added to the transaction
  * @param[in] validate - Whether to validate the measurements or not. If the validation fails no
@@ -1014,17 +1013,17 @@ inline bool processDifferentialPose3DWithCovariance(
   fuse_core::Transaction & transaction)
 {
   // TODO(giafranchini): we should probably remove covariance_geometry dependency
-
-  // Convert from ROS msg to covariance geometry types 
   // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
   // Position is Eigen::Vector3d
   // Quaternion is Eigen::Quaterniond
   // Covariance is Eigen::Matrix6d
+
+  // Convert from ROS msg to covariance geometry types 
   covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
   covariance_geometry::fromROS(pose1.pose, p1);
   covariance_geometry::fromROS(pose2.pose, p2);
   
-// Create the pose variables
+  // Create the pose variables
   auto position1 = fuse_variables::Position3DStamped::make_shared(pose1.header.stamp, device_id);
   auto orientation1 =
     fuse_variables::Orientation3DStamped::make_shared(pose1.header.stamp, device_id);
@@ -1055,7 +1054,7 @@ inline bool processDifferentialPose3DWithCovariance(
       p12
     );
   } else {
-    // TODO(giafranchini): check this methodresults are nosense
+    // TODO(giafranchini): check this method, results are nosense
     // Here we assume that poses are computed incrementally, so: p2 = p1 * p12.
     // We know cov1 and cov2 and we should substract the first to the second in order
     // to obtain the relative pose covariance. But first the 2 of them have to be in the
@@ -1117,7 +1116,7 @@ inline bool processDifferentialPose3DWithCovariance(
       p12.first.first.x(), p12.first.first.y(), p12.first.first.z(), 
       p12.first.second.w(), p12.first.second.x(), p12.first.second.y(), 
       p12.first.second.z();
-    fuse_core::Matrix6d pose_relative_covariance = p12.second;
+    fuse_core::Matrix6d pose_relative_covariance = p12.second + minimum_pose_relative_covariance;
     
     if (validate) {
       try {
@@ -1155,16 +1154,14 @@ inline bool processDifferentialPose3DWithCovariance(
   }
 
   // Convert the poses into RPY representation
-  covariance_geometry::PoseRPYCovariance p12_rpy;
-  covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DRPYCovariance(
-    p12, p12_rpy);
-  
-  p12_rpy.second += minimum_pose_relative_covariance;
-  
   fuse_core::Vector6d pose_relative_mean_partial;
-  pose_relative_mean_partial << 
-    p12_rpy.first.first.x(), p12_rpy.first.first.y(), p12_rpy.first.first.z(), 
-    p12_rpy.first.second.x(), p12_rpy.first.second.y(), p12_rpy.first.second.z();
+  fuse_core::Matrix6d pose_relative_covariance = p12.second;
+
+  tf2::Quaternion q12(p12.first.second.x(), p12.first.second.y(), p12.first.second.z(), p12.first.second.w());
+  pose_relative_mean_partial.head<3>() << p12.first.first.x(), p12.first.first.y(), p12.first.first.z();
+  tf2::Matrix3x3(q12).getRPY(pose_relative_mean_partial(3), pose_relative_mean_partial(4), pose_relative_mean_partial(5));
+
+  pose_relative_covariance += minimum_pose_relative_covariance;
 
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
 
@@ -1181,7 +1178,7 @@ inline bool processDifferentialPose3DWithCovariance(
     }, 0.0);
   
   populatePartialMeasurement(
-    p12_rpy.second,
+    pose_relative_covariance,
     indices,
     pose_relative_covariance_partial);
 
@@ -1600,7 +1597,6 @@ inline bool processDifferentialPose3DWithTwistCovariance(
     return true;
   }
 
-  // TODO(giafranchini): implement partial pose measurement
   // Fill eigen pose in RPY representation
   fuse_core::Vector6d pose_relative_mean_partial;
   pose_relative_mean_partial.head<3>() << delta.getOrigin().x(), delta.getOrigin().y(), delta.getOrigin().z();
