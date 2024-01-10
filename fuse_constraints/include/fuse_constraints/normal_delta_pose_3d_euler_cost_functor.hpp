@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_COST_FUNCTOR_HPP_
-#define FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_COST_FUNCTOR_HPP_
+#ifndef FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_EULER_COST_FUNCTOR_HPP_
+#define FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_EULER_COST_FUNCTOR_HPP_
 
 #include <ceres/rotation.h>
 #include <glog/logging.h>
 
-#include <fuse_constraints/normal_delta_orientation_3d_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
@@ -52,8 +51,8 @@ namespace fuse_constraints
  * A single pose involves two variables: a 3D position and a 3D orientation. This cost function
  * computes the difference using standard 3D transformation math:
  *
- *   cost(x) = || A * [ q1^-1 * (p2 - p1) - b(0:2)        ] ||^2
- *             ||     [ AngleAxis(b(3:6)^-1 * q1^-1 * q2) ] ||
+ *   cost(x) = || A * [ q1^-1 * (p2 - p1) - b(0:2)    ] ||^2
+ *             ||     [ quat2rpy(q1^-1 * q2) - b(3:5) ] ||
  *
  * where p1 and p2 are the position variables, q1 and q2 are the quaternion orientation variables,
  * and the matrix A and the vector b are fixed. In case the user is interested in implementing a
@@ -64,10 +63,8 @@ namespace fuse_constraints
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
  * square root information matrix (the inverse of the covariance).
  *
- * Note that the cost function's quaternion components are only concerned with the imaginary
- * components (qx, qy, qz).
  */
-class NormalDeltaPose3DCostFunctor
+class NormalDeltaPose3DEulerCostFunctor
 {
 public:
   FUSE_MAKE_ALIGNED_OPERATOR_NEW()
@@ -76,10 +73,10 @@ public:
    * @brief Constructor
    *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (dx, dy, dz, dqx, dqy, dqz)
-   * @param[in] b The exposed pose difference in order (dx, dy, dz, dqw, dqx, dqy, dqz)
+   *              order (dx, dy, dz, droll, dpitch, dyaw)
+   * @param[in] b The exposed pose difference in order (dx, dy, dz, droll, dpitch, dyaw)
    */
-  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);
+  NormalDeltaPose3DEulerCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector6d & b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -93,67 +90,72 @@ public:
     T * residual) const;
 
 private:
-  fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root
-                           //!< information matrix
-  fuse_core::Vector7d b_;  //!< The measured difference between variable pose1 and variable pose2
-
-  NormalDeltaOrientation3DCostFunctor orientation_functor_;
+  fuse_core::MatrixXd A_;
+  fuse_core::Vector6d b_;
 };
 
-NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(
-  const fuse_core::Matrix6d & A,
-  const fuse_core::Vector7d & b)
+NormalDeltaPose3DEulerCostFunctor::NormalDeltaPose3DEulerCostFunctor(
+  const fuse_core::MatrixXd & A,
+  const fuse_core::Vector6d & b)
 : A_(A),
-  b_(b),
-  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will
-                                                                       // not be scaled
+  b_(b)
 {
+  CHECK_GT(A_.rows(), 0);
+  CHECK_EQ(A_.cols(), 6);
 }
 
 template<typename T>
-bool NormalDeltaPose3DCostFunctor::operator()(
+bool NormalDeltaPose3DEulerCostFunctor::operator()(
   const T * const position1,
   const T * const orientation1,
   const T * const position2,
   const T * const orientation2,
   T * residual) const
 {
-  // Compute the position delta between pose1 and pose2
-  T orientation1_inverse[4] =
+  T full_residuals[6];
+  T position_delta_rotated[3];
+  T orientation_delta[4];
+  T orientation_delta_rpy[3];
+
+  T orientation1_inverse[4] 
   {
     orientation1[0],
     -orientation1[1],
     -orientation1[2],
     -orientation1[3]
   };
-  T position_delta[3] =
+
+  T position_delta[3] 
   {
     position2[0] - position1[0],
     position2[1] - position1[1],
     position2[2] - position1[2]
   };
-  T position_delta_rotated[3];
-  ceres::QuaternionRotatePoint(
-    orientation1_inverse,
-    position_delta,
-    position_delta_rotated);
+  
+  // Compute the position residual
+  ceres::QuaternionRotatePoint(orientation1_inverse, position_delta, position_delta_rotated);
+  full_residuals[0] = position_delta_rotated[0] - T(b_(0));
+  full_residuals[1] = position_delta_rotated[1] - T(b_(1));
+  full_residuals[2] = position_delta_rotated[2] - T(b_(2));
 
-  // Compute the first three residual terms as (position_delta - b)
-  residual[0] = position_delta_rotated[0] - T(b_[0]);
-  residual[1] = position_delta_rotated[1] - T(b_[1]);
-  residual[2] = position_delta_rotated[2] - T(b_[2]);
-
-  // Use the 3D orientation cost functor to compute the orientation delta
-  orientation_functor_(orientation1, orientation2, &residual[3]);
+  // Compute the orientation residual
+  ceres::QuaternionProduct(orientation1_inverse, orientation2, orientation_delta);
+  orientation_delta_rpy[0] = fuse_core::getRoll(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[1] = fuse_core::getPitch(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[2] = fuse_core::getYaw(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  full_residuals[3] = orientation_delta_rpy[0] - T(b_(3));
+  full_residuals[4] = orientation_delta_rpy[1] - T(b_(4));
+  full_residuals[5] = orientation_delta_rpy[2] - T(b_(5));
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  Eigen::Map<Eigen::Vector<T, 6>> residuals_map(residual);
-  residuals_map.applyOnTheLeft(A_.template cast<T>());
+  Eigen::Map<Eigen::Vector<T, 6>> full_residuals_map(full_residuals);
+  Eigen::Map<Eigen::Vector<T, Eigen::Dynamic>> residuals_map(residual, A_.rows());
+  residuals_map = A_.template cast<T>() * full_residuals_map;
 
   return true;
 }
 
 }  // namespace fuse_constraints
 
-#endif  // FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_COST_FUNCTOR_HPP_
+#endif  // FUSE_CONSTRAINTS__NORMAL_DELTA_POSE_3D_EULER_COST_FUNCTOR_HPP_

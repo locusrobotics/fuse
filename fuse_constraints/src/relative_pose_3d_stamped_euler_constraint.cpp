@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,26 +31,25 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-// TODO(giafranchini): still to be implemented
 #include <ceres/autodiff_cost_function.h>
 
 #include <string>
 
 #include <boost/serialization/export.hpp>
-#include <fuse_constraints/normal_delta_pose_3d_cost_functor.hpp>
-#include <fuse_constraints/relative_pose_3d_stamped_constraint.hpp>
+#include <fuse_constraints/normal_delta_pose_3d_euler_cost_functor.hpp>
+#include <fuse_constraints/relative_pose_3d_stamped_euler_constraint.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
 {
 
-RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
+RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
   const std::string & source,
   const fuse_variables::Position3DStamped & position1,
   const fuse_variables::Orientation3DStamped & orientation1,
   const fuse_variables::Position3DStamped & position2,
   const fuse_variables::Orientation3DStamped & orientation2,
-  const fuse_core::Vector7d & delta,
+  const fuse_core::Vector6d & delta,
   const fuse_core::Matrix6d & covariance)
 : fuse_core::Constraint(
     source,
@@ -60,23 +59,22 @@ RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
 {
 }
 
-RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
+RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
   const std::string & source,
   const fuse_variables::Position3DStamped & position1,
   const fuse_variables::Orientation3DStamped & orientation1,
   const fuse_variables::Position3DStamped & position2,
   const fuse_variables::Orientation3DStamped & orientation2,
-  const fuse_core::Vector7d & delta,
+  const fuse_core::Vector6d & partial_delta,
   const fuse_core::MatrixXd & partial_covariance,
   const std::vector<size_t> & variable_indices)
 : fuse_core::Constraint(
     source,
     {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),  // NOLINT
-  delta_(delta)
+  delta_(partial_delta)
 {
   // Compute the partial sqrt information matrix of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
-  // std::cout << "partial_sqrt_information: \n" << partial_sqrt_information << std::endl;
 
   // Assemble a sqrt information matrix from the provided values, but in proper Variable order
   //
@@ -92,17 +90,11 @@ RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
   {
     sqrt_information_.col(variable_indices[i]) = partial_sqrt_information.col(i);
   }
-  // std::cout << "sqrt_information_ = " << "\n" << sqrt_information_ << std::endl;
-  // std::cout << "mean_ = " << mean_.transpose() << std::endl;
 }
 
-fuse_core::MatrixXd RelativePose3DStampedConstraint::covariance() const
+fuse_core::Matrix6d RelativePose3DStampedEulerConstraint::covariance() const
 {
-  if (sqrt_information_.rows() == 6)
-  {
-    return (sqrt_information_.transpose() * sqrt_information_).inverse();
-  }
-  // Otherwise we need to compute the pseudoinverse
+  // We need to compute the pseudoinverse
   // cov = (sqrt_info' * sqrt_info)^-1
   // With some linear algebra, we can swap the transpose and the inverse.
   // cov = (sqrt_info^-1) * (sqrt_info^-1)'
@@ -114,7 +106,7 @@ fuse_core::MatrixXd RelativePose3DStampedConstraint::covariance() const
   return pinv * pinv.transpose();
 }
 
-void RelativePose3DStampedConstraint::print(std::ostream & stream) const
+void RelativePose3DStampedEulerConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -127,14 +119,15 @@ void RelativePose3DStampedConstraint::print(std::ostream & stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction * RelativePose3DStampedConstraint::costFunction() const
+ceres::CostFunction * RelativePose3DStampedEulerConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<NormalDeltaPose3DCostFunctor, ceres::DYNAMIC, 3, 4, 3, 4>(
-    new NormalDeltaPose3DCostFunctor(sqrt_information_, delta_),
+  // TODO(giafranchini): implement cost function with analytical Jacobians
+  return new ceres::AutoDiffCostFunction<NormalDeltaPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4, 3, 4>(
+    new NormalDeltaPose3DEulerCostFunctor(sqrt_information_, delta_),
     sqrt_information_.rows());
 }
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose3DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePose3DStampedConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose3DStampedEulerConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePose3DStampedEulerConstraint, fuse_core::Constraint);

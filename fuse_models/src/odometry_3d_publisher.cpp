@@ -561,8 +561,7 @@ void Odometry3DPublisher::publishTimerCallback()
           velocity_linear,
           velocity_angular, 
           params_.velocity_linear_norm_min_,
-          params_.velocity_angular_norm_min_
-          );
+          params_.velocity_angular_norm_min_);
       }
 
       covariance.noalias() += dt * process_noise_covariance;
@@ -589,9 +588,7 @@ void Odometry3DPublisher::publishTimerCallback()
     trans.header.stamp = odom_output.header.stamp;
     trans.header.frame_id = frame_id;
     trans.child_frame_id = child_frame_id;
-    trans.transform.translation = tf2::toMsg(pose.getOrigin());
-    trans.transform.rotation = tf2::toMsg(pose.getRotation());
-
+    trans.transform = tf2::toMsg(pose);    
     if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id) {
       try {
         auto base_to_odom = tf_buffer_->lookupTransform(

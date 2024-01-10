@@ -15,6 +15,7 @@ set(TEST_TARGETS
   test_relative_constraint
   test_relative_pose_2d_stamped_constraint
   test_relative_pose_3d_stamped_constraint
+  test_relative_pose_3d_stamped_euler_constraint
   test_uuid_ordering
   test_variable_constraints
 )

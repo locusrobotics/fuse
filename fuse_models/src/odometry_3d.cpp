@@ -151,7 +151,7 @@ void Odometry3D::process(const nav_msgs::msg::Odometry & msg)
   const bool validate = !params_.disable_checks;
 
   if (params_.differential) {
-    processDifferential(*pose, validate, *transaction);
+    processDifferential(*pose, twist, validate, *transaction);
   } else {
     common::processAbsolutePose3DWithCovariance(
       name(),
@@ -188,6 +188,7 @@ void Odometry3D::process(const nav_msgs::msg::Odometry & msg)
 
 void Odometry3D::processDifferential(
   const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
+  const geometry_msgs::msg::TwistWithCovarianceStamped & twist,
   const bool validate,
   fuse_core::Transaction & transaction)
 {
@@ -209,19 +210,47 @@ void Odometry3D::processDifferential(
     return;
   }
 
-  common::processDifferentialPose3DWithCovariance(
-    name(),
-    device_id_,
-    *previous_pose_,
-    *transformed_pose,
-    params_.independent,
-    params_.minimum_pose_relative_covariance,
-    params_.pose_loss,
-    params_.position_indices,
-    params_.orientation_indices,
-    validate,
-    transaction);
-  
+  if (params_.use_twist_covariance) {
+    geometry_msgs::msg::TwistWithCovarianceStamped transformed_twist;
+    transformed_twist.header.frame_id =
+      params_.twist_target_frame.empty() ? twist.header.frame_id : params_.twist_target_frame;
+
+    if (!common::transformMessage(*tf_buffer_, twist, transformed_twist)) {
+      RCLCPP_WARN_STREAM_THROTTLE(
+        logger_, *clock_, 5.0 * 1000,
+        "Cannot transform twist message with stamp " << rclcpp::Time(
+          twist.header.stamp).nanoseconds()
+                                                     << " to twist target frame " <<
+          params_.twist_target_frame);
+    } else {
+      common::processDifferentialPose3DWithTwistCovariance(
+        name(),
+        device_id_,
+        *previous_pose_,
+        *transformed_pose,
+        transformed_twist,
+        params_.minimum_pose_relative_covariance,
+        params_.twist_covariance_offset,
+        params_.pose_loss,
+        params_.position_indices,
+        params_.orientation_indices,
+        validate,
+        transaction);
+    }
+  } else {
+    common::processDifferentialPose3DWithCovariance(
+      name(),
+      device_id_,
+      *previous_pose_,
+      *transformed_pose,
+      params_.independent,
+      params_.minimum_pose_relative_covariance,
+      params_.pose_loss,
+      params_.position_indices,
+      params_.orientation_indices,
+      validate,
+      transaction);
+  }
   previous_pose_ = std::move(transformed_pose);
 }
 
