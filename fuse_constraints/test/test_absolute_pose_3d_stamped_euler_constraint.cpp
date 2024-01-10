@@ -387,7 +387,7 @@ TEST(AbsolutePose3DStampedEulerConstraint, OptimizationPartial)
 
   // Check
   EXPECT_NEAR(1.0, position_variable->x(), 1.0e-5);
-  EXPECT_NEAR(0.0, position_variable->y(), 1.0e-5);
+  EXPECT_NEAR(1.0, position_variable->y(), 1.0e-5); // This is not measured so it will not change
   EXPECT_NEAR(3.0, position_variable->z(), 1.0e-5);
   EXPECT_NEAR(1.0, orientation_variable->w(), 1.0e-3);
   EXPECT_NEAR(0.0, orientation_variable->x(), 1.0e-3);
