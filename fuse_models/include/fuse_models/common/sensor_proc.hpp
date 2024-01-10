@@ -1012,7 +1012,6 @@ inline bool processDifferentialPose3DWithCovariance(
   const bool validate,
   fuse_core::Transaction & transaction)
 {
-  // TODO(giafranchini): we should probably remove covariance_geometry dependency
   // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
   // Position is Eigen::Vector3d
   // Quaternion is Eigen::Quaterniond
@@ -1054,7 +1053,6 @@ inline bool processDifferentialPose3DWithCovariance(
       p12
     );
   } else {
-    // TODO(giafranchini): check this method, results are nosense
     // Here we assume that poses are computed incrementally, so: p2 = p1 * p12.
     // We know cov1 and cov2 and we should substract the first to the second in order
     // to obtain the relative pose covariance. But first the 2 of them have to be in the
@@ -1461,13 +1459,11 @@ inline bool processDifferentialPose3DWithTwistCovariance(
   const bool validate,
   fuse_core::Transaction & transaction)
 {
-  // TODO(giafranchini): still to be implemented
   if (position_indices.empty() && orientation_indices.empty()) {
     return false;
   }
 
   // Convert the poses into tf2 transforms
-
   tf2::Transform pose1_tf2, pose2_tf2;
   tf2::fromMsg(pose1.pose.pose, pose1_tf2);
   tf2::fromMsg(pose2.pose.pose, pose2_tf2);
@@ -1501,42 +1497,6 @@ inline bool processDifferentialPose3DWithTwistCovariance(
   // Create the covariance components for the constraint
   Eigen::Map<const fuse_core::Matrix6d> cov(twist.twist.covariance.data());
 
-  // For dependent pose measurements p1 and p2, we assume they're computed as:
-  //
-  // p2 = p1 * p12    [1]
-  //
-  // where p12 is the relative pose between p1 and p2, which is computed here as:
-  //
-  // p12 = p1^-1 * p2
-  //
-  // Note that the twist t12 is computed as:
-  //
-  // t12 = p12 / dt
-  //
-  // where dt = t2 - t1, for t1 and t2 being the p1 and p2 timestamps, respectively.
-  //
-  // Therefore, the relative pose p12 is computed as follows given the twist t12:
-  //
-  // p12 = t12 * dt
-  //
-  // The covariance propagation of this equation is:
-  //
-  // C12 = J_t12 * T12 * J_t12^T    [2]
-  //
-  // where T12 is the twist covariance and J_t12 is the jacobian of the equation wrt to t12.
-  //
-  // The jacobian wrt t12 is:
-  //
-  // J_t12 = dt * Id
-  //
-  // where Id is a 3x3 Identity matrix.
-  //
-  // In some cases the twist covariance T12 is very small and it could yield to an ill-conditioned
-  // C12 covariance. For that reason a minimum covariance is added to [2].
-  //
-  // It is also common that for the same reason, the twist covariance T12 already has a minimum
-  // covariance offset added to it by the publisher, so we have to remove it before using it.
-  
   const auto dt = (rclcpp::Time(pose2.header.stamp) - rclcpp::Time(pose1.header.stamp)).seconds();
 
   if (dt < 1e-6) {
