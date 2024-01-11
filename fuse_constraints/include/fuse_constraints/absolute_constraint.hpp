@@ -50,7 +50,6 @@
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
-// #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
@@ -215,10 +214,10 @@ using AbsoluteVelocityAngular2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>;
 using AbsoluteVelocityAngular3DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityAngular3DStamped>;
-using AbsoluteVelocityLinear3DStampedConstraint =
-  AbsoluteConstraint<fuse_variables::VelocityLinear3DStamped>;
 using AbsoluteVelocityLinear2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>;
+using AbsoluteVelocityLinear3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::VelocityLinear3DStamped>;
 }  // namespace fuse_constraints
 
 // Include the template implementation

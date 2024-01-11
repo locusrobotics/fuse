@@ -156,6 +156,18 @@ inline std::string AbsoluteConstraint<fuse_variables::AccelerationLinear2DStampe
 }
 
 template<>
+inline std::string AbsoluteConstraint<fuse_variables::AccelerationAngular3DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteAccelerationAngular3DStampedConstraint";
+}
+
+template<>
+inline std::string AbsoluteConstraint<fuse_variables::AccelerationLinear3DStamped>::type() const
+{
+  return "fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint";
+}
+
+template<>
 inline std::string AbsoluteConstraint<fuse_variables::Orientation2DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteOrientation2DStampedConstraint";

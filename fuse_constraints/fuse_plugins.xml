@@ -148,4 +148,9 @@
     A constraint that represents a measurement on the difference between two 3D poses.
     </description>
   </class>
+  <class type="fuse_constraints::RelativePose3DStampedEulerConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A constraint that represents a measurement on the difference between two 3D poses, orientation parametrized in RPY.
+    </description>
+  </class>
 </library>
