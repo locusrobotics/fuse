@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Locus Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -64,22 +63,17 @@ namespace fuse_constraints
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
  * square root information matrix (the inverse of the covariance).
  */
-class NormalPriorOrientation3D : public ceres::SizedCostFunction<ceres::DYNAMIC, 4>
+class NormalPriorOrientation3D : public ceres::SizedCostFunction<3, 4>
 {
 public:
   /**
    * @brief Construct a cost function instance
    *
-   * The residual weighting matrix can vary in size, as this cost functor can be used to compute
-   * costs for partial vectors. The number of rows of A will be the number of dimensions for which
-   * you want to compute the error, and the number of columns in A will be fixed at 3. For example,
-   * if we just want to use the values of roll and yaw, then \p A will be of size 2x3.
-   *
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (roll, pitch, yaw)
+   *              order (qx, qy, qz)
    * @param[in] b The orientation measurement or prior in order (qw, qx, qy, qz)
    */
-  NormalPriorOrientation3D(const fuse_core::MatrixXd & A, const fuse_core::Vector4d & b);
+  NormalPriorOrientation3D(const fuse_core::Matrix3d & A, const fuse_core::Vector4d & b);
 
   /**
    * @brief Destructor
@@ -96,7 +90,7 @@ public:
     double ** jacobians) const;
 
 private:
-  fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
+  fuse_core::Matrix3d A_;  //!< The residual weighting matrix, most likely the square root
                            //!< information matrix
   fuse_core::Vector4d b_;  //!< The measured 3D orientation value
 };

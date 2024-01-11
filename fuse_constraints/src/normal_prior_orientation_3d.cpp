@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -33,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Eigen/Core>
-#include <glog/logging.h>
 #include <ceres/rotation.h>
 
 #include <fuse_constraints/normal_prior_orientation_3d.hpp>
@@ -42,13 +40,10 @@
 namespace fuse_constraints
 {
 
-NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::MatrixXd & A, const fuse_core::Vector4d & b)
+NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::Matrix3d & A, const fuse_core::Vector4d & b)
 : A_(A),
   b_(b)
 {
-  CHECK_GT(A_.rows(), 0);
-  CHECK_EQ(A_.cols(), 3);
-  set_num_residuals(A_.rows());
 }
 
 bool NormalPriorOrientation3D::Evaluate(
@@ -56,8 +51,6 @@ bool NormalPriorOrientation3D::Evaluate(
   double * residuals,
   double ** jacobians) const
 {
-  fuse_core::Vector3d full_residuals_vector;
-
   double variable[4] =
   {
     parameters[0][0],
@@ -79,16 +72,15 @@ bool NormalPriorOrientation3D::Evaluate(
   double j_quat2angle[12];
 
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
-  fuse_core::quaternionToAngleAxis(difference, &full_residuals_vector[0], j_quat2angle); // orientation angle-axis
+  fuse_core::quaternionToAngleAxis(difference, residuals, j_quat2angle); // orientation angle-axis
  
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
-  Eigen::Map<Eigen::VectorXd> residuals_vector(residuals, num_residuals());
-  residuals_vector = A_ * full_residuals_vector;
+  Eigen::Map<Eigen::Vector3d> residuals_map(residuals);
+  residuals_map.applyOnTheLeft(A_);
 
   if (jacobians != nullptr) {
-    // Jacobian of the orientation residuals wrt orientation parameters block (max 3x4)
-    Eigen::Map<fuse_core::MatrixXd> j_map(jacobians[0], num_residuals(), 4);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_map(jacobians[0]);
     Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
     Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
     j_map = A_ * j_quat2angle_map * j_product_map;
