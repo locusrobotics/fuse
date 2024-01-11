@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -33,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Eigen/Core>
-#include <glog/logging.h>
 #include <ceres/rotation.h>
 
 #include <fuse_constraints/normal_prior_pose_3d.hpp>
@@ -74,9 +72,11 @@ bool NormalPriorPose3D::Evaluate(
   double j_product[16];
   double j_quat2angle[12];
 
-  residuals[0] = parameters[0][0] - b_[0];  // position x
-  residuals[1] = parameters[0][1] - b_[1];  // position y
-  residuals[2] = parameters[0][2] - b_[2];  // position z 
+  // Compute position residuals
+  residuals[0] = parameters[0][0] - b_[0];
+  residuals[1] = parameters[0][1] - b_[1];
+  residuals[2] = parameters[0][2] - b_[2];
+  // Compute orientation residuals 
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
   fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle); // orientation angle-axis
  
