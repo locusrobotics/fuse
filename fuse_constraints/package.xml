@@ -20,7 +20,6 @@
   <depend>libceres-dev</depend>
   <depend>suitesparse</depend>
 
-  <build_depend>covariance_geometry_ros</build_depend>
   <build_depend>fuse_core</build_depend>
   <build_depend>fuse_graphs</build_depend>
   <build_depend>fuse_variables</build_depend>
@@ -28,7 +27,6 @@
   <build_depend>pluginlib</build_depend>
   <build_depend>rclcpp</build_depend>
 
-  <exec_depend>covariance_geometry_ros</exec_depend>
   <exec_depend>fuse_core</exec_depend>
   <exec_depend>fuse_graphs</exec_depend>
   <exec_depend>fuse_variables</exec_depend>

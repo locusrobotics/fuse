@@ -12,7 +12,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_ros REQUIRED)
-find_package(covariance_geometry_ros REQUIRED)
 find_package(fuse_core REQUIRED)
 find_package(fuse_graphs REQUIRED)
 find_package(fuse_variables REQUIRED)
@@ -64,7 +63,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
   Boost::serialization
-  covariance_geometry_ros::covariance_geometry_ros
   Ceres::ceres
   Eigen3::Eigen
   fuse_core::fuse_core
@@ -117,7 +115,6 @@ pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
 ament_export_dependencies(
   ament_cmake_ros
-  covariance_geometry_ros
   fuse_core
   fuse_graphs
   fuse_variables
