@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -48,25 +48,30 @@ namespace fuse_models
  * @brief Create a cost function for a 3D state vector
  *
  * The state vector includes the following quantities, given in this order:
- *   pose translation x, y, z
- *   pose orientation (in quaternion) w, x, y, z
- *   linear velocity x, y, z
- *   angular velocity x, y, z
- *   linear acceleration x, y, z
+ *   position (x, y, z)
+ *   orientation (roll, pitch, yaw)
+ *   linear velocity (x, y, z)
+ *   angular velocity (roll, pitch, yaw)
+ *   linear acceleration (x, y, z)
  *
  * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost
  * function that applies a prior constraint on both the entire state vector.
  *
  * The cost function is of the form:
  *
- *             ||    [        x_t2 - proj(x_t1)       ] ||^2
- *   cost(x) = ||    [        y_t2 - proj(y_t1)       ] ||
- *             ||    [      yaw_t2 - proj(yaw_t1)     ] ||
- *             ||A * [    x_vel_t2 - proj(x_vel_t1)   ] ||
- *             ||    [    y_vel_t2 - proj(y_vel_t1)   ] ||
- *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
- *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
- *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
+ *             ||    [              x_t2 - proj(x_t1)             ]  ||^2
+ *             ||    [              y_t2 - proj(y_t1)             ]  ||
+ *             ||    [              z_t2 - proj(z_t1)             ]  ||
+ *             ||    [ quat2eul(rpy_t2) - proj(quat2eul(rpy_t1))  ]  ||
+ *  cost(x) =  || A *[         x_vel_t2 - proj(x_vel_t1)          ]  ||
+ *             ||    [         y_vel_t2 - proj(y_vel_t1)          ]  ||
+ *             ||    [         z_vel_t2 - proj(z_vel_t1)          ]  ||
+ *             ||    [      roll_vel_t2 - proj(roll_vel_t1)       ]  ||
+ *             ||    [      pitch_vel_t2 - proj(pitch_vel_t1)     ]  ||
+ *             ||    [      yaw_vel_t2 - proj(yaw_vel_t1)         ]  ||
+ *             ||    [         x_acc_t2 - proj(x_acc_t1)          ]  ||
+ *             ||    [         y_acc_t2 - proj(y_acc_t1)          ]  ||
+ *             ||    [         z_acc_t2 - proj(z_acc_t1)          ]  ||
  *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and
  * proj is a function that projects the state variables from time t1 to time t2. In case the user is
@@ -87,7 +92,8 @@ public:
    *
    * @param[in] dt The time delta across which to generate the kinematic model cost
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc)
+   *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   *                      x_acc, y_acc, z_acc)
    */
   Unicycle3DStateCostFunctor(const double dt, const fuse_core::Matrix15d & A);
 
@@ -102,7 +108,7 @@ public:
    * @param[out] position2 - Second position (array with x at index 0, y at index 1, z at index 2)
    * @param[out] orientation2 - Second orientation (array with w at index 0, x at index 1, y at index 2, z at index 3) check this order
    * @param[out] vel_linear2  - Second velocity (array with x at index 0, y at index 1, z at index 2)
-   * @param[out] vel_angular2 - Second yaw velocity (array with vroll at index 0, vpitch at index 1, vyaw at index 2)
+   * @param[out] vel_angular2 - Second angular velocity (array with vroll at index 0, vpitch at index 1, vyaw at index 2)
    * @param[out] acc_linear2  - Second linear acceleration (array with x at index 0, y at index 1, z at index 2)
    */
   template<typename T>

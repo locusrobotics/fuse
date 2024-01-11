@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Eigen/Dense>
-// #include <ceres/autodiff_cost_function.h>
 #include <ostream>
 #include <string>
 
 #include <boost/serialization/export.hpp>
 #include <fuse_models/unicycle_3d_state_cost_function.hpp>
-// #include <fuse_models/unicycle_3d_state_cost_functor.hpp>
 #include <fuse_models/unicycle_3d_state_kinematic_constraint.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
@@ -107,6 +105,10 @@ ceres::CostFunction * Unicycle3DStateKinematicConstraint::costFunction() const
   //
   // return new ceres::AutoDiffCostFunction<Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
   //   new Unicycle3DStateCostFunctor(dt_, sqrt_information_));
+
+  // And including the followings:
+  // #include <ceres/autodiff_cost_function.h>
+  // #include <fuse_models/unicycle_3d_state_cost_functor.hpp>
 }
 
 }  // namespace fuse_models

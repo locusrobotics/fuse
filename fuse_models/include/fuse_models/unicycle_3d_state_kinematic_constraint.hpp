@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -79,20 +79,20 @@ public:
    * The constraint is created between two states. The state is broken up into multiple fuse
    * variable types.
    *
-   * @param[in] source The name of the sensor or motion model that generated this constraint
-   * @param[in] position1 Position component variable of the fist state
-   * @param[in] orientation1 Orientation component variable of the first state
-   * @param[in] velocity_linear1 Linear velocity component variable of the first state
-   * @param[in] velocity_angular1 Angular velocity component variable of the first state
-   * @param[in] acceleration_linear1 Linear acceleration component variable of the first state
-   * @param[in] position2 Position component variable of the second state
-   * @param[in] orientation2 Orientation component variable of the second state
-   * @param[in] velocity_linear2 Linear velocity component variable of the second state
-   * @param[in] velocity_angular2 Angular velocity component variable of the second state
-   * @param[in] acceleration_linear2 Linear acceleration component variable of the second state
-   * @param[in] covariance - The covariance matrix used to weight the constraint. Order is (x, y, z,
-   *                         roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
-   *                         x_acc, y_acc, z_acc)
+   * @param[in] source                The name of the sensor or motion model that generated this constraint
+   * @param[in] position1             Position component variable of the fist state
+   * @param[in] orientation1          Orientation component variable of the first state
+   * @param[in] velocity_linear1      Linear velocity component variable of the first state
+   * @param[in] velocity_angular1     Angular velocity component variable of the first state
+   * @param[in] acceleration_linear1  Linear acceleration component variable of the first state
+   * @param[in] position2             Position component variable of the second state
+   * @param[in] orientation2          Orientation component variable of the second state
+   * @param[in] velocity_linear2      Linear velocity component variable of the second state
+   * @param[in] velocity_angular2     Angular velocity component variable of the second state
+   * @param[in] acceleration_linear2  Linear acceleration component variable of the second state
+   * @param[in] covariance            The covariance matrix used to weight the constraint. Order is (x, y, z,
+   *                                  roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   *                                  x_acc, y_acc, z_acc)
    */
   Unicycle3DStateKinematicConstraint(
     const std::string & source,

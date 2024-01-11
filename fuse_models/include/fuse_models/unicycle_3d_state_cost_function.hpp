@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,6 @@ public:
     double vel_linear_pred[3];
     double vel_angular_pred[3];
     double acc_linear_pred[3];
-
     double orientation1_rpy[3];
     double orientation2_rpy[3];
     double j1_quat2rpy[12];

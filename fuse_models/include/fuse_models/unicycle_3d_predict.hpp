@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -269,7 +268,6 @@ inline void predict(
   fuse_core::wrapAngle2D(orientation2_p);
   fuse_core::wrapAngle2D(orientation2_y);
 
-  // TODO(giafranchini): should we store common expressions?
   if (jacobians) {
     // Jacobian wrt position1
     if (jacobians[0]) {
