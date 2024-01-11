@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -1012,6 +1013,7 @@ inline bool processDifferentialPose3DWithCovariance(
   const bool validate,
   fuse_core::Transaction & transaction)
 {
+  // Here we are using covariance_geometry types to compute the relative pose covariance:
   // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
   // Position is Eigen::Vector3d
   // Quaternion is Eigen::Quaterniond
