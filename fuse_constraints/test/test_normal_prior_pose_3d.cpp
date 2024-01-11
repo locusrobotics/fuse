@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
