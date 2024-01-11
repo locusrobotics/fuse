@@ -63,15 +63,15 @@ namespace fuse_models
  * The fuse_models 3D state is a combination of 3D position, 3D orientation, 3D linear velocity, 3D
  * angular velocity, and 3D linear acceleration.
  */
-class Unicycle3DStateKinematicConstraint : public fuse_core::Constraint
+class Omnidirectional3DStateKinematicConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Unicycle3DStateKinematicConstraint)
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Omnidirectional3DStateKinematicConstraint)
 
   /**
    * @brief Default constructor
    */
-  Unicycle3DStateKinematicConstraint() = default;
+  Omnidirectional3DStateKinematicConstraint() = default;
 
   /**
    * @brief Create a constraint using a time delta and a kinematic model cost functor
@@ -94,7 +94,7 @@ public:
    *                                  roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
    *                                  x_acc, y_acc, z_acc)
    */
-  Unicycle3DStateKinematicConstraint(
+  Omnidirectional3DStateKinematicConstraint(
     const std::string & source,
     const fuse_variables::Position3DStamped & position1,
     const fuse_variables::Orientation3DStamped & orientation1,
@@ -111,7 +111,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~Unicycle3DStateKinematicConstraint() = default;
+  virtual ~Omnidirectional3DStateKinematicConstraint() = default;
 
   /**
    * @brief Read-only access to the time delta between the first and second state (really, between
@@ -183,6 +183,6 @@ private:
 
 }  // namespace fuse_models
 
-BOOST_CLASS_EXPORT_KEY(fuse_models::Unicycle3DStateKinematicConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_models::Omnidirectional3DStateKinematicConstraint);
 
 #endif  // FUSE_MODELS__UNICYCLE_3D_STATE_KINEMATIC_CONSTRAINT_HPP_

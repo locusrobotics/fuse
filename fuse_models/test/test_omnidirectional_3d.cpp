@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_models/unicycle_3d.hpp>
+#include <fuse_models/omnidirectional_3d.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
@@ -18,15 +18,15 @@
 /**
  * @brief Derived class used in unit tests to expose protected functions
  */
-class Unicycle3DModelTest : public fuse_models::Unicycle3D
+class Omnidirectional3DModelTest : public fuse_models::Omnidirectional3D
 {
 public:
-  using fuse_models::Unicycle3D::updateStateHistoryEstimates;
-  using fuse_models::Unicycle3D::StateHistoryElement;
-  using fuse_models::Unicycle3D::StateHistory;
+  using fuse_models::Omnidirectional3D::updateStateHistoryEstimates;
+  using fuse_models::Omnidirectional3D::StateHistoryElement;
+  using fuse_models::Omnidirectional3D::StateHistory;
 };
 
-TEST(Unicycle3D, UpdateStateHistoryEstimates)
+TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
 {
   // Create some variables
   auto position1 = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(1, 0));
@@ -155,10 +155,10 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
   graph.addVariable(linear_acceleration4);
 
   // Add all of the variables to the state history
-  Unicycle3DModelTest::StateHistory state_history;
+  Omnidirectional3DModelTest::StateHistory state_history;
   state_history.emplace(
     position1->stamp(),
-    Unicycle3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
+    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
     position1->uuid(),
     orientation1->uuid(),
     linear_velocity1->uuid(),
@@ -171,7 +171,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position2->stamp(),
-    Unicycle3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
+    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
     position2->uuid(),
     orientation2->uuid(),
     linear_velocity2->uuid(),
@@ -184,7 +184,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position3->stamp(),
-    Unicycle3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
+    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
     position3->uuid(),
     orientation3->uuid(),
     linear_velocity3->uuid(),
@@ -197,7 +197,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position4->stamp(),
-    Unicycle3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
+    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
     position4->uuid(),
     orientation4->uuid(),
     linear_velocity4->uuid(),
@@ -210,7 +210,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
   state_history.emplace(
     position5->stamp(),
-    Unicycle3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
+    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
     position5->uuid(),
     orientation5->uuid(),
     linear_velocity5->uuid(),
@@ -223,7 +223,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
 
   // Update the state history
-  Unicycle3DModelTest::updateStateHistoryEstimates(
+  Omnidirectional3DModelTest::updateStateHistoryEstimates(
     graph, state_history, rclcpp::Duration::from_seconds(
       10.0));
 

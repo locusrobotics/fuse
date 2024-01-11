@@ -47,7 +47,7 @@
 #include <fuse_core/uuid.hpp>
 #include <fuse_models/common/sensor_proc.hpp>
 #include <fuse_models/odometry_3d_publisher.hpp>
-#include <fuse_models/unicycle_3d_predict.hpp>
+#include <fuse_models/omnidirectional_3d_predict.hpp>
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.hpp>

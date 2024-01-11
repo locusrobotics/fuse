@@ -34,7 +34,7 @@
 #ifndef FUSE_MODELS__UNICYCLE_3D_STATE_COST_FUNCTOR_HPP_
 #define FUSE_MODELS__UNICYCLE_3D_STATE_COST_FUNCTOR_HPP_
 
-#include <fuse_models/unicycle_3d_predict.hpp>
+#include <fuse_models/omnidirectional_3d_predict.hpp>
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -82,7 +82,7 @@ namespace fuse_models
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
  * square root information matrix (the inverse of the covariance).
  */
-class Unicycle3DStateCostFunctor
+class Omnidirectional3DStateCostFunctor
 {
 public:
   FUSE_MAKE_ALIGNED_OPERATOR_NEW()
@@ -95,7 +95,7 @@ public:
    *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
    *                      x_acc, y_acc, z_acc)
    */
-  Unicycle3DStateCostFunctor(const double dt, const fuse_core::Matrix15d & A);
+  Omnidirectional3DStateCostFunctor(const double dt, const fuse_core::Matrix15d & A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -131,7 +131,7 @@ private:
                            //!< information matrix
 };
 
-Unicycle3DStateCostFunctor::Unicycle3DStateCostFunctor(
+Omnidirectional3DStateCostFunctor::Omnidirectional3DStateCostFunctor(
   const double dt,
   const fuse_core::Matrix15d & A)
 : dt_(dt),
@@ -140,7 +140,7 @@ Unicycle3DStateCostFunctor::Unicycle3DStateCostFunctor(
 }
 
 template<typename T>
-bool Unicycle3DStateCostFunctor::operator()(
+bool Omnidirectional3DStateCostFunctor::operator()(
   const T * const position1,
   const T * const orientation1,
   const T * const vel_linear1,

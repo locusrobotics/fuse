@@ -41,7 +41,7 @@
 #include <fuse_core/async_sensor_model.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_models/parameters/unicycle_3d_ignition_params.hpp>
+#include <fuse_models/parameters/omnidirectional_3d_ignition_params.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 
@@ -54,11 +54,11 @@ namespace fuse_models
 {
 
 /**
- * @brief A fuse_models ignition sensor designed to be used in conjunction with the unicycle 3D
+ * @brief A fuse_models ignition sensor designed to be used in conjunction with the Omnidirectional 3D
  *        motion model.
  *
  * This class publishes a transaction that contains a prior on each state subvariable used in the
- * unicycle 3D motion model (x, y, z, qx, qy, qz, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+ * Omnidirectional 3D motion model (x, y, z, qx, qy, qz, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
  * yaw_vel, x_acc, y_acc, z_acc). When the sensor is first loaded, it publishes a single transaction 
  * with the configured initial state and covariance.
  * Additionally, whenever a pose is received, either on the set_pose service or the topic, this
@@ -90,23 +90,23 @@ namespace fuse_models
  *  - ~topic (string, default: "set_pose") The topic name for received PoseWithCovarianceStamped
  *                                         messages
  */
-class Unicycle3DIgnition : public fuse_core::AsyncSensorModel
+class Omnidirectional3DIgnition : public fuse_core::AsyncSensorModel
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(Unicycle3DIgnition)
-  using ParameterType = parameters::Unicycle3DIgnitionParams;
+  FUSE_SMART_PTR_DEFINITIONS(Omnidirectional3DIgnition)
+  using ParameterType = parameters::Omnidirectional3DIgnitionParams;
 
   /**
    * @brief Default constructor
    *
    * All plugins are required to have a constructor that accepts no arguments
    */
-  Unicycle3DIgnition();
+  Omnidirectional3DIgnition();
 
   /**
    * @brief Destructor
    */
-  ~Unicycle3DIgnition() = default;
+  ~Omnidirectional3DIgnition() = default;
 
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
@@ -120,7 +120,7 @@ public:
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
    *
    * As a very special case, we are overriding the start() method instead of providing an onStart()
-   * implementation. This is because the Unicycle3DIgnition sensor calls reset() on the optimizer,
+   * implementation. This is because the Omnidirectional3DIgnition sensor calls reset() on the optimizer,
    * which in turn calls stop() and start(). If we used the AsyncSensorModel implementations of
    * start() and stop(), the system would hang inside of one callback function while waiting for
    * another callback to complete.
@@ -131,7 +131,7 @@ public:
    * @brief Unsubscribe from the input topic to stop sending transactions to the optimizer
    *
    * As a very special case, we are overriding the stop() method instead of providing an onStop()
-   * implementation. This is because the Unicycle3DIgnition sensor calls reset() on the optimizer,
+   * implementation. This is because the Omnidirectional3DIgnition sensor calls reset() on the optimizer,
    * which in turn calls stop() and start(). If we used the AsyncSensorModel implementations of
    * start() and stop(), the system would hang inside of one callback function while waiting for
    * another callback to complete.
@@ -180,7 +180,7 @@ protected:
   /**
    * @brief Create and send a prior transaction based on the supplied pose
    *
-   * The unicycle 3d state members not included in the pose message (x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+   * The omnidirectional 3d state members not included in the pose message (x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
    * yaw_vel, x_acc, y_acc, z_acc) will use the initial state values and standard deviations configured on the 
    * parameter server.
    *

@@ -38,7 +38,7 @@
 #include <vector>
 
 #include <fuse_core/eigen_gtest.hpp>
-#include <fuse_models/unicycle_3d_predict.hpp>
+#include <fuse_models/omnidirectional_3d_predict.hpp>
 #include <ceres/jet.h>
 
 TEST(Predict, predictDirectVals)

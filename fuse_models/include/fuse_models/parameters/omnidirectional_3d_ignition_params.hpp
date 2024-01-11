@@ -52,9 +52,9 @@ namespace parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the Unicycle3DIgnition class
+ * @brief Defines the set of parameters required by the Omnidirectional3DIgnition class
  */
-struct Unicycle3DIgnitionParams : public ParameterBase
+struct Omnidirectional3DIgnitionParams : public ParameterBase
 {
 public:
   /**

@@ -70,22 +70,22 @@ namespace fuse_models
  *                                                 x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
  *                                                 x_acc, y_acc, z_acc).
  */
-class Unicycle3D : public fuse_core::AsyncMotionModel
+class Omnidirectional3D : public fuse_core::AsyncMotionModel
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Unicycle3D)
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(Omnidirectional3D)
 
   /**
    * @brief Default constructor
    *
    * All plugins are required to have a constructor that accepts no arguments
    */
-  Unicycle3D();
+  Omnidirectional3D();
 
   /**
    * @brief Destructor
    */
-  ~Unicycle3D() = default;
+  ~Omnidirectional3D() = default;
 
   /**
    * @brief Shadowing extension to the AsyncMotionModel::initialize call
@@ -237,7 +237,7 @@ protected:
   StateHistory state_history_;    //!< History of optimized graph pose estimates
 };
 
-std::ostream & operator<<(std::ostream & stream, const Unicycle3D & unicycle_2d);
+std::ostream & operator<<(std::ostream & stream, const Omnidirectional3D & unicycle_2d);
 
 }  // namespace fuse_models
 
