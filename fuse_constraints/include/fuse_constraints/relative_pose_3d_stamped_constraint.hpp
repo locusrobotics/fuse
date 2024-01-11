@@ -93,7 +93,7 @@ public:
     const fuse_variables::Orientation3DStamped & orientation2,
     const fuse_core::Vector7d & delta,
     const fuse_core::Matrix6d & covariance);
-  
+
   /**
    * @brief Destructor
    */
@@ -112,7 +112,10 @@ public:
   /**
    * @brief Compute the measurement covariance matrix.
    */
-  fuse_core::Matrix6d covariance() const {return (sqrt_information_.transpose() * sqrt_information_).inverse();};
+  fuse_core::Matrix6d covariance() const
+  {
+    return (sqrt_information_.transpose() * sqrt_information_).inverse();
+  }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
