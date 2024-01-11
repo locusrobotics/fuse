@@ -51,7 +51,7 @@ namespace fuse_constraints
  * A single pose involves two variables: a 3D position and a 3D orientation. This cost function
  * computes the difference using standard 3D transformation math:
  *
- *   cost(x) = || A * [ q1^-1 * (p2 - p1) - b(0:2)    ] ||^2
+ *   cost(x) = || A * [ (q1^-1 * (p2 - p1)) - b(0:2)  ] ||^2
  *             ||     [ quat2rpy(q1^-1 * q2) - b(3:5) ] ||
  *
  * where p1 and p2 are the position variables, q1 and q2 are the quaternion orientation variables,

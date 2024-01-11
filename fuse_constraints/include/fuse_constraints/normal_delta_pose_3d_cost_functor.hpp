@@ -146,10 +146,9 @@ bool NormalDeltaPose3DCostFunctor::operator()(
   // Use the 3D orientation cost functor to compute the orientation delta
   orientation_functor_(orientation1, orientation2, &residual[3]);
 
-  // Scale the residuals by the square root information matrix to account for
-  // the measurement uncertainty.
-  Eigen::Map<Eigen::Vector<T, 6>> residuals_map(residual);
-  residuals_map.applyOnTheLeft(A_.template cast<T>());
+  // Map it to Eigen, and weight it
+  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
+  residual_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;
 }
