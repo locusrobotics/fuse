@@ -98,7 +98,7 @@ class Optimizer
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Optimizer)
 
-    /**
+  /**
    * @brief Constructor
    *
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
@@ -115,7 +115,6 @@ public:
   virtual ~Optimizer();
 
 protected:
-
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type
   // rather annoying as it is not equivalent to Class::UniquePtr
   using MotionModelUniquePtr = class_loader::ClassLoader::UniquePtr<fuse_core::MotionModel>;
