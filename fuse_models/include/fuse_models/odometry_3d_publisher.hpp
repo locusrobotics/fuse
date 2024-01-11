@@ -74,7 +74,7 @@ namespace fuse_models
  *                                      the tf tree
  *  - predict_to_current_time (bool, default: false) The tf publication happens at a fixed rate.
  *                                                   This parameter specifies whether we should
- *                                                   predict, using the 3D unicycle model, the state
+ *                                                   predict, using the 3D omnidirectional model, the state
  *                                                   at the time of the tf publication, rather than
  *                                                   the last posterior (optimized) state.
  *  - publish_frequency (double, default: 10.0)  How often, in Hz, we publish the filtered state

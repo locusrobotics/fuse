@@ -41,8 +41,8 @@
 
 #include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen_gtest.hpp>
-#include <fuse_models/unicycle_3d_state_cost_function.hpp>
-#include <fuse_models/unicycle_3d_state_cost_functor.hpp>
+#include <fuse_models/omnidirectional_3d_state_cost_function.hpp>
+#include <fuse_models/omnidirectional_3d_state_cost_functor.hpp>
 
 TEST(CostFunction, evaluateCostFunction)
 {
@@ -55,7 +55,7 @@ TEST(CostFunction, evaluateCostFunction)
   const double dt{0.1};
   const fuse_core::Matrix15d sqrt_information{covariance.inverse().llt().matrixU()};
 
-  const fuse_models::Unicycle3DStateCostFunction cost_function{dt, sqrt_information};
+  const fuse_models::Omnidirectional3DStateCostFunction cost_function{dt, sqrt_information};
 
   // Evaluate cost function
   const double position1[3] = {0.0, 0.0, 0.0};
@@ -120,8 +120,8 @@ TEST(CostFunction, evaluateCostFunction)
   //                  probe_results.error_log;
 
   // Create cost function using automatic differentiation on the cost functor
-  ceres::AutoDiffCostFunction<fuse_models::Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3,
-    3>cost_function_autodiff(new fuse_models::Unicycle3DStateCostFunctor(dt, sqrt_information));
+  ceres::AutoDiffCostFunction<fuse_models::Omnidirectional3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3,
+    3>cost_function_autodiff(new fuse_models::Omnidirectional3DStateCostFunctor(dt, sqrt_information));
   // Evaluate cost function that uses automatic differentiation
   std::vector<fuse_core::MatrixXd> J_autodiff(num_parameter_blocks);
   std::vector<double *> jacobians_autodiff(num_parameter_blocks);

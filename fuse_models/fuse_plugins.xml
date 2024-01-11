@@ -12,13 +12,13 @@
     </description>
   </class>
 
-  <class type="fuse_models::Unicycle3DStateKinematicConstraint" base_class_type="fuse_core::Constraint">
+  <class type="fuse_models::Omnidirectional3DStateKinematicConstraint" base_class_type="fuse_core::Constraint">
     <description>
     A class that represents a kinematic constraint between 3D states at two different times.
     </description>
   </class>
 
-  <class type="fuse_models::Unicycle3D" base_class_type="fuse_core::MotionModel">
+  <class type="fuse_models::Omnidirectional3D" base_class_type="fuse_core::MotionModel">
     <description>
     A fuse_models 3D kinematic model that generates kinematic constraints between provided time stamps, and adds
     those constraints to the fuse graph.
@@ -101,9 +101,9 @@
     A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
     </description>
   </class>
-  <class type="fuse_models::Unicycle3DIgnition" base_class_type="fuse_core::SensorModel">
+  <class type="fuse_models::Omnidirectional3DIgnition" base_class_type="fuse_core::SensorModel">
     <description>
-    A fuse_models ignition sensor designed to be used in conjunction with the unicycle 3D motion model.
+    A fuse_models ignition sensor designed to be used in conjunction with the Omnidirectional 3D motion model.
     </description>
   </class>
 </library>

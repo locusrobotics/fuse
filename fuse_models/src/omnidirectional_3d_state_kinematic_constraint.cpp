@@ -36,8 +36,8 @@
 #include <string>
 
 #include <boost/serialization/export.hpp>
-#include <fuse_models/unicycle_3d_state_cost_function.hpp>
-#include <fuse_models/unicycle_3d_state_kinematic_constraint.hpp>
+#include <fuse_models/omnidirectional_3d_state_cost_function.hpp>
+#include <fuse_models/omnidirectional_3d_state_kinematic_constraint.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
@@ -48,7 +48,7 @@
 namespace fuse_models
 {
 
-Unicycle3DStateKinematicConstraint::Unicycle3DStateKinematicConstraint(
+Omnidirectional3DStateKinematicConstraint::Omnidirectional3DStateKinematicConstraint(
   const std::string & source,
   const fuse_variables::Position3DStamped & position1,
   const fuse_variables::Orientation3DStamped & orientation1,
@@ -78,7 +78,7 @@ Unicycle3DStateKinematicConstraint::Unicycle3DStateKinematicConstraint(
 {
 }
 
-void Unicycle3DStateKinematicConstraint::print(std::ostream & stream) const
+void Omnidirectional3DStateKinematicConstraint::print(std::ostream & stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -97,21 +97,21 @@ void Unicycle3DStateKinematicConstraint::print(std::ostream & stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction * Unicycle3DStateKinematicConstraint::costFunction() const
+ceres::CostFunction * Omnidirectional3DStateKinematicConstraint::costFunction() const
 {
-  return new Unicycle3DStateCostFunction(dt_, sqrt_information_);
+  return new Omnidirectional3DStateCostFunction(dt_, sqrt_information_);
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
   // use automatic differentiation as follows:
   //
-  // return new ceres::AutoDiffCostFunction<Unicycle3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
-  //   new Unicycle3DStateCostFunctor(dt_, sqrt_information_));
+  // return new ceres::AutoDiffCostFunction<Omnidirectional3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
+  //   new Omnidirectional3DStateCostFunctor(dt_, sqrt_information_));
 
   // And including the followings:
   // #include <ceres/autodiff_cost_function.h>
-  // #include <fuse_models/unicycle_3d_state_cost_functor.hpp>
+  // #include <fuse_models/omnidirectional_3d_state_cost_functor.hpp>
 }
 
 }  // namespace fuse_models
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Unicycle3DStateKinematicConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle3DStateKinematicConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Omnidirectional3DStateKinematicConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_models::Omnidirectional3DStateKinematicConstraint, fuse_core::Constraint);

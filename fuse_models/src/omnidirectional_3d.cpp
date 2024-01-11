@@ -47,9 +47,9 @@
 #include <fuse_core/variable.hpp>
 #include <fuse_models/common/sensor_proc.hpp>
 #include <fuse_models/parameters/parameter_base.hpp>
-#include <fuse_models/unicycle_3d.hpp>
-#include <fuse_models/unicycle_3d_predict.hpp>
-#include <fuse_models/unicycle_3d_state_kinematic_constraint.hpp>
+#include <fuse_models/omnidirectional_3d.hpp>
+#include <fuse_models/omnidirectional_3d_predict.hpp>
+#include <fuse_models/omnidirectional_3d_state_kinematic_constraint.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
@@ -60,7 +60,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle3D, fuse_core::MotionModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::Omnidirectional3D, fuse_core::MotionModel)
 
 namespace std
 {
@@ -117,16 +117,16 @@ inline void validateCovariance(
 namespace fuse_models
 {
 
-Unicycle3D::Unicycle3D()
+Omnidirectional3D::Omnidirectional3D()
 : fuse_core::AsyncMotionModel(1), // Thread count = 1 for local callback queue
   logger_(rclcpp::get_logger("uninitialized")),
   buffer_length_(rclcpp::Duration::max()),
   device_id_(fuse_core::uuid::NIL),
-  timestamp_manager_(&Unicycle3D::generateMotionModel, this, rclcpp::Duration::max())
+  timestamp_manager_(&Omnidirectional3D::generateMotionModel, this, rclcpp::Duration::max())
 {
 }
 
-void Unicycle3D::print(std::ostream & stream) const
+void Omnidirectional3D::print(std::ostream & stream) const
 {
   stream << "state history:\n";
   for (const auto & state : state_history_) {
@@ -135,7 +135,7 @@ void Unicycle3D::print(std::ostream & stream) const
   }
 }
 
-void Unicycle3D::StateHistoryElement::print(std::ostream & stream) const
+void Omnidirectional3D::StateHistoryElement::print(std::ostream & stream) const
 {
   stream << "  position uuid: " << position_uuid << "\n"
          << "  orientation uuid: " << orientation_uuid << "\n"
@@ -149,7 +149,7 @@ void Unicycle3D::StateHistoryElement::print(std::ostream & stream) const
          << "  acceleration linear: " << acc_linear << "\n";
 }
 
-void Unicycle3D::StateHistoryElement::validate() const
+void Omnidirectional3D::StateHistoryElement::validate() const
 {
   if (!std::isfinite(position)) {
     throw std::runtime_error("Invalid position " + std::to_string(position));
@@ -168,7 +168,7 @@ void Unicycle3D::StateHistoryElement::validate() const
   }
 }
 
-bool Unicycle3D::applyCallback(fuse_core::Transaction & transaction)
+bool Omnidirectional3D::applyCallback(fuse_core::Transaction & transaction)
 {
   // Use the timestamp manager to generate just the required motion model segments. The timestamp
   // manager, in turn, makes calls to the generateMotionModel() function.
@@ -184,12 +184,12 @@ bool Unicycle3D::applyCallback(fuse_core::Transaction & transaction)
   return true;
 }
 
-void Unicycle3D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
+void Omnidirectional3D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
 {
   updateStateHistoryEstimates(*graph, state_history_, buffer_length_);
 }
 
-void Unicycle3D::initialize(
+void Omnidirectional3D::initialize(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   const std::string & name)
 {
@@ -197,7 +197,7 @@ void Unicycle3D::initialize(
   fuse_core::AsyncMotionModel::initialize(interfaces, name);
 }
 
-void Unicycle3D::onInit()
+void Omnidirectional3D::onInit()
 {
   logger_ = interfaces_.get_node_logging_interface()->get_logger();
   clock_ = interfaces_.get_node_clock_interface()->get_clock();
@@ -264,13 +264,13 @@ void Unicycle3D::onInit()
   device_id_ = fuse_variables::loadDeviceId(interfaces_);
 }
 
-void Unicycle3D::onStart()
+void Omnidirectional3D::onStart()
 {
   timestamp_manager_.clear();
   state_history_.clear();
 }
 
-void Unicycle3D::generateMotionModel(
+void Omnidirectional3D::generateMotionModel(
   const rclcpp::Time & beginning_stamp,
   const rclcpp::Time & ending_stamp,
   std::vector<fuse_core::Constraint::SharedPtr> & constraints,
@@ -458,7 +458,7 @@ void Unicycle3D::generateMotionModel(
   }
 
   // Create the constraints for this motion model segment
-  auto constraint = fuse_models::Unicycle3DStateKinematicConstraint::make_shared(
+  auto constraint = fuse_models::Omnidirectional3DStateKinematicConstraint::make_shared(
     name(),
     *position1,
     *orientation1,
@@ -486,7 +486,7 @@ void Unicycle3D::generateMotionModel(
   variables.push_back(acceleration_linear2);
 }
 
-void Unicycle3D::updateStateHistoryEstimates(
+void Omnidirectional3D::updateStateHistoryEstimates(
   const fuse_core::Graph & graph,
   StateHistory & state_history,
   const rclcpp::Duration & buffer_length)
@@ -592,7 +592,7 @@ void Unicycle3D::updateStateHistoryEstimates(
   }
 }
 
-void Unicycle3D::validateMotionModel(
+void Omnidirectional3D::validateMotionModel(
   const StateHistoryElement & state1, const StateHistoryElement & state2,
   const fuse_core::Matrix15d & process_noise_covariance)
 {
@@ -614,9 +614,9 @@ void Unicycle3D::validateMotionModel(
   }
 }
 
-std::ostream & operator<<(std::ostream & stream, const Unicycle3D & unicycle_3d)
+std::ostream & operator<<(std::ostream & stream, const Omnidirectional3D & omnidirectional_3d)
 {
-  unicycle_3d.print(stream);
+  omnidirectional_3d.print(stream);
   return stream;
 }
 

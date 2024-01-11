@@ -46,7 +46,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_models/unicycle_3d_ignition.hpp>
+#include <fuse_models/omnidirectional_3d_ignition.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 #include <fuse_variables/acceleration_linear_3d_stamped.hpp>
@@ -61,12 +61,12 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 // Register this motion model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle3DIgnition, fuse_core::SensorModel);
+PLUGINLIB_EXPORT_CLASS(fuse_models::Omnidirectional3DIgnition, fuse_core::SensorModel);
 
 namespace fuse_models
 {
 
-Unicycle3DIgnition::Unicycle3DIgnition()
+Omnidirectional3DIgnition::Omnidirectional3DIgnition()
 : fuse_core::AsyncSensorModel(1),
   started_(false),
   initial_transaction_sent_(false),
@@ -75,7 +75,7 @@ Unicycle3DIgnition::Unicycle3DIgnition()
 {
 }
 
-void Unicycle3DIgnition::initialize(
+void Omnidirectional3DIgnition::initialize(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
   const std::string & name,
   fuse_core::TransactionCallback transaction_callback)
@@ -84,7 +84,7 @@ void Unicycle3DIgnition::initialize(
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
 }
 
-void Unicycle3DIgnition::onInit()
+void Omnidirectional3DIgnition::onInit()
 {
   logger_ = interfaces_.get_node_logging_interface()->get_logger();
   clock_ = interfaces_.get_node_clock_interface()->get_clock();
@@ -113,7 +113,7 @@ void Unicycle3DIgnition::onInit()
     interfaces_,
     params_.topic,
     params_.queue_size,
-    std::bind(&Unicycle3DIgnition::subscriberCallback, this, std::placeholders::_1),
+    std::bind(&Omnidirectional3DIgnition::subscriberCallback, this, std::placeholders::_1),
     sub_options
   );
 
@@ -124,7 +124,7 @@ void Unicycle3DIgnition::onInit()
       interfaces_.get_node_base_interface()->get_name(),
       params_.set_pose_service),
     std::bind(
-      &Unicycle3DIgnition::setPoseServiceCallback, this, std::placeholders::_1,
+      &Omnidirectional3DIgnition::setPoseServiceCallback, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3),
     rclcpp::ServicesQoS(),
     cb_group_
@@ -136,14 +136,14 @@ void Unicycle3DIgnition::onInit()
       interfaces_.get_node_base_interface()->get_name(),
       params_.set_pose_deprecated_service),
     std::bind(
-      &Unicycle3DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
+      &Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3),
     rclcpp::ServicesQoS(),
     cb_group_
   );
 }
 
-void Unicycle3DIgnition::start()
+void Omnidirectional3DIgnition::start()
 {
   started_ = true;
 
@@ -171,12 +171,12 @@ void Unicycle3DIgnition::start()
   }
 }
 
-void Unicycle3DIgnition::stop()
+void Omnidirectional3DIgnition::stop()
 {
   started_ = false;
 }
 
-void Unicycle3DIgnition::subscriberCallback(
+void Omnidirectional3DIgnition::subscriberCallback(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
 {
   try {
@@ -186,7 +186,7 @@ void Unicycle3DIgnition::subscriberCallback(
   }
 }
 
-bool Unicycle3DIgnition::setPoseServiceCallback(
+bool Omnidirectional3DIgnition::setPoseServiceCallback(
   rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
   std::shared_ptr<rmw_request_id_t> request_id,
   const fuse_msgs::srv::SetPose::Request::SharedPtr req)
@@ -209,7 +209,7 @@ bool Unicycle3DIgnition::setPoseServiceCallback(
   return true;
 }
 
-bool Unicycle3DIgnition::setPoseDeprecatedServiceCallback(
+bool Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback(
   rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
   std::shared_ptr<rmw_request_id_t> request_id,
   const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req)
@@ -229,7 +229,7 @@ bool Unicycle3DIgnition::setPoseDeprecatedServiceCallback(
   return true;
 }
 
-void Unicycle3DIgnition::process(
+void Omnidirectional3DIgnition::process(
   const geometry_msgs::msg::PoseWithCovarianceStamped & pose, std::function<void()> post_process)
 {
   // Verify we are in the correct state to process set pose requests
@@ -329,7 +329,7 @@ void Unicycle3DIgnition::process(
   }
 }
 
-void Unicycle3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
+void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
 {
   const auto & stamp = pose.header.stamp;
 
