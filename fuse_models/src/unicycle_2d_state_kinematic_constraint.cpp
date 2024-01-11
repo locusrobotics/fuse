@@ -32,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Eigen/Dense>
-#include <ceres/autodiff_cost_function.h>
 
 #include <ostream>
 #include <string>
