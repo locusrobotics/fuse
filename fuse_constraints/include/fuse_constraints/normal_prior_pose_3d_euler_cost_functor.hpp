@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -36,7 +35,6 @@
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_EULER_COST_FUNCTOR_HPP_
 
 #include <Eigen/Core>
-#include <glog/logging.h>
 
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/fuse_macros.hpp>

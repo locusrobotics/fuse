@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, Clearpath Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -88,7 +87,7 @@ bool NormalPriorPose3DEuler::Evaluate(
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2rpy);
       Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), 4) = 
         A_.rightCols<3>() * j_quat2angle_map;
-          }
+    }
   }
   return true;
 }
