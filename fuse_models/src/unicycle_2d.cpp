@@ -340,7 +340,7 @@ void Unicycle2D::generateMotionModel(
     state2.velocity_linear,
     state2.velocity_yaw,
     state2.acceleration_linear);
-   
+
   // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position2DStamped::make_shared(beginning_stamp, device_id_);
   auto yaw1 = fuse_variables::Orientation2DStamped::make_shared(beginning_stamp, device_id_);
