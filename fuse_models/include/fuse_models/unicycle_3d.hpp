@@ -109,7 +109,7 @@ protected:
     fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated linear acceleration
                                           //!< variable
     fuse_core::Vector3d position    = fuse_core::Vector3d::Zero(); //!< Map-frame position
-    fuse_core::Quaternion orientation = fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0); //!< Map-frame orientation (quaternion)
+    Eigen::Quaterniond orientation = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0); //!< Map-frame orientation (quaternion)
     fuse_core::Vector3d vel_linear  = fuse_core::Vector3d::Zero(); //!< Body-frame linear velocities
     fuse_core::Vector3d vel_angular = fuse_core::Vector3d::Zero(); //!< Body-frame angular velocities
     fuse_core::Vector3d acc_linear  = fuse_core::Vector3d::Zero(); //!< Body-frame linear (angular not needed) accelerations

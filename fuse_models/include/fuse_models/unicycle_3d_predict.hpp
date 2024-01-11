@@ -492,13 +492,13 @@ inline void predict(
  */
 inline void predict(
   const fuse_core::Vector3d & position1,
-  const fuse_core::Quaternion & orientation1,
+  const Eigen::Quaterniond & orientation1,
   const fuse_core::Vector3d & vel_linear1,
   const fuse_core::Vector3d & vel_angular1,
   const fuse_core::Vector3d & acc_linear1,
   const double dt,
   fuse_core::Vector3d & position2,
-  fuse_core::Quaternion & orientation2,
+  Eigen::Quaterniond & orientation2,
   fuse_core::Vector3d & vel_linear2,
   fuse_core::Vector3d & vel_angular2,
   fuse_core::Vector3d & acc_linear2)
@@ -565,13 +565,13 @@ inline void predict(
  */
 inline void predict(
   const fuse_core::Vector3d & position1,
-  const fuse_core::Quaternion & orientation1,
+  const Eigen::Quaterniond & orientation1,
   const fuse_core::Vector3d & vel_linear1,
   const fuse_core::Vector3d & vel_angular1,
   const fuse_core::Vector3d & acc_linear1,
   const double dt,
   fuse_core::Vector3d & position2,
-  fuse_core::Quaternion & orientation2,
+  Eigen::Quaterniond & orientation2,
   fuse_core::Vector3d & vel_linear2,
   fuse_core::Vector3d & vel_angular2,
   fuse_core::Vector3d & acc_linear2,

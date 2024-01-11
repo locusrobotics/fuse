@@ -476,7 +476,7 @@ void Odometry3DPublisher::publishTimerCallback()
 
     // Convert pose in Eigen representation
     fuse_core::Vector3d position, velocity_linear, velocity_angular;
-    fuse_core::Quaternion orientation;
+    Eigen::Quaterniond orientation;
     position << pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z();
     orientation.x() = pose.getRotation().x();
     orientation.y() = pose.getRotation().y();

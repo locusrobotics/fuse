@@ -100,7 +100,7 @@ TEST(TestSuite, populatePartialMeasurements)
   // Test both conversion from quaternion to RPY and partial measurement population
   // This one is just to generate a random unit quaternion and have the reference in RPY
   fuse_core::Vector3d rpy = fuse_core::Vector3d::Random();
-  fuse_core::Quaternion q = 
+  Eigen::Quaterniond q = 
     Eigen::AngleAxisd(rpy(2), Eigen::Vector3d::UnitZ()) *
     Eigen::AngleAxisd(rpy(1), Eigen::Vector3d::UnitY()) *
     Eigen::AngleAxisd(rpy(0), Eigen::Vector3d::UnitX());

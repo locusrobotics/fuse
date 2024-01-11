@@ -55,7 +55,6 @@ using Vector7d = Eigen::Matrix<double, 7, 1>;
 using Vector8d = Eigen::Matrix<double, 8, 1>;
 using Vector9d = Eigen::Matrix<double, 9, 1>;
 using Vector15d = Eigen::Matrix<double, 15, 1>;
-using Vector16d = Eigen::Matrix<double, 16, 1>;
 
 using MatrixXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using Matrix1d = Eigen::Matrix<double, 1, 1, Eigen::RowMajor>;
@@ -68,9 +67,6 @@ using Matrix7d = Eigen::Matrix<double, 7, 7, Eigen::RowMajor>;
 using Matrix8d = Eigen::Matrix<double, 8, 8, Eigen::RowMajor>;
 using Matrix9d = Eigen::Matrix<double, 9, 9, Eigen::RowMajor>;
 using Matrix15d = Eigen::Matrix<double, 15, 15, Eigen::RowMajor>;
-using Matrix16d = Eigen::Matrix<double, 16, 16, Eigen::RowMajor>;
-
-using Quaternion = Eigen::Quaternion<double>;
 
 template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime>
 using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor>;

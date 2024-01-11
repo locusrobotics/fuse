@@ -165,7 +165,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     angular_velocity1->uuid(),
     linear_acceleration1->uuid(),
     fuse_core::Vector3d(1.0, 0.0, 0.0),
-    fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0),
+    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
@@ -178,7 +178,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     angular_velocity2->uuid(),
     linear_acceleration2->uuid(),
     fuse_core::Vector3d(2.0, 0.0, 0.0),
-    fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0),
+    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
@@ -191,7 +191,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     angular_velocity3->uuid(),
     linear_acceleration3->uuid(),
     fuse_core::Vector3d(3.0, 0.0, 0.0),
-    fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0),
+    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
@@ -204,7 +204,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     angular_velocity4->uuid(),
     linear_acceleration4->uuid(),
     fuse_core::Vector3d(4.0, 0.0, 0.0),
-    fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0),
+    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
@@ -217,7 +217,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
     angular_velocity5->uuid(),
     linear_acceleration5->uuid(),
     fuse_core::Vector3d(5.0, 0.0, 0.0),
-    fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0),
+    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0),
     fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
@@ -231,7 +231,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
   {
     // The first entry is missing from the graph. It will not get updated.
     auto expected_position = fuse_core::Vector3d(1.0, 0.0, 0.0);
-    auto expected_orientation = fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0);
+    auto expected_orientation = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0);
     auto actual_position = state_history[rclcpp::Time(1, 0)].position;
     auto actual_orientation = state_history[rclcpp::Time(1, 0)].orientation;
     EXPECT_NEAR(expected_position.x(), actual_position.x(), 1.0e-9);
@@ -263,7 +263,7 @@ TEST(Unicycle3D, UpdateStateHistoryEstimates)
   {
     // The second entry is included in the graph. It will get updated directly.
     auto expected_position = fuse_core::Vector3d(1.2, 2.2, 0.0); // <-- value in the Graph
-    auto expected_orientation = fuse_core::Quaternion(1.0, 0.0, 0.0, 0.0);
+    auto expected_orientation = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0);
     auto actual_position = state_history[rclcpp::Time(2, 0)].position;
     auto actual_orientation = state_history[rclcpp::Time(2, 0)].orientation;
     EXPECT_NEAR(expected_position.x(), actual_position.x(), 1.0e-9);

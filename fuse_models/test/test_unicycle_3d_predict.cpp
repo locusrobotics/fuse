@@ -44,13 +44,13 @@
 TEST(Predict, predictDirectVals)
 {
   fuse_core::Vector3d position1 (0.0, 0.0, 0.0);
-  fuse_core::Quaternion orientation1 (1.0, 0.0, 0.0, 0.0);
+  Eigen::Quaterniond orientation1 (1.0, 0.0, 0.0, 0.0);
   fuse_core::Vector3d vel_linear1 (1.0, 0.0, 0.0);
   fuse_core::Vector3d vel_angular1 (0.0, 0.0, 1.570796327);
   fuse_core::Vector3d acc_linear1 (1.0, 0.0, 0.0);
   double dt = 0.1;
   fuse_core::Vector3d position2;
-  fuse_core::Quaternion orientation2;
+  Eigen::Quaterniond orientation2;
   fuse_core::Vector3d vel_linear2;
   fuse_core::Vector3d vel_angular2;
   fuse_core::Vector3d acc_linear2;
@@ -68,7 +68,7 @@ TEST(Predict, predictDirectVals)
     vel_angular2,
     acc_linear2);
 
-  fuse_core::Quaternion q;
+  Eigen::Quaterniond q;
   q = Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitZ()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());

@@ -70,7 +70,7 @@ inline bool isfinite(const fuse_core::Vector3d & vector)
   return std::isfinite(vector.x()) && std::isfinite(vector.y() && std::isfinite(vector.z()));
 }
 
-inline bool isNormalized(const fuse_core::Quaternion & q)
+inline bool isNormalized(const Eigen::Quaterniond & q)
 {
   return std::sqrt(q.w() * q.w() + q.x() * q.x() + q.y() * q.y() + q.z() * q.z()) - 1.0 <
          Eigen::NumTraits<double>::dummy_precision();
@@ -83,7 +83,7 @@ std::string to_string(const fuse_core::Vector3d & vector)
   return oss.str();
 }
 
-std::string to_string(const fuse_core::Quaternion & quaternion)
+std::string to_string(const Eigen::Quaterniond & quaternion)
 {
   std::ostringstream oss;
   oss << quaternion;

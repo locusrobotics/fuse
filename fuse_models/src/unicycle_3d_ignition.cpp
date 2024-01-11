@@ -408,7 +408,7 @@ void Unicycle3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
     fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
     name(),
     *orientation,
-    fuse_core::Quaternion(orientation->w(), orientation->x(), orientation->y(), orientation->z()),
+    Eigen::Quaterniond(orientation->w(), orientation->x(), orientation->y(), orientation->z()),
     orientation_cov);
   auto linear_velocity_constraint =
     fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint::make_shared(
