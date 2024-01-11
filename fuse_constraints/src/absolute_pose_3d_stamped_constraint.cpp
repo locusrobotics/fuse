@@ -39,8 +39,6 @@
 #include <boost/serialization/export.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
 #include <fuse_constraints/normal_prior_pose_3d.hpp>
-// #include <ceres/autodiff_cost_function.h>
-// #include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
@@ -56,11 +54,6 @@ AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
   mean_(mean),
   sqrt_information_(covariance.inverse().llt().matrixU())
 {
-}
-
-fuse_core::Matrix6d AbsolutePose3DStampedConstraint::covariance() const
-{
-  return (sqrt_information_.transpose() * sqrt_information_).inverse();
 }
 
 void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const

@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -71,8 +70,6 @@ namespace fuse_constraints
  * measurements). This constraint holds the measured 3D pose: orientation is parametrized as roll-pitch-yaw
  * Euler angles and the covariance represents the error around each translational and rotational axis.
  * This constraint allows measurement of a subset of the pose components given in the variable.
- * 
- * (Use AbsolutePose3DStampedConstraint for full pose measurements).
  */
 
 class AbsolutePose3DStampedEulerConstraint : public fuse_core::Constraint
@@ -103,7 +100,7 @@ public:
     const fuse_core::Matrix6d & covariance);
   
   /**
-   * @brief Create a constraint using a measurement/prior of the 3D pose
+   * @brief Create a constraint using a partial measurement/prior of the 3D pose
    *
    * @param[in] source          The name of the sensor or motion model that generated this constraint
    * @param[in] position        The variable representing the position components of the pose

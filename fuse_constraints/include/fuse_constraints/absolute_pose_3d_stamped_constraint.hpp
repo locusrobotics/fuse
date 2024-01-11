@@ -94,7 +94,7 @@ public:
     const fuse_variables::Orientation3DStamped & orientation,
     const fuse_core::Vector7d & mean,
     const fuse_core::Matrix6d & covariance);
-  
+
   /**
    * @brief Destructor
    */
@@ -119,7 +119,10 @@ public:
    *
    * Order is (x, y, z, qx, qy, qz)
    */
-  fuse_core::Matrix6d covariance() const;
+  fuse_core::Matrix6d covariance() const
+  {
+    return (sqrt_information_.transpose() * sqrt_information_).inverse();
+  }
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.

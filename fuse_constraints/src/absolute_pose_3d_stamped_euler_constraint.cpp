@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -37,11 +36,9 @@
 #include <string>
 
 #include <boost/serialization/export.hpp>
-// #include <ceres/autodiff_cost_function.h>
 
 #include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
 #include <fuse_constraints/normal_prior_pose_3d_euler.hpp>
-// #include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
@@ -105,7 +102,6 @@ fuse_core::Matrix6d AbsolutePose3DStampedEulerConstraint::covariance() const
   fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
   return pinv * pinv.transpose();
 }
-
 
 void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
 {
