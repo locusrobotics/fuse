@@ -2,7 +2,6 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2018, Locus Robotics
- *  Copyrigth (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -36,7 +35,6 @@
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_HPP_
 
 #include <Eigen/Core>
-#include <glog/logging.h>
 
 #include <fuse_constraints/normal_prior_orientation_3d_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
@@ -120,8 +118,9 @@ bool NormalPriorPose3DCostFunctor::operator()(
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-  Eigen::Map<Eigen::Vector<T, 6>> residuals_map(residual);
-  residuals_map.applyOnTheLeft(A_.template cast<T>()); 
+  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
+  residual_map.applyOnTheLeft(A_.template cast<T>());
+
   return true;
 }
 
