@@ -196,7 +196,6 @@ void FixedLagSmoother::optimizationLoop()
   while (interfaces_.get_node_base_interface()->get_context()->is_valid() &&
     optimization_running_)
   {
-    RCLCPP_DEBUG(logger_, "In the optimization loop");
     // Wait for the next signal to start the next optimization cycle
     // NOTE(CH3): Uninitialized, but it's ok since it's meant to get overwritten.
     auto optimization_deadline = rclcpp::Time(0, 0, RCL_ROS_TIME);
@@ -214,7 +213,6 @@ void FixedLagSmoother::optimizationLoop()
     }
     // Optimize
     {
-      RCLCPP_DEBUG(logger_, "optimizing");
       std::lock_guard<std::mutex> lock(optimization_mutex_);
       // Apply motion models
       auto new_transaction = fuse_core::Transaction::make_shared();
@@ -255,8 +253,6 @@ void FixedLagSmoother::optimizationLoop()
       // Optimize the entire graph
       summary_ = graph_->optimize(params_.solver_options);
 
-      // std::cout << summary_.FullReport() << std::endl;
-
       // Optimization is complete. Notify all the things about the graph changes.
       const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
@@ -294,9 +290,7 @@ void FixedLagSmoother::optimizationLoop()
             << (optimization_complete - optimization_deadline).nanoseconds() << "ns");
       }
     }
-    RCLCPP_DEBUG(logger_, "Ending while loop");
   }
-  RCLCPP_DEBUG(logger_, "optimization finished");
 }
 
 void FixedLagSmoother::optimizerTimerCallback()
@@ -406,6 +400,7 @@ void FixedLagSmoother::processQueue(
       return;
     }
   }
+
   // Use the most recent transaction time as the current time
   const auto current_time = pending_transactions_.front().stamp();
 
@@ -505,7 +500,6 @@ void FixedLagSmoother::transactionCallback(
   fuse_core::Transaction::SharedPtr transaction)
 {
   // If this transaction occurs before the start time, just ignore it
-  RCLCPP_DEBUG(logger_, "transactionCallback: inside transactionCallback");
   auto start_time = getStartTime();
   const auto max_time = transaction->maxStamp();
   if (started_ && max_time < start_time) {

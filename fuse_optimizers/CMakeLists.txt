@@ -54,14 +54,6 @@ target_link_libraries(${PROJECT_NAME}
 )
 ament_target_dependencies(${PROJECT_NAME} diagnostic_updater)
 
-## batch_optimizer node
-# add_executable(batch_optimizer_node src/batch_optimizer_node.cpp)
-# target_link_libraries(batch_optimizer_node ${PROJECT_NAME})
-
-## fixed_lag_smoother node
-# add_executable(fixed_lag_smoother_node src/fixed_lag_smoother_node.cpp)
-# target_link_libraries(fixed_lag_smoother_node ${PROJECT_NAME})
-
 ## batch_optimizer component
 add_library(batch_optimizer_component SHARED src/batch_optimizer_component.cpp)
 target_include_directories(batch_optimizer_component PRIVATE include)
