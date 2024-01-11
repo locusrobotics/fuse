@@ -41,7 +41,7 @@ def generate_launch_description():
             output='screen',
             parameters=[PathJoinSubstitution([
                 pkg_dir, 'config', 'range_sensor_tutorial.yaml'
-            ])],
+            ])]
         ),
         Node(
             package='rviz2',
