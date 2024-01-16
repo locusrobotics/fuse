@@ -46,11 +46,15 @@
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/acceleration_angular_2d_stamped.hpp>
+#include <fuse_variables/acceleration_angular_3d_stamped.hpp>
 #include <fuse_variables/acceleration_linear_2d_stamped.hpp>
+#include <fuse_variables/acceleration_linear_3d_stamped.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
 #include <fuse_variables/velocity_angular_2d_stamped.hpp>
+#include <fuse_variables/velocity_angular_3d_stamped.hpp>
+#include <fuse_variables/velocity_linear_3d_stamped.hpp>
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 
 #include <boost/serialization/access.hpp>
@@ -196,27 +200,39 @@ private:
 // Define unique names for the different variations of the absolute constraint
 using AbsoluteAccelerationAngular2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::AccelerationAngular2DStamped>;
+using AbsoluteAccelerationAngular3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::AccelerationAngular3DStamped>;
 using AbsoluteAccelerationLinear2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>;
+using AbsoluteAccelerationLinear3DStampedConstraint = 
+  AbsoluteConstraint<fuse_variables::AccelerationLinear3DStamped>;
 using AbsoluteOrientation2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::Orientation2DStamped>;
 using AbsolutePosition2DStampedConstraint = AbsoluteConstraint<fuse_variables::Position2DStamped>;
 using AbsolutePosition3DStampedConstraint = AbsoluteConstraint<fuse_variables::Position3DStamped>;
 using AbsoluteVelocityAngular2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>;
+using AbsoluteVelocityAngular3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::VelocityAngular3DStamped>;
 using AbsoluteVelocityLinear2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>;
+using AbsoluteVelocityLinear3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::VelocityLinear3DStamped>;
 }  // namespace fuse_constraints
 
 // Include the template implementation
 #include <fuse_constraints/absolute_constraint_impl.hpp>
 
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationAngular3DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation2DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition2DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition3DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_HPP_
