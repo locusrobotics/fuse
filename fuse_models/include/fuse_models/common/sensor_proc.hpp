@@ -1012,101 +1012,116 @@ inline bool processDifferentialPose3DWithCovariance(
   const std::vector<size_t> & orientation_indices,
   const bool validate,
   fuse_core::Transaction & transaction)
-{
-  // Here we are using covariance_geometry types to compute the relative pose covariance:
-  // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
-  // Position is Eigen::Vector3d
-  // Quaternion is Eigen::Quaterniond
-  // Covariance is Eigen::Matrix6d
-
-  // Convert from ROS msg to covariance geometry types 
-  covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
-  covariance_geometry::fromROS(pose1.pose, p1);
-  covariance_geometry::fromROS(pose2.pose, p2);
-  
+{ 
   // Create the pose variables
   auto position1 = fuse_variables::Position3DStamped::make_shared(pose1.header.stamp, device_id);
   auto orientation1 =
     fuse_variables::Orientation3DStamped::make_shared(pose1.header.stamp, device_id);
-  position1->x() = p1.first.first.x();
-  position1->y() = p1.first.first.y();
-  position1->z() = p1.first.first.z();
-  orientation1->x() = p1.first.second.x();
-  orientation1->y() = p1.first.second.y();
-  orientation1->z() = p1.first.second.z();
-  orientation1->w() = p1.first.second.w();
+  position1->x() = pose1.pose.pose.position.x;
+  position1->y() = pose1.pose.pose.position.y;
+  position1->z() = pose1.pose.pose.position.z;
+  orientation1->x() = pose1.pose.pose.orientation.x;
+  orientation1->y() = pose1.pose.pose.orientation.y;
+  orientation1->z() = pose1.pose.pose.orientation.z;
+  orientation1->w() = pose1.pose.pose.orientation.w;
 
   auto position2 = fuse_variables::Position3DStamped::make_shared(pose2.header.stamp, device_id);
   auto orientation2 = 
     fuse_variables::Orientation3DStamped::make_shared(pose2.header.stamp, device_id);
-  position2->x() = p2.first.first.x();
-  position2->y() = p2.first.first.y();
-  position2->z() = p2.first.first.z();
-  orientation2->x() = p2.first.second.x();
-  orientation2->y() = p2.first.second.y();
-  orientation2->z() = p2.first.second.z();
-  orientation2->w() = p2.first.second.w();
+  position2->x() = pose2.pose.pose.position.x;
+  position2->y() = pose2.pose.pose.position.y;
+  position2->z() = pose2.pose.pose.position.z;
+  orientation2->x() = pose2.pose.pose.orientation.x;
+  orientation2->y() = pose2.pose.pose.orientation.y;
+  orientation2->z() = pose2.pose.pose.orientation.z;
+  orientation2->w() = pose2.pose.pose.orientation.w;
+
+    // Here we are using covariance_geometry types to compute the relative pose covariance:
+    // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
+    // Position is Eigen::Vector3d
+    // Quaternion is Eigen::Quaterniond
+    // Covariance is Eigen::Matrix6d
+
+    // Convert from ROS msg to covariance geometry types 
+    covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
+    covariance_geometry::fromROS(pose1.pose, p1);
+    covariance_geometry::fromROS(pose2.pose, p2);
 
   // Create the delta for the constraint 
   if (independent) {
     covariance_geometry::ComposePoseQuaternionCovarianceRPY(
-      covariance_geometry::inversePose3DQuaternionCovarianceRPY(p1), 
+      covariance_geometry::InversePose3DQuaternionCovarianceRPY(p1), 
       p2, 
       p12
     );
   } else {
-    // Here we assume that poses are computed incrementally, so: p2 = p1 * p12.
-    // We know cov1 and cov2 and we should substract the first to the second in order
-    // to obtain the relative pose covariance. But first the 2 of them have to be in the
-    // same reference frame, moreover we need to rotate the result in p12 reference frame 
-    // The covariance propagation of p2 = p1 * p12 is:
-    //
-    // C2 = J_p1 * C1 * J_p1^T + J_p12 * C12 * J_p12^T
-    //
-    // where C1, C2, C12 are the covariance matrices of p1, p2 and dp, respectively, and J_p1 and
-    // J_p12 are the jacobians of the equation (pose composition) wrt p1 and p12, respectively.
-    //
-    // Therefore, the covariance C12 of the relative pose p12 is:
-    //
-    // C12 = J_p12^-1 * (C2 - J_p1 * C1 * J_p1^T) * J_p12^-T
-    
-    // First we need to convert covariances from RPY(6x6) to Quat(7x7)
-    covariance_geometry::PoseQuaternionCovariance p1_q, p2_q, p12_q;
-    covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
-      p1,
-      p1_q 
-    );
-    covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
-      p2,
-      p2_q 
-    );
-    // Then we need to compute the delta pose
-    covariance_geometry::ComposePose3DQuaternion(
-      covariance_geometry::InversePose(p1_q.first), 
-      p2_q.first, 
-      p12_q.first
-    );
-    // Now we have to compute pose composition jacobians so we can rotate covariances
-    Eigen::Matrix7d j_p1;
-    Eigen::Matrix7d j_p12;
-    Eigen::Matrix4d j_qn;
-    j_p1.setZero();
-    j_p12.setZero();
-    j_qn.setZero();
-    covariance_geometry::jacobianQuaternionNormalization(p2_q.first.second, j_qn);
-    covariance_geometry::JacobianPosePoseCompositionA(p1_q.first, p12_q.first, j_p1);
-    j_p1.block<4, 4>(3, 3).applyOnTheLeft(j_qn);
-    covariance_geometry::JacobianPosePoseCompositionB(p1_q.first, j_p12);
-    j_p12.block<4, 4>(3, 3).applyOnTheLeft(j_qn);
-    Eigen::Matrix7d j_p12_inv = j_p12.colPivHouseholderQr().solve(Eigen::Matrix7d::Identity());
-    p12_q.second = j_p12_inv * (p2_q.second - j_p1 * p1_q.second * j_p1.transpose()) * 
-      j_p12_inv.transpose();
-    
-    // Now again convert the delta pose back to covariance in RPY(6x6)
-    covariance_geometry::Pose3DQuaternionCovarianceTo3DQuaternionCovarianceRPY(
+    // If the covariances are the same, then it's possible that the covariance of the relative
+    // pose will be zero or ill-conditioned. To avoid this, we skip the expensive following
+    // calculations and instead we just add a minimum covariance later
+    if (p1.second.isApprox(p2.second, 1e-9)) {
+      covariance_geometry::ComposePose3DQuaternion(
+        covariance_geometry::InversePose(p1.first), 
+        p2.first, 
+        p12.first
+      );
+      p12.second.setZero();
+    } else {
+      // Here we assume that poses are computed incrementally, so: p2 = p1 * p12.
+      // We know cov1 and cov2 and we should substract the first to the second in order
+      // to obtain the relative pose covariance. But first the 2 of them have to be in the
+      // same reference frame, moreover we need to rotate the result in p12 reference frame 
+      // The covariance propagation of p2 = p1 * p12 is:
+      //
+      // C2 = J_p1 * C1 * J_p1^T + J_p12 * C12 * J_p12^T
+      //
+      // where C1, C2, C12 are the covariance matrices of p1, p2 and dp, respectively, and J_p1 and
+      // J_p12 are the jacobians of the equation (pose composition) wrt p1 and p12, respectively.
+      //
+      // Therefore, the covariance C12 of the relative pose p12 is:
+      //
+      // C12 = J_p12^-1 * (C2 - J_p1 * C1 * J_p1^T) * J_p12^-T
+
+      // First we need to convert covariances from RPY (6x6) to quaternion (7x7)
+      covariance_geometry::PoseQuaternionCovariance p1_q, p2_q, p12_q;
+      covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
+        p1,
+        p1_q 
+      );
+      covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
+        p2,
+        p2_q 
+      );
+      // Then we need to compute the delta pose
+      covariance_geometry::ComposePose3DQuaternion(
+        covariance_geometry::InversePose(p1_q.first), 
+        p2_q.first, 
+        p12_q.first
+      );
+      // Now we have to compute pose composition jacobians so we can rotate covariances
+      Eigen::Matrix7d j_p1, j_p12, j_p12_inv;
+      Eigen::Matrix4d j_qn;
+
+      covariance_geometry::jacobianQuaternionNormalization(p12_q.first.second, j_qn);
+
+      covariance_geometry::JacobianPosePoseCompositionA(p1_q.first, p12_q.first, j_p1);
+      j_p1.block<4, 4>(3, 3).applyOnTheLeft(j_qn);
+      j_p1.block<4, 3>(3, 0).setZero();
+
+      covariance_geometry::JacobianPosePoseCompositionB(p1_q.first, j_p12);
+      j_p12.block<4, 4>(3, 3).applyOnTheLeft(j_qn);
+      j_p12.block<3, 4>(0, 3).setZero();
+      j_p12.block<4, 3>(3, 0).setZero();
+
+      // TODO(giafranchini): check if faster to use j12.llt().solve() instead
+      j_p12_inv = j_p12.colPivHouseholderQr().solve(Eigen::Matrix7d::Identity());
+      p12_q.second = j_p12_inv * (p2_q.second - j_p1 * p1_q.second * j_p1.transpose()) * j_p12_inv.transpose();
+
+      // Now again convert the delta pose covariance back to RPY(6x6)
+      covariance_geometry::Pose3DQuaternionCovarianceTo3DQuaternionCovarianceRPY(
       p12_q,
       p12
-    );
+      );
+    }
   }
 
   if (position_indices.size() == 3 && orientation_indices.size() == 3) {
@@ -1155,13 +1170,12 @@ inline bool processDifferentialPose3DWithCovariance(
 
   // Convert the poses into RPY representation
   fuse_core::Vector6d pose_relative_mean_partial;
-  fuse_core::Matrix6d pose_relative_covariance = p12.second;
 
   tf2::Quaternion q12(p12.first.second.x(), p12.first.second.y(), p12.first.second.z(), p12.first.second.w());
   pose_relative_mean_partial.head<3>() << p12.first.first.x(), p12.first.first.y(), p12.first.first.z();
   tf2::Matrix3x3(q12).getRPY(pose_relative_mean_partial(3), pose_relative_mean_partial(4), pose_relative_mean_partial(5));
 
-  pose_relative_covariance += minimum_pose_relative_covariance;
+  fuse_core::Matrix6d pose_relative_covariance = p12.second + minimum_pose_relative_covariance;
 
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
 
