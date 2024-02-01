@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
-      - uses: ros-tooling/setup-ros@0.7.0
+      - uses: ros-tooling/setup-ros@0.7.1
         with:
           required-ros-distributions: ${{ matrix.distro }}
       - run: sudo apt remove python3-openssl -y
