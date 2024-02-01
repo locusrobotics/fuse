@@ -1036,16 +1036,20 @@ inline bool processDifferentialPose3DWithCovariance(
   orientation2->z() = pose2.pose.pose.orientation.z;
   orientation2->w() = pose2.pose.pose.orientation.w;
 
-    // Here we are using covariance_geometry types to compute the relative pose covariance:
-    // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
-    // Position is Eigen::Vector3d
-    // Quaternion is Eigen::Quaterniond
-    // Covariance is Eigen::Matrix6d
+  // Here we are using covariance_geometry types to compute the relative pose covariance:
+  // PoseQuaternionCovarianceRPY is std::pair<std::pair<Position, Quaternion>, Covariance>
+  // Position is Eigen::Vector3d
+  // Quaternion is Eigen::Quaterniond
+  // Covariance is Eigen::Matrix6d
 
-    // Convert from ROS msg to covariance geometry types 
-    covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
-    covariance_geometry::fromROS(pose1.pose, p1);
-    covariance_geometry::fromROS(pose2.pose, p2);
+  // N.B. covariance_geometry implements functions for pose composition and covariance propagation
+  // which are based on "A tutorial on SE(3) transformation parameterizations and on-manifold optimization" 
+  // by José Luis Blanco Claraco (https://arxiv.org/abs/2103.15980)
+
+  // Convert from ROS msg to covariance geometry types 
+  covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
+  covariance_geometry::fromROS(pose1.pose, p1);
+  covariance_geometry::fromROS(pose2.pose, p2);
 
   // Create the delta for the constraint 
   if (independent) {
@@ -1055,9 +1059,9 @@ inline bool processDifferentialPose3DWithCovariance(
       p12
     );
   } else {
-    // If the covariances are the same, then it's possible that the covariance of the relative
-    // pose will be zero or ill-conditioned. To avoid this, we skip the expensive following
-    // calculations and instead we just add a minimum covariance later
+    // If covariances of p1 and p2 are the same, then it's possible that p12 covariance will be 
+    // zero or ill-conditioned. To avoid this, we skip the expensive following calculations and 
+    // instead we just add a minimum covariance later
     if (p1.second.isApprox(p2.second, 1e-9)) {
       covariance_geometry::ComposePose3DQuaternion(
         covariance_geometry::InversePose(p1.first), 
