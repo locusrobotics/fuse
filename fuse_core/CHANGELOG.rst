@@ -100,8 +100,8 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.8.0 (2024-02-02)
+------------------
 * 0.7.0
 * Update changelogs
 * [RST-7809] Fix optimization errors when the orientation is initialized at +PI (#334)

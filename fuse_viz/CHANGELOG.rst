@@ -30,8 +30,8 @@ Changelog for package fuse_viz
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.8.0 (2024-02-02)
+------------------
 * 0.7.0
 * Update changelogs
 * [RST-7809] Fix optimization errors when the orientation is initialized at +PI (#334)

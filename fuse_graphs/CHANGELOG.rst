@@ -60,8 +60,8 @@ Changelog for package fuse_graphs
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.8.0 (2024-02-02)
+------------------
 * 0.7.0
 * Update changelogs
 * Update devel to build on Ubuntu Jammy (22.04) (#326)
