@@ -27,6 +27,22 @@ Changelog for package fuse_loss
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Fix Qwt deprecated declarations (#356)
+* 0.7.0
+* Update changelogs
+* Update devel to build on Ubuntu Jammy (22.04) (#326)
+  * Update to C++17 for use with Ubuntu Jammy
+  * Include Rviz and Eigen as system includes, which supresses warnings within the included libraries
+  * use pluginlib and class_list_macros .hpp include instead of deprecated .h From: Lucas Walter <wsacul@gmail.com>
+* 0.6.0
+* Update changelogs
+* 0.5.0
+* Update changelogs
+* Adding doxygen to all packages (#241)
+* Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
