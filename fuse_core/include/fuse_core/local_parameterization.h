@@ -45,7 +45,7 @@
 // https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc
 // and they got removed in 2.2.0, see
 // https://github.com/ceres-solver/ceres-solver/commit/68c53bb39552cd4abfd6381df08638285f7386b3
-#include <ceres/manifold.h>
+#include <fuse_core/manifold.h>
 #else
 #include <ceres/local_parameterization.h>
 #endif
@@ -66,7 +66,7 @@ namespace fuse_core
  */
 class LocalParameterization : public
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
-                              ceres::Manifold
+                              fuse_core::Manifold
 #else
                               ceres::LocalParameterization
 #endif

@@ -63,20 +63,12 @@ namespace fuse_variables
 class Orientation2DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  int AmbientSize() const override
-#else
   int GlobalSize() const override
-#endif
   {
     return 1;
   }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  int TangentSize() const override
-#else
   int LocalSize() const override
-#endif
   {
     return 1;
   }
@@ -91,11 +83,7 @@ public:
     return true;
   }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  bool PlusJacobian(
-#else
   bool ComputeJacobian(
-#endif
     const double* /*x*/,
     double* jacobian) const override
   {
@@ -113,11 +101,7 @@ public:
     return true;
   }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  bool MinusJacobian(
-#else
   bool ComputeMinusJacobian(
-#endif
     const double* /*x*/,
     double* jacobian) const override
   {

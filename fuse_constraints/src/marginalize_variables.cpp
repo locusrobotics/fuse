@@ -343,23 +343,14 @@ LinearTerm linearize(
     {
       if (local_parameterization)
       {
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-        jacobian.resize(Eigen::NoChange, local_parameterization->TangentSize());
-#else
         jacobian.resize(Eigen::NoChange, local_parameterization->LocalSize());
-#endif
       }
       jacobian.setZero();
     }
     else if (local_parameterization)
     {
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-      fuse_core::MatrixXd J(local_parameterization->AmbientSize(), local_parameterization->TangentSize());
-      local_parameterization->PlusJacobian(variable_values[index], J.data());
-#else
       fuse_core::MatrixXd J(local_parameterization->GlobalSize(), local_parameterization->LocalSize());
       local_parameterization->ComputeJacobian(variable_values[index], J.data());
-#endif
       jacobian *= J;
     }
     if (local_parameterization)

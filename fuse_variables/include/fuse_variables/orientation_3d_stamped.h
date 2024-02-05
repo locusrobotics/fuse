@@ -78,20 +78,12 @@ public:
     out[3] = -in[3];
   }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  int AmbientSize() const override
-#else
   int GlobalSize() const override
-#endif
   {
     return 4;
   }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  int TangentSize() const override
-#else
   int LocalSize() const override
-#endif
   {
     return 3;
   }
@@ -105,13 +97,9 @@ public:
     ceres::AngleAxisToQuaternion(delta, q_delta);
     ceres::QuaternionProduct(x, q_delta, x_plus_delta);
     return true;
-}
+  }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  bool PlusJacobian(
-#else
   bool ComputeJacobian(
-#endif
     const double* x,
     double* jacobian) const override
   {
@@ -139,11 +127,7 @@ public:
     return true;
   }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  bool MinusJacobian(
-#else
   bool ComputeMinusJacobian(
-#endif
     const double* x,
     double* jacobian) const override
   {
