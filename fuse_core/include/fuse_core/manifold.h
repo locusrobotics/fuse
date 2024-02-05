@@ -48,7 +48,8 @@
 // https://github.com/ceres-solver/ceres-solver/commit/68c53bb39552cd4abfd6381df08638285f7386b3
 #include <ceres/manifold.h>
 
-namespace fuse_core {
+namespace fuse_core 
+{
 
 /**
  * @brief The Manifold interface definition.
@@ -59,7 +60,8 @@ namespace fuse_core {
  * See the Ceres documentation for more details.
  * http://ceres-solver.org/nnls_modeling.html#manifold
  */
-class Manifold : public ceres::Manifold {
+class Manifold : public ceres::Manifold 
+{
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Manifold);
 
@@ -122,18 +124,26 @@ public:
   virtual int LocalSize() const = 0;
 
   /// Equivalent to \p GlobalSize()
-  int AmbientSize() const override { return GlobalSize(); }
+  int AmbientSize() const override 
+  { 
+    return GlobalSize(); 
+  }
 
   /// Equivalent to \p LocalSize()
-  int TangentSize() const override { return LocalSize(); }
+  int TangentSize() const override 
+  { 
+    return LocalSize(); 
+  }
 
   /// Equivalent to \p ComputeJacobian()
-  bool PlusJacobian(const double *x, double *jacobian) const override {
+  bool PlusJacobian(const double *x, double *jacobian) const override 
+  {
     return ComputeJacobian(x, jacobian);
   }
 
   /// Equivalent to \p ComputeMinusJacobian()
-  bool MinusJacobian(const double *x, double *jacobian) const override {
+  bool MinusJacobian(const double *x, double *jacobian) const override 
+  {
     return ComputeMinusJacobian(x, jacobian);
   }
 
@@ -154,8 +164,8 @@ private:
   void serialize(Archive & /* archive */, const unsigned int /* version */) {}
 };
 
-} // namespace fuse_core
+}  // namespace fuse_core
 
 #endif
 
-#endif // FUSE_CORE_MANIFOLD_H
+#endif  // FUSE_CORE_MANIFOLD_H
