@@ -50,17 +50,15 @@
 
 #include <ostream>
 
-
 namespace fuse_variables
 {
-
 /**
  * @brief Create the inverse quaternion
  *
  * ceres/rotation.h is missing this function for some reason.
  */
-template<typename T> inline
-static void QuaternionInverse(const T in[4], T out[4])
+template <typename T>
+inline static void QuaternionInverse(const T in[4], T out[4])
 {
   out[0] = in[0];
   out[1] = -in[1];
@@ -79,21 +77,11 @@ static void QuaternionInverse(const T in[4], T out[4])
 class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
+  int GlobalSize() const override { return 4; }
 
-  int GlobalSize() const override
-  {
-    return 4;
-  }
+  int LocalSize() const override { return 3; }
 
-  int LocalSize() const override
-  {
-    return 3;
-  }
-
-  bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -101,9 +89,7 @@ public:
     return true;
   }
 
-  bool ComputeJacobian(
-    const double* x,
-    double* jacobian) const override
+  bool ComputeJacobian(const double* x, double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
@@ -116,10 +102,7 @@ public:
     return true;
   }
 
-  bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const override
+  bool Minus(const double* x1, const double* x2, double* delta) const override
   {
     double x1_inverse[4];
     QuaternionInverse(x1, x1_inverse);
@@ -129,9 +112,7 @@ public:
     return true;
   }
 
-  bool ComputeMinusJacobian(
-    const double* x,
-    double* jacobian) const override
+  bool ComputeMinusJacobian(const double* x, double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
@@ -172,20 +153,11 @@ private:
 class Orientation3DManifold : public fuse_core::Manifold
 {
 public:
-  int AmbientSize() const override
-  {
-    return 4;
-  }
+  int AmbientSize() const override { return 4; }
 
-  int TangentSize() const override
-  {
-    return 3;
-  }
+  int TangentSize() const override { return 3; }
 
-  bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -193,9 +165,7 @@ public:
     return true;
   }
 
-  bool PlusJacobian(
-    const double* x,
-    double* jacobian) const override
+  bool PlusJacobian(const double* x, double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
@@ -208,10 +178,7 @@ public:
     return true;
   }
 
-  bool Minus(
-    const double* y,
-    const double* x,
-    double* y_minus_x) const override
+  bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     double x_inverse[4];
     QuaternionInverse(x, x_inverse);
@@ -221,9 +188,7 @@ public:
     return true;
   }
 
-  bool MinusJacobian(
-    const double* x,
-    double* jacobian) const override
+  bool MinusJacobian(const double* x, double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
@@ -261,7 +226,7 @@ private:
  * This is commonly used to represent a robot orientation in single or multi-robot systems. The UUID of this class is
  * static after construction. As such, the timestamp and device ID cannot be modified. The value of the orientation
  * can be modified.
- * 
+ *
  * The internal representation for this is different from the typical ROS representation, as w is the first component.
  * This is necessary to use the Ceres local parameterization for quaternions.
  */
@@ -382,7 +347,6 @@ public:
    */
   fuse_core::LocalParameterization* localParameterization() const override;
 #endif
-
 
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
   /**

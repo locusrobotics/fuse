@@ -43,16 +43,15 @@
 
 #include <gtest/gtest.h>
 
-
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 struct TestFunctor
 {
-  template<typename T>
+  template <typename T>
   bool Plus(const T* x, const T* delta, T* x_plus_delta) const
 #else
 struct Plus
 {
-  template<typename T>
+  template <typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
 #endif
   {
@@ -63,14 +62,14 @@ struct Plus
   }
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 
-  template<typename T>
+  template <typename T>
   bool Minus(const T* y, const T* x, T* y_minus_x) const
 #else
 };
 
 struct Minus
 {
-  template<typename T>
+  template <typename T>
   bool operator()(const T* y, const T* x, T* y_minus_x) const
 #endif
   {
@@ -82,19 +81,18 @@ struct Minus
 
 using TestAutoDiff =
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
-ceres::AutoDiffManifold<TestFunctor, 3, 2>;
+  ceres::AutoDiffManifold<TestFunctor, 3, 2>;
 #else
-fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
+  fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 #endif
-
 
 TEST(LocalParameterization, Plus)
 {
   TestAutoDiff parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
-  double delta[2] = {0.5, 1.0};
-  double actual[3] = {0.0, 0.0, 0.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
+  double delta[2] = { 0.5, 1.0 };
+  double actual[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization.Plus(x, delta, actual);
 
   EXPECT_TRUE(success);
@@ -107,7 +105,7 @@ TEST(LocalParameterization, PlusJacobian)
 {
   TestAutoDiff parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(3, 2);
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
   bool success = parameterization.PlusJacobian(x, actual.data());
@@ -116,9 +114,7 @@ TEST(LocalParameterization, PlusJacobian)
 #endif
 
   fuse_core::MatrixXd expected(3, 2);
-  expected << 2.0, 0.0,
-              0.0, 5.0,
-              0.0, 0.0;
+  expected << 2.0, 0.0, 0.0, 5.0, 0.0, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
@@ -131,11 +127,7 @@ TEST(LocalParameterization, Minus)
   double x1[3] = {1.0, 2.0, 3.0};
   double x2[3] = {2.0, 7.0, 3.0};
   double actual[2] = {0.0, 0.0};
-  #if CERES_VERSION_AT_LEAST(2, 1, 0)
-    bool success = parameterization.Minus(x1, x2, actual);
-  #else
-    bool success = parameterization.Minus(x2, x1, actual);
-  #endif
+  bool success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -146,7 +138,7 @@ TEST(LocalParameterization, MinusJacobian)
 {
   TestAutoDiff parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(2, 3);
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
   bool success = parameterization.MinusJacobian(x, actual.data());
@@ -155,8 +147,7 @@ TEST(LocalParameterization, MinusJacobian)
 #endif
 
   fuse_core::MatrixXd expected(2, 3);
-  expected << -0.5, 0.0, 0.0,
-              0.0, -0.2, 0.0;
+  expected << -0.5, 0.0, 0.0, 0.0, -0.2, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
@@ -166,8 +157,8 @@ TEST(LocalParameterization, MinusSameVariablesIsZero)
 {
   TestAutoDiff parameterization;
 
-  double x1[3] = {1.0, 2.0, 3.0};
-  double actual[2] = {0.0, 0.0};
+  double x1[3] = { 1.0, 2.0, 3.0 };
+  double actual[2] = { 0.0, 0.0 };
   bool success = parameterization.Minus(x1, x1, actual);
 
   EXPECT_TRUE(success);
@@ -179,26 +170,22 @@ TEST(LocalParameterization, PlusMinus)
 {
   TestAutoDiff parameterization;
 
-  const double x1[3] = {1.0, 2.0, 3.0};
-  const double delta[2] = {0.5, 1.0};
-  double x2[3] = {0.0, 0.0, 0.0};
+  const double x1[3] = { 1.0, 2.0, 3.0 };
+  const double delta[2] = { 0.5, 1.0 };
+  double x2[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization.Plus(x1, delta, x2);
 
   ASSERT_TRUE(success);
 
-  double actual[2] = {0.0, 0.0};
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-    success = parameterization.Minus(x1, x2, actual);
-#else
-    success = parameterization.Minus(x2, x1, actual);
-#endif
+  double actual[2] = { 0.0, 0.0 };
+  success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(delta[0], actual[0], 1.0e-5);
   EXPECT_NEAR(delta[1], actual[1], 1.0e-5);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

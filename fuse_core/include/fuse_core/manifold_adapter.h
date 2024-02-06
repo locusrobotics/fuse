@@ -42,46 +42,44 @@
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 #if !CERES_VERSION_AT_LEAST(2, 2, 0)
 
-namespace fuse_core {
-
-class ManifoldAdapter : public fuse_core::Manifold {
+namespace fuse_core
+{
+class ManifoldAdapter : public fuse_core::Manifold
+{
 public:
-  ManifoldAdapter(LocalParameterization *local_parameterization)
-      : local_parameterization_(local_parameterization) {}
+  ManifoldAdapter(LocalParameterization* local_parameterization) : local_parameterization_(local_parameterization) {}
 
-  int AmbientSize() const override {
-    return local_parameterization_->GlobalSize();
-  }
+  int AmbientSize() const override { return local_parameterization_->GlobalSize(); }
 
-  int TangentSize() const override {
-    return local_parameterization_->LocalSize();
-  }
+  int TangentSize() const override { return local_parameterization_->LocalSize(); }
 
-  bool Plus(const double *x, const double *delta,
-            double *x_plus_delta) const override {
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  {
     return local_parameterization_->Plus(x, delta, x_plus_delta);
   }
 
-  bool PlusJacobian(const double *x, double *jacobian) const override {
+  bool PlusJacobian(const double* x, double* jacobian) const override
+  {
     return local_parameterization_->ComputeJacobian(x, jacobian);
   }
-  
-  bool Minus(const double *y, const double *x,
-             double *y_minus_x) const override {
+
+  bool Minus(const double* y, const double* x, double* y_minus_x) const override
+  {
     return local_parameterization_->Minus(x, y, y_minus_x);
   }
 
-  bool MinusJacobian(const double *x, double *jacobian) const override {
+  bool MinusJacobian(const double* x, double* jacobian) const override
+  {
     return local_parameterization_->ComputeMinusJacobian(x, jacobian);
   }
 
 private:
-  fuse_core::LocalParameterization *local_parameterization_;
+  fuse_core::LocalParameterization* local_parameterization_;
 };
 
-} // namespace fuse_core
+}  // namespace fuse_core
 
 #endif
 #endif
 
-#endif // FUSE_CORE_MANIFOLD_ADAPTER_H
+#endif  // FUSE_CORE_MANIFOLD_ADAPTER_H

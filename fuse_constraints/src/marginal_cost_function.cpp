@@ -38,19 +38,17 @@
 
 #include <Eigen/Core>
 
-#include <vector>
 #include <iostream>
-
+#include <vector>
 
 namespace fuse_constraints
 {
-
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
 MarginalCostFunction::MarginalCostFunction(
-    const std::vector<fuse_core::MatrixXd>& A,
-    const fuse_core::VectorXd& b,
-    const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations) :
+  const std::vector<fuse_core::MatrixXd>& A,
+  const fuse_core::VectorXd& b,
+  const std::vector<fuse_core::VectorXd>& x_bar,
+  const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations) :
   A_(A),
   b_(b),
   local_parameterizations_(local_parameterizations),
@@ -64,10 +62,10 @@ MarginalCostFunction::MarginalCostFunction(
 }
 #else
 MarginalCostFunction::MarginalCostFunction(
-    const std::vector<fuse_core::MatrixXd>& A,
-    const fuse_core::VectorXd& b,
-    const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::Manifold::SharedPtr>& manifolds) :
+  const std::vector<fuse_core::MatrixXd>& A,
+  const fuse_core::VectorXd& b,
+  const std::vector<fuse_core::VectorXd>& x_bar,
+  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds) :
   A_(A),
   b_(b),
   manifolds_(manifolds),
@@ -81,10 +79,7 @@ MarginalCostFunction::MarginalCostFunction(
 }
 #endif
 
-bool MarginalCostFunction::Evaluate(
-  double const* const* parameters,
-  double* residuals,
-  double** jacobians) const
+bool MarginalCostFunction::Evaluate(double const* const* parameters, double* residuals, double** jacobians) const
 {
   // Compute cost
   Eigen::Map<fuse_core::VectorXd> residuals_map(residuals, num_residuals());
@@ -97,7 +92,7 @@ bool MarginalCostFunction::Evaluate(
     {
       local_parameterizations_[i]->Minus(x_bar_[i].data(), parameters[i], delta.data());
     }
-#else 
+#else
     if (manifolds_[i])
     {
       manifolds_[i]->Minus(parameters[i], x_bar_[i].data(), delta.data());

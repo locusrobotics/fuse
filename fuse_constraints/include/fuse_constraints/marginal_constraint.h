@@ -36,9 +36,9 @@
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
-#include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
@@ -58,10 +58,8 @@
 #include <string>
 #include <vector>
 
-
 namespace fuse_constraints
 {
-
 /**
  * @brief A constraint that represents remaining marginal information on a set of variables
  *
@@ -94,7 +92,7 @@ public:
    * @param[in] last_A         Iterator pointing to one past the last A matrix
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
    */
-  template<typename VariableIterator, typename MatrixIterator>
+  template <typename VariableIterator, typename MatrixIterator>
   MarginalConstraint(
     const std::string& source,
     VariableIterator first_variable,
@@ -131,14 +129,11 @@ public:
   {
     return local_parameterizations_;
   }
-#else 
+#else
   /**
    * @brief Read-only access to the variable local parameterizations
    */
-  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const
-  {
-    return manifolds_;
-  }
+  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const { return manifolds_; }
 #endif
 
   /**
@@ -179,24 +174,23 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & A_;
-    archive & b_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& A_;
+    archive& b_;
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
-    archive & local_parameterizations_;
+    archive& local_parameterizations_;
 #else
-    archive & manifolds_;
+    archive& manifolds_;
 #endif
-    archive & x_bar_;
+    archive& x_bar_;
   }
 };
 
 namespace detail
 {
-
 /**
  * @brief Return the UUID of the provided variable
  */
@@ -233,7 +227,7 @@ inline fuse_core::Manifold::SharedPtr const getManifold(const fuse_core::Variabl
 
 }  // namespace detail
 
-template<typename VariableIterator, typename MatrixIterator>
+template <typename VariableIterator, typename MatrixIterator>
 MarginalConstraint::MarginalConstraint(
   const std::string& source,
   VariableIterator first_variable,
@@ -241,40 +235,39 @@ MarginalConstraint::MarginalConstraint(
   MatrixIterator first_A,
   MatrixIterator last_A,
   const fuse_core::VectorXd& b) :
-    Constraint(source,
-               boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
-               boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
-    A_(first_A, last_A),
-    b_(b),
+  Constraint(
+    source,
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
+  A_(first_A, last_A),
+  b_(b),
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
-    local_parameterizations_(boost::make_transform_iterator(first_variable,
-                                                            &fuse_constraints::detail::getLocalParameterization),
-                             boost::make_transform_iterator(last_variable,
-                                                            &fuse_constraints::detail::getLocalParameterization)),
-#else 
-    manifolds_(boost::make_transform_iterator(first_variable,
-                                              &fuse_constraints::detail::getManifold),
-               boost::make_transform_iterator(last_variable,
-                                              &fuse_constraints::detail::getManifold)),
+  local_parameterizations_(
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getLocalParameterization),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getLocalParameterization)),
+#else
+  manifolds_(
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getManifold),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getManifold)),
 #endif
-    x_bar_(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getCurrentValue),
-           boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
+  x_bar_(
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getCurrentValue),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
 {
   assert(!A_.empty());
   assert(A_.size() == x_bar_.size());
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
   assert(A_.size() == local_parameterizations_.size());
-#else 
+#else
   assert(A_.size() == manifolds_.size());
 #endif
   assert(b_.rows() > 0);
-  assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A){ return A.rows() == this->b_.rows(); }));  // NOLINT
-  assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
-                     boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
-                     [](const boost::tuple<const fuse_core::MatrixXd&, const fuse_core::Variable&>& tuple)  // NOLINT
-                     {
-                       return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize();
-                     }));  // NOLINT
+  assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A) { return A.rows() == this->b_.rows(); }));  // NOLINT
+  assert(std::all_of(
+    boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
+    boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
+    [](const boost::tuple<const fuse_core::MatrixXd&, const fuse_core::Variable&>& tuple)  // NOLINT
+    { return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize(); }));  // NOLINT
 }
 
 }  // namespace fuse_constraints

@@ -35,15 +35,15 @@
 #include <fuse_constraints/marginalize_variables.h>
 #include <fuse_constraints/uuid_ordering.h>
 #include <fuse_constraints/variable_constraints.h>
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
-#include <fuse_core/ceres_macros.h>
 #include <fuse_core/uuid.h>
 
-#include <boost/iterator/transform_iterator.hpp>
-#include <boost/range/empty.hpp>
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/empty.hpp>
 #include <suitesparse/ccolamd.h>
 
 #include <algorithm>
@@ -55,10 +55,8 @@
 #include <utility>
 #include <vector>
 
-
 namespace fuse_constraints
 {
-
 UuidOrdering computeEliminationOrder(
   const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph)
@@ -105,10 +103,8 @@ UuidOrdering computeEliminationOrder(
   }
 
   // Construct the CCOLAMD input structures
-  auto recommended_size = ccolamd_recommended(
-    variable_constraints.size(),
-    constraint_order.size(),
-    variable_order.size());
+  auto recommended_size =
+    ccolamd_recommended(variable_constraints.size(), constraint_order.size(), variable_order.size());
   auto A = std::vector<int>(recommended_size);
   auto p = std::vector<int>(variable_order.size() + 1);
 
@@ -189,13 +185,13 @@ fuse_core::Transaction marginalizeVariables(
   //                 the problem before the linearization and solve steps. A similar approach should be implemented
   //                 here, but that will require a major refactor.
 
-  assert(std::all_of(marginalized_variables.begin(),
-                     marginalized_variables.end(),
-                     [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid)
-                     {
-                       return elimination_order.exists(variable_uuid) &&
-                              elimination_order.at(variable_uuid) < marginalized_variables.size();
-                     }));  // NOLINT
+  assert(std::all_of(
+    marginalized_variables.begin(),
+    marginalized_variables.end(),
+    [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid) {
+      return elimination_order.exists(variable_uuid) &&
+             elimination_order.at(variable_uuid) < marginalized_variables.size();
+    }));  // NOLINT
 
   fuse_core::Transaction transaction;
 
@@ -380,7 +376,7 @@ LinearTerm linearize(
     if (manifold)
     {
       delete manifold;
-    } 
+    }
 #endif
   }
 
@@ -567,8 +563,7 @@ MarginalConstraint::SharedPtr createMarginalConstraint(
   const fuse_core::Graph& graph,
   const UuidOrdering& elimination_order)
 {
-  auto index_to_variable = [&graph, &elimination_order](const unsigned int index) -> const fuse_core::Variable&
-  {
+  auto index_to_variable = [&graph, &elimination_order](const unsigned int index) -> const fuse_core::Variable& {
     return graph.getVariable(elimination_order.at(index));
   };
 

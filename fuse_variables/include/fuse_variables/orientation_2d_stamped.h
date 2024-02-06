@@ -49,10 +49,8 @@
 
 #include <ostream>
 
-
 namespace fuse_variables
 {
-
 #if !CERES_VERSION_AT_LEAST(2, 2, 0)
 /**
  * @brief A LocalParameterization class for 2D Orientations.
@@ -64,47 +62,31 @@ namespace fuse_variables
 class Orientation2DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
-  int GlobalSize() const override
-  {
-    return 1;
-  }
+  int GlobalSize() const override { return 1; }
 
-  int LocalSize() const override
-  {
-    return 1;
-  }
+  int LocalSize() const override { return 1; }
 
-  bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  bool ComputeJacobian(
-    const double* /*x*/,
-    double* jacobian) const override
+  bool ComputeJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
   }
 
-  bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const override
+  bool Minus(const double* x1, const double* x2, double* delta) const override
   {
     // Compute the difference from x2 to x1, and handle the 2*Pi rollover
     delta[0] = fuse_core::wrapAngle2D(x2[0] - x1[0]);
     return true;
   }
 
-  bool ComputeMinusJacobian(
-    const double* /*x*/,
-    double* jacobian) const override
+  bool ComputeMinusJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = -1.0;
     return true;
@@ -120,15 +102,14 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
+    archive& boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
 };
 
 #endif
-
 
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 /**
@@ -141,47 +122,31 @@ private:
 class Orientation2DManifold : public fuse_core::Manifold
 {
 public:
-  int AmbientSize() const override
-  {
-    return 1;
-  }
+  int AmbientSize() const override { return 1; }
 
-  int TangentSize() const override
-  {
-    return 1;
-  }
+  int TangentSize() const override { return 1; }
 
-  bool Plus(
-    const double* x,
-    const double* delta,
-    double* x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  bool PlusJacobian(
-    const double* /*x*/,
-    double* jacobian) const override
+  bool PlusJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
   }
 
-  bool Minus(
-    const double* y,
-    const double* x,
-    double* y_minus_x) const override
+  bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     // Compute the difference from x to y, and handle the 2*Pi rollover
     y_minus_x[0] = fuse_core::wrapAngle2D(x[0] - y[0]);
     return true;
   }
 
-  bool MinusJacobian(
-    const double* /*x*/,
-    double* jacobian) const override
+  bool MinusJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = -1.0;
     return true;
@@ -197,10 +162,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Manifold>(*this);
+    archive& boost::serialization::base_object<fuse_core::Manifold>(*this);
   }
 };
 
@@ -321,7 +286,7 @@ private:
 
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DManifold);
-#endif 
+#endif
 
 #if !CERES_VERSION_AT_LEAST(2, 2, 0)
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DLocalParameterization);

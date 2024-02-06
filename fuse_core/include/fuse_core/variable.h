@@ -61,10 +61,8 @@
  * }
  * @endcode
  */
-#define FUSE_VARIABLE_CLONE_DEFINITION(...)                                    \
-  fuse_core::Variable::UniquePtr clone() const override {                      \
-    return __VA_ARGS__::make_unique(*this);                                    \
-  }
+#define FUSE_VARIABLE_CLONE_DEFINITION(...) \
+  fuse_core::Variable::UniquePtr clone() const override { return __VA_ARGS__::make_unique(*this); }
 
 /**
  * @brief Implementation of the serialize() and deserialize() member functions
@@ -80,19 +78,11 @@
  * }
  * @endcode
  */
-#define FUSE_VARIABLE_SERIALIZE_DEFINITION(...)                                \
-  void serialize(fuse_core::BinaryOutputArchive &archive) const override {     \
-    archive << *this;                                                          \
-  } /* NOLINT */                                                               \
-  void serialize(fuse_core::TextOutputArchive &archive) const override {       \
-    archive << *this;                                                          \
-  } /* NOLINT */                                                               \
-  void deserialize(fuse_core::BinaryInputArchive &archive) override {          \
-    archive >> *this;                                                          \
-  } /* NOLINT */                                                               \
-  void deserialize(fuse_core::TextInputArchive &archive) override {            \
-    archive >> *this;                                                          \
-  }
+#define FUSE_VARIABLE_SERIALIZE_DEFINITION(...)                                                             \
+  void serialize(fuse_core::BinaryOutputArchive& archive) const override { archive << *this; } /* NOLINT */ \
+  void serialize(fuse_core::TextOutputArchive& archive) const override { archive << *this; } /* NOLINT */   \
+  void deserialize(fuse_core::BinaryInputArchive& archive) override { archive >> *this; } /* NOLINT */      \
+  void deserialize(fuse_core::TextInputArchive& archive) override { archive >> *this; }
 
 /**
  * @brief Implements the type() member function using the suggested
@@ -111,13 +101,14 @@
  * }
  * @endcode
  */
-#define FUSE_VARIABLE_TYPE_DEFINITION(...)                                     \
-  struct detail {                                                              \
-    static std::string type() {                                                \
-      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>()          \
-          .pretty_name();                                                      \
-    } /* NOLINT */                                                             \
-  };  /* NOLINT */                                                             \
+#define FUSE_VARIABLE_TYPE_DEFINITION(...)                                           \
+  struct detail                                                                      \
+  {                                                                                  \
+    static std::string type()                                                        \
+    {                                                                                \
+      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
+    } /* NOLINT */                                                                   \
+  }; /* NOLINT */                                                                    \
   std::string type() const override { return detail::type(); }
 
 /**
@@ -134,10 +125,10 @@
  * }
  * @endcode
  */
-#define FUSE_VARIABLE_DEFINITIONS(...)                                         \
-  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__)                                      \
-  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__)                                   \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)                                  \
+#define FUSE_VARIABLE_DEFINITIONS(...)        \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__)     \
+  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__)  \
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
   FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
@@ -155,14 +146,14 @@
  * }
  * @endcode
  */
-#define FUSE_VARIABLE_DEFINITIONS_WITH_EIGEN(...)                              \
-  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__)                           \
-  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__)                                   \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)                                  \
+#define FUSE_VARIABLE_DEFINITIONS_WITH_EIGEN(...)    \
+  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
+  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__)         \
+  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__)        \
   FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
-namespace fuse_core {
-
+namespace fuse_core
+{
 /**
  * @brief The Variable interface definition.
  *
@@ -186,7 +177,8 @@ namespace fuse_core {
  * for more details.
  * http://ceres-solver.org/nnls_modeling.html#localparameterization
  */
-class Variable {
+class Variable
+{
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Variable);
 
@@ -216,7 +208,7 @@ public:
    *
    * @param[in] uuid The unique ID number for this variable
    */
-  explicit Variable(const UUID &uuid);
+  explicit Variable(const UUID& uuid);
 
   /**
    * @brief Destructor
@@ -226,7 +218,7 @@ public:
   /**
    * @brief Returns a UUID for this variable.
    */
-  const UUID &uuid() const { return uuid_; }
+  const UUID& uuid() const { return uuid_; }
 
   /**
    * @brief Returns a unique name for this variable type.
@@ -274,7 +266,7 @@ public:
    * elements. Only Variable::size() elements will be accessed externally. This
    * interface is provided for integration with Ceres, which uses raw pointers.
    */
-  virtual const double *data() const = 0;
+  virtual const double* data() const = 0;
 
   /**
    * @brief Read-write access to the variable data
@@ -284,7 +276,7 @@ public:
    * elements. Only Variable::size() elements will be accessed externally. This
    * interface is provided for integration with Ceres, which uses raw pointers.
    */
-  virtual double *data() = 0;
+  virtual double* data() = 0;
 
   /**
    * @brief Print a human-readable description of the variable to the provided
@@ -292,7 +284,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  virtual void print(std::ostream &stream = std::cout) const = 0;
+  virtual void print(std::ostream& stream = std::cout) const = 0;
 
   /**
    * @brief Perform a deep copy of the Variable and return a unique pointer to
@@ -332,9 +324,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  virtual fuse_core::LocalParameterization *localParameterization() const {
-    return nullptr;
-  }
+  virtual fuse_core::LocalParameterization* localParameterization() const { return nullptr; }
 #endif
 
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
@@ -355,13 +345,15 @@ public:
    *
    * @return A base pointer to an instance of a derived Manifold
    */
-  virtual fuse_core::Manifold *manifold() const {
+  virtual fuse_core::Manifold* manifold() const
+  {
 #if !CERES_VERSION_AT_LEAST(2, 2, 0)
-    if (!localParameterization()) {
+    if (!localParameterization())
+    {
       return nullptr;
     }
     std::shared_ptr<fuse_core::Manifold> adapted_manifold =
-        std::make_shared<fuse_core::ManifoldAdapter>(localParameterization());
+      std::make_shared<fuse_core::ManifoldAdapter>(localParameterization());
     return adapted_manifold.get();
 #endif
 
@@ -377,9 +369,7 @@ public:
    * @param[in] index The variable dimension of interest
    * @return The lower bound for the requested variable dimension
    */
-  virtual double lowerBound(size_t index) const {
-    return std::numeric_limits<double>::lowest();
-  }
+  virtual double lowerBound(size_t index) const { return std::numeric_limits<double>::lowest(); }
 
   /**
    * @brief Specifies the upper bound value of each variable dimension
@@ -389,9 +379,7 @@ public:
    * @param[in] index The variable dimension of interest
    * @return The upper bound for the requested variable dimension
    */
-  virtual double upperBound(size_t index) const {
-    return std::numeric_limits<double>::max();
-  }
+  virtual double upperBound(size_t index) const { return std::numeric_limits<double>::max(); }
 
   /**
    * @brief Specifies if the value of the variable should not be changed during
@@ -409,8 +397,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this variable into
    */
-  virtual void
-  serialize(fuse_core::BinaryOutputArchive & /* archive */) const = 0;
+  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Serialize this Variable into the provided text archive
@@ -422,8 +409,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this variable into
    */
-  virtual void
-  serialize(fuse_core::TextOutputArchive & /* archive */) const = 0;
+  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Deserialize data from the provided binary archive into this Variable
@@ -435,7 +421,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Variable data
    */
-  virtual void deserialize(fuse_core::BinaryInputArchive & /* archive */) = 0;
+  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
 
   /**
    * @brief Deserialize data from the provided text archive into this Variable
@@ -447,10 +433,10 @@ public:
    *
    * @param[in] archive - The archive holding serialized Variable data
    */
-  virtual void deserialize(fuse_core::TextInputArchive & /* archive */) = 0;
+  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
-  fuse_core::UUID uuid_; //!< The unique ID number for this variable
+  fuse_core::UUID uuid_;  //!< The unique ID number for this variable
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -470,16 +456,17 @@ private:
    * Generally unused.
    */
   template <class Archive>
-  void serialize(Archive &archive, const unsigned int /* version */) {
-    archive &uuid_;
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive& uuid_;
   }
 };
 
 /**
  * Stream operator implementation used for all derived Variable classes.
  */
-std::ostream &operator<<(std::ostream &stream, const Variable &variable);
+std::ostream& operator<<(std::ostream& stream, const Variable& variable);
 
-} // namespace fuse_core
+}  // namespace fuse_core
 
-#endif // FUSE_CORE_VARIABLE_H
+#endif  // FUSE_CORE_VARIABLE_H

@@ -48,7 +48,6 @@
 
 namespace fuse_core
 {
-
 /**
  * @brief The LocalParameterization interface definition.
  *
@@ -78,10 +77,7 @@ public:
    * @param[out] delta The difference between the second variable and the first, of size \p LocalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const = 0;
+  virtual bool Minus(const double* x1, const double* x2, double* delta) const = 0;
 
   /**
    * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
@@ -90,9 +86,7 @@ public:
    * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize() x \p GlobalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool ComputeMinusJacobian(
-    const double* x,
-    double* jacobian) const = 0;
+  virtual bool ComputeMinusJacobian(const double* x, double* jacobian) const = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -104,7 +98,7 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& /* archive */, const unsigned int /* version */)
   {
   }
@@ -112,6 +106,6 @@ private:
 
 }  // namespace fuse_core
 
-#endif 
+#endif
 
 #endif  // FUSE_CORE_LOCAL_PARAMETERIZATION_H

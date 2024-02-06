@@ -42,10 +42,8 @@
 
 #include <vector>
 
-
 namespace fuse_constraints
 {
-
 /**
  * @brief Implements a cost function designed for precomputed marginal distributions
  *
@@ -57,7 +55,7 @@ namespace fuse_constraints
  *
  * where, the A matrices and the b vector are fixed, x_bar is the linearization point used when calculating the A
  * matrices and b vector, and the minus operator in (x - x_bar) is provided by the variable's local parameterization.
- * 
+ *
  * The A matrices can have any number of rows, but they must all be the same. The number of columns of each A matrix
  * must match the associated variable's local parameterization size, and the number of rows of each x_bar must match
  * the associated variable's global size. The cost function will have the same number of residuals as the rows of A.
@@ -104,10 +102,7 @@ public:
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
    *        values
    */
-  bool Evaluate(
-    double const* const* parameters,
-    double* residuals,
-    double** jacobians) const override;
+  bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override;
 
 private:
   const std::vector<fuse_core::MatrixXd>& A_;  //!< The A matrices of the marginal cost

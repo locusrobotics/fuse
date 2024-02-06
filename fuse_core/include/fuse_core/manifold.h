@@ -48,8 +48,8 @@
 // https://github.com/ceres-solver/ceres-solver/commit/68c53bb39552cd4abfd6381df08638285f7386b3
 #include <ceres/manifold.h>
 
-namespace fuse_core {
-
+namespace fuse_core
+{
 /**
  * @brief The Manifold interface definition.
  *
@@ -59,7 +59,8 @@ namespace fuse_core {
  * See the Ceres documentation for more details.
  * http://ceres-solver.org/nnls_modeling.html#manifold
  */
-class Manifold : public ceres::Manifold {
+class Manifold : public ceres::Manifold
+{
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Manifold);
 
@@ -81,8 +82,7 @@ public:
    * @param[out] x_plus_delta  is a \p AmbientSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  virtual bool Plus(const double *x, const double *delta,
-                    double *x_plus_delta) const = 0;
+  virtual bool Plus(const double* x, const double* delta, double* x_plus_delta) const = 0;
 
   /**
    * @brief Compute the derivative of Plus(x, delta) w.r.t delta at delta = 0,
@@ -95,33 +95,31 @@ public:
    * matrix.
    * @return
    */
-  virtual bool PlusJacobian(const double *x, double *jacobian) const = 0;
+  virtual bool PlusJacobian(const double* x, double* jacobian) const = 0;
 
   /**
    * @brief y_minus_x = Minus(y, x)
-   * 
+   *
    * Given two points on the manifold, Minus computes the change to x in the
    * tangent space at x, that will take it to y.
-   * 
+   *
    * @param[in] y is a \p AmbientSize() vector.
    * @param[in] x is a \p AmbientSize() vector.
    * @param[out] y_minus_x is a \p TangentSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  virtual bool Minus(const double *y, const double *x,
-                     double *y_minus_x) const = 0;
-
+  virtual bool Minus(const double* y, const double* x, double* y_minus_x) const = 0;
 
   /**
    * @brief Compute the derivative of Minus(y, x) w.r.t y at y = x, i.e
-   * 
+   *
    *      (D_1 Minus) (x, x)
-   * 
+   *
    * @param[in] x is a \p AmbientSize() vector.
    * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
    * @return Return value indicates whether the operation was successful or not.
    */
-  virtual bool MinusJacobian(const double *x, double *jacobian) const = 0;
+  virtual bool MinusJacobian(const double* x, double* jacobian) const = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -137,11 +135,13 @@ private:
    * Generally unused.
    */
   template <class Archive>
-  void serialize(Archive & /* archive */, const unsigned int /* version */) {}
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  {
+  }
 };
 
-} // namespace fuse_core
+}  // namespace fuse_core
 
 #endif
 
-#endif // FUSE_CORE_MANIFOLD_H
+#endif  // FUSE_CORE_MANIFOLD_H

@@ -38,8 +38,8 @@
 #include <fuse_constraints/uuid_ordering.h>
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
-#include <fuse_core/graph.h>
 #include <fuse_core/fuse_macros.h>
+#include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/variable.h>
 
@@ -53,10 +53,8 @@
 #include <string>
 #include <vector>
 
-
 namespace fuse_constraints
 {
-
 /**
  * @brief Compute an efficient elimination order for the marginalized variables
  *
@@ -128,7 +126,6 @@ fuse_core::Transaction marginalizeVariables(
 
 namespace detail
 {
-
 /**
  * @brief Structure holding linearized Jacobian blocks
  *
