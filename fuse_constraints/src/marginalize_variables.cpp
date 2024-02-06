@@ -185,13 +185,13 @@ fuse_core::Transaction marginalizeVariables(
   //                 the problem before the linearization and solve steps. A similar approach should be implemented
   //                 here, but that will require a major refactor.
 
-  assert(std::all_of(
-    marginalized_variables.begin(),
-    marginalized_variables.end(),
-    [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid) {
-      return elimination_order.exists(variable_uuid) &&
-             elimination_order.at(variable_uuid) < marginalized_variables.size();
-    }));  // NOLINT
+  assert(std::all_of(marginalized_variables.begin(),
+                     marginalized_variables.end(),
+                     [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid)
+                     {
+                       return elimination_order.exists(variable_uuid) &&
+                              elimination_order.at(variable_uuid) < marginalized_variables.size();
+                     }));  // NOLINT
 
   fuse_core::Transaction transaction;
 
