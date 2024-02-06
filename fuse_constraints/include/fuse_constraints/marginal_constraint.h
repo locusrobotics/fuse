@@ -123,7 +123,7 @@ public:
    */
   const std::vector<fuse_core::VectorXd>& x_bar() const { return x_bar_; }
 
-  #if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   /**
    * @brief Read-only access to the variable local parameterizations
    */
@@ -131,7 +131,7 @@ public:
   {
     return local_parameterizations_;
   }
-  #else 
+#else 
   /**
    * @brief Read-only access to the variable local parameterizations
    */
@@ -139,7 +139,7 @@ public:
   {
     return manifolds_;
   }
-  #endif
+#endif
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -163,9 +163,9 @@ protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
-  const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations_;  //!< Parameterizations
+  std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< Parameterizations
 #else
-  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds_;  //!< Manifolds
+  std::vector<fuse_core::Manifold::SharedPtr> manifolds_;  //!< Manifolds
 #endif
   std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
 
