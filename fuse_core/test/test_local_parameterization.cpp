@@ -131,11 +131,11 @@ TEST(LocalParameterization, Minus)
   double x1[3] = {1.0, 2.0, 3.0};
   double x2[3] = {2.0, 7.0, 3.0};
   double actual[2] = {0.0, 0.0};
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+  #if CERES_VERSION_AT_LEAST(2, 1, 0)
     bool success = parameterization.Minus(x1, x2, actual);
-#else
+  #else
     bool success = parameterization.Minus(x2, x1, actual);
-#endif
+  #endif
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -188,9 +188,9 @@ TEST(LocalParameterization, PlusMinus)
 
   double actual[2] = {0.0, 0.0};
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
-    bool success = parameterization.Minus(x1, x2, actual);
+    success = parameterization.Minus(x1, x2, actual);
 #else
-    bool success = parameterization.Minus(x2, x1, actual);
+    success = parameterization.Minus(x2, x1, actual);
 #endif
 
   EXPECT_TRUE(success);
