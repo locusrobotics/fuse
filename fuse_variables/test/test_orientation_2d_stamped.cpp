@@ -140,7 +140,7 @@ struct Orientation2DMinus
   }
 };
 
-using Orientation2DLocalParameterization =
+using Orientation2DAutoDiff =
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 ceres::AutoDiffManifold<Orientation2DFunctor, 1, 1>;
 #else
@@ -177,26 +177,30 @@ TEST(Orientation2DStamped, Plus)
 }
 
 TEST(Orientation2DStamped, PlusJacobian)
-{
+{ 
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
-  auto reference = Orientation2DLocalParameterization();
+#else
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
+#endif
+  auto reference = Orientation2DAutoDiff();
 
   auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
   for (auto test_value : test_values)
   {
     double x[1] = {test_value};
     double actual[1] = {0.0};
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-    bool success = parameterization->PlusJacobian(x, actual);
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
     bool success = parameterization->ComputeJacobian(x, actual);
+#else
+    bool success = parameterization->PlusJacobian(x, actual);
 #endif
 
     double expected[1] = {0.0};
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-    reference.PlusJacobian(x, expected);
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
     reference.ComputeJacobian(x, expected);
+#else
+    reference.PlusJacobian(x, expected);
 #endif
 
     EXPECT_TRUE(success);
@@ -208,14 +212,22 @@ TEST(Orientation2DStamped, PlusJacobian)
 
 TEST(Orientation2DStamped, Minus)
 {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
+#else
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
+#endif
 
   // Simple test
   {
     double x1[1] = {1.0};
     double x2[1] = {1.5};
     double actual[1] = {0.0};
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
     bool success = parameterization->Minus(x1, x2, actual);
+#else
+    bool success = parameterization->Minus(x2, x1, actual);
+#endif
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -226,7 +238,11 @@ TEST(Orientation2DStamped, Minus)
     double x1[1] = {2.0};
     double x2[1] = {5 - 2*M_PI};
     double actual[1] = {0.0};
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
     bool success = parameterization->Minus(x1, x2, actual);
+#else
+    bool success = parameterization->Minus(x2, x1, actual);
+#endif
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(3.0, actual[0], 1.0e-5);
@@ -235,25 +251,29 @@ TEST(Orientation2DStamped, Minus)
 
 TEST(Orientation2DStamped, MinusJacobian)
 {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
-  auto reference = Orientation2DLocalParameterization();
+#else
+  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
+#endif
+  auto reference = Orientation2DAutoDiff();
 
   auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
   for (auto test_value : test_values)
   {
     double x[1] = {test_value};
     double actual[1] = {0.0};
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-    bool success = parameterization->MinusJacobian(x, actual);
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+    bool success = parameterization->ComputeMinusJacobian(x, actual);  
 #else
-    bool success = parameterization->ComputeMinusJacobian(x, actual);
+    bool success = parameterization->MinusJacobian(x, actual);
 #endif
 
     double expected[1] = {0.0};
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-    reference.MinusJacobian(x, expected);
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
     reference.ComputeMinusJacobian(x, expected);
+#else
+    reference.MinusJacobian(x, expected);
 #endif
 
     EXPECT_TRUE(success);
@@ -285,10 +305,17 @@ TEST(Orientation2DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   problem.AddParameterBlock(
     orientation.data(),
     orientation.size(),
     orientation.localParameterization());
+#else
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.manifold());
+#endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(

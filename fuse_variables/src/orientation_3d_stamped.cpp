@@ -69,13 +69,29 @@ void Orientation3DStamped::print(std::ostream& stream) const
          << "  - z: " << z() << "\n";
 }
 
+#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() const
 {
   return new Orientation3DLocalParameterization();
 }
+#endif
+
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+fuse_core::Manifold* Orientation3DStamped::manifold() const
+{
+  return new Orientation3DManifold();
+}
+#endif
 
 }  // namespace fuse_variables
 
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DManifold);
+#endif
+
+#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DLocalParameterization);
+#endif
+
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DStamped);
 PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation3DStamped, fuse_core::Variable);

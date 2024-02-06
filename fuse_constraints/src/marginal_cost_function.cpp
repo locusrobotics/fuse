@@ -35,7 +35,6 @@
 
 #include <fuse_core/ceres_macros.h>
 #include <fuse_core/eigen.h>
-#include <fuse_core/local_parameterization.h>
 
 #include <Eigen/Core>
 
@@ -46,6 +45,7 @@
 namespace fuse_constraints
 {
 
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
 MarginalCostFunction::MarginalCostFunction(
     const std::vector<fuse_core::MatrixXd>& A,
     const fuse_core::VectorXd& b,
@@ -62,6 +62,24 @@ MarginalCostFunction::MarginalCostFunction(
     mutable_parameter_block_sizes()->push_back(x_bar.size());
   }
 }
+#else
+MarginalCostFunction::MarginalCostFunction(
+    const std::vector<fuse_core::MatrixXd>& A,
+    const fuse_core::VectorXd& b,
+    const std::vector<fuse_core::VectorXd>& x_bar,
+    const std::vector<fuse_core::Manifold::SharedPtr>& manifolds) :
+  A_(A),
+  b_(b),
+  manifolds_(manifolds),
+  x_bar_(x_bar)
+{
+  set_num_residuals(b_.rows());
+  for (const auto& x_bar : x_bar_)
+  {
+    mutable_parameter_block_sizes()->push_back(x_bar.size());
+  }
+}
+#endif
 
 bool MarginalCostFunction::Evaluate(
   double const* const* parameters,
@@ -74,10 +92,17 @@ bool MarginalCostFunction::Evaluate(
   for (size_t i = 0; i < A_.size(); ++i)
   {
     fuse_core::VectorXd delta(A_[i].cols());
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
     if (local_parameterizations_[i])
     {
       local_parameterizations_[i]->Minus(x_bar_[i].data(), parameters[i], delta.data());
     }
+#else 
+    if (manifolds_[i])
+    {
+      manifolds_[i]->Minus(parameters[i], x_bar_[i].data() delta.data());
+    }
+#endif
     else
     {
       for (int j = 0; j < x_bar_[i].rows(); ++j)
@@ -95,6 +120,7 @@ bool MarginalCostFunction::Evaluate(
     {
       if (jacobians[i])
       {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
         if (local_parameterizations_[i])
         {
           const auto& local_parameterization = local_parameterizations_[i];
@@ -102,6 +128,15 @@ bool MarginalCostFunction::Evaluate(
           local_parameterization->ComputeMinusJacobian(parameters[i], J_local.data());
           Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i] * J_local;
         }
+#else
+        if (manifolds_[i])
+        {
+          const auto& manifold = manifolds_[i];
+          fuse_core::MatrixXd J_local(manifold->TangentSize(), manifold->AmbientSize());
+          local_parameterization->MinusJacobian(parameters[i], J_local.data());
+          Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i] * J_local;
+        }
+#endif
         else
         {
           Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i];

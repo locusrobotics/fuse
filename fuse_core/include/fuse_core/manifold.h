@@ -48,8 +48,7 @@
 // https://github.com/ceres-solver/ceres-solver/commit/68c53bb39552cd4abfd6381df08638285f7386b3
 #include <ceres/manifold.h>
 
-namespace fuse_core 
-{
+namespace fuse_core {
 
 /**
  * @brief The Manifold interface definition.
@@ -60,92 +59,69 @@ namespace fuse_core
  * See the Ceres documentation for more details.
  * http://ceres-solver.org/nnls_modeling.html#manifold
  */
-class Manifold : public ceres::Manifold 
-{
+class Manifold : public ceres::Manifold {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Manifold);
 
+  // Dimension of the ambient space in which the manifold is embedded.
+  virtual int AmbientSize() const = 0;
+
+  // Dimension of the manifold/tangent space.
+  virtual int TangentSize() const = 0;
+
   /**
-   * @brief Generalization of the addition operation, with the condition that
-   * Plus(x, 0) = x
+   * @brief  x_plus_delta = Plus(x, delta),
    *
-   * @param[in] x    The value of the first variable, of size \p GlobalSize()
-   * @param[in] delta The value of the perturbation, of size \p LocalSize()
-   * @param[out] x_plus_delta Perturbed x, of size \p GlobalSize()
-   * @return True if successful, false otherwise
+   * A generalization of vector addition in Euclidean space, Plus computes the
+   * result of moving along delta in the tangent space at x, and then projecting
+   * back onto the manifold that x belongs to.
+   *
+   * @param[in] x is a \p AmbientSize() vector.
+   * @param[in] delta delta is a \p TangentSize() vector.
+   * @param[out] x_plus_delta  is a \p AmbientSize() vector.
+   * @return Return value indicates if the operation was successful or not.
    */
   virtual bool Plus(const double *x, const double *delta,
                     double *x_plus_delta) const = 0;
 
   /**
-   * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
+   * @brief Compute the derivative of Plus(x, delta) w.r.t delta at delta = 0,
+   * i.e.
    *
-   * @param[in] x    The value of the first variable, of size \p GlobalSize()
-   * @param[out] jacobian Jacobian is a row-major GlobalSize() x LocalSize()
+   * (D_2 Plus)(x, 0)
+   *
+   * @param[in] x is a \p AmbientSize() vector
+   * @param[out] jacobian is a row-major \p AmbientSize() x \p TangentSize()
    * matrix.
-   * @return True if successful, false otherwise
+   * @return
    */
-  virtual bool ComputeJacobian(const double *x,
-                               double *jacobian) const = 0;
+  virtual bool PlusJacobian(const double *x, double *jacobian) const = 0;
 
   /**
-   * @brief Generalization of the subtraction operation
-   *
-   * Minus(x2, x1) -> x2_minus_x1
-   *
-   * with the conditions that:
-   *  - Minus(x, x) -> 0
-   *  - if Plus(x1, delta) -> x2, then Minus(x2, x1) -> delta
-   *
-   * @param[in]  x2    The value of the first variable, of size \p GlobalSize()
-   * @param[in]  x1    The value of the second variable, of size \p GlobalSize()
-   * @param[out] x2_minus_x1 The difference between x2 and x1, of size \p
-   * LocalSize()
-   * @return True if successful, false otherwise
+   * @brief y_minus_x = Minus(y, x)
+   * 
+   * Given two points on the manifold, Minus computes the change to x in the
+   * tangent space at x, that will take it to y.
+   * 
+   * @param[in] y is a \p AmbientSize() vector.
+   * @param[in] x is a \p AmbientSize() vector.
+   * @param[out] y_minus_x is a \p TangentSize() vector.
+   * @return Return value indicates if the operation was successful or not.
    */
-  virtual bool Minus(const double *x2, const double *x1,
-                     double *x2_minus_x1) const = 0;
+  virtual bool Minus(const double *y, const double *x,
+                     double *y_minus_x) const = 0;
+
 
   /**
-   * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
-   *
-   * @param[in]  x        The value used to evaluate the Jacobian, of size \p
-   * GlobalSize()
-   * @param[out] jacobian The first-order derivative in row-major order, of size
-   * \p LocalSize() x \p GlobalSize()
-   * @return True if successful, false otherwise
+   * @brief Compute the derivative of Minus(y, x) w.r.t y at y = x, i.e
+   * 
+   *      (D_1 Minus) (x, x)
+   * 
+   * @param[in] x is a \p AmbientSize() vector.
+   * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
+   * @return Return value indicates whether the operation was successful or not.
    */
-  virtual bool ComputeMinusJacobian(const double *x,
-                                    double *jacobian) const = 0;
-
-  // Size of x.
-  virtual int GlobalSize() const = 0;
-  // Size of delta.
-  virtual int LocalSize() const = 0;
-
-  /// Equivalent to \p GlobalSize()
-  int AmbientSize() const override 
-  { 
-    return GlobalSize(); 
-  }
-
-  /// Equivalent to \p LocalSize()
-  int TangentSize() const override 
-  { 
-    return LocalSize(); 
-  }
-
-  /// Equivalent to \p ComputeJacobian()
-  bool PlusJacobian(const double *x, double *jacobian) const override 
-  {
-    return ComputeJacobian(x, jacobian);
-  }
-
-  /// Equivalent to \p ComputeMinusJacobian()
-  bool MinusJacobian(const double *x, double *jacobian) const override 
-  {
-    return ComputeMinusJacobian(x, jacobian);
-  }
+  virtual bool MinusJacobian(const double *x, double *jacobian) const = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -164,8 +140,8 @@ private:
   void serialize(Archive & /* archive */, const unsigned int /* version */) {}
 };
 
-}  // namespace fuse_core
+} // namespace fuse_core
 
 #endif
 
-#endif  // FUSE_CORE_MANIFOLD_H
+#endif // FUSE_CORE_MANIFOLD_H

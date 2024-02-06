@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2024, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,63 +31,57 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/orientation_2d_stamped.h>
+
+#ifndef FUSE_CORE_MANIFOLD_ADAPTER_H
+#define FUSE_CORE_MANIFOLD_ADAPTER_H
 
 #include <fuse_core/local_parameterization.h>
-#include <fuse_core/uuid.h>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <pluginlib/class_list_macros.hpp>
-#include <ros/time.h>
+#include <fuse_core/manifold.h>
 
-#include <boost/serialization/export.hpp>
-
-#include <ostream>
-
-
-namespace fuse_variables
-{
-
-Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
-  Stamped(stamp, device_id)
-{
-}
-
-void Orientation2DStamped::print(std::ostream& stream) const
-{
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  stamp: " << stamp() << "\n"
-         << "  device_id: " << deviceId() << "\n"
-         << "  size: " << size() << "\n"
-         << "  data:\n"
-         << "  - yaw: " << getYaw() << "\n";
-}
-
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
-fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
-{
-  return new Orientation2DLocalParameterization();
-}
-#endif
-
+// This is only needed for exactly ceres == 2.1.x
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
-fuse_core::Manifold* Orientation2DStamped::manifold() const
-{
-  return new Orientation2DManifold();
-}
-#endif
-
-}  // namespace fuse_variables
-
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DManifold);
-#endif
-
 #if !CERES_VERSION_AT_LEAST(2, 2, 0)
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
+
+namespace fuse_core {
+
+class ManifoldAdapter : public fuse_core::Manifold {
+public:
+  ManifoldAdapter(LocalParameterization *local_parameterization)
+      : local_parameterization_(local_parameterization) {}
+
+  int AmbientSize() const override {
+    return local_parameterization_->GlobalSize();
+  }
+
+  int TangentSize() const override {
+    return local_parameterization_->LocalSize();
+  }
+
+  bool Plus(const double *x, const double *delta,
+            double *x_plus_delta) const override {
+    return local_parameterization_->Plus(x, delta, x_plus_delta);
+  }
+
+  bool PlusJacobian(const double *x, double *jacobian) const override {
+    return local_parameterization_->ComputeJacobian(x, jacobian);
+  }
+  
+  bool Minus(const double *y, const double *x,
+             double *y_minus_x) const override {
+    return local_parameterization_->Minus(x, y, y_minus_x);
+  }
+
+  bool MinusJacobian(const double *x, double *jacobian) const override {
+    return local_parameterization_->ComputeMinusJacobian(x, jacobian);
+  }
+
+private:
+  fuse_core::LocalParameterization *local_parameterization_;
+};
+
+} // namespace fuse_core
+
+#endif
 #endif
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation2DStamped, fuse_core::Variable);
+#endif // FUSE_CORE_MANIFOLD_ADAPTER_H

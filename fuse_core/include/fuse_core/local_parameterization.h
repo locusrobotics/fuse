@@ -40,16 +40,11 @@
 
 #include <boost/serialization/access.hpp>
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-// Local parameterizations got marked as deprecated in favour of Manifold in version 2.1.0, see
+#if !CERES_VERSION_AT_LEAST(2, 2, 0)
+// Local parameterizations is removed in favour of Manifold in
+// version 2.2.0, see
 // https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc
-// and they got removed in 2.2.0, see
-// https://github.com/ceres-solver/ceres-solver/commit/68c53bb39552cd4abfd6381df08638285f7386b3
-#include <fuse_core/manifold.h>
-#else
 #include <ceres/local_parameterization.h>
-#endif
-
 
 namespace fuse_core
 {
@@ -64,17 +59,11 @@ namespace fuse_core
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#localparameterization
  */
-class LocalParameterization : public
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-                              fuse_core::Manifold
-#else
-                              ceres::LocalParameterization
-#endif
+class LocalParameterization : public ceres::LocalParameterization
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(LocalParameterization);
 
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   /**
    * @brief Generalization of the subtraction operation
    *
@@ -104,7 +93,6 @@ public:
   virtual bool ComputeMinusJacobian(
     const double* x,
     double* jacobian) const = 0;
-#endif
 
 private:
   // Allow Boost Serialization access to private methods
@@ -123,5 +111,7 @@ private:
 };
 
 }  // namespace fuse_core
+
+#endif 
 
 #endif  // FUSE_CORE_LOCAL_PARAMETERIZATION_H

@@ -154,7 +154,7 @@ struct Orientation3DMinus
   }
 };
 
-using Orientation3DLocalParameterization =
+using Orientation3DAutoDiff =
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3>;
 #else
@@ -181,7 +181,11 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
 
   double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
   double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
@@ -198,8 +202,12 @@ TEST(Orientation3DStamped, Minus)
 
 TEST(Orientation3DStamped, PlusJacobian)
 {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-  auto reference = Orientation3DLocalParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
+  auto reference = Orientation3DAutoDiff();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
@@ -215,10 +223,10 @@ TEST(Orientation3DStamped, PlusJacobian)
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0;
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-        bool success = parameterization->PlusJacobian(x, actual.data());
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
         bool success = parameterization->ComputeJacobian(x, actual.data());
+#else
+        bool success = parameterization->PlusJacobian(x, actual.data());
 #endif
 
         fuse_core::MatrixXd expected(4, 3);
@@ -226,10 +234,10 @@ TEST(Orientation3DStamped, PlusJacobian)
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0;
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-        reference.PlusJacobian(x, expected.data());
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
         reference.ComputeJacobian(x, expected.data());
+#else
+        reference.PlusJacobian(x, expected.data());
 #endif
 
         EXPECT_TRUE(success);
@@ -247,8 +255,12 @@ TEST(Orientation3DStamped, PlusJacobian)
 
 TEST(Orientation3DStamped, MinusJacobian)
 {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-  auto reference = Orientation3DLocalParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
+  auto reference = Orientation3DAutoDiff();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
@@ -263,20 +275,20 @@ TEST(Orientation3DStamped, MinusJacobian)
         actual << 0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0;
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-        bool success = parameterization->MinusJacobian(x, actual.data());
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
+#else
+        bool success = parameterization->MinusJacobian(x, actual.data());
 #endif
 
         fuse_core::MatrixXd expected(3, 4);
         expected << 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0;
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-        reference.MinusJacobian(x, expected.data());
-#else
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
         reference.ComputeMinusJacobian(x, expected.data());
+#else
+        reference.MinusJacobian(x, expected.data());
 #endif
 
         EXPECT_TRUE(success);
@@ -367,10 +379,17 @@ TEST(Orientation3DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   problem.AddParameterBlock(
     orientation.data(),
     orientation.size(),
     orientation.localParameterization());
+#else
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.manifold());
+#endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(
