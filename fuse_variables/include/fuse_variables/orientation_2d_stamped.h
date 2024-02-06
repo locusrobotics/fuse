@@ -174,8 +174,8 @@ public:
     const double* x,
     double* y_minus_x) const override
   {
-    // Compute the difference from x2 to x1, and handle the 2*Pi rollover
-    y_minus_x[0] = fuse_core::wrapAngle2D(x2[0] - x1[0]);
+    // Compute the difference from x to y, and handle the 2*Pi rollover
+    y_minus_x[0] = fuse_core::wrapAngle2D(x[0] - y[0]);
     return true;
   }
 

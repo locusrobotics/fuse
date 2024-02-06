@@ -115,7 +115,7 @@ private:
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
   const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations_;  //!< Parameterizations
 #else
-  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds_;  //!< Parameterizations
+  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds_;  //!< Manifolds
 #endif
   const std::vector<fuse_core::VectorXd>& x_bar_;  //!< The linearization point of each variable
 };

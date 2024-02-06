@@ -54,6 +54,20 @@
 namespace fuse_variables
 {
 
+/**
+ * @brief Create the inverse quaternion
+ *
+ * ceres/rotation.h is missing this function for some reason.
+ */
+template<typename T> inline
+static void QuaternionInverse(const T in[4], T out[4])
+{
+  out[0] = in[0];
+  out[1] = -in[1];
+  out[2] = -in[2];
+  out[3] = -in[3];
+}
+
 #if !CERES_VERSION_AT_LEAST(2, 2, 0)
 /**
  * @brief A LocalParameterization class for 3D Orientations.
@@ -65,19 +79,6 @@ namespace fuse_variables
 class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
-  /**
-   * @brief Create the inverse quaternion
-   *
-   * ceres/rotation.h is missing this function for some reason.
-   */
-  template<typename T> inline
-  static void QuaternionInverse(const T in[4], T out[4])
-  {
-    out[0] = in[0];
-    out[1] = -in[1];
-    out[2] = -in[2];
-    out[3] = -in[3];
-  }
 
   int GlobalSize() const override
   {
@@ -193,7 +194,7 @@ public:
   }
 
   bool PlusJacobian(
-    const double* /*x*/,
+    const double* x,
     double* jacobian) const override
   {
     double x0 = x[0] / 2;
@@ -221,7 +222,7 @@ public:
   }
 
   bool MinusJacobian(
-    const double* /*x*/,
+    const double* x,
     double* jacobian) const override
   {
     double x0 = x[0] * 2;

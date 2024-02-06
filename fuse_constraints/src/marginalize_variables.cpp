@@ -379,7 +379,7 @@ LinearTerm linearize(
     }
     if (manifold)
     {
-      delete manifoldn;
+      delete manifold;
     } 
 #endif
   }

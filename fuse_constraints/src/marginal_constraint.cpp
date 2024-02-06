@@ -73,7 +73,11 @@ void MarginalConstraint::print(std::ostream& stream) const
 
 ceres::CostFunction* MarginalConstraint::costFunction() const
 {
+#if !CERES_VERSION_AT_LEAST(2, 1, 0)
   return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
+#else
+  return new MarginalCostFunction(A_, b_, x_bar_, manifolds_);
+#endif
 }
 
 }  // namespace fuse_constraints

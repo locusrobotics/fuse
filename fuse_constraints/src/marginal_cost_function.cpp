@@ -100,7 +100,7 @@ bool MarginalCostFunction::Evaluate(
 #else 
     if (manifolds_[i])
     {
-      manifolds_[i]->Minus(parameters[i], x_bar_[i].data() delta.data());
+      manifolds_[i]->Minus(parameters[i], x_bar_[i].data(), delta.data());
     }
 #endif
     else
@@ -133,7 +133,7 @@ bool MarginalCostFunction::Evaluate(
         {
           const auto& manifold = manifolds_[i];
           fuse_core::MatrixXd J_local(manifold->TangentSize(), manifold->AmbientSize());
-          local_parameterization->MinusJacobian(parameters[i], J_local.data());
+          manifold->MinusJacobian(parameters[i], J_local.data());
           Eigen::Map<fuse_core::MatrixXd>(jacobians[i], num_residuals(), parameter_block_sizes()[i]) = A_[i] * J_local;
         }
 #endif
