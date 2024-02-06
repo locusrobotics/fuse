@@ -80,7 +80,7 @@ struct Minus
   }
 };
 
-using TestLocalParameterization =
+using TestAutoDiff =
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
 ceres::AutoDiffManifold<TestFunctor, 3, 2>;
 #else
@@ -90,7 +90,7 @@ fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 
 TEST(LocalParameterization, Plus)
 {
-  TestLocalParameterization parameterization;
+  TestAutoDiff parameterization;
 
   double x[3] = {1.0, 2.0, 3.0};
   double delta[2] = {0.5, 1.0};
@@ -105,7 +105,7 @@ TEST(LocalParameterization, Plus)
 
 TEST(LocalParameterization, PlusJacobian)
 {
-  TestLocalParameterization parameterization;
+  TestAutoDiff parameterization;
 
   double x[3] = {1.0, 2.0, 3.0};
   fuse_core::MatrixXd actual(3, 2);
@@ -126,12 +126,16 @@ TEST(LocalParameterization, PlusJacobian)
 
 TEST(LocalParameterization, Minus)
 {
-  TestLocalParameterization parameterization;
+  TestAutoDiff parameterization;
 
   double x1[3] = {1.0, 2.0, 3.0};
   double x2[3] = {2.0, 7.0, 3.0};
   double actual[2] = {0.0, 0.0};
-  bool success = parameterization.Minus(x1, x2, actual);
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+    bool success = parameterization.Minus(x1, x2, actual);
+#else
+    bool success = parameterization.Minus(x2, x1, actual);
+#endif
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -140,7 +144,7 @@ TEST(LocalParameterization, Minus)
 
 TEST(LocalParameterization, MinusJacobian)
 {
-  TestLocalParameterization parameterization;
+  TestAutoDiff parameterization;
 
   double x[3] = {1.0, 2.0, 3.0};
   fuse_core::MatrixXd actual(2, 3);
@@ -160,7 +164,7 @@ TEST(LocalParameterization, MinusJacobian)
 
 TEST(LocalParameterization, MinusSameVariablesIsZero)
 {
-  TestLocalParameterization parameterization;
+  TestAutoDiff parameterization;
 
   double x1[3] = {1.0, 2.0, 3.0};
   double actual[2] = {0.0, 0.0};
@@ -173,7 +177,7 @@ TEST(LocalParameterization, MinusSameVariablesIsZero)
 
 TEST(LocalParameterization, PlusMinus)
 {
-  TestLocalParameterization parameterization;
+  TestAutoDiff parameterization;
 
   const double x1[3] = {1.0, 2.0, 3.0};
   const double delta[2] = {0.5, 1.0};
@@ -183,7 +187,11 @@ TEST(LocalParameterization, PlusMinus)
   ASSERT_TRUE(success);
 
   double actual[2] = {0.0, 0.0};
-  success = parameterization.Minus(x1, x2, actual);
+#if CERES_VERSION_AT_LEAST(2, 1, 0)
+    bool success = parameterization.Minus(x1, x2, actual);
+#else
+    bool success = parameterization.Minus(x2, x1, actual);
+#endif
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(delta[0], actual[0], 1.0e-5);
