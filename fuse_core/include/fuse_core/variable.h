@@ -47,6 +47,7 @@
 #include <limits>
 #include <ostream>
 #include <string>
+#include <memory>
 
 /**
  * @brief Implementation of the clone() member function for derived classes

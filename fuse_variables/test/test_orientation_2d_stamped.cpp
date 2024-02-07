@@ -177,7 +177,7 @@ TEST(Orientation2DStamped, Plus)
 }
 
 TEST(Orientation2DStamped, PlusJacobian)
-{ 
+{
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
 #else
@@ -264,7 +264,7 @@ TEST(Orientation2DStamped, MinusJacobian)
     double x[1] = {test_value};
     double actual[1] = {0.0};
 #if !CERES_VERSION_AT_LEAST(2, 1, 0)
-    bool success = parameterization->ComputeMinusJacobian(x, actual);  
+    bool success = parameterization->ComputeMinusJacobian(x, actual);
 #else
     bool success = parameterization->MinusJacobian(x, actual);
 #endif

@@ -47,27 +47,80 @@ namespace fuse_core
 class ManifoldAdapter : public fuse_core::Manifold
 {
 public:
-  ManifoldAdapter(LocalParameterization* local_parameterization) : local_parameterization_(local_parameterization) {}
+  /**
+   * @brief Constructor to adapt a fuse::LocalParameterization into a fuse::Manifold
+   *
+   * @param[in] local_parameterization fuse::LocalParameterization
+   */
+  explicit ManifoldAdapter(LocalParameterization* local_parameterization) :
+    local_parameterization_(local_parameterization)
+  {
+  }
 
+  // Dimension of the ambient space in which the manifold is embedded.
   int AmbientSize() const override { return local_parameterization_->GlobalSize(); }
 
+  // Dimension of the manifold/tangent space.
   int TangentSize() const override { return local_parameterization_->LocalSize(); }
 
+  /**
+   * @brief  x_plus_delta = Plus(x, delta),
+   *
+   * A generalization of vector addition in Euclidean space, Plus computes the
+   * result of moving along delta in the tangent space at x, and then projecting
+   * back onto the manifold that x belongs to.
+   *
+   * @param[in] x is a \p AmbientSize() vector.
+   * @param[in] delta delta is a \p TangentSize() vector.
+   * @param[out] x_plus_delta  is a \p AmbientSize() vector.
+   * @return Return value indicates if the operation was successful or not.
+   */
   bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     return local_parameterization_->Plus(x, delta, x_plus_delta);
   }
 
+  /**
+   * @brief Compute the derivative of Plus(x, delta) w.r.t delta at delta = 0,
+   * i.e.
+   *
+   * (D_2 Plus)(x, 0)
+   *
+   * @param[in] x is a \p AmbientSize() vector
+   * @param[out] jacobian is a row-major \p AmbientSize() x \p TangentSize()
+   * matrix.
+   * @return
+   */
   bool PlusJacobian(const double* x, double* jacobian) const override
   {
     return local_parameterization_->ComputeJacobian(x, jacobian);
   }
 
+  /**
+   * @brief y_minus_x = Minus(y, x)
+   *
+   * Given two points on the manifold, Minus computes the change to x in the
+   * tangent space at x, that will take it to y.
+   *
+   * @param[in] y is a \p AmbientSize() vector.
+   * @param[in] x is a \p AmbientSize() vector.
+   * @param[out] y_minus_x is a \p TangentSize() vector.
+   * @return Return value indicates if the operation was successful or not.
+   */
   bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     return local_parameterization_->Minus(x, y, y_minus_x);
   }
 
+  /**
+   * @brief Compute the derivative of Minus(y, x) w.r.t y at y = x, i.e
+   *
+   *      (D_1 Minus) (x, x)
+   *
+   * @param[in] x is a \p AmbientSize() vector.
+   * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
+   * @return Return value indicates whether the operation was successful or not.
+   */
   bool MinusJacobian(const double* x, double* jacobian) const override
   {
     return local_parameterization_->ComputeMinusJacobian(x, jacobian);

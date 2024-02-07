@@ -563,7 +563,8 @@ MarginalConstraint::SharedPtr createMarginalConstraint(
   const fuse_core::Graph& graph,
   const UuidOrdering& elimination_order)
 {
-  auto index_to_variable = [&graph, &elimination_order](const unsigned int index) -> const fuse_core::Variable& {
+  auto index_to_variable = [&graph, &elimination_order](const unsigned int index) -> const fuse_core::Variable& 
+  {
     return graph.getVariable(elimination_order.at(index));
   };
 
