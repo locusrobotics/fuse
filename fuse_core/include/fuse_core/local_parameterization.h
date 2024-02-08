@@ -100,19 +100,27 @@ public:
 #if CERES_SUPPORTS_MANIFOLDS
   virtual ~LocalParameterization() = default;
 
-  // Generalization of the addition operation,
-  //
-  //   x_plus_delta = Plus(x, delta)
-  //
-  // with the condition that Plus(x, 0) = x.
-  //
+  /**
+   * @brief Generalization of the addition operation,
+   * 
+   *    x_plus_delta = Plus(x, delta)
+   * 
+   * with the condition that Plus(x, 0) = x.
+   * @param[in] x variable of size \p GlobalSize()
+   * @param[in] delta variable of size \p LocalSize()
+   * @param[out] x_plus_delta of size \p GlobalSize()
+  */
   virtual bool Plus(const double* x,
                     const double* delta,
                     double* x_plus_delta) const = 0;
 
-  // The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
-  //
-  // jacobian is a row-major GlobalSize() x LocalSize() matrix.
+  /**
+   * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
+   * 
+   * @param[in] x variable of size \p GlobalSize()
+   * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
+   * @return 
+   */
   virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
 
   /**
