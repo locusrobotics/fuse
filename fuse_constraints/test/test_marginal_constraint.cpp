@@ -115,13 +115,8 @@ TEST(MarginalConstraint, TwoVariables)
   fuse_core::Vector1d b;
   b << 9.0;
 
-  auto constraint = fuse_constraints::MarginalConstraint(
-    "test",
-    variables.begin(),
-    variables.end(),
-    A.begin(),
-    A.end(),
-    b);
+  auto constraint =
+    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
 
   auto cost_function = constraint.costFunction();
 
@@ -174,13 +169,8 @@ TEST(MarginalConstraint, LocalParameterization)
   fuse_core::Vector1d b;
   b << 8.0;
 
-  auto constraint = fuse_constraints::MarginalConstraint(
-    "test",
-    variables.begin(),
-    variables.end(),
-    A.begin(),
-    A.end(),
-    b);
+  auto constraint =
+    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
   auto cost_function = constraint.costFunction();
 
   // Update the variable value
@@ -236,13 +226,8 @@ TEST(MarginalConstraint, Serialization)
   fuse_core::Vector1d b;
   b << 8.0;
 
-  auto expected = fuse_constraints::MarginalConstraint(
-    "test",
-    variables.begin(),
-    variables.end(),
-    A.begin(),
-    A.end(),
-    b);
+  auto expected =
+    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

@@ -126,11 +126,10 @@ TEST(AbsoluteOrientation3DStampedConstraint, Optimization)
     orientation_variable->data(),
     orientation_variable->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    orientation_variable->localParameterization()
+    orientation_variable->localParameterization());
 #else
-    orientation_variable->manifold()
+    orientation_variable->manifold());
 #endif
-  );
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());

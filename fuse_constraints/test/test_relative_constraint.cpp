@@ -53,7 +53,6 @@
 #include <utility>
 #include <vector>
 
-
 TEST(RelativeConstraint, Constructor)
 {
   // Construct a constraint for every type, just to make sure they compile.
@@ -84,8 +83,7 @@ TEST(RelativeConstraint, Constructor)
     delta << 3.0;
     fuse_core::Matrix1d cov;
     cov << 1.0;
-    EXPECT_NO_THROW(
-      fuse_constraints::RelativeOrientation2DStampedConstraint constraint("test", x1, x2, delta, cov));
+    EXPECT_NO_THROW(fuse_constraints::RelativeOrientation2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::Position2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("rosie"));
@@ -94,8 +92,7 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(
-      fuse_constraints::RelativePosition2DStampedConstraint constraint("test", x1, x2, delta, cov));
+    EXPECT_NO_THROW(fuse_constraints::RelativePosition2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::Position3DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("clank"));
@@ -104,8 +101,7 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov;
     cov << 1.0, 0.1, 0.2, 0.3, 2.0, 0.3, 0.2, 0.3, 3.0;
-    EXPECT_NO_THROW(
-      fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov));
+    EXPECT_NO_THROW(fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
   {
     fuse_variables::VelocityAngular2DStamped x1(ros::Time(1234, 5678), fuse_core::uuid::generate("gort"));
@@ -124,8 +120,7 @@ TEST(RelativeConstraint, Constructor)
     delta << 1.0, 2.0;
     fuse_core::Matrix2d cov;
     cov << 1.0, 0.1, 0.1, 2.0;
-    EXPECT_NO_THROW(
-      fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint("test", x1, x2, delta, cov));
+    EXPECT_NO_THROW(fuse_constraints::RelativeVelocityLinear2DStampedConstraint constraint("test", x1, x2, delta, cov));
   }
 }
 
@@ -137,7 +132,7 @@ TEST(RelativeConstraint, PartialMeasurement)
   delta << 3.0, 1.0;
   fuse_core::Matrix2d cov;
   cov << 3.0, 0.2, 0.2, 1.0;
-  auto indices = std::vector<size_t>{2, 0};
+  auto indices = std::vector<size_t> { 2, 0 };
   EXPECT_NO_THROW(
     fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov, indices));
 }
@@ -156,8 +151,7 @@ TEST(RelativeConstraint, Covariance)
     fuse_constraints::RelativeAccelerationLinear2DStampedConstraint constraint("test", x1, x2, delta, cov);
     // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
     fuse_core::Matrix2d expected_sqrt_info;
-    expected_sqrt_info <<  1.002509414234171, -0.050125470711709,
-                           0.000000000000000,  0.707106781186547;
+    expected_sqrt_info << 1.002509414234171, -0.050125470711709, 0.000000000000000, 0.707106781186547;
     fuse_core::Matrix2d expected_cov = cov;
     // Compare
     EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
@@ -171,7 +165,7 @@ TEST(RelativeConstraint, Covariance)
     delta << 3.0, 1.0;
     fuse_core::Matrix2d cov;
     cov << 3.0, 0.2, 0.2, 1.0;
-    auto indices = std::vector<size_t>{2, 0};
+    auto indices = std::vector<size_t> { 2, 0 };
     fuse_constraints::RelativePosition3DStampedConstraint constraint("test", x1, x2, delta, cov, indices);
     // Define the expected matrices
     fuse_core::Vector3d expected_delta;
@@ -179,8 +173,8 @@ TEST(RelativeConstraint, Covariance)
     fuse_core::Matrix3d expected_cov;
     expected_cov << 1.0, 0.0, 0.2, 0.0, 0.0, 0.0, 0.2, 0.0, 3.0;
     fuse_core::MatrixXd expected_sqrt_info(2, 3);
-    expected_sqrt_info << -0.116247638743819,  0.000000000000000,  0.581238193719096,
-                           1.000000000000000,  0.000000000000000,  0.000000000000000;
+    expected_sqrt_info << -0.116247638743819, 0.000000000000000, 0.581238193719096, 1.000000000000000,
+      0.000000000000000, 0.000000000000000;
     // Compare
     EXPECT_TRUE(expected_delta.isApprox(constraint.delta(), 1.0e-9));
     EXPECT_TRUE(expected_cov.isApprox(constraint.covariance(), 1.0e-9));
@@ -210,22 +204,14 @@ TEST(RelativeConstraint, Optimization)
     mean << 1.0, 2.0;
     fuse_core::Matrix2d cov1;
     cov1 << 1.0, 0.1, 0.1, 2.0;
-    auto prior = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
-      "test",
-      *x1,
-      mean,
-      cov1);
+    auto prior = fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared("test", *x1, mean, cov1);
     // Create an relative constraint
     fuse_core::Vector2d delta;
     delta << 0.1, 0.2;
     fuse_core::Matrix2d cov2;
     cov2 << 1.0, 0.0, 0.0, 2.0;
-    auto relative = fuse_constraints::RelativeAccelerationLinear2DStampedConstraint::make_shared(
-      "test",
-      *x1,
-      *x2,
-      delta,
-      cov2);
+    auto relative =
+      fuse_constraints::RelativeAccelerationLinear2DStampedConstraint::make_shared("test", *x1, *x2, delta, cov2);
     // Build the problem
     ceres::Problem::Options problem_options;
     problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
@@ -234,33 +220,25 @@ TEST(RelativeConstraint, Optimization)
       x1->data(),
       x1->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-      x1->localParameterization()
+      x1->localParameterization());
 #else
-      x1->manifold()
+      x1->manifold());
 #endif
-    );
     problem.AddParameterBlock(
       x2->data(),
       x2->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-      x2->localParameterization()
+      x2->localParameterization());
 #else
-      x2->manifold()
+      x2->manifold());
 #endif
-    );
     std::vector<double*> prior_parameter_blocks;
     prior_parameter_blocks.push_back(x1->data());
-    problem.AddResidualBlock(
-      prior->costFunction(),
-      prior->lossFunction(),
-      prior_parameter_blocks);
+    problem.AddResidualBlock(prior->costFunction(), prior->lossFunction(), prior_parameter_blocks);
     std::vector<double*> relative_parameter_blocks;
     relative_parameter_blocks.push_back(x1->data());
     relative_parameter_blocks.push_back(x2->data());
-    problem.AddResidualBlock(
-      relative->costFunction(),
-      relative->lossFunction(),
-      relative_parameter_blocks);
+    problem.AddResidualBlock(relative->costFunction(), relative->lossFunction(), relative_parameter_blocks);
     // Run the solver
     ceres::Solver::Options options;
     ceres::Solver::Summary summary;
@@ -271,7 +249,7 @@ TEST(RelativeConstraint, Optimization)
     EXPECT_NEAR(1.1, x2->x(), 1.0e-5);
     EXPECT_NEAR(2.2, x2->y(), 1.0e-5);
     // Compute the covariance
-    std::vector<std::pair<const double*, const double*> > covariance_blocks;
+    std::vector<std::pair<const double*, const double*>> covariance_blocks;
     covariance_blocks.emplace_back(x1->data(), x1->data());
     covariance_blocks.emplace_back(x2->data(), x2->data());
     ceres::Covariance::Options cov_options;
@@ -299,15 +277,11 @@ TEST(RelativeConstraint, Optimization)
     // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
     // Verify the expected value and covariance are generated.
     // Create the variables
-    auto x1 = fuse_variables::Position3DStamped::make_shared(
-      ros::Time(1234, 5678),
-      fuse_core::uuid::generate("t1000"));
+    auto x1 = fuse_variables::Position3DStamped::make_shared(ros::Time(1234, 5678), fuse_core::uuid::generate("t1000"));
     x1->x() = 10.7;
     x1->y() = -3.2;
     x1->z() = 0.4;
-    auto x2 = fuse_variables::Position3DStamped::make_shared(
-      ros::Time(1235, 5678),
-      fuse_core::uuid::generate("t1000"));
+    auto x2 = fuse_variables::Position3DStamped::make_shared(ros::Time(1235, 5678), fuse_core::uuid::generate("t1000"));
     x2->x() = -4.2;
     x2->y() = 1.9;
     x2->z() = 19.2;
@@ -316,35 +290,21 @@ TEST(RelativeConstraint, Optimization)
     mean1 << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d cov1;
     cov1 << 1.0, 0.1, 0.2, 0.1, 2.0, 0.3, 0.2, 0.3, 3.0;
-    auto c1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
-      "test",
-      *x1,
-      mean1,
-      cov1);
+    auto c1 = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared("test", *x1, mean1, cov1);
     // Create an relative constraint
     fuse_core::Vector3d delta2;
     delta2 << 0.1, 0.2, 0.3;
     fuse_core::Matrix3d cov2;
     cov2 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-    auto c2 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(
-      "test",
-      *x1,
-      *x2,
-      delta2,
-      cov2);
+    auto c2 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared("test", *x1, *x2, delta2, cov2);
     // Create an partial relative constraint
     fuse_core::Vector2d delta3;
     delta3 << 0.1, 0.2;
     fuse_core::Matrix2d cov3;
     cov3 << 1.0, 0.0, 0.0, 3.0;
-    auto indices3 = std::vector<size_t>{2, 0};
-    auto c3 = fuse_constraints::RelativePosition3DStampedConstraint::make_shared(
-      "test",
-      *x1,
-      *x2,
-      delta3,
-      cov3,
-      indices3);
+    auto indices3 = std::vector<size_t> { 2, 0 };
+    auto c3 =
+      fuse_constraints::RelativePosition3DStampedConstraint::make_shared("test", *x1, *x2, delta3, cov3, indices3);
     // Build the problem
     ceres::Problem::Options problem_options;
     problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
@@ -353,40 +313,29 @@ TEST(RelativeConstraint, Optimization)
       x1->data(),
       x1->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-      x1->localParameterization()
+      x1->localParameterization());
 #else
-      x1->manifold()
+      x1->manifold());
 #endif
-    );
     problem.AddParameterBlock(
       x2->data(),
       x2->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-      x2->localParameterization()
+      x2->localParameterization());
 #else
-      x2->manifold()
+      x2->manifold());
 #endif
-    );
     std::vector<double*> c1_parameter_blocks;
     c1_parameter_blocks.push_back(x1->data());
-    problem.AddResidualBlock(
-      c1->costFunction(),
-      c1->lossFunction(),
-      c1_parameter_blocks);
+    problem.AddResidualBlock(c1->costFunction(), c1->lossFunction(), c1_parameter_blocks);
     std::vector<double*> c2_parameter_blocks;
     c2_parameter_blocks.push_back(x1->data());
     c2_parameter_blocks.push_back(x2->data());
-    problem.AddResidualBlock(
-      c2->costFunction(),
-      c2->lossFunction(),
-      c2_parameter_blocks);
+    problem.AddResidualBlock(c2->costFunction(), c2->lossFunction(), c2_parameter_blocks);
     std::vector<double*> c3_parameter_blocks;
     c3_parameter_blocks.push_back(x1->data());
     c3_parameter_blocks.push_back(x2->data());
-    problem.AddResidualBlock(
-      c3->costFunction(),
-      c3->lossFunction(),
-      c3_parameter_blocks);
+    problem.AddResidualBlock(c3->costFunction(), c3->lossFunction(), c3_parameter_blocks);
     // Run the solver
     ceres::Solver::Options options;
     ceres::Solver::Summary summary;
@@ -399,7 +348,7 @@ TEST(RelativeConstraint, Optimization)
     EXPECT_NEAR(2.2, x2->y(), 1.0e-5);
     EXPECT_NEAR(3.15, x2->z(), 1.0e-5);
     // Compute the marginal covariances
-    std::vector<std::pair<const double*, const double*> > covariance_blocks;
+    std::vector<std::pair<const double*, const double*>> covariance_blocks;
     covariance_blocks.emplace_back(x1->data(), x1->data());
     covariance_blocks.emplace_back(x2->data(), x2->data());
     ceres::Covariance::Options cov_options;
@@ -427,35 +376,22 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   // Optimize a two-variable system with a prior on the first variable and a relative constraint connecting the two.
   // Verify the expected value and covariance are generated.
   // Create the variables
-  auto x1 = fuse_variables::Orientation2DStamped::make_shared(
-    ros::Time(1234, 5678),
-    fuse_core::uuid::generate("t800"));
+  auto x1 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1234, 5678), fuse_core::uuid::generate("t800"));
   x1->setYaw(0.7);
-  auto x2 = fuse_variables::Orientation2DStamped::make_shared(
-    ros::Time(1235, 5678),
-    fuse_core::uuid::generate("t800"));
+  auto x2 = fuse_variables::Orientation2DStamped::make_shared(ros::Time(1235, 5678), fuse_core::uuid::generate("t800"));
   x2->setYaw(-2.2);
   // Create an absolute constraint
   fuse_core::Vector1d mean;
   mean << 1.0;
   fuse_core::Matrix1d cov1;
   cov1 << 2.0;
-  auto prior = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
-    "test",
-    *x1,
-    mean,
-    cov1);
+  auto prior = fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared("test", *x1, mean, cov1);
   // Create an relative constraint
   fuse_core::Vector1d delta;
   delta << 0.1;
   fuse_core::Matrix1d cov2;
   cov2 << 1.0;
-  auto relative = fuse_constraints::RelativeOrientation2DStampedConstraint::make_shared(
-    "test",
-    *x1,
-    *x2,
-    delta,
-    cov2);
+  auto relative = fuse_constraints::RelativeOrientation2DStampedConstraint::make_shared("test", *x1, *x2, delta, cov2);
   // Build the problem
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
@@ -464,33 +400,25 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
     x1->data(),
     x1->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    x1->localParameterization()
+    x1->localParameterization());
 #else
-    x1->manifold()
+    x1->manifold());
 #endif
-  );
   problem.AddParameterBlock(
     x2->data(),
     x2->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    x2->localParameterization()
+    x2->localParameterization());
 #else
-    x2->manifold()
+    x2->manifold());
 #endif
-  );
   std::vector<double*> prior_parameter_blocks;
   prior_parameter_blocks.push_back(x1->data());
-  problem.AddResidualBlock(
-    prior->costFunction(),
-    prior->lossFunction(),
-    prior_parameter_blocks);
+  problem.AddResidualBlock(prior->costFunction(), prior->lossFunction(), prior_parameter_blocks);
   std::vector<double*> relative_parameter_blocks;
   relative_parameter_blocks.push_back(x1->data());
   relative_parameter_blocks.push_back(x2->data());
-  problem.AddResidualBlock(
-    relative->costFunction(),
-    relative->lossFunction(),
-    relative_parameter_blocks);
+  problem.AddResidualBlock(relative->costFunction(), relative->lossFunction(), relative_parameter_blocks);
   // Run the solver
   ceres::Solver::Options options;
   ceres::Solver::Summary summary;
@@ -499,7 +427,7 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   EXPECT_NEAR(1.0, x1->getYaw(), 1.0e-5);
   EXPECT_NEAR(1.1, x2->getYaw(), 1.0e-5);
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double*, const double*>> covariance_blocks;
   covariance_blocks.emplace_back(x1->data(), x1->data());
   covariance_blocks.emplace_back(x2->data(), x2->data());
   ceres::Covariance::Options cov_options;
@@ -553,7 +481,7 @@ TEST(RelativeConstraint, Serialization)
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

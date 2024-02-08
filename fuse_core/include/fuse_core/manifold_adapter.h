@@ -37,6 +37,8 @@
 
 #include <fuse_core/ceres_macros.h>
 
+#include <memory>
+
 #if CERES_SUPPORTS_MANIFOLDS
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
