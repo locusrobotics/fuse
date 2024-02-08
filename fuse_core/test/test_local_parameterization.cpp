@@ -64,7 +64,7 @@ struct Minus
   }
 };
 
-using TestAutoDiff = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
+using TestParameterization = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 
 TEST(LocalParameterization, Plus)
 {
