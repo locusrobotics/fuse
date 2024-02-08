@@ -101,13 +101,13 @@ public:
     return true;
   }
 
-  bool Minus(const double* x1, const double* x2, double* delta) const override
+  bool Minus(const double* x, const double* y, double* y_minus_x) const override
   {
-    double x1_inverse[4];
-    QuaternionInverse(x1, x1_inverse);
+    double x_inverse[4];
+    QuaternionInverse(x, x_inverse);
     double q_delta[4];
-    ceres::QuaternionProduct(x1_inverse, x2, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, delta);
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
     return true;
   }
 
@@ -192,9 +192,9 @@ public:
     double x1 = x[1] * 2;
     double x2 = x[2] * 2;
     double x3 = x[3] * 2;
-    jacobian[0] = x1; jacobian[1]  = -x0; jacobian[2]  = -x3;  jacobian[3]  =  x2;  // NOLINT
-    jacobian[4] = x2; jacobian[5]  =  x3; jacobian[6]  = -x0;  jacobian[7]  = -x1;  // NOLINT
-    jacobian[8] = x3; jacobian[9]  = -x2; jacobian[10] =  x1;  jacobian[11] = -x0;  // NOLINT
+    jacobian[0] = -x1; jacobian[1]  =  x0; jacobian[2]  =  x3;  jacobian[3]  = -x2;  // NOLINT
+    jacobian[4] = -x2; jacobian[5]  = -x3; jacobian[6]  =  x0;  jacobian[7]  =  x1;  // NOLINT
+    jacobian[8] = -x3; jacobian[9]  =  x2; jacobian[10] = -x1;  jacobian[11] =  x0;  // NOLINT
     return true;
   }
 

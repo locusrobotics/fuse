@@ -71,21 +71,25 @@ public:
   /**
    * @brief Generalization of the subtraction operation
    *
-   * Minus(x1, x2) -> delta
+   * Minus(y, x) -> x_minus_y
    *
    * with the conditions that:
    *  - Minus(x, x) -> 0
-   *  - if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
+   *  - if Plus(y, delta) -> x, then Minus(y, x) -> delta
+   * 
+   * i.e. x + delta = y
    *
-   * @param[in]  x1    The value of the first variable, of size \p GlobalSize()
-   * @param[in]  x2    The value of the second variable, of size \p GlobalSize()
-   * @param[out] delta The difference between the second variable and the first, of size \p LocalSize()
+   * @param[in]  x    The value of the first variable, of size \p GlobalSize()
+   * @param[in]  y    The value of the second variable, of size \p GlobalSize()
+   * @param[out] y_minus_x The difference between the second variable and the first, of size \p LocalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool Minus(const double* x1, const double* x2, double* delta) const = 0;
+  virtual bool Minus(const double* x, const double* y, double* y_minus_x) const = 0;
 
   /**
-   * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
+   * @brief The jacobian of Minus(y, x) w.r.t x at x = y, i.e
+   * 
+   *      (D_1 Minus) (x, x)
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
    * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize() x \p GlobalSize()

@@ -103,6 +103,8 @@ public:
    *
    * Given two points on the manifold, Minus computes the change to x in the
    * tangent space at x, that will take it to y.
+   * 
+   * i.e. x + delta = y
    *
    * @param[in] y is a \p AmbientSize() vector.
    * @param[in] x is a \p AmbientSize() vector.
@@ -114,7 +116,7 @@ public:
   /**
    * @brief Compute the derivative of Minus(y, x) w.r.t y at y = x, i.e
    *
-   *      (D_1 Minus) (x, x)
+   *      (D_1 Minus) (y, y)
    *
    * @param[in] x is a \p AmbientSize() vector.
    * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.

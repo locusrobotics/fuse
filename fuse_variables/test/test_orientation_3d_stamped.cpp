@@ -112,47 +112,64 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
+template <typename T>
+inline static void QuaternionInverse(const T in[4], T out[4])
+{
+  out[0] = in[0];
+  out[1] = -in[1];
+  out[2] = -in[2];
+  out[3] = -in[3];
+}
+
 #if CERES_SUPPORTS_MANIFOLDS
 struct Orientation3DFunctor
 {
-  template<typename T>
+  template <typename T>
   bool Plus(const T* x, const T* delta, T* x_plus_delta) const
-#else
-struct Orientation3DPlus
-{
-  template<typename T>
-  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
-#endif
   {
     T q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
     ceres::QuaternionProduct(x, q_delta, x_plus_delta);
     return true;
   }
-#if CERES_SUPPORTS_MANIFOLDS
-
-  template<typename T>
+  template <typename T>
   bool Minus(const T* y, const T* x, T* y_minus_x) const
-#else
-};
-
-struct Orientation3DMinus
-{
-  template<typename T>
-  bool operator()(const T* y, const T* x, T* y_minus_x) const
-#endif
   {
-    T q1_inverse[4];
-    q1_inverse[0] = y[0];
-    q1_inverse[1] = -y[1];
-    q1_inverse[2] = -y[2];
-    q1_inverse[3] = -y[3];
+    T x_inverse[4];
+    QuaternionInverse(x, x_inverse);
     T q_delta[4];
-    ceres::QuaternionProduct(q1_inverse, x, q_delta);
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
     ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
     return true;
   }
 };
+#else
+struct Orientation3DPlus
+{
+  template <typename T>
+  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
+  {
+    T q_delta[4];
+    ceres::AngleAxisToQuaternion(delta, q_delta);
+    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    return true;
+  }
+};
+
+struct Orientation3DMinus
+{
+  template <typename T>
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
+  {
+    T x_inverse[4];
+    QuaternionInverse(x, x_inverse);
+    T q_delta[4];
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    return true;
+  }
+};
+#endif
 
 using Orientation3DAutoDiff =
 #if CERES_SUPPORTS_MANIFOLDS
@@ -185,16 +202,17 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
-#endif
-
   double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
   double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
   double result[3] = {0.0, 0.0, 0.0};
+
+#if !CERES_SUPPORTS_MANIFOLDS
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
   bool success = parameterization->Minus(x1, x2, result);
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+  bool success = parameterization->Minus(x2, x1, result);
+#endif
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.15, result[0], 1.0e-5);

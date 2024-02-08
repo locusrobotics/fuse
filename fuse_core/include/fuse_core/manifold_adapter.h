@@ -116,7 +116,7 @@ public:
   /**
    * @brief Compute the derivative of Minus(y, x) w.r.t y at y = x, i.e
    *
-   *      (D_1 Minus) (x, x)
+   *      (D_1 Minus) (y, y)
    *
    * @param[in] x is a \p AmbientSize() vector.
    * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
@@ -124,13 +124,7 @@ public:
    */
   bool MinusJacobian(const double* x, double* jacobian) const override
   {
-    const auto success = local_parameterization_->ComputeMinusJacobian(x, jacobian);
-    const auto N = TangentSize() * AmbientSize();
-    for (int i = 0; i < N; i++)
-    {
-      jacobian[i] = -jacobian[i];
-    }
-    return success;
+    return local_parameterization_->ComputeMinusJacobian(x, jacobian);
   }
 
 private:
