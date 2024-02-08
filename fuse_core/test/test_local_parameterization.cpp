@@ -56,19 +56,19 @@ struct Plus
 struct Minus
 {
   template <typename T>
-  bool operator()(const T* y, const T* x, T* y_minus_x) const
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
-    y_minus_x[0] = (x[0] - y[0]) / 2.0;
-    y_minus_x[1] = (x[1] - y[1]) / 5.0;
+    y_minus_x[0] = (y[0] - x[0]) / 2.0;
+    y_minus_x[1] = (y[1] - x[1]) / 5.0;
     return true;
   }
 };
 
-using TestParameterization = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
+using TestLocalParameterization = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 
 TEST(LocalParameterization, Plus)
 {
-  TestParameterization parameterization;
+  TestLocalParameterization parameterization;
 
   double x[3] = { 1.0, 2.0, 3.0 };
   double delta[2] = { 0.5, 1.0 };
@@ -83,7 +83,7 @@ TEST(LocalParameterization, Plus)
 
 TEST(LocalParameterization, PlusJacobian)
 {
-  TestParameterization parameterization;
+  TestLocalParameterization parameterization;
 
   double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(3, 2);
@@ -98,7 +98,7 @@ TEST(LocalParameterization, PlusJacobian)
 
 TEST(LocalParameterization, Minus)
 {
-  TestParameterization parameterization;
+  TestLocalParameterization parameterization;
 
   double x1[3] = { 1.0, 2.0, 3.0 };
   double x2[3] = { 2.0, 7.0, 3.0 };
@@ -112,7 +112,7 @@ TEST(LocalParameterization, Minus)
 
 TEST(LocalParameterization, MinusJacobian)
 {
-  TestParameterization parameterization;
+  TestLocalParameterization parameterization;
 
   double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(2, 3);
@@ -127,7 +127,7 @@ TEST(LocalParameterization, MinusJacobian)
 
 TEST(LocalParameterization, MinusSameVariablesIsZero)
 {
-  TestParameterization parameterization;
+  TestLocalParameterization parameterization;
 
   double x1[3] = { 1.0, 2.0, 3.0 };
   double actual[2] = { 0.0, 0.0 };
@@ -140,7 +140,7 @@ TEST(LocalParameterization, MinusSameVariablesIsZero)
 
 TEST(LocalParameterization, PlusMinus)
 {
-  TestParameterization parameterization;
+  TestLocalParameterization parameterization;
 
   const double x1[3] = { 1.0, 2.0, 3.0 };
   const double delta[2] = { 0.5, 1.0 };
