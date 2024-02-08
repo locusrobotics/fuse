@@ -137,7 +137,7 @@ struct Orientation2DPlus
 struct Orientation2DMinus
 {
   template <typename T>
-  bool operator()(const double* x, const double* y, double* y_minus_x) const
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
