@@ -99,12 +99,13 @@ public:
   virtual bool PlusJacobian(const double* x, double* jacobian) const = 0;
 
   /**
-   * @brief y_minus_x = Minus(y, x)
+   * @brief Generalization of the subtraction operation
    *
-   * Given two points on the manifold, Minus computes the change to x in the
-   * tangent space at x, that will take it to y.
-   * 
-   * i.e. x + delta = y
+   * Minus(y, x) -> y_minus_x
+   *
+   * with the conditions that:
+   *  - Minus(x, x) -> 0
+   *  - if Plus(y, delta) -> x, then Minus(y, x) -> delta
    *
    * @param[in] y is a \p AmbientSize() vector.
    * @param[in] x is a \p AmbientSize() vector.

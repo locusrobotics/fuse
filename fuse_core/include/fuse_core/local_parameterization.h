@@ -75,9 +75,7 @@ public:
    *
    * with the conditions that:
    *  - Minus(x, x) -> 0
-   *  - if Plus(y, delta) -> x, then Minus(y, x) -> delta
-   * 
-   * i.e. x + delta = y
+   *  - if Plus(y, delta) -> x, then Minus(x, y) -> delta
    *
    * @param[in]  x    The value of the first variable, of size \p GlobalSize()
    * @param[in]  y    The value of the second variable, of size \p GlobalSize()
