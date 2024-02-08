@@ -43,7 +43,7 @@
 
 namespace fuse_constraints
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
 MarginalCostFunction::MarginalCostFunction(
   const std::vector<fuse_core::MatrixXd>& A,
   const fuse_core::VectorXd& b,
@@ -87,7 +87,7 @@ bool MarginalCostFunction::Evaluate(double const* const* parameters, double* res
   for (size_t i = 0; i < A_.size(); ++i)
   {
     fuse_core::VectorXd delta(A_[i].cols());
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     if (local_parameterizations_[i])
     {
       local_parameterizations_[i]->Minus(x_bar_[i].data(), parameters[i], delta.data());
@@ -115,7 +115,7 @@ bool MarginalCostFunction::Evaluate(double const* const* parameters, double* res
     {
       if (jacobians[i])
       {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
         if (local_parameterizations_[i])
         {
           const auto& local_parameterization = local_parameterizations_[i];

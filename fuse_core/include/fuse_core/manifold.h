@@ -35,12 +35,13 @@
 #define FUSE_CORE_MANIFOLD_H
 
 #include <fuse_core/ceres_macros.h>
+
+#if CERES_SUPPORTS_MANIFOLDS
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 
 #include <boost/serialization/access.hpp>
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
 // Local parameterizations got marked as deprecated in favour of Manifold in
 // version 2.1.0, see
 // https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc

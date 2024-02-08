@@ -65,14 +65,12 @@ void Orientation2DStamped::print(std::ostream& stream) const
          << "  - yaw: " << getYaw() << "\n";
 }
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
 {
   return new Orientation2DLocalParameterization();
 }
-#endif
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 fuse_core::Manifold* Orientation2DStamped::manifold() const
 {
   return new Orientation2DManifold();
@@ -81,13 +79,10 @@ fuse_core::Manifold* Orientation2DStamped::manifold() const
 
 }  // namespace fuse_variables
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DManifold);
 #endif
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
-#endif
-
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);
 PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation2DStamped, fuse_core::Variable);

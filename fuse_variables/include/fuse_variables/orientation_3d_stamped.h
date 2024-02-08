@@ -66,7 +66,6 @@ inline static void QuaternionInverse(const T in[4], T out[4])
   out[3] = -in[3];
 }
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 /**
  * @brief A LocalParameterization class for 3D Orientations.
  *
@@ -118,9 +117,9 @@ public:
     double x1 = x[1] * 2;
     double x2 = x[2] * 2;
     double x3 = x[3] * 2;
-    jacobian[0] = x1; jacobian[1]  = -x0; jacobian[2]  = -x3;  jacobian[3]  =  x2;  // NOLINT
-    jacobian[4] = x2; jacobian[5]  =  x3; jacobian[6]  = -x0;  jacobian[7]  = -x1;  // NOLINT
-    jacobian[8] = x3; jacobian[9]  = -x2; jacobian[10] =  x1;  jacobian[11] = -x0;  // NOLINT
+    jacobian[0] = -x1; jacobian[1]  =  x0; jacobian[2]  =  x3;  jacobian[3]  = -x2;  // NOLINT
+    jacobian[4] = -x2; jacobian[5]  = -x3; jacobian[6]  =  x0;  jacobian[7]  =  x1;  // NOLINT
+    jacobian[8] = -x3; jacobian[9]  =  x2; jacobian[10] = -x1;  jacobian[11] =  x0;  // NOLINT
     return true;
   }
 
@@ -140,9 +139,8 @@ private:
     archive & boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
 };
-#endif
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 /**
  * @brief A Manifold class for 2D Orientations.
  *
@@ -339,16 +337,14 @@ public:
    */
   size_t localSize() const override { return 3u; }
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
   /**
    * @brief Provides a Ceres local parameterization for the quaternion
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
   fuse_core::LocalParameterization* localParameterization() const override;
-#endif
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Provides a Ceres manifold for the quaternion
    *
@@ -377,14 +373,11 @@ private:
 
 }  // namespace fuse_variables
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DManifold);
 #endif
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization);
-#endif
-
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
 
 #endif  // FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H

@@ -35,12 +35,11 @@
 #ifndef FUSE_CORE_MANIFOLD_ADAPTER_H
 #define FUSE_CORE_MANIFOLD_ADAPTER_H
 
+#include <fuse_core/ceres_macros.h>
+
+#if CERES_SUPPORTS_MANIFOLDS
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
-
-// This is only needed for exactly ceres == 2.1.x
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 
 namespace fuse_core
 {
@@ -52,9 +51,9 @@ public:
    *
    * @param[in] local_parameterization fuse::LocalParameterization
    */
-  explicit ManifoldAdapter(LocalParameterization* local_parameterization) :
-    local_parameterization_(local_parameterization)
+  explicit ManifoldAdapter(fuse_core::LocalParameterization* local_parameterization)
   {
+    *local_parameterization_ = *local_parameterization;
   }
 
   // Dimension of the ambient space in which the manifold is embedded.
@@ -127,12 +126,11 @@ public:
   }
 
 private:
-  fuse_core::LocalParameterization* local_parameterization_;
+  std::unique_ptr<fuse_core::LocalParameterization> local_parameterization_;
 };
 
 }  // namespace fuse_core
 
-#endif
 #endif
 
 #endif  // FUSE_CORE_MANIFOLD_ADAPTER_H

@@ -212,9 +212,7 @@ bool AutoDiffLocalParameterization<PlusFunctor, MinusFunctor, kGlobalSize, kLoca
   double delta[kLocalSize] = {};  // zero-initialize
 
   const double* parameter_ptrs[2] = {x, x};
-  // We only need to compute the Jacobian w.r.t. the first argument, see:
-  // https://github.com/ceres-solver/ceres-solver/blob/77497373193a6304a67d0/include/ceres/autodiff_manifold.h#L244-L246
-  double* jacobian_ptrs[2] = {jacobian, NULL};
+  double* jacobian_ptrs[2] = {NULL, jacobian};
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
   return ceres::internal::AutoDiff<MinusFunctor, double, kGlobalSize, kGlobalSize>
     ::Differentiate(*minus_functor_, parameter_ptrs, kLocalSize, delta, jacobian_ptrs);

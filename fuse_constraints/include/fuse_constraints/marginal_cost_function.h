@@ -63,7 +63,7 @@ namespace fuse_constraints
 class MarginalCostFunction : public ceres::CostFunction
 {
 public:
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Construct a cost function instance
    *
@@ -107,7 +107,7 @@ public:
 private:
   const std::vector<fuse_core::MatrixXd>& A_;  //!< The A matrices of the marginal cost
   const fuse_core::VectorXd& b_;  //!< The b vector of the marginal cost
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations_;  //!< Parameterizations
 #else
   const std::vector<fuse_core::Manifold::SharedPtr>& manifolds_;  //!< Manifolds

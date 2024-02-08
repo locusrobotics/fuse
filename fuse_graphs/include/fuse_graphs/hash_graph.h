@@ -424,7 +424,7 @@ void serialize(Archive& archive, ceres::Problem::Options& options, const unsigne
   archive & options.cost_function_ownership;
   archive & options.disable_all_safety_checks;
   archive & options.enable_fast_removal;
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
   // Local parameterizations got marked as deprecated in favour of Manifold in version 2.1.0, see
   // https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc
   // and they got removed in 2.2.0, see

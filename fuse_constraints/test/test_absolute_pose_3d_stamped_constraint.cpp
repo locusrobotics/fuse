@@ -148,13 +148,23 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
-    position_variable->data(),
-    position_variable->size(),
-    position_variable->localParameterization());
-  problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
-    orientation_variable->localParameterization());
+#if !CERES_SUPPORTS_MANIFOLDS
+    orientation_variable->localParameterization()
+#else
+    orientation_variable->manifold()
+#endif
+  );
+  problem.AddParameterBlock(
+    position_variable->data(),
+    position_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
+    position_variable->localParameterization()
+#else
+    position_variable->manifold()
+#endif
+  );
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());

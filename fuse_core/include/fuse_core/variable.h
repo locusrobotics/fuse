@@ -306,7 +306,6 @@ public:
    */
   virtual Variable::UniquePtr clone() const = 0;
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
   /**
    * @brief Create a new Ceres local parameterization object to apply to updates
    * of this variable
@@ -326,9 +325,8 @@ public:
    * @return A base pointer to an instance of a derived LocalParameterization
    */
   virtual fuse_core::LocalParameterization* localParameterization() const { return nullptr; }
-#endif
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Create a new Ceres manifold object to apply to updates of this
    * variable
@@ -348,17 +346,15 @@ public:
    */
   virtual fuse_core::Manifold* manifold() const
   {
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
-    if (!localParameterization())
+    auto local_parameterization = localParameterization();
+    if (!local_parameterization)
     {
       return nullptr;
     }
-    std::shared_ptr<fuse_core::Manifold> adapted_manifold =
-      std::make_shared<fuse_core::ManifoldAdapter>(localParameterization());
-    return adapted_manifold.get();
-#endif
-
-    return nullptr;
+    else
+    {
+      return new fuse_core::ManifoldAdapter(local_parameterization);
+    }
   }
 #endif
 

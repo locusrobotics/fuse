@@ -121,7 +121,7 @@ public:
    */
   const std::vector<fuse_core::VectorXd>& x_bar() const { return x_bar_; }
 
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Read-only access to the variable local parameterizations
    */
@@ -157,7 +157,7 @@ public:
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< Parameterizations
 #else
   std::vector<fuse_core::Manifold::SharedPtr> manifolds_;  //!< Manifolds
@@ -180,7 +180,7 @@ private:
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& A_;
     archive& b_;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     archive& local_parameterizations_;
 #else
     archive& manifolds_;
@@ -207,7 +207,7 @@ inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& vari
   return Eigen::Map<const fuse_core::VectorXd>(variable.data(), variable.size());
 }
 
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
 /**
  * @brief Return the local parameterization of the provided variable
  */
@@ -215,6 +215,7 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
 {
   return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
+
 #else
 /**
  * @brief Return the manifold of the provided variable
@@ -241,7 +242,7 @@ MarginalConstraint::MarginalConstraint(
     boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
   A_(first_A, last_A),
   b_(b),
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   local_parameterizations_(
     boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getLocalParameterization),
     boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getLocalParameterization)),
@@ -256,7 +257,7 @@ MarginalConstraint::MarginalConstraint(
 {
   assert(!A_.empty());
   assert(A_.size() == x_bar_.size());
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   assert(A_.size() == local_parameterizations_.size());
 #else
   assert(A_.size() == manifolds_.size());

@@ -205,7 +205,13 @@ TEST(AbsoluteConstraint, Optimization)
     problem.AddParameterBlock(
       variable->data(),
       variable->size(),
-      variable->localParameterization());
+#if !CERES_SUPPORTS_MANIFOLDS
+      variable->localParameterization()
+#else
+      variable->manifold()
+#endif
+    );
+
     std::vector<double*> parameter_blocks;
     parameter_blocks.push_back(variable->data());
     problem.AddResidualBlock(
@@ -272,7 +278,12 @@ TEST(AbsoluteConstraint, Optimization)
     problem.AddParameterBlock(
       var->data(),
       var->size(),
-      var->localParameterization());
+#if !CERES_SUPPORTS_MANIFOLDS
+      var->localParameterization()
+#else
+      var->manifold()
+#endif
+    );
     std::vector<double*> parameter_blocks;
     parameter_blocks.push_back(var->data());
     problem.AddResidualBlock(
@@ -350,7 +361,12 @@ TEST(AbsoluteConstraint, PartialOptimization)
   problem.AddParameterBlock(
     var->data(),
     var->size(),
-    var->localParameterization());
+#if !CERES_SUPPORTS_MANIFOLDS
+    var->localParameterization()
+#else
+    var->manifold()
+#endif
+  );
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(var->data());
   problem.AddResidualBlock(
@@ -396,7 +412,12 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
   problem.AddParameterBlock(
     variable->data(),
     variable->size(),
-    variable->localParameterization());
+#if !CERES_SUPPORTS_MANIFOLDS
+    variable->localParameterization()
+#else
+    variable->manifold()
+#endif
+  );
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(variable->data());
   problem.AddResidualBlock(

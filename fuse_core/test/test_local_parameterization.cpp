@@ -33,45 +33,30 @@
  */
 #include <fuse_core/ceres_macros.h>
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-#include <ceres/autodiff_manifold.h>
-#else
-#include <fuse_core/autodiff_local_parameterization.h>
-#endif
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
 
 #include <gtest/gtest.h>
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-struct TestFunctor
-{
-  template <typename T>
-  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
-#else
+#if !CERES_SUPPORTS_MANIFOLDS
+#include <fuse_core/autodiff_local_parameterization.h>
+
 struct Plus
 {
   template <typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
-#endif
   {
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
     x_plus_delta[1] = x[1] + 5.0 * delta[1];
     x_plus_delta[2] = x[2];
     return true;
   }
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-
-  template <typename T>
-  bool Minus(const T* y, const T* x, T* y_minus_x) const
-#else
 };
 
 struct Minus
 {
   template <typename T>
   bool operator()(const T* y, const T* x, T* y_minus_x) const
-#endif
   {
     y_minus_x[0] = (x[0] - y[0]) / 2.0;
     y_minus_x[1] = (x[1] - y[1]) / 5.0;
@@ -79,16 +64,11 @@ struct Minus
   }
 };
 
-using TestAutoDiff =
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  ceres::AutoDiffManifold<TestFunctor, 3, 2>;
-#else
-  fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
-#endif
+using TestAutoDiff = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 
 TEST(LocalParameterization, Plus)
 {
-  TestAutoDiff parameterization;
+  TestParameterization parameterization;
 
   double x[3] = { 1.0, 2.0, 3.0 };
   double delta[2] = { 0.5, 1.0 };
@@ -103,15 +83,11 @@ TEST(LocalParameterization, Plus)
 
 TEST(LocalParameterization, PlusJacobian)
 {
-  TestAutoDiff parameterization;
+  TestParameterization parameterization;
 
   double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(3, 2);
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  bool success = parameterization.PlusJacobian(x, actual.data());
-#else
   bool success = parameterization.ComputeJacobian(x, actual.data());
-#endif
 
   fuse_core::MatrixXd expected(3, 2);
   expected << 2.0, 0.0, 0.0, 5.0, 0.0, 0.0;
@@ -122,11 +98,11 @@ TEST(LocalParameterization, PlusJacobian)
 
 TEST(LocalParameterization, Minus)
 {
-  TestAutoDiff parameterization;
+  TestParameterization parameterization;
 
-  double x1[3] = {1.0, 2.0, 3.0};
-  double x2[3] = {2.0, 7.0, 3.0};
-  double actual[2] = {0.0, 0.0};
+  double x1[3] = { 1.0, 2.0, 3.0 };
+  double x2[3] = { 2.0, 7.0, 3.0 };
+  double actual[2] = { 0.0, 0.0 };
   bool success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);
@@ -136,15 +112,11 @@ TEST(LocalParameterization, Minus)
 
 TEST(LocalParameterization, MinusJacobian)
 {
-  TestAutoDiff parameterization;
+  TestParameterization parameterization;
 
   double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(2, 3);
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
-  bool success = parameterization.MinusJacobian(x, actual.data());
-#else
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
-#endif
 
   fuse_core::MatrixXd expected(2, 3);
   expected << -0.5, 0.0, 0.0, 0.0, -0.2, 0.0;
@@ -155,7 +127,7 @@ TEST(LocalParameterization, MinusJacobian)
 
 TEST(LocalParameterization, MinusSameVariablesIsZero)
 {
-  TestAutoDiff parameterization;
+  TestParameterization parameterization;
 
   double x1[3] = { 1.0, 2.0, 3.0 };
   double actual[2] = { 0.0, 0.0 };
@@ -168,7 +140,7 @@ TEST(LocalParameterization, MinusSameVariablesIsZero)
 
 TEST(LocalParameterization, PlusMinus)
 {
-  TestAutoDiff parameterization;
+  TestParameterization parameterization;
 
   const double x1[3] = { 1.0, 2.0, 3.0 };
   const double delta[2] = { 0.5, 1.0 };
@@ -184,6 +156,8 @@ TEST(LocalParameterization, PlusMinus)
   EXPECT_NEAR(delta[0], actual[0], 1.0e-5);
   EXPECT_NEAR(delta[1], actual[1], 1.0e-5);
 }
+
+#endif
 
 int main(int argc, char** argv)
 {

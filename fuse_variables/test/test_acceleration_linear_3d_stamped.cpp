@@ -127,8 +127,7 @@ TEST(AccelerationLinear3DStamped, Optimization)
   ceres::Problem problem;
   problem.AddParameterBlock(
     acceleration.data(),
-    acceleration.size(),
-    acceleration.localParameterization());
+    acceleration.size());
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(acceleration.data());
   problem.AddResidualBlock(

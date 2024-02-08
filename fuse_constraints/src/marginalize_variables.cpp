@@ -335,7 +335,7 @@ LinearTerm linearize(
   {
     const auto& variable_uuid = variable_uuids[index];
     const auto& variable = graph.getVariable(variable_uuid);
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     auto local_parameterization = variable.localParameterization();
     auto& jacobian = result.A[index];
     if (variable.holdConstant())

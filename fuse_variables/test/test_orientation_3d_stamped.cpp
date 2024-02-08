@@ -33,7 +33,7 @@
  */
 #include <fuse_core/ceres_macros.h>
 #include <fuse_core/serialization.h>
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 #include <ceres/autodiff_manifold.h>
 #else
 #include <fuse_core/autodiff_local_parameterization.h>
@@ -112,7 +112,7 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 struct Orientation3DFunctor
 {
   template<typename T>
@@ -129,7 +129,7 @@ struct Orientation3DPlus
     ceres::QuaternionProduct(x, q_delta, x_plus_delta);
     return true;
   }
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 
   template<typename T>
   bool Minus(const T* y, const T* x, T* y_minus_x) const
@@ -155,7 +155,7 @@ struct Orientation3DMinus
 };
 
 using Orientation3DAutoDiff =
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3>;
 #else
 fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
@@ -163,7 +163,11 @@ fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 
 
 TEST(Orientation3DStamped, Plus)
 {
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
 
   double x[4] = {0.842614977, 0.2, 0.3, 0.4};
   double delta[3] = {0.15, -0.2, 0.433012702};
@@ -181,7 +185,7 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
 #else
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
@@ -202,7 +206,7 @@ TEST(Orientation3DStamped, Minus)
 
 TEST(Orientation3DStamped, PlusJacobian)
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
 #else
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
@@ -223,7 +227,7 @@ TEST(Orientation3DStamped, PlusJacobian)
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
         bool success = parameterization->ComputeJacobian(x, actual.data());
 #else
         bool success = parameterization->PlusJacobian(x, actual.data());
@@ -234,7 +238,7 @@ TEST(Orientation3DStamped, PlusJacobian)
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
         reference.ComputeJacobian(x, expected.data());
 #else
         reference.PlusJacobian(x, expected.data());
@@ -255,7 +259,7 @@ TEST(Orientation3DStamped, PlusJacobian)
 
 TEST(Orientation3DStamped, MinusJacobian)
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
 #else
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
@@ -275,7 +279,7 @@ TEST(Orientation3DStamped, MinusJacobian)
         actual << 0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
 #else
         bool success = parameterization->MinusJacobian(x, actual.data());
@@ -285,7 +289,7 @@ TEST(Orientation3DStamped, MinusJacobian)
         expected << 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
         reference.ComputeMinusJacobian(x, expected.data());
 #else
         reference.MinusJacobian(x, expected.data());
@@ -379,7 +383,7 @@ TEST(Orientation3DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(
     orientation.data(),
     orientation.size(),

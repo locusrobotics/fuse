@@ -33,7 +33,7 @@
  */
 #include <fuse_core/ceres_macros.h>
 #include <fuse_core/serialization.h>
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 #include <ceres/autodiff_manifold.h>
 #else
 #include <fuse_core/autodiff_local_parameterization.h>
@@ -107,7 +107,7 @@ TEST(Orientation2DStamped, Stamped)
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 struct Orientation2DFunctor
 {
   template<typename T>
@@ -122,7 +122,7 @@ struct Orientation2DPlus
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 
   template<typename T>
   bool Minus(const T* y, const T* x, T* y_minus_x) const
@@ -141,7 +141,7 @@ struct Orientation2DMinus
 };
 
 using Orientation2DAutoDiff =
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 ceres::AutoDiffManifold<Orientation2DFunctor, 1, 1>;
 #else
 fuse_core::AutoDiffLocalParameterization<Orientation2DPlus, Orientation2DMinus, 1, 1>;
@@ -178,7 +178,7 @@ TEST(Orientation2DStamped, Plus)
 
 TEST(Orientation2DStamped, PlusJacobian)
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
 #else
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
@@ -190,14 +190,14 @@ TEST(Orientation2DStamped, PlusJacobian)
   {
     double x[1] = {test_value};
     double actual[1] = {0.0};
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->ComputeJacobian(x, actual);
 #else
     bool success = parameterization->PlusJacobian(x, actual);
 #endif
 
     double expected[1] = {0.0};
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     reference.ComputeJacobian(x, expected);
 #else
     reference.PlusJacobian(x, expected);
@@ -212,7 +212,7 @@ TEST(Orientation2DStamped, PlusJacobian)
 
 TEST(Orientation2DStamped, Minus)
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
 #else
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
@@ -223,7 +223,7 @@ TEST(Orientation2DStamped, Minus)
     double x1[1] = {1.0};
     double x2[1] = {1.5};
     double actual[1] = {0.0};
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->Minus(x1, x2, actual);
 #else
     bool success = parameterization->Minus(x2, x1, actual);
@@ -238,7 +238,7 @@ TEST(Orientation2DStamped, Minus)
     double x1[1] = {2.0};
     double x2[1] = {5 - 2*M_PI};
     double actual[1] = {0.0};
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->Minus(x1, x2, actual);
 #else
     bool success = parameterization->Minus(x2, x1, actual);
@@ -251,7 +251,7 @@ TEST(Orientation2DStamped, Minus)
 
 TEST(Orientation2DStamped, MinusJacobian)
 {
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
 #else
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
@@ -263,14 +263,14 @@ TEST(Orientation2DStamped, MinusJacobian)
   {
     double x[1] = {test_value};
     double actual[1] = {0.0};
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->ComputeMinusJacobian(x, actual);
 #else
     bool success = parameterization->MinusJacobian(x, actual);
 #endif
 
     double expected[1] = {0.0};
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
     reference.ComputeMinusJacobian(x, expected);
 #else
     reference.MinusJacobian(x, expected);
@@ -305,7 +305,7 @@ TEST(Orientation2DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
-#if !CERES_VERSION_AT_LEAST(2, 1, 0)
+#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(
     orientation.data(),
     orientation.size(),

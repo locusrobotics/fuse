@@ -44,7 +44,6 @@
 #include <memory>
 #include <vector>
 
-
 TEST(MarginalConstraint, OneVariable)
 {
   // Create a marginal constraint with one variable, no local parameterizations
@@ -62,13 +61,8 @@ TEST(MarginalConstraint, OneVariable)
   fuse_core::Vector1d b;
   b << 3.0;
 
-  auto constraint = fuse_constraints::MarginalConstraint(
-    "test",
-    variables.begin(),
-    variables.end(),
-    A.begin(),
-    A.end(),
-    b);
+  auto constraint =
+    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
 
   auto cost_function = constraint.costFunction();
 
@@ -77,10 +71,10 @@ TEST(MarginalConstraint, OneVariable)
   x1.y() = 6.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = {x1.data()};
+  std::vector<const double*> variable_values = { x1.data() };
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
-  std::vector<double*> actual_jacobians = {actual_jacobian1.data()};
+  std::vector<double*> actual_jacobians = { actual_jacobian1.data() };
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -139,11 +133,11 @@ TEST(MarginalConstraint, TwoVariables)
   x2.y() = 18.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = {x1.data(), x2.data()};
+  std::vector<const double*> variable_values = { x1.data(), x2.data() };
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
   fuse_core::MatrixXd actual_jacobian2(1, 2);
-  std::vector<double*> actual_jacobians = {actual_jacobian1.data(), actual_jacobian2.data()};
+  std::vector<double*> actual_jacobians = { actual_jacobian1.data(), actual_jacobian2.data() };
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -197,17 +191,21 @@ TEST(MarginalConstraint, LocalParameterization)
   x1.z() = 0.526043;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = {x1.data()};
+  std::vector<const double*> variable_values = { x1.data() };
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 4);
-  std::vector<double*> actual_jacobians = {actual_jacobian1.data()};
+  std::vector<double*> actual_jacobians = { actual_jacobian1.data() };
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
   fuse_core::Vector1d expected_residuals;
   expected_residuals << 10.581088914;  // 5.0 * 0.15  +  6.0 * -0.2  +  7.0 * 0.433012702   +   8.0
   fuse_core::MatrixXd expected_jacobian1(1, 4);
+#if CERES_SUPPORTS_MANIFOLDS
   expected_jacobian1 << 13.29593, -3.86083, -9.164586, -12.818822;
+#else
+  expected_jacobian1 << -13.29593, 3.86083, 9.164586, 12.818822;
+#endif
   // A1 * J_local
   // [5.0, 6.0, 7.0] * [0.720368, -1.491122, -1.052086,  0.388248]
   //                   [0.388248,  1.052086, -1.491122, -0.720368]
@@ -268,15 +266,24 @@ TEST(MarginalConstraint, Serialization)
   EXPECT_EQ(expected.x_bar(), actual.x_bar());
   // The shared ptrs will not be the same instances, but they should point to the same types
   using ExpectedLocalParam = fuse_variables::Orientation3DLocalParameterization;
+#if !CERES_SUPPORTS_MANIFOLDS
   ASSERT_EQ(expected.localParameterizations().size(), actual.localParameterizations().size());
   for (auto i = 0u; i < actual.localParameterizations().size(); ++i)
   {
     auto actual_derived = std::dynamic_pointer_cast<ExpectedLocalParam>(actual.localParameterizations()[i]);
     EXPECT_TRUE(static_cast<bool>(actual_derived));
   }
+#else
+  ASSERT_EQ(expected.manifolds().size(), actual.manifolds().size());
+  for (auto i = 0u; i < actual.manifolds().size(); ++i)
+  {
+    auto actual_derived = std::dynamic_pointer_cast<ExpectedLocalParam>(actual.manifolds()[i]);
+    EXPECT_TRUE(static_cast<bool>(actual_derived));
+  }
+#endif
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -51,7 +51,6 @@
 
 namespace fuse_variables
 {
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 /**
  * @brief A LocalParameterization class for 2D Orientations.
  *
@@ -88,7 +87,7 @@ public:
 
   bool ComputeMinusJacobian(const double* /*x*/, double* jacobian) const override
   {
-    jacobian[0] = -1.0;
+    jacobian[0] = 1.0;
     return true;
   }
 
@@ -109,9 +108,8 @@ private:
   }
 };
 
-#endif
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 /**
  * @brief A Manifold class for 2D Orientations.
  *
@@ -142,7 +140,7 @@ public:
   bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     // Compute the difference from x to y, and handle the 2*Pi rollover
-    y_minus_x[0] = fuse_core::wrapAngle2D(x[0] - y[0]);
+    y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
   }
 
@@ -240,7 +238,6 @@ public:
    */
   size_t localSize() const override { return 1u; }
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
   /**
    * @brief Create a new Ceres local parameterization object to apply to updates of this variable
    *
@@ -250,9 +247,8 @@ public:
    * @return A base pointer to an instance of a derived LocalParameterization
    */
   fuse_core::LocalParameterization* localParameterization() const override;
-#endif
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Create a new Ceres manifold object to apply to updates of this variable
    *
@@ -284,14 +280,11 @@ private:
 
 }  // namespace fuse_variables
 
-#if CERES_VERSION_AT_LEAST(2, 1, 0)
+#if CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DManifold);
 #endif
 
-#if !CERES_VERSION_AT_LEAST(2, 2, 0)
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DLocalParameterization);
-#endif
-
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation2DStamped);
 
 #endif  // FUSE_VARIABLES_ORIENTATION_2D_STAMPED_H
