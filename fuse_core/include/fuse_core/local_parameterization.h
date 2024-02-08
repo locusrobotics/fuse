@@ -71,7 +71,7 @@ public:
   /**
    * @brief Generalization of the subtraction operation
    *
-   * Minus(y, x) -> x_minus_y
+   * Minus(x, y) -> y_minus_x
    *
    * with the conditions that:
    *  - Minus(x, x) -> 0
