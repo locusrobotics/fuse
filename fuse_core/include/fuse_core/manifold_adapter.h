@@ -122,7 +122,13 @@ public:
    */
   bool MinusJacobian(const double* x, double* jacobian) const override
   {
-    return local_parameterization_->ComputeMinusJacobian(x, jacobian);
+    const auto success = local_parameterization_->ComputeMinusJacobian(x, jacobian);
+    const auto N = TangentSize() * AmbientSize();
+    for (int i = 0; i < N; i++)
+    {
+      jacobian[i] = -jacobian[i];
+    }
+    return success;
   }
 
 private:
