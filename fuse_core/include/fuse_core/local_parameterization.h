@@ -85,9 +85,9 @@ public:
   virtual bool Minus(const double* x, const double* y, double* y_minus_x) const = 0;
 
   /**
-   * @brief The jacobian of Minus(y, x) w.r.t x at x = y, i.e
+   * @brief The jacobian of Minus(x, y) w.r.t y at y = x, i.e
    * 
-   *      (D_1 Minus) (x, x)
+   *      (D_1 Minus) (y, y)
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
    * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize() x \p GlobalSize()
