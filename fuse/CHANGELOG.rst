@@ -19,6 +19,9 @@ Changelog for package fuse
 * Update changelogs
 * Contributors: Gary Servin
 
+Forthcoming
+-----------
+
 0.8.0 (2024-02-02)
 ------------------
 * 0.7.0

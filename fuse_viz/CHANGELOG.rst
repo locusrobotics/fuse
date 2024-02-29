@@ -30,6 +30,9 @@ Changelog for package fuse_viz
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+
 0.8.0 (2024-02-02)
 ------------------
 * 0.7.0

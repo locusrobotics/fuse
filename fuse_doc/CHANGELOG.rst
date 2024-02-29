@@ -23,6 +23,9 @@ Changelog for package fuse_doc
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Tom Moore
 
+Forthcoming
+-----------
+
 0.8.0 (2024-02-02)
 ------------------
 * 0.7.0

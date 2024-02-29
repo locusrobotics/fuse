@@ -43,6 +43,9 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+
 0.8.0 (2024-02-02)
 ------------------
 * 0.7.0
