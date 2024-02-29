@@ -100,8 +100,8 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.8.1 (2024-02-29)
+------------------
 
 0.8.0 (2024-02-02)
 ------------------

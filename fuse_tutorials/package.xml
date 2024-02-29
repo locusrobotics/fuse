@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>fuse_tutorials</name>
-  <version>0.8.0</version>
+  <version>0.8.1</version>
   <description>
     Package containing source code for the fuse tutorials
   </description>
