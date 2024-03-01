@@ -61,7 +61,7 @@ void Orientation2DStamped::print(std::ostream & stream) const
          << "  device_id: " << deviceId() << "\n"
          << "  size: " << size() << "\n"
          << "  data:\n"
-         << "  - yaw: " << yaw() << "\n";
+         << "  - yaw: " << getYaw() << "\n";
 }
 
 fuse_core::LocalParameterization * Orientation2DStamped::localParameterization() const

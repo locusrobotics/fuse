@@ -110,14 +110,14 @@ TEST(RelativePose2DStampedConstraint, OptimizationFull)
   // Create two poses
   auto orientation1 = Orientation2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
-  orientation1->yaw() = 0.8;
+  orientation1->setYaw(0.8);
   auto position1 =
     Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
   position1->x() = 1.5;
   position1->y() = -3.0;
   auto orientation2 = Orientation2DStamped::make_shared(
     rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
-  orientation2->yaw() = -2.7;
+  orientation2->setYaw(-2.7);
   auto position2 =
     Position2DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
   position2->x() = 3.7;
@@ -189,10 +189,10 @@ TEST(RelativePose2DStampedConstraint, OptimizationFull)
   // Check
   EXPECT_NEAR(0.0, position1->x(), 1.0e-5);
   EXPECT_NEAR(0.0, position1->y(), 1.0e-5);
-  EXPECT_NEAR(0.0, orientation1->yaw(), 1.0e-5);
+  EXPECT_NEAR(0.0, orientation1->getYaw(), 1.0e-5);
   EXPECT_NEAR(1.0, position2->x(), 1.0e-5);
   EXPECT_NEAR(0.0, position2->y(), 1.0e-5);
-  EXPECT_NEAR(0.0, orientation2->yaw(), 1.0e-5);
+  EXPECT_NEAR(0.0, orientation2->getYaw(), 1.0e-5);
   // Compute the marginal covariance for pose1
   {
     std::vector<std::pair<const double *, const double *>> covariance_blocks;
@@ -269,7 +269,7 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
   // Create two poses
   auto orientation1 = Orientation2DStamped::make_shared(
     rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
-  orientation1->yaw() = 0.8;
+  orientation1->setYaw(0.8);
   auto position1 =
     Position2DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("3b6ra7"));
   position1->x() = 1.5;
@@ -277,7 +277,7 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
 
   auto orientation2 = Orientation2DStamped::make_shared(
     rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
-  orientation2->yaw() = -2.7;
+  orientation2->setYaw(-2.7);
   auto position2 =
     Position2DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("3b6ra7"));
   position2->x() = 3.7;
@@ -382,10 +382,10 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
   // Check
   EXPECT_NEAR(0.0, position1->x(), 1.0e-5);
   EXPECT_NEAR(0.0, position1->y(), 1.0e-5);
-  EXPECT_NEAR(0.0, orientation1->yaw(), 1.0e-5);
+  EXPECT_NEAR(0.0, orientation1->getYaw(), 1.0e-5);
   EXPECT_NEAR(1.0, position2->x(), 1.0e-5);
   EXPECT_NEAR(0.0, position2->y(), 1.0e-5);
-  EXPECT_NEAR(0.0, orientation2->yaw(), 1.0e-5);
+  EXPECT_NEAR(0.0, orientation2->getYaw(), 1.0e-5);
 
   // Compute the marginal covariance for pose1
   {

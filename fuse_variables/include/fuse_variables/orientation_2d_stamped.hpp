@@ -168,12 +168,28 @@ public:
   /**
    * @brief Read-write access to the heading angle.
    */
+  [[deprecated(
+      "Yaw must be in the range [-pi, pi). Use the setYaw(value) method to ensure minimum phase.")
+    ]]
   double & yaw() {return data_[YAW];}
 
   /**
    * @brief Read-only access to the heading angle.
    */
+  [[deprecated(
+    "Use the getYaw()/setYaw(value) methods to ensure const-correctness.")
+  ]]
   const double & yaw() const {return data_[YAW];}
+
+  /**
+   * @brief Read-only access to the heading angle.
+   */
+  const double & getYaw() const {return data_[YAW];}
+
+  /**
+   * @brief Write access to the heading angle.
+   */
+  void setYaw(const double yaw) {data_[YAW] = fuse_core::wrapAngle2D(yaw);}
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
