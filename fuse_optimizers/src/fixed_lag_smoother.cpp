@@ -253,22 +253,27 @@ void FixedLagSmoother::optimizationLoop()
       // Optimize the entire graph
       summary_ = graph_->optimize(params_.solver_options);
 
-      // Optimization is complete. Notify all the things about the graph changes.
-      const auto new_transaction_stamp = new_transaction->stamp();
-      notify(std::move(new_transaction), graph_->clone());
-
       // Abort if optimization failed. Not converging is not a failure because the solution found is
       // usable.
       if (!summary_.IsSolutionUsable()) {
+        std::ostringstream oss;
+        oss << "Graph:\n";
+        graph_->print(oss);
+        oss << "\nTransaction:\n";
+        new_transaction->print(oss);
+
         RCLCPP_FATAL_STREAM(
           logger_,
           "Optimization failed after updating the graph with the transaction with timestamp "
-            << new_transaction_stamp.nanoseconds() <<
-            ". Leaving optimization loop and requesting node shutdown...");
+            << new_transaction->stamp().nanoseconds() <<
+            ". Leaving optimization loop and requesting node shutdown...\n" << oss.str());
         RCLCPP_INFO(logger_, summary_.FullReport().c_str());
         rclcpp::shutdown();
         break;
       }
+
+      // Optimization is complete. Notify all the things about the graph changes.
+      notify(std::move(new_transaction), graph_->clone());
 
       // Compute a transaction that marginalizes out those variables.
       lag_expiration_ = computeLagExpirationTime();
