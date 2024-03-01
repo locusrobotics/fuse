@@ -40,13 +40,12 @@
 #include <memory>
 #include <string>
 
-#include <fuse_models/parameters/imu_2d_params.hpp>
-#include <fuse_core/throttled_callback.hpp>
-
 #include <fuse_core/async_sensor_model.hpp>
+#include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
-
+#include <fuse_models/parameters/imu_2d_params.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 
