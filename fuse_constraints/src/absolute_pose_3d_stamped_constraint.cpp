@@ -75,16 +75,6 @@ void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
 ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
 {
   return new NormalPriorPose3D(sqrt_information_, mean_);
-  
-  // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
-  // use automatic differentiation as follows:
-
-  // return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, 6, 3, 4>(
-  //   new NormalPriorPose3DCostFunctor(sqrt_information_, mean_);
-    
-  // And including the followings:
-  // #include <ceres/autodiff_cost_function.h>
-  // #include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
 }
 
 }  // namespace fuse_constraints
