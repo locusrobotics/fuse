@@ -240,7 +240,7 @@ static inline void quaternion2rpy(const double * q, double * rpy, double * jacob
  * @param[in] z Pointer to the first quaternion array (4x1)
  * @param[in] w Pointer to the second quaternion array (4x1)
  * @param[in] zw Pointer to the output quaternion array (4x1) that will be populated with the result of z * w
- * @param[in] jacobian Pointer to the jacobian matrix (4x4, optional)
+ * @param[in] jacobian Pointer to the jacobian of zw with respect to w (4x4, optional)
  */
 static inline void quaternionProduct(const double * z, const double * w, double * zw, double * jacobian = nullptr) 
 {
