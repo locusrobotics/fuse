@@ -76,7 +76,10 @@ bool NormalPriorPose3D::Evaluate(
   residuals[0] = parameters[0][0] - b_[0];
   residuals[1] = parameters[0][1] - b_[1];
   residuals[2] = parameters[0][2] - b_[2];
-  // Compute orientation residuals 
+  // Compute orientation residuals
+
+  // TODO(giafranchini): this is repeated code, it should be better to include normal_prior_orientation_3d.hpp 
+  // and use that to compute residuals and jacobians. 
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
   fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle); // orientation angle-axis
  
