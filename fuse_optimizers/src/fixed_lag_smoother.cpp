@@ -253,6 +253,8 @@ void FixedLagSmoother::optimizationLoop()
       // Optimize the entire graph
       summary_ = graph_->optimize(params_.solver_options);
 
+      // std::cout << summary_.FullReport() << std::endl;
+
       // Optimization is complete. Notify all the things about the graph changes.
       const auto new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
@@ -400,7 +402,6 @@ void FixedLagSmoother::processQueue(
       return;
     }
   }
-
   // Use the most recent transaction time as the current time
   const auto current_time = pending_transactions_.front().stamp();
 
