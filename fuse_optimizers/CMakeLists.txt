@@ -54,13 +54,33 @@ target_link_libraries(${PROJECT_NAME}
 )
 ament_target_dependencies(${PROJECT_NAME} diagnostic_updater)
 
-## batch_optimizer node
-add_executable(batch_optimizer_node src/batch_optimizer_node.cpp)
-target_link_libraries(batch_optimizer_node ${PROJECT_NAME})
+## batch_optimizer component
+add_library(batch_optimizer_component SHARED src/batch_optimizer_component.cpp)
+target_include_directories(batch_optimizer_component PRIVATE include)
+ament_target_dependencies(
+  batch_optimizer_component
+  SYSTEM
+  rclcpp_components
+)
+target_link_libraries(batch_optimizer_component ${PROJECT_NAME})
 
-## fixed_lag_smoother node
-add_executable(fixed_lag_smoother_node src/fixed_lag_smoother_node.cpp)
-target_link_libraries(fixed_lag_smoother_node ${PROJECT_NAME})
+rclcpp_components_register_node(
+  batch_optimizer_component PLUGIN "fuse_optimizers::BatchOptimizerComponent" EXECUTABLE
+  batch_optimizer_node)
+
+## fixed_lag_smoother component
+add_library(fixed_lag_smoother_component SHARED src/fixed_lag_smoother_component.cpp)
+target_include_directories(fixed_lag_smoother_component PRIVATE include)
+ament_target_dependencies(
+  fixed_lag_smoother_component
+  SYSTEM
+  rclcpp_components
+)
+target_link_libraries(fixed_lag_smoother_component ${PROJECT_NAME})
+
+rclcpp_components_register_node(
+  fixed_lag_smoother_component PLUGIN "fuse_optimizers::FixedLagSmootherComponent" EXECUTABLE
+  fixed_lag_smoother_node)
 
 #############
 ## Testing ##
@@ -76,7 +96,7 @@ endif()
 ## Install ##
 #############
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+install(TARGETS ${PROJECT_NAME} batch_optimizer_component fixed_lag_smoother_component EXPORT ${PROJECT_NAME}-export
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
