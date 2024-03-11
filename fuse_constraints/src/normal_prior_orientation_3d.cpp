@@ -71,6 +71,7 @@ bool NormalPriorOrientation3D::Evaluate(
   double j_product[16];
   double j_quat2angle[12];
 
+  // TODO(giafranchini): these jacobians should be populated only if jacobians[1] != nullptr
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
   fuse_core::quaternionToAngleAxis(difference, residuals, j_quat2angle); // orientation angle-axis
  
