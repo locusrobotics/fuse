@@ -81,10 +81,12 @@ bool NormalPriorOrientation3D::Evaluate(
   residuals_map.applyOnTheLeft(A_);
 
   if (jacobians != nullptr) {
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_map(jacobians[0]);
-    Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
-    j_map = A_ * j_quat2angle_map * j_product_map;
+    if (jacobians[0] != nullptr) {
+      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_map(jacobians[0]);
+      Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
+      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
+      j_map = A_ * j_quat2angle_map * j_product_map;
+    }
   }
   return true;
 }
