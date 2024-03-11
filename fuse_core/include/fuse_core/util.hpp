@@ -171,21 +171,23 @@ static inline void quaternion2rpy(const double * q, double * rpy, double * jacob
     const double qy = q[2];
     const double qz = q[3];
     const double discr = qw * qy - qx * qz; 
-    jacobian_map.setZero();
+    const double gl_limit = 0.5 - 2.0 * std::numeric_limits<double>::epsilon(); 
 
-    if (discr > 0.49999) {
+    if (discr > gl_limit) {
       // pitch = 90 deg
-            jacobian_map(2, 0) = (2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
+      jacobian_map.setZero();
+      jacobian_map(2, 0) = (2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
       jacobian_map(2, 1) = -2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
       return;
-    } else if (discr < -0.49999) {
+    } else if (discr < -gl_limit) {
       // pitch = -90 deg
-            jacobian_map(2, 0) = (-2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
+      jacobian_map.setZero();
+      jacobian_map(2, 0) = (-2.0 * qx) / (qw * qw * ((qx * qx / qw * qw) + 1.0));
       jacobian_map(2, 1) = 2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
       return;
     } else {
       // Non-degenerate case:
-            jacobian_map(0, 0) =
+      jacobian_map(0, 0) =
         -(2.0 * qx) /
         ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) +
         1.0) *
