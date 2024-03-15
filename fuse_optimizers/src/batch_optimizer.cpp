@@ -66,6 +66,12 @@ BatchOptimizer::BatchOptimizer(
 
   // Start the optimization thread
   optimization_thread_ = std::thread(&BatchOptimizer::optimizationLoop, this);
+
+  // Advertise a service that resets the optimizer to its initial state
+  reset_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.reset_service),
+    &FixedLagSmoother::resetServiceCallback,
+    this);
 }
 
 BatchOptimizer::~BatchOptimizer()
@@ -236,6 +242,41 @@ void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper&
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
     status.add("Pending Transactions", pending_transactions_.size());
   }
+}
+
+bool BatchOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  // Tell all the plugins to stop
+  stopPlugins();
+  // Reset the optimizer state
+  {
+    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    optimization_request_ = false;
+  }
+  started_ = false;
+  ignited_ = false;
+  setStartTime(ros::Time(0, 0));
+  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
+  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
+  //         prevent the possibility of deadlocks.
+  {
+    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Clear all pending transactions
+    {
+      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+      pending_transactions_.clear();
+    }
+    // Clear the graph and marginal tracking states
+    graph_->clear();
+    marginal_transaction_ = fuse_core::Transaction();
+    timestamp_tracking_.clear();
+  }
+  // Tell all the plugins to start
+  startPlugins();
+  // Test for auto-start
+  autostart();
+
+  return true;
 }
 
 }  // namespace fuse_optimizers

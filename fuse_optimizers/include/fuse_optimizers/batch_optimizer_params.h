@@ -65,6 +65,11 @@ public:
   ros::Duration optimization_period { 0.1 };
 
   /**
+   * @brief The topic name of the advertised reset service
+   */
+  std::string reset_service { "~reset" };
+
+  /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
    *
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
@@ -96,6 +101,8 @@ public:
       fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
     }
 
+    nh.getParam("reset_service", reset_service);
+    
     fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
 
     fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
