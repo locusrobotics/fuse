@@ -70,7 +70,7 @@ BatchOptimizer::BatchOptimizer(
   // Advertise a service that resets the optimizer to its initial state
   reset_service_server_ = node_handle_.advertiseService(
     ros::names::resolve(params_.reset_service),
-    &FixedLagSmoother::resetServiceCallback,
+    &BatchOptimizer::resetServiceCallback,
     this);
 }
 
@@ -150,16 +150,19 @@ void BatchOptimizer::optimizationLoop()
       const_transaction = std::move(combined_transaction_);
       combined_transaction_ = fuse_core::Transaction::make_shared();
     }
-    // Update the graph
-    graph_->update(*const_transaction);
-    // Optimize the entire graph
-    graph_->optimize(params_.solver_options);
-    // Make a copy of the graph to share
-    fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
-    // Optimization is complete. Notify all the things about the graph changes.
-    notify(const_transaction, const_graph);
-    // Clear the request flag now that this optimization cycle is complete
-    optimization_request_ = false;
+    {
+      std::lock_guard<std::mutex> lock(optimization_mutex_);
+      // Update the graph
+      graph_->update(*const_transaction);
+      // Optimize the entire graph
+      graph_->optimize(params_.solver_options);
+      // Make a copy of the graph to share
+      fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
+      // Optimization is complete. Notify all the things about the graph changes.
+      notify(const_transaction, const_graph);
+      // Clear the request flag now that this optimization cycle is complete
+      optimization_request_ = false;
+    }
   }
 }
 
@@ -254,8 +257,6 @@ bool BatchOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::E
     optimization_request_ = false;
   }
   started_ = false;
-  ignited_ = false;
-  setStartTime(ros::Time(0, 0));
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
@@ -268,13 +269,9 @@ bool BatchOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::E
     }
     // Clear the graph and marginal tracking states
     graph_->clear();
-    marginal_transaction_ = fuse_core::Transaction();
-    timestamp_tracking_.clear();
   }
   // Tell all the plugins to start
   startPlugins();
-  // Test for auto-start
-  autostart();
 
   return true;
 }

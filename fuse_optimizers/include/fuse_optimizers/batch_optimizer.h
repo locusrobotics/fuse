@@ -143,6 +143,7 @@ protected:
    */
   using TransactionQueue = std::multimap<ros::Time, TransactionQueueElement>;
 
+  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
   fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate constraints and variables
                                                             //!< from multiple sensors and motions models before being
                                                             //!< applied to the graph.
