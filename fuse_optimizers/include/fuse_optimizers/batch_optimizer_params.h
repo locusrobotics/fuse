@@ -45,10 +45,8 @@
 #include <string>
 #include <vector>
 
-
 namespace fuse_optimizers
 {
-
 /**
  * @brief Defines the set of parameters required by the fuse_optimizers::FixedLagSmoother class
  */
@@ -102,7 +100,7 @@ public:
     }
 
     nh.getParam("reset_service", reset_service);
-    
+
     fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
 
     fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
