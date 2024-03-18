@@ -190,6 +190,8 @@ protected:
   // Ordering ROS objects with callbacks last
   ros::Timer optimize_timer_;  //!< Trigger an optimization operation at a fixed frequency
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
+  ros::ServiceServer stop_service_server_;  //!< Service that stops and clears the optimizer
+  ros::ServiceServer start_service_server_;  //!< Service that restarts the optimizer
 
   /**
    * @brief Automatically start the smoother if no ignition sensors are specified
@@ -269,6 +271,17 @@ protected:
    * @brief Service callback that resets the optimizer to its original state
    */
   bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+
+  /**
+   * @brief Service callback that stops the optimizer plugins and clears the existing graph. Essentially performs a reset,
+   * but doesn't immediately restart optimization.
+   */
+  bool stopServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+
+  /**
+   * @brief Service callback that starts the optimizer plugins after they have been stopped.
+   */
+  bool startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
 
   /**
    * @brief Thread-safe read-only access to the optimizer start time

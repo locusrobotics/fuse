@@ -107,6 +107,16 @@ FixedLagSmoother::FixedLagSmoother(
     ros::names::resolve(params_.reset_service),
     &FixedLagSmoother::resetServiceCallback,
     this);
+
+  stop_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.stop_service),
+    &FixedLagSmoother::stopServiceCallback,
+    this);
+
+  start_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.start_service),
+    &FixedLagSmoother::startServiceCallback,
+    this);
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -460,6 +470,48 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
   return true;
 }
 
+bool FixedLagSmoother::stopServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  // Tell all the plugins to stop
+  stopPlugins();
+  // Reset the optimizer state
+  {
+    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    optimization_request_ = false;
+  }
+  started_ = false;
+  ignited_ = false;
+  setStartTime(ros::Time(0, 0));
+  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
+  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
+  //         prevent the possibility of deadlocks.
+  {
+    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Clear all pending transactions
+    {
+      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+      pending_transactions_.clear();
+    }
+    // Clear the graph and marginal tracking states
+    graph_->clear();
+    marginal_transaction_ = fuse_core::Transaction();
+    timestamp_tracking_.clear();
+    lag_expiration_ = ros::Time(0, 0);
+  }
+
+  return true;
+}
+
+bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  // Tell all the plugins to start
+  startPlugins();
+  // Test for auto-start
+  autostart();
+
+  return true;
+}
+
 void FixedLagSmoother::transactionCallback(
   const std::string& sensor_name,
   fuse_core::Transaction::SharedPtr transaction)
@@ -497,6 +549,7 @@ void FixedLagSmoother::transactionCallback(
       // ...check if we should
       if (sensor_models_.at(sensor_name).ignition)
       {
+        ROS_INFO_STREAM("Ignition occured");
         started_ = true;
         ignited_ = true;
         start_time = position->minStamp();
