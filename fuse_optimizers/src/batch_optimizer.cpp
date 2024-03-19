@@ -143,13 +143,6 @@ void BatchOptimizer::optimizationLoop()
     {
       break;
     }
-    // Copy the combined transaction so it can be shared with all the plugins
-    fuse_core::Transaction::ConstSharedPtr const_transaction;
-    {
-      std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
-      const_transaction = std::move(combined_transaction_);
-      combined_transaction_ = fuse_core::Transaction::make_shared();
-    }
     {
       std::lock_guard<std::mutex> lock(optimization_mutex_);
       // Copy the combined transaction so it can be shared with all the plugins
