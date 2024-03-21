@@ -40,6 +40,7 @@
 #include <fuse_optimizers/batch_optimizer_params.h>
 #include <fuse_optimizers/optimizer.h>
 #include <ros/ros.h>
+#include <std_srvs/Empty.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -142,6 +143,7 @@ protected:
    */
   using TransactionQueue = std::multimap<ros::Time, TransactionQueueElement>;
 
+  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
   fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate constraints and variables
                                                             //!< from multiple sensors and motions models before being
                                                             //!< applied to the graph.
@@ -159,6 +161,7 @@ protected:
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the pending_transactions_ container
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
+  ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
 
   /**
    * @brief Generate motion model constraints for pending transactions
@@ -209,6 +212,11 @@ protected:
    * @param[in] status The diagnostic status
    */
   void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status) override;
+
+  /**
+   * @brief Service callback that resets the optimizer to its original state
+   */
+  bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
 };
 
 }  // namespace fuse_optimizers
