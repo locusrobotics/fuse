@@ -37,6 +37,7 @@
 #include <fuse_models/common/variable_traits.h>
 
 #include <boost/algorithm/string/case_conv.hpp>
+#include <fuse_core/error_handler.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
@@ -66,7 +67,7 @@ inline void throwDimensionError(const std::string& dimension)
 {
   std::string error = "Dimension " + dimension + " is not valid for this type.";
   ROS_ERROR_STREAM(error);
-  throw std::runtime_error(error);
+  fuse_core::ErrorHandler::getHandler().runtimeError(error);
 }
 
 /**

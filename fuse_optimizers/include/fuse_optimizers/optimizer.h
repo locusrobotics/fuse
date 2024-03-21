@@ -113,6 +113,7 @@ public:
    */
   virtual ~Optimizer();
 
+
 protected:
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type rather annoying
   // as it is not equivalent to Class::UniquePtr
@@ -175,6 +176,13 @@ protected:
   virtual void transactionCallback(
     const std::string& sensor_name,
     fuse_core::Transaction::SharedPtr transaction) = 0;
+
+  // /**
+  //  * @brief Method exposed for resetting the optimizer in the event of an error. Replaces
+  //  *        the need to throw exceptions when things go wrong.
+  //  * @param[in] err_msg A specific error message that gives a reason for the reset
+  //  */
+  // virtual void resetOptimizer(const std::string& err_msg) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server

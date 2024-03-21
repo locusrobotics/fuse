@@ -35,6 +35,7 @@
 #define FUSE_CORE_PARAMETER_H
 
 #include <fuse_core/eigen.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/loss_loader.h>
 
 #include <ros/node_handle.h>
@@ -61,7 +62,7 @@ void getParamRequired(const ros::NodeHandle& nh, const std::string& key, T& valu
   {
     const std::string error = "Could not find required parameter " + key + " in namespace " + nh.getNamespace();
     ROS_FATAL_STREAM(error);
-    throw std::runtime_error(error);
+    fuse_core::ErrorHandler::getHandler().runtimeError(error);
   }
 }
 
@@ -135,14 +136,15 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(const ros::Node
   const auto diagonal_size = diagonal.size();
   if (diagonal_size != Size)
   {
-    throw std::invalid_argument("Invalid size of " + std::to_string(diagonal_size) + ", expected " +
+    ErrorHandler::getHandler().invalidArgument("Invalid size of " + std::to_string(diagonal_size) + ", expected " +
                                 std::to_string(Size));
   }
 
   if (std::any_of(diagonal.begin(), diagonal.end(),
                   [](const auto& value) { return value < Scalar(0); }))  // NOLINT(whitespace/braces)
   {
-    throw std::invalid_argument("Invalid negative diagonal values in " + fuse_core::to_string(Vector(diagonal.data())));
+    ErrorHandler::getHandler().invalidArgument("Invalid negative diagonal values in "
+                                             + fuse_core::to_string(Vector(diagonal.data())));
   }
 
   return Vector(diagonal.data()).asDiagonal();

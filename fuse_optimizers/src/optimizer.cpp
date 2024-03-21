@@ -35,6 +35,7 @@
 #include <fuse_core/graph.h>
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_optimizers/optimizer.h>
 #include <ros/callback_queue.h>
 #include <ros/init.h>
@@ -142,8 +143,9 @@ void Optimizer::loadMotionModels()
         || (!motion_model.hasMember("name"))
         || (!motion_model.hasMember("type")))
       {
-        throw std::invalid_argument("The 'motion_models' parameter should be a list of the form: "
-                                    "-{name: string, type: string}");
+        fuse_core::ErrorHandler::getHandler().invalidArgument("The 'motion_models' parameter should be "
+                                                              "a list of the form: "
+                                                              "-{name: string, type: string}");
       }
 
       motion_model_configs.emplace_back(static_cast<std::string>(motion_model["name"]),
@@ -159,8 +161,9 @@ void Optimizer::loadMotionModels()
       if ( (motion_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!motion_model_config.hasMember("type")))
       {
-        throw std::invalid_argument("The 'motion_models' parameter should be a struct of the form: "
-                                    "{string: {type: string}}");
+        fuse_core::ErrorHandler::getHandler().invalidArgument("The 'motion_models' parameter should be"
+                                                              " a struct of the form: "
+                                                              "{string: {type: string}}");
       }
 
       motion_model_configs.emplace_back(static_cast<std::string>(motion_model.first),
@@ -169,7 +172,7 @@ void Optimizer::loadMotionModels()
   }
   else
   {
-    throw std::invalid_argument("The 'motion_models' parameter should be a list of the form: "
+    fuse_core::ErrorHandler::getHandler().invalidArgument("The 'motion_models' parameter should be a list of the form: "
                                 "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
   }
 
@@ -208,8 +211,10 @@ void Optimizer::loadSensorModels()
         || (!sensor_model.hasMember("name"))
         || (!sensor_model.hasMember("type")))
       {
-        throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
-                                    "-{name: string, type: string, motion_models: [name1, name2, ...]}");
+        fuse_core::ErrorHandler::getHandler().invalidArgument("The 'sensor_models' parameter should be "
+                                                              " a list of the form: "
+                                                              "-{name: string, type: string, "
+                                                              "motion_models: [name1, name2, ...]}");
       }
 
       sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model["name"]),
@@ -226,8 +231,10 @@ void Optimizer::loadSensorModels()
       if ( (sensor_model_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!sensor_model_config.hasMember("type")))
       {
-        throw std::invalid_argument("The 'sensor_models' parameter should be a struct of the form: "
-                                    "{string: {type: string, motion_models: [name1, name2, ...]}}");
+        fuse_core::ErrorHandler::getHandler().invalidArgument("The 'sensor_models' parameter should be "
+                                                              "a struct of the form: "
+                                                              "{string: {type: string, "
+                                                              "motion_models: [name1, name2, ...]}}");
       }
 
       sensor_model_configs.emplace_back(static_cast<std::string>(sensor_model.first),
@@ -236,7 +243,7 @@ void Optimizer::loadSensorModels()
   }
   else
   {
-    throw std::invalid_argument("The 'sensor_models' parameter should be a list of the form: "
+    fuse_core::ErrorHandler::getHandler().invalidArgument("The 'sensor_models' parameter should be a list of the form: "
                                 "-{name: string, type: string, motion_models: [name1, name2, ...]} "
                                 "or a struct of the form: "
                                 "{string: {type: string, motion_models: [name1, name2, ...]}}");
@@ -301,8 +308,9 @@ void Optimizer::loadPublishers()
         || (!publisher.hasMember("name"))
         || (!publisher.hasMember("type")))
       {
-        throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
-                                    "-{name: string, type: string}");
+        fuse_core::ErrorHandler::getHandler().invalidArgument("The 'publishers' parameter should be "
+                                                              "a list of the form: "
+                                                              "-{name: string, type: string}");
       }
 
       publisher_configs.emplace_back(static_cast<std::string>(publisher["name"]),
@@ -319,8 +327,9 @@ void Optimizer::loadPublishers()
       if ( (publisher_config.getType() != XmlRpc::XmlRpcValue::TypeStruct)
         || (!publisher_config.hasMember("type")))
       {
-        throw std::invalid_argument("The 'publishers' parameter should be a struct of the form: "
-                                    "{string: {type: string}}");
+        fuse_core::ErrorHandler::getHandler().invalidArgument("The 'publishers' parameter should be "
+                                                              "a struct of the form: "
+                                                              "{string: {type: string}}");
       }
 
       publisher_configs.emplace_back(static_cast<std::string>(publisher.first),
@@ -329,8 +338,11 @@ void Optimizer::loadPublishers()
   }
   else
   {
-    throw std::invalid_argument("The 'publishers' parameter should be a list of the form: "
-                                "-{name: string, type: string} or a struct of the form: {string: {type: string}}");
+    fuse_core::ErrorHandler::getHandler().invalidArgument("The 'publishers' parameter should be "
+                                                          "a list of the form: "
+                                                          "-{name: string, type: string} or "
+                                                          "a struct of the form: "
+                                                          "{string: {type: string}}");
   }
 
   for (const auto& config : publisher_configs)

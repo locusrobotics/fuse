@@ -35,6 +35,7 @@
 #include <fuse_constraints/marginalize_variables.h>
 #include <fuse_constraints/uuid_ordering.h>
 #include <fuse_constraints/variable_constraints.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/uuid.h>
 
 #include <boost/iterator/transform_iterator.hpp>
@@ -147,7 +148,7 @@ UuidOrdering computeEliminationOrder(
     variable_groups.data());
   if (!success)
   {
-    throw std::runtime_error("Failed to call CCOLAMD to generate the elimination order.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Failed to call CCOLAMD to generate the elimination order.");
   }
 
   // Extract the elimination order from CCOLAMD.
@@ -321,7 +322,8 @@ LinearTerm linearize(
   }
   if (!success)
   {
-    throw std::runtime_error("Error in evaluating the cost function. There are two possible reasons. "
+    fuse_core::ErrorHandler::getHandler().runtimeError("Error in evaluating the cost function. "
+                             "There are two possible reasons. "
                              "Either the CostFunction did not evaluate and fill all residual and jacobians "
                              "that were requested or there was a non-finite value (nan/infinite) generated "
                              "during the jacobian computation.");

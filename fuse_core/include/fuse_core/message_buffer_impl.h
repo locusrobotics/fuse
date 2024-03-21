@@ -34,6 +34,7 @@
 #ifndef FUSE_CORE_MESSAGE_BUFFER_IMPL_H
 #define FUSE_CORE_MESSAGE_BUFFER_IMPL_H
 
+#include <fuse_core/error_handler.h>
 #include <ros/duration.h>
 #include <ros/time.h>
 
@@ -74,8 +75,9 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
     beginning_time_ss << beginning_stamp;
     std::stringstream ending_time_ss;
     ending_time_ss << ending_stamp;
-    throw std::invalid_argument("The beginning_stamp (" + beginning_time_ss.str() + ") must be less than or equal to "
-                                "the ending_stamp (" + ending_time_ss.str() + ").");
+    ErrorHandler::getHandler().invalidArgument("The beginning_stamp (" + beginning_time_ss.str() +
+                                             ") must be less than or equal to "
+                                             "the ending_stamp (" + ending_time_ss.str() + ").");
   }
   // Verify the query is within the bounds of the buffer
   if (buffer_.empty() || (beginning_stamp < buffer_.front().first) || (ending_stamp > buffer_.back().first))
@@ -91,8 +93,9 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
     {
       available_time_range_ss << "(" << buffer_.front().first << ", " << buffer_.back().first << ")";
     }
-    throw std::out_of_range("The requested time range " + requested_time_range_ss.str() + " is outside the available "
-                            "time range " + available_time_range_ss.str() + ".");
+    ErrorHandler::getHandler().outOfRangeError("The requested time range "
+                                            + requested_time_range_ss.str() + " is outside the available "
+                                            "time range " + available_time_range_ss.str() + ".");
   }
   // Find the entry that is strictly greater than the requested beginning stamp. If the extended range flag is true,
   // we will then back up one entry.

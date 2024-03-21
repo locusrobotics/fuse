@@ -40,6 +40,7 @@
 #include <fuse_core/async_motion_model.h>
 #include <fuse_core/constraint.h>
 #include <fuse_core/transaction.h>
+#include <fuse_core/error_handler.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -99,13 +100,13 @@ inline void validateCovariance(const Eigen::DenseBase<Derived>& covariance,
 {
   if (!fuse_core::isSymmetric(covariance, precision))
   {
-    throw std::runtime_error("Non-symmetric partial covariance matrix\n" +
+    fuse_core::ErrorHandler::getHandler().runtimeError("Non-symmetric partial covariance matrix\n" +
                              fuse_core::to_string(covariance, Eigen::FullPrecision));
   }
 
   if (!fuse_core::isPositiveDefinite(covariance))
   {
-    throw std::runtime_error("Non-positive-definite partial covariance matrix\n" +
+    fuse_core::ErrorHandler::getHandler().runtimeError("Non-positive-definite partial covariance matrix\n" +
                              fuse_core::to_string(covariance, Eigen::FullPrecision));
   }
 }
@@ -150,22 +151,23 @@ void Unicycle2D::StateHistoryElement::validate() const
 {
   if (!std::isfinite(pose))
   {
-    throw std::runtime_error("Invalid pose " + std::to_string(pose));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid pose " + std::to_string(pose));
   }
 
   if (!std::isfinite(velocity_linear))
   {
-    throw std::runtime_error("Invalid linear velocity " + std::to_string(velocity_linear));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid linear velocity " + std::to_string(velocity_linear));
   }
 
   if (!std::isfinite(velocity_yaw))
   {
-    throw std::runtime_error("Invalid yaw velocity " + std::to_string(velocity_yaw));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid yaw velocity " + std::to_string(velocity_yaw));
   }
 
   if (!std::isfinite(acceleration_linear))
   {
-    throw std::runtime_error("Invalid linear acceleration " + std::to_string(acceleration_linear));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid linear acceleration "
+                                                       + std::to_string(acceleration_linear));
   }
 }
 
@@ -198,7 +200,7 @@ void Unicycle2D::onInit()
 
   if (process_noise_diagonal.size() != 8)
   {
-    throw std::runtime_error("Process noise diagonal must be of length 8!");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Process noise diagonal must be of length 8!");
   }
 
   process_noise_covariance_ = fuse_core::Vector8d(process_noise_diagonal.data()).asDiagonal();
@@ -213,7 +215,8 @@ void Unicycle2D::onInit()
 
   if (buffer_length < 0.0)
   {
-    throw std::runtime_error("Invalid negative buffer length of " + std::to_string(buffer_length) + " specified.");
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid negative buffer length of "
+                                                        + std::to_string(buffer_length) + " specified.");
   }
 
   buffer_length_ = (buffer_length == 0.0) ? ros::DURATION_MAX : ros::Duration(buffer_length);
@@ -488,7 +491,7 @@ void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const St
   }
   catch (const std::runtime_error& ex)
   {
-    throw std::runtime_error("Invalid state #1: " + std::string(ex.what()));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid state #1: " + std::string(ex.what()));
   }
 
   try
@@ -497,7 +500,7 @@ void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const St
   }
   catch (const std::runtime_error& ex)
   {
-    throw std::runtime_error("Invalid state #2: " + std::string(ex.what()));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid state #2: " + std::string(ex.what()));
   }
 
   try
@@ -506,7 +509,7 @@ void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const St
   }
   catch (const std::runtime_error& ex)
   {
-    throw std::runtime_error("Invalid process noise covariance: " + std::string(ex.what()));
+    fuse_core::ErrorHandler::getHandler().runtimeError("Invalid process noise covariance: " + std::string(ex.what()));
   }
 }
 

@@ -286,6 +286,28 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD_REQUIRED YES
   )
 
+  # Error handler tests
+  catkin_add_gtest(test_error_handler
+    test/test_error_handler.cpp
+  )
+  add_dependencies(test_error_handler
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_error_handler
+    PRIVATE
+      include
+      ${Boost_INCLUDE_DIRS}
+      ${catkin_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_error_handler
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_error_handler
+    PROPERTIES
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
   # Local Parameterization tests
   catkin_add_gtest(test_local_parameterization
     test/test_local_parameterization.cpp
