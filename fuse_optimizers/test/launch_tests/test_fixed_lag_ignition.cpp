@@ -131,6 +131,11 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   pose_msg1.pose.covariance[35] = 1.0;
   relative_pose_publisher->publish(pose_msg1);
 
+  /// @todo(swilliams) There is a timing or message queuing issue. This sleep "solves"
+  ///                  the problem on my local machine, but this isn't a very robust
+  ///                  solution.
+  rclcpp::sleep_for(std::chrono::milliseconds(10));
+
   auto pose_msg2 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg2.header.stamp = rclcpp::Time(3, 0, RCL_ROS_TIME);
   pose_msg2.header.frame_id = "base_link";
@@ -145,6 +150,8 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   pose_msg2.pose.covariance[7] = 1.0;
   pose_msg2.pose.covariance[35] = 1.0;
   relative_pose_publisher->publish(pose_msg2);
+
+  rclcpp::sleep_for(std::chrono::milliseconds(10));
 
   // Wait for the optimizer to process all queued transactions
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(1.0);

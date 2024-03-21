@@ -66,6 +66,11 @@ public:
   rclcpp::Duration optimization_period {0, static_cast<uint32_t>(RCUTILS_S_TO_NS(0.1))};
 
   /**
+   * @brief The topic name of the advertised reset service
+   */
+  std::string reset_service {"~reset"};
+
+  /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
    *
    * Transactions are processed sequentially, so no new transactions will be added to the graph
@@ -108,6 +113,8 @@ public:
       optimization_period =
         rclcpp::Duration::from_seconds(1.0 / optimization_frequency);
     }
+
+    reset_service = fuse_core::getParam(interfaces, "reset_service", reset_service);
 
     fuse_core::getPositiveParam(interfaces, "transaction_timeout", transaction_timeout);
 
