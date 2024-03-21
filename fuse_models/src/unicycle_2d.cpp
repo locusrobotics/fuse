@@ -205,7 +205,6 @@ void Unicycle2D::onInit()
 
   private_node_handle_.param("scale_process_noise", scale_process_noise_, scale_process_noise_);
   private_node_handle_.param("velocity_norm_min", velocity_norm_min_, velocity_norm_min_);
-
   private_node_handle_.param("disable_checks", disable_checks_, disable_checks_);
 
   double buffer_length = 3.0;
@@ -348,8 +347,16 @@ void Unicycle2D::generateMotionModel(
   state_history_.emplace(beginning_stamp, std::move(state1));
   state_history_.emplace(ending_stamp, std::move(state2));
 
-  // Scale process noise covariance pose by the norm of the current state twist
   auto process_noise_covariance = process_noise_covariance_;
+
+  // Rotate the process noise covariance with the yaw angle of the current state orientation
+  const auto rotation_matrix = Eigen::Rotation2Dd(state1.pose.yaw()).toRotationMatrix();
+  // Apply only to x and y position as the other state variables are already along the
+  // current state orientation
+  process_noise_covariance.topLeftCorner<2, 2>() =
+    rotation_matrix * process_noise_covariance.topLeftCorner<2, 2>() * rotation_matrix.transpose();
+
+  // Scale process noise covariance pose by the norm of the current state twist
   if (scale_process_noise_)
   {
     common::scaleProcessNoiseCovariance(process_noise_covariance, state1.velocity_linear, state1.velocity_yaw,
@@ -367,7 +374,7 @@ void Unicycle2D::generateMotionModel(
     }
     catch (const std::runtime_error& ex)
     {
-      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid '" << name_ << "' motion model: " << ex.what());
+      ROS_ERROR_STREAM_THROTTLE(10.0, "Invalid '" << name() << "' motion model: " << ex.what());
       return;
     }
   }

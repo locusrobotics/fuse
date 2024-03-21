@@ -178,7 +178,7 @@ protected:
    *
    * @param[in] state1                   The first/oldest state
    * @param[in] state2                   The second/newest state
-   * @param[in] process_noise_covariance The process noise covariance, after it is scaled and multiplied by dt
+   * @param[in] process_noise_covariance The process noise covariance, after it is rotated, scaled and multiplied by dt
    */
   static void validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
                                   const fuse_core::Matrix8d& process_noise_covariance);

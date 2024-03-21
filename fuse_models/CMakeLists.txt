@@ -154,13 +154,14 @@ if(CATKIN_ENABLE_TESTING)
   roslint_add_test()
 
   # Model tests
-  catkin_add_gtest(test_unicycle_2d
+  add_rostest_gtest(
+    test_unicycle_2d
+    test/unicycle_2d.test
     test/test_unicycle_2d.cpp
   )
   target_link_libraries(test_unicycle_2d
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
   )
   set_target_properties(test_unicycle_2d
     PROPERTIES
