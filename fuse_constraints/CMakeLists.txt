@@ -45,6 +45,9 @@ add_library(${PROJECT_NAME}
   src/absolute_pose_2d_stamped_constraint.cpp
   src/absolute_pose_3d_stamped_constraint.cpp
   src/fixed_3d_landmark_constraint.cpp
+  src/fixed_3d_landmark_simple_covariance_constraint.cpp
+  src/reprojection_error_constraint.cpp
+  src/reprojection_error_snavelly_constraint.cpp
   src/marginal_constraint.cpp
   src/marginal_cost_function.cpp
   src/marginalize_variables.cpp
@@ -261,6 +264,79 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
   set_target_properties(test_fixed_3d_landmark_constraint
+    PROPERTIES
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Reprojection Error Constraint Tests
+  catkin_add_gtest(test_reprojection_error_constraint
+    test/test_reprojection_error_constraint.cpp
+  )
+  add_dependencies(test_reprojection_error_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_reprojection_error_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_reprojection_error_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_reprojection_error_constraint
+    PROPERTIES
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Reprojection Error Snavelly Constraint Tests
+  catkin_add_gtest(test_reprojection_error_snavelly_constraint
+    test/test_reprojection_error_snavelly_constraint.cpp
+  )
+  add_dependencies(test_reprojection_error_snavelly_constraint
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_reprojection_error_snavelly_constraint
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_reprojection_error_snavelly_constraint
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_reprojection_error_snavelly_constraint
+    PROPERTIES
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # BAL Problem Tests
+  catkin_add_gtest(test_bal_problem
+    test/test_bal_problem.cpp
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
+  )
+  add_dependencies(test_bal_problem
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_bal_problem
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_bal_problem
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_bal_problem
     PROPERTIES
       CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
