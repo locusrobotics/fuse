@@ -93,6 +93,15 @@ FixedLagSmoother::FixedLagSmoother(
   // Test for auto-start
   autostart();
 
+  // Advertise a service that resets the optimizer to its initial state
+  reset_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.reset_service),
+    &FixedLagSmoother::resetServiceCallback,
+    this);
+}
+
+void FixedLagSmoother::startOptimization()
+{
   // Start the optimization thread
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
@@ -100,12 +109,6 @@ FixedLagSmoother::FixedLagSmoother(
   optimize_timer_ = node_handle_.createTimer(
     params_.optimization_period,
     &FixedLagSmoother::optimizerTimerCallback,
-    this);
-
-  // Advertise a service that resets the optimizer to its initial state
-  reset_service_server_ = node_handle_.advertiseService(
-    ros::names::resolve(params_.reset_service),
-    &FixedLagSmoother::resetServiceCallback,
     this);
 }
 

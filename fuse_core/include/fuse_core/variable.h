@@ -325,7 +325,7 @@ public:
    * @param[in] index The variable dimension of interest
    * @return The lower bound for the requested variable dimension
    */
-  virtual double lowerBound(size_t index) const
+  virtual double lowerBound(size_t /* index */) const
   {
     return std::numeric_limits<double>::lowest();
   }
@@ -338,7 +338,7 @@ public:
    * @param[in] index The variable dimension of interest
    * @return The upper bound for the requested variable dimension
    */
-  virtual double upperBound(size_t index) const
+  virtual double upperBound(size_t /* index */) const
   {
     return std::numeric_limits<double>::max();
   }

@@ -126,6 +126,8 @@ public:
    */
   virtual ~FixedLagSmoother();
 
+  virtual void startOptimization();
+
 protected:
   /**
    * Structure containing the information required to process a transaction after it was received.
