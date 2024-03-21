@@ -1,0 +1,6 @@
+gazebo_ros_control:
+  pid_gains:
+    wheel_0_joint:
+      p: &p 100.0
+    wheel_1_joint:
+      p: *p

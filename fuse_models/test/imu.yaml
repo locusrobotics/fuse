@@ -1,0 +1,7 @@
+imu:
+  topic: /imu
+  angular_velocity_dimensions: ['yaw']
+  differential: true
+  orientation_dimensions: ['yaw']
+  orientation_target_frame: &target_frame base_link
+  twist_target_frame: *target_frame

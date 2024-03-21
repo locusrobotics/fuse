@@ -1,0 +1,30 @@
+<launch>
+  <arg name="gui" default="false"/>
+
+  <!-- Start world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+  <!-- Load diffbot model -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro '$(find fuse_models)/test/diffbot.xacro'"/>
+
+  <!-- Load diffbot config, e.g. PID gains -->
+  <rosparam command="load" file="$(find fuse_models)/test/diffbot.yaml"/>
+
+  <!-- Spawn diffbot robot in gazebo -->
+  <node name="spawn_diffbot" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param robot_description -model diffbot -z 0.5"/>
+
+  <!-- Load controller config -->
+  <rosparam command="load" file="$(find fuse_models)/test/diffbot_controllers.yaml"/>
+
+  <!-- Spawn controller -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        args="joint_state_controller
+              diffbot_controller"/>
+
+  <!-- Convert joint states to TF transforms -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+</launch>
