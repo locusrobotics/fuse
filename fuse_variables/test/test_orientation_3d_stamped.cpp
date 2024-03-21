@@ -31,8 +31,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/serialization.h>
+#if CERES_SUPPORTS_MANIFOLDS
+#include <ceres/autodiff_manifold.h>
+#else
 #include <fuse_core/autodiff_local_parameterization.h>
+#endif
 #include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/stamped.h>
@@ -107,9 +112,41 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
+template <typename T>
+inline static void QuaternionInverse(const T in[4], T out[4])
+{
+  out[0] = in[0];
+  out[1] = -in[1];
+  out[2] = -in[2];
+  out[3] = -in[3];
+}
+
+#if CERES_SUPPORTS_MANIFOLDS
+struct Orientation3DFunctor
+{
+  template <typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
+  {
+    T q_delta[4];
+    ceres::AngleAxisToQuaternion(delta, q_delta);
+    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    return true;
+  }
+  template <typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
+  {
+    T x_inverse[4];
+    QuaternionInverse(x, x_inverse);
+    T q_delta[4];
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    return true;
+  }
+};
+#else
 struct Orientation3DPlus
 {
-  template<typename T>
+  template <typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     T q_delta[4];
@@ -121,27 +158,33 @@ struct Orientation3DPlus
 
 struct Orientation3DMinus
 {
-  template<typename T>
-  bool operator()(const T* q1, const T* q2, T* delta) const
+  template <typename T>
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
-    T q1_inverse[4];
-    q1_inverse[0] = q1[0];
-    q1_inverse[1] = -q1[1];
-    q1_inverse[2] = -q1[2];
-    q1_inverse[3] = -q1[3];
+    T x_inverse[4];
+    QuaternionInverse(x, x_inverse);
     T q_delta[4];
-    ceres::QuaternionProduct(q1_inverse, q2, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, delta);
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
     return true;
   }
 };
+#endif
 
-using Orientation3DLocalParameterization =
-    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+using Orientation3DAutoDiff =
+#if CERES_SUPPORTS_MANIFOLDS
+ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3>;
+#else
+fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+#endif
 
 TEST(Orientation3DStamped, Plus)
 {
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
 
   double x[4] = {0.842614977, 0.2, 0.3, 0.4};
   double delta[3] = {0.15, -0.2, 0.433012702};
@@ -159,12 +202,17 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-
   double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
   double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
   double result[3] = {0.0, 0.0, 0.0};
+
+#if !CERES_SUPPORTS_MANIFOLDS
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
   bool success = parameterization->Minus(x1, x2, result);
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+  bool success = parameterization->Minus(x2, x1, result);
+#endif
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.15, result[0], 1.0e-5);
@@ -176,8 +224,12 @@ TEST(Orientation3DStamped, Minus)
 
 TEST(Orientation3DStamped, PlusJacobian)
 {
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-  auto reference = Orientation3DLocalParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
+  auto reference = Orientation3DAutoDiff();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
@@ -193,14 +245,22 @@ TEST(Orientation3DStamped, PlusJacobian)
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0;
+#if !CERES_SUPPORTS_MANIFOLDS
         bool success = parameterization->ComputeJacobian(x, actual.data());
+#else
+        bool success = parameterization->PlusJacobian(x, actual.data());
+#endif
 
         fuse_core::MatrixXd expected(4, 3);
         expected << 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0;
+#if !CERES_SUPPORTS_MANIFOLDS
         reference.ComputeJacobian(x, expected.data());
+#else
+        reference.PlusJacobian(x, expected.data());
+#endif
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
@@ -217,8 +277,12 @@ TEST(Orientation3DStamped, PlusJacobian)
 
 TEST(Orientation3DStamped, MinusJacobian)
 {
+#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-  auto reference = Orientation3DLocalParameterization();
+#else
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
+#endif
+  auto reference = Orientation3DAutoDiff();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
@@ -233,13 +297,21 @@ TEST(Orientation3DStamped, MinusJacobian)
         actual << 0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0;
+#if !CERES_SUPPORTS_MANIFOLDS
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
+#else
+        bool success = parameterization->MinusJacobian(x, actual.data());
+#endif
 
         fuse_core::MatrixXd expected(3, 4);
         expected << 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0;
+#if !CERES_SUPPORTS_MANIFOLDS
         reference.ComputeMinusJacobian(x, expected.data());
+#else
+        reference.MinusJacobian(x, expected.data());
+#endif
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
@@ -329,10 +401,17 @@ TEST(Orientation3DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
+#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(
     orientation.data(),
     orientation.size(),
     orientation.localParameterization());
+#else
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.manifold());
+#endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(

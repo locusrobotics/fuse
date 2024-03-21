@@ -125,8 +125,7 @@ TEST(Position2DStamped, Optimization)
   ceres::Problem problem;
   problem.AddParameterBlock(
     position.data(),
-    position.size(),
-    position.localParameterization());
+    position.size());
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position.data());
   problem.AddResidualBlock(

@@ -127,8 +127,7 @@ TEST(VelocityAngular3DStamped, Optimization)
   ceres::Problem problem;
   problem.AddParameterBlock(
     velocity.data(),
-    velocity.size(),
-    velocity.localParameterization());
+    velocity.size());
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(velocity.data());
   problem.AddResidualBlock(

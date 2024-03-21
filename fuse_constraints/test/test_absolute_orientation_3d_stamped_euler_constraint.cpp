@@ -120,7 +120,11 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationFull)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
@@ -190,7 +194,11 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, OptimizationPartial)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());

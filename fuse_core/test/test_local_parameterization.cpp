@@ -31,16 +31,19 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/autodiff_local_parameterization.h>
+#include <fuse_core/ceres_macros.h>
+
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
 
 #include <gtest/gtest.h>
 
+#if !CERES_SUPPORTS_MANIFOLDS
+#include <fuse_core/autodiff_local_parameterization.h>
 
 struct Plus
 {
-  template<typename T>
+  template <typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
@@ -52,25 +55,24 @@ struct Plus
 
 struct Minus
 {
-  template<typename T>
-  bool operator()(const T* x1, const T* x2, T* delta) const
+  template <typename T>
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
-    delta[0] = (x2[0] - x1[0]) / 2.0;
-    delta[1] = (x2[1] - x1[1]) / 5.0;
+    y_minus_x[0] = (y[0] - x[0]) / 2.0;
+    y_minus_x[1] = (y[1] - x[1]) / 5.0;
     return true;
   }
 };
 
 using TestLocalParameterization = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 
-
 TEST(LocalParameterization, Plus)
 {
   TestLocalParameterization parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
-  double delta[2] = {0.5, 1.0};
-  double actual[3] = {0.0, 0.0, 0.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
+  double delta[2] = { 0.5, 1.0 };
+  double actual[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization.Plus(x, delta, actual);
 
   EXPECT_TRUE(success);
@@ -83,14 +85,12 @@ TEST(LocalParameterization, PlusJacobian)
 {
   TestLocalParameterization parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(3, 2);
   bool success = parameterization.ComputeJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(3, 2);
-  expected << 2.0, 0.0,
-              0.0, 5.0,
-              0.0, 0.0;
+  expected << 2.0, 0.0, 0.0, 5.0, 0.0, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
@@ -100,9 +100,9 @@ TEST(LocalParameterization, Minus)
 {
   TestLocalParameterization parameterization;
 
-  double x1[3] = {1.0, 2.0, 3.0};
-  double x2[3] = {2.0, 7.0, 3.0};
-  double actual[2] = {0.0, 0.0};
+  double x1[3] = { 1.0, 2.0, 3.0 };
+  double x2[3] = { 2.0, 7.0, 3.0 };
+  double actual[2] = { 0.0, 0.0 };
   bool success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);
@@ -114,19 +114,52 @@ TEST(LocalParameterization, MinusJacobian)
 {
   TestLocalParameterization parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(2, 3);
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(2, 3);
-  expected << 0.5, 0.0, 0.0,
-              0.0, 0.2, 0.0;
+  expected << 0.5, 0.0, 0.0, 0.0, 0.2, 0.0;
 
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
 }
 
-int main(int argc, char **argv)
+TEST(LocalParameterization, MinusSameVariablesIsZero)
+{
+  TestLocalParameterization parameterization;
+
+  double x1[3] = { 1.0, 2.0, 3.0 };
+  double actual[2] = { 0.0, 0.0 };
+  bool success = parameterization.Minus(x1, x1, actual);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.0, actual[0], 1.0e-5);
+  EXPECT_NEAR(0.0, actual[1], 1.0e-5);
+}
+
+TEST(LocalParameterization, PlusMinus)
+{
+  TestLocalParameterization parameterization;
+
+  const double x1[3] = { 1.0, 2.0, 3.0 };
+  const double delta[2] = { 0.5, 1.0 };
+  double x2[3] = { 0.0, 0.0, 0.0 };
+  bool success = parameterization.Plus(x1, delta, x2);
+
+  ASSERT_TRUE(success);
+
+  double actual[2] = { 0.0, 0.0 };
+  success = parameterization.Minus(x1, x2, actual);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(delta[0], actual[0], 1.0e-5);
+  EXPECT_NEAR(delta[1], actual[1], 1.0e-5);
+}
+
+#endif
+
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

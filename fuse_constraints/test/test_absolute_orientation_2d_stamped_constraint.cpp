@@ -39,10 +39,10 @@
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <geometry_msgs/Quaternion.h>
 
+#include <Eigen/Geometry>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
-#include <Eigen/Geometry>
 #include <gtest/gtest.h>
 
 #include <utility>
@@ -50,7 +50,6 @@
 
 using fuse_constraints::AbsoluteOrientation2DStampedConstraint;
 using fuse_variables::Orientation2DStamped;
-
 
 TEST(AbsoluteOrientation2DStampedConstraint, Constructor)
 {
@@ -75,7 +74,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, Covariance)
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix1d expected_sqrt_info;
-  expected_sqrt_info <<  1.0;
+  expected_sqrt_info << 1.0;
   fuse_core::Matrix1d expected_cov = cov;
 
   // Compare
@@ -96,11 +95,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, Optimization)
 
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
-    "test",
-    *orientation_variable,
-    mean,
-    cov);
+  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared("test", *orientation_variable, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
@@ -109,14 +104,15 @@ TEST(AbsoluteOrientation2DStampedConstraint, Optimization)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
-  problem.AddResidualBlock(
-    constraint->costFunction(),
-    constraint->lossFunction(),
-    parameter_blocks);
+  problem.AddResidualBlock(constraint->costFunction(), constraint->lossFunction(), parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -128,14 +124,16 @@ TEST(AbsoluteOrientation2DStampedConstraint, Optimization)
   EXPECT_NEAR(1.0, orientation_variable->getYaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double*, const double*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
   fuse_core::Matrix1d actual_covariance(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    orientation_variable->data(), orientation_variable->data(), actual_covariance.data());
+    orientation_variable->data(),
+    orientation_variable->data(),
+    actual_covariance.data());
 
   // Define the expected covariance
   fuse_core::Matrix1d expected_covariance;
@@ -158,11 +156,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationZero)
 
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
-    "test",
-    *orientation_variable,
-    mean,
-    cov);
+  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared("test", *orientation_variable, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
@@ -171,14 +165,15 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationZero)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
-  problem.AddResidualBlock(
-    constraint->costFunction(),
-    constraint->lossFunction(),
-    parameter_blocks);
+  problem.AddResidualBlock(constraint->costFunction(), constraint->lossFunction(), parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -190,14 +185,16 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationZero)
   EXPECT_NEAR(0.0, orientation_variable->getYaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double*, const double*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
   fuse_core::Matrix1d actual_covariance(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    orientation_variable->data(), orientation_variable->data(), actual_covariance.data());
+    orientation_variable->data(),
+    orientation_variable->data(),
+    actual_covariance.data());
 
   // Define the expected covariance
   fuse_core::Matrix1d expected_covariance;
@@ -220,11 +217,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationPositivePi)
 
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
-    "test",
-    *orientation_variable,
-    mean,
-    cov);
+  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared("test", *orientation_variable, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
@@ -233,14 +226,15 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationPositivePi)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
-  problem.AddResidualBlock(
-    constraint->costFunction(),
-    constraint->lossFunction(),
-    parameter_blocks);
+  problem.AddResidualBlock(constraint->costFunction(), constraint->lossFunction(), parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -253,14 +247,16 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationPositivePi)
   EXPECT_NEAR(-M_PI, orientation_variable->getYaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double*, const double*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
   fuse_core::Matrix1d actual_covariance(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    orientation_variable->data(), orientation_variable->data(), actual_covariance.data());
+    orientation_variable->data(),
+    orientation_variable->data(),
+    actual_covariance.data());
 
   // Define the expected covariance
   fuse_core::Matrix1d expected_covariance;
@@ -283,11 +279,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationNegativePi)
 
   fuse_core::Matrix1d cov;
   cov << 1.0;
-  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
-    "test",
-    *orientation_variable,
-    mean,
-    cov);
+  auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared("test", *orientation_variable, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
@@ -296,14 +288,15 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationNegativePi)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
-  problem.AddResidualBlock(
-    constraint->costFunction(),
-    constraint->lossFunction(),
-    parameter_blocks);
+  problem.AddResidualBlock(constraint->costFunction(), constraint->lossFunction(), parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -315,14 +308,16 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationNegativePi)
   EXPECT_NEAR(-M_PI, orientation_variable->getYaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  std::vector<std::pair<const double*, const double*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
   covariance.Compute(covariance_blocks, &problem);
   fuse_core::Matrix1d actual_covariance(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    orientation_variable->data(), orientation_variable->data(), actual_covariance.data());
+    orientation_variable->data(),
+    orientation_variable->data(),
+    actual_covariance.data());
 
   // Define the expected covariance
   fuse_core::Matrix1d expected_covariance;
@@ -361,7 +356,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, Serialization)
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

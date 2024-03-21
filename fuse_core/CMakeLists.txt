@@ -58,6 +58,9 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
     ${CERES_INCLUDE_DIRS}
@@ -86,6 +89,9 @@ add_dependencies(fuse_echo
 target_include_directories(fuse_echo
   PUBLIC
     include
+)
+target_include_directories(fuse_echo
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(fuse_echo
