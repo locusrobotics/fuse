@@ -28,7 +28,8 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+# disabling until deprecated ceres::Problem::Options::local_parameterization_ownership is resolved
+add_compile_options(-Wall)  # -Werror)
 
 ## fuse_graphs library
 add_library(${PROJECT_NAME}

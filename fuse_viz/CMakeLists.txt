@@ -33,7 +33,8 @@ add_definitions(-DQT_NO_KEYWORDS)
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+# add_compile_options(-Wall -Werror)
+add_compile_options(-Wall)
 
 catkin_package(
   INCLUDE_DIRS include
