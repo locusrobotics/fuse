@@ -39,6 +39,7 @@
 #include <utility>
 
 #include <fuse_core/transaction.hpp>
+#include <fuse_core/util.hpp>
 #include <fuse_optimizers/batch_optimizer.hpp>
 #include <fuse_optimizers/optimizer.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -52,10 +53,10 @@ BatchOptimizer::BatchOptimizer(
   fuse_core::Graph::UniquePtr graph
 )
 : fuse_optimizers::Optimizer(interfaces, std::move(graph)),
-  combined_transaction_(fuse_core::Transaction::make_shared()),
-  optimization_request_(false),
   start_time_(rclcpp::Time::max()),
-  started_(false)
+  started_(false),
+  optimization_request_(false),
+  combined_transaction_(fuse_core::Transaction::make_shared())
 {
   params_.loadFromROS(interfaces_);
 
@@ -65,6 +66,23 @@ BatchOptimizer::BatchOptimizer(
     clock_,
     params_.optimization_period,
     std::bind(&BatchOptimizer::optimizerTimerCallback, this),
+    interfaces_.get_node_base_interface()->get_default_callback_group()
+  );
+
+  // Advertise a service that resets the optimizer to its initial state
+  reset_service_server_ = rclcpp::create_service<std_srvs::srv::Empty>(
+    interfaces_.get_node_base_interface(),
+    interfaces_.get_node_services_interface(),
+    fuse_core::joinTopicName(
+      interfaces_.get_node_base_interface()->get_name(),
+      params_.reset_service),
+    std::bind(
+      &BatchOptimizer::resetServiceCallback,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2
+    ),
+    rclcpp::ServicesQoS(),
     interfaces_.get_node_base_interface()->get_default_callback_group()
   );
 
@@ -148,23 +166,27 @@ void BatchOptimizer::optimizationLoop()
     if (!interfaces_.get_node_base_interface()->get_context()->is_valid()) {
       break;
     }
-    // Copy the combined transaction so it can be shared with all the plugins
-    fuse_core::Transaction::ConstSharedPtr const_transaction;
+
     {
-      std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
-      const_transaction = std::move(combined_transaction_);
-      combined_transaction_ = fuse_core::Transaction::make_shared();
+      std::lock_guard<std::mutex> lock(optimization_mutex_);
+      // Copy the combined transaction so it can be shared with all the plugins
+      fuse_core::Transaction::ConstSharedPtr const_transaction;
+      {
+        std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
+        const_transaction = std::move(combined_transaction_);
+        combined_transaction_ = fuse_core::Transaction::make_shared();
+      }
+      // Update the graph
+      graph_->update(*const_transaction);
+      // Optimize the entire graph
+      graph_->optimize(params_.solver_options);
+      // Make a copy of the graph to share
+      fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
+      // Optimization is complete. Notify all the things about the graph changes.
+      notify(const_transaction, const_graph);
+      // Clear the request flag now that this optimization cycle is complete
+      optimization_request_ = false;
     }
-    // Update the graph
-    graph_->update(*const_transaction);
-    // Optimize the entire graph
-    graph_->optimize(params_.solver_options);
-    // Make a copy of the graph to share
-    fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
-    // Optimization is complete. Notify all the things about the graph changes.
-    notify(const_transaction, const_graph);
-    // Clear the request flag now that this optimization cycle is complete
-    optimization_request_ = false;
   }
 }
 
@@ -187,6 +209,48 @@ void BatchOptimizer::optimizerTimerCallback()
   if (optimization_request_) {
     optimization_requested_.notify_one();
   }
+}
+
+bool BatchOptimizer::resetServiceCallback(
+  const std::shared_ptr<std_srvs::srv::Empty::Request>,
+  std::shared_ptr<std_srvs::srv::Empty::Response>
+)
+{
+  // Tell all the plugins to stop
+  stopPlugins();
+  // Reset the optimizer state
+  {
+    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    optimization_request_ = false;
+  }
+  started_ = false;
+  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
+  //         combined_transaction_mutex_ lock at the same time. We perform a parallel locking scheme
+  //         here to prevent the possibility of deadlocks.
+  {
+    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Clear the combined transation
+    {
+      std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
+      combined_transaction_ = fuse_core::Transaction::make_shared();
+    }
+    // Clear the graph and marginal tracking states
+    graph_->clear();
+  }
+  // Clear all pending transactions
+  // The transaction callback and the optimization timer callback are the only other locations
+  // where the pending_transactions_ variable is modified. As long as the BatchOptimizer node
+  // handle is single-threaded, then pending_transactions_ variable cannot be modified while the
+  // reset callback is running. Therefore, there are no timing or sequence issues with exactly
+  // where inside the reset service callback the pending_transactions_ are cleared.
+  {
+    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    pending_transactions_.clear();
+  }
+  // Tell all the plugins to start
+  startPlugins();
+
+  return true;
 }
 
 void BatchOptimizer::transactionCallback(

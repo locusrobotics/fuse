@@ -38,6 +38,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
@@ -51,6 +52,9 @@
 #include <fuse_optimizers/batch_optimizer_params.hpp>
 #include <fuse_optimizers/optimizer.hpp>
 #include <fuse_graphs/hash_graph.hpp>
+
+#include <rclcpp/rclcpp.hpp>
+#include <std_srvs/srv/empty.hpp>
 
 
 namespace fuse_optimizers
@@ -147,30 +151,49 @@ protected:
    */
   using TransactionQueue = std::multimap<rclcpp::Time, TransactionQueueElement>;
 
+  // Read-only after construction
+  ParameterType params_;  //!< Configuration settings for this optimizer
+  std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
+
+  // Only used inside a single thread
+  rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an
+                  //!< ignition sensor
+
+  // Inherently thread-safe
+  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
+
+  // Guarded by optimization_mutex_
+  std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
+  // fuse_core::Graph* graph_ member from the base class
+
+  // Guarded by optimization_requested_mutex_
+  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization
+                                                    //!< thread to wait until a new optimization is
+                                                    //!< requested by the main thread
+  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
+
+  // Guarded by combined_transaction_mutex_
   fuse_core::Transaction::SharedPtr combined_transaction_;  //!< Transaction used aggregate
                                                             //!< constraints and variables from
                                                             //!< multiple sensors and motions models
                                                             //!< before being applied to the graph.
   std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction
                                            //!< across different threads
-  ParameterType params_;  //!< Configuration settings for this optimizer
-  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
-  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization
-                                                    //!< thread to wait until a new optimization is
-                                                    //!< requested by the main thread
-  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed
-                                                 //!< frequency
+
+  // Guarded by pending_transactions_mutex_
   TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been
                                            //!< added to the optimizer yet. Transactions are added
                                            //!< by the main thread, and removed and processed by the
                                            //!< optimization thread.
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the
                                            //!< pending_transactions_ container
-  rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
-  bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an
-                  //!< ignition sensor
+
+  // Ordering ROS objects with callbacks last
+  rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed
+                                                 //!< frequency
+  //!< Service that resets the optimizer to its initial state
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_service_server_;
 
   /**
    * @brief Generate motion model constraints for pending transactions
@@ -199,6 +222,14 @@ protected:
    * optimization cycle.
    */
   void optimizerTimerCallback();
+
+  /**
+   * @brief Service callback that resets the optimizer to its original state
+   */
+  bool resetServiceCallback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request>,
+    std::shared_ptr<std_srvs::srv::Empty::Response>
+  );
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction
