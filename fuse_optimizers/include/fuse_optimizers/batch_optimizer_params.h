@@ -45,10 +45,8 @@
 #include <string>
 #include <vector>
 
-
 namespace fuse_optimizers
 {
-
 /**
  * @brief Defines the set of parameters required by the fuse_optimizers::FixedLagSmoother class
  */
@@ -63,6 +61,11 @@ public:
    * parameter in Hz.
    */
   ros::Duration optimization_period { 0.1 };
+
+  /**
+   * @brief The topic name of the advertised reset service
+   */
+  std::string reset_service { "~reset" };
 
   /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
@@ -95,6 +98,8 @@ public:
     {
       fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
     }
+
+    nh.getParam("reset_service", reset_service);
 
     fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
 
