@@ -284,6 +284,16 @@ protected:
   bool startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
 
   /**
+   * @brief Start the optimizer
+   */
+  void start();
+
+  /**
+   * @brief Stop the optimizer
+   */
+  void stop();
+  
+  /**
    * @brief Thread-safe read-only access to the optimizer start time
    */
   ros::Time getStartTime() const

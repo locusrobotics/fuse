@@ -436,42 +436,34 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
 
 bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
-  // Tell all the plugins to stop
-  stopPlugins();
-  // Reset the optimizer state
-  {
-    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
-    optimization_request_ = false;
-  }
-  started_ = false;
-  ignited_ = false;
-  setStartTime(ros::Time(0, 0));
-  // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
-  //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme here to
-  //         prevent the possibility of deadlocks.
-  {
-    std::lock_guard<std::mutex> lock(optimization_mutex_);
-    // Clear all pending transactions
-    {
-      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
-      pending_transactions_.clear();
-    }
-    // Clear the graph and marginal tracking states
-    graph_->clear();
-    marginal_transaction_ = fuse_core::Transaction();
-    timestamp_tracking_.clear();
-    lag_expiration_ = ros::Time(0, 0);
-  }
-  // Tell all the plugins to start
-  startPlugins();
-  // Test for auto-start
-  autostart();
+  stop();
+  start();
 
   return true;
 }
 
 bool FixedLagSmoother::stopServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
+  stop();
+  return true;
+}
+
+bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  start();
+  return true;
+}
+
+void FixedLagSmoother::start()
+{
+  // Tell all the plugins to start
+  startPlugins();
+  // Test for auto-start
+  autostart();
+}
+
+void FixedLagSmoother::stop()
+{
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
@@ -498,18 +490,6 @@ bool FixedLagSmoother::stopServiceCallback(std_srvs::Empty::Request&, std_srvs::
     timestamp_tracking_.clear();
     lag_expiration_ = ros::Time(0, 0);
   }
-
-  return true;
-}
-
-bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
-{
-  // Tell all the plugins to start
-  startPlugins();
-  // Test for auto-start
-  autostart();
-
-  return true;
 }
 
 void FixedLagSmoother::transactionCallback(
