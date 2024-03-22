@@ -162,6 +162,8 @@ protected:
   ros::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an ignition sensor
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
+  ros::ServiceServer stop_service_server_;  //!< Service that stops and clears the optimizer
+  ros::ServiceServer start_service_server_;  //!< Service that restarts the optimizer
 
   /**
    * @brief Generate motion model constraints for pending transactions
@@ -217,6 +219,26 @@ protected:
    * @brief Service callback that resets the optimizer to its original state
    */
   bool resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+  /**
+   * @brief Service callback that stops the optimizer plugins and clears the existing graph. Essentially performs a reset,
+   * but doesn't immediately restart optimization.
+   */
+  bool stopServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+
+  /**
+   * @brief Service callback that starts the optimizer plugins after they have been stopped.
+   */
+  bool startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&);
+
+  /**
+   * @brief Start the optimizer
+   */
+  void start();
+
+  /**
+   * @brief Stop the optimizer
+   */
+  void stop();
 };
 
 }  // namespace fuse_optimizers
