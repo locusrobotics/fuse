@@ -72,6 +72,16 @@ BatchOptimizer::BatchOptimizer(
     ros::names::resolve(params_.reset_service),
     &BatchOptimizer::resetServiceCallback,
     this);
+
+  stop_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.stop_service),
+    &BatchOptimizer::stopServiceCallback,
+    this);
+
+  start_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.start_service),
+    &BatchOptimizer::startServiceCallback,
+    this);
 }
 
 BatchOptimizer::~BatchOptimizer()
@@ -249,6 +259,31 @@ void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper&
 
 bool BatchOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
+  stop();
+  start();
+  return true;
+}
+
+bool BatchOptimizer::stopServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  stop();
+  return true;
+}
+
+bool BatchOptimizer::startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  start();
+  return true;
+}
+
+void BatchOptimizer::start()
+{
+  // Tell all the plugins to start
+  startPlugins();
+}
+
+void BatchOptimizer::stop()
+{
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
@@ -280,10 +315,6 @@ bool BatchOptimizer::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::E
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
     pending_transactions_.clear();
   }
-  // Tell all the plugins to start
-  startPlugins();
-
-  return true;
 }
 
 }  // namespace fuse_optimizers
