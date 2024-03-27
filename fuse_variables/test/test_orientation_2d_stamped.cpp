@@ -33,11 +33,7 @@
  */
 #include <fuse_core/ceres_macros.h>
 #include <fuse_core/serialization.h>
-#if CERES_SUPPORTS_MANIFOLDS
-#include <ceres/autodiff_manifold.h>
-#else
 #include <fuse_core/autodiff_local_parameterization.h>
-#endif
 #include <fuse_core/util.h>
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/stamped.h>
@@ -106,24 +102,6 @@ TEST(Orientation2DStamped, Stamped)
   EXPECT_EQ(fuse_core::uuid::generate("mo"), stamped->deviceId());
 }
 
-#if CERES_SUPPORTS_MANIFOLDS
-struct Orientation2DFunctor
-{
-  template <typename T>
-  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
-  {
-    x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
-    return true;
-  }
-
-  template <typename T>
-  bool Minus(const T* y, const T* x, T* y_minus_x) const
-  {
-    y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
-    return true;
-  }
-};
-#else
 struct Orientation2DPlus
 {
   template <typename T>
@@ -143,14 +121,9 @@ struct Orientation2DMinus
     return true;
   }
 };
-#endif
 
-using Orientation2DAutoDiff =
-#if CERES_SUPPORTS_MANIFOLDS
-  ceres::AutoDiffManifold<Orientation2DFunctor, 1, 1>;
-#else
-  fuse_core::AutoDiffLocalParameterization<Orientation2DPlus, Orientation2DMinus, 1, 1>;
-#endif
+using Orientation2DLocalParameterization =
+    fuse_core::AutoDiffLocalParameterization<Orientation2DPlus, Orientation2DMinus, 1, 1>;
 
 TEST(Orientation2DStamped, Plus)
 {
@@ -183,30 +156,18 @@ TEST(Orientation2DStamped, Plus)
 
 TEST(Orientation2DStamped, PlusJacobian)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
-#endif
-  auto reference = Orientation2DAutoDiff();
+  auto reference = Orientation2DLocalParameterization();
 
   auto test_values = std::vector<double> { -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
   for (auto test_value : test_values)
   {
     double x[1] = { test_value };
     double actual[1] = { 0.0 };
-#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->ComputeJacobian(x, actual);
-#else
-    bool success = parameterization->PlusJacobian(x, actual);
-#endif
 
     double expected[1] = { 0.0 };
-#if !CERES_SUPPORTS_MANIFOLDS
     reference.ComputeJacobian(x, expected);
-#else
-    reference.PlusJacobian(x, expected);
-#endif
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
@@ -217,22 +178,14 @@ TEST(Orientation2DStamped, PlusJacobian)
 
 TEST(Orientation2DStamped, Minus)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
-#endif
 
   // Simple test
   {
     double x1[1] = { 1.0 };
     double x2[1] = { 1.5 };
     double actual[1] = { 0.0 };
-#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->Minus(x1, x2, actual);
-#else
-    bool success = parameterization->Minus(x2, x1, actual);
-#endif
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -243,11 +196,7 @@ TEST(Orientation2DStamped, Minus)
     double x1[1] = { 2.0 };
     double x2[1] = { 5 - 2 * M_PI };
     double actual[1] = { 0.0 };
-#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->Minus(x1, x2, actual);
-#else
-    bool success = parameterization->Minus(x2, x1, actual);
-#endif
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(3.0, actual[0], 1.0e-5);
@@ -256,30 +205,18 @@ TEST(Orientation2DStamped, Minus)
 
 TEST(Orientation2DStamped, MinusJacobian)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation2DStamped(ros::Time(0, 0)).manifold();
-#endif
-  auto reference = Orientation2DAutoDiff();
+  auto reference = Orientation2DLocalParameterization();
 
   auto test_values = std::vector<double> { -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
   for (auto test_value : test_values)
   {
     double x[1] = { test_value };
     double actual[1] = { 0.0 };
-#if !CERES_SUPPORTS_MANIFOLDS
     bool success = parameterization->ComputeMinusJacobian(x, actual);
-#else
-    bool success = parameterization->MinusJacobian(x, actual);
-#endif
 
     double expected[1] = { 0.0 };
-#if !CERES_SUPPORTS_MANIFOLDS
     reference.ComputeMinusJacobian(x, expected);
-#else
-    reference.MinusJacobian(x, expected);
-#endif
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
@@ -354,6 +291,129 @@ TEST(Orientation2DStamped, Serialization)
   EXPECT_EQ(expected.stamp(), actual.stamp());
   EXPECT_EQ(expected.getYaw(), actual.getYaw());
 }
+
+#if CERES_SUPPORTS_MANIFOLDS
+#include <ceres/autodiff_manifold.h>
+
+struct Orientation2DFunctor
+{
+  template <typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
+  {
+    x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
+    return true;
+  }
+
+  template <typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
+  {
+    y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
+    return true;
+  }
+};
+
+using Orientation2DManifold = ceres::AutoDiffManifold<Orientation2DFunctor, 1, 1>;
+
+TEST(Orientation2DStamped, ManifoldPlus)
+{
+  auto manifold = Orientation2DStamped(ros::Time(0, 0)).manifold();
+
+  // Simple test
+  {
+    double x[1] = { 1.0 };
+    double delta[1] = { 0.5 };
+    double actual[1] = { 0.0 };
+    bool success = manifold->Plus(x, delta, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(1.5, actual[0], 1.0e-5);
+  }
+
+  // Check roll-over
+  {
+    double x[1] = { 2.0 };
+    double delta[1] = { 3.0 };
+    double actual[1] = { 0.0 };
+    bool success = manifold->Plus(x, delta, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(5 - 2 * M_PI, actual[0], 1.0e-5);
+  }
+
+  delete manifold;
+}
+
+TEST(Orientation2DStamped, ManifoldPlusJacobian)
+{
+  auto manifold = Orientation2DStamped(ros::Time(0, 0)).manifold();
+  auto reference = Orientation2DManifold();
+
+  auto test_values = std::vector<double> { -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  for (auto test_value : test_values)
+  {
+    double x[1] = { test_value };
+    double actual[1] = { 0.0 };
+    bool success = manifold->PlusJacobian(x, actual);
+
+    double expected[1] = { 0.0 };
+    reference.PlusJacobian(x, expected);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
+  }
+
+  delete manifold;
+}
+
+TEST(Orientation2DStamped, ManifoldMinus)
+{
+  auto manifold = Orientation2DStamped(ros::Time(0, 0)).manifold();
+
+  // Simple test
+  {
+    double x1[1] = { 1.0 };
+    double x2[1] = { 1.5 };
+    double actual[1] = { 0.0 };
+    bool success = manifold->Minus(x2, x1, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(0.5, actual[0], 1.0e-5);
+  }
+
+  // Check roll-over
+  {
+    double x1[1] = { 2.0 };
+    double x2[1] = { 5 - 2 * M_PI };
+    double actual[1] = { 0.0 };
+    bool success = manifold->Minus(x2, x1, actual);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(3.0, actual[0], 1.0e-5);
+  }
+}
+
+TEST(Orientation2DStamped, ManifoldMinusJacobian)
+{
+  auto manifold = Orientation2DStamped(ros::Time(0, 0)).manifold();
+  auto reference = Orientation2DManifold();
+
+  auto test_values = std::vector<double> { -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  for (auto test_value : test_values)
+  {
+    double x[1] = { test_value };
+    double actual[1] = { 0.0 };
+    bool success = manifold->MinusJacobian(x, actual);
+
+    double expected[1] = { 0.0 };
+    reference.MinusJacobian(x, expected);
+
+    EXPECT_TRUE(success);
+    EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
+  }
+
+  delete manifold;
+}
+#endif
 
 int main(int argc, char** argv)
 {
