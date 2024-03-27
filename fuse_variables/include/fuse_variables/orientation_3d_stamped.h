@@ -34,7 +34,9 @@
 #ifndef FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
@@ -76,6 +78,8 @@ inline static void QuaternionInverse(const T in[4], T out[4])
 class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
+  FUSE_SMART_PTR_DEFINITIONS(Orientation3DLocalParameterization);
+
   int GlobalSize() const override { return 4; }
 
   int LocalSize() const override { return 3; }
@@ -151,6 +155,8 @@ private:
 class Orientation3DManifold : public fuse_core::Manifold
 {
 public:
+  FUSE_SMART_PTR_DEFINITIONS(Orientation3DManifold);
+
   int AmbientSize() const override { return 4; }
 
   int TangentSize() const override { return 3; }
@@ -376,7 +382,6 @@ private:
 #if CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DManifold);
 #endif
-
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization);
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
 

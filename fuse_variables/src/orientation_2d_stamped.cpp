@@ -34,6 +34,7 @@
 #include <fuse_variables/orientation_2d_stamped.h>
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
@@ -82,7 +83,6 @@ fuse_core::Manifold* Orientation2DStamped::manifold() const
 #if CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DManifold);
 #endif
-
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);
 PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation2DStamped, fuse_core::Variable);
