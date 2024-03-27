@@ -45,6 +45,8 @@
 // version 2.2.0, see
 // https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc
 #include <ceres/local_parameterization.h>
+#else
+#include <Eigen/Core>
 #endif
 
 namespace fuse_core
@@ -60,13 +62,55 @@ namespace fuse_core
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#localparameterization
  */
 class LocalParameterization
-// extend ceres LocalParameterization if we are <= 2.1
+// extend ceres LocalParameterization if our version of Ceres does not support Manifolds
 #if !CERES_SUPPORTS_MANIFOLDS
   : public ceres::LocalParameterization
 #endif
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(LocalParameterization);
+
+  /**
+   * @brief Destroy the Local Parameterization object
+   */
+  virtual ~LocalParameterization() = default;
+
+  /**
+   * @brief Size of x
+   *
+   * @return int Size of x.
+   */
+  virtual int GlobalSize() const = 0;
+
+  /**
+   * @brief Size of delta
+   *
+   * @return int Size of delta
+   */
+  virtual int LocalSize() const = 0;
+
+  /**
+   * @brief Generalization of the addition operation,
+   *
+   *    x_plus_delta = Plus(x, delta)
+   *
+   * with the condition that Plus(x, 0) = x.
+   * @param[in] x variable of size \p GlobalSize()
+   * @param[in] delta variable of size \p LocalSize()
+   * @param[out] x_plus_delta of size \p GlobalSize()
+  */
+  virtual bool Plus(const double* x,
+                    const double* delta,
+                    double* x_plus_delta) const = 0;
+
+  /**
+   * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
+   *
+   * @param[in] x variable of size \p GlobalSize()
+   * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
+   * @return 
+   */
+  virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
 
   /**
    * @brief Generalization of the subtraction operation
@@ -86,7 +130,7 @@ public:
 
   /**
    * @brief The jacobian of Minus(x, y) w.r.t y at y = x, i.e
-   * 
+   *
    *      (D_1 Minus) (y, y)
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
@@ -96,30 +140,8 @@ public:
   virtual bool ComputeMinusJacobian(const double* x, double* jacobian) const = 0;
 
 #if CERES_SUPPORTS_MANIFOLDS
-  virtual ~LocalParameterization() = default;
-
-  /**
-   * @brief Generalization of the addition operation,
-   * 
-   *    x_plus_delta = Plus(x, delta)
-   * 
-   * with the condition that Plus(x, 0) = x.
-   * @param[in] x variable of size \p GlobalSize()
-   * @param[in] delta variable of size \p LocalSize()
-   * @param[out] x_plus_delta of size \p GlobalSize()
-  */
-  virtual bool Plus(const double* x,
-                    const double* delta,
-                    double* x_plus_delta) const = 0;
-
-  /**
-   * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
-   * 
-   * @param[in] x variable of size \p GlobalSize()
-   * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
-   * @return 
-   */
-  virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
+  // If the fuse::LocalParameterization class does not inherit from the ceres::LocalParameterization class
+  // then we need to provide the default implementation of the MultiplyByJacobian() method
 
   /**
    * @brief Computes local_matrix = global_matrix * jacobian
@@ -140,28 +162,27 @@ public:
     const double* global_matrix,
     double* local_matrix) const
   {
+    using Matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+    using MatrixRef = Eigen::Map<Matrix>;
+    using ConstMatrixRef = Eigen::Map<const Matrix>;
+
     if (LocalSize() == 0)
     {
       return true;
     }
 
-    Eigen::MatrixXd jacobian(GlobalSize(), LocalSize());
+    Matrix jacobian(GlobalSize(), LocalSize());
     if (!ComputeJacobian(x, jacobian.data()))
     {
       return false;
     }
 
-    Eigen::Map<Eigen::MatrixXd>(local_matrix, num_rows, LocalSize()) =
-      Eigen::Map<const Eigen::MatrixXd>(global_matrix, num_rows, GlobalSize()) * jacobian;
+    MatrixRef(local_matrix, num_rows, LocalSize()) =
+      ConstMatrixRef(global_matrix, num_rows, GlobalSize()) * jacobian;
     return true;
   }
-
-  // Size of x.
-  virtual int GlobalSize() const = 0;
-  // Size of delta.
-  virtual int LocalSize() const = 0;
-
 #endif
+
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
