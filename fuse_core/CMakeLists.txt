@@ -509,6 +509,7 @@ if(CATKIN_ENABLE_TESTING)
   # Variable tests
   catkin_add_gtest(test_variable
     test/test_variable.cpp
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
   )
   add_dependencies(test_variable
     ${catkin_EXPORTED_TARGETS}
