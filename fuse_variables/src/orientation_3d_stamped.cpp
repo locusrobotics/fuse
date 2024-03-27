@@ -34,6 +34,7 @@
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
