@@ -246,8 +246,8 @@ TEST(MarginalConstraint, Serialization)
   EXPECT_EQ(expected.b(), actual.b());
   EXPECT_EQ(expected.x_bar(), actual.x_bar());
   // The shared ptrs will not be the same instances, but they should point to the same types
-  using ExpectedLocalParam = fuse_variables::Orientation3DLocalParameterization;
 #if !CERES_SUPPORTS_MANIFOLDS
+  using ExpectedLocalParam = fuse_variables::Orientation3DLocalParameterization;
   ASSERT_EQ(expected.localParameterizations().size(), actual.localParameterizations().size());
   for (auto i = 0u; i < actual.localParameterizations().size(); ++i)
   {
@@ -255,10 +255,11 @@ TEST(MarginalConstraint, Serialization)
     EXPECT_TRUE(static_cast<bool>(actual_derived));
   }
 #else
+  using ExpectedManifold = fuse_variables::Orientation3DManifold;
   ASSERT_EQ(expected.manifolds().size(), actual.manifolds().size());
   for (auto i = 0u; i < actual.manifolds().size(); ++i)
   {
-    auto actual_derived = std::dynamic_pointer_cast<ExpectedLocalParam>(actual.manifolds()[i]);
+    auto actual_derived = std::dynamic_pointer_cast<ExpectedManifold>(actual.manifolds()[i]);
     EXPECT_TRUE(static_cast<bool>(actual_derived));
   }
 #endif
