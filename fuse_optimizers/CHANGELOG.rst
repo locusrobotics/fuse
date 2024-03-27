@@ -43,6 +43,27 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+0.8.0 (2024-02-02)
+------------------
+* 0.7.0
+* Update changelogs
+* Print graph & transaction on optimization failure (#321)
+* Update devel to build on Ubuntu Jammy (22.04) (#326)
+  * Update to C++17 for use with Ubuntu Jammy
+  * Include Rviz and Eigen as system includes, which supresses warnings within the included libraries
+  * use pluginlib and class_list_macros .hpp include instead of deprecated .h From: Lucas Walter <wsacul@gmail.com>
+* 0.6.0
+* Update changelogs
+* 0.5.0
+* Update changelogs
+* [RST-4186] Fix fuse macro names (#263)
+  * Namespace all macros with the FUSE\_ prefix. Mark original macros as deprecated.
+  * Update all fuse objects to use the new macro names
+* Adding doxygen to all packages (#241)
+* [RST-3240] Fix how the variables to be marginalized are selected.
+* [RST-3451] Cleaned up condition variable usage
+* Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
+
 0.4.2 (2021-07-20)
 ------------------
 * Adding roslint dependency to fuse_viz (`#231 <https://github.com/locusrobotics/fuse/issues/231>`_)
