@@ -481,7 +481,11 @@ void HashGraph::createProblem(ceres::Problem& problem) const
     problem.AddParameterBlock(
       variable.data(),
       variable.size(),
+#if CERES_SUPPORTS_MANIFOLDS
+      variable.manifold());
+#else
       variable.localParameterization());
+#endif
     // Handle optimization bounds
     for (size_t index = 0; index < variable.size(); ++index)
     {
