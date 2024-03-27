@@ -311,6 +311,7 @@ if(CATKIN_ENABLE_TESTING)
   # Marginal Constraint Tests
   catkin_add_gtest(test_marginal_constraint
     test/test_marginal_constraint.cpp
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
   )
   add_dependencies(test_marginal_constraint
     ${catkin_EXPORTED_TARGETS}
