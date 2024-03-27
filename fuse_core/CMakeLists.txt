@@ -45,6 +45,7 @@ add_library(${PROJECT_NAME}
   src/graph.cpp
   src/graph_deserializer.cpp
   src/loss.cpp
+  src/manifold_adapter.cpp
   src/serialization.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp

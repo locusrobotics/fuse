@@ -37,31 +37,67 @@
 
 #include <fuse_core/ceres_macros.h>
 
-#include <memory>
-
 #if CERES_SUPPORTS_MANIFOLDS
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
+#include <memory>
+#include <utility>
 
 namespace fuse_core
 {
 class ManifoldAdapter : public fuse_core::Manifold
 {
 public:
+  FUSE_SMART_PTR_DEFINITIONS(ManifoldAdapter);
+
   /**
    * @brief Constructor to adapt a fuse::LocalParameterization into a fuse::Manifold
    *
-   * @param[in] local_parameterization fuse::LocalParameterization
+   * The ManifoldAdapter will take ownership of the provided LocalParameterization and
+   * will delete it when the ManifoldAdapter goes out of scope.
+   *
+   * @param[in] local_parameterization Raw pointer to a derviced fuse::LocalParameterization object
    */
   explicit ManifoldAdapter(fuse_core::LocalParameterization* local_parameterization)
   {
-    *local_parameterization_ = *local_parameterization;
+    local_parameterization_.reset(local_parameterization);
   }
 
-  // Dimension of the ambient space in which the manifold is embedded.
+  /**
+   * @brief Constructor to adapt a fuse::LocalParameterization into a fuse::Manifold
+   *
+   * The ManifoldAdapter will share ownership of the provided LocalParameterization object.
+   *
+   * @param[in] local_parameterization Shared pointer to a derived fuse::LocalParameterization object
+   */
+  explicit ManifoldAdapter(fuse_core::LocalParameterization::SharedPtr local_parameterization)
+  {
+    local_parameterization_ = std::move(local_parameterization);
+  }
+
+  /**
+   * @brief Dimension of the ambient space in which the manifold is embedded.
+   *
+   * This is equivalent to the GlobalSize property of the LocalParameterization.
+   *
+   * @return int Dimension of the ambient space in which the manifold is embedded.
+   */
   int AmbientSize() const override { return local_parameterization_->GlobalSize(); }
 
-  // Dimension of the manifold/tangent space.
+  /**
+   * @brief Dimension of the manifold/tangent space.
+   *
+   * This is equivalent to the LocalSize property of the LocalParameterization.
+   *
+   * @return int Dimension of the manifold/tangent space.
+   */
   int TangentSize() const override { return local_parameterization_->LocalSize(); }
 
   /**
@@ -103,6 +139,9 @@ public:
    * Given two points on the manifold, Minus computes the change to x in the
    * tangent space at x, that will take it to y.
    *
+   * Note that the parameter order for the Manifold class is different than
+   * the parameter order for the LocalParameterization class.
+   *
    * @param[in] y is a \p AmbientSize() vector.
    * @param[in] x is a \p AmbientSize() vector.
    * @param[out] y_minus_x is a \p TangentSize() vector.
@@ -128,10 +167,33 @@ public:
   }
 
 private:
-  std::unique_ptr<fuse_core::LocalParameterization> local_parameterization_;
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  ManifoldAdapter() = default;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<Manifold>(*this);
+    archive & local_parameterization_;
+  }
+
+  /**
+   * @brief A legacy LocalParametrization object that will be adapted to match the Manifold interface
+   */
+  fuse_core::LocalParameterization::SharedPtr local_parameterization_;
 };
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_KEY(fuse_core::ManifoldAdapter);
 
 #endif
 
