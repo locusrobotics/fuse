@@ -37,15 +37,16 @@
 #include <fuse_core/ceres_macros.h>
 
 #if CERES_SUPPORTS_MANIFOLDS
+
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 
 #include <boost/serialization/access.hpp>
 
-// Local parameterizations got marked as deprecated in favour of Manifold in
+// Local parameterizations were marked as deprecated in favour of Manifold in
 // version 2.1.0, see
 // https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc
-// and they got removed in 2.2.0, see
+// and Local parameterizations were removed in 2.2.0, see
 // https://github.com/ceres-solver/ceres-solver/commit/68c53bb39552cd4abfd6381df08638285f7386b3
 #include <ceres/manifold.h>
 
@@ -54,8 +55,24 @@ namespace fuse_core
 /**
  * @brief The Manifold interface definition.
  *
- * This class extends the Ceres Manifold class but adds methods to match the
- * fuse::LocalParameterization API
+ * In Ceres Solver version 2.1, the ceres::Manifold class was introduced, and in version 2.2 the
+ * ceres::LocalParameterization was deprecated. In a similar way that the fuse::LocalParameterization
+ * class wraps the ceres::LocalParameterization class, this class wraps the ceres::Manifold class
+ * for use within the Fuse codebase.
+ *
+ * Conceptually, the LocalParameterization class and Manifold class represent the same concept --
+ * switching between a nonlinear manifold and a linear approximation of the manifold tangent to
+ * the manifold at a particular linearization point.
+ *
+ * The ceres::Manifold class renames a few members and adds a little more functionality.
+ *  - ceres::LocalParameterization::GlobalSize becomes ceres::Manifold::AmbientSize
+ *  - ceres::LocalParameterization::LocalSize becomes ceres::Manifold::TangentSize
+ *  - ceres::LocalParameterization::ComputeJacobian() becomes ceres::Manifold::PlusJacobian()
+ *  - ceres::Manifold adds Minus() and MinusJacobian() methods
+ *
+ * Note that the fuse::LocalParameterization has always had Minus() and ComputeMinusJacobian()
+ * methods. However, the ceres::Manifold function signatures are slightly different from the
+ * fuse::LocalParameterization function signatures.
  *
  * See the Ceres documentation for more details.
  * http://ceres-solver.org/nnls_modeling.html#manifold
@@ -65,10 +82,23 @@ class Manifold : public ceres::Manifold
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(Manifold);
 
-  // Dimension of the ambient space in which the manifold is embedded.
+  /**
+   * @brief Destroy the Manifold object
+   */
+  virtual ~Manifold() = default;
+
+  /**
+   * @brief Dimension of the ambient space in which the manifold is embedded.
+   *
+   * @return int Dimension of the ambient space in which the manifold is embedded.
+   */
   virtual int AmbientSize() const = 0;
 
-  // Dimension of the manifold/tangent space.
+  /**
+   * @brief Dimension of the manifold/tangent space.
+   *
+   * @return int Dimension of the manifold/tangent space.
+   */
   virtual int TangentSize() const = 0;
 
   /**

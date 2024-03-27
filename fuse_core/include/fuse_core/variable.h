@@ -346,6 +346,10 @@ public:
    */
   virtual fuse_core::Manifold* manifold() const
   {
+    // To support legacy Variable classes that still implements the localParameterization() method,
+    // construct a ManifoldAdapter object from the LocalParameterization pointer as the default action.
+    // If the Variable has been updated to use the new Manifold classes, then the Variable should
+    // override this method and return a pointer to the appropriate derived Manifold object.
     auto local_parameterization = localParameterization();
     if (!local_parameterization)
     {
