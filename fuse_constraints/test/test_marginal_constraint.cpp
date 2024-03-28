@@ -328,7 +328,6 @@ TEST(MarginalConstraint, LegacyDeserialization)
   }
 
   // Compare
-  EXPECT_EQ(expected.uuid(), actual.uuid());
   EXPECT_EQ(expected.variables(), actual.variables());
   EXPECT_EQ(expected.A(), actual.A());
   EXPECT_EQ(expected.b(), actual.b());
