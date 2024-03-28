@@ -34,7 +34,9 @@
 #ifndef FUSE_VARIABLES_POINT_2D_LANDMARK_H
 #define FUSE_VARIABLES_POINT_2D_LANDMARK_H
 
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/fuse_macros.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
@@ -112,6 +114,15 @@ public:
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Create a null Ceres manifold
+   *
+   * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
+   */
+  fuse_core::Manifold* manifold() const override { return nullptr; }
+#endif
 
 protected:
   /**

@@ -37,7 +37,9 @@
 #ifndef FUSE_VARIABLES_PINHOLE_CAMERA_FIXED_H
 #define FUSE_VARIABLES_PINHOLE_CAMERA_FIXED_H
 
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/fuse_macros.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
 #include <fuse_variables/pinhole_camera.h>
 
@@ -80,6 +82,15 @@ public:
    * @brief Specifies if the value of the variable should not be changed during optimization
    */
   bool holdConstant() const override { return true; }
+
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Create a null Ceres manifold
+   *
+   * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
+   */
+  fuse_core::Manifold* manifold() const override { return nullptr; }
+#endif
 
 private:
   // Allow Boost Serialization access to private methods
