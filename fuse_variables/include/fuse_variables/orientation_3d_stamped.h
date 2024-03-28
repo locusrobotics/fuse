@@ -34,6 +34,7 @@
 #ifndef FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
