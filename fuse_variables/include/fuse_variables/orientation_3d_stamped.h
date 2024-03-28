@@ -52,6 +52,7 @@
 
 #include <ostream>
 
+
 namespace fuse_variables
 {
 /**
@@ -80,11 +81,20 @@ class Orientation3DLocalParameterization : public fuse_core::LocalParameterizati
 public:
   FUSE_SMART_PTR_DEFINITIONS(Orientation3DLocalParameterization);
 
-  int GlobalSize() const override { return 4; }
+  int GlobalSize() const override
+  {
+    return 4;
+  }
 
-  int LocalSize() const override { return 3; }
+  int LocalSize() const override
+  {
+    return 3;
+  }
 
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  bool Plus(
+    const double* x,
+    const double* delta,
+    double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -92,7 +102,9 @@ public:
     return true;
   }
 
-  bool ComputeJacobian(const double* x, double* jacobian) const override
+  bool ComputeJacobian(
+    const double* x,
+    double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
@@ -105,7 +117,10 @@ public:
     return true;
   }
 
-  bool Minus(const double* x, const double* y, double* y_minus_x) const override
+  bool Minus(
+    const double* x,
+    const double* y,
+    double* y_minus_x) const override
   {
     double x_inverse[4];
     QuaternionInverse(x, x_inverse);
@@ -115,7 +130,9 @@ public:
     return true;
   }
 
-  bool ComputeMinusJacobian(const double* x, double* jacobian) const override
+  bool ComputeMinusJacobian(
+    const double* x,
+    double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
@@ -220,7 +237,6 @@ private:
     archive & boost::serialization::base_object<fuse_core::Manifold>(*this);
   }
 };
-
 #endif
 
 /**

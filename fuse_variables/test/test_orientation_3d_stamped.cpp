@@ -119,7 +119,7 @@ inline static void QuaternionInverse(const T in[4], T out[4])
 
 struct Orientation3DPlus
 {
-  template <typename T>
+  template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     T q_delta[4];
@@ -144,7 +144,7 @@ struct Orientation3DMinus
 };
 
 using Orientation3DLocalParameterization =
-  fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
 
 TEST(Orientation3DStamped, Plus)
 {
@@ -166,11 +166,11 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+
   double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
   double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
   double result[3] = {0.0, 0.0, 0.0};
-
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
   bool success = parameterization->Minus(x1, x2, result);
 
   EXPECT_TRUE(success);
@@ -337,9 +337,15 @@ TEST(Orientation3DStamped, Optimization)
   // Build the problem.
   ceres::Problem problem;
 #if !CERES_SUPPORTS_MANIFOLDS
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.localParameterization());
 #else
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.manifold());
 #endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());

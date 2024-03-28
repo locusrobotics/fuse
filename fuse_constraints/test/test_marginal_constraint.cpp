@@ -46,6 +46,7 @@
 #include <memory>
 #include <vector>
 
+
 TEST(MarginalConstraint, OneVariable)
 {
   // Create a marginal constraint with one variable, no local parameterizations
@@ -63,8 +64,13 @@ TEST(MarginalConstraint, OneVariable)
   fuse_core::Vector1d b;
   b << 3.0;
 
-  auto constraint =
-    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
+  auto constraint = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
 
   auto cost_function = constraint.costFunction();
 
@@ -73,10 +79,10 @@ TEST(MarginalConstraint, OneVariable)
   x1.y() = 6.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = { x1.data() };
+  std::vector<const double*> variable_values = {x1.data()};
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
-  std::vector<double*> actual_jacobians = { actual_jacobian1.data() };
+  std::vector<double*> actual_jacobians = {actual_jacobian1.data()};
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -117,8 +123,13 @@ TEST(MarginalConstraint, TwoVariables)
   fuse_core::Vector1d b;
   b << 9.0;
 
-  auto constraint =
-    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
+  auto constraint = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
 
   auto cost_function = constraint.costFunction();
 
@@ -130,11 +141,11 @@ TEST(MarginalConstraint, TwoVariables)
   x2.y() = 18.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = { x1.data(), x2.data() };
+  std::vector<const double*> variable_values = {x1.data(), x2.data()};
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
   fuse_core::MatrixXd actual_jacobian2(1, 2);
-  std::vector<double*> actual_jacobians = { actual_jacobian1.data(), actual_jacobian2.data() };
+  std::vector<double*> actual_jacobians = {actual_jacobian1.data(), actual_jacobian2.data()};
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -171,8 +182,13 @@ TEST(MarginalConstraint, LocalParameterization)
   fuse_core::Vector1d b;
   b << 8.0;
 
-  auto constraint =
-    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
+  auto constraint = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
   auto cost_function = constraint.costFunction();
 
   // Update the variable value
@@ -183,10 +199,10 @@ TEST(MarginalConstraint, LocalParameterization)
   x1.z() = 0.526043;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = { x1.data() };
+  std::vector<const double*> variable_values = {x1.data()};
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 4);
-  std::vector<double*> actual_jacobians = { actual_jacobian1.data() };
+  std::vector<double*> actual_jacobians = {actual_jacobian1.data()};
   cost_function->Evaluate(variable_values.data(), actual_residuals.data(), actual_jacobians.data());
 
   // Define the expected residuals and jacobians
@@ -224,8 +240,13 @@ TEST(MarginalConstraint, Serialization)
   fuse_core::Vector1d b;
   b << 8.0;
 
-  auto expected =
-    fuse_constraints::MarginalConstraint("test", variables.begin(), variables.end(), A.begin(), A.end(), b);
+  auto expected = fuse_constraints::MarginalConstraint(
+    "test",
+    variables.begin(),
+    variables.end(),
+    A.begin(),
+    A.end(),
+    b);
 
   // Serialize the constraint into an archive
   std::stringstream stream;
@@ -323,7 +344,7 @@ TEST(MarginalConstraint, LegacyDeserialization)
 }
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

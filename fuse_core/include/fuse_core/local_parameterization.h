@@ -108,7 +108,7 @@ public:
    *
    * @param[in] x variable of size \p GlobalSize()
    * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
-   * @return 
+   * @return
    */
   virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
 
