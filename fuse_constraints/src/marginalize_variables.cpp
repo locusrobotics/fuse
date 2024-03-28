@@ -103,8 +103,10 @@ UuidOrdering computeEliminationOrder(
   }
 
   // Construct the CCOLAMD input structures
-  auto recommended_size =
-    ccolamd_recommended(variable_constraints.size(), constraint_order.size(), variable_order.size());
+  auto recommended_size = ccolamd_recommended(
+    variable_constraints.size(),
+    constraint_order.size(),
+    variable_order.size());
   auto A = std::vector<int>(recommended_size);
   auto p = std::vector<int>(variable_order.size() + 1);
 

@@ -126,7 +126,6 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
 #else
     position_variable->manifold());
 #endif
-
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());

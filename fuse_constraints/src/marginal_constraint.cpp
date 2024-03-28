@@ -57,10 +57,8 @@ void MarginalConstraint::print(std::ostream& stream) const
   Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
   for (size_t i = 0; i < A().size(); ++i)
   {
-    stream << "  A[" << i << "]:\n"
-           << A()[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n"
-           << x_bar()[i].format(indent) << "\n";
+    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
+           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
   }
   stream << "  b:\n" << b().format(indent) << "\n";
 

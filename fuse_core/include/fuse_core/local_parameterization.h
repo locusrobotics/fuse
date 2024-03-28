@@ -119,7 +119,7 @@ public:
    *
    * with the conditions that:
    *  - Minus(x, x) -> 0
-   *  - if Plus(y, delta) -> x, then Minus(x, y) -> delta
+   *  - if Plus(x, delta) -> y, then Minus(x, y) -> delta
    *
    * @param[in]  x    The value of the first variable, of size \p GlobalSize()
    * @param[in]  y    The value of the second variable, of size \p GlobalSize()
@@ -193,7 +193,7 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template <class Archive>
+  template<class Archive>
   void serialize(Archive& /* archive */, const unsigned int /* version */)
   {
   }
