@@ -218,14 +218,6 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
   problem.AddParameterBlock(
-    orientation_variable->data(),
-    orientation_variable->size(),
-#if !CERES_SUPPORTS_MANIFOLDS
-    orientation_variable->localParameterization());
-#else
-    orientation_variable->manifold());
-#endif
-  problem.AddParameterBlock(
     position_variable->data(),
     position_variable->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
@@ -233,7 +225,14 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
 #else
     position_variable->manifold());
 #endif
-
+  problem.AddParameterBlock(
+    orientation_variable->data(),
+    orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
+    orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());

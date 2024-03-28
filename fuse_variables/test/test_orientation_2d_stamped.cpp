@@ -48,6 +48,7 @@
 #include <sstream>
 #include <vector>
 
+
 using fuse_variables::Orientation2DStamped;
 
 TEST(Orientation2DStamped, Type)
@@ -89,8 +90,8 @@ TEST(Orientation2DStamped, UUID)
 
 TEST(Orientation2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base =
-    Orientation2DStamped::make_shared(ros::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base = Orientation2DStamped::make_shared(ros::Time(12345678, 910111213),
+                                                                          fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(ros::Time(12345678, 910111213), derived->stamp());
@@ -104,7 +105,7 @@ TEST(Orientation2DStamped, Stamped)
 
 struct Orientation2DPlus
 {
-  template <typename T>
+  template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
@@ -131,9 +132,9 @@ TEST(Orientation2DStamped, Plus)
 
   // Simple test
   {
-    double x[1] = { 1.0 };
-    double delta[1] = { 0.5 };
-    double actual[1] = { 0.0 };
+    double x[1] = {1.0};
+    double delta[1] = {0.5};
+    double actual[1] = {0.0};
     bool success = parameterization->Plus(x, delta, actual);
 
     EXPECT_TRUE(success);
@@ -142,13 +143,13 @@ TEST(Orientation2DStamped, Plus)
 
   // Check roll-over
   {
-    double x[1] = { 2.0 };
-    double delta[1] = { 3.0 };
-    double actual[1] = { 0.0 };
+    double x[1] = {2.0};
+    double delta[1] = {3.0};
+    double actual[1] = {0.0};
     bool success = parameterization->Plus(x, delta, actual);
 
     EXPECT_TRUE(success);
-    EXPECT_NEAR(5 - 2 * M_PI, actual[0], 1.0e-5);
+    EXPECT_NEAR(5 - 2*M_PI, actual[0], 1.0e-5);
   }
 
   delete parameterization;
@@ -159,14 +160,14 @@ TEST(Orientation2DStamped, PlusJacobian)
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
   auto reference = Orientation2DLocalParameterization();
 
-  auto test_values = std::vector<double> { -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
   for (auto test_value : test_values)
   {
-    double x[1] = { test_value };
-    double actual[1] = { 0.0 };
+    double x[1] = {test_value};
+    double actual[1] = {0.0};
     bool success = parameterization->ComputeJacobian(x, actual);
 
-    double expected[1] = { 0.0 };
+    double expected[1] = {0.0};
     reference.ComputeJacobian(x, expected);
 
     EXPECT_TRUE(success);
@@ -182,9 +183,9 @@ TEST(Orientation2DStamped, Minus)
 
   // Simple test
   {
-    double x1[1] = { 1.0 };
-    double x2[1] = { 1.5 };
-    double actual[1] = { 0.0 };
+    double x1[1] = {1.0};
+    double x2[1] = {1.5};
+    double actual[1] = {0.0};
     bool success = parameterization->Minus(x1, x2, actual);
 
     EXPECT_TRUE(success);
@@ -193,9 +194,9 @@ TEST(Orientation2DStamped, Minus)
 
   // Check roll-over
   {
-    double x1[1] = { 2.0 };
-    double x2[1] = { 5 - 2 * M_PI };
-    double actual[1] = { 0.0 };
+    double x1[1] = {2.0};
+    double x2[1] = {5 - 2*M_PI};
+    double actual[1] = {0.0};
     bool success = parameterization->Minus(x1, x2, actual);
 
     EXPECT_TRUE(success);
@@ -208,14 +209,14 @@ TEST(Orientation2DStamped, MinusJacobian)
   auto parameterization = Orientation2DStamped(ros::Time(0, 0)).localParameterization();
   auto reference = Orientation2DLocalParameterization();
 
-  auto test_values = std::vector<double> { -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
   for (auto test_value : test_values)
   {
-    double x[1] = { test_value };
-    double actual[1] = { 0.0 };
+    double x[1] = {test_value};
+    double actual[1] = {0.0};
     bool success = parameterization->ComputeMinusJacobian(x, actual);
 
-    double expected[1] = { 0.0 };
+    double expected[1] = {0.0};
     reference.ComputeMinusJacobian(x, expected);
 
     EXPECT_TRUE(success);
@@ -229,8 +230,7 @@ struct CostFunctor
 {
   CostFunctor() {}
 
-  template <typename T>
-  bool operator()(const T* const x, T* residual) const
+  template <typename T> bool operator()(const T* const x, T* residual) const
   {
     residual[0] = x[0] - T(3.0);
     return true;
@@ -249,13 +249,22 @@ TEST(Orientation2DStamped, Optimization)
   // Build the problem.
   ceres::Problem problem;
 #if !CERES_SUPPORTS_MANIFOLDS
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.localParameterization());
 #else
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
+  problem.AddParameterBlock(
+    orientation.data(),
+    orientation.size(),
+    orientation.manifold());
 #endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
-  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
+  problem.AddResidualBlock(
+    cost_function,
+    nullptr,
+    parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
