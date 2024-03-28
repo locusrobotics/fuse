@@ -34,6 +34,7 @@
 #include <fuse_variables/orientation_3d_stamped.h>
 
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
@@ -74,8 +75,18 @@ fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() 
   return new Orientation3DLocalParameterization();
 }
 
+#if CERES_SUPPORTS_MANIFOLDS
+fuse_core::Manifold* Orientation3DStamped::manifold() const
+{
+  return new Orientation3DManifold();
+}
+#endif
+
 }  // namespace fuse_variables
 
+#if CERES_SUPPORTS_MANIFOLDS
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DManifold);
+#endif
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DLocalParameterization);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation3DStamped);
 PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation3DStamped, fuse_core::Variable);

@@ -43,4 +43,6 @@
                                         (CERES_VERSION_MINOR > y || (CERES_VERSION_MINOR    >= y && \
                                                                      CERES_VERSION_REVISION >= z))))
 
+#define CERES_SUPPORTS_MANIFOLDS CERES_VERSION_AT_LEAST(2, 1, 0)
+
 #endif  // FUSE_CORE_CERES_MACROS_H

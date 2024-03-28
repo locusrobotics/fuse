@@ -45,6 +45,7 @@ add_library(${PROJECT_NAME}
   src/graph.cpp
   src/graph_deserializer.cpp
   src/loss.cpp
+  src/manifold_adapter.cpp
   src/serialization.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
@@ -58,6 +59,9 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
     ${CERES_INCLUDE_DIRS}
@@ -86,6 +90,9 @@ add_dependencies(fuse_echo
 target_include_directories(fuse_echo
   PUBLIC
     include
+)
+target_include_directories(fuse_echo
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(fuse_echo
@@ -502,6 +509,7 @@ if(CATKIN_ENABLE_TESTING)
   # Variable tests
   catkin_add_gtest(test_variable
     test/test_variable.cpp
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
   )
   add_dependencies(test_variable
     ${catkin_EXPORTED_TARGETS}

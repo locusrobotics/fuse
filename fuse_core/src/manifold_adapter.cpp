@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2024, Clearpath Robotics, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,58 +31,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/orientation_2d_stamped.h>
+#include <fuse_core/manifold_adapter.h>
 
-#include <fuse_core/local_parameterization.h>
-#include <fuse_core/manifold.h>
-#include <fuse_core/uuid.h>
-#include <fuse_variables/fixed_size_variable.h>
-#include <fuse_variables/stamped.h>
-#include <pluginlib/class_list_macros.hpp>
-#include <ros/time.h>
-
+#if CERES_SUPPORTS_MANIFOLDS
 #include <boost/serialization/export.hpp>
 
-#include <ostream>
-
-
-namespace fuse_variables
-{
-
-Orientation2DStamped::Orientation2DStamped(const ros::Time& stamp, const fuse_core::UUID& device_id) :
-  FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
-  Stamped(stamp, device_id)
-{
-}
-
-void Orientation2DStamped::print(std::ostream& stream) const
-{
-  stream << type() << ":\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  stamp: " << stamp() << "\n"
-         << "  device_id: " << deviceId() << "\n"
-         << "  size: " << size() << "\n"
-         << "  data:\n"
-         << "  - yaw: " << getYaw() << "\n";
-}
-
-fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
-{
-  return new Orientation2DLocalParameterization();
-}
-
-#if CERES_SUPPORTS_MANIFOLDS
-fuse_core::Manifold* Orientation2DStamped::manifold() const
-{
-  return new Orientation2DManifold();
-}
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_core::ManifoldAdapter);
 #endif
-
-}  // namespace fuse_variables
-
-#if CERES_SUPPORTS_MANIFOLDS
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DManifold);
-#endif
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::Orientation2DStamped, fuse_core::Variable);
