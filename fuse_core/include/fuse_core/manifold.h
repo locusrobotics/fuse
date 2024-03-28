@@ -135,7 +135,7 @@ public:
    *
    * with the conditions that:
    *  - Minus(x, x) -> 0
-   *  - if Plus(y, delta) -> x, then Minus(y, x) -> delta
+   *  - if Plus(x, delta) -> y, then Minus(y, x) -> delta
    *
    * @param[in] y is a \p AmbientSize() vector.
    * @param[in] x is a \p AmbientSize() vector.

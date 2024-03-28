@@ -136,7 +136,7 @@ public:
   }
 #else
   /**
-   * @brief Read-only access to the variable local parameterizations
+   * @brief Read-only access to the variable manifolds
    */
   const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const { return manifolds_; }
 #endif
@@ -221,7 +221,7 @@ private:
         std::make_move_iterator(local_parameterizations.begin()),
         std::make_move_iterator(local_parameterizations.end()),
         std::back_inserter(manifolds_),
-        [](fuse_core::LocalParameterization::SharedPtr local_parameterization) -> fuse_core::ManifoldAdapter::SharedPtr
+        [](fuse_core::LocalParameterization::SharedPtr local_parameterization)
         { return fuse_core::ManifoldAdapter::make_shared(std::move(local_parameterization)); });
 #endif
     }
@@ -232,7 +232,9 @@ private:
       // But if the current version of Ceres Solver does support manifolds, then the serialized Manifold pointers
       // can be deserialized directly into the class member.
 #if !CERES_SUPPORTS_MANIFOLDS
-      /// @todo(swilliams) Display error
+      throw std::runtime_error("Attempting to deserialize an archive saved in Version " + std::to_string(version) +
+        " format. However, the current version of Ceres Solver (" + CERES_VERSION_STRING + ") does not support"
+        " manifolds. Ceres Solver version 2.1.0 or later is required to load this file.");
 #else
       archive >> manifolds_;
 #endif
@@ -328,6 +330,8 @@ MarginalConstraint::MarginalConstraint(
 }  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint);
+// Since the contents of the serialized file will change depending on the CeresSolver version, also set the
+// Boost Serialization version to allow code reading serialized file to know what data to expect.
 #if !CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_VERSION(fuse_constraints::MarginalConstraint, 0);
 #else

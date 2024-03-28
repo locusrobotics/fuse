@@ -79,7 +79,10 @@ MarginalCostFunction::MarginalCostFunction(
 }
 #endif
 
-bool MarginalCostFunction::Evaluate(double const* const* parameters, double* residuals, double** jacobians) const
+bool MarginalCostFunction::Evaluate(
+  double const* const* parameters,
+  double* residuals,
+  double** jacobians) const
 {
   // Compute cost
   Eigen::Map<fuse_core::VectorXd> residuals_map(residuals, num_residuals());
