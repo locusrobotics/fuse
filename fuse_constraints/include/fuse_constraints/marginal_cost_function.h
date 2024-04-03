@@ -81,10 +81,10 @@ public:
   /**
    * @brief Construct a cost function instance
    *
-   * @param[in] A                       The A matrix of the marginal cost (of the form A*(x - x_bar) + b)
-   * @param[in] b                       The b vector of the marginal cost (of the form A*(x - x_bar) + b)
-   * @param[in] x_bar                   The linearization point of the involved variables
-   * @param[in] manifolds               The manifold associated with the variable
+   * @param[in] A         The A matrix of the marginal cost (of the form A*(x - x_bar) + b)
+   * @param[in] b         The b vector of the marginal cost (of the form A*(x - x_bar) + b)
+   * @param[in] x_bar     The linearization point of the involved variables
+   * @param[in] manifolds The manifold associated with the variable
    */
   MarginalCostFunction(
     const std::vector<fuse_core::MatrixXd>& A,
@@ -102,7 +102,10 @@ public:
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided variable/parameter
    *        values
    */
-  bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override;
+  bool Evaluate(
+    double const* const* parameters,
+    double* residuals,
+    double** jacobians) const override;
 
 private:
   const std::vector<fuse_core::MatrixXd>& A_;  //!< The A matrices of the marginal cost

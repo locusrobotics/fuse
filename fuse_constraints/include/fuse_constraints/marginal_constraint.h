@@ -39,6 +39,7 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/local_parameterization.h>
 #include <fuse_core/manifold.h>
+#include <fuse_core/manifold_adapter.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
@@ -48,14 +49,19 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <ceres/cost_function.h>
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
+#include <iterator>
 #include <ostream>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace fuse_constraints
@@ -131,7 +137,7 @@ public:
   }
 #else
   /**
-   * @brief Read-only access to the variable local parameterizations
+   * @brief Read-only access to the variable manifolds
    */
   const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const { return manifolds_; }
 #endif
@@ -171,22 +177,72 @@ private:
   /**
    * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
    *
-   * @param[in/out] archive - The archive object that holds the serialized class members
-   * @param[in] version - The version of the archive being read/written. Generally unused.
+   * @param[out] archive - The archive object into which class members will be serialized
+   * @param[in] version - The version of the archive being written.
    */
-  template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  template<class Archive>
+  void save(Archive& archive, const unsigned int version) const
   {
-    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive& A_;
-    archive& b_;
+    archive << boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive << A_;
+    archive << b_;
 #if !CERES_SUPPORTS_MANIFOLDS
-    archive& local_parameterizations_;
+      archive << local_parameterizations_;
 #else
-    archive& manifolds_;
+      archive << manifolds_;
 #endif
-    archive& x_bar_;
+    archive << x_bar_;
   }
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read.
+   */
+  template<class Archive>
+  void load(Archive& archive, const unsigned int version)
+  {
+    archive >> boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive >> A_;
+    archive >> b_;
+    if (version == 0)
+    {
+      // Version 0 serialization files will contain a std::vector of LocalParameterization shared pointers.
+      // If the current version of Ceres Solver does not support Manifolds, then the serialized LocalParameterization
+      // pointers can be deserialized directly into the class member.
+      // But if the current version of Ceres Solver supports manifolds, then the serialized LocalParameterization
+      // pointers must be wrapped in a Manifold adapter first.
+#if !CERES_SUPPORTS_MANIFOLDS
+      archive >> local_parameterizations_;
+#else
+      auto local_parameterizations = std::vector<fuse_core::LocalParameterization::SharedPtr>();
+      archive >> local_parameterizations;
+      std::transform(
+        std::make_move_iterator(local_parameterizations.begin()),
+        std::make_move_iterator(local_parameterizations.end()),
+        std::back_inserter(manifolds_),
+        [](fuse_core::LocalParameterization::SharedPtr local_parameterization)
+        { return fuse_core::ManifoldAdapter::make_shared(std::move(local_parameterization)); });
+#endif
+    }
+    else  // (version >= 1)
+    {
+      // Version 1 serialization files will contain a std::vector of Manifold shared pointers. If the current version
+      // of Ceres Solver does not support Manifolds, then there is no way to deserialize the requested data.
+      // But if the current version of Ceres Solver does support manifolds, then the serialized Manifold pointers
+      // can be deserialized directly into the class member.
+#if !CERES_SUPPORTS_MANIFOLDS
+      throw std::runtime_error("Attempting to deserialize an archive saved in Version " + std::to_string(version) +
+        " format. However, the current version of Ceres Solver (" + CERES_VERSION_STRING + ") does not support"
+        " manifolds. Ceres Solver version 2.1.0 or later is required to load this file.");
+#else
+      archive >> manifolds_;
+#endif
+    }
+    archive >> x_bar_;
+  }
+  BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 namespace detail
@@ -211,7 +267,7 @@ inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& vari
 /**
  * @brief Return the local parameterization of the provided variable
  */
-inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterization(const fuse_core::Variable& variable)
+inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(const fuse_core::Variable& variable)
 {
   return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
@@ -220,7 +276,7 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
 /**
  * @brief Return the manifold of the provided variable
  */
-inline fuse_core::Manifold::SharedPtr const getManifold(const fuse_core::Variable& variable)
+inline fuse_core::Manifold::SharedPtr getManifold(const fuse_core::Variable& variable)
 {
   return fuse_core::Manifold::SharedPtr(variable.manifold());
 }
@@ -275,5 +331,12 @@ MarginalConstraint::MarginalConstraint(
 }  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint);
+// Since the contents of the serialized file will change depending on the CeresSolver version, also set the
+// Boost Serialization version to allow code reading serialized file to know what data to expect.
+#if !CERES_SUPPORTS_MANIFOLDS
+BOOST_CLASS_VERSION(fuse_constraints::MarginalConstraint, 0);
+#else
+BOOST_CLASS_VERSION(fuse_constraints::MarginalConstraint, 1);
+#endif
 
 #endif  // FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H

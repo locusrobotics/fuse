@@ -47,9 +47,10 @@
 #include <utility>
 #include <vector>
 
-using fuse_constraints::AbsolutePose3DStampedConstraint;
 using fuse_variables::Orientation3DStamped;
 using fuse_variables::Position3DStamped;
+using fuse_constraints::AbsolutePose3DStampedConstraint;
+
 
 TEST(AbsolutePose3DStampedConstraint, Constructor)
 {
@@ -62,12 +63,12 @@ TEST(AbsolutePose3DStampedConstraint, Constructor)
 
   // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
   fuse_core::Matrix6d cov;
-  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891, 1.5153042667951,
-    1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
-    1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
-    1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
-    1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461, 1.73844731158092,
-    1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
+         1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
+         1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
+         1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
+         1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
+         1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
   EXPECT_NO_THROW(
     AbsolutePose3DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov));
@@ -84,24 +85,23 @@ TEST(AbsolutePose3DStampedConstraint, Covariance)
 
   // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
   fuse_core::Matrix6d cov;
-  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891, 1.5153042667951,
-    1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
-    1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
-    1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
-    1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461, 1.73844731158092,
-    1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
+         1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
+         1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
+         1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
+         1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
+         1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
   AbsolutePose3DStampedConstraint constraint("test", position_variable, orientation_variable, mean, cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix6d expected_sqrt_info;
-  expected_sqrt_info << 2.12658752275893, 1.20265444927878, 4.71225672571804, 1.43587520991272, -4.12764062992821,
-    -3.19509486240291,  // NOLINT
-    0.0, 2.41958656956248, 5.93151964116945, 3.72535320852517, -4.23326858606213, -5.27776664777548,  // NOLINT
-    0.0, 0.0, 3.82674686590005, 2.80341171946161, -2.68168478581452, -2.8894384435255,  // NOLINT
-    0.0, 0.0, 0.0, 1.83006791372784, -0.696917410192509, -1.17412835464633,  // NOLINT
-    0.0, 0.0, 0.0, 0.0, 0.953302832761324, -0.769654414882847,  // NOLINT
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.681477739760948;  // NOLINT
+  expected_sqrt_info << 2.12658752275893, 1.20265444927878, 4.71225672571804, 1.43587520991272, -4.12764062992821, -3.19509486240291,    // NOLINT
+                        0.0,              2.41958656956248, 5.93151964116945, 3.72535320852517, -4.23326858606213, -5.27776664777548,    // NOLINT
+                        0.0,              0.0,              3.82674686590005, 2.80341171946161, -2.68168478581452, -2.8894384435255,     // NOLINT
+                        0.0,              0.0,              0.0,              1.83006791372784, -0.696917410192509, -1.17412835464633,   // NOLINT
+                        0.0,              0.0,              0.0,              0.0,               0.953302832761324, -0.769654414882847,  // NOLINT
+                        0.0,              0.0,              0.0,              0.0,               0.0,                0.681477739760948;  // NOLINT
   fuse_core::Matrix6d expected_cov = cov;
 
   // Compare
@@ -129,24 +129,24 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
   fuse_core::Matrix6d cov;
-  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 2.0, 0.6, 0.5, 0.4, 0.3, 0.2, 0.6, 3.0, 0.2, 0.1, 0.2, 0.3, 0.5, 0.2, 4.0,
-    0.3, 0.4, 0.4, 0.4, 0.1, 0.3, 5.0, 0.5, 0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
+  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+         0.1, 2.0, 0.6, 0.5, 0.4, 0.3,
+         0.2, 0.6, 3.0, 0.2, 0.1, 0.2,
+         0.3, 0.5, 0.2, 4.0, 0.3, 0.4,
+         0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
+         0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
 
-  auto constraint =
-    AbsolutePose3DStampedConstraint::make_shared("test", *position_variable, *orientation_variable, mean, cov);
+  auto constraint = AbsolutePose3DStampedConstraint::make_shared(
+    "test",
+    *position_variable,
+    *orientation_variable,
+    mean,
+    cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-  problem.AddParameterBlock(
-    orientation_variable->data(),
-    orientation_variable->size(),
-#if !CERES_SUPPORTS_MANIFOLDS
-    orientation_variable->localParameterization());
-#else
-    orientation_variable->manifold());
-#endif
   problem.AddParameterBlock(
     position_variable->data(),
     position_variable->size(),
@@ -155,12 +155,23 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
 #else
     position_variable->manifold());
 #endif
+  problem.AddParameterBlock(
+    orientation_variable->data(),
+    orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
+    orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
 
-  problem.AddResidualBlock(constraint->costFunction(), constraint->lossFunction(), parameter_blocks);
+  problem.AddResidualBlock(
+    constraint->costFunction(),
+    constraint->lossFunction(),
+    parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -177,7 +188,7 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   EXPECT_NEAR(0.0, orientation_variable->z(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<const double*, const double*> > covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
@@ -190,15 +201,11 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
 
   fuse_core::MatrixXd cov_or_or(orientation_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    orientation_variable->data(),
-    orientation_variable->data(),
-    cov_or_or.data());
+    orientation_variable->data(), orientation_variable->data(), cov_or_or.data());
 
   fuse_core::MatrixXd cov_pos_or(position_variable->localSize(), orientation_variable->localSize());
   covariance.GetCovarianceBlockInTangentSpace(
-    position_variable->data(),
-    orientation_variable->data(),
-    cov_pos_or.data());
+    position_variable->data(), orientation_variable->data(), cov_pos_or.data());
 
   // Assemble the full covariance from the covariance blocks
   fuse_core::Matrix6d actual_covariance;
@@ -206,8 +213,13 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
 
   // Define the expected covariance
   fuse_core::Matrix6d expected_covariance;
-  expected_covariance << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 2.0, 0.6, 0.5, 0.4, 0.3, 0.2, 0.6, 3.0, 0.2, 0.1, 0.2, 0.3,
-    0.5, 0.2, 4.0, 0.3, 0.4, 0.4, 0.4, 0.1, 0.3, 5.0, 0.5, 0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
+  expected_covariance <<
+    1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+    0.1, 2.0, 0.6, 0.5, 0.4, 0.3,
+    0.2, 0.6, 3.0, 0.2, 0.1, 0.2,
+    0.3, 0.5, 0.2, 4.0, 0.3, 0.4,
+    0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
+    0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
 
   EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-5);
 }
@@ -223,12 +235,12 @@ TEST(AbsolutePose3DStampedConstraint, Serialization)
 
   // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
   fuse_core::Matrix6d cov;
-  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891, 1.5153042667951,
-    1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
-    1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
-    1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
-    1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461, 1.73844731158092,
-    1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,  1.5153042667951,
+         1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
+         1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
+         1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
+         1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147,   2.503913946461, 1.73844731158092,
+         1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
 
   AbsolutePose3DStampedConstraint expected("test", position_variable, orientation_variable, mean, cov);
 
@@ -253,7 +265,7 @@ TEST(AbsolutePose3DStampedConstraint, Serialization)
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

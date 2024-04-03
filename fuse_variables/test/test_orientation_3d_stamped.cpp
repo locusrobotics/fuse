@@ -33,11 +33,7 @@
  */
 #include <fuse_core/ceres_macros.h>
 #include <fuse_core/serialization.h>
-#if CERES_SUPPORTS_MANIFOLDS
-#include <ceres/autodiff_manifold.h>
-#else
 #include <fuse_core/autodiff_local_parameterization.h>
-#endif
 #include <fuse_core/eigen.h>
 #include <fuse_variables/orientation_3d_stamped.h>
 #include <fuse_variables/stamped.h>
@@ -121,32 +117,9 @@ inline static void QuaternionInverse(const T in[4], T out[4])
   out[3] = -in[3];
 }
 
-#if CERES_SUPPORTS_MANIFOLDS
-struct Orientation3DFunctor
-{
-  template <typename T>
-  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
-  {
-    T q_delta[4];
-    ceres::AngleAxisToQuaternion(delta, q_delta);
-    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
-    return true;
-  }
-  template <typename T>
-  bool Minus(const T* y, const T* x, T* y_minus_x) const
-  {
-    T x_inverse[4];
-    QuaternionInverse(x, x_inverse);
-    T q_delta[4];
-    ceres::QuaternionProduct(x_inverse, y, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
-    return true;
-  }
-};
-#else
 struct Orientation3DPlus
 {
-  template <typename T>
+  template<typename T>
   bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     T q_delta[4];
@@ -169,22 +142,13 @@ struct Orientation3DMinus
     return true;
   }
 };
-#endif
 
-using Orientation3DAutoDiff =
-#if CERES_SUPPORTS_MANIFOLDS
-ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3>;
-#else
-fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
-#endif
+using Orientation3DLocalParameterization =
+    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
 
 TEST(Orientation3DStamped, Plus)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
-#endif
 
   double x[4] = {0.842614977, 0.2, 0.3, 0.4};
   double delta[3] = {0.15, -0.2, 0.433012702};
@@ -202,17 +166,12 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
+  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
+
   double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
   double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
   double result[3] = {0.0, 0.0, 0.0};
-
-#if !CERES_SUPPORTS_MANIFOLDS
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
   bool success = parameterization->Minus(x1, x2, result);
-#else
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
-  bool success = parameterization->Minus(x2, x1, result);
-#endif
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.15, result[0], 1.0e-5);
@@ -224,12 +183,8 @@ TEST(Orientation3DStamped, Minus)
 
 TEST(Orientation3DStamped, PlusJacobian)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
-#endif
-  auto reference = Orientation3DAutoDiff();
+  auto reference = Orientation3DLocalParameterization();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
@@ -245,22 +200,14 @@ TEST(Orientation3DStamped, PlusJacobian)
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0;
-#if !CERES_SUPPORTS_MANIFOLDS
         bool success = parameterization->ComputeJacobian(x, actual.data());
-#else
-        bool success = parameterization->PlusJacobian(x, actual.data());
-#endif
 
         fuse_core::MatrixXd expected(4, 3);
         expected << 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0;
-#if !CERES_SUPPORTS_MANIFOLDS
         reference.ComputeJacobian(x, expected.data());
-#else
-        reference.PlusJacobian(x, expected.data());
-#endif
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
@@ -277,12 +224,8 @@ TEST(Orientation3DStamped, PlusJacobian)
 
 TEST(Orientation3DStamped, MinusJacobian)
 {
-#if !CERES_SUPPORTS_MANIFOLDS
   auto parameterization = Orientation3DStamped(ros::Time(0, 0)).localParameterization();
-#else
-  auto parameterization = Orientation3DStamped(ros::Time(0, 0)).manifold();
-#endif
-  auto reference = Orientation3DAutoDiff();
+  auto reference = Orientation3DLocalParameterization();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
@@ -297,21 +240,13 @@ TEST(Orientation3DStamped, MinusJacobian)
         actual << 0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 0.0, 0.0;
-#if !CERES_SUPPORTS_MANIFOLDS
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
-#else
-        bool success = parameterization->MinusJacobian(x, actual.data());
-#endif
 
         fuse_core::MatrixXd expected(3, 4);
         expected << 0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0;
-#if !CERES_SUPPORTS_MANIFOLDS
         reference.ComputeMinusJacobian(x, expected.data());
-#else
-        reference.MinusJacobian(x, expected.data());
-#endif
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
@@ -492,6 +427,182 @@ TEST(Orientation3DStamped, Serialization)
   EXPECT_EQ(expected.y(), actual.y());
   EXPECT_EQ(expected.z(), actual.z());
 }
+
+#if CERES_SUPPORTS_MANIFOLDS
+#include <ceres/autodiff_manifold.h>
+
+struct Orientation3DFunctor
+{
+  template <typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
+  {
+    T q_delta[4];
+    ceres::AngleAxisToQuaternion(delta, q_delta);
+    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    return true;
+  }
+  template <typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
+  {
+    T x_inverse[4];
+    QuaternionInverse(x, x_inverse);
+    T q_delta[4];
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    return true;
+  }
+};
+
+using Orientation3DManifold = ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3>;
+
+TEST(Orientation3DStamped, ManifoldPlus)
+{
+  auto manifold = Orientation3DStamped(ros::Time(0, 0)).manifold();
+
+  double x[4] = {0.842614977, 0.2, 0.3, 0.4};
+  double delta[3] = {0.15, -0.2, 0.433012702};
+  double result[4] = {0.0, 0.0, 0.0, 0.0};
+  bool success = manifold->Plus(x, delta, result);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.745561, result[0], 1.0e-5);
+  EXPECT_NEAR(0.360184, result[1], 1.0e-5);
+  EXPECT_NEAR(0.194124, result[2], 1.0e-5);
+  EXPECT_NEAR(0.526043, result[3], 1.0e-5);
+
+  delete manifold;
+}
+
+TEST(Orientation3DStamped, ManifoldPlusJacobian)
+{
+  auto manifold = Orientation3DStamped(ros::Time(0, 0)).manifold();
+  auto reference = Orientation3DManifold();
+
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
+        double qw = std::sqrt(1.0 - qx*qx - qy*qy - qz*qz);
+
+        double x[4] = {qw, qx, qy, qz};
+        fuse_core::MatrixXd actual(4, 3);
+        actual << 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0;
+        bool success = manifold->PlusJacobian(x, actual.data());
+
+        fuse_core::MatrixXd expected(4, 3);
+        expected << 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0;
+        reference.PlusJacobian(x, expected.data());
+
+        EXPECT_TRUE(success);
+        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
+                                                       << "Actual is:\n" << actual.format(clean) << "\n"
+                                                       << "Difference is:\n" << (expected - actual).format(clean)
+                                                       << "\n";
+      }
+    }
+  }
+
+  delete manifold;
+}
+
+TEST(Orientation3DStamped, ManifoldMinus)
+{
+  double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
+  double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
+  double result[3] = {0.0, 0.0, 0.0};
+
+  auto manifold = Orientation3DStamped(ros::Time(0, 0)).manifold();
+  bool success = manifold->Minus(x2, x1, result);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.15, result[0], 1.0e-5);
+  EXPECT_NEAR(-0.2, result[1], 1.0e-5);
+  EXPECT_NEAR(0.433012702, result[2], 1.0e-5);
+
+  delete manifold;
+}
+
+TEST(Orientation3DStamped, ManifoldMinusJacobian)
+{
+  auto manifold = Orientation3DStamped(ros::Time(0, 0)).manifold();
+  auto reference = Orientation3DManifold();
+
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
+        double qw = std::sqrt(1.0 - qx*qx - qy*qy - qz*qz);
+
+        double x[4] = {qw, qx, qy, qz};
+        fuse_core::MatrixXd actual(3, 4);
+        actual << 0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0, 0.0,
+                  0.0, 0.0, 0.0, 0.0;
+        bool success = manifold->MinusJacobian(x, actual.data());
+
+        fuse_core::MatrixXd expected(3, 4);
+        expected << 0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0;
+        reference.MinusJacobian(x, expected.data());
+
+        EXPECT_TRUE(success);
+        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
+                                                       << "Actual is:\n" << actual.format(clean) << "\n"
+                                                       << "Difference is:\n" << (expected - actual).format(clean)
+                                                       << "\n";
+      }
+    }
+  }
+
+  delete manifold;
+}
+
+TEST(Orientation3DStamped, ManifoldSerialization)
+{
+  // Create an Orientation3DStamped
+  Orientation3DStamped expected(ros::Time(12345678, 910111213));
+  expected.w() = 0.952;
+  expected.x() = 0.038;
+  expected.y() = -0.189;
+  expected.z() = 0.239;
+
+  // Serialize the variable into an archive
+  std::stringstream stream;
+  {
+    fuse_core::TextOutputArchive archive(stream);
+    expected.serialize(archive);
+  }
+
+  // Deserialize a new variable from that same stream
+  Orientation3DStamped actual;
+  {
+    fuse_core::TextInputArchive archive(stream);
+    actual.deserialize(archive);
+  }
+
+  // Compare
+  EXPECT_EQ(expected.deviceId(), actual.deviceId());
+  EXPECT_EQ(expected.stamp(), actual.stamp());
+  EXPECT_EQ(expected.w(), actual.w());
+  EXPECT_EQ(expected.x(), actual.x());
+  EXPECT_EQ(expected.y(), actual.y());
+  EXPECT_EQ(expected.z(), actual.z());
+}
+
+#endif
 
 int main(int argc, char **argv)
 {

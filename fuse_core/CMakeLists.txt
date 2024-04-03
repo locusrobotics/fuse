@@ -45,6 +45,7 @@ add_library(${PROJECT_NAME}
   src/graph.cpp
   src/graph_deserializer.cpp
   src/loss.cpp
+  src/manifold_adapter.cpp
   src/serialization.cpp
   src/timestamp_manager.cpp
   src/transaction.cpp
@@ -508,6 +509,7 @@ if(CATKIN_ENABLE_TESTING)
   # Variable tests
   catkin_add_gtest(test_variable
     test/test_variable.cpp
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
   )
   add_dependencies(test_variable
     ${catkin_EXPORTED_TARGETS}

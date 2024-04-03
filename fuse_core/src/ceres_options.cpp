@@ -147,7 +147,9 @@ void loadSolverOptionsFromROS(const ros::NodeHandle& nh, ceres::Solver::Options&
 
   nh.param("use_explicit_schur_complement", solver_options.use_explicit_schur_complement,
            solver_options.use_explicit_schur_complement);
+#if !CERES_VERSION_AT_LEAST(2, 2, 0)
   nh.param("use_postordering", solver_options.use_postordering, solver_options.use_postordering);
+#endif
   nh.param("dynamic_sparsity", solver_options.dynamic_sparsity, solver_options.dynamic_sparsity);
 
 #if CERES_VERSION_AT_LEAST(2, 0, 0)
@@ -155,6 +157,15 @@ void loadSolverOptionsFromROS(const ros::NodeHandle& nh, ceres::Solver::Options&
            solver_options.use_mixed_precision_solves);
   nh.param("max_num_refinement_iterations", solver_options.max_num_refinement_iterations,
            solver_options.max_num_refinement_iterations);
+#endif
+
+#if CERES_VERSION_AT_LEAST(2, 2, 0)
+  nh.param("max_num_spse_iterations", solver_options.max_num_spse_iterations,
+           solver_options.max_num_spse_iterations);
+  nh.param("use_spse_initialization", solver_options.use_spse_initialization,
+           solver_options.use_spse_initialization);
+  nh.param("spse_tolerance", solver_options.spse_tolerance,
+           solver_options.spse_tolerance);
 #endif
 
   nh.param("use_inner_iterations", solver_options.use_inner_iterations, solver_options.use_inner_iterations);

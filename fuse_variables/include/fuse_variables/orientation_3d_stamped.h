@@ -34,7 +34,10 @@
 #ifndef FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 #define FUSE_VARIABLES_ORIENTATION_3D_STAMPED_H
 
+#include <fuse_core/ceres_macros.h>
+#include <fuse_core/fuse_macros.h>
 #include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/util.h>
 #include <fuse_core/uuid.h>
@@ -49,6 +52,7 @@
 #include <ceres/rotation.h>
 
 #include <ostream>
+
 
 namespace fuse_variables
 {
@@ -76,11 +80,22 @@ inline static void QuaternionInverse(const T in[4], T out[4])
 class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
-  int GlobalSize() const override { return 4; }
+  FUSE_SMART_PTR_DEFINITIONS(Orientation3DLocalParameterization);
 
-  int LocalSize() const override { return 3; }
+  int GlobalSize() const override
+  {
+    return 4;
+  }
 
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  int LocalSize() const override
+  {
+    return 3;
+  }
+
+  bool Plus(
+    const double* x,
+    const double* delta,
+    double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -88,7 +103,9 @@ public:
     return true;
   }
 
-  bool ComputeJacobian(const double* x, double* jacobian) const override
+  bool ComputeJacobian(
+    const double* x,
+    double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
@@ -101,7 +118,10 @@ public:
     return true;
   }
 
-  bool Minus(const double* x, const double* y, double* y_minus_x) const override
+  bool Minus(
+    const double* x,
+    const double* y,
+    double* y_minus_x) const override
   {
     double x_inverse[4];
     QuaternionInverse(x, x_inverse);
@@ -111,7 +131,9 @@ public:
     return true;
   }
 
-  bool ComputeMinusJacobian(const double* x, double* jacobian) const override
+  bool ComputeMinusJacobian(
+    const double* x,
+    double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
@@ -151,6 +173,8 @@ private:
 class Orientation3DManifold : public fuse_core::Manifold
 {
 public:
+  FUSE_SMART_PTR_DEFINITIONS(Orientation3DManifold);
+
   int AmbientSize() const override { return 4; }
 
   int TangentSize() const override { return 3; }
@@ -214,7 +238,6 @@ private:
     archive & boost::serialization::base_object<fuse_core::Manifold>(*this);
   }
 };
-
 #endif
 
 /**
@@ -376,7 +399,6 @@ private:
 #if CERES_SUPPORTS_MANIFOLDS
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DManifold);
 #endif
-
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization);
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
 
