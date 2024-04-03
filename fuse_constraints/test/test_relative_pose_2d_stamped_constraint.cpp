@@ -41,6 +41,7 @@
 
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
@@ -153,19 +154,35 @@ TEST(RelativePose2DStampedConstraint, OptimizationFull)
   problem.AddParameterBlock(
     orientation1->data(),
     orientation1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation1->localParameterization());
+#else
+    orientation1->manifold());
+#endif
   problem.AddParameterBlock(
     position1->data(),
     position1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     position1->localParameterization());
+#else
+    position1->manifold());
+#endif
   problem.AddParameterBlock(
     orientation2->data(),
     orientation2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation2->localParameterization());
+#else
+    orientation2->manifold());
+#endif
   problem.AddParameterBlock(
     position2->data(),
     position2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     position2->localParameterization());
+#else
+    position2->manifold());
+#endif
   std::vector<double *> prior_parameter_blocks;
   prior_parameter_blocks.push_back(position1->data());
   prior_parameter_blocks.push_back(orientation1->data());
@@ -338,19 +355,35 @@ TEST(RelativePose2DStampedConstraint, OptimizationPartial)
   problem.AddParameterBlock(
     orientation1->data(),
     orientation1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation1->localParameterization());
+#else
+    orientation1->manifold());
+#endif
   problem.AddParameterBlock(
     position1->data(),
     position1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     position1->localParameterization());
+#else
+    position1->manifold());
+#endif
   problem.AddParameterBlock(
     orientation2->data(),
     orientation2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation2->localParameterization());
+#else
+    orientation2->manifold());
+#endif
   problem.AddParameterBlock(
     position2->data(),
     position2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     position2->localParameterization());
+#else
+    position2->manifold());
+#endif
 
   std::vector<double *> prior_parameter_blocks;
   prior_parameter_blocks.push_back(position1->data());

@@ -38,9 +38,10 @@
 
 #include <vector>
 
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/local_parameterization.hpp>
-
+#include <fuse_core/manifold.hpp>
 
 namespace fuse_constraints
 {
@@ -66,6 +67,7 @@ namespace fuse_constraints
 class MarginalCostFunction : public ceres::CostFunction
 {
 public:
+#if !CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Construct a cost function instance
    *
@@ -81,6 +83,21 @@ public:
     const fuse_core::VectorXd & b,
     const std::vector<fuse_core::VectorXd> & x_bar,
     const std::vector<fuse_core::LocalParameterization::SharedPtr> & local_parameterizations);
+#else
+  /**
+   * @brief Construct a cost function instance
+   *
+   * @param[in] A         The A matrix of the marginal cost (of the form A*(x - x_bar) + b)
+   * @param[in] b         The b vector of the marginal cost (of the form A*(x - x_bar) + b)
+   * @param[in] x_bar     The linearization point of the involved variables
+   * @param[in] manifolds The manifold associated with the variable
+   */
+  MarginalCostFunction(
+    const std::vector<fuse_core::MatrixXd> & A,
+    const fuse_core::VectorXd & b,
+    const std::vector<fuse_core::VectorXd> & x_bar,
+    const std::vector<fuse_core::Manifold::SharedPtr> & manifolds);
+#endif
 
   /**
    * @brief Destructor
@@ -99,10 +116,12 @@ public:
 private:
   const std::vector<fuse_core::MatrixXd> & A_;  //!< The A matrices of the marginal cost
   const fuse_core::VectorXd & b_;  //!< The b vector of the marginal cost
-
+#if !CERES_SUPPORTS_MANIFOLDS
   //!< Parameterizations
   const std::vector<fuse_core::LocalParameterization::SharedPtr> & local_parameterizations_;
-
+#else
+  const std::vector<fuse_core::Manifold::SharedPtr> & manifolds_;  //!< Manifolds
+#endif
   const std::vector<fuse_core::VectorXd> & x_bar_;  //!< The linearization point of each variable
 };
 

@@ -41,6 +41,7 @@
 
 #include <fuse_constraints/absolute_constraint.hpp>
 #include <fuse_constraints/relative_constraint.hpp>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
@@ -266,11 +267,19 @@ TEST(RelativeConstraint, Optimization)
     problem.AddParameterBlock(
       x1->data(),
       x1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       x1->localParameterization());
+#else
+      x1->manifold());
+#endif
     problem.AddParameterBlock(
       x2->data(),
       x2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       x2->localParameterization());
+#else
+      x2->manifold());
+#endif
     std::vector<double *> prior_parameter_blocks;
     prior_parameter_blocks.push_back(x1->data());
     problem.AddResidualBlock(
@@ -375,11 +384,19 @@ TEST(RelativeConstraint, Optimization)
     problem.AddParameterBlock(
       x1->data(),
       x1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       x1->localParameterization());
+#else
+      x1->manifold());
+#endif
     problem.AddParameterBlock(
       x2->data(),
       x2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       x2->localParameterization());
+#else
+      x2->manifold());
+#endif
     std::vector<double *> c1_parameter_blocks;
     c1_parameter_blocks.push_back(x1->data());
     problem.AddResidualBlock(
@@ -476,11 +493,19 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   problem.AddParameterBlock(
     x1->data(),
     x1->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     x1->localParameterization());
+#else
+    x1->manifold());
+#endif
   problem.AddParameterBlock(
     x2->data(),
     x2->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     x2->localParameterization());
+#else
+    x2->manifold());
+#endif
   std::vector<double *> prior_parameter_blocks;
   prior_parameter_blocks.push_back(x1->data());
   problem.AddResidualBlock(
