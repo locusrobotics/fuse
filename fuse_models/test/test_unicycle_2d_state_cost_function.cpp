@@ -31,8 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/ceres_macros.h>
-
 #include <fuse_models/unicycle_2d_state_cost_function.h>
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
