@@ -99,7 +99,7 @@ TEST(CostFunction, evaluateCostFunction)
 
   // Check jacobians are correct using a gradient checker
   ceres::NumericDiffOptions numeric_diff_options;
-  ceres::GradientChecker gradient_checker(&cost_function, NULL, numeric_diff_options);
+  ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
 
   // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
   ceres::GradientChecker::ProbeResults probe_results;

@@ -109,7 +109,11 @@ TEST(AbsoluteOrientation2DStampedConstraint, Optimization)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
@@ -171,7 +175,11 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationZero)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
@@ -233,7 +241,11 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationPositivePi)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());
@@ -296,7 +308,11 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationNegativePi)
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation_variable->data());

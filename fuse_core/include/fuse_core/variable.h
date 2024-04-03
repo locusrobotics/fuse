@@ -34,8 +34,10 @@
 #ifndef FUSE_CORE_VARIABLE_H
 #define FUSE_CORE_VARIABLE_H
 
-#include <fuse_core/local_parameterization.h>
 #include <fuse_core/fuse_macros.h>
+#include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
+#include <fuse_core/manifold_adapter.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
@@ -45,6 +47,7 @@
 #include <limits>
 #include <ostream>
 #include <string>
+#include <memory>
 
 
 /**
@@ -316,6 +319,42 @@ public:
   {
     return nullptr;
   }
+
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Create a new Ceres manifold object to apply to updates of this
+   * variable
+   *
+   * If a manifold is not needed, a null pointer should be returned. If a local
+   * parameterization is needed, remember to also override the \p localSize()
+   * method to return the appropriate local parameterization size.
+   *
+   * The Ceres interface requires a raw pointer. Ceres will take ownership of
+   * the pointer and promises to properly delete the local parameterization when
+   * it is done. Additionally, fuse promises that the Variable object will
+   * outlive any generated local parameterization (i.e. the Ceres objects will
+   * be destroyed before the Variable objects). This guarantee may allow
+   * optimizations for the creation of the local parameterization objects.
+   *
+   * @return A base pointer to an instance of a derived Manifold
+   */
+  virtual fuse_core::Manifold* manifold() const
+  {
+    // To support legacy Variable classes that still implements the localParameterization() method,
+    // construct a ManifoldAdapter object from the LocalParameterization pointer as the default action.
+    // If the Variable has been updated to use the new Manifold classes, then the Variable should
+    // override this method and return a pointer to the appropriate derived Manifold object.
+    auto local_parameterization = localParameterization();
+    if (!local_parameterization)
+    {
+      return nullptr;
+    }
+    else
+    {
+      return new fuse_core::ManifoldAdapter(local_parameterization);
+    }
+  }
+#endif
 
   /**
    * @brief Specifies the lower bound value of each variable dimension

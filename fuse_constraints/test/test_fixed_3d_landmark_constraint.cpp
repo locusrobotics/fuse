@@ -192,13 +192,21 @@ TEST(Fixed3DLandmarkConstraint, Optimization)
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
+#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(position_variable->data(), position_variable->size(),
                             position_variable->localParameterization());
   problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
                             orientation_variable->localParameterization());
   problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                             calibration_variable->localParameterization());
-
+#else
+  problem.AddParameterBlock(position_variable->data(), position_variable->size(),
+                            position_variable->manifold());
+  problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
+                            orientation_variable->manifold());
+  problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
+                            calibration_variable->manifold());
+#endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
@@ -319,12 +327,21 @@ TEST(Fixed3DLandmarkConstraint, OptimizationScaledMarker)
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
+#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(position_variable->data(), position_variable->size(),
                             position_variable->localParameterization());
   problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
                             orientation_variable->localParameterization());
   problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                             calibration_variable->localParameterization());
+#else
+  problem.AddParameterBlock(position_variable->data(), position_variable->size(),
+                            position_variable->manifold());
+  problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
+                            orientation_variable->manifold());
+  problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
+                            calibration_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
@@ -422,13 +439,21 @@ TEST(Fixed3DLandmarkConstraint, OptimizationPoints)
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
+#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(position_variable->data(), position_variable->size(),
                             position_variable->localParameterization());
   problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
                             orientation_variable->localParameterization());
   problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                             calibration_variable->localParameterization());
-
+#else
+  problem.AddParameterBlock(position_variable->data(), position_variable->size(),
+                            position_variable->manifold());
+  problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
+                            orientation_variable->manifold());
+  problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
+                            calibration_variable->manifold());
+#endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
@@ -526,12 +551,21 @@ TEST(Fixed3DLandmarkConstraint, MultiViewOptimization)
     orientation_vars[i]->y() = -0.189;
     orientation_vars[i]->z() = 0.239;
 
+#if !CERES_SUPPORTS_MANIFOLDS
     problem.AddParameterBlock(position_vars[i]->data(), position_vars[i]->size(),
                               position_vars[i]->localParameterization());
     problem.AddParameterBlock(orientation_vars[i]->data(), orientation_vars[i]->size(),
                               orientation_vars[i]->localParameterization());
     problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                               calibration_variable->localParameterization());
+#else
+    problem.AddParameterBlock(position_vars[i]->data(), position_vars[i]->size(),
+                              position_vars[i]->manifold());
+    problem.AddParameterBlock(orientation_vars[i]->data(), orientation_vars[i]->size(),
+                              orientation_vars[i]->manifold());
+    problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
+                              calibration_variable->manifold());
+#endif
 
     std::vector<double*> parameter_blocks;
     parameter_blocks.push_back(position_vars[i]->data());

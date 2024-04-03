@@ -34,8 +34,10 @@
 #ifndef FUSE_VARIABLES_POSITION_3D_STAMPED_H
 #define FUSE_VARIABLES_POSITION_3D_STAMPED_H
 
-#include <fuse_core/uuid.h>
+#include <fuse_core/ceres_macros.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
+#include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
@@ -123,6 +125,15 @@ public:
    * @param  stream The stream to write to. Defaults to stdout.
    */
   void print(std::ostream& stream = std::cout) const override;
+
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Create a null Ceres manifold
+   *
+   * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
+   */
+  fuse_core::Manifold* manifold() const override { return nullptr; }
+#endif
 
 private:
   // Allow Boost Serialization access to private methods

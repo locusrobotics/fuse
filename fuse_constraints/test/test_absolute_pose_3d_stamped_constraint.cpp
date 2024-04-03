@@ -150,11 +150,19 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   problem.AddParameterBlock(
     position_variable->data(),
     position_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     position_variable->localParameterization());
+#else
+    position_variable->manifold());
+#endif
   problem.AddParameterBlock(
     orientation_variable->data(),
     orientation_variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     orientation_variable->localParameterization());
+#else
+    orientation_variable->manifold());
+#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
