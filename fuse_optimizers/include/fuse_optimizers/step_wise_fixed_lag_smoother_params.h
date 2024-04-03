@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2022, ARTI - Autonomous Robot Technology GmbH
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
-#define FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
+#ifndef FUSE_OPTIMIZERS_STEP_WISE_FIXED_LAG_SMOOTHER_PARAMS_H
+#define FUSE_OPTIMIZERS_STEP_WISE_FIXED_LAG_SMOOTHER_PARAMS_H
 
 #include <fuse_core/ceres_options.h>
 #include <fuse_core/parameter.h>
 #include <ros/duration.h>
 #include <ros/node_handle.h>
+
+#include <fuse_optimizers/fixed_lag_smoother_params.h>
 
 #include <ceres/solver.h>
 
@@ -45,40 +47,23 @@
 #include <string>
 #include <vector>
 
+
 namespace fuse_optimizers
 {
+
 /**
- * @brief Defines the set of parameters required by the fuse_optimizers::BatchOptimizer class
+ * @brief Defines the set of parameters required by the fuse_optimizers::StepWiseFixedLagSmoother class
  */
-struct BatchOptimizerParams
+struct StepWiseFixedLagSmootherParams : FixedLagSmootherParams
 {
 public:
   /**
-   * @brief The target duration for optimization cycles
+   * @brief The ordered list of steps for the optimization with each source inside
    *
-   * If an optimization takes longer than expected, an optimization cycle may be skipped. The optimization period
-   * may be specified in either the "optimization_period" parameter in seconds, or in the "optimization_frequency"
-   * parameter in Hz.
+   * The optimization is performed sequentially where each step adds
+   * more constraints from different sources to the graph.
    */
-  ros::Duration optimization_period { 0.1 };
-
-  /**
-   * @brief The topic name of the advertised reset service
-   */
-  std::string reset_service { "~reset" };
-
-  /**
-   * @brief The maximum time to wait for motion models to be generated for a received transaction.
-   *
-   * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
-   * motion models to be generated. Once the timeout expires, that transaction will be deleted from the queue.
-   */
-  ros::Duration transaction_timeout { 0.1 };
-
-  /**
-   * @brief Ceres Solver::Options object that controls various aspects of the optimizer.
-   */
-  ceres::Solver::Options solver_options;
+  std::vector<std::vector<std::string>> optimization_steps;
 
   /**
    * @brief Method for loading parameter values from ROS.
@@ -87,26 +72,35 @@ public:
    */
   void loadFromROS(const ros::NodeHandle& nh)
   {
-    // Read settings from the parameter server
-    if (nh.hasParam("optimization_frequency"))
+    FixedLagSmootherParams::loadFromROS(nh);
+
+    // load optimization steps
+    XmlRpc::XmlRpcValue optimization_steps_raw;
+    fuse_core::getParamRequired<XmlRpc::XmlRpcValue>(nh, "optimization_steps", optimization_steps_raw);
+
+    ROS_ASSERT(optimization_steps_raw.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+    for (int step_i = 0; step_i < optimization_steps_raw.size(); ++step_i)
     {
-      double optimization_frequency{ 1.0 / optimization_period.toSec() };
-      fuse_core::getPositiveParam(nh, "optimization_frequency", optimization_frequency);
-      optimization_period.fromSec(1.0 / optimization_frequency);
+      ROS_ASSERT(optimization_steps_raw[step_i].getType() == XmlRpc::XmlRpcValue::TypeStruct);
+
+      ROS_ASSERT(optimization_steps_raw[step_i]["sources"].getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+      std::vector<std::string> optimization_step_sources;
+
+      for (int source_i = 0; source_i < optimization_steps_raw[step_i]["sources"].size(); ++source_i)
+      {
+        ROS_ASSERT(optimization_steps_raw[step_i]["sources"][source_i].getType() == XmlRpc::XmlRpcValue::TypeString);
+
+        optimization_step_sources.push_back(
+            static_cast<std::string>(optimization_steps_raw[step_i]["sources"][source_i]));
+      }
+
+      optimization_steps.push_back(optimization_step_sources);
     }
-    else
-    {
-      fuse_core::getPositiveParam(nh, "optimization_period", optimization_period);
-    }
-
-    nh.getParam("reset_service", reset_service);
-
-    fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
-
-    fuse_core::loadSolverOptionsFromROS(ros::NodeHandle(nh, "solver_options"), solver_options);
   }
 };
 
 }  // namespace fuse_optimizers
 
-#endif  // FUSE_OPTIMIZERS_BATCH_OPTIMIZER_PARAMS_H
+#endif  // FUSE_OPTIMIZERS_STEP_WISE_FIXED_LAG_SMOOTHER_PARAMS_H
