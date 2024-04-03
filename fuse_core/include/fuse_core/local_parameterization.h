@@ -34,16 +34,21 @@
 #ifndef FUSE_CORE_LOCAL_PARAMETERIZATION_H
 #define FUSE_CORE_LOCAL_PARAMETERIZATION_H
 
+#include <fuse_core/ceres_macros.h>
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/serialization.h>
 
 #include <boost/serialization/access.hpp>
-#include <ceres/local_parameterization.h>
 
+#if !CERES_SUPPORTS_MANIFOLDS
+// Local parameterizations is removed in favour of Manifold in
+// version 2.2.0, see
+// https://github.com/ceres-solver/ceres-solver/commit/0141ca090c315db2f3c38e1731f0fe9754a4e4cc
+#include <ceres/local_parameterization.h>
+#endif
 
 namespace fuse_core
 {
-
 /**
  * @brief The LocalParameterization interface definition.
  *
@@ -54,7 +59,11 @@ namespace fuse_core
  *
  * See the Ceres documentation for more details. http://ceres-solver.org/nnls_modeling.html#localparameterization
  */
-class LocalParameterization : public ceres::LocalParameterization
+class LocalParameterization
+// extend ceres LocalParameterization if we are <= 2.1
+#if !CERES_SUPPORTS_MANIFOLDS
+  : public ceres::LocalParameterization
+#endif
 {
 public:
   FUSE_SMART_PTR_ALIASES_ONLY(LocalParameterization);
@@ -62,33 +71,97 @@ public:
   /**
    * @brief Generalization of the subtraction operation
    *
-   * Minus(x1, x2) -> delta
+   * Minus(x, y) -> y_minus_x
    *
    * with the conditions that:
    *  - Minus(x, x) -> 0
-   *  - if Plus(x1, delta) -> x2, then Minus(x1, x2) -> delta
+   *  - if Plus(y, delta) -> x, then Minus(x, y) -> delta
    *
-   * @param[in]  x1    The value of the first variable, of size \p GlobalSize()
-   * @param[in]  x2    The value of the second variable, of size \p GlobalSize()
-   * @param[out] delta The difference between the second variable and the first, of size \p LocalSize()
+   * @param[in]  x    The value of the first variable, of size \p GlobalSize()
+   * @param[in]  y    The value of the second variable, of size \p GlobalSize()
+   * @param[out] y_minus_x The difference between the second variable and the first, of size \p LocalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool Minus(
-    const double* x1,
-    const double* x2,
-    double* delta) const = 0;
+  virtual bool Minus(const double* x, const double* y, double* y_minus_x) const = 0;
 
   /**
-   * @brief The jacobian of Minus(x1, x2) w.r.t x2 at x1 == x2 == x
+   * @brief The jacobian of Minus(x, y) w.r.t y at y = x, i.e
+   * 
+   *      (D_1 Minus) (y, y)
    *
    * @param[in]  x        The value used to evaluate the Jacobian, of size \p GlobalSize()
    * @param[out] jacobian The first-order derivative in row-major order, of size \p LocalSize() x \p GlobalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool ComputeMinusJacobian(
-    const double* x,
-    double* jacobian) const = 0;
+  virtual bool ComputeMinusJacobian(const double* x, double* jacobian) const = 0;
 
+#if CERES_SUPPORTS_MANIFOLDS
+  virtual ~LocalParameterization() = default;
+
+  /**
+   * @brief Generalization of the addition operation,
+   * 
+   *    x_plus_delta = Plus(x, delta)
+   * 
+   * with the condition that Plus(x, 0) = x.
+   * @param[in] x variable of size \p GlobalSize()
+   * @param[in] delta variable of size \p LocalSize()
+   * @param[out] x_plus_delta of size \p GlobalSize()
+  */
+  virtual bool Plus(const double* x,
+                    const double* delta,
+                    double* x_plus_delta) const = 0;
+
+  /**
+   * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
+   * 
+   * @param[in] x variable of size \p GlobalSize()
+   * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
+   * @return 
+   */
+  virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
+
+  /**
+   * @brief Computes local_matrix = global_matrix * jacobian
+   *
+   * This is only used by GradientProblem. For most normal uses, it is
+   * okay to use the default implementation.
+   *
+   * jacobian(x) is the matrix returned by ComputeJacobian at x.
+   *
+   * @param[in] x
+   * @param[in] num_rows
+   * @param[in] global_matrix is a num_rows x GlobalSize  row major matrix.
+   * @param[out] local_matrix is a num_rows x LocalSize row major matrix.
+   */
+  virtual bool MultiplyByJacobian(
+    const double* x,
+    const int num_rows,
+    const double* global_matrix,
+    double* local_matrix) const
+  {
+    if (LocalSize() == 0)
+    {
+      return true;
+    }
+
+    Eigen::MatrixXd jacobian(GlobalSize(), LocalSize());
+    if (!ComputeJacobian(x, jacobian.data()))
+    {
+      return false;
+    }
+
+    Eigen::Map<Eigen::MatrixXd>(local_matrix, num_rows, LocalSize()) =
+      Eigen::Map<const Eigen::MatrixXd>(global_matrix, num_rows, GlobalSize()) * jacobian;
+    return true;
+  }
+
+  // Size of x.
+  virtual int GlobalSize() const = 0;
+  // Size of delta.
+  virtual int LocalSize() const = 0;
+
+#endif
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -99,7 +172,7 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& /* archive */, const unsigned int /* version */)
   {
   }

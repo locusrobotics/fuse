@@ -70,7 +70,18 @@ fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() 
   return new Orientation2DLocalParameterization();
 }
 
+#if CERES_SUPPORTS_MANIFOLDS
+fuse_core::Manifold* Orientation2DStamped::manifold() const
+{
+  return new Orientation2DManifold();
+}
+#endif
+
 }  // namespace fuse_variables
+
+#if CERES_SUPPORTS_MANIFOLDS
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DManifold);
+#endif
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DLocalParameterization);
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::Orientation2DStamped);

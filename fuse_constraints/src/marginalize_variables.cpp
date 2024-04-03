@@ -35,12 +35,15 @@
 #include <fuse_constraints/marginalize_variables.h>
 #include <fuse_constraints/uuid_ordering.h>
 #include <fuse_constraints/variable_constraints.h>
+#include <fuse_core/ceres_macros.h>
+#include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/uuid.h>
 
-#include <boost/iterator/transform_iterator.hpp>
-#include <boost/range/empty.hpp>
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/empty.hpp>
 #include <suitesparse/ccolamd.h>
 
 #include <algorithm>
@@ -52,10 +55,8 @@
 #include <utility>
 #include <vector>
 
-
 namespace fuse_constraints
 {
-
 UuidOrdering computeEliminationOrder(
   const std::vector<fuse_core::UUID>& marginalized_variables,
   const fuse_core::Graph& graph)
@@ -102,10 +103,8 @@ UuidOrdering computeEliminationOrder(
   }
 
   // Construct the CCOLAMD input structures
-  auto recommended_size = ccolamd_recommended(
-    variable_constraints.size(),
-    constraint_order.size(),
-    variable_order.size());
+  auto recommended_size =
+    ccolamd_recommended(variable_constraints.size(), constraint_order.size(), variable_order.size());
   auto A = std::vector<int>(recommended_size);
   auto p = std::vector<int>(variable_order.size() + 1);
 
@@ -336,6 +335,7 @@ LinearTerm linearize(
   {
     const auto& variable_uuid = variable_uuids[index];
     const auto& variable = graph.getVariable(variable_uuid);
+#if !CERES_SUPPORTS_MANIFOLDS
     auto local_parameterization = variable.localParameterization();
     auto& jacobian = result.A[index];
     if (variable.holdConstant())
@@ -356,6 +356,28 @@ LinearTerm linearize(
     {
       delete local_parameterization;
     }
+#else
+    auto manifold = variable.manifold();
+    auto& jacobian = result.A[index];
+    if (variable.holdConstant())
+    {
+      if (manifold)
+      {
+        jacobian.resize(Eigen::NoChange, manifold->TangentSize());
+      }
+      jacobian.setZero();
+    }
+    else if (manifold)
+    {
+      fuse_core::MatrixXd J(manifold->AmbientSize(), manifold->TangentSize());
+      manifold->PlusJacobian(variable_values[index], J.data());
+      jacobian *= J;
+    }
+    if (manifold)
+    {
+      delete manifold;
+    }
+#endif
   }
 
   // Correct A and b for the effects of the loss function

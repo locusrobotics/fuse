@@ -36,8 +36,9 @@
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
-#include <fuse_core/local_parameterization.h>
 #include <fuse_core/fuse_macros.h>
+#include <fuse_core/local_parameterization.h>
+#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
@@ -57,10 +58,8 @@
 #include <string>
 #include <vector>
 
-
 namespace fuse_constraints
 {
-
 /**
  * @brief A constraint that represents remaining marginal information on a set of variables
  *
@@ -93,7 +92,7 @@ public:
    * @param[in] last_A         Iterator pointing to one past the last A matrix
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
    */
-  template<typename VariableIterator, typename MatrixIterator>
+  template <typename VariableIterator, typename MatrixIterator>
   MarginalConstraint(
     const std::string& source,
     VariableIterator first_variable,
@@ -122,6 +121,7 @@ public:
    */
   const std::vector<fuse_core::VectorXd>& x_bar() const { return x_bar_; }
 
+#if !CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Read-only access to the variable local parameterizations
    */
@@ -129,6 +129,12 @@ public:
   {
     return local_parameterizations_;
   }
+#else
+  /**
+   * @brief Read-only access to the variable local parameterizations
+   */
+  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const { return manifolds_; }
+#endif
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -151,7 +157,11 @@ public:
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
   fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
-  std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< The local parameterizations
+#if !CERES_SUPPORTS_MANIFOLDS
+  std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;  //!< Parameterizations
+#else
+  std::vector<fuse_core::Manifold::SharedPtr> manifolds_;  //!< Manifolds
+#endif
   std::vector<fuse_core::VectorXd> x_bar_;  //!< The linearization point of each involved variable
 
 private:
@@ -164,20 +174,23 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & A_;
-    archive & b_;
-    archive & local_parameterizations_;
-    archive & x_bar_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& A_;
+    archive& b_;
+#if !CERES_SUPPORTS_MANIFOLDS
+    archive& local_parameterizations_;
+#else
+    archive& manifolds_;
+#endif
+    archive& x_bar_;
   }
 };
 
 namespace detail
 {
-
 /**
  * @brief Return the UUID of the provided variable
  */
@@ -194,6 +207,7 @@ inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& vari
   return Eigen::Map<const fuse_core::VectorXd>(variable.data(), variable.size());
 }
 
+#if !CERES_SUPPORTS_MANIFOLDS
 /**
  * @brief Return the local parameterization of the provided variable
  */
@@ -202,9 +216,19 @@ inline fuse_core::LocalParameterization::SharedPtr const getLocalParameterizatio
   return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
 
+#else
+/**
+ * @brief Return the manifold of the provided variable
+ */
+inline fuse_core::Manifold::SharedPtr const getManifold(const fuse_core::Variable& variable)
+{
+  return fuse_core::Manifold::SharedPtr(variable.manifold());
+}
+#endif
+
 }  // namespace detail
 
-template<typename VariableIterator, typename MatrixIterator>
+template <typename VariableIterator, typename MatrixIterator>
 MarginalConstraint::MarginalConstraint(
   const std::string& source,
   VariableIterator first_variable,
@@ -212,21 +236,32 @@ MarginalConstraint::MarginalConstraint(
   MatrixIterator first_A,
   MatrixIterator last_A,
   const fuse_core::VectorXd& b) :
-    Constraint(source,
-               boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
-               boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
-    A_(first_A, last_A),
-    b_(b),
-    local_parameterizations_(boost::make_transform_iterator(first_variable,
-                                                            &fuse_constraints::detail::getLocalParameterization),
-                             boost::make_transform_iterator(last_variable,
-                                                            &fuse_constraints::detail::getLocalParameterization)),
-    x_bar_(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getCurrentValue),
-           boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
+  Constraint(
+    source,
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
+  A_(first_A, last_A),
+  b_(b),
+#if !CERES_SUPPORTS_MANIFOLDS
+  local_parameterizations_(
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getLocalParameterization),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getLocalParameterization)),
+#else
+  manifolds_(
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getManifold),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getManifold)),
+#endif
+  x_bar_(
+    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getCurrentValue),
+    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
 {
   assert(!A_.empty());
   assert(A_.size() == x_bar_.size());
+#if !CERES_SUPPORTS_MANIFOLDS
   assert(A_.size() == local_parameterizations_.size());
+#else
+  assert(A_.size() == manifolds_.size());
+#endif
   assert(b_.rows() > 0);
   assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A){ return A.rows() == this->b_.rows(); }));  // NOLINT
   assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),

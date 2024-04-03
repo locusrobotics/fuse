@@ -31,6 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fuse_core/ceres_macros.h>
+
 #include <fuse_models/unicycle_2d_state_cost_function.h>
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
@@ -99,7 +101,7 @@ TEST(CostFunction, evaluateCostFunction)
 
   // Check jacobians are correct using a gradient checker
   ceres::NumericDiffOptions numeric_diff_options;
-  ceres::GradientChecker gradient_checker(&cost_function, NULL, numeric_diff_options);
+  ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
 
   // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
   ceres::GradientChecker::ProbeResults probe_results;

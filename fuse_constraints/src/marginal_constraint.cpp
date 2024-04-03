@@ -37,15 +37,13 @@
 #include <fuse_core/constraint.h>
 #include <pluginlib/class_list_macros.hpp>
 
-#include <boost/serialization/export.hpp>
 #include <Eigen/Core>
+#include <boost/serialization/export.hpp>
 
 #include <ostream>
 
-
 namespace fuse_constraints
 {
-
 void MarginalConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
@@ -59,8 +57,10 @@ void MarginalConstraint::print(std::ostream& stream) const
   Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
   for (size_t i = 0; i < A().size(); ++i)
   {
-    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
+    stream << "  A[" << i << "]:\n"
+           << A()[i].format(indent) << "\n"
+           << "  x_bar[" << i << "]:\n"
+           << x_bar()[i].format(indent) << "\n";
   }
   stream << "  b:\n" << b().format(indent) << "\n";
 
@@ -73,7 +73,11 @@ void MarginalConstraint::print(std::ostream& stream) const
 
 ceres::CostFunction* MarginalConstraint::costFunction() const
 {
+#if !CERES_SUPPORTS_MANIFOLDS
   return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
+#else
+  return new MarginalCostFunction(A_, b_, x_bar_, manifolds_);
+#endif
 }
 
 }  // namespace fuse_constraints
