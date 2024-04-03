@@ -96,9 +96,9 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   // Find the entry that is strictly greater than the requested beginning stamp. If the extended
   // range flag is true, we will then back up one entry.
   auto upper_bound_comparison = [](const auto & stamp, const auto & element) -> bool
-    {
-      return element.first > stamp;
-    };
+  {
+    return element.first > stamp;
+  };
   auto beginning_iter = std::upper_bound(
     buffer_.begin(),
     buffer_.end(), beginning_stamp, upper_bound_comparison);
@@ -108,9 +108,9 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(
   // Find the entry that is greater than or equal to the ending stamp. If the extended range flag is
   // false, we will back up one entry.
   auto lower_bound_comparison = [](const auto & element, const auto & stamp) -> bool
-    {
-      return element.first < stamp;
-    };
+  {
+    return element.first < stamp;
+  };
   auto ending_iter = std::lower_bound(
     buffer_.begin(),
     buffer_.end(), ending_stamp, lower_bound_comparison);
@@ -155,9 +155,9 @@ void MessageBuffer<Message>::purgeHistory()
   //  - at least two entries remains at all times
   //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
   auto is_greater = [](const auto & stamp, const auto & element) -> bool
-    {
-      return element.first > stamp;
-    };
+  {
+    return element.first > stamp;
+  };
   auto expiration_iter = std::upper_bound(
     buffer_.begin(),
     buffer_.end(), expiration_time, is_greater);
