@@ -109,7 +109,7 @@ ceres::CostFunction* Fixed3DLandmarkConstraint::costFunction() const
 {
   // 2 Residuals Per 3D point
   return new ceres::AutoDiffCostFunction<Fixed3DLandmarkCostFunctor, ceres::DYNAMIC, 3, 4, 4>(
-      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2*pts3d_.rows());
+      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2 * pts3d_.rows());
 }
 
 }  // namespace fuse_constraints

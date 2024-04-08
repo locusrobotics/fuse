@@ -107,7 +107,7 @@ void Fixed3DLandmarkSimpleCovarianceConstraint::print(std::ostream& stream) cons
 ceres::CostFunction* Fixed3DLandmarkSimpleCovarianceConstraint::costFunction() const
 {
   return new ceres::AutoDiffCostFunction<Fixed3DLandmarkSimpleCovarianceCostFunctor, ceres::DYNAMIC, 3, 4, 4>(
-      new Fixed3DLandmarkSimpleCovarianceCostFunctor(sqrt_information_, mean_, observations_, pts3d_), pts3d_.rows());
+      new Fixed3DLandmarkSimpleCovarianceCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2 * pts3d_.rows());
 }
 
 }  // namespace fuse_constraints
