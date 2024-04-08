@@ -107,8 +107,9 @@ void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
 
 ceres::CostFunction* Fixed3DLandmarkConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<Fixed3DLandmarkCostFunctor, 8, 3, 4, 4>(
-      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_));
+  // 2 Residuals Per 3D point
+  return new ceres::AutoDiffCostFunction<Fixed3DLandmarkCostFunctor, ceres::DYNAMIC, 3, 4, 4>(
+      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2*pts3d_.rows());
 }
 
 }  // namespace fuse_constraints

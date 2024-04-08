@@ -460,6 +460,8 @@ TEST(Fixed3DLandmarkConstraint, OptimizationPoints)
   EXPECT_NEAR(643.10717773437500, calibration_variable->fy(), 1.0e-3);
   EXPECT_NEAR(310.29060457226840, calibration_variable->cx(), 1.0e-3);
   EXPECT_NEAR(237.80861559081677, calibration_variable->cy(), 1.0e-3);
+
+  EXPECT_EQ(16, constraint->costFunction()->num_residuals());  // Ensure we have the right number of residuals.
 }
 
 TEST(Fixed3DLandmarkConstraint, MultiViewOptimization)

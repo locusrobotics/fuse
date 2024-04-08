@@ -225,8 +225,8 @@ class PinholeCameraProjection():
 if __name__ == '__main__':
     tests = PinholeCameraProjection()
 
-    # tests.Optimization()
+    tests.Optimization()
     tests.OptimizationSnavelly()
-    # tests.OptimizationScaledMarker()
-    # tests.OptimizationPoints()
-    # tests.MultiViewOptimization()
+    tests.OptimizationScaledMarker()
+    tests.OptimizationPoints()
+    tests.MultiViewOptimization()
