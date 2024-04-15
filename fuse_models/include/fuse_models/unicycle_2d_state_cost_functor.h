@@ -40,13 +40,11 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
-
 namespace fuse_models
 {
-
 /**
  * @brief Create a cost function for a 2D state vector
- * 
+ *
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -70,7 +68,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -127,9 +125,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
@@ -165,9 +161,18 @@ bool Unicycle2DStateCostFunctor::operator()(
     vel_yaw_pred,
     acc_linear_pred);
 
+  // rotate the position residual into the local frame
+  T cos_yaw = ceres::cos(yaw1[0]);
+  T sin_yaw = ceres::sin(yaw1[0]);
+  Eigen::Matrix<T, 2, 2> rotation_matrix;
+  rotation_matrix << cos_yaw, -sin_yaw, sin_yaw, cos_yaw;
+  Eigen::Matrix<T, 2, 1> position_residual;
+  position_residual << position2[0] - position_pred[0], position2[1] - position_pred[1];
+  Eigen::Matrix<T, 2, 1> rotated_position_residual = rotation_matrix * position_residual;
+
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map(0) = position2[0] - position_pred[0];
-  residuals_map(1) = position2[1] - position_pred[1];
+  residuals_map(0) = rotated_position_residual[0];
+  residuals_map(1) = rotated_position_residual[1];
   residuals_map(2) = yaw2[0] - yaw_pred[0];
   residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
   residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];
