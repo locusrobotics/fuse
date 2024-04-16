@@ -33,7 +33,6 @@
  */
 #include <fuse_models/unicycle_2d_state_kinematic_constraint.h>
 #include <fuse_models/unicycle_2d_state_cost_function.h>
-#include <fuse_models/unicycle_2d_state_cost_functor.h>
 
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
 #include <fuse_variables/orientation_2d_stamped.h>
@@ -44,7 +43,6 @@
 
 #include <boost/serialization/export.hpp>
 #include <Eigen/Dense>
-#include <ceres/autodiff_cost_function.h>
 
 #include <ostream>
 #include <string>
@@ -107,13 +105,13 @@ ceres::CostFunction* Unicycle2DStateKinematicConstraint::costFunction() const
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could use automatic
   // differentiation as follows:
   //
-  return new ceres::AutoDiffCostFunction<Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>(
-    new Unicycle2DStateCostFunctor(dt_, sqrt_information_));
+  // return new ceres::AutoDiffCostFunction<Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>(
+  //   new Unicycle2DStateCostFunctor(dt_, sqrt_information_));
   //
   // which requires:
   //
   // #include <fuse_models/unicycle_2d_state_cost_functor.h>
-  // return new Unicycle2DStateCostFunction(dt_, sqrt_information_);
+  return new Unicycle2DStateCostFunction(dt_, sqrt_information_);
 }
 
 }  // namespace fuse_models

@@ -42,13 +42,11 @@
 
 #include <ceres/sized_cost_function.h>
 
-
 namespace fuse_models
 {
-
 /**
  * @brief Create a cost function for a 2D state vector
- * 
+ *
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -72,7 +70,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -115,9 +113,7 @@ public:
    *                         computed for the parameters where jacobians[i] is not NULL.
    * @return The return value indicates whether the computation of the residuals and/or jacobians was successful or not.
    */
-  bool Evaluate(double const* const* parameters,
-                double* residuals,
-                double** jacobians) const override
+  bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override
   {
     double position_pred_x;
     double position_pred_y;
@@ -147,8 +143,17 @@ public:
       acc_linear_pred_y,
       jacobians);
 
-    residuals[0] = parameters[5][0] - position_pred_x;
-    residuals[1] = parameters[5][1] - position_pred_y;
+    // rotate the position residual into the local frame
+    double cos_yaw = std::cos(parameters[1][0]);
+    double sin_yaw = std::sin(parameters[1][0]);
+    Eigen::Matrix2d rotation_matrix;
+    rotation_matrix << cos_yaw, -sin_yaw, sin_yaw, cos_yaw;
+    Eigen::Vector2d position_residual;
+    position_residual << parameters[5][0] - position_pred_x, parameters[5][1] - position_pred_y;
+    Eigen::Vector2d rotated_position_residual = rotation_matrix * position_residual;
+
+    residuals[0] = rotated_position_residual[0];
+    residuals[1] = rotated_position_residual[1];
     residuals[2] = parameters[6][0] - yaw_pred;
     residuals[3] = parameters[7][0] - vel_linear_pred_x;
     residuals[4] = parameters[7][1] - vel_linear_pred_y;
@@ -274,9 +279,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
