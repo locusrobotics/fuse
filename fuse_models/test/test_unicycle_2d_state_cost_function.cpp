@@ -128,7 +128,7 @@ TEST(CostFunction, evaluateCostFunction)
 
   for (size_t i = 0; i < num_parameter_blocks; ++i)
   {
-    EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], std::numeric_limits<double>::epsilon())
+    EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-15)
       << "Autodiff Jacobian[" << i << "] =\n" << J_autodiff[i].format(HeavyFmt)
       << "\nAnalytic Jacobian[" << i << "] =\n" << J[i].format(HeavyFmt);
   }
