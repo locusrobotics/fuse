@@ -92,9 +92,9 @@ void Transaction::addConstraint(Constraint::SharedPtr constraint, bool overwrite
 
   // Also don't add the same constraint twice
   auto is_constraint_added = [&constraint_uuid](const Constraint::SharedPtr & added_constraint)
-    {
-      return constraint_uuid == added_constraint->uuid();
-    };
+  {
+    return constraint_uuid == added_constraint->uuid();
+  };
   auto added_constraints_iter = std::find_if(
     added_constraints_.begin(),
     added_constraints_.end(), is_constraint_added);
@@ -110,9 +110,9 @@ void Transaction::removeConstraint(const UUID & constraint_uuid)
   // If the constraint being removed is in the 'added' container, then delete it from the 'added'
   // container instead of adding it to the 'removed' container.
   auto is_constraint_added = [&constraint_uuid](const Constraint::SharedPtr & added_constraint)
-    {
-      return constraint_uuid == added_constraint->uuid();
-    };
+  {
+    return constraint_uuid == added_constraint->uuid();
+  };
   auto added_constraints_iter = std::find_if(
     added_constraints_.begin(),
     added_constraints_.end(), is_constraint_added);
@@ -166,9 +166,9 @@ void Transaction::addVariable(Variable::SharedPtr variable, bool overwrite)
 
   // Also don't add the same variable twice
   auto is_variable_added = [&variable_uuid](const Variable::SharedPtr & added_variable)
-    {
-      return variable_uuid == added_variable->uuid();
-    };
+  {
+    return variable_uuid == added_variable->uuid();
+  };
   auto added_variables_iter = std::find_if(
     added_variables_.begin(),
     added_variables_.end(), is_variable_added);
@@ -184,9 +184,9 @@ void Transaction::removeVariable(const UUID & variable_uuid)
   // If the variable being removed is in the 'added' container, then delete it from the 'added'
   // container instead of adding it to the 'removed' container.
   auto is_variable_added = [&variable_uuid](const Variable::SharedPtr & added_variable)
-    {
-      return variable_uuid == added_variable->uuid();
-    };
+  {
+    return variable_uuid == added_variable->uuid();
+  };
   auto added_variables_iter = std::find_if(
     added_variables_.begin(),
     added_variables_.end(), is_variable_added);

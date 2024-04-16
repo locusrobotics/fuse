@@ -185,13 +185,13 @@ void FixedLagSmoother::postprocessMarginalization(
 void FixedLagSmoother::optimizationLoop()
 {
   auto exit_wait_condition = [this]()
-    {
-      return
-        this->optimization_request_ ||
-        !this->optimization_running_ ||
-        !interfaces_.get_node_base_interface()->get_context()->is_valid()
-      ;
-    };
+  {
+    return
+      this->optimization_request_ ||
+      !this->optimization_running_ ||
+      !interfaces_.get_node_base_interface()->get_context()->is_valid()
+    ;
+  };
   // Optimize constraints until told to exit
   while (interfaces_.get_node_base_interface()->get_context()->is_valid() &&
     optimization_running_)
@@ -519,9 +519,9 @@ void FixedLagSmoother::transactionCallback(
     // The pending set is arranged "smallest stamp last" to making popping off the back more
     // efficient
     auto comparator = [](const rclcpp::Time & value, const TransactionQueueElement & element)
-      {
-        return value >= element.stamp();
-      };
+    {
+      return value >= element.stamp();
+    };
     auto position = std::upper_bound(
       pending_transactions_.begin(),
       pending_transactions_.end(),
@@ -551,8 +551,8 @@ void FixedLagSmoother::transactionCallback(
             [&sensor_name, max_time,
             & min_time = start_time](const auto & transaction) {  // NOLINT(whitespace/braces)
               return transaction.sensor_name != sensor_name &&
-              (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
-            }),                 // NOLINT(whitespace/braces)
+                     (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
+            }),  // NOLINT(whitespace/braces)
           pending_transactions_.end());
       } else {
         // And purge out old transactions to limit the pending size while waiting for an ignition

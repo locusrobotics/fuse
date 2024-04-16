@@ -47,9 +47,9 @@ namespace fuse_optimizers
 rclcpp::Time VariableStampIndex::currentStamp() const
 {
   auto compare_stamps = [](const StampedMap::value_type & lhs, const StampedMap::value_type & rhs)
-    {
-      return lhs.second < rhs.second;
-    };
+  {
+    return lhs.second < rhs.second;
+  };
   auto iter = std::max_element(stamped_index_.begin(), stamped_index_.end(), compare_stamps);
   if (iter != stamped_index_.end()) {
     return iter->second;
