@@ -76,7 +76,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   auto relative_pose_publisher =
     node->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    "/relative_pose", 1);
+    "/relative_pose", 5);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(node->get_clock()->wait_until_started(rclcpp::Duration::from_seconds(1.0)));
@@ -130,10 +130,6 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
   pose_msg1.pose.covariance[7] = 1.0;
   pose_msg1.pose.covariance[35] = 1.0;
   relative_pose_publisher->publish(pose_msg1);
-
-  // HACK: The subscriber is not receiving both pose_msg1 and pose_msg2 if they are published
-  // back-to-back. I'm sure there is a better way to do this, but I'm not sure what it is yet.
-  rclcpp::sleep_for(std::chrono::milliseconds(100));
 
   auto pose_msg2 = geometry_msgs::msg::PoseWithCovarianceStamped();
   pose_msg2.header.stamp = rclcpp::Time(3, 0, RCL_ROS_TIME);
