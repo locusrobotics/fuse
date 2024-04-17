@@ -46,6 +46,7 @@
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <OgrePrerequisites.h>
 #include <OgreQuaternion.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
@@ -343,7 +344,13 @@ Ogre::ColourValue RelativePose2DStampedConstraintVisual::computeLossErrorLineCol
   // Get the error line color as HSB:
   Ogre::ColourValue error_line_color(color.r, color.g, color.b);
   Ogre::Real hue, saturation, brightness;
+#if (OGRE_VERSION < ((1 << 16) | (11 << 8) | 0))
+  // 1.10 or earlier
+  error_line_color.getHSB(&hue, &saturation, &brightness);
+# else
+  // 1.11 or later
   error_line_color.getHSB(hue, saturation, brightness);
+#endif
 
   // We should correct the color brightness if it is smaller than minimum brightness. Otherwise, we would get an
   // incorrect loss brightness.
