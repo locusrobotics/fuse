@@ -529,7 +529,6 @@ void FixedLagSmoother::transactionCallback(
       // ...check if we should
       if (sensor_models_.at(sensor_name).ignition)
       {
-        ROS_INFO_STREAM("Ignition occured");
         started_ = true;
         ignited_ = true;
         start_time = position->minStamp();
