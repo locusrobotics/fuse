@@ -2,6 +2,16 @@
 Changelog for package fuse_publishers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Port support for Ceres 2.1.0 Manifold class into ROS 2 Rolling (`#366 <https://github.com/locusrobotics/fuse/issues/366>`_)
+  * Support gcc12 and ceres 2.1.0
+  * Add support for the Manifold class when using Ceres Solver version 2.1.0 and above
+  * General clean up for Ceres 2.2.0 support
+  * Updated serialization support to be backwards compatible with previously serialized files
+  * Formatting changes required for ROS 2 Rolling / Ubuntu Noble
+* Contributors: Stephen Williams
+
 1.0.1 (2023-03-03)
 ------------------
 
