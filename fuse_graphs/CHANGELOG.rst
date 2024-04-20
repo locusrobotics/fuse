@@ -2,8 +2,8 @@
 Changelog for package fuse_graphs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2024-04-20)
+------------------
 * Port support for Ceres 2.1.0 Manifold class into ROS 2 Rolling (`#366 <https://github.com/locusrobotics/fuse/issues/366>`_)
   * Support gcc12 and ceres 2.1.0
   * Add support for the Manifold class when using Ceres Solver version 2.1.0 and above
