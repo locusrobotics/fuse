@@ -31,8 +31,6 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <Eigen/Core>
-#include <Eigen/Dense>
 #include <suitesparse/ccolamd.h>
 
 #include <algorithm>
@@ -44,17 +42,23 @@
 #include <utility>
 #include <vector>
 
+// The ROS 2 ament linter incorrectly recognizes Eigen includes as C instead of C++
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/empty.hpp>
+#include <Eigen/Core>  // NOLINT[build/include_order]
+#include <Eigen/Dense>  // NOLINT[build/include_order]
+
 #include <fuse_constraints/marginal_constraint.hpp>
 #include <fuse_constraints/marginalize_variables.hpp>
 #include <fuse_constraints/uuid_ordering.hpp>
 #include <fuse_constraints/variable_constraints.hpp>
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/manifold.hpp>
 #include <fuse_core/uuid.hpp>
 
 namespace fuse_constraints
 {
-
 UuidOrdering computeEliminationOrder(
   const std::vector<fuse_core::UUID> & marginalized_variables,
   const fuse_core::Graph & graph)
@@ -188,8 +192,8 @@ fuse_core::Transaction marginalizeVariables(
       [&elimination_order, &marginalized_variables](const fuse_core::UUID & variable_uuid)
       {
         return elimination_order.exists(variable_uuid) &&
-        elimination_order.at(variable_uuid) < marginalized_variables.size();
-      }));                 // NOLINT
+               elimination_order.at(variable_uuid) < marginalized_variables.size();
+      }));  // NOLINT
 
   fuse_core::Transaction transaction;
 
@@ -327,6 +331,7 @@ LinearTerm linearize(
   for (size_t index = 0ul; index < variable_count; ++index) {
     const auto & variable_uuid = variable_uuids[index];
     const auto & variable = graph.getVariable(variable_uuid);
+#if !CERES_SUPPORTS_MANIFOLDS
     auto local_parameterization = variable.localParameterization();
     auto & jacobian = result.A[index];
     if (variable.holdConstant()) {
@@ -343,6 +348,23 @@ LinearTerm linearize(
     if (local_parameterization) {
       delete local_parameterization;
     }
+#else
+    auto manifold = variable.manifold();
+    auto & jacobian = result.A[index];
+    if (variable.holdConstant()) {
+      if (manifold) {
+        jacobian.resize(Eigen::NoChange, manifold->TangentSize());
+      }
+      jacobian.setZero();
+    } else if (manifold) {
+      fuse_core::MatrixXd J(manifold->AmbientSize(), manifold->TangentSize());
+      manifold->PlusJacobian(variable_values[index], J.data());
+      jacobian *= J;
+    }
+    if (manifold) {
+      delete manifold;
+    }
+#endif
   }
 
   // Correct A and b for the effects of the loss function

@@ -41,6 +41,7 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/serialization/export.hpp>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 #include <pluginlib/class_list_macros.hpp>
@@ -319,11 +320,11 @@ void HashGraph::getCovariance(
   // covariance matrix is symmetric, requesting Cov(A,B) and Cov(B,A) counts as a duplicate. Create
   // an expression to test a pair of data pointers such that (A,B) == (A,B) OR (B,A)
   auto symmetric_equal = [](const std::pair<const double *, const double *> & x,
-      const std::pair<const double *, const double *> & y)
-    {
-      return ((x.first == y.first) && (x.second == y.second)) ||
-             ((x.first == y.second) && (x.second == y.first));
-    };
+    const std::pair<const double *, const double *> & y)
+  {
+    return ((x.first == y.first) && (x.second == y.second)) ||
+           ((x.first == y.second) && (x.second == y.first));
+  };
   // Convert the covariance requests into the input structure needed by Ceres. Namely, we must
   // convert the variable UUIDs into memory addresses. We create two containers of covariance
   // blocks: one only contains the unique variable pairs that we give to Ceres, and a second that
@@ -485,7 +486,11 @@ void HashGraph::createProblem(ceres::Problem & problem) const
     problem.AddParameterBlock(
       variable.data(),
       variable.size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       variable.localParameterization());
+#else
+      variable.manifold());
+#endif
     // Handle optimization bounds
     for (size_t index = 0; index < variable.size(); ++index) {
       auto lower_bound = variable.lowerBound(index);

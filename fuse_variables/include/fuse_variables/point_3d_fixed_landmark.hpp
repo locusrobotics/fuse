@@ -36,7 +36,9 @@
 
 #include <ostream>
 
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/manifold.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_variables/fixed_size_variable.hpp>
 
@@ -127,6 +129,15 @@ public:
    * @brief Specifies if the value of the variable should not be changed during optimization
    */
   bool holdConstant() const override;
+
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Create a null Ceres manifold
+   *
+   * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
+   */
+  fuse_core::Manifold * manifold() const override {return nullptr;}
+#endif
 
 private:
   // Allow Boost Serialization access to private methods

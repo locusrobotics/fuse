@@ -54,10 +54,10 @@
  * For a given Ceres Solver Option <T>, the function ToString calls ceres::<T>ToString
  */
 #define CERES_OPTION_TO_STRING_DEFINITION(Option) \
-  static inline const char * ToString(ceres::Option value) \
-  { \
-    return ceres::Option ## ToString(value); \
-  }
+        static inline const char * ToString(ceres::Option value) \
+        { \
+          return ceres::Option ## ToString(value); \
+        }
 
 /**
  * Defines FromString overloaded function to Ceres Options.
@@ -65,10 +65,10 @@
  * For a given Ceres Solver Option <T>, the function FromString calls ceres::StringTo<T>
  */
 #define CERES_OPTION_FROM_STRING_DEFINITION(Option) \
-  static inline bool FromString(std::string string_value, ceres::Option * value) \
-  { \
-    return ceres::StringTo ## Option(string_value, value); \
-  }
+        static inline bool FromString(std::string string_value, ceres::Option * value) \
+        { \
+          return ceres::StringTo ## Option(string_value, value); \
+        }
 
 /**
  * Defines ToString and FromString overloaded functions for Ceres Options.
@@ -76,8 +76,8 @@
  * See CERES_OPTION_TO_STRING_DEFINITION and CERES_OPTION_FROM_STRING_DEFINITION.
  */
 #define CERES_OPTION_STRING_DEFINITIONS(Option) \
-  CERES_OPTION_TO_STRING_DEFINITION(Option) \
-  CERES_OPTION_FROM_STRING_DEFINITION(Option)
+        CERES_OPTION_TO_STRING_DEFINITION(Option) \
+        CERES_OPTION_FROM_STRING_DEFINITION(Option)
 
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
 /**
@@ -99,8 +99,8 @@ static void UpperCase(std::string * input)
 inline const char * LoggingTypeToString(LoggingType type)
 {
   switch (type) {
-    CASESTR(SILENT);
-    CASESTR(PER_MINIMIZER_ITERATION);
+  CASESTR(SILENT);
+  CASESTR(PER_MINIMIZER_ITERATION);
     default:
       return "UNKNOWN";
   }
@@ -117,8 +117,8 @@ inline bool StringToLoggingType(std::string value, LoggingType * type)
 inline const char * DumpFormatTypeToString(DumpFormatType type)
 {
   switch (type) {
-    CASESTR(CONSOLE);
-    CASESTR(TEXTFILE);
+  CASESTR(CONSOLE);
+  CASESTR(TEXTFILE);
     default:
       return "UNKNOWN";
   }

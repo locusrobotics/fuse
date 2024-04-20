@@ -115,9 +115,9 @@ public:
                 std::to_string(sigma_vector.size()));
       }
       auto is_sigma_valid = [](const double sigma)
-        {
-          return std::isfinite(sigma) && (sigma > 0);
-        };
+      {
+        return std::isfinite(sigma) && (sigma > 0);
+      };
       if (!std::all_of(sigma_vector.begin(), sigma_vector.end(), is_sigma_valid)) {
         throw std::invalid_argument(
                 "The supplied initial_sigma parameter must contain valid floating point values. "
@@ -139,9 +139,9 @@ public:
                 std::to_string(state_vector.size()));
       }
       auto is_state_valid = [](const double state)
-        {
-          return std::isfinite(state);
-        };
+      {
+        return std::isfinite(state);
+      };
       if (!std::all_of(state_vector.begin(), state_vector.end(), is_state_valid)) {
         throw std::invalid_argument(
                 "The supplied initial_state parameter must contain valid floating point values. "
