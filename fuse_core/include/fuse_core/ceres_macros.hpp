@@ -46,4 +46,6 @@
                                                                      CERES_VERSION_REVISION >= z))))
 /* *INDENT-ON* */
 
+#define CERES_SUPPORTS_MANIFOLDS CERES_VERSION_AT_LEAST(2, 1, 0)
+
 #endif  // FUSE_CORE__CERES_MACROS_HPP_

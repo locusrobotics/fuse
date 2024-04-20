@@ -36,12 +36,15 @@
 
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string>
 
 #include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/manifold.hpp>
+#include <fuse_core/manifold_adapter.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 
@@ -59,10 +62,10 @@
  * @endcode
  */
 #define FUSE_VARIABLE_CLONE_DEFINITION(...) \
-  fuse_core::Variable::UniquePtr clone() const override \
-  { \
-    return __VA_ARGS__::make_unique(*this); \
-  }
+        fuse_core::Variable::UniquePtr clone() const override \
+        { \
+          return __VA_ARGS__::make_unique(*this); \
+        }
 
 /**
  * @brief Implementation of the serialize() and deserialize() member functions for derived classes
@@ -78,22 +81,22 @@
  * @endcode
  */
 #define FUSE_VARIABLE_SERIALIZE_DEFINITION(...) \
-  void serialize(fuse_core::BinaryOutputArchive & archive) const override \
-  { \
-    archive << *this; \
-  }  /* NOLINT */ \
-  void serialize(fuse_core::TextOutputArchive & archive) const override \
-  { \
-    archive << *this; \
-  }  /* NOLINT */ \
-  void deserialize(fuse_core::BinaryInputArchive & archive) override \
-  { \
-    archive >> *this; \
-  }  /* NOLINT */ \
-  void deserialize(fuse_core::TextInputArchive & archive) override \
-  { \
-    archive >> *this; \
-  }
+        void serialize(fuse_core::BinaryOutputArchive & archive) const override \
+        { \
+          archive << *this; \
+        }  /* NOLINT */ \
+        void serialize(fuse_core::TextOutputArchive & archive) const override \
+        { \
+          archive << *this; \
+        }  /* NOLINT */ \
+        void deserialize(fuse_core::BinaryInputArchive & archive) override \
+        { \
+          archive >> *this; \
+        }  /* NOLINT */ \
+        void deserialize(fuse_core::TextInputArchive & archive) override \
+        { \
+          archive >> *this; \
+        }
 
 /**
  * @brief Implements the type() member function using the suggested implementation
@@ -111,17 +114,17 @@
  * @endcode
  */
 #define FUSE_VARIABLE_TYPE_DEFINITION(...) \
-  struct detail \
-  { \
-    static std::string type() \
-    { \
-      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
-    }  /* NOLINT */ \
-  };  /* NOLINT */ \
-  std::string type() const override \
-  { \
-    return detail::type(); \
-  }
+        struct detail \
+        { \
+          static std::string type() \
+          { \
+            return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
+          }  /* NOLINT */ \
+        };  /* NOLINT */ \
+        std::string type() const override \
+        { \
+          return detail::type(); \
+        }
 
 /**
  * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
@@ -138,10 +141,10 @@
  * @endcode
  */
 #define FUSE_VARIABLE_DEFINITIONS(...) \
-  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
-  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
+        FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+        FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
+        FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
+        FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 /**
  * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
@@ -158,10 +161,10 @@
  * @endcode
  */
 #define FUSE_VARIABLE_DEFINITIONS_WITH_EIGEN(...) \
-  FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
-  FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
-  FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
+        FUSE_SMART_PTR_DEFINITIONS_WITH_EIGEN(__VA_ARGS__) \
+        FUSE_VARIABLE_TYPE_DEFINITION(__VA_ARGS__) \
+        FUSE_VARIABLE_CLONE_DEFINITION(__VA_ARGS__) \
+        FUSE_VARIABLE_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 
 namespace fuse_core
@@ -327,6 +330,39 @@ public:
   {
     return nullptr;
   }
+
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Create a new Ceres manifold object to apply to updates of this
+   * variable
+   *
+   * If a manifold is not needed, a null pointer should be returned. If a local
+   * parameterization is needed, remember to also override the \p localSize()
+   * method to return the appropriate local parameterization size.
+   *
+   * The Ceres interface requires a raw pointer. Ceres will take ownership of
+   * the pointer and promises to properly delete the local parameterization when
+   * it is done. Additionally, fuse promises that the Variable object will
+   * outlive any generated local parameterization (i.e. the Ceres objects will
+   * be destroyed before the Variable objects). This guarantee may allow
+   * optimizations for the creation of the local parameterization objects.
+   *
+   * @return A base pointer to an instance of a derived Manifold
+   */
+  virtual fuse_core::Manifold * manifold() const
+  {
+    // To support legacy Variable classes that still implements the localParameterization() method,
+    // construct a ManifoldAdapter object from the LocalParameterization pointer as the default
+    // action. If the Variable has been updated to use the new Manifold classes, then the Variable
+    // should override this method and return a pointer to the appropriate derived Manifold object.
+    auto local_parameterization = localParameterization();
+    if (!local_parameterization) {
+      return nullptr;
+    } else {
+      return new fuse_core::ManifoldAdapter(local_parameterization);
+    }
+  }
+#endif
 
   /**
    * @brief Specifies the lower bound value of each variable dimension

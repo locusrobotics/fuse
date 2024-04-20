@@ -109,7 +109,7 @@ template<typename T>
 class CallbackWrapper : public CallbackWrapperBase
 {
 public:
-  using CallbackFunction = std::function<T(void)>;
+  using CallbackFunction = std::function<T (void)>;
 
   /**
    * @brief Constructor

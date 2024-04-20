@@ -14,19 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
-
 from launch import LaunchDescription
 from launch.substitutions import PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
     pkg_dir = FindPackageShare('fuse_tutorials')
 
     return LaunchDescription([
-        Node(package="tf2_ros",
-             executable="static_transform_publisher",
+        Node(package='tf2_ros',
+             executable='static_transform_publisher',
              arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom']),
         Node(
             package='fuse_tutorials',
