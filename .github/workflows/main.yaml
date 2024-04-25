@@ -9,17 +9,17 @@ jobs:
   ci:
     strategy:
       matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
         include:
-          - os: ubuntu-20.04
-            distro: noetic
+          - distro: noetic
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - uses: ros-tooling/setup-ros@0.7.1
         with:
           required-ros-distributions: ${{ matrix.distro }}
       - run: sudo apt remove python3-openssl -y
-      - uses: ros-tooling/action-ros-ci@0.3.5
+      - uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros1-distro: ${{ matrix.distro }}
