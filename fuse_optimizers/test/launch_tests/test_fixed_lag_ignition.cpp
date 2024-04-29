@@ -33,6 +33,10 @@
  */
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <mutex>
+#include <thread>
+
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -67,12 +71,20 @@ public:
 
   void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
   {
+    std::lock_guard lock(received_odom_mutex_);
     received_odom_msg_ = msg;
+  }
+
+  nav_msgs::msg::Odometry::SharedPtr get_last_odom_msg()
+  {
+    std::lock_guard lock(received_odom_mutex_);
+    return received_odom_msg_;
   }
 
   std::thread spinner_;   //!< Internal thread for spinning the executor
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
   nav_msgs::msg::Odometry::SharedPtr received_odom_msg_;
+  std::mutex received_odom_mutex_;
 };
 
 TEST_F(FixedLagIgnitionFixture, SetInitialState)
@@ -162,20 +174,23 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   // Wait for the optimizer to process all queued transactions and publish the last odometry msg
   rclcpp::Time result_timeout = node->now() + rclcpp::Duration::from_seconds(1.0);
-  while ((!received_odom_msg_ || received_odom_msg_->header.stamp != rclcpp::Time(3, 0,
+  auto odom_msg = nav_msgs::msg::Odometry::SharedPtr();
+  while ((!odom_msg || odom_msg->header.stamp != rclcpp::Time(3, 0,
     RCL_ROS_TIME)) && (node->now() < result_timeout))
   {
     rclcpp::sleep_for(std::chrono::milliseconds(100));
+    odom_msg = this->get_last_odom_msg();
   }
-  ASSERT_EQ(rclcpp::Time(received_odom_msg_->header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
+  ASSERT_TRUE(static_cast<bool>(odom_msg));
+  ASSERT_EQ(rclcpp::Time(odom_msg->header.stamp), rclcpp::Time(3, 0, RCL_ROS_TIME));
 
   // The optimizer is configured for 0 iterations, so it should return the initial variable values
   // If we did our job correctly, the initial variable values should be the same as the service call
   // state, give or take the motion model forward prediction.
-  EXPECT_NEAR(100.1, received_odom_msg_->pose.pose.position.x, 0.10);
-  EXPECT_NEAR(100.2, received_odom_msg_->pose.pose.position.y, 0.10);
-  EXPECT_NEAR(0.8660, received_odom_msg_->pose.pose.orientation.z, 0.10);
-  EXPECT_NEAR(0.5000, received_odom_msg_->pose.pose.orientation.w, 0.10);
+  EXPECT_NEAR(100.1, odom_msg->pose.pose.position.x, 0.10);
+  EXPECT_NEAR(100.2, odom_msg->pose.pose.position.y, 0.10);
+  EXPECT_NEAR(0.8660, odom_msg->pose.pose.orientation.z, 0.10);
+  EXPECT_NEAR(0.5000, odom_msg->pose.pose.orientation.w, 0.10);
 }
 
 // NOTE(CH3): This main is required because the test is manually run by a launch test
