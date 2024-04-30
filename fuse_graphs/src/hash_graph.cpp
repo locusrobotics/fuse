@@ -321,10 +321,10 @@ void HashGraph::getCovariance(
   // an expression to test a pair of data pointers such that (A,B) == (A,B) OR (B,A)
   auto symmetric_equal = [](const std::pair<const double *, const double *> & x,
     const std::pair<const double *, const double *> & y)
-  {
-    return ((x.first == y.first) && (x.second == y.second)) ||
-           ((x.first == y.second) && (x.second == y.first));
-  };
+    {
+      return ((x.first == y.first) && (x.second == y.second)) ||
+             ((x.first == y.second) && (x.second == y.first));
+    };
   // Convert the covariance requests into the input structure needed by Ceres. Namely, we must
   // convert the variable UUIDs into memory addresses. We create two containers of covariance
   // blocks: one only contains the unique variable pairs that we give to Ceres, and a second that
