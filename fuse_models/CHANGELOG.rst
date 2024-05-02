@@ -2,6 +2,9 @@
 Changelog for package fuse_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.1 (2024-05-02)
 ------------------
 * Required formatting changes for the lastest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
