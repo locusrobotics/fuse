@@ -2,6 +2,11 @@
 Changelog for package fuse_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Required formatting changes for the lastest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
+* Contributors: Stephen Williams
+
 1.1.0 (2024-04-20)
 ------------------
 * Port support for Ceres 2.1.0 Manifold class into ROS 2 Rolling (`#366 <https://github.com/locusrobotics/fuse/issues/366>`_)
