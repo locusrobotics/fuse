@@ -2,8 +2,8 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2024-05-02)
+------------------
 * Fix fuse optimizer unit test (`#369 <https://github.com/locusrobotics/fuse/issues/369>`_)
   * Fix fuse optimizer unit test. The rclcpp::wait_for_message call was throwing an exception 'subscription already associated with a wait set'. Switched to a standard subscriber instead.
 * Required formatting changes for the lastest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
