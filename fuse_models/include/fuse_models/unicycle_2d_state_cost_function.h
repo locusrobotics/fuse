@@ -144,16 +144,13 @@ public:
       jacobians);
 
     // rotate the position residual into the local frame
-    double cos_yaw = std::cos(parameters[1][0]);
-    double sin_yaw = std::sin(parameters[1][0]);
-    Eigen::Matrix2d rotation_matrix;
-    rotation_matrix << cos_yaw, -sin_yaw, sin_yaw, cos_yaw;
-    Eigen::Vector2d position_residual;
-    position_residual << parameters[5][0] - position_pred_x, parameters[5][1] - position_pred_y;
-    Eigen::Vector2d rotated_position_residual = rotation_matrix * position_residual;
-
-    residuals[0] = rotated_position_residual[0];
-    residuals[1] = rotated_position_residual[1];
+    auto delta_x = parameters[5][0] - position_pred_x;
+    auto delta_y = parameters[5][1] - position_pred_y;
+    auto sin_pred_inv = std::sin(-yaw_pred);
+    auto cos_pred_inv= std::cos(-yaw_pred);
+    residuals[0] = cos_pred_inv * delta_x - sin_pred_inv * delta_y;
+    residuals[1] = sin_pred_inv * delta_x + cos_pred_inv * delta_y;
+    
     residuals[2] = parameters[6][0] - yaw_pred;
     residuals[3] = parameters[7][0] - vel_linear_pred_x;
     residuals[4] = parameters[7][1] - vel_linear_pred_y;

@@ -162,17 +162,14 @@ bool Unicycle2DStateCostFunctor::operator()(
     acc_linear_pred);
 
   // rotate the position residual into the local frame
-  T cos_yaw = ceres::cos(yaw1[0]);
-  T sin_yaw = ceres::sin(yaw1[0]);
-  Eigen::Matrix<T, 2, 2> rotation_matrix;
-  rotation_matrix << cos_yaw, -sin_yaw, sin_yaw, cos_yaw;
-  Eigen::Matrix<T, 2, 1> position_residual;
-  position_residual << position2[0] - position_pred[0], position2[1] - position_pred[1];
-  Eigen::Matrix<T, 2, 1> rotated_position_residual = rotation_matrix * position_residual;
+  T delta_x = parameters[5][0] - position_pred_x;
+  T delta_y = parameters[5][1] - position_pred_y;
+  T sin_pred_inv = ceres::sin(-yaw_pred);
+  T cos_pred_inv = ceres::cos(-yaw_pred);
 
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map(0) = rotated_position_residual[0];
-  residuals_map(1) = rotated_position_residual[1];
+  residuals_map(0) = cos_pred_inv * delta_x - sin_pred_inv * delta_y;
+  residuals_map(1) = sin_pred_inv * delta_x + cos_pred_inv * delta_y;
   residuals_map(2) = yaw2[0] - yaw_pred[0];
   residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
   residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];
