@@ -113,7 +113,9 @@ public:
    *                         computed for the parameters where jacobians[i] is not NULL.
    * @return The return value indicates whether the computation of the residuals and/or jacobians was successful or not.
    */
-  bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override
+  bool Evaluate(double const* const* parameters,
+                double* residuals,
+                double** jacobians) const override
   {
     double position_pred_x;
     double position_pred_y;
@@ -148,9 +150,9 @@ public:
     auto delta_y = parameters[5][1] - position_pred_y;
     auto sin_pred_inv = std::sin(-yaw_pred);
     auto cos_pred_inv= std::cos(-yaw_pred);
+
     residuals[0] = cos_pred_inv * delta_x - sin_pred_inv * delta_y;
     residuals[1] = sin_pred_inv * delta_x + cos_pred_inv * delta_y;
-    
     residuals[2] = parameters[6][0] - yaw_pred;
     residuals[3] = parameters[7][0] - vel_linear_pred_x;
     residuals[4] = parameters[7][1] - vel_linear_pred_y;
@@ -276,7 +278,9 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
+Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) :
+  dt_(dt),
+  A_(A)
 {
 }
 
