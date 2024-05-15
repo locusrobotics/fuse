@@ -40,13 +40,11 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
-
 namespace fuse_models
 {
-
 /**
  * @brief Create a cost function for a 2D state vector
- * 
+ *
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -70,7 +68,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -127,9 +125,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
@@ -147,33 +143,36 @@ bool Unicycle2DStateCostFunctor::operator()(
   const T* const acc_linear2,
   T* residual) const
 {
-  T position_pred[2];
+  T delta_position_pred[2];
   T yaw_pred[1];
   T vel_linear_pred[2];
   T vel_yaw_pred[1];
   T acc_linear_pred[2];
+  T init_position[2];
+  T init_yaw[1];
+  init_position[0] = (T)0.0;
+  init_position[1] = (T)0.0;
+  init_yaw[0] = (T)0.0;
   predict(
-    position1,
-    yaw1,
+    init_position,
+    init_yaw,
     vel_linear1,
     vel_yaw1,
     acc_linear1,
     T(dt_),
-    position_pred,
+    delta_position_pred,
     yaw_pred,
     vel_linear_pred,
     vel_yaw_pred,
     acc_linear_pred);
 
   // rotate the position residual into the local frame
-  T delta_x = parameters[5][0] - position_pred_x;
-  T delta_y = parameters[5][1] - position_pred_y;
-  T sin_pred_inv = ceres::sin(-yaw_pred);
-  T cos_pred_inv = ceres::cos(-yaw_pred);
+  T sin_pred_inv = ceres::sin(-yaw_pred[0]);
+  T cos_pred_inv = ceres::cos(-yaw_pred[0]);
 
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map(0) = cos_pred_inv * delta_x - sin_pred_inv * delta_y;
-  residuals_map(1) = sin_pred_inv * delta_x + cos_pred_inv * delta_y;
+  residuals_map(0) = cos_pred_inv * delta_position_pred[0] - sin_pred_inv * delta_position_pred[1];
+  residuals_map(1) = sin_pred_inv * delta_position_pred[0] + cos_pred_inv * delta_position_pred[1];
   residuals_map(2) = yaw2[0] - yaw_pred[0];
   residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
   residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];

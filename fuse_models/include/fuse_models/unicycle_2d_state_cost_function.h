@@ -119,8 +119,8 @@ public:
                 double* residuals,
                 double** jacobians) const override
   {
-    double position_pred_x;
-    double position_pred_y;
+    double delta_position_pred_x;
+    double delta_position_pred_y;
     double yaw_pred;
     double vel_linear_pred_x;
     double vel_linear_pred_y;
@@ -128,17 +128,17 @@ public:
     double acc_linear_pred_x;
     double acc_linear_pred_y;
     predict(
-      parameters[0][0],  // position1_x
-      parameters[0][1],  // position1_y
-      parameters[1][0],  // yaw1
+      0.0,
+      0.0,
+      0.0,
       parameters[2][0],  // vel_linear1_x
       parameters[2][1],  // vel_linear1_y
       parameters[3][0],  // vel_yaw1
       parameters[4][0],  // acc_linear1_x
       parameters[4][1],  // acc_linear1_y
       dt_,
-      position_pred_x,
-      position_pred_y,
+      delta_position_pred_x,
+      delta_position_pred_y,
       yaw_pred,
       vel_linear_pred_x,
       vel_linear_pred_y,
@@ -148,13 +148,11 @@ public:
       jacobians);
 
     // rotate the position residual into the local frame
-    auto delta_x = parameters[5][0] - position_pred_x;
-    auto delta_y = parameters[5][1] - position_pred_y;
     auto sin_pred_inv = std::sin(-yaw_pred);
     auto cos_pred_inv= std::cos(-yaw_pred);
 
-    residuals[0] = cos_pred_inv * delta_x - sin_pred_inv * delta_y;
-    residuals[1] = sin_pred_inv * delta_x + cos_pred_inv * delta_y;
+    residuals[0] = cos_pred_inv * delta_position_pred_x - sin_pred_inv * delta_position_pred_y;
+    residuals[1] = sin_pred_inv * delta_position_pred_x + cos_pred_inv * delta_position_pred_y;
     residuals[2] = parameters[6][0] - yaw_pred;
     residuals[3] = parameters[7][0] - vel_linear_pred_x;
     residuals[4] = parameters[7][1] - vel_linear_pred_y;
