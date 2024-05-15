@@ -56,7 +56,7 @@ namespace fuse_models
  *   yaw velocity
  *   x acceleration
  *   y acceleration
- * 
+ *
  * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost function that
  * applies a prior constraint on both the entire state vector.
  *
