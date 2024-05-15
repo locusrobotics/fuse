@@ -147,24 +147,25 @@ public:
       acc_linear_pred_y,
       jacobians);
 
-    // rotate the position residual into the local frame
-    auto sin_pred_inv = std::sin(-yaw_pred);
-    auto cos_pred_inv= std::cos(-yaw_pred);
+    const Eigen::Vector2d position1(parameters[0][0], parameters[0][1]);
+    const Eigen::Vector2d position2(parameters[5][0], parameters[5][1]);
+    const Eigen::Vector2d delta_position = fuse_core::rotationMatrix2D(-parameters[1][0]) * (position2 - position1);
+    const double delta_yaw = parameters[6][0] - parameters[1][0]; 
+    const Eigen::Vector2d delta_position_pred(delta_position_pred_x, delta_position_pred_y);
 
-    residuals[0] = cos_pred_inv * delta_position_pred_x - sin_pred_inv * delta_position_pred_y;
-    residuals[1] = sin_pred_inv * delta_position_pred_x + cos_pred_inv * delta_position_pred_y;
-    residuals[2] = parameters[6][0] - yaw_pred;
-    residuals[3] = parameters[7][0] - vel_linear_pred_x;
-    residuals[4] = parameters[7][1] - vel_linear_pred_y;
-    residuals[5] = parameters[8][0] - vel_yaw_pred;
-    residuals[6] = parameters[9][0] - acc_linear_pred_x;
-    residuals[7] = parameters[9][1] - acc_linear_pred_y;
+    Eigen::Map<Eigen::Matrix<double, 8, 1>> residuals_map(residuals);
+    residuals_map.head<2>() = fuse_core::rotationMatrix2D(-delta_yaw) * (delta_position - delta_position_pred);
+    residuals_map(2) = delta_yaw - yaw_pred;  // omitting fuse_core::wrapAngle2D because it is done later on
+    residuals_map(3) = parameters[7][0] - vel_linear_pred_x;
+    residuals_map(4) = parameters[7][1] - vel_linear_pred_y;
+    residuals_map(5) = parameters[8][0] - vel_yaw_pred;
+    residuals_map(6) = parameters[9][0] - acc_linear_pred_x;
+    residuals_map(7) = parameters[9][1] - acc_linear_pred_y;
 
     fuse_core::wrapAngle2D(residuals[2]);
 
     // Scale the residuals by the square root information matrix to account for
     // the measurement uncertainty.
-    Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_);
 
     if (jacobians)
