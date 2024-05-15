@@ -42,11 +42,13 @@
 
 #include <ceres/sized_cost_function.h>
 
+
 namespace fuse_models
 {
+
 /**
  * @brief Create a cost function for a 2D state vector
- *
+ * 
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -56,7 +58,7 @@ namespace fuse_models
  *   yaw velocity
  *   x acceleration
  *   y acceleration
- *
+ * 
  * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost function that
  * applies a prior constraint on both the entire state vector.
  *

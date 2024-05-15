@@ -40,11 +40,13 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
+
 namespace fuse_models
 {
+
 /**
  * @brief Create a cost function for a 2D state vector
- *
+ * 
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -54,7 +56,7 @@ namespace fuse_models
  *   yaw velocity
  *   x acceleration
  *   y acceleration
- *
+ * 
  * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost function that
  * applies a prior constraint on both the entire state vector.
  *
@@ -68,7 +70,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- *
+ * 
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -125,7 +127,9 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
+  dt_(dt),
+  A_(A)
 {
 }
 
