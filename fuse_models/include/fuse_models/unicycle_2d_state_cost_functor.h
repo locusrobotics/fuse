@@ -125,7 +125,9 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
+  dt_(dt),
+  A_(A)
 {
 }
 
