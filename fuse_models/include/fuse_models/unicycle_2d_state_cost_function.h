@@ -146,7 +146,6 @@ public:
       jacobians);
 
     const double delta_yaw = parameters[6][0] - parameters[1][0];
-
     const Eigen::Vector2d position1(parameters[0][0], parameters[0][1]);
     const Eigen::Vector2d position2(parameters[5][0], parameters[5][1]);
     const Eigen::Vector2d delta_position_est = fuse_core::rotationMatrix2D(-parameters[1][0]) * (position2 - position1);

@@ -152,9 +152,9 @@ bool Unicycle2DStateCostFunctor::operator()(
   T acc_linear_pred[2];
   T init_position[2];
   T init_yaw[1];
-  init_position[0] = (T)0.0;
-  init_position[1] = (T)0.0;
-  init_yaw[0] = (T)0.0;
+  init_position[0] = T(0.0);
+  init_position[1] = T(0.0);
+  init_yaw[0] = T(0.0);
   predict(
     init_position,
     init_yaw,
@@ -168,16 +168,15 @@ bool Unicycle2DStateCostFunctor::operator()(
     vel_yaw_pred,
     acc_linear_pred);
 
-  // rotate the position residual into the local frame
+  const T delta_yaw = yaw2[0] - yaw1[0];  
   const Eigen::Matrix<T, 2, 1> position1_map(position1[0], position1[1]);
   const Eigen::Matrix<T, 2, 1> position2_map(position2[0], position2[1]);
-  const Eigen::Matrix<T, 2, 1> delta_position = fuse_core::rotationMatrix2D(-yaw1[0]) * (position2_map - position1_map);
-  const T delta_yaw = yaw2[0] - yaw1[0];  // omitting fuse_core::wrapAngle2D because it is done later on
+  const Eigen::Matrix<T, 2, 1> delta_position_est = fuse_core::rotationMatrix2D(-yaw1[0]) * (position2_map - position1_map);
   const Eigen::Matrix<T, 2, 1> delta_position_pred_map(delta_position_pred[0], delta_position_pred[1]);
 
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map.template head<2>() = fuse_core::rotationMatrix2D(-delta_yaw) * (delta_position - delta_position_pred_map);
-  residuals_map(2) = delta_yaw - delta_yaw_pred[0];  // omitting fuse_core::wrapAngle2D because it is done later on
+  residuals_map.template head<2>() = fuse_core::rotationMatrix2D(-delta_yaw) * (delta_position_est - delta_position_pred_map);
+  residuals_map(2) = delta_yaw - delta_yaw_pred[0];  
   residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
   residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];
   residuals_map(5) = vel_yaw2[0] - vel_yaw_pred[0];
