@@ -292,7 +292,7 @@ protected:
    * @brief Stop the optimizer
    */
   void stop();
-  
+
   /**
    * @brief Thread-safe read-only access to the optimizer start time
    */
