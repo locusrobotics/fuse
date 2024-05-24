@@ -107,6 +107,16 @@ FixedLagSmoother::FixedLagSmoother(
     ros::names::resolve(params_.reset_service),
     &FixedLagSmoother::resetServiceCallback,
     this);
+
+  stop_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.stop_service),
+    &FixedLagSmoother::stopServiceCallback,
+    this);
+
+  start_service_server_ = node_handle_.advertiseService(
+    ros::names::resolve(params_.start_service),
+    &FixedLagSmoother::startServiceCallback,
+    this);
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -426,6 +436,34 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
 
 bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
 {
+  stop();
+  start();
+
+  return true;
+}
+
+bool FixedLagSmoother::stopServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  stop();
+  return true;
+}
+
+bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+{
+  start();
+  return true;
+}
+
+void FixedLagSmoother::start()
+{
+  // Tell all the plugins to start
+  startPlugins();
+  // Test for auto-start
+  autostart();
+}
+
+void FixedLagSmoother::stop()
+{
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
@@ -452,12 +490,6 @@ bool FixedLagSmoother::resetServiceCallback(std_srvs::Empty::Request&, std_srvs:
     timestamp_tracking_.clear();
     lag_expiration_ = ros::Time(0, 0);
   }
-  // Tell all the plugins to start
-  startPlugins();
-  // Test for auto-start
-  autostart();
-
-  return true;
 }
 
 void FixedLagSmoother::transactionCallback(
