@@ -125,9 +125,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
@@ -168,25 +166,27 @@ bool Unicycle2DStateCostFunctor::operator()(
     vel_yaw_pred,
     acc_linear_pred);
 
-  const T delta_yaw = yaw2[0] - yaw1[0];  
+  const T delta_yaw_est = yaw2[0] - yaw1[0];
   const Eigen::Matrix<T, 2, 1> position1_map(position1[0], position1[1]);
   const Eigen::Matrix<T, 2, 1> position2_map(position2[0], position2[1]);
-  const Eigen::Matrix<T, 2, 1> delta_position_est = fuse_core::rotationMatrix2D(-yaw1[0]) * (position2_map - position1_map);
-  const Eigen::Matrix<T, 2, 1> delta_position_pred_map(delta_position_pred[0], delta_position_pred[1]);
+  const Eigen::Matrix<T, 2, 1> position_diff = (position2_map - position1_map);
+  const T sin_yaw_inv = ceres::sin(-yaw1[0]);
+  const T cos_yaw_inv = ceres::cos(-yaw1[0]);
 
-  Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map.template head<2>() = fuse_core::rotationMatrix2D(-delta_yaw) * (delta_position_est - delta_position_pred_map);
-  residuals_map(2) = delta_yaw - delta_yaw_pred[0];  
-  residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
-  residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];
-  residuals_map(5) = vel_yaw2[0] - vel_yaw_pred[0];
-  residuals_map(6) = acc_linear2[0] - acc_linear_pred[0];
-  residuals_map(7) = acc_linear2[1] - acc_linear_pred[1];
+  residual[0] = (cos_yaw_inv * position_diff.x() - sin_yaw_inv * position_diff.y()) - delta_position_pred[0];
+  residual[1] = (sin_yaw_inv * position_diff.x() + cos_yaw_inv * position_diff.y()) - delta_position_pred[1];
+  residual[2] = delta_yaw_est - delta_yaw_pred[0];
+  residual[3] = vel_linear2[0] - vel_linear_pred[0];
+  residual[4] = vel_linear2[1] - vel_linear_pred[1];
+  residual[5] = vel_yaw2[0] - vel_yaw_pred[0];
+  residual[6] = acc_linear2[0] - acc_linear_pred[0];
+  residual[7] = acc_linear2[1] - acc_linear_pred[1];
 
-  fuse_core::wrapAngle2D(residuals_map(2));
+  fuse_core::wrapAngle2D(residual[2]);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
+  Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
   residuals_map.applyOnTheLeft(A_.template cast<T>());
 
   return true;

@@ -113,13 +113,11 @@ public:
    *                         computed for the parameters where jacobians[i] is not NULL.
    * @return The return value indicates whether the computation of the residuals and/or jacobians was successful or not.
    */
-  bool Evaluate(double const* const* parameters,
-                double* residuals,
-                double** jacobians) const override
+  bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override
   {
     double delta_position_pred_x;
     double delta_position_pred_y;
-    double yaw_pred;
+    double delta_yaw_pred;
     double vel_linear_pred_x;
     double vel_linear_pred_y;
     double vel_yaw_pred;
@@ -137,7 +135,7 @@ public:
       dt_,
       delta_position_pred_x,
       delta_position_pred_y,
-      yaw_pred,
+      delta_yaw_pred,
       vel_linear_pred_x,
       vel_linear_pred_y,
       vel_yaw_pred,
@@ -145,26 +143,27 @@ public:
       acc_linear_pred_y,
       jacobians);
 
-    const double delta_yaw = parameters[6][0] - parameters[1][0];
-    const Eigen::Vector2d position1(parameters[0][0], parameters[0][1]);
-    const Eigen::Vector2d position2(parameters[5][0], parameters[5][1]);
-    const Eigen::Vector2d delta_position_est = fuse_core::rotationMatrix2D(-parameters[1][0]) * (position2 - position1);
-    const Eigen::Vector2d delta_position_pred(delta_position_pred_x, delta_position_pred_y);
-    const fuse_core::Matrix2d R_delta_yaw_inv = fuse_core::rotationMatrix2D(-delta_yaw);
+    const double delta_yaw_est = parameters[6][0] - parameters[1][0];
+    const fuse_core::Vector2d position1(parameters[0][0], parameters[0][1]);
+    const fuse_core::Vector2d position2(parameters[5][0], parameters[5][1]);
+    const fuse_core::Vector2d position_diff = (position2 - position1);
+    const double sin_yaw_inv = std::sin(-parameters[1][0]);
+    const double cos_yaw_inv = std::cos(-parameters[1][0]);
 
-    Eigen::Map<Eigen::Matrix<double, 8, 1>> residuals_map(residuals);
-    residuals_map.head<2>() = R_delta_yaw_inv * (delta_position_pred - delta_position_est);
-    residuals_map(2) = delta_yaw - yaw_pred;
-    residuals_map(3) = parameters[7][0] - vel_linear_pred_x;
-    residuals_map(4) = parameters[7][1] - vel_linear_pred_y;
-    residuals_map(5) = parameters[8][0] - vel_yaw_pred;
-    residuals_map(6) = parameters[9][0] - acc_linear_pred_x;
-    residuals_map(7) = parameters[9][1] - acc_linear_pred_y;
+    residuals[0] = (cos_yaw_inv * position_diff.x() - sin_yaw_inv * position_diff.y()) - delta_position_pred_x;
+    residuals[1] = (sin_yaw_inv * position_diff.x() + cos_yaw_inv * position_diff.y()) - delta_position_pred_y;
+    residuals[2] = delta_yaw_est - delta_yaw_pred;
+    residuals[3] = parameters[7][0] - vel_linear_pred_x;
+    residuals[4] = parameters[7][1] - vel_linear_pred_y;
+    residuals[5] = parameters[8][0] - vel_yaw_pred;
+    residuals[6] = parameters[9][0] - acc_linear_pred_x;
+    residuals[7] = parameters[9][1] - acc_linear_pred_y;
 
     fuse_core::wrapAngle2D(residuals[2]);
 
     // Scale the residuals by the square root information matrix to account for
     // the measurement uncertainty.
+    Eigen::Map<Eigen::Matrix<double, 8, 1>> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_);
 
     if (jacobians)
@@ -182,47 +181,39 @@ public:
       //   }
       // }
 
-      // For the following jacobian computations we consider E to be the full residual, and Ep to be the top 2 rows of
-      // the residual (wrt the first position)
-      // We then consider L to be the full "prediction" vector from the predict function, and Lp is the top 2 rows of
-      // the prediction vector where the prediction vector is defined as:
-      // [
-      //   delta_position_pred_x
-      //   delta_position_pred_y
-      //   yaw_pred,
-      //   vel_linear_pred_x,
-      //   vel_linear_pred_y,
-      //   vel_yaw_pred,
-      //   acc_linear_pred_x,
-      //   acc_linear_pred_y,
-      // ]
-      fuse_core::Matrix<double, 2, 2> d_Ep_d_Lp = R_delta_yaw_inv;
-
       // Update jacobian wrt position1
       if (jacobians[0])
       {
-        Eigen::Map<fuse_core::Matrix<double, 8, 2>> d_L_d_position1(jacobians[0]);
-        fuse_core::Matrix<double, 2, 2> d_Lp_d_position1 = d_L_d_position1.block<2, 2>(0, 0);
-        d_L_d_position1.block<2, 2>(0, 0) = d_Ep_d_Lp * d_Lp_d_position1;
-        d_L_d_position1.applyOnTheLeft(-A_);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> djacobian(jacobians[0]);
+        fuse_core::Matrix<double, 2, 2> d_DPP_d_position1 = jacobian.block<2, 2>(0, 0);
+        jacobian.block<2, 2>(0, 0) = R_yaw_inv * d_DPP_d_position1;
+        jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt yaw1
       if (jacobians[1])
       {
-        Eigen::Map<fuse_core::Vector8d> d_L_d_yaw1(jacobians[1]);
-        fuse_core::Vector2d d_Lp_d_yaw1 = d_L_d_yaw1.head<2>();
-        d_L_d_yaw1.head<2>() = d_Ep_d_Lp * d_Lp_d_yaw1;
-        d_L_d_yaw1.applyOnTheLeft(-A_);
+        const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
+        const double cos_yaw = std::cos(parameters[1][0]);
+        const double sin_yaw = std::sin(parameters[1][0]);
+
+        const fuse_core::Vector2d d_DPE_d_yaw1(
+          -position_diff.x() * sin_yaw + position_diff.y() * cos_yaw,
+          -position_diff.x() * cos_yaw - position_diff.y() * sin_yaw);
+
+        Eigen::Map<fuse_core::Vector8d> d_pred_d_yaw1(jacobians[1]);
+        fuse_core::Vector2d d_DPP_d_yaw1 = d_pred_d_yaw1.head<2>();
+        // d_L_d_yaw1(0) = d_DPE_d_yaw1[0] * d_Lp_d_yaw1[0];
+        // d_L_d_yaw1(1) = d_DPE_d_yaw1[1] * d_Lp_d_yaw1[1];
+        d_pred_d_yaw1.head<2>() = R_yaw_inv.transpose() * (d_DPE_d_yaw1 - d_DPP_d_yaw1);
+        d_pred_d_yaw1.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt vel_linear1
       if (jacobians[2])
       {
-        Eigen::Map<fuse_core::Matrix<double, 8, 2>> d_L_d_vel_linear1(jacobians[2]);
-        fuse_core::Matrix<double, 2, 2> d_Lp_d_vel_linear1 = d_L_d_vel_linear1.block<2, 2>(0, 0);
-        d_L_d_vel_linear1.block<2, 2>(0, 0) = d_Ep_d_Lp * d_Lp_d_vel_linear1;
-        d_L_d_vel_linear1.applyOnTheLeft(-A_);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
+        jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt vel_yaw1
@@ -235,10 +226,8 @@ public:
       // Update jacobian wrt acc_linear1
       if (jacobians[4])
       {
-        Eigen::Map<fuse_core::Matrix<double, 8, 2>> d_L_d_acc_linear1(jacobians[4]);
-        fuse_core::Matrix<double, 2, 2> d_Lp_d_acc_linear1 = d_L_d_acc_linear1.block<2, 2>(0, 0);
-        d_L_d_acc_linear1.block<2, 2>(0, 0) = d_Ep_d_Lp * d_Lp_d_acc_linear1;
-        d_L_d_acc_linear1.applyOnTheLeft(-A_);
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
+        jacobian.applyOnTheLeft(-A_);
       }
 
       // It might be possible to simplify the code below implementing something like this but using compile-time
@@ -261,10 +250,10 @@ public:
       // Jacobian wrt position2
       if (jacobians[5])
       {
-        Eigen::Map<fuse_core::Matrix<double, 8, 2>> d_L_d_position2(jacobians[5]);
-        d_L_d_position2 = A_.block<8, 2>(0, 0);
-        fuse_core::Matrix<double, 2, 2> d_Lp_d_position2 = d_L_d_position2.block<2, 2>(0, 0);
-        d_L_d_position2.block<2, 2>(0, 0) = d_Ep_d_Lp * d_Lp_d_position2;
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[5]);
+        jacobian = A_.block<8, 2>(0, 0);
+        fuse_core::Matrix<double, 2, 2> d_DPP_d_position2 = jacobian.block<2, 2>(0, 0);
+        jacobian.block<2, 2>(0, 0) = R_yaw_inv * d_DPP_d_position2;
       }
 
       // Jacobian wrt yaw2
@@ -304,9 +293,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
