@@ -47,6 +47,19 @@ Changelog for package fuse_models
 * [RST-3451] Delay some transform warnings so startup is less chatty
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore, fabianhirmann
 
+Forthcoming
+-----------
+* Gcc12 ceres 2.1.0 manifold locus (#363)
+  * General clean up for Ceres 2.2.0 support
+  * Updated serialization support to be backwards compatible with previously serialized files
+  ---------
+  Co-authored-by: Enrique Fernandez Perdomo <efernandez@clearpath.ai>
+* Support gcc12 and ceres 2.1.0 (#341)
+  Add support for the Manifold class when using Ceres Solver version 2.1.0 and above
+  ---------
+  Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
+* Contributors: Enrique Fernandez Perdomo, Stephen Williams
+
 0.8.0 (2024-02-02)
 ------------------
 * 0.7.0

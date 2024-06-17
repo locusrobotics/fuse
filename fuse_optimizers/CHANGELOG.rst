@@ -43,6 +43,17 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Adding stop and start functionality to the fixed lag smoother (#362)
+  * Adding a pause
+  * Pr feedback
+  * Pr Feedback:Adding start stop to batch optimizer
+  * Removing a debug log I forgot about
+  * Fixing lint errors
+* Add a reset service to the batch optimizer, similar to the fixed-lag smoother (#360)
+* Contributors: David Murdoch, Jake McLaughlin
+
 0.8.0 (2024-02-02)
 ------------------
 * 0.7.0

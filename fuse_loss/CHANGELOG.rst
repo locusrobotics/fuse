@@ -27,6 +27,14 @@ Changelog for package fuse_loss
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Support gcc12 and ceres 2.1.0 (#341)
+  Add support for the Manifold class when using Ceres Solver version 2.1.0 and above
+  ---------
+  Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
+* Contributors: Enrique Fernandez Perdomo
+
 0.8.0 (2024-02-02)
 ------------------
 * Fix Qwt deprecated declarations (#356)
