@@ -100,8 +100,8 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.9.0 (2024-06-17)
+------------------
 * Gcc12 ceres 2.1.0 manifold locus (#363)
   * General clean up for Ceres 2.2.0 support
   * Updated serialization support to be backwards compatible with previously serialized files

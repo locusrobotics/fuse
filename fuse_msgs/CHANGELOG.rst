@@ -19,8 +19,8 @@ Changelog for package fuse_msgs
 * Update changelogs
 * Contributors: Gary Servin
 
-Forthcoming
------------
+0.9.0 (2024-06-17)
+------------------
 
 0.8.0 (2024-02-02)
 ------------------
