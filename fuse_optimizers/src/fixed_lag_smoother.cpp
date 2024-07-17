@@ -456,14 +456,17 @@ bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs:
 
 void FixedLagSmoother::start()
 {
+  ROS_INFO_STREAM("Starting fixed-lag smoother...");
   // Tell all the plugins to start
   startPlugins();
   // Test for auto-start
   autostart();
+  ROS_INFO_STREAM("Fixed-lag smoother has started.");
 }
 
 void FixedLagSmoother::stop()
 {
+  ROS_INFO_STREAM("Stopping fixed-lag smoother...");
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
@@ -490,6 +493,7 @@ void FixedLagSmoother::stop()
     timestamp_tracking_.clear();
     lag_expiration_ = ros::Time(0, 0);
   }
+  ROS_INFO_STREAM("Fixed-lag smoother has stopped.");
 }
 
 void FixedLagSmoother::transactionCallback(
