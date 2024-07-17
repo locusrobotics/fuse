@@ -278,12 +278,15 @@ bool BatchOptimizer::startServiceCallback(std_srvs::Empty::Request&, std_srvs::E
 
 void BatchOptimizer::start()
 {
+  ROS_INFO_STREAM("Starting optimizer.");
   // Tell all the plugins to start
   startPlugins();
+  ROS_INFO_STREAM("Starting optimizer complete.");
 }
 
 void BatchOptimizer::stop()
 {
+  ROS_INFO_STREAM("Stopping optimizer.");
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
@@ -315,6 +318,7 @@ void BatchOptimizer::stop()
     std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
     pending_transactions_.clear();
   }
+  ROS_INFO_STREAM("Optimizer stopping complete.");
 }
 
 }  // namespace fuse_optimizers
