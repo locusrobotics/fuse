@@ -43,6 +43,13 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* RST-10147 - optimizer logging changes (#372) (#373)
+  * Adding some logging to fuse
+  * Adding same logs to batch optimizer
+* Contributors: David Murdoch
+
 0.9.0 (2024-06-17)
 ------------------
 * Adding stop and start functionality to the fixed lag smoother (#362)
