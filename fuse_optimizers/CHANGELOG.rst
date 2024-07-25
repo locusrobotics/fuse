@@ -43,8 +43,8 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.9.1 (2024-07-25)
+------------------
 * RST-10147 - optimizer logging changes (#372) (#373)
   * Adding some logging to fuse
   * Adding same logs to batch optimizer
