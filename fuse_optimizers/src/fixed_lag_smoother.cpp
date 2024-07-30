@@ -90,9 +90,6 @@ FixedLagSmoother::FixedLagSmoother(
 {
   params_.loadFromROS(private_node_handle);
 
-  // Test for auto-start
-  autostart();
-
   // Start the optimization thread
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
@@ -117,6 +114,11 @@ FixedLagSmoother::FixedLagSmoother(
     ros::names::resolve(params_.start_service),
     &FixedLagSmoother::startServiceCallback,
     this);
+
+  if (!params_.disabled_at_startup)
+  {
+    start();
+  }
 }
 
 FixedLagSmoother::~FixedLagSmoother()

@@ -82,6 +82,8 @@ BatchOptimizer::BatchOptimizer(
     ros::names::resolve(params_.start_service),
     &BatchOptimizer::startServiceCallback,
     this);
+
+  startPlugins();
 }
 
 BatchOptimizer::~BatchOptimizer()
