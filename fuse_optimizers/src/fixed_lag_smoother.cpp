@@ -458,6 +458,12 @@ bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs:
 
 void FixedLagSmoother::start()
 {
+  if (started_)
+  {
+    ROS_WARN_STREAM("Requested to start the optimizer while it is already running. Ignoring request.");
+    return;
+  }
+
   ROS_INFO_STREAM("Starting optimizer.");
   // Tell all the plugins to start
   startPlugins();
