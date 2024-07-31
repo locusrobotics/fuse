@@ -109,9 +109,6 @@ Optimizer::Optimizer(
   loadMotionModels();
   loadSensorModels();
   loadPublishers();
-
-  // Start all the plugins
-  startPlugins();
 }
 
 Optimizer::~Optimizer()

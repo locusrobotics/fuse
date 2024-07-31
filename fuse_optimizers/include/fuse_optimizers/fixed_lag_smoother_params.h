@@ -56,6 +56,11 @@ struct FixedLagSmootherParams
 {
 public:
   /**
+   * @brief If true, the state estimator will not start until the start or reset service is called
+   */
+  bool disabled_at_startup { false };
+
+  /**
    * @brief The duration of the smoothing window in seconds
    */
   ros::Duration lag_duration { 5.0 };
@@ -105,6 +110,8 @@ public:
   void loadFromROS(const ros::NodeHandle& nh)
   {
     // Read settings from the parameter server
+    nh.getParam("disabled_at_startup", disabled_at_startup);
+
     fuse_core::getPositiveParam(nh, "lag_duration", lag_duration);
 
     if (nh.hasParam("optimization_frequency"))

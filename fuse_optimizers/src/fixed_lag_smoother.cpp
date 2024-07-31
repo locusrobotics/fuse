@@ -90,9 +90,6 @@ FixedLagSmoother::FixedLagSmoother(
 {
   params_.loadFromROS(private_node_handle);
 
-  // Test for auto-start
-  autostart();
-
   // Start the optimization thread
   optimization_thread_ = std::thread(&FixedLagSmoother::optimizationLoop, this);
 
@@ -117,6 +114,11 @@ FixedLagSmoother::FixedLagSmoother(
     ros::names::resolve(params_.start_service),
     &FixedLagSmoother::startServiceCallback,
     this);
+
+  if (!params_.disabled_at_startup)
+  {
+    start();
+  }
 }
 
 FixedLagSmoother::~FixedLagSmoother()
@@ -456,6 +458,12 @@ bool FixedLagSmoother::startServiceCallback(std_srvs::Empty::Request&, std_srvs:
 
 void FixedLagSmoother::start()
 {
+  if (started_)
+  {
+    ROS_WARN_STREAM("Requested to start the optimizer while it is already running. Ignoring request.");
+    return;
+  }
+
   ROS_INFO_STREAM("Starting optimizer.");
   // Tell all the plugins to start
   startPlugins();
