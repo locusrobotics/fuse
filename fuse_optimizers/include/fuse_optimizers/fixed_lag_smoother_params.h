@@ -90,6 +90,11 @@ public:
   std::string start_service { "~start" };
 
   /**
+   * @brief The topic name of the started/stopped status topic
+   */
+  std::string status_topic { "~running" };
+
+  /**
    * @brief The maximum time to wait for motion models to be generated for a received transaction.
    *
    * Transactions are processed sequentially, so no new transactions will be added to the graph while waiting for
@@ -128,6 +133,7 @@ public:
     nh.getParam("reset_service", reset_service);
     nh.getParam("stop_service", stop_service);
     nh.getParam("start_service", start_service);
+    nh.getParam("status_topic", status_topic);
 
     fuse_core::getPositiveParam(nh, "transaction_timeout", transaction_timeout);
 

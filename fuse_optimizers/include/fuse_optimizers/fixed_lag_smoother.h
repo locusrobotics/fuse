@@ -192,6 +192,7 @@ protected:
   ros::ServiceServer reset_service_server_;  //!< Service that resets the optimizer to its initial state
   ros::ServiceServer stop_service_server_;  //!< Service that stops and clears the optimizer
   ros::ServiceServer start_service_server_;  //!< Service that restarts the optimizer
+  ros::Publisher status_publisher_;  //!< Publishing the started/stopped status of the optimizer
 
   /**
    * @brief Automatically start the smoother if no ignition sensors are specified

@@ -21,6 +21,7 @@
   <depend>fuse_variables</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend>std_msgs</depend>
   <depend>std_srvs</depend>
   <test_depend>fuse_models</test_depend>
   <test_depend>geometry_msgs</test_depend>
