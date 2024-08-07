@@ -39,6 +39,7 @@
 #include <fuse_core/uuid.h>
 #include <fuse_optimizers/optimizer.h>
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 
 #include <algorithm>
 #include <iterator>
@@ -115,6 +116,12 @@ FixedLagSmoother::FixedLagSmoother(
     &FixedLagSmoother::startServiceCallback,
     this);
 
+  status_publisher_ = node_handle_.advertise<std_msgs::Bool>(
+    ros::names::resolve(params_.status_topic),
+    1,
+    true);
+  publishStatus(false);
+
   if (!params_.disabled_at_startup)
   {
     start();
@@ -143,6 +150,13 @@ void FixedLagSmoother::autostart()
     setStartTime(ros::Time(0, 0));
     ROS_INFO_STREAM("No ignition sensors were specified. Optimization will begin immediately.");
   }
+}
+
+void FixedLagSmoother::publishStatus(const bool running)
+{
+  auto status = std_msgs::Bool();
+  status.data = running;
+  status_publisher_.publish(status);
 }
 
 void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& new_transaction)
@@ -469,7 +483,10 @@ void FixedLagSmoother::start()
   startPlugins();
   // Test for auto-start
   autostart();
-  ROS_INFO_STREAM("Starting optimizer complete.");
+  // Update status topic
+  publishStatus(true);
+
+  ROS_INFO_STREAM("Started optimizer.");
 }
 
 void FixedLagSmoother::stop()
@@ -501,7 +518,10 @@ void FixedLagSmoother::stop()
     timestamp_tracking_.clear();
     lag_expiration_ = ros::Time(0, 0);
   }
-  ROS_INFO_STREAM("Optimizer stopping complete.");
+  // Update status topic
+  publishStatus(false);
+
+  ROS_INFO_STREAM("Stopped Optimizer.");
 }
 
 void FixedLagSmoother::transactionCallback(
