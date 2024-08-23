@@ -35,6 +35,15 @@ catkin_package(
 ###########
 add_compile_options(-Wall -Werror)
 
+# On ARM, the use of Eigen 3.4 with g++11 (both the versions in Jammy) causes a warning, which in turn causes
+# the build to fail. Details are here: https://gitlab.com/libeigen/eigen/-/issues/2326. We can suppress the warning
+# for ARM builds here.
+if(Eigen3_VERSION VERSION_EQUAL 3.4 AND
+CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 11.0 AND
+CMAKE_LIBRARY_ARCHITECTURE STREQUAL "aarch64-linux-gnu")
+    add_compile_options(-Wno-class-memaccess)
+endif()
+
 ## fuse_core library
 add_library(${PROJECT_NAME}
   src/async_motion_model.cpp
