@@ -166,7 +166,7 @@ public:
   /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
-  bool is_ready(rcl_wait_set_t const& wait_set) override;
+  bool is_ready(rcl_wait_set_t const & wait_set) override;
 
 
   /**
@@ -179,7 +179,7 @@ public:
 
   std::shared_ptr<void> take_data() override;
 
-  void execute(std::shared_ptr<void> const& data) override;
+  void execute(std::shared_ptr<void> const & data) override;
 
   void addCallback(const std::shared_ptr<CallbackWrapperBase> & callback);
 

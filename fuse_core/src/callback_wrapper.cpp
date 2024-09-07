@@ -59,7 +59,7 @@ size_t CallbackAdapter::get_number_of_ready_guard_conditions() {return 1;}
 /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
-bool CallbackAdapter::is_ready(rcl_wait_set_t const& wait_set)
+bool CallbackAdapter::is_ready(rcl_wait_set_t const & wait_set)
 {
   (void) wait_set;
   return !callback_queue_.empty();
@@ -107,7 +107,7 @@ std::shared_ptr<void> CallbackAdapter::take_data()
    * @brief hook that allows the rclcpp::waitables interface to run the next callback
    *
    */
-void CallbackAdapter::execute(std::shared_ptr<void> const& data)
+void CallbackAdapter::execute(std::shared_ptr<void> const & data)
 {
   if (!data) {
     throw std::runtime_error("'data' is empty");
