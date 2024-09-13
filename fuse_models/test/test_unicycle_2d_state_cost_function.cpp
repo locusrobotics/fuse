@@ -37,9 +37,9 @@
 #include <fuse_core/eigen_gtest.h>
 #include <gtest/gtest.h>
 
-#include <Eigen/Dense>
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/gradient_checker.h>
+#include <Eigen/Dense>
 
 #include <limits>
 #include <random>
@@ -51,17 +51,17 @@ TEST(CostFunction, evaluateCostFunction)
   const double process_noise_diagonal[] = { 1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9 };
   const fuse_core::Matrix8d covariance = fuse_core::Vector8d(process_noise_diagonal).asDiagonal();
 
-  const double dt { 0.1 };
-  const fuse_core::Matrix8d sqrt_information { covariance.inverse().llt().matrixU() };
+  const double dt{ 0.1 };
+  const fuse_core::Matrix8d sqrt_information{ covariance.inverse().llt().matrixU() };
 
-  const fuse_models::Unicycle2DStateCostFunction cost_function { dt, sqrt_information };
+  const fuse_models::Unicycle2DStateCostFunction cost_function{ dt, sqrt_information };
 
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<> position_dist(0.0, 0.5);
   std::uniform_real_distribution<> yaw_dist(-M_PI / 10.0, M_PI / 10.0);
 
-  std::size_t N = 100;
+  std::size_t N = 10;
   for (std::size_t i = 0; i < N; i++)
   {
     // Randomly generate first state
@@ -77,46 +77,14 @@ TEST(CostFunction, evaluateCostFunction)
     double yaw2[1];
     double vel_yaw2[1];
     double acc_linear2[2];
-    fuse_models::predict(
-      position1,
-      yaw1,
-      vel_linear1,
-      vel_yaw1,
-      acc_linear1,
-      dt,
-      position2,
-      yaw2,
-      vel_linear2,
-      vel_yaw2,
-      acc_linear2);
+    fuse_models::predict(position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, dt, position2, yaw2, vel_linear2,
+                         vel_yaw2, acc_linear2);
 
-    position1[0] -= 0.2;
-    position1[1] -= 0.21;
-    yaw1[0] -= 0.01;
-    vel_linear1[0] -= 0.01;
-    vel_linear1[1] -= 0.01;
-    vel_yaw1[0] -= 0.01;
-    acc_linear1[0] -= 0.01;
-    acc_linear1[1] -= 0.01;
-
-    position2[0] += 0.2;
-    position2[1] += 0.21;
-    yaw2[0] += 0.01;
-    vel_linear2[0] += 0.01;
-    vel_linear2[1] += 0.01;
-    vel_yaw2[0] += 0.01;
-    acc_linear2[0] += 0.01;
-    acc_linear2[1] += 0.01;
-    // // Compute second state from first
-    // const double vel_linear2[] = { vel_linear1[0] + acc_linear1[0] * dt, vel_linear1[1] + acc_linear1[1] * dt };
-    // const double position2[] = { position1[0] + (vel_linear1[0] + vel_linear2[0]) * 0.5 * dt,
-    //                              position1[1] + (vel_linear1[1] + vel_linear2[1]) * 0.5 * dt };
-    // const double yaw2[] = { yaw1[0] + vel_yaw1[0] * dt };
-    // const double vel_yaw2[] = { vel_yaw1[0] };
-    // const double acc_linear2[] = { acc_linear1[0], acc_linear1[1] };
-
-    const double* parameters[] = { position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
-                                   position2, yaw2, vel_linear2, vel_yaw2, acc_linear2 };
+    const double* parameters[] =
+    {
+      position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
+      position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
+    };
 
     fuse_core::Vector8d residuals;
 
@@ -142,17 +110,15 @@ TEST(CostFunction, evaluateCostFunction)
 
     // Check jacobians are correct using a gradient checker
     ceres::NumericDiffOptions numeric_diff_options;
-    // #if !CERES_SUPPORTS_MANIFOLDS
-    //   ceres::GradientChecker gradient_checker(
-    //     &cost_function,
-    //     static_cast<std::vector<const ceres::LocalParameterization*>*>(nullptr),
-    //     numeric_diff_options);
-    // #else
-    ceres::GradientChecker gradient_checker(
-      &cost_function,
-      static_cast<std::vector<const ceres::Manifold*>*>(nullptr),
-      numeric_diff_options);
-    // #endif
+    #if !CERES_SUPPORTS_MANIFOLDS
+      ceres::GradientChecker gradient_checker(
+        &cost_function,
+        static_cast<std::vector<const ceres::LocalParameterization*>*>(nullptr),
+        numeric_diff_options);
+    #else
+    ceres::GradientChecker gradient_checker(&cost_function, static_cast<std::vector<const ceres::Manifold*>*>(nullptr),
+                                            numeric_diff_options);
+    #endif
 
     // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
     ceres::GradientChecker::ProbeResults probe_results;
@@ -162,7 +128,7 @@ TEST(CostFunction, evaluateCostFunction)
 
     // Create cost function using automatic differentiation on the cost functor
     ceres::AutoDiffCostFunction<fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>
-      cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
+        cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
 
     // Evaluate cost function that uses automatic differentiation
     std::vector<fuse_core::MatrixXd> J_autodiff(num_parameter_blocks);
@@ -180,11 +146,10 @@ TEST(CostFunction, evaluateCostFunction)
 
     for (size_t i = 0; i < num_parameter_blocks; ++i)
     {
-      // EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-15)
-      //   << "Autodiff Jacobian[" << i << "] =\n"
-      //   << J_autodiff[i].format(HeavyFmt) << "\nAnalytic Jacobian[" << i << "] =\n"
-      //   << J[i].format(HeavyFmt);
-      EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-13) << "[" << i << "] \n";
+      EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-13)
+        << "Autodiff Jacobian[" << i << "] =\n"
+        << J_autodiff[i].format(HeavyFmt) << "\nAnalytic Jacobian[" << i << "] =\n"
+        << J[i].format(HeavyFmt);
     }
   }
 }

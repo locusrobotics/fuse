@@ -184,29 +184,17 @@ public:
       // Update jacobian wrt position1
       if (jacobians[0])
       {
-        Eigen::Map<fuse_core::Matrix<double, 8, 2>> djacobian(jacobians[0]);
-        fuse_core::Matrix<double, 2, 2> d_DPP_d_position1 = jacobian.block<2, 2>(0, 0);
-        jacobian.block<2, 2>(0, 0) = R_yaw_inv * d_DPP_d_position1;
+        Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
+        const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
+        jacobian.block<2, 2>(0, 0) = R_yaw_inv * jacobian.block<2, 2>(0, 0);
         jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt yaw1
       if (jacobians[1])
       {
-        const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
-        const double cos_yaw = std::cos(parameters[1][0]);
-        const double sin_yaw = std::sin(parameters[1][0]);
-
-        const fuse_core::Vector2d d_DPE_d_yaw1(
-          -position_diff.x() * sin_yaw + position_diff.y() * cos_yaw,
-          -position_diff.x() * cos_yaw - position_diff.y() * sin_yaw);
-
-        Eigen::Map<fuse_core::Vector8d> d_pred_d_yaw1(jacobians[1]);
-        fuse_core::Vector2d d_DPP_d_yaw1 = d_pred_d_yaw1.head<2>();
-        // d_L_d_yaw1(0) = d_DPE_d_yaw1[0] * d_Lp_d_yaw1[0];
-        // d_L_d_yaw1(1) = d_DPE_d_yaw1[1] * d_Lp_d_yaw1[1];
-        d_pred_d_yaw1.head<2>() = R_yaw_inv.transpose() * (d_DPE_d_yaw1 - d_DPP_d_yaw1);
-        d_pred_d_yaw1.applyOnTheLeft(-A_);
+        Eigen::Map<fuse_core::Vector8d> jacobian(jacobians[1]);
+        jacobian.applyOnTheLeft(-A_);
       }
 
       // Update jacobian wrt vel_linear1
@@ -252,8 +240,8 @@ public:
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[5]);
         jacobian = A_.block<8, 2>(0, 0);
-        fuse_core::Matrix<double, 2, 2> d_DPP_d_position2 = jacobian.block<2, 2>(0, 0);
-        jacobian.block<2, 2>(0, 0) = R_yaw_inv * d_DPP_d_position2;
+        const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
+        jacobian.block<2, 2>(0, 0) = jacobian.block<2, 2>(0, 0) * R_yaw_inv;
       }
 
       // Jacobian wrt yaw2
