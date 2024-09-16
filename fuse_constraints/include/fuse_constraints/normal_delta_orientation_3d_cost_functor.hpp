@@ -120,7 +120,7 @@ public:
 
     // Scale the residuals by the square root information matrix to account for the measurement
     // uncertainty.
-    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
+    Eigen::Map<Eigen::Matrix<T, 3, 1>> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_.template cast<T>());
 
     return true;
