@@ -47,8 +47,8 @@ Changelog for package fuse_tutorials
   * Create a new sensor type with a non-trivial measurement function, a new publisher to visualize the results, and a simplistic robot simulator to demonstrate the sensor in action.
 * Contributors: Gary Servin, Paul Bovbel, Stephen Williams
 
-Forthcoming
------------
+0.10.0 (2024-09-16)
+-------------------
 
 0.9.0 (2024-06-17)
 ------------------

@@ -47,8 +47,8 @@ Changelog for package fuse_models
 * [RST-3451] Delay some transform warnings so startup is less chatty
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore, fabianhirmann
 
-Forthcoming
------------
+0.10.0 (2024-09-16)
+-------------------
 
 0.9.0 (2024-06-17)
 ------------------
