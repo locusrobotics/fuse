@@ -80,11 +80,8 @@ TEST(CostFunction, evaluateCostFunction)
     fuse_models::predict(position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, dt, position2, yaw2, vel_linear2,
                          vel_yaw2, acc_linear2);
 
-    const double* parameters[] =
-    {
-      position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
-      position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
-    };
+    const double* parameters[] = { position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
+                                   position2, yaw2, vel_linear2, vel_yaw2, acc_linear2 };
 
     fuse_core::Vector8d residuals;
 
@@ -112,9 +109,7 @@ TEST(CostFunction, evaluateCostFunction)
     ceres::NumericDiffOptions numeric_diff_options;
 #if !CERES_SUPPORTS_MANIFOLDS
     ceres::GradientChecker gradient_checker(
-      &cost_function,
-      static_cast<std::vector<const ceres::LocalParameterization*>*>(nullptr),
-      numeric_diff_options);
+        &cost_function, static_cast<std::vector<const ceres::LocalParameterization*>*>(nullptr), numeric_diff_options);
 #else
     ceres::GradientChecker gradient_checker(&cost_function, static_cast<std::vector<const ceres::Manifold*>*>(nullptr),
                                             numeric_diff_options);
@@ -147,9 +142,9 @@ TEST(CostFunction, evaluateCostFunction)
     for (size_t i = 0; i < num_parameter_blocks; ++i)
     {
       EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-13)
-        << "Autodiff Jacobian[" << i << "] =\n"
-        << J_autodiff[i].format(HeavyFmt) << "\nAnalytic Jacobian[" << i << "] =\n"
-        << J[i].format(HeavyFmt);
+          << "Autodiff Jacobian[" << i << "] =\n"
+          << J_autodiff[i].format(HeavyFmt) << "\nAnalytic Jacobian[" << i << "] =\n"
+          << J[i].format(HeavyFmt);
     }
   }
 }
