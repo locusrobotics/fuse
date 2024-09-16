@@ -80,8 +80,11 @@ TEST(CostFunction, evaluateCostFunction)
     fuse_models::predict(position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, dt, position2, yaw2, vel_linear2,
                          vel_yaw2, acc_linear2);
 
-    const double* parameters[] = { position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
-                                   position2, yaw2, vel_linear2, vel_yaw2, acc_linear2 };
+    const double* parameters[] = 
+    { 
+      position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
+      position2, yaw2, vel_linear2, vel_yaw2, acc_linear2 
+    };
 
     fuse_core::Vector8d residuals;
 
