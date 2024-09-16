@@ -115,19 +115,30 @@ public:
    */
   bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override
   {
-    double delta_yaw_pred;
-    double vel_yaw_pred;
     fuse_core::Vector2d delta_position_pred;
+    double delta_yaw_pred;
     fuse_core::Vector2d vel_linear_pred;
+    double vel_yaw_pred;
     fuse_core::Vector2d acc_linear_pred;
-    predict(0.0, 0.0, 0.0,
-            parameters[2][0],  // vel_linear1_x
-            parameters[2][1],  // vel_linear1_y
-            parameters[3][0],  // vel_yaw1
-            parameters[4][0],  // acc_linear1_x
-            parameters[4][1],  // acc_linear1_y
-            dt_, delta_position_pred.x(), delta_position_pred.y(), delta_yaw_pred, vel_linear_pred.x(),
-            vel_linear_pred.y(), vel_yaw_pred, acc_linear_pred.x(), acc_linear_pred.y(), jacobians);
+    predict(
+      0.0,
+      0.0,
+      0.0,
+      parameters[2][0],  // vel_linear1_x
+      parameters[2][1],  // vel_linear1_y
+      parameters[3][0],  // vel_yaw1
+      parameters[4][0],  // acc_linear1_x
+      parameters[4][1],  // acc_linear1_y
+      dt_,
+      delta_position_pred.x(),
+      delta_position_pred.y(),
+      delta_yaw_pred,
+      vel_linear_pred.x(),
+      vel_linear_pred.y(),
+      vel_yaw_pred,
+      acc_linear_pred.x(),
+      acc_linear_pred.y(),
+      jacobians);
 
     const double delta_yaw_est = parameters[6][0] - parameters[1][0];
     const fuse_core::Vector2d position1(parameters[0][0], parameters[0][1]);
@@ -136,7 +147,7 @@ public:
     const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
 
     Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
-    residuals_map.head<2>() = R_yaw_inv * position_diff - delta_position_pred;
+    residuals_map.block(0, 0, 2, 1) = R_yaw_inv * position_diff - delta_position_pred;
     residuals_map(2) = delta_yaw_est - delta_yaw_pred;
     residuals_map(3) = parameters[7][0] - vel_linear_pred.x();
     residuals_map(4) = parameters[7][1] - vel_linear_pred.y();
@@ -144,7 +155,7 @@ public:
     residuals_map(6) = parameters[9][0] - acc_linear_pred.x();
     residuals_map(7) = parameters[9][1] - acc_linear_pred.y();
 
-    fuse_core::wrapAngle2D(residuals_map(2));
+  fuse_core::wrapAngle2D(residuals_map(2));
 
     // Scale the residuals by the square root information matrix to account for
     // the measurement uncertainty.

@@ -170,9 +170,9 @@ bool Unicycle2DStateCostFunctor::operator()(
   const Eigen::Matrix<T, 2, 1> position1_map(position1[0], position1[1]);
   const Eigen::Matrix<T, 2, 1> position2_map(position2[0], position2[1]);
   const Eigen::Matrix<T, 2, 1> position_diff = (position2_map - position1_map);
-  const fuse_core::Matrix<T, 2, 2> R_yaw_inv = fuse_core::rotationMatrix2D(yaw1[0]);
-  Eigen::Map<Eigen::Matrix<T, 2, 1>> delta_position_pred_map(delta_position_pred);
-
+  const fuse_core::Matrix<T, 2, 2> R_yaw_inv = fuse_core::rotationMatrix2D(-yaw1[0]);
+  const Eigen::Map<Eigen::Matrix<T, 2, 1>> delta_position_pred_map(delta_position_pred);
+  
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
   residuals_map.block(0, 0, 2, 1) = R_yaw_inv * position_diff - delta_position_pred_map;
   residuals_map(2) = delta_yaw_est - delta_yaw_pred[0];
