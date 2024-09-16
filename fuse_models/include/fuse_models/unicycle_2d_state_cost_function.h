@@ -147,7 +147,7 @@ public:
     const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
 
     Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
-    residuals_map<2, 1>(0, 0) = R_yaw_inv * position_diff - delta_position_pred;
+    residuals_map.block<2, 1>(0, 0) = R_yaw_inv * position_diff - delta_position_pred;
     residuals_map(2) = delta_yaw_est - delta_yaw_pred;
     residuals_map(3) = parameters[7][0] - vel_linear_pred.x();
     residuals_map(4) = parameters[7][1] - vel_linear_pred.y();
