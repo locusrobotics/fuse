@@ -66,7 +66,7 @@ include(suitesparse-extras.cmake)
 #   850 |   typename plain_matrix_type<Src>::type tmp(src);
 #       |                                         ^~~
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.0)
-  add_compile_options(-Wall -Werror -Wno-array-bounds -Wno-stringop-overread)
+  add_compile_options(-Wall -Werror -Wno-array-bounds)
 else()
   add_compile_options(-Wall -Werror)
 endif()
