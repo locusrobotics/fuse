@@ -187,6 +187,12 @@ public:
 
   void removeAllCallbacks();
 
+  void set_on_ready_callback(std::function<void(size_t, int)>) override {}
+  void clear_on_ready_callback() override {}
+  std::shared_ptr<void> take_data_by_entity_id(size_t) override {
+    return nullptr;
+  }
+
 private:
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
 
