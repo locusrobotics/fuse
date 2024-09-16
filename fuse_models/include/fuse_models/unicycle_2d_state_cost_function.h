@@ -115,55 +115,39 @@ public:
    */
   bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override
   {
-    double delta_position_pred_x;
-    double delta_position_pred_y;
     double delta_yaw_pred;
-    double vel_linear_pred_x;
-    double vel_linear_pred_y;
     double vel_yaw_pred;
-    double acc_linear_pred_x;
-    double acc_linear_pred_y;
-    predict(
-      0.0,
-      0.0,
-      0.0,
-      parameters[2][0],  // vel_linear1_x
-      parameters[2][1],  // vel_linear1_y
-      parameters[3][0],  // vel_yaw1
-      parameters[4][0],  // acc_linear1_x
-      parameters[4][1],  // acc_linear1_y
-      dt_,
-      delta_position_pred_x,
-      delta_position_pred_y,
-      delta_yaw_pred,
-      vel_linear_pred_x,
-      vel_linear_pred_y,
-      vel_yaw_pred,
-      acc_linear_pred_x,
-      acc_linear_pred_y,
-      jacobians);
+    fuse_core::Vector2d delta_position_pred;
+    fuse_core::Vector2d vel_linear_pred;
+    fuse_core::Vector2d acc_linear_pred;
+    predict(0.0, 0.0, 0.0,
+            parameters[2][0],  // vel_linear1_x
+            parameters[2][1],  // vel_linear1_y
+            parameters[3][0],  // vel_yaw1
+            parameters[4][0],  // acc_linear1_x
+            parameters[4][1],  // acc_linear1_y
+            dt_, delta_position_pred.x(), delta_position_pred.y(), delta_yaw_pred, vel_linear_pred.x(),
+            vel_linear_pred.y(), vel_yaw_pred, acc_linear_pred.x(), acc_linear_pred.y(), jacobians);
 
     const double delta_yaw_est = parameters[6][0] - parameters[1][0];
     const fuse_core::Vector2d position1(parameters[0][0], parameters[0][1]);
     const fuse_core::Vector2d position2(parameters[5][0], parameters[5][1]);
     const fuse_core::Vector2d position_diff = (position2 - position1);
-    const double sin_yaw_inv = std::sin(-parameters[1][0]);
-    const double cos_yaw_inv = std::cos(-parameters[1][0]);
+    const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
 
-    residuals[0] = (cos_yaw_inv * position_diff.x() - sin_yaw_inv * position_diff.y()) - delta_position_pred_x;
-    residuals[1] = (sin_yaw_inv * position_diff.x() + cos_yaw_inv * position_diff.y()) - delta_position_pred_y;
-    residuals[2] = delta_yaw_est - delta_yaw_pred;
-    residuals[3] = parameters[7][0] - vel_linear_pred_x;
-    residuals[4] = parameters[7][1] - vel_linear_pred_y;
-    residuals[5] = parameters[8][0] - vel_yaw_pred;
-    residuals[6] = parameters[9][0] - acc_linear_pred_x;
-    residuals[7] = parameters[9][1] - acc_linear_pred_y;
+    Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
+    residuals_map.head<2>() = R_yaw_inv * position_diff - delta_position_pred;
+    residuals_map(2) = delta_yaw_est - delta_yaw_pred;
+    residuals_map(3) = parameters[7][0] - vel_linear_pred.x();
+    residuals_map(4) = parameters[7][1] - vel_linear_pred.y();
+    residuals_map(5) = parameters[8][0] - vel_yaw_pred;
+    residuals_map(6) = parameters[9][0] - acc_linear_pred.x();
+    residuals_map(7) = parameters[9][1] - acc_linear_pred.y();
 
-    fuse_core::wrapAngle2D(residuals[2]);
+    fuse_core::wrapAngle2D(residuals_map(2));
 
     // Scale the residuals by the square root information matrix to account for
     // the measurement uncertainty.
-    Eigen::Map<Eigen::Matrix<double, 8, 1>> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_);
 
     if (jacobians)
@@ -185,8 +169,7 @@ public:
       if (jacobians[0])
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
-        const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
-        jacobian.block<2, 2>(0, 0) = R_yaw_inv * jacobian.block<2, 2>(0, 0);
+        jacobian.block<2, 2>(0, 0).applyOnTheLeft(R_yaw_inv);
         jacobian.applyOnTheLeft(-A_);
       }
 
@@ -240,8 +223,7 @@ public:
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[5]);
         jacobian = A_.block<8, 2>(0, 0);
-        const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
-        jacobian.block<2, 2>(0, 0) = jacobian.block<2, 2>(0, 0) * R_yaw_inv;
+        jacobian.block<2, 2>(0, 0) *= R_yaw_inv;
       }
 
       // Jacobian wrt yaw2

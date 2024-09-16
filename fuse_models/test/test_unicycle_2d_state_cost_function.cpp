@@ -56,8 +56,8 @@ TEST(CostFunction, evaluateCostFunction)
 
   const fuse_models::Unicycle2DStateCostFunction cost_function{ dt, sqrt_information };
 
-  std::random_device dev;
-  std::mt19937 gen(dev());
+  const auto seed = 123456789;
+  std::mt19937 gen(seed);
   std::uniform_real_distribution<> position_dist(0.0, 0.5);
   std::uniform_real_distribution<> yaw_dist(-M_PI / 10.0, M_PI / 10.0);
 
@@ -110,15 +110,15 @@ TEST(CostFunction, evaluateCostFunction)
 
     // Check jacobians are correct using a gradient checker
     ceres::NumericDiffOptions numeric_diff_options;
-    #if !CERES_SUPPORTS_MANIFOLDS
+#if !CERES_SUPPORTS_MANIFOLDS
     ceres::GradientChecker gradient_checker(
       &cost_function,
       static_cast<std::vector<const ceres::LocalParameterization*>*>(nullptr),
       numeric_diff_options);
-    #else
+#else
     ceres::GradientChecker gradient_checker(&cost_function, static_cast<std::vector<const ceres::Manifold*>*>(nullptr),
                                             numeric_diff_options);
-    #endif
+#endif
 
     // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
     ceres::GradientChecker::ProbeResults probe_results;
