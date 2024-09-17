@@ -143,7 +143,7 @@ public:
     const double delta_yaw_est = parameters[6][0] - parameters[1][0];
     const fuse_core::Vector2d position1(parameters[0][0], parameters[0][1]);
     const fuse_core::Vector2d position2(parameters[5][0], parameters[5][1]);
-    const fuse_core::Vector2d position_diff = (position2 - position1);
+    const fuse_core::Vector2d position_diff = position2 - position1;
     const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
 
     Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
