@@ -174,7 +174,7 @@ bool Unicycle2DStateCostFunctor::operator()(
   const Eigen::Map<Eigen::Matrix<T, 2, 1>> delta_position_pred_map(delta_position_pred);
 
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map.block(0, 0, 2, 1) = R_yaw_inv * position_diff - delta_position_pred_map;
+  residuals_map.template head<2>() = R_yaw_inv * position_diff - delta_position_pred_map;
   residuals_map(2) = delta_yaw_est - delta_yaw_pred[0];
   residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
   residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];
