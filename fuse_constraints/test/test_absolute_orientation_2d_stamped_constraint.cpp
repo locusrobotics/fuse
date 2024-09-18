@@ -58,9 +58,9 @@ TEST(AbsoluteOrientation2DStampedConstraint, Constructor)
   // Construct a constraint just to make sure it compiles.
   Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("walle"));
-  fuse_core::Vector1d mean;
+  fuse_core::VectorXd mean(1);
   mean << 1.0;
-  fuse_core::Matrix1d cov;
+  fuse_core::MatrixXd cov(1, 1);
   cov << 1.0;
   EXPECT_NO_THROW(
     AbsoluteOrientation2DStampedConstraint constraint(
@@ -73,9 +73,9 @@ TEST(AbsoluteOrientation2DStampedConstraint, Covariance)
   // Verify the covariance <--> sqrt information conversions are correct
   Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678), fuse_core::uuid::generate(
       "mo"));
-  fuse_core::Vector1d mean;
+  fuse_core::VectorXd mean(1);
   mean << 1.0;
-  fuse_core::Matrix1d cov;
+  fuse_core::MatrixXd cov(1, 1);
   cov << 1.0;
   AbsoluteOrientation2DStampedConstraint constraint("test", orientation_variable, mean, cov);
 
@@ -99,10 +99,9 @@ TEST(AbsoluteOrientation2DStampedConstraint, Optimization)
   orientation_variable->yaw() = 1.0;
 
   // Create an absolute orientation constraint
-  fuse_core::Vector1d mean;
+  fuse_core::VectorXd mean(1);
   mean << 1.0;
-
-  fuse_core::Matrix1d cov;
+  fuse_core::MatrixXd cov(1, 1);
   cov << 1.0;
   auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
     "test",
@@ -168,10 +167,9 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationZero)
   orientation_variable->yaw() = 0.0;
 
   // Create an absolute orientation constraint
-  fuse_core::Vector1d mean;
+  fuse_core::VectorXd mean(1);
   mean << 0.0;
-
-  fuse_core::Matrix1d cov;
+  fuse_core::MatrixXd cov(1, 1);
   cov << 1.0;
   auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
     "test",
@@ -308,10 +306,9 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationNegativePi)
   orientation_variable->yaw() = -M_PI;
 
   // Create an absolute orientation constraint
-  fuse_core::Vector1d mean;
+  fuse_core::VectorXd mean(1);
   mean << -M_PI;
-
-  fuse_core::Matrix1d cov;
+  fuse_core::MatrixXd cov(1, 1);
   cov << 1.0;
   auto constraint = AbsoluteOrientation2DStampedConstraint::make_shared(
     "test",
@@ -370,9 +367,9 @@ TEST(AbsoluteOrientation2DStampedConstraint, Serialization)
   // Construct a constraint
   Orientation2DStamped orientation_variable(rclcpp::Time(1234, 5678),
     fuse_core::uuid::generate("walle"));
-  fuse_core::Vector1d mean;
+  fuse_core::VectorXd mean(1);
   mean << 1.0;
-  fuse_core::Matrix1d cov;
+  fuse_core::MatrixXd cov(1, 1);
   cov << 1.0;
   AbsoluteOrientation2DStampedConstraint expected("test", orientation_variable, mean, cov);
 

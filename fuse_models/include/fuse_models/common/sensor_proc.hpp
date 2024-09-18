@@ -329,7 +329,7 @@ inline bool processAbsolutePoseWithCovariance(
   orientation->yaw() = absolute_pose_2d.yaw();
 
   // Create the pose for the constraint
-  fuse_core::Vector3d pose_mean;
+  fuse_core::VectorXd pose_mean(3);
   pose_mean << absolute_pose_2d.x(), absolute_pose_2d.y(), absolute_pose_2d.yaw();
 
   // Create the covariance for the constraint
@@ -463,7 +463,7 @@ inline bool processDifferentialPoseWithCovariance(
   const double cy = ::cos(-pose1_2d.yaw());
   double x_diff = pose2_2d.x() - pose1_2d.x();
   double y_diff = pose2_2d.y() - pose1_2d.y();
-  fuse_core::Vector3d pose_relative_mean;
+  fuse_core::VectorXd pose_relative_mean(3);
   pose_relative_mean <<
     cy * x_diff - sy * y_diff,
     sy * x_diff + cy * y_diff,
@@ -825,7 +825,7 @@ inline bool processDifferentialPoseWithTwistCovariance(
 
   // Create the delta for the constraint
   const auto delta = pose1_2d.inverseTimes(pose2_2d);
-  fuse_core::Vector3d pose_relative_mean;
+  fuse_core::VectorXd pose_relative_mean(3);
   pose_relative_mean << delta.x(), delta.y(), delta.yaw();
 
   // Create the covariance components for the constraint
@@ -1016,12 +1016,12 @@ inline bool processTwistWithCovariance(
     velocity_linear->y() = transformed_message.twist.twist.linear.y;
 
     // Create the mean twist vectors for the constraints
-    fuse_core::Vector2d linear_vel_mean;
+    fuse_core::VectorXd linear_vel_mean(2);
     linear_vel_mean << transformed_message.twist.twist.linear.x,
       transformed_message.twist.twist.linear.y;
 
     // Create the covariances for the constraints
-    fuse_core::Matrix2d linear_vel_covariance;
+    fuse_core::MatrixXd linear_vel_covariance(2, 2);
     linear_vel_covariance <<
       transformed_message.twist.covariance[0],
       transformed_message.twist.covariance[1],
@@ -1074,10 +1074,10 @@ inline bool processTwistWithCovariance(
       fuse_variables::VelocityAngular2DStamped::make_shared(twist.header.stamp, device_id);
     velocity_angular->yaw() = transformed_message.twist.twist.angular.z;
 
-    fuse_core::Vector1d angular_vel_vector;
+    fuse_core::VectorXd angular_vel_vector(1);
     angular_vel_vector << transformed_message.twist.twist.angular.z;
 
-    fuse_core::Matrix1d angular_vel_covariance;
+    fuse_core::MatrixXd angular_vel_covariance(1, 1);
     angular_vel_covariance << transformed_message.twist.covariance[35];
 
     bool add_constraint = true;
@@ -1176,10 +1176,10 @@ inline bool processAccelWithCovariance(
   acceleration_linear->y() = transformed_message.accel.accel.linear.y;
 
   // Create the full mean vector and covariance for the constraint
-  fuse_core::Vector2d accel_mean;
+  fuse_core::VectorXd accel_mean(2);
   accel_mean << transformed_message.accel.accel.linear.x, transformed_message.accel.accel.linear.y;
 
-  fuse_core::Matrix2d accel_covariance;
+  fuse_core::MatrixXd accel_covariance(2, 2);
   accel_covariance <<
     transformed_message.accel.covariance[0],
     transformed_message.accel.covariance[1],
