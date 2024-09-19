@@ -34,15 +34,12 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_VARIABLES_PINHOLE_CAMERA_H
-#define FUSE_VARIABLES_PINHOLE_CAMERA_H
+#ifndef FUSE_VARIABLES_BASE_CAMERA_H
+#define FUSE_VARIABLES_BASE_CAMERA_H
 
-#include <fuse_core/ceres_macros.h>
 #include <fuse_core/fuse_macros.h>
-#include <fuse_core/manifold.h>
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
-#include <fuse_variables/base_camera.h>
 #include <fuse_variables/fixed_size_variable.h>
 
 #include <boost/serialization/access.hpp>
@@ -60,86 +57,39 @@ namespace fuse_variables
  * construction and dependent on a user input database id. As such, the database id cannot be altered after
  * construction.
  */
-class PinholeCamera : public BaseCamera<4>
+template <size_t N>
+class BaseCamera : public FixedSizeVariable<N>
 {
 public:
-  FUSE_VARIABLE_DEFINITIONS(PinholeCamera);
-
-  /**
-   * @brief Can be used to directly index variables in the data array
-   */
-  enum : size_t
-  {
-    FX = 0,
-    FY = 1,
-    CX = 2,
-    CY = 3
-  };
+  FUSE_VARIABLE_DEFINITIONS(BaseCamera);
 
   /**
    * @brief Default constructor
    */
-  PinholeCamera() = default;
-
-  /**
-   * @brief Construct a pinhole camera variable given a camera id
-   *
-   * @param[in] camera_id  The id associated to a camera
-   */
-  explicit PinholeCamera(const uint64_t& camera_id);
+  BaseCamera() = default;
 
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
+   * @param[in] uuid        The UUID of the sensor
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id,
-                          const double& fx, const double& fy,
-                          const double& cx, const double& cy);
+  explicit BaseCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id):
+  FixedSizeVariable<N>(uuid), id_(camera_id) {}
 
   /**
-   * @brief Read-write access to the cx parameter.
+   * @brief Construct a pinhole camera variable given a camera id
+   *
+   * @param[in] camera_name  The id associated to a camera (e.g. which camera on a robot)
+   * @param[in] device_id  The device_id associated to the camera (e.g. which robot)
    */
-  double& cx() { return data_[CX]; }
-
-  /**
-   * @brief Read-only access to the cx parameter.
-   */
-  const double& cx() const { return data_[CX]; }
-
-  /**
-   * @brief Read-write access to the cy parameter.
-   */
-  double& cy() { return data_[CY]; }
-
-  /**
-   * @brief Read-only access to the cy parameter.
-   */
-  const double& cy() const { return data_[CY]; }
-
-  /**
-   * @brief Read-write access to the fx parameter.
-   */
-  double& fx() { return data_[FX]; }
-
-  /**
-   * @brief Read-only access to the fx parameter.
-   */
-  const double& fx() const { return data_[FX]; }
-
-  /**
-   * @brief Read-write access to the fy parameter.
-   */
-  double& fy() { return data_[FY]; }
-
-  /**
-   * @brief Read-only access to the fy parameter.
-   */
-  const double& fy() const { return data_[FY]; }
+explicit BaseCamera(const uint64_t& camera_id, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+  : BaseCamera(fuse_core::uuid::generate(detail::type(), camera_id, device_id)) {}
 
   /**
    * @brief Read-only access to the id
    */
+  const uint64_t& id() const { return id_; }
 
   /**
    * @brief Print a human-readable description of the variable to the provided
@@ -147,29 +97,18 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream& stream = std::cout) const override;
-
-#if CERES_SUPPORTS_MANIFOLDS
-  /**
-   * @brief Create a null Ceres manifold
-   *
-   * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
-   */
-  fuse_core::Manifold* manifold() const override { return nullptr; }
-#endif
-
-protected:
-  /**
-   * @brief Construct a pinhole given a camera_id
-   *
-   * @param[in] camera_id  The id associated to a camera_id
-   */
-  PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id);
+  void print(std::ostream& stream = std::cout) const override
+  {
+      stream << type() << ":\n"
+         << "  uuid: " << this->uuid() << "\n"
+         << "  size: " << this->size() << "\n"
+         << "  camera id: " << id() << "\n";
+  };
 
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
-  // uint64_t id_ { 0 };
+  uint64_t id_ { 0 };
 
   /**
    * @brief The Boost Serialize method that serializes all of the data members
@@ -183,12 +122,11 @@ private:
   template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<BaseCamera<SIZE>>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<N>>(*this);
+    archive& id_;
   }
 };
 
 }  // namespace fuse_variables
 
-BOOST_CLASS_EXPORT_KEY(fuse_variables::PinholeCamera);
-
-#endif  // FUSE_VARIABLES_PINHOLE_CAMERA_H
+#endif  // FUSE_VARIABLES_BASE_CAMERA_H

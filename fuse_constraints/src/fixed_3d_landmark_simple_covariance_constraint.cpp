@@ -34,9 +34,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/fixed_3d_landmark_constraint.h>
-
-#include <fuse_constraints/fixed_3d_landmark_cost_functor.h>
+#include <fuse_constraints/fixed_3d_landmark_simple_covariance_constraint.h>
+#include <fuse_constraints/fixed_3d_landmark_simple_covariance_cost_functor.h>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
@@ -48,11 +47,11 @@
 namespace fuse_constraints
 {
 
-Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
+Fixed3DLandmarkSimpleCovarianceConstraint::Fixed3DLandmarkSimpleCovarianceConstraint(
     const std::string& source, const fuse_variables::Position3DStamped& position,
     const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
     const fuse_core::MatrixXd& pts3d, const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
-    const fuse_core::Matrix6d& covariance)
+    const fuse_core::Matrix2d& covariance)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
   , pts3d_(pts3d)
   , observations_(observations)
@@ -64,11 +63,11 @@ Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
   assert(pts3d_.rows() == observations_.rows());
 }
 
-Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
+Fixed3DLandmarkSimpleCovarianceConstraint::Fixed3DLandmarkSimpleCovarianceConstraint(
     const std::string& source, const fuse_variables::Position3DStamped& position,
     const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
     const double& marker_size, const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
-    const fuse_core::Matrix6d& covariance)
+    const fuse_core::Matrix2d& covariance)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
   , pts3d_(4, 3)
   , observations_(observations)
@@ -87,7 +86,7 @@ Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
   assert(pts3d_.rows() == observations_.rows());
 }
 
-void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
+void Fixed3DLandmarkSimpleCovarianceConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -105,14 +104,13 @@ void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
   }
 }
 
-ceres::CostFunction* Fixed3DLandmarkConstraint::costFunction() const
+ceres::CostFunction* Fixed3DLandmarkSimpleCovarianceConstraint::costFunction() const
 {
-  // 2 Residuals Per 3D point
-  return new ceres::AutoDiffCostFunction<Fixed3DLandmarkCostFunctor, ceres::DYNAMIC, 3, 4, 4>(
-      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2 * pts3d_.rows());
+  return new ceres::AutoDiffCostFunction<Fixed3DLandmarkSimpleCovarianceCostFunctor, ceres::DYNAMIC, 3, 4, 4>(
+      new Fixed3DLandmarkSimpleCovarianceCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2 * pts3d_.rows());
 }
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::Fixed3DLandmarkConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::Fixed3DLandmarkConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::Fixed3DLandmarkSimpleCovarianceConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::Fixed3DLandmarkSimpleCovarianceConstraint, fuse_core::Constraint);

@@ -36,6 +36,7 @@ add_library(${PROJECT_NAME}
   src/acceleration_linear_3d_stamped.cpp
   src/pinhole_camera.cpp
   src/pinhole_camera_fixed.cpp
+  src/pinhole_camera_radial.cpp
   src/orientation_2d_stamped.cpp
   src/orientation_3d_stamped.cpp
   src/point_2d_fixed_landmark.cpp
@@ -244,6 +245,30 @@ if(CATKIN_ENABLE_TESTING)
   ${CERES_LIBRARIES}
   )
   set_target_properties(test_pinhole_camera_fixed
+  PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+  )
+
+  # Camera Intrinsics tests
+  catkin_add_gtest(test_pinhole_camera_radial
+  test/test_pinhole_camera_radial.cpp
+  )
+  add_dependencies(test_pinhole_camera_radial
+  ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_pinhole_camera_radial
+  PRIVATE
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_pinhole_camera_radial
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_pinhole_camera_radial
   PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
