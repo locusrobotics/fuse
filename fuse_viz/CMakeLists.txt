@@ -35,6 +35,20 @@ add_definitions(-DQT_NO_KEYWORDS)
 ###########
 add_compile_options(-Wall -Werror)
 
+# On ARM, the use of Eigen 3.4 with g++11 (both the versions in Jammy) causes a warning, which in turn causes
+# the build to fail. Details are here: https://gitlab.com/libeigen/eigen/-/issues/2326. We can suppress the warning
+# for ARM builds here. However, this package does not depend directly upon Eigen, but includes headers from other
+# packages that do. So to prevent the error, we need to find Eigen and then check the version.
+if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 11.0 AND
+   CMAKE_LIBRARY_ARCHITECTURE STREQUAL "aarch64-linux-gnu")
+
+   find_package(Eigen3)
+
+   if(Eigen3_FOUND AND Eigen3_VERSION VERSION_EQUAL 3.4)
+      add_compile_options(-Wno-class-memaccess)
+   endif()
+endif()
+
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
