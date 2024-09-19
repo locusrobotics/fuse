@@ -42,13 +42,11 @@
 
 #include <ceres/sized_cost_function.h>
 
-
 namespace fuse_models
 {
-
 /**
  * @brief Create a cost function for a 2D state vector
- * 
+ *
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -72,7 +70,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -115,52 +113,52 @@ public:
    *                         computed for the parameters where jacobians[i] is not NULL.
    * @return The return value indicates whether the computation of the residuals and/or jacobians was successful or not.
    */
-  bool Evaluate(double const* const* parameters,
-                double* residuals,
-                double** jacobians) const override
+  bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const override
   {
-    double position_pred_x;
-    double position_pred_y;
-    double yaw_pred;
-    double vel_linear_pred_x;
-    double vel_linear_pred_y;
+    fuse_core::Vector2d delta_position_pred;
+    double delta_yaw_pred;
+    fuse_core::Vector2d vel_linear_pred;
     double vel_yaw_pred;
-    double acc_linear_pred_x;
-    double acc_linear_pred_y;
+    fuse_core::Vector2d acc_linear_pred;
     predict(
-      parameters[0][0],  // position1_x
-      parameters[0][1],  // position1_y
-      parameters[1][0],  // yaw1
+      0.0,
+      0.0,
+      0.0,
       parameters[2][0],  // vel_linear1_x
       parameters[2][1],  // vel_linear1_y
       parameters[3][0],  // vel_yaw1
       parameters[4][0],  // acc_linear1_x
       parameters[4][1],  // acc_linear1_y
       dt_,
-      position_pred_x,
-      position_pred_y,
-      yaw_pred,
-      vel_linear_pred_x,
-      vel_linear_pred_y,
+      delta_position_pred.x(),
+      delta_position_pred.y(),
+      delta_yaw_pred,
+      vel_linear_pred.x(),
+      vel_linear_pred.y(),
       vel_yaw_pred,
-      acc_linear_pred_x,
-      acc_linear_pred_y,
+      acc_linear_pred.x(),
+      acc_linear_pred.y(),
       jacobians);
 
-    residuals[0] = parameters[5][0] - position_pred_x;
-    residuals[1] = parameters[5][1] - position_pred_y;
-    residuals[2] = parameters[6][0] - yaw_pred;
-    residuals[3] = parameters[7][0] - vel_linear_pred_x;
-    residuals[4] = parameters[7][1] - vel_linear_pred_y;
-    residuals[5] = parameters[8][0] - vel_yaw_pred;
-    residuals[6] = parameters[9][0] - acc_linear_pred_x;
-    residuals[7] = parameters[9][1] - acc_linear_pred_y;
+    const double delta_yaw_est = parameters[6][0] - parameters[1][0];
+    const fuse_core::Vector2d position1(parameters[0][0], parameters[0][1]);
+    const fuse_core::Vector2d position2(parameters[5][0], parameters[5][1]);
+    const fuse_core::Vector2d position_diff = position2 - position1;
+    const fuse_core::Matrix2d R_yaw_inv = fuse_core::rotationMatrix2D(-parameters[1][0]);
 
-    fuse_core::wrapAngle2D(residuals[2]);
+    Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
+    residuals_map.head<2>() = R_yaw_inv * position_diff - delta_position_pred;
+    residuals_map(2) = delta_yaw_est - delta_yaw_pred;
+    residuals_map(3) = parameters[7][0] - vel_linear_pred.x();
+    residuals_map(4) = parameters[7][1] - vel_linear_pred.y();
+    residuals_map(5) = parameters[8][0] - vel_yaw_pred;
+    residuals_map(6) = parameters[9][0] - acc_linear_pred.x();
+    residuals_map(7) = parameters[9][1] - acc_linear_pred.y();
+
+  fuse_core::wrapAngle2D(residuals_map(2));
 
     // Scale the residuals by the square root information matrix to account for
     // the measurement uncertainty.
-    Eigen::Map<fuse_core::Vector8d> residuals_map(residuals);
     residuals_map.applyOnTheLeft(A_);
 
     if (jacobians)
@@ -182,6 +180,7 @@ public:
       if (jacobians[0])
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[0]);
+        jacobian.block<2, 2>(0, 0).applyOnTheLeft(R_yaw_inv);
         jacobian.applyOnTheLeft(-A_);
       }
 
@@ -235,6 +234,7 @@ public:
       {
         Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[5]);
         jacobian = A_.block<8, 2>(0, 0);
+        jacobian.block<2, 2>(0, 0) *= R_yaw_inv;
       }
 
       // Jacobian wrt yaw2
@@ -274,9 +274,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunction::Unicycle2DStateCostFunction(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
