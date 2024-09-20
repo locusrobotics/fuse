@@ -46,7 +46,7 @@
 
 #include <OgreColourValue.h>
 #include <OgreQuaternion.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <boost/array.hpp>
 

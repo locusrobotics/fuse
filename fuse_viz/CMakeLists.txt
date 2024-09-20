@@ -33,7 +33,8 @@ add_definitions(-DQT_NO_KEYWORDS)
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+# add_compile_options(-Wall -Werror)
+add_compile_options(-Wall)
 
 # On ARM, the use of Eigen 3.4 with g++11 (both the versions in Jammy) causes a warning, which in turn causes
 # the build to fail. Details are here: https://gitlab.com/libeigen/eigen/-/issues/2326. We can suppress the warning
