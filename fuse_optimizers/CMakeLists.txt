@@ -13,6 +13,8 @@ set(build_depends
   std_srvs
 )
 
+find_package(OpenMP)
+
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
@@ -48,11 +50,15 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
+)
+target_compile_options(${PROJECT_NAME}
+  PRIVATE ${OpenMP_CXX_FLAGS}
 )
 
 ## batch_optimizer node
