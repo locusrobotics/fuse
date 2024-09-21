@@ -2,6 +2,9 @@
 Changelog for package fuse_tutorials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.0 (2024-05-02)
 ------------------
 
