@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2024-09-21)
+------------------
 * Fix CallbackWrapper class for the Rolling release
   * Update for changes to the ROS2 Waitable base class
   * implement pure virtual waitable functions as in https://github.com/ros2/system_tests/pull/548

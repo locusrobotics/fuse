@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>fuse_models</name>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <description>fuse plugins that implement various kinematic and sensor models</description>
 
   <maintainer email="tmoore@locusrobotics.com">Tom Moore</maintainer>

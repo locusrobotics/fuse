@@ -2,8 +2,8 @@
 Changelog for package fuse_constraints
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2024-09-21)
+------------------
 * Fix stringop-overread compile issues (`#381 <https://github.com/locusrobotics/fuse/issues/381>`_)
 * Contributors: Stephen Williams
 
