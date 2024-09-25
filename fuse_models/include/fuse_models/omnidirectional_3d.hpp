@@ -241,4 +241,4 @@ std::ostream & operator<<(std::ostream & stream, const Omnidirectional3D & omnid
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__UNICYCLE_3D_HPP_
+#endif  // FUSE_MODELS__OMNIDIRECTIONAL_3D_HPP_
