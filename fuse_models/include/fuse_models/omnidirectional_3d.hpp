@@ -36,7 +36,6 @@
 
 #include <map>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <fuse_core/async_motion_model.hpp>
