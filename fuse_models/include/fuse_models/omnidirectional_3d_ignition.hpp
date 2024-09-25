@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__UNICYCLE_3D_IGNITION_HPP_
-#define FUSE_MODELS__UNICYCLE_3D_IGNITION_HPP_
+#ifndef FUSE_MODELS__OMNIDIRECTIONAL_3D_IGNITION_HPP_
+#define FUSE_MODELS__OMNIDIRECTIONAL_3D_IGNITION_HPP_
 
 #include <atomic>
 #include <memory>
@@ -58,7 +58,7 @@ namespace fuse_models
  *        motion model.
  *
  * This class publishes a transaction that contains a prior on each state subvariable used in the
- * Omnidirectional 3D motion model (x, y, z, qx, qy, qz, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+ * omnidirectional 3D motion model (x, y, z, qx, qy, qz, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
  * yaw_vel, x_acc, y_acc, z_acc). When the sensor is first loaded, it publishes a single transaction 
  * with the configured initial state and covariance.
  * Additionally, whenever a pose is received, either on the set_pose service or the topic, this
@@ -217,4 +217,4 @@ protected:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__UNICYCLE_3D_IGNITION_HPP_
+#endif  // FUSE_MODELS__OMNIDIRECTIONAL_3D_IGNITION_HPP_

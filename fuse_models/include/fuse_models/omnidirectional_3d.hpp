@@ -55,7 +55,7 @@ namespace fuse_models
  * @brief A fuse_models 3D kinematic model that generates kinematic constraints between provided
  *        time stamps, and adds those constraints to the fuse graph.
  *
- * This class uses a unicycle kinematic model for the robot. It is equivalent to the motion model
+ * This class uses a omnidirectional kinematic model for the robot. It is equivalent to the motion model
  * in the robot_localization state estimation nodes.
  *
  * Parameters:
