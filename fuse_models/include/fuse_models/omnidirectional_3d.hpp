@@ -237,7 +237,7 @@ protected:
   StateHistory state_history_;    //!< History of optimized graph pose estimates
 };
 
-std::ostream & operator<<(std::ostream & stream, const Omnidirectional3D & unicycle_2d);
+std::ostream & operator<<(std::ostream & stream, const Omnidirectional3D & omnidirectional_3d);
 
 }  // namespace fuse_models
 
