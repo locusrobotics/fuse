@@ -2160,7 +2160,7 @@ inline bool processAccel3DWithCovariance(
     transformed_message.accel.accel.linear.y,
     transformed_message.accel.accel.linear.z;
 
-  Eigen::Map<const fuse_core::Matrix3d> accel_covariance_map(transformed_message.accel.covariance.data());
+  Eigen::Map<const fuse_core::Matrix3d, 0, Eigen::Stride<6, 1>> accel_covariance_map(transformed_message.accel.covariance.data());
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd accel_mean_partial(indices.size());
