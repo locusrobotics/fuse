@@ -43,6 +43,9 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+
 0.10.0 (2024-09-16)
 -------------------
 * [RST-10727] Publish the start/stop status of the fixed-lag smoother (#375)
