@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>fuse_viz</name>
-  <version>0.10.0</version>
+  <version>0.10.1</version>
   <description>
     The fuse_viz package provides visualization tools for fuse.
   </description>

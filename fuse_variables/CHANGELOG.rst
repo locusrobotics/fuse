@@ -70,8 +70,8 @@ Changelog for package fuse_variables
   Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.10.1 (2024-10-01)
+-------------------
 
 0.10.0 (2024-09-16)
 -------------------
