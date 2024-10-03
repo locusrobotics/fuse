@@ -8,6 +8,7 @@ set(TEST_TARGETS
   test_omnidirectional_3d
   test_omnidirectional_3d_predict
   test_omnidirectional_3d_state_cost_function
+  test_omnidirectional_3d_ignition
 )
 
 foreach(test_name ${TEST_TARGETS})
