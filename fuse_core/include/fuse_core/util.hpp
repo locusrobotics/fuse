@@ -318,9 +318,9 @@ static inline void quaternionToAngleAxis(const double * q, double * angle_axis, 
         (q3 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
     } else {
       jacobian_map.setZero();
-      jacobian_map(1, 1) = 2.0;
-      jacobian_map(2, 2) = 2.0;
-      jacobian_map(3, 3) = 2.0;
+      jacobian_map(0, 1) = 2.0;
+      jacobian_map(1, 2) = 2.0;
+      jacobian_map(2, 3) = 2.0;
     }
   }
 }

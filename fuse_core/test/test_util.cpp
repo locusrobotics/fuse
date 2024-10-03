@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2020, Clearpath Robotics
+ *  Copyright (c) 2024, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -220,32 +221,56 @@ TEST(Util, quaternionProduct)
 
 TEST(Util, quaternionToAngleAxis)
 {
-  // Test correct quaternion to angle-axis function jacobian
-  const Eigen::Quaterniond q_eigen = Eigen::Quaterniond::UnitRandom();
-  double angle_axis[3];
-  double q[4] 
+  // Test correct quaternion to angle-axis function jacobian, for quaternions representing non-zero rotation
   {
-    q_eigen.w(),
-    q_eigen.x(),
-    q_eigen.y(),
-    q_eigen.z()
-  };
- 
-  double J_analytic[12]; 
-  double J_autodiff[12];
+    const Eigen::Quaterniond q_eigen = Eigen::Quaterniond::UnitRandom();
+    double angle_axis[3];
+    double q[4] 
+    {
+      q_eigen.w(),
+      q_eigen.x(),
+      q_eigen.y(),
+      q_eigen.z()
+    };
   
-  fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);  
+    double J_analytic[12]; 
+    double J_autodiff[12];
+    
+    fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);  
 
-  double * jacobians[1] = {J_autodiff};
-  const double * parameters[1] = {q};
+    double * jacobians[1] = {J_autodiff};
+    const double * parameters[1] = {q};
 
-  ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
-  double angle_axis_autodiff[3];
-  quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
-  
-  Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
-  Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
-  
-  EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
+    ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
+    double angle_axis_autodiff[3];
+    quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
+    
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
+    
+    EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
+  }
+
+  // Test correct quaternion to angle-axis function jacobian, for quaternions representing zero rotation
+  {
+    double angle_axis[3];
+    double q[4] {1.0, 0.0, 0.0, 0.0};
+    
+    double J_analytic[12]; 
+    double J_autodiff[12];
+
+    fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);
+
+    double * jacobians[1] = {J_autodiff};
+    const double * parameters[1] = {q};
+
+    ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
+    double angle_axis_autodiff[3];
+    quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
+    
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
+    
+    EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
+  }
 }
-
