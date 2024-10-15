@@ -78,7 +78,6 @@ struct CostFunctor
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
-    residual[2] = x[2] - T(3.1);
     return true;
   }
 };
