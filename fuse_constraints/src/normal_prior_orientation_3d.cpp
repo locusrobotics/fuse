@@ -1,7 +1,6 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
  *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
@@ -32,52 +31,64 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <Eigen/Dense>
+#include <Eigen/Core>
+#include <ceres/rotation.h>
 
-#include <string>
-
-#include <boost/serialization/export.hpp>
-#include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
-#include <fuse_constraints/normal_prior_pose_3d.hpp>
-#include <pluginlib/class_list_macros.hpp>
+#include <fuse_constraints/normal_prior_orientation_3d.hpp>
+#include <fuse_core/util.hpp>
 
 namespace fuse_constraints
 {
 
-AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector7d & mean,
-  const fuse_core::Matrix6d & covariance)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
-  mean_(mean),
-  sqrt_information_(covariance.inverse().llt().matrixU())
+NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::Matrix3d & A, const fuse_core::Vector4d & b)
+: A_(A),
+  b_(b)
 {
 }
 
-void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
+bool NormalPriorOrientation3D::Evaluate(
+  double const * const * parameters,
+  double * residuals,
+  double ** jacobians) const
 {
-  stream << type() << "\n"
-         << "  source: " << source() << "\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  position variable: " << variables().at(0) << "\n"
-         << "  orientation variable: " << variables().at(1) << "\n"
-         << "  mean: " << mean().transpose() << "\n"
-         << "  sqrt_info: " << sqrtInformation() << "\n";
+  double variable[4] =
+  {
+    parameters[0][0],
+    parameters[0][1],
+    parameters[0][2],
+    parameters[0][3],
+  };
 
-  if (loss()) {
-    stream << "  loss: ";
-    loss()->print(stream);
+  double observation_inverse[4] =
+  {
+     b_(0),
+    -b_(1),
+    -b_(2),
+    -b_(3)
+  };
+
+  double difference[4];
+  double j_product[16];
+  double j_quat2angle[12];
+
+  // TODO(giafranchini): these jacobians should be populated only if jacobians[1] != nullptr
+  fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
+  fuse_core::quaternionToAngleAxis(difference, residuals, j_quat2angle); // orientation angle-axis
+ 
+  // Scale the residuals by the square root information matrix to account for the measurement
+  // uncertainty.
+  Eigen::Map<Eigen::Vector3d> residuals_map(residuals);
+  residuals_map.applyOnTheLeft(A_);
+
+  if (jacobians != nullptr) {
+    if (jacobians[0] != nullptr) {
+      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_map(jacobians[0]);
+      Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
+      Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
+      j_map = A_ * j_quat2angle_map * j_product_map;
+    }
   }
-}
-
-ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
-{
-  return new NormalPriorPose3D(sqrt_information_, mean_);
+  return true;
 }
 
 }  // namespace fuse_constraints
-
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::AbsolutePose3DStampedConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::AbsolutePose3DStampedConstraint, fuse_core::Constraint);
