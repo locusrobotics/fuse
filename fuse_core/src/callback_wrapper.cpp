@@ -59,7 +59,7 @@ size_t CallbackAdapter::get_number_of_ready_guard_conditions() {return 1;}
 /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
-bool CallbackAdapter::is_ready(rcl_wait_set_t * wait_set)
+bool CallbackAdapter::is_ready(rcl_wait_set_t const & wait_set)
 {
   (void) wait_set;
   return !callback_queue_.empty();
@@ -71,9 +71,9 @@ bool CallbackAdapter::is_ready(rcl_wait_set_t * wait_set)
     waitable_ptr = std::make_shared<CallbackAdapter>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */
-void CallbackAdapter::add_to_wait_set(rcl_wait_set_t * wait_set)
+void CallbackAdapter::add_to_wait_set(rcl_wait_set_t & wait_set)
 {
-  if (RCL_RET_OK != rcl_wait_set_add_guard_condition(wait_set, &gc_, NULL)) {
+  if (RCL_RET_OK != rcl_wait_set_add_guard_condition(&wait_set, &gc_, NULL)) {
     RCLCPP_WARN(rclcpp::get_logger("fuse"), "Could not add callback waitable to wait set.");
   }
 }
@@ -107,7 +107,7 @@ std::shared_ptr<void> CallbackAdapter::take_data()
    * @brief hook that allows the rclcpp::waitables interface to run the next callback
    *
    */
-void CallbackAdapter::execute(std::shared_ptr<void> & data)
+void CallbackAdapter::execute(std::shared_ptr<void> const & data)
 {
   if (!data) {
     throw std::runtime_error("'data' is empty");

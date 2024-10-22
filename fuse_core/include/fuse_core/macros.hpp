@@ -108,15 +108,15 @@
  */
 #if __cpp_aligned_new
   #define SMART_PTR_DEFINITIONS_WITH_EIGEN(...) \
-  SMART_PTR_DEFINITIONS(__VA_ARGS__)
+    SMART_PTR_DEFINITIONS(__VA_ARGS__)
 #else
   #define SMART_PTR_DEFINITIONS_WITH_EIGEN(...) \
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW \
-  __SHARED_PTR_ALIAS(__VA_ARGS__) \
-  __MAKE_SHARED_ALIGNED_DEFINITION(__VA_ARGS__) \
-  __WEAK_PTR_ALIAS(__VA_ARGS__) \
-  __UNIQUE_PTR_ALIAS(__VA_ARGS__) \
-  __MAKE_UNIQUE_DEFINITION(__VA_ARGS__)
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW \
+    __SHARED_PTR_ALIAS(__VA_ARGS__) \
+    __MAKE_SHARED_ALIGNED_DEFINITION(__VA_ARGS__) \
+    __WEAK_PTR_ALIAS(__VA_ARGS__) \
+    __UNIQUE_PTR_ALIAS(__VA_ARGS__) \
+    __MAKE_UNIQUE_DEFINITION(__VA_ARGS__)
 #endif
 
 /**
@@ -163,20 +163,20 @@
 
 #if __cplusplus >= 201402L
   #define __MAKE_UNIQUE_DEFINITION(...) \
-  template<typename ... Args> \
-  static std::unique_ptr<__VA_ARGS__> \
-  make_unique(Args && ... args) \
-  { \
-    return std::make_unique<__VA_ARGS__>(std::forward<Args>(args) ...); \
-  }
+    template<typename ... Args> \
+    static std::unique_ptr<__VA_ARGS__> \
+    make_unique(Args && ... args) \
+    { \
+      return std::make_unique<__VA_ARGS__>(std::forward<Args>(args) ...); \
+    }
 #else
   #define __MAKE_UNIQUE_DEFINITION(...) \
-  template<typename ... Args> \
-  static std::unique_ptr<__VA_ARGS__> \
-  make_unique(Args && ... args) \
-  { \
-    return std::unique_ptr<__VA_ARGS__>(new __VA_ARGS__(std::forward<Args>(args) ...)); \
-  }
+    template<typename ... Args> \
+    static std::unique_ptr<__VA_ARGS__> \
+    make_unique(Args && ... args) \
+    { \
+      return std::unique_ptr<__VA_ARGS__>(new __VA_ARGS__(std::forward<Args>(args) ...)); \
+    }
 #endif
 
 #endif  // FUSE_CORE__MACROS_HPP_

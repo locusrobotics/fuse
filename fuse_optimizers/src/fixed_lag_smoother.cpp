@@ -189,8 +189,7 @@ void FixedLagSmoother::optimizationLoop()
       return
         this->optimization_request_ ||
         !this->optimization_running_ ||
-        !interfaces_.get_node_base_interface()->get_context()->is_valid()
-      ;
+        !interfaces_.get_node_base_interface()->get_context()->is_valid();
     };
   // Optimize constraints until told to exit
   while (interfaces_.get_node_base_interface()->get_context()->is_valid() &&
@@ -550,7 +549,7 @@ void FixedLagSmoother::transactionCallback(
             [&sensor_name, max_time,
             & min_time = start_time](const auto & transaction) {  // NOLINT(whitespace/braces)
               return transaction.sensor_name != sensor_name &&
-              (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
+                     (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
             }),  // NOLINT(whitespace/braces)
           pending_transactions_.end());
       } else {

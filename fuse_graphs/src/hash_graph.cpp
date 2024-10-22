@@ -320,7 +320,7 @@ void HashGraph::getCovariance(
   // covariance matrix is symmetric, requesting Cov(A,B) and Cov(B,A) counts as a duplicate. Create
   // an expression to test a pair of data pointers such that (A,B) == (A,B) OR (B,A)
   auto symmetric_equal = [](const std::pair<const double *, const double *> & x,
-      const std::pair<const double *, const double *> & y)
+    const std::pair<const double *, const double *> & y)
     {
       return ((x.first == y.first) && (x.second == y.second)) ||
              ((x.first == y.second) && (x.second == y.first));

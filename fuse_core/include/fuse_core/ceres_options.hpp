@@ -99,8 +99,8 @@ static void UpperCase(std::string * input)
 inline const char * LoggingTypeToString(LoggingType type)
 {
   switch (type) {
-    CASESTR(SILENT);
-    CASESTR(PER_MINIMIZER_ITERATION);
+  CASESTR(SILENT);
+  CASESTR(PER_MINIMIZER_ITERATION);
     default:
       return "UNKNOWN";
   }
@@ -117,8 +117,8 @@ inline bool StringToLoggingType(std::string value, LoggingType * type)
 inline const char * DumpFormatTypeToString(DumpFormatType type)
 {
   switch (type) {
-    CASESTR(CONSOLE);
-    CASESTR(TEXTFILE);
+  CASESTR(CONSOLE);
+  CASESTR(TEXTFILE);
     default:
       return "UNKNOWN";
   }

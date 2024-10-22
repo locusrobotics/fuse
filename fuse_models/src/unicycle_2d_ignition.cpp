@@ -334,17 +334,27 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
   // Create the covariances for each variable
   // The pose covariances are extracted from the provided PoseWithCovarianceStamped message.
   // The remaining covariances are provided as parameters to the parameter server.
-  auto position_cov = fuse_core::Matrix2d();
+  auto position_mean = fuse_core::VectorXd(2);
+  position_mean << position->x(), position->y();
+  auto position_cov = fuse_core::MatrixXd(2, 2);
   position_cov << pose.pose.covariance[0], pose.pose.covariance[1],
     pose.pose.covariance[6], pose.pose.covariance[7];
-  auto orientation_cov = fuse_core::Matrix1d();
+  auto orientation_mean = fuse_core::VectorXd(1);
+  orientation_mean << orientation->yaw();
+  auto orientation_cov = fuse_core::MatrixXd(1, 1);
   orientation_cov << pose.pose.covariance[35];
-  auto linear_velocity_cov = fuse_core::Matrix2d();
+  auto linear_velocity_mean = fuse_core::VectorXd(2);
+  linear_velocity_mean << linear_velocity->x(), linear_velocity->y();
+  auto linear_velocity_cov = fuse_core::MatrixXd(2, 2);
   linear_velocity_cov << params_.initial_sigma[3] * params_.initial_sigma[3], 0.0,
     0.0, params_.initial_sigma[4] * params_.initial_sigma[4];
-  auto angular_velocity_cov = fuse_core::Matrix1d();
+  auto angular_velocity_mean = fuse_core::VectorXd(1);
+  angular_velocity_mean << angular_velocity->yaw();
+  auto angular_velocity_cov = fuse_core::MatrixXd(1, 1);
   angular_velocity_cov << params_.initial_sigma[5] * params_.initial_sigma[5];
-  auto linear_acceleration_cov = fuse_core::Matrix2d();
+  auto linear_acceleration_mean = fuse_core::VectorXd(2);
+  linear_acceleration_mean << linear_acceleration->x(), linear_acceleration->y();
+  auto linear_acceleration_cov = fuse_core::MatrixXd(2, 2);
   linear_acceleration_cov << params_.initial_sigma[6] * params_.initial_sigma[6], 0.0,
     0.0, params_.initial_sigma[7] * params_.initial_sigma[7];
 
@@ -352,31 +362,31 @@ void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceS
   auto position_constraint = fuse_constraints::AbsolutePosition2DStampedConstraint::make_shared(
     name(),
     *position,
-    fuse_core::Vector2d(position->x(), position->y()),
+    position_mean,
     position_cov);
   auto orientation_constraint =
     fuse_constraints::AbsoluteOrientation2DStampedConstraint::make_shared(
     name(),
     *orientation,
-    fuse_core::Vector1d(orientation->yaw()),
+    orientation_mean,
     orientation_cov);
   auto linear_velocity_constraint =
     fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint::make_shared(
     name(),
     *linear_velocity,
-    fuse_core::Vector2d(linear_velocity->x(), linear_velocity->y()),
+    linear_velocity_mean,
     linear_velocity_cov);
   auto angular_velocity_constraint =
     fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint::make_shared(
     name(),
     *angular_velocity,
-    fuse_core::Vector1d(angular_velocity->yaw()),
+    angular_velocity_mean,
     angular_velocity_cov);
   auto linear_acceleration_constraint =
     fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint::make_shared(
     name(),
     *linear_acceleration,
-    fuse_core::Vector2d(linear_acceleration->x(), linear_acceleration->y()),
+    linear_acceleration_mean,
     linear_acceleration_cov);
 
   // Create the transaction
