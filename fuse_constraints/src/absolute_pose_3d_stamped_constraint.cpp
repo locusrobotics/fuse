@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2023, Giacomo Franchini
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,14 +32,13 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <ceres/autodiff_cost_function.h>
 #include <Eigen/Dense>
 
 #include <string>
 
 #include <boost/serialization/export.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
-#include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>
+#include <fuse_constraints/normal_prior_pose_3d.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 namespace fuse_constraints
@@ -74,8 +74,7 @@ void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
 {
-  return new ceres::AutoDiffCostFunction<NormalPriorPose3DCostFunctor, 6, 3, 4>(
-    new NormalPriorPose3DCostFunctor(sqrt_information_, mean_));
+  return new NormalPriorPose3D(sqrt_information_, mean_);
 }
 
 }  // namespace fuse_constraints

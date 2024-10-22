@@ -1,0 +1,61 @@
+state_estimator:
+  ros__parameters:
+    # Fixed-lag smoother configuration
+    optimization_frequency: 20.0
+    transaction_timeout: 0.01
+    lag_duration: 0.5
+
+    # all our sensors will be using this motion model
+    motion_models:
+      3d_motion_model:
+        type: fuse_models::Omnidirectional3D
+
+    3d_motion_model:
+      # x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc
+      process_noise_diagonal: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+    sensor_models:
+      initial_localization_sensor:
+        type: fuse_models::Omnidirectional3DIgnition
+        motion_models: [3d_motion_model]
+        ignition: true
+      odometry_sensor:
+        type: fuse_models::Odometry3D
+        motion_models: [3d_motion_model]
+      imu_sensor:
+        type: fuse_models::Imu3D
+        motion_models: [3d_motion_model]
+
+    initial_localization_sensor:
+      publish_on_startup: true
+      # x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc
+      initial_state: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      initial_sigma: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+    odometry_sensor:
+      topic: 'odom'
+      twist_target_frame: 'base_link'
+      # we only want position and orientation, but you can get a full odometry measurement from this sensor
+      position_dimensions: ['x', 'y', 'z']
+      orientation_dimensions: ['roll', 'pitch', 'yaw']
+
+    imu_sensor:
+      topic: 'imu'
+      acceleration_target_frame: 'base_link'
+      # we only care about linear acceleration for this tutorial
+      linear_acceleration_dimensions: ['x', 'y', 'z']
+
+    # this publishes our estimated odometry
+    publishers:
+      filtered_publisher:
+        type: fuse_models::Odometry3DPublisher
+
+    # the configuration of our output publisher
+    filtered_publisher:
+      topic: 'odom_filtered'
+      base_link_frame_id: 'base_link'
+      odom_frame_id: 'odom'
+      map_frame_id: 'map'
+      world_frame_id: 'odom'
+      publish_tf: true
+      publish_frequency: 10.0

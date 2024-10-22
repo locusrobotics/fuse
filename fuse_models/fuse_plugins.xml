@@ -12,11 +12,32 @@
     </description>
   </class>
 
+  <class type="fuse_models::Omnidirectional3DStateKinematicConstraint" base_class_type="fuse_core::Constraint">
+    <description>
+    A class that represents a kinematic constraint between 3D states at two different times.
+    </description>
+  </class>
+
+  <class type="fuse_models::Omnidirectional3D" base_class_type="fuse_core::MotionModel">
+    <description>
+    A fuse_models 3D kinematic model that generates kinematic constraints between provided time stamps, and adds
+    those constraints to the fuse graph.
+    </description>
+  </class>
+  
   <class type="fuse_models::Odometry2DPublisher" base_class_type="fuse_core::Publisher">
     <description>
     Publisher plugin that publishes a nav_msgs::msg::Odometry message and broadcasts a tf transform for optimized 2D
     state data (combination of Position2DStamped, Orientation2DStamped, VelocityLinear2DStamped, and
     VelocityAngular2DStamped).
+    </description>
+  </class>
+
+  <class type="fuse_models::Odometry3DPublisher" base_class_type="fuse_core::Publisher">
+    <description>
+    Publisher plugin that publishes a nav_msgs::msg::Odometry message and broadcasts a tf transform for optimized 3D
+    state data (combination of Position3DStamped, Orientation3DStamped, VelocityLinear3DStamped, and
+    VelocityAngular3DStamped).
     </description>
   </class>
 
@@ -40,7 +61,19 @@
     acceleration constraints from IMU sensor data published by another node
     </description>
   </class>
+  <class type="fuse_models::Imu3D" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces 3D orientation (relative or absolute), angular velocity, and linear
+    acceleration constraints from IMU sensor data published by another node
+    </description>
+  </class>
   <class type="fuse_models::Odometry2D" base_class_type="fuse_core::SensorModel">
+    <description>
+    An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
+    published by another node
+    </description>
+  </class>
+  <class type="fuse_models::Odometry3D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces pose (relative or absolute) and velocity constraints from sensor data
     published by another node
@@ -66,6 +99,11 @@
   <class type="fuse_models::Unicycle2DIgnition" base_class_type="fuse_core::SensorModel">
     <description>
     A fuse_models ignition sensor designed to be used in conjunction with the unicycle 2D motion model.
+    </description>
+  </class>
+  <class type="fuse_models::Omnidirectional3DIgnition" base_class_type="fuse_core::SensorModel">
+    <description>
+    A fuse_models ignition sensor designed to be used in conjunction with the Omnidirectional 3D motion model.
     </description>
   </class>
 </library>

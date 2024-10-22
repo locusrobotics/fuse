@@ -38,6 +38,7 @@
 
 #include <memory>
 #include <vector>
+#include <Eigen/Core>
 
 /**
  * @brief A helper function to compare a expected and actual cost function.
@@ -68,8 +69,22 @@ static void ExpectCostFunctionsAreEqual(
   }
 
   std::unique_ptr<double[]> parameters(new double[num_parameters]);
-  for (size_t i = 0; i < num_parameters; ++i) {
-    parameters[i] = static_cast<double>(i) + 1.0;
+  if ((num_parameters == 7) && (parameter_block_sizes[0] == 3) &&
+    (parameter_block_sizes[1] == 4))
+  {
+    // Special case for parameters[1] as quaternion
+    for (size_t i = 0; i < 3; i++) {
+      parameters[i] = static_cast<double>(i) + 1.0;
+    }
+    Eigen::Quaterniond q = Eigen::Quaterniond::UnitRandom();
+    parameters[3] = q.w();
+    parameters[4] = q.x();
+    parameters[5] = q.y();
+    parameters[6] = q.z();
+  } else {
+    for (size_t i = 0; i < num_parameters; ++i) {
+      parameters[i] = static_cast<double>(i) + 1.0;
+    }
   }
 
   std::unique_ptr<double[]> residuals(new double[num_residuals]);

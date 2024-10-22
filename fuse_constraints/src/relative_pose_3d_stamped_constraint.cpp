@@ -74,6 +74,7 @@ void RelativePose3DStampedConstraint::print(std::ostream & stream) const
 
 ceres::CostFunction * RelativePose3DStampedConstraint::costFunction() const
 {
+  // TODO(giafranchini): implement cost function with analytical derivatives
   return new ceres::AutoDiffCostFunction<NormalDeltaPose3DCostFunctor, 6, 3, 4, 3, 4>(
     new NormalDeltaPose3DCostFunctor(sqrt_information_, delta_));
 }

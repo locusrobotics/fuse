@@ -84,15 +84,15 @@
   void serialize(fuse_core::BinaryOutputArchive & archive) const override \
   { \
     archive << *this; \
-  }  /* NOLINT */ \
+  }        /* NOLINT */ \
   void serialize(fuse_core::TextOutputArchive & archive) const override \
   { \
     archive << *this; \
-  }  /* NOLINT */ \
+  }        /* NOLINT */ \
   void deserialize(fuse_core::BinaryInputArchive & archive) override \
   { \
     archive >> *this; \
-  }  /* NOLINT */ \
+  }        /* NOLINT */ \
   void deserialize(fuse_core::TextInputArchive & archive) override \
   { \
     archive >> *this; \
@@ -119,8 +119,8 @@
     static std::string type() \
     { \
       return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
-    }  /* NOLINT */ \
-  };  /* NOLINT */ \
+    }        /* NOLINT */ \
+  };        /* NOLINT */ \
   std::string type() const override \
   { \
     return detail::type(); \
