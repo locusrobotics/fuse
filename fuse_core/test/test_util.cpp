@@ -41,44 +41,53 @@
 #include <fuse_core/util.hpp>
 #include <fuse_core/eigen.hpp>
 
-struct Quat2RPY {
-  template <typename T>
-  bool operator()(const T * const q, T * rpy) const {
+struct Quat2RPY
+{
+  template<typename T>
+  bool operator()(const T * const q, T * rpy) const
+  {
     rpy[0] = fuse_core::getRoll(q[0], q[1], q[2], q[3]);
     rpy[1] = fuse_core::getPitch(q[0], q[1], q[2], q[3]);
     rpy[2] = fuse_core::getYaw(q[0], q[1], q[2], q[3]);
     return true;
   }
 
-  static ceres::CostFunction* Create() {
-    return (new ceres::AutoDiffCostFunction<Quat2RPY, 3, 4>(new Quat2RPY()));
+  static ceres::CostFunction * Create()
+  {
+    return new ceres::AutoDiffCostFunction<Quat2RPY, 3, 4>(new Quat2RPY());
   }
 };
 
-struct QuatProd {
-  template <typename T>
+struct QuatProd
+{
+  template<typename T>
   bool operator()(
     const T * const q1,
     const T * const q2,
-    T * q_out) const {
-      ceres::QuaternionProduct(q1, q2, q_out);
-      return true;
-    }
+    T * q_out) const
+  {
+    ceres::QuaternionProduct(q1, q2, q_out);
+    return true;
+  }
 
-  static ceres::CostFunction* Create() {
-    return (new ceres::AutoDiffCostFunction<QuatProd, 4, 4, 4>(new QuatProd()));
+  static ceres::CostFunction * Create()
+  {
+    return new ceres::AutoDiffCostFunction<QuatProd, 4, 4, 4>(new QuatProd());
   }
 };
 
-struct Quat2AngleAxis {
-  template <typename T>
-  bool operator()(const T * const q, T * aa) const {
-      ceres::QuaternionToAngleAxis(q, aa);
-      return true;
-    }
+struct Quat2AngleAxis
+{
+  template<typename T>
+  bool operator()(const T * const q, T * aa) const
+  {
+    ceres::QuaternionToAngleAxis(q, aa);
+    return true;
+  }
 
-  static ceres::CostFunction* Create() {
-    return (new ceres::AutoDiffCostFunction<Quat2AngleAxis, 3, 4>(new Quat2AngleAxis()));
+  static ceres::CostFunction * Create()
+  {
+    return new ceres::AutoDiffCostFunction<Quat2AngleAxis, 3, 4>(new Quat2AngleAxis());
   }
 };
 
@@ -153,7 +162,7 @@ TEST(Util, quaternion2rpy)
   q[1] = q_eigen.x();
   q[2] = q_eigen.y();
   q[3] = q_eigen.z();
-  
+
   fuse_core::quaternion2rpy(q, rpy, J_analytic);
 
   double * jacobians[1] = {J_autodiff};
@@ -162,10 +171,10 @@ TEST(Util, quaternion2rpy)
   ceres::CostFunction * quat2rpy_cf = Quat2RPY::Create();
   double rpy_autodiff[3];
   quat2rpy_cf->Evaluate(parameters, rpy_autodiff, jacobians);
-  
+
   Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
   Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
-  
+
   EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
 }
 
@@ -175,7 +184,7 @@ TEST(Util, quaternionProduct)
   const Eigen::Quaterniond q1_eigen = Eigen::Quaterniond::UnitRandom();
   const Eigen::Quaterniond q2_eigen = Eigen::Quaterniond::UnitRandom();
   double q_out[4];
-  double q1[4] 
+  double q1[4]
   {
     q1_eigen.w(),
     q1_eigen.x(),
@@ -183,20 +192,20 @@ TEST(Util, quaternionProduct)
     q1_eigen.z()
   };
 
-  double q2[4] 
+  double q2[4]
   {
     q2_eigen.w(),
     q2_eigen.x(),
     q2_eigen.y(),
     q2_eigen.z()
   };
-  
+
   // Atm only the jacobian wrt the second quaternion is implemented. If the computation will be
-  // extended in future, we just have to compare J_analytic_q1 with the other automatic J_autodiff_q1. 
+  // extended in future, we just have to compare J_analytic_q1 with the other automatic J_autodiff_q1.
   double J_analytic_q1[16], J_analytic_q2[16]; // Analytical Jacobians wrt first and second quaternion
   double J_autodiff_q1[16], J_autodiff_q2[16]; // Autodiff Jacobians wrt first and second quaternion
-  
-  fuse_core::quaternionProduct(q1, q2, q_out, J_analytic_q2);  
+
+  fuse_core::quaternionProduct(q1, q2, q_out, J_analytic_q2);
 
   double * jacobians[2];
   jacobians[0] = J_autodiff_q1;
@@ -209,54 +218,33 @@ TEST(Util, quaternionProduct)
   ceres::CostFunction * quat_prod_cf = QuatProd::Create();
   double q_out_autodiff[4];
   quat_prod_cf->Evaluate(parameters, q_out_autodiff, jacobians);
-  
+
   Eigen::Map<fuse_core::Matrix<double, 4, 4>> J_autodiff_q1_map(jacobians[0]);
   Eigen::Map<fuse_core::Matrix<double, 4, 4>> J_autodiff_q2_map(jacobians[1]);
 
   // Eigen::Map<fuse_core::Matrix<double, 4, 4>> J_analytic_q1_map(J_analytic_q1);
   Eigen::Map<fuse_core::Matrix<double, 4, 4>> J_analytic_q2_map(J_analytic_q2);
-  
+
   EXPECT_TRUE(J_analytic_q2_map.isApprox(J_autodiff_q2_map));
 }
 
 TEST(Util, quaternionToAngleAxis)
 {
   // Test correct quaternion to angle-axis function jacobian, for quaternions representing non-zero rotation
+  // The implementation of quaternionToAngleAxis changes slightly between ceres 2.1.0 and 2.2.0. We checked for
+  // both the versions for the test to pass.
   {
     const Eigen::Quaterniond q_eigen = Eigen::Quaterniond::UnitRandom();
     double angle_axis[3];
-    double q[4] 
+    double q[4]
     {
       q_eigen.w(),
       q_eigen.x(),
       q_eigen.y(),
       q_eigen.z()
     };
-  
-    double J_analytic[12]; 
-    double J_autodiff[12];
-    
-    fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);  
 
-    double * jacobians[1] = {J_autodiff};
-    const double * parameters[1] = {q};
-
-    ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
-    double angle_axis_autodiff[3];
-    quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
-    
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
-    
-    EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
-  }
-
-  // Test correct quaternion to angle-axis function jacobian, for quaternions representing zero rotation
-  {
-    double angle_axis[3];
-    double q[4] {1.0, 0.0, 0.0, 0.0};
-    
-    double J_analytic[12]; 
+    double J_analytic[12];
     double J_autodiff[12];
 
     fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);
@@ -267,10 +255,62 @@ TEST(Util, quaternionToAngleAxis)
     ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
     double angle_axis_autodiff[3];
     quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
-    
+
     Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
     Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
-    
+
+    EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
+  }
+
+  // Test correct quaternion to angle-axis function jacobian, for quaternions representing zero rotation
+  {
+    double angle_axis[3];
+    double q[4] {1.0, 0.0, 0.0, 0.0};
+
+    double J_analytic[12];
+    double J_autodiff[12];
+
+    fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);
+
+    double * jacobians[1] = {J_autodiff};
+    const double * parameters[1] = {q};
+
+    ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
+    double angle_axis_autodiff[3];
+    quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
+
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
+
+    EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
+  }
+
+  {
+    // Test that approximate conversion and jacobian computation work for very small angles that
+    // could potentially cause underflow.
+
+    double theta = std::pow(std::numeric_limits<double>::min(), 0.75);
+    double q[4] = {cos(theta / 2.0), sin(theta / 2.0), 0, 0};
+    double angle_axis[3];
+    double expected[3] = {theta, 0, 0};
+    double J_analytic[12];
+    double J_autodiff[12];
+
+    fuse_core::quaternionToAngleAxis(q, angle_axis, J_analytic);
+    EXPECT_DOUBLE_EQ(angle_axis[0], expected[0]);
+    EXPECT_DOUBLE_EQ(angle_axis[1], expected[1]);
+    EXPECT_DOUBLE_EQ(angle_axis[2], expected[2]);
+
+    double * jacobians[1] = {J_autodiff};
+    const double * parameters[1] = {q};
+
+    ceres::CostFunction * quat2angle_axis_cf = Quat2AngleAxis::Create();
+    double angle_axis_autodiff[3];
+    quat2angle_axis_cf->Evaluate(parameters, angle_axis_autodiff, jacobians);
+
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> J_analytic_map(J_analytic);
+
     EXPECT_TRUE(J_analytic_map.isApprox(J_autodiff_map));
   }
 }
