@@ -167,7 +167,7 @@ void Imu3D::process(const sensor_msgs::msg::Imu & msg)
   twist.twist.covariance[33] = msg.angular_velocity_covariance[6];
   twist.twist.covariance[34] = msg.angular_velocity_covariance[7];
   twist.twist.covariance[35] = msg.angular_velocity_covariance[8];
- 
+
   const bool validate = !params_.disable_checks;
 
   if (params_.differential) {
@@ -248,7 +248,7 @@ void Imu3D::process(const sensor_msgs::msg::Imu & msg)
 
 void Imu3D::processDifferential(
   const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
-  const geometry_msgs::msg::TwistWithCovarianceStamped & twist, 
+  const geometry_msgs::msg::TwistWithCovarianceStamped & twist,
   const bool validate,
   fuse_core::Transaction & transaction)
 {
@@ -267,9 +267,9 @@ void Imu3D::processDifferential(
     return;
   }
 
-    if (!previous_pose_) {
+  if (!previous_pose_) {
     previous_pose_ = std::move(transformed_pose);
-        return;
+    return;
   }
 
   if (params_.use_twist_covariance) {

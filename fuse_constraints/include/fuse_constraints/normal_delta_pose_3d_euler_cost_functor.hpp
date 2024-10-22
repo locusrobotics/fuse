@@ -117,7 +117,7 @@ bool NormalDeltaPose3DEulerCostFunctor::operator()(
   T orientation_delta[4];
   T orientation_delta_rpy[3];
 
-  T orientation1_inverse[4] 
+  T orientation1_inverse[4]
   {
     orientation1[0],
     -orientation1[1],
@@ -125,13 +125,13 @@ bool NormalDeltaPose3DEulerCostFunctor::operator()(
     -orientation1[3]
   };
 
-  T position_delta[3] 
+  T position_delta[3]
   {
     position2[0] - position1[0],
     position2[1] - position1[1],
     position2[2] - position1[2]
   };
-  
+
   // Compute the position residual
   ceres::QuaternionRotatePoint(orientation1_inverse, position_delta, position_delta_rotated);
   full_residuals[0] = position_delta_rotated[0] - T(b_(0));
@@ -140,9 +140,15 @@ bool NormalDeltaPose3DEulerCostFunctor::operator()(
 
   // Compute the orientation residual
   ceres::QuaternionProduct(orientation1_inverse, orientation2, orientation_delta);
-  orientation_delta_rpy[0] = fuse_core::getRoll(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
-  orientation_delta_rpy[1] = fuse_core::getPitch(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
-  orientation_delta_rpy[2] = fuse_core::getYaw(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[0] = fuse_core::getRoll(
+    orientation_delta[0], orientation_delta[1],
+    orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[1] = fuse_core::getPitch(
+    orientation_delta[0], orientation_delta[1],
+    orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[2] = fuse_core::getYaw(
+    orientation_delta[0], orientation_delta[1],
+    orientation_delta[2], orientation_delta[3]);
   full_residuals[3] = orientation_delta_rpy[0] - T(b_(3));
   full_residuals[4] = orientation_delta_rpy[1] - T(b_(4));
   full_residuals[5] = orientation_delta_rpy[2] - T(b_(5));

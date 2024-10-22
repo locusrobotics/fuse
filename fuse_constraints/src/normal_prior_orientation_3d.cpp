@@ -40,7 +40,9 @@
 namespace fuse_constraints
 {
 
-NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::Matrix3d & A, const fuse_core::Vector4d & b)
+NormalPriorOrientation3D::NormalPriorOrientation3D(
+  const fuse_core::Matrix3d & A,
+  const fuse_core::Vector4d & b)
 : A_(A),
   b_(b)
 {
@@ -61,7 +63,7 @@ bool NormalPriorOrientation3D::Evaluate(
 
   double observation_inverse[4] =
   {
-     b_(0),
+    b_(0),
     -b_(1),
     -b_(2),
     -b_(3)
@@ -74,7 +76,7 @@ bool NormalPriorOrientation3D::Evaluate(
   // TODO(giafranchini): these jacobians should be populated only if jacobians[1] != nullptr
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
   fuse_core::quaternionToAngleAxis(difference, residuals, j_quat2angle); // orientation angle-axis
- 
+
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
   Eigen::Map<Eigen::Vector3d> residuals_map(residuals);

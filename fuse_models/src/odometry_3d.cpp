@@ -107,23 +107,23 @@ void Odometry3D::onStart()
   if (!params_.position_indices.empty() || !params_.orientation_indices.empty() ||
     !params_.linear_velocity_indices.empty() || !params_.angular_velocity_indices.empty())
   {
-  previous_pose_.reset();
+    previous_pose_.reset();
 
-  rclcpp::SubscriptionOptions sub_options;
-  sub_options.callback_group = cb_group_;
+    rclcpp::SubscriptionOptions sub_options;
+    sub_options.callback_group = cb_group_;
 
-  sub_ = rclcpp::create_subscription<nav_msgs::msg::Odometry>(
-    interfaces_,
-    params_.topic,
-    params_.queue_size,
-    std::bind(
-      &OdometryThrottledCallback::callback<
-        const nav_msgs::msg::Odometry &>,
-      &throttled_callback_,
-      std::placeholders::_1
-    ),
-    sub_options
-  );
+    sub_ = rclcpp::create_subscription<nav_msgs::msg::Odometry>(
+      interfaces_,
+      params_.topic,
+      params_.queue_size,
+      std::bind(
+        &OdometryThrottledCallback::callback<
+          const nav_msgs::msg::Odometry &>,
+        &throttled_callback_,
+        std::placeholders::_1
+      ),
+      sub_options
+    );
   }
 }
 

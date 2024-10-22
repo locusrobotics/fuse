@@ -31,16 +31,16 @@
 
 
 #define ALL_FUSE_CORE_NODE_INTERFACES \
-        fuse_core::node_interfaces::Base, \
-        fuse_core::node_interfaces::Clock, \
-        fuse_core::node_interfaces::Graph, \
-        fuse_core::node_interfaces::Logging, \
-        fuse_core::node_interfaces::Parameters, \
-        fuse_core::node_interfaces::Services, \
-        fuse_core::node_interfaces::TimeSource, \
-        fuse_core::node_interfaces::Timers, \
-        fuse_core::node_interfaces::Topics, \
-        fuse_core::node_interfaces::Waitables
+  fuse_core::node_interfaces::Base, \
+  fuse_core::node_interfaces::Clock, \
+  fuse_core::node_interfaces::Graph, \
+  fuse_core::node_interfaces::Logging, \
+  fuse_core::node_interfaces::Parameters, \
+  fuse_core::node_interfaces::Services, \
+  fuse_core::node_interfaces::TimeSource, \
+  fuse_core::node_interfaces::Timers, \
+  fuse_core::node_interfaces::Topics, \
+  fuse_core::node_interfaces::Waitables
 
 namespace fuse_core
 {

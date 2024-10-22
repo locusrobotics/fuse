@@ -198,7 +198,9 @@ void Odometry3DPublisher::notifyCallback(
         covariance_requests.emplace_back(acceleration_linear_uuid, acceleration_linear_uuid);
 
         std::vector<std::vector<double>> covariance_matrices;
-        graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options, true);
+        graph->getCovariance(
+          covariance_requests, covariance_matrices, params_.covariance_options,
+          true);
 
         odom_output.pose.covariance[0] = covariance_matrices[0][0]; // cov(x, x)
         odom_output.pose.covariance[1] = covariance_matrices[0][1]; // cov(x, y)
@@ -206,7 +208,7 @@ void Odometry3DPublisher::notifyCallback(
         odom_output.pose.covariance[3] = covariance_matrices[1][0]; // cov(x, roll)
         odom_output.pose.covariance[4] = covariance_matrices[1][1]; // cov(x, pitch)
         odom_output.pose.covariance[5] = covariance_matrices[1][2]; // cov(x, yaw)
-        
+
         odom_output.pose.covariance[6] = covariance_matrices[0][3]; // cov(y, x)
         odom_output.pose.covariance[7] = covariance_matrices[0][4]; // cov(y, y)
         odom_output.pose.covariance[8] = covariance_matrices[0][5]; // cov(y, z)
@@ -262,7 +264,7 @@ void Odometry3DPublisher::notifyCallback(
         odom_output.twist.covariance[15] = covariance_matrices[4][6];
         odom_output.twist.covariance[16] = covariance_matrices[4][7];
         odom_output.twist.covariance[17] = covariance_matrices[4][8];
-        
+
         odom_output.twist.covariance[18] = covariance_matrices[4][0];
         odom_output.twist.covariance[19] = covariance_matrices[4][3];
         odom_output.twist.covariance[20] = covariance_matrices[4][6];
@@ -283,7 +285,7 @@ void Odometry3DPublisher::notifyCallback(
         odom_output.twist.covariance[33] = covariance_matrices[5][2];
         odom_output.twist.covariance[34] = covariance_matrices[5][5];
         odom_output.twist.covariance[35] = covariance_matrices[5][8];
-        
+
         acceleration_output.accel.covariance[0] = covariance_matrices[6][0];
         acceleration_output.accel.covariance[1] = covariance_matrices[6][1];
         acceleration_output.accel.covariance[2] = covariance_matrices[6][2];
@@ -407,7 +409,7 @@ bool Odometry3DPublisher::getState(
     auto acceleration_linear_variable =
       dynamic_cast<const fuse_variables::AccelerationLinear3DStamped &>(
       graph.getVariable(acceleration_linear_uuid));
-    
+
     odometry.pose.pose.position.x = position_variable.x();
     odometry.pose.pose.position.y = position_variable.y();
     odometry.pose.pose.position.z = position_variable.z();
@@ -482,9 +484,9 @@ void Odometry3DPublisher::publishTimerCallback()
     orientation.y() = pose.getRotation().y();
     orientation.z() = pose.getRotation().z();
     orientation.w() = pose.getRotation().w();
-    velocity_linear << odom_output.twist.twist.linear.x, 
+    velocity_linear << odom_output.twist.twist.linear.x,
       odom_output.twist.twist.linear.y, odom_output.twist.twist.linear.z;
-    velocity_angular << odom_output.twist.twist.angular.x, 
+    velocity_angular << odom_output.twist.twist.angular.x,
       odom_output.twist.twist.angular.y, odom_output.twist.twist.angular.z;
 
     const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
@@ -493,7 +495,7 @@ void Odometry3DPublisher::publishTimerCallback()
 
     fuse_core::Vector3d acceleration_linear;
     if (params_.predict_with_acceleration) {
-      acceleration_linear << acceleration_output.accel.accel.linear.x, 
+      acceleration_linear << acceleration_output.accel.accel.linear.x,
         acceleration_output.accel.accel.linear.y, acceleration_output.accel.accel.linear.z;
     }
 
@@ -513,7 +515,10 @@ void Odometry3DPublisher::publishTimerCallback()
 
     // Convert back to tf2 representation
     pose.setOrigin(tf2::Vector3(position.x(), position.y(), position.z()));
-    pose.setRotation(tf2::Quaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
+    pose.setRotation(
+      tf2::Quaternion(
+        orientation.x(), orientation.y(), orientation.z(),
+        orientation.w()));
 
     odom_output.pose.pose.position.x = position.x();
     odom_output.pose.pose.position.y = position.y();
@@ -546,7 +551,8 @@ void Odometry3DPublisher::publishTimerCallback()
       covariance.setZero();
       Eigen::Map<fuse_core::Matrix6d> pose_covariance(odom_output.pose.covariance.data());
       Eigen::Map<fuse_core::Matrix6d> twist_covariance(odom_output.twist.covariance.data());
-      Eigen::Map<fuse_core::Matrix3d> acceleration_covariance(acceleration_output.accel.covariance.data());
+      Eigen::Map<fuse_core::Matrix3d> acceleration_covariance(acceleration_output.accel.covariance.
+        data());
 
       covariance.block<6, 6>(0, 0) = pose_covariance;
       covariance.block<6, 6>(6, 6) = twist_covariance;
@@ -557,9 +563,9 @@ void Odometry3DPublisher::publishTimerCallback()
       auto process_noise_covariance = params_.process_noise_covariance;
       if (params_.scale_process_noise) {
         common::scaleProcessNoiseCovariance(
-          process_noise_covariance, 
+          process_noise_covariance,
           velocity_linear,
-          velocity_angular, 
+          velocity_angular,
           params_.velocity_linear_norm_min_,
           params_.velocity_angular_norm_min_);
       }
@@ -588,7 +594,7 @@ void Odometry3DPublisher::publishTimerCallback()
     trans.header.stamp = odom_output.header.stamp;
     trans.header.frame_id = frame_id;
     trans.child_frame_id = child_frame_id;
-    trans.transform = tf2::toMsg(pose);    
+    trans.transform = tf2::toMsg(pose);
     if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id) {
       try {
         auto base_to_odom = tf_buffer_->lookupTransform(

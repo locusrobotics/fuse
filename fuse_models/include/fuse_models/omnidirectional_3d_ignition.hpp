@@ -58,8 +58,8 @@ namespace fuse_models
  *        motion model.
  *
  * This class publishes a transaction that contains a prior on each state subvariable used in the
- * omnidirectional 3D motion model (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
- * yaw_vel, x_acc, y_acc, z_acc). When the sensor is first loaded, it publishes a single transaction 
+ * omnidirectional 3D motion model (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel,
+ * yaw_vel, x_acc, y_acc, z_acc). When the sensor is first loaded, it publishes a single transaction
  * with the configured initial state and covariance.
  * Additionally, whenever a pose is received, either on the set_pose service or the topic, this
  * ignition sensor resets the optimizer then publishes a new transaction with a prior at the
@@ -73,12 +73,12 @@ namespace fuse_models
  *  - ~initial_sigma (vector of doubles) A 15-dimensional vector containing the standard deviations
  *                                       for the initial state values. The covariance matrix is
  *                                       created placing the squared standard deviations along the
- *                                       diagonal of an 15x15 matrix. Variable order is (x, y, z, 
- *                                       roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+ *                                       diagonal of an 15x15 matrix. Variable order is (x, y, z,
+ *                                       roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel,
  *                                       yaw_vel, x_acc, y_acc, z_acc).
  *  - ~initial_state (vector of doubles) A 15-dimensional vector containing the initial values for
- *                                       the state. Variable order is (x, y, z, 
- *                                       roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
+ *                                       the state. Variable order is (x, y, z,
+ *                                       roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel,
  *                                       yaw_vel, x_acc, y_acc, z_acc).
  *  - ~queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - ~reset_service (string, default: "~/reset") The name of the reset service to call before
@@ -180,8 +180,8 @@ protected:
   /**
    * @brief Create and send a prior transaction based on the supplied pose
    *
-   * The omnidirectional 3d state members not included in the pose message (x_vel, y_vel, z_vel, roll_vel, pitch_vel, 
-   * yaw_vel, x_acc, y_acc, z_acc) will use the initial state values and standard deviations configured on the 
+   * The omnidirectional 3d state members not included in the pose message (x_vel, y_vel, z_vel, roll_vel, pitch_vel,
+   * yaw_vel, x_acc, y_acc, z_acc) will use the initial state values and standard deviations configured on the
    * parameter server.
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, z, roll, pitch, yaw)

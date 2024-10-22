@@ -204,7 +204,7 @@ using AbsoluteAccelerationAngular3DStampedConstraint =
   AbsoluteConstraint<fuse_variables::AccelerationAngular3DStamped>;
 using AbsoluteAccelerationLinear2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>;
-using AbsoluteAccelerationLinear3DStampedConstraint = 
+using AbsoluteAccelerationLinear3DStampedConstraint =
   AbsoluteConstraint<fuse_variables::AccelerationLinear3DStamped>;
 using AbsoluteOrientation2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::Orientation2DStamped>;

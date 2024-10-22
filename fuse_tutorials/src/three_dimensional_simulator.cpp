@@ -86,7 +86,7 @@ struct Robot
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot & state)
 {
   auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = state.stamp;
@@ -128,7 +128,9 @@ nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
 /**
  * @brief Compute the next robot state given the current robot state and a simulated step time
  */
-Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now, Eigen::Vector3d external_force)
+Robot simulateRobotMotion(
+  const Robot & previous_state, const rclcpp::Time & now,
+  Eigen::Vector3d external_force)
 {
   auto dt = (now - previous_state.stamp).seconds();
   auto next_state = Robot();
@@ -162,11 +164,11 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now, 
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot & robot)
 {
   static std::random_device rd{};
-  static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> noise{ 0.0, IMU_SIGMA };
+  static std::mt19937 generator{rd()};
+  static std::normal_distribution<> noise{0.0, IMU_SIGMA};
 
   auto msg = std::make_shared<sensor_msgs::msg::Imu>();
   msg->header.stamp = robot.stamp;
@@ -194,11 +196,11 @@ sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
   return msg;
 }
 
-nav_msgs::msg::Odometry::SharedPtr simulateOdometry(const Robot& robot)
+nav_msgs::msg::Odometry::SharedPtr simulateOdometry(const Robot & robot)
 {
   static std::random_device rd{};
-  static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> position_noise{ 0.0, ODOM_POSITION_SIGMA };
+  static std::mt19937 generator{rd()};
+  static std::normal_distribution<> position_noise{0.0, ODOM_POSITION_SIGMA};
 
   auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = robot.stamp;
@@ -226,8 +228,9 @@ nav_msgs::msg::Odometry::SharedPtr simulateOdometry(const Robot& robot)
   return msg;
 }
 
-void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                               const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
+void initializeStateEstimation(
+  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+  const Robot & state, const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger)
 {
   // Send the initial localization signal to the state estimator
   auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
@@ -249,24 +252,27 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
   srv->pose.pose.covariance[35] = 1.0;
 
   auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
-      interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
-      interfaces.get_node_services_interface(), "/state_estimation/set_pose_service", rclcpp::ServicesQoS());
+    interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
+    interfaces.get_node_services_interface(), "/state_estimation/set_pose_service",
+    rclcpp::ServicesQoS());
 
   while (!client->wait_for_service(std::chrono::seconds(30)) &&
-         interfaces.get_node_base_interface()->get_context()->is_valid())
+    interfaces.get_node_base_interface()->get_context()->is_valid())
   {
-    RCLCPP_WARN_STREAM(logger, "Waiting for '" << client->get_service_name() << "' service to become available.");
+    RCLCPP_WARN_STREAM(
+      logger,
+      "Waiting for '" << client->get_service_name() << "' service to become available.");
   }
 
   auto success = false;
-  while (!success)
-  {
+  while (!success) {
     clock->sleep_for(std::chrono::milliseconds(100));
     srv->pose.header.stamp = clock->now();
     auto result_future = client->async_send_request(srv);
 
-    if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future,
-                                           std::chrono::seconds(1)) != rclcpp::FutureReturnCode::SUCCESS)
+    if (rclcpp::spin_until_future_complete(
+        interfaces.get_node_base_interface(), result_future,
+        std::chrono::seconds(1)) != rclcpp::FutureReturnCode::SUCCESS)
     {
       RCLCPP_ERROR(logger, "service call failed :(");
       client->remove_pending_request(result_future);
@@ -276,7 +282,7 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
   }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   // set up our ROS node
   rclcpp::init(argc, argv);
@@ -305,8 +311,7 @@ int main(int argc, char** argv)
   double const motion_duration = 5;  // length of time to oscillate on a given axis, in seconds
   double const N_cycles = 2;         // number of oscillations per `motion_duration`
 
-  while (rclcpp::ok())
-  {
+  while (rclcpp::ok()) {
     // store the first time this runs (since it won't start running exactly at a multiple of `motion_duration`)
     static auto const first_time = node->now();
     auto const now = node->now();
@@ -318,23 +323,16 @@ int main(int argc, char** argv)
 
     // apply a harmonic force (oscillates `N_cycles` times per `motion_duration`)
     double const force_magnitude = 100 * std::cos(2 * M_PI * N_cycles * mod_time / motion_duration);
-    Eigen::Vector3d external_force = { 0, 0, 0 };
+    Eigen::Vector3d external_force = {0, 0, 0};
 
     // switch oscillation axes every `motion_duration` seconds (with one 'rest period')
-    if (std::fmod(now_d, 4 * motion_duration) < motion_duration)
-    {
+    if (std::fmod(now_d, 4 * motion_duration) < motion_duration) {
       external_force.x() = force_magnitude;
-    }
-    else if (std::fmod(now_d, 4 * motion_duration) < 2 * motion_duration)
-    {
+    } else if (std::fmod(now_d, 4 * motion_duration) < 2 * motion_duration) {
       external_force.y() = force_magnitude;
-    }
-    else if (std::fmod(now_d, 4 * motion_duration) < 3 * motion_duration)
-    {
+    } else if (std::fmod(now_d, 4 * motion_duration) < 3 * motion_duration) {
       external_force.z() = force_magnitude;
-    }
-    else
-    {
+    } else {
       // reset the robot's position and velocity, leave the external force as 0
       // we do this so the ground truth doesn't drift (due to inaccuracy from euler integration)
       state.x = 0;

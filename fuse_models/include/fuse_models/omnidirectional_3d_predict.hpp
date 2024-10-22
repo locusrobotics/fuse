@@ -93,7 +93,7 @@ inline void predict(
   const T acc_linear1_y,
   const T acc_linear1_z,
   const T dt,
-  T & position2_x,  
+  T & position2_x,
   T & position2_y,
   T & position2_z,
   T & orientation2_r,
@@ -120,23 +120,27 @@ inline void predict(
   const T dt2 = T(0.5) * dt * dt;
 
   // Project the state
-  position2_x = position1_x + 
-    ((cy * cp) * vel_linear1_x + (cy * sp * sr - sy * cr) * vel_linear1_y + (cy * sp * cr + sy * sr) * vel_linear1_z) * dt +
-    ((cy * cp) * acc_linear1_x + (cy * sp * sr - sy * cr) * acc_linear1_y + (cy * sp * cr + sy * sr) * acc_linear1_z) * dt2;
+  position2_x = position1_x +
+    ((cy * cp) * vel_linear1_x + (cy * sp * sr - sy * cr) * vel_linear1_y +
+    (cy * sp * cr + sy * sr) * vel_linear1_z) * dt +
+    ((cy * cp) * acc_linear1_x + (cy * sp * sr - sy * cr) * acc_linear1_y +
+    (cy * sp * cr + sy * sr) * acc_linear1_z) * dt2;
   position2_y = position1_y +
-    ((sy * cp) * vel_linear1_x + (sy * sp * sr + cy * cr) * vel_linear1_y + (sy * sp * cr - cy * sr) * vel_linear1_z) * dt +
-    ((sy * cp) * acc_linear1_x + (sy * sp * sr + cy * cr) * acc_linear1_y + (sy * sp * cr - cy * sr) * acc_linear1_z) * dt2;
-   position2_z = position1_z +
+    ((sy * cp) * vel_linear1_x + (sy * sp * sr + cy * cr) * vel_linear1_y +
+    (sy * sp * cr - cy * sr) * vel_linear1_z) * dt +
+    ((sy * cp) * acc_linear1_x + (sy * sp * sr + cy * cr) * acc_linear1_y +
+    (sy * sp * cr - cy * sr) * acc_linear1_z) * dt2;
+  position2_z = position1_z +
     ((-sp) * vel_linear1_x + (cp * sr) * vel_linear1_y + (cp * cr) * vel_linear1_z) * dt +
     ((-sp) * acc_linear1_x + (cp * sr) * acc_linear1_y + (cp * cr) * acc_linear1_z) * dt2;
-  
-  orientation2_r = orientation1_r + 
+
+  orientation2_r = orientation1_r +
     (vel_angular1_r + sr * sp * cpi * vel_angular1_p + cr * sp * cpi * vel_angular1_y) * dt;
-  orientation2_p = orientation1_p + 
+  orientation2_p = orientation1_p +
     (cr * vel_angular1_p - sr * vel_angular1_y) * dt;
-  orientation2_y = orientation1_y + 
+  orientation2_y = orientation1_y +
     (sr * cpi * vel_angular1_p + cr * cpi * vel_angular1_y) * dt;
-  
+
   vel_linear2_x = vel_linear1_x + acc_linear1_x * dt;
   vel_linear2_y = vel_linear1_y + acc_linear1_y * dt;
   vel_linear2_z = vel_linear1_z + acc_linear1_z * dt;
@@ -206,7 +210,7 @@ inline void predict(
   const double acc_linear1_y,
   const double acc_linear1_z,
   const double dt,
-  double & position2_x,  
+  double & position2_x,
   double & position2_y,
   double & position2_z,
   double & orientation2_r,
@@ -235,23 +239,27 @@ inline void predict(
   const double dt2 = 0.5 * dt * dt;
 
   // Project the state
-  position2_x = position1_x + 
-    ((cp * cy) * vel_linear1_x + (sr * sp * cy - cr * sy) * vel_linear1_y + (cr * sp * cy  + sr * sy) * vel_linear1_z) * dt +
-    ((cp * cy) * acc_linear1_x + (sr * sp * cy - cr * sy) * acc_linear1_y + (cr * sp * cy  + sr * sy) * acc_linear1_z) * dt2;
+  position2_x = position1_x +
+    ((cp * cy) * vel_linear1_x + (sr * sp * cy - cr * sy) * vel_linear1_y +
+    (cr * sp * cy + sr * sy) * vel_linear1_z) * dt +
+    ((cp * cy) * acc_linear1_x + (sr * sp * cy - cr * sy) * acc_linear1_y +
+    (cr * sp * cy + sr * sy) * acc_linear1_z) * dt2;
   position2_y = position1_y +
-    ((cp * sy) * vel_linear1_x + (sr * sp * sy + cr * cy) * vel_linear1_y + (cr * sp * sy - sr * cy) * vel_linear1_z) * dt +
-    ((cp * sy) * acc_linear1_x + (sr * sp * sy + cr * cy) * acc_linear1_y + (cr * sp * sy - sr * cy) * acc_linear1_z) * dt2;
+    ((cp * sy) * vel_linear1_x + (sr * sp * sy + cr * cy) * vel_linear1_y +
+    (cr * sp * sy - sr * cy) * vel_linear1_z) * dt +
+    ((cp * sy) * acc_linear1_x + (sr * sp * sy + cr * cy) * acc_linear1_y +
+    (cr * sp * sy - sr * cy) * acc_linear1_z) * dt2;
   position2_z = position1_z +
     ((-sp) * vel_linear1_x + (sr * cp) * vel_linear1_y + (cr * cp) * vel_linear1_z) * dt +
     ((-sp) * acc_linear1_x + (sr * cp) * acc_linear1_y + (cr * cp) * acc_linear1_z) * dt2;
-  
-  orientation2_r = orientation1_r + 
+
+  orientation2_r = orientation1_r +
     (vel_angular1_r + sr * sp * cpi * vel_angular1_p + cr * sp * cpi * vel_angular1_y) * dt;
-  orientation2_p = orientation1_p + 
+  orientation2_p = orientation1_p +
     (cr * vel_angular1_p - sr * vel_angular1_y) * dt;
-  orientation2_y = orientation1_y + 
+  orientation2_y = orientation1_y +
     (sr * cpi * vel_angular1_p + cr * cpi * vel_angular1_y) * dt;
-  
+
   vel_linear2_x = vel_linear1_x + acc_linear1_x * dt;
   vel_linear2_y = vel_linear1_y + acc_linear1_y * dt;
   vel_linear2_z = vel_linear1_z + acc_linear1_z * dt;
@@ -278,49 +286,62 @@ inline void predict(
       jacobian(1, 1) = 1.0;
       jacobian(2, 2) = 1.0;
     }
-    // Jacobian wrt orientation1 
+    // Jacobian wrt orientation1
     if (jacobians[1]) {
       Eigen::Map<fuse_core::Matrix<double, 15, 4>> jacobian(jacobians[1]);
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2rpy_map(jacobian_quat2rpy);
       fuse_core::Matrix<double, 6, 3> j_tmp;
       jacobian.setZero();
       j_tmp.setZero();
-      
+
       // partial derivatives of position2_x wrt orientation1
-      j_tmp(0, 0) = 
-        ((cr * sp * cy + sr * sy) * vel_linear1_y + (- sr * sp * cy + cr * sy) * vel_linear1_z) * dt + 
-        ((cr * sp * cy + sr * sy) * acc_linear1_y + (- sr * sp * cy + cr * sy) * acc_linear1_z) * dt2;
-      j_tmp(0, 1) = 
-        ((-sp * cy) * vel_linear1_x + (sr * cp * cy) * vel_linear1_y + (cr * cp * cy) * vel_linear1_z) * dt + 
-        ((-sp * cy) * acc_linear1_x + (sr * cp * cy) * acc_linear1_y + (cr * cp * cy) * acc_linear1_z) * dt2; 
-      j_tmp(0, 2) = 
-        ((-cp * sy) * vel_linear1_x + (- sr * sp * sy - cr * cy) * vel_linear1_y + (- cr * sp * sy + sr * cy) * vel_linear1_z) * dt + 
-        ((-cp * sy) * acc_linear1_x + (- sr * sp * sy - cr * cy) * acc_linear1_y + (- cr * sp * sy + sr * cy) * acc_linear1_z) * dt2;
-      
-       // partial derivatives of position2_y wrt orientation1
-      j_tmp(1, 0) =  
-        ((- sr * cy + cr * sp * sy) * vel_linear1_y + (- cr * cy - sr * sp * sy) * vel_linear1_z) * dt +
-        ((- sr * cy + cr * sp * sy) * acc_linear1_y + (- cr * cy - sr * sp * sy) * acc_linear1_z) * dt2;
-      j_tmp(1, 1) = 
-        ((-sp * sy) * vel_linear1_x + (sr * cp * sy) * vel_linear1_y + (cr * cp * sy) * vel_linear1_z) * dt + 
-        ((-sp * sy) * acc_linear1_x + (sr * cp * sy) * acc_linear1_y + (cr * cp * sy) * acc_linear1_z) * dt2;
-      j_tmp(1, 2) = 
-        ((cp * cy) * vel_linear1_x + (- cr * sy + sr * sp * cy) * vel_linear1_y + (sr * sy + cr * sp * cy) * vel_linear1_z) * dt + 
-        ((cp * cy) * acc_linear1_x + (- cr * sy + sr * sp * cy) * acc_linear1_y + (sr * sy + cr * sp * cy) * acc_linear1_z) * dt2;
-      
+      j_tmp(0, 0) =
+        ((cr * sp * cy + sr * sy) * vel_linear1_y + (-sr * sp * cy + cr * sy) * vel_linear1_z) *
+        dt +
+        ((cr * sp * cy + sr * sy) * acc_linear1_y + (-sr * sp * cy + cr * sy) * acc_linear1_z) *
+        dt2;
+      j_tmp(0, 1) =
+        ((-sp * cy) * vel_linear1_x + (sr * cp * cy) * vel_linear1_y + (cr * cp * cy) *
+        vel_linear1_z) * dt +
+        ((-sp * cy) * acc_linear1_x + (sr * cp * cy) * acc_linear1_y + (cr * cp * cy) *
+        acc_linear1_z) * dt2;
+      j_tmp(0, 2) =
+        ((-cp * sy) * vel_linear1_x + (-sr * sp * sy - cr * cy) * vel_linear1_y +
+        (-cr * sp * sy + sr * cy) * vel_linear1_z) * dt +
+        ((-cp * sy) * acc_linear1_x + (-sr * sp * sy - cr * cy) * acc_linear1_y +
+        (-cr * sp * sy + sr * cy) * acc_linear1_z) * dt2;
+
+      // partial derivatives of position2_y wrt orientation1
+      j_tmp(1, 0) =
+        ((-sr * cy + cr * sp * sy) * vel_linear1_y + (-cr * cy - sr * sp * sy) * vel_linear1_z) *
+        dt +
+        ((-sr * cy + cr * sp * sy) * acc_linear1_y + (-cr * cy - sr * sp * sy) * acc_linear1_z) *
+        dt2;
+      j_tmp(1, 1) =
+        ((-sp * sy) * vel_linear1_x + (sr * cp * sy) * vel_linear1_y + (cr * cp * sy) *
+        vel_linear1_z) * dt +
+        ((-sp * sy) * acc_linear1_x + (sr * cp * sy) * acc_linear1_y + (cr * cp * sy) *
+        acc_linear1_z) * dt2;
+      j_tmp(1, 2) =
+        ((cp * cy) * vel_linear1_x + (-cr * sy + sr * sp * cy) * vel_linear1_y +
+        (sr * sy + cr * sp * cy) * vel_linear1_z) * dt +
+        ((cp * cy) * acc_linear1_x + (-cr * sy + sr * sp * cy) * acc_linear1_y +
+        (sr * sy + cr * sp * cy) * acc_linear1_z) * dt2;
+
       // partial derivatives of position2_z wrt orientation1
-      j_tmp(2, 0) = 
-        ((cr * cp) * vel_linear1_y - (sr * cp) * vel_linear1_z) * dt + 
+      j_tmp(2, 0) =
+        ((cr * cp) * vel_linear1_y - (sr * cp) * vel_linear1_z) * dt +
         ((cr * cp) * acc_linear1_y - (sr * cp) * acc_linear1_z) * dt2;
-      j_tmp(2, 1) = 
+      j_tmp(2, 1) =
         (-cp * vel_linear1_x - (sr * sp) * vel_linear1_y - (cr * sp) * vel_linear1_z) * dt +
         (-cp * acc_linear1_x - (sr * sp) * acc_linear1_y - (cr * sp) * acc_linear1_z) * dt2;
 
       // partial derivatives of orientation2_r wrt orientation1
-      j_tmp(3, 0) = 1.0 + 
+      j_tmp(3, 0) = 1.0 +
         ((cr * sp * cpi) * vel_angular1_p - (sr * sp * cpi) * vel_angular1_y) * dt;
-      j_tmp(3, 1) = 
-        ((sr + sr * sp * sp * cpi * cpi) * vel_angular1_p + (cr + cr *sp * sp * cpi * cpi) * vel_angular1_y) * dt;
+      j_tmp(3, 1) =
+        ((sr + sr * sp * sp * cpi * cpi) * vel_angular1_p + (cr + cr * sp * sp * cpi * cpi) *
+        vel_angular1_y) * dt;
 
       // partial derivatives of orientation2_p wrt orientation1
       j_tmp(4, 0) = (-sr * vel_angular1_p - cr * vel_angular1_y) * dt;
@@ -328,11 +349,14 @@ inline void predict(
 
       // partial derivatives of orientation2_y wrt orientation1
       j_tmp(5, 0) = ((cr * cpi) * vel_angular1_p - (sr * cpi) * vel_angular1_y) * dt;
-      j_tmp(5, 1) = ((sp * sr * cpi * cpi) * vel_angular1_p + (cr * sp * cpi * cpi) * vel_angular1_y) * dt;
+      j_tmp(
+        5,
+        1) = ((sp * sr * cpi * cpi) * vel_angular1_p + (cr * sp * cpi * cpi) * vel_angular1_y) *
+        dt;
       j_tmp(5, 2) = 1.0;
 
       jacobian.block<6, 4>(0, 0) = j_tmp * j_quat2rpy_map;
-    }                     
+    }
     // Jacobian wrt vel_linear1
     if (jacobians[2]) {
       Eigen::Map<fuse_core::Matrix<double, 15, 3>> jacobian(jacobians[2]);
@@ -341,7 +365,7 @@ inline void predict(
       // partial derivatives of position1_x wrt vel_linear1
       jacobian(0, 0) = cp * cy * dt;
       jacobian(0, 1) = (sr * sp * cy - cr * sy) * dt;
-      jacobian(0, 2) = (cr * sp * cy  + sr * sy) * dt;
+      jacobian(0, 2) = (cr * sp * cy + sr * sy) * dt;
       // partial derivatives of position1_y wrt vel_linear1
       jacobian(1, 0) = cp * sy * dt;
       jacobian(1, 1) = (sr * sp * sy + cr * cy) * dt;
@@ -388,7 +412,7 @@ inline void predict(
       // partial derivatives of position1_x wrt acc_linear1
       jacobian(0, 0) = cp * cy * dt2;
       jacobian(0, 1) = (sr * sp * cy - cr * sy) * dt2;
-      jacobian(0, 2) = (cr * sp * cy  + sr * sy) * dt2;
+      jacobian(0, 2) = (cr * sp * cy + sr * sy) * dt2;
       // partial derivatives of position1_y wrt acc_linear1
       jacobian(1, 0) = cp * sy * dt2;
       jacobian(1, 1) = (sr * sp * sy + cr * cy) * dt2;
@@ -542,8 +566,8 @@ inline void predict(
 
   // Convert back to quaternion
   orientation2 = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
-                Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
-                Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
+    Eigen::AngleAxisd(rpy.y(), Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(rpy.x(), Eigen::Vector3d::UnitX());
 }
 
 /**
@@ -584,7 +608,7 @@ inline void predict(
   // fuse_core::Matrix15d is Eigen::RowMajor, so we cannot use pointers to the columns where each
   // parameter block starts. Instead, we need to create a vector of Eigen::RowMajor matrices per
   // parameter block and later reconstruct the fuse_core::Matrix15d with the full jacobian. The
-  // parameter blocks have the following sizes: {position1: 3, orientation1: 4, vel_linear1: 3, 
+  // parameter blocks have the following sizes: {position1: 3, orientation1: 4, vel_linear1: 3,
   // vel_angular1: 3, acc_linear1: 3}
 
   static constexpr size_t num_residuals{15};
@@ -638,8 +662,8 @@ inline void predict(
 
   // Convert back to quaternion
   orientation2 = Eigen::AngleAxisd(rpy[2], Eigen::Vector3d::UnitZ()) *
-                Eigen::AngleAxisd(rpy[1], Eigen::Vector3d::UnitY()) *
-                Eigen::AngleAxisd(rpy[0], Eigen::Vector3d::UnitX());
+    Eigen::AngleAxisd(rpy[1], Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(rpy[0], Eigen::Vector3d::UnitX());
 }
 
 }  // namespace fuse_models

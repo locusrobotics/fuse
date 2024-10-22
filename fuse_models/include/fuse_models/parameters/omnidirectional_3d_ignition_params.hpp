@@ -193,18 +193,18 @@ public:
    * The covariance matrix is created placing the squared standard deviations along the diagonal of
    * an 15x15 matrix.
    */
-  std::vector<double> initial_sigma {1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 
-                                    1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9,
-                                    1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9
-                                    };
+  std::vector<double> initial_sigma {1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9,
+    1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9,
+    1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9, 1.0e-9
+  };
 
   /**
-   * @brief The initial value of the 15-dimension state vector (x, y, z, roll, pitch, yaw, 
+   * @brief The initial value of the 15-dimension state vector (x, y, z, roll, pitch, yaw,
    * x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc)
    */
   std::vector<double> initial_state {0.0, 0.0, 0.0, 0.0, 0.0,
-                                    0.0, 0.0, 0.0, 0.0, 0.0,
-                                    0.0, 0.0, 0.0, 0.0, 0.0};
+    0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0};
   /**
    * @brief Loss function
    */

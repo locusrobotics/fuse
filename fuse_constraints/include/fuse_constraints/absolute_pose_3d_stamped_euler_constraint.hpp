@@ -60,7 +60,7 @@ namespace fuse_constraints
 
 /**
  * @brief A constraint that represents either prior information about a 3D pose, or a direct
- *        measurement of the 3D pose. 
+ *        measurement of the 3D pose.
  *
  * A 3D pose is the combination of a 3D position and a 3D orientation variable. As a convenience,
  * this class applies an absolute constraint on both variables at once. This type of constraint
@@ -98,7 +98,7 @@ public:
     const fuse_variables::Orientation3DStamped & orientation,
     const fuse_core::Vector6d & mean,
     const fuse_core::Matrix6d & covariance);
-  
+
   /**
    * @brief Create a constraint using a partial measurement/prior of the 3D pose
    *

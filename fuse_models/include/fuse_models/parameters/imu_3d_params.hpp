@@ -106,12 +106,12 @@ public:
     fuse_core::getPositiveParam(
       interfaces, fuse_core::joinParameterName(
         ns,
-        "tf_timeout"), tf_timeout, 
+        "tf_timeout"), tf_timeout,
       false);
     fuse_core::getPositiveParam(
       interfaces, fuse_core::joinParameterName(
         ns,
-        "throttle_period"), throttle_period, 
+        "throttle_period"), throttle_period,
       false);
     throttle_use_wall_time =
       fuse_core::getParam(

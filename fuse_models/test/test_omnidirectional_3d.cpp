@@ -32,7 +32,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto position1 = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(1, 0));
   auto orientation1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1, 0));
   auto linear_velocity1 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(1, 0));
-  auto angular_velocity1 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(1, 0));
+  auto angular_velocity1 =
+    fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(1, 0));
   auto linear_acceleration1 =
     fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(1, 0));
   position1->x() = 1.1;
@@ -54,7 +55,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto position2 = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(2, 0));
   auto orientation2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2, 0));
   auto linear_velocity2 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(2, 0));
-  auto angular_velocity2 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(2, 0));
+  auto angular_velocity2 =
+    fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(2, 0));
   auto linear_acceleration2 =
     fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(2, 0));
   position2->x() = 1.2;
@@ -76,7 +78,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto position3 = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(3, 0));
   auto orientation3 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3, 0));
   auto linear_velocity3 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(3, 0));
-  auto angular_velocity3 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(3, 0));
+  auto angular_velocity3 =
+    fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(3, 0));
   auto linear_acceleration3 =
     fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(3, 0));
   position3->x() = 1.3;
@@ -98,7 +101,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto position4 = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(4, 0));
   auto orientation4 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(4, 0));
   auto linear_velocity4 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(4, 0));
-  auto angular_velocity4 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(4, 0));
+  auto angular_velocity4 =
+    fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(4, 0));
   auto linear_acceleration4 =
     fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(4, 0));
   position4->x() = 1.4;
@@ -120,7 +124,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto position5 = fuse_variables::Position3DStamped::make_shared(rclcpp::Time(5, 0));
   auto orientation5 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(5, 0));
   auto linear_velocity5 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(5, 0));
-  auto angular_velocity5 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(5, 0));
+  auto angular_velocity5 =
+    fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(5, 0));
   auto linear_acceleration5 =
     fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(5, 0));
   position5->x() = 1.5;
@@ -295,8 +300,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   {
     // The third entry is missing from the graph. It will get predicted from previous state.
     auto expected_position = fuse_core::Vector3d(1.2, 3.7, 0.0);
-    auto expected_orientation = 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) * 
+    auto expected_orientation =
+      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
     auto actual_position = state_history[rclcpp::Time(3, 0)].position;
@@ -309,7 +314,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
     EXPECT_NEAR(expected_orientation.z(), actual_orientation.z(), 1.0e-9);
     EXPECT_NEAR(expected_orientation.w(), actual_orientation.w(), 1.0e-9);
 
-    auto expected_linear_velocity = fuse_core::Vector3d(0.0, 2.0, 0.0);    
+    auto expected_linear_velocity = fuse_core::Vector3d(0.0, 2.0, 0.0);
     auto actual_linear_velocity = state_history[rclcpp::Time(3, 0)].vel_linear;
     EXPECT_NEAR(expected_linear_velocity.x(), actual_linear_velocity.x(), 1.0e-9);
     EXPECT_NEAR(expected_linear_velocity.y(), actual_linear_velocity.y(), 1.0e-9);
@@ -330,8 +335,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   {
     // The forth entry is included in the graph. It will get updated directly.
     auto expected_position = fuse_core::Vector3d(1.4, 2.4, 0.0); // <-- value in the Graph
-    auto expected_orientation = 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) * 
+    auto expected_orientation =
+      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
     auto actual_position = state_history[rclcpp::Time(4, 0)].position;
@@ -365,8 +370,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   {
     // The fifth entry is missing from the graph. It will get predicted from previous state.
     auto expected_position = fuse_core::Vector3d(9.5, 12.0, 0.0);
-    auto expected_orientation = 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) * 
+    auto expected_orientation =
+      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
     auto actual_position = state_history[rclcpp::Time(5, 0)].position;
@@ -389,7 +394,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
     auto actual_angular_velocity = state_history[rclcpp::Time(5, 0)].vel_angular;
     EXPECT_NEAR(expected_angular_velocity.x(), actual_angular_velocity.x(), 1.0e-9);
     EXPECT_NEAR(expected_angular_velocity.y(), actual_angular_velocity.y(), 1.0e-9);
-    EXPECT_NEAR(expected_angular_velocity.z(), actual_angular_velocity.z(), 1.0e-9);  
+    EXPECT_NEAR(expected_angular_velocity.z(), actual_angular_velocity.z(), 1.0e-9);
 
     auto expected_linear_acceleration = fuse_core::Vector3d(7.4, 8.4, 0.0);
     auto actual_linear_acceleration = state_history[rclcpp::Time(5, 0)].acc_linear;

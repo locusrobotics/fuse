@@ -54,7 +54,7 @@ namespace fuse_constraints
  *   cost(x) = ||  A *        [  y - b(1)]          ||
  *             ||             [  z - b(2)]          ||
  *             ||     [  quat2eul(q) - b(3:5)  ]    ||
- * 
+ *
  * Here, the matrix A can be of variable size, thereby permitting the computation of errors for
  * partial measurements. The vector b is a fixed-size 6x1. In case the user is interested in
  * implementing a cost function of the form:

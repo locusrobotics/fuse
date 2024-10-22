@@ -114,4 +114,6 @@ ceres::CostFunction * Omnidirectional3DStateKinematicConstraint::costFunction() 
 }  // namespace fuse_models
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_models::Omnidirectional3DStateKinematicConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_models::Omnidirectional3DStateKinematicConstraint, fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_models::Omnidirectional3DStateKinematicConstraint,
+  fuse_core::Constraint);

@@ -73,7 +73,7 @@ public:
     > interfaces,
     const std::string & ns)
   {
-    position_indices = 
+    position_indices =
       loadSensorConfig<fuse_variables::Position3DStamped>(
       interfaces, fuse_core::joinParameterName(
         ns,

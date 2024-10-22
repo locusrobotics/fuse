@@ -148,7 +148,8 @@ std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string & di
  * @throws runtime_error if the dimension name is invalid
  */
 template<typename T>
-std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> toIndex(const std::string & dimension)
+std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> toIndex(
+  const std::string & dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "roll" || lower_dim == "x") {
@@ -167,7 +168,8 @@ std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> t
 }
 
 template<typename T>
-std::enable_if_t<is_angular_3d<T>::value && is_orientation<T>::value, size_t> toIndex(const std::string & dimension)
+std::enable_if_t<is_angular_3d<T>::value && is_orientation<T>::value, size_t> toIndex(
+  const std::string & dimension)
 {
   // Trick to get roll, pitch, yaw indexes as 0, 1, 2
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);

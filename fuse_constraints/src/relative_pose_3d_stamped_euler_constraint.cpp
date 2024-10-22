@@ -83,11 +83,10 @@ RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
   // dimensions. But the variable vectors will be full sized. We can make this all work out by
   // creating a non-square A, where each row computes a cost for one measured dimensions,
   // and the columns are in the order defined by the variable.
-  
-  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions 
+
+  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions
   sqrt_information_ = fuse_core::MatrixXd::Zero(variable_indices.size(), 6);
-  for (size_t i = 0; i < variable_indices.size(); ++i)
-  {
+  for (size_t i = 0; i < variable_indices.size(); ++i) {
     sqrt_information_.col(variable_indices[i]) = partial_sqrt_information.col(i);
   }
 }
@@ -122,7 +121,8 @@ void RelativePose3DStampedEulerConstraint::print(std::ostream & stream) const
 ceres::CostFunction * RelativePose3DStampedEulerConstraint::costFunction() const
 {
   // TODO(giafranchini): implement cost function with analytical Jacobians
-  return new ceres::AutoDiffCostFunction<NormalDeltaPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4, 3, 4>(
+  return new ceres::AutoDiffCostFunction<NormalDeltaPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4, 3,
+           4>(
     new NormalDeltaPose3DEulerCostFunctor(sqrt_information_, delta_),
     sqrt_information_.rows());
 }
@@ -130,4 +130,6 @@ ceres::CostFunction * RelativePose3DStampedEulerConstraint::costFunction() const
 }  // namespace fuse_constraints
 
 BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePose3DStampedEulerConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::RelativePose3DStampedEulerConstraint, fuse_core::Constraint);
+PLUGINLIB_EXPORT_CLASS(
+  fuse_constraints::RelativePose3DStampedEulerConstraint,
+  fuse_core::Constraint);

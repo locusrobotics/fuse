@@ -51,7 +51,8 @@ class NormalPriorPose3DEulerTestFixture : public ::testing::Test
 public:
   //!< The automatic differentiation cost function type for the pose 3d cost functor
   using AutoDiffNormalPriorPose3DEuler =
-    ceres::AutoDiffCostFunction<fuse_constraints::NormalPriorPose3DEulerCostFunctor, ceres::DYNAMIC, 3,
+    ceres::AutoDiffCostFunction<fuse_constraints::NormalPriorPose3DEulerCostFunctor, ceres::DYNAMIC,
+      3,
       4>;
 
   /**
@@ -63,35 +64,38 @@ public:
   }
 
   const fuse_core::Matrix6d covariance =
-    fuse_core::Vector6d(1e-3, 1e-3, 1e-3, 
-                        1e-3, 1e-3, 1e-3).asDiagonal(); //!< The full pose 3d covariance for the x,
-                                                         //!< y, z, roll, pitch and yaw components
+    fuse_core::Vector6d(
+    1e-3, 1e-3, 1e-3,
+    1e-3, 1e-3, 1e-3).asDiagonal();                     //!< The full pose 3d covariance for the x,
+                                                        //!< y, z, roll, pitch and yaw components
   Eigen::Matrix<double, 6, 6> full_sqrt_information;  //!< The full pose 3d sqrt information matrix for the x, y
-                                          //!< z, roll, pitch, and yaw components
-  Eigen::Vector<double, 6> full_mean{1.0, 2.0, 1.0, 0.0, 0.0, 0.0}; //!< The full pose 3d mean 
-                                                                      //!< components: x, y z, 
-                                                                      //!< roll, pitch, and yaw
+  //!< z, roll, pitch, and yaw components
+  Eigen::Vector<double, 6> full_mean{1.0, 2.0, 1.0, 0.0, 0.0, 0.0}; //!< The full pose 3d mean
+                                                                    //!< components: x, y z,
+                                                                    //!< roll, pitch, and yaw
 };
 
 TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForFullResiduals)
 {
   // Create cost function
   auto rpy = Eigen::Vector3d::Random();
-  full_mean << 1.0, 2.0, 1.0, rpy.x(), rpy.y(), rpy.z();  
+  full_mean << 1.0, 2.0, 1.0, rpy.x(), rpy.y(), rpy.z();
   const fuse_constraints::NormalPriorPose3DEuler cost_function{full_sqrt_information, full_mean};
   const auto num_residuals = full_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3DEuler autodiff_cost_function(
     new fuse_constraints::NormalPriorPose3DEulerCostFunctor(full_sqrt_information, full_mean),
     num_residuals);
-  
+
   // Compare the expected, automatic differentiation, cost function and the actual one
   // N.B. in ExpectCostFunctionsAreEqual constructor, the first argument is the expected cost function
-  // and the second argument is the actual cost function 
+  // and the second argument is the actual cost function
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }
 
-TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialPositionResiduals)
+TEST_F(
+  NormalPriorPose3DEulerTestFixture,
+  AnalyticAndAutoDiffCostFunctionsAreEqualForPartialPositionResiduals)
 {
   // Create cost function for a subset of residuals
   // Version with y position = 0
@@ -118,7 +122,9 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }
 
-TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialOrientationResiduals)
+TEST_F(
+  NormalPriorPose3DEulerTestFixture,
+  AnalyticAndAutoDiffCostFunctionsAreEqualForPartialOrientationResiduals)
 {
   // Create cost function for a subset of residuals
   // Version with roll, pitch = 0
@@ -145,7 +151,9 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }
 
-TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsPositionOnly)
+TEST_F(
+  NormalPriorPose3DEulerTestFixture,
+  AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsPositionOnly)
 {
   // Create cost function for a subset of residuals
   // Version with z = 0, orientation = 0
@@ -170,7 +178,9 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   ExpectCostFunctionsAreEqual(cost_function, autodiff_cost_function, 1e-12);
 }
 
-TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsOrientationOnly)
+TEST_F(
+  NormalPriorPose3DEulerTestFixture,
+  AnalyticAndAutoDiffCostFunctionsAreEqualForPartialResidualsOrientationOnly)
 {
   // Create cost function for a subset of residuals
   // Version with position = 0, roll = 0

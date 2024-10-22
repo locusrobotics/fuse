@@ -108,23 +108,23 @@ AssertionResult AssertMatrixNearHelper(
 // Internal macro for implementing {EXPECT|ASSERT}_MATRIX_EQ.
 // Don't use this in your code.
 #define GTEST_MATRIX_EQUAL_(v1, v2, on_failure) \
-        GTEST_ASSERT_( \
-          ::testing::AssertMatrixEqualHelper( \
-            #v1, \
-            #v2, \
-            v1, \
-            v2), on_failure)
+  GTEST_ASSERT_( \
+    ::testing::AssertMatrixEqualHelper( \
+      #v1, \
+      #v2, \
+      v1, \
+      v2), on_failure)
 
 // Internal macro for implementing {EXPECT|ASSERT}_MATRIX_NEAR.
 // Don't use this in your code.
 #define GTEST_MATRIX_NEAR_(v1, v2, tol, on_failure) \
-        GTEST_ASSERT_( \
-          ::testing::AssertMatrixNearHelper( \
-            #v1, \
-            #v2, \
-            v1, \
-            v2, \
-            tol), on_failure)
+  GTEST_ASSERT_( \
+    ::testing::AssertMatrixNearHelper( \
+      #v1, \
+      #v2, \
+      v1, \
+      v2, \
+      tol), on_failure)
 
 // Define gtest macros for use with Eigen
 
@@ -137,7 +137,7 @@ AssertionResult AssertMatrixNearHelper(
  * @param[in] v2 The actual matrix
  */
 #define EXPECT_MATRIX_EQ(v1, v2) \
-        GTEST_MATRIX_EQUAL_(v1, v2, GTEST_NONFATAL_FAILURE_)
+  GTEST_MATRIX_EQUAL_(v1, v2, GTEST_NONFATAL_FAILURE_)
 
 /**
  * @brief Fatal check for exact equality of two Eigen matrix-like objects.
@@ -148,7 +148,7 @@ AssertionResult AssertMatrixNearHelper(
  * @param[in] v2 The actual matrix
  */
 #define ASSERT_MATRIX_EQ(v1, v2) \
-        GTEST_MATRIX_EQUAL_(v1, v2, GTEST_FATAL_FAILURE_)
+  GTEST_MATRIX_EQUAL_(v1, v2, GTEST_FATAL_FAILURE_)
 
 /**
  * @brief Non-fatal check for approximate equality of two Eigen matrix-like objects.
@@ -160,7 +160,7 @@ AssertionResult AssertMatrixNearHelper(
  * @param[in] tol The allowed tolerance between any entries in v1 and v2
  */
 #define EXPECT_MATRIX_NEAR(v1, v2, tol) \
-        GTEST_MATRIX_NEAR_(v1, v2, tol, GTEST_NONFATAL_FAILURE_)
+  GTEST_MATRIX_NEAR_(v1, v2, tol, GTEST_NONFATAL_FAILURE_)
 
 /**
  * @brief Fatal check for approximate equality of two Eigen matrix-like objects.
@@ -172,7 +172,7 @@ AssertionResult AssertMatrixNearHelper(
  * @param[in] tol The allowed tolerance between any entries in v1 and v2
  */
 #define ASSERT_MATRIX_NEAR(v1, v2, tol) \
-        GTEST_MATRIX_NEAR_(v1, v2, tol, GTEST_FATAL_FAILURE_)
+  GTEST_MATRIX_NEAR_(v1, v2, tol, GTEST_FATAL_FAILURE_)
 
 }  // namespace testing
 

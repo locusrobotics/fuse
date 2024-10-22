@@ -174,7 +174,7 @@ bool Omnidirectional3D::applyCallback(fuse_core::Transaction & transaction)
   // manager, in turn, makes calls to the generateMotionModel() function.
   try {
     // Now actually generate the motion model segments
-    timestamp_manager_.query(transaction, true); 
+    timestamp_manager_.query(transaction, true);
   } catch (const std::exception & e) {
     RCLCPP_ERROR_STREAM_THROTTLE(
       logger_, *clock_, 10.0 * 1000,
@@ -228,7 +228,7 @@ void Omnidirectional3D::onInit()
       name_,
       "velocity_linear_norm_min"),
     velocity_linear_norm_min_);
-  
+
   velocity_angular_norm_min_ =
     fuse_core::getParam(
     interfaces_, fuse_core::joinParameterName(
@@ -317,13 +317,14 @@ void Omnidirectional3D::generateMotionModel(
   } else {
     state1 = base_state;
   }
-  
+
   // If dt is zero, we only need to update the state history:
   const double dt = (ending_stamp - beginning_stamp).seconds();
 
   if (dt == 0.0) {
     state1.position_uuid = fuse_variables::Position3DStamped(beginning_stamp, device_id_).uuid();
-    state1.orientation_uuid = fuse_variables::Orientation3DStamped(beginning_stamp, device_id_).uuid();
+    state1.orientation_uuid =
+      fuse_variables::Orientation3DStamped(beginning_stamp, device_id_).uuid();
     state1.vel_linear_uuid =
       fuse_variables::VelocityLinear3DStamped(beginning_stamp, device_id_).uuid();
     state1.vel_angular_uuid =
@@ -349,9 +350,10 @@ void Omnidirectional3D::generateMotionModel(
     state2.vel_angular,
     state2.acc_linear);
 
-    // Define the fuse variables required for this constraint
+  // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position3DStamped::make_shared(beginning_stamp, device_id_);
-  auto orientation1 = fuse_variables::Orientation3DStamped::make_shared(beginning_stamp, device_id_);
+  auto orientation1 =
+    fuse_variables::Orientation3DStamped::make_shared(beginning_stamp, device_id_);
   auto velocity_linear1 = fuse_variables::VelocityLinear3DStamped::make_shared(
     beginning_stamp,
     device_id_);
@@ -380,14 +382,16 @@ void Omnidirectional3D::generateMotionModel(
   orientation1->data()[fuse_variables::Orientation3DStamped::Y] = state1.orientation.y();
   orientation1->data()[fuse_variables::Orientation3DStamped::Z] = state1.orientation.z();
   orientation1->data()[fuse_variables::Orientation3DStamped::W] = state1.orientation.w();
-  
+
   velocity_linear1->data()[fuse_variables::VelocityLinear3DStamped::X] = state1.vel_linear.x();
   velocity_linear1->data()[fuse_variables::VelocityLinear3DStamped::Y] = state1.vel_linear.y();
   velocity_linear1->data()[fuse_variables::VelocityLinear3DStamped::Z] = state1.vel_linear.z();
 
-  velocity_angular1->data()[fuse_variables::VelocityAngular3DStamped::ROLL]  = state1.vel_angular.x();
-  velocity_angular1->data()[fuse_variables::VelocityAngular3DStamped::PITCH] = state1.vel_angular.y();
-  velocity_angular1->data()[fuse_variables::VelocityAngular3DStamped::YAW]   = state1.vel_angular.z();
+  velocity_angular1->data()[fuse_variables::VelocityAngular3DStamped::ROLL] =
+    state1.vel_angular.x();
+  velocity_angular1->data()[fuse_variables::VelocityAngular3DStamped::PITCH] =
+    state1.vel_angular.y();
+  velocity_angular1->data()[fuse_variables::VelocityAngular3DStamped::YAW] = state1.vel_angular.z();
 
   acceleration_linear1->data()[fuse_variables::AccelerationLinear3DStamped::X] =
     state1.acc_linear.x();
@@ -395,7 +399,7 @@ void Omnidirectional3D::generateMotionModel(
     state1.acc_linear.y();
   acceleration_linear1->data()[fuse_variables::AccelerationLinear3DStamped::Z] =
     state1.acc_linear.z();
-  
+
   position2->data()[fuse_variables::Position3DStamped::X] = state2.position.x();
   position2->data()[fuse_variables::Position3DStamped::Y] = state2.position.y();
   position2->data()[fuse_variables::Position3DStamped::Z] = state2.position.z();
@@ -404,14 +408,16 @@ void Omnidirectional3D::generateMotionModel(
   orientation2->data()[fuse_variables::Orientation3DStamped::Y] = state2.orientation.y();
   orientation2->data()[fuse_variables::Orientation3DStamped::Z] = state2.orientation.z();
   orientation2->data()[fuse_variables::Orientation3DStamped::W] = state2.orientation.w();
-  
+
   velocity_linear2->data()[fuse_variables::VelocityLinear3DStamped::X] = state2.vel_linear.x();
   velocity_linear2->data()[fuse_variables::VelocityLinear3DStamped::Y] = state2.vel_linear.y();
   velocity_linear2->data()[fuse_variables::VelocityLinear3DStamped::Z] = state2.vel_linear.z();
 
-  velocity_angular2->data()[fuse_variables::VelocityAngular3DStamped::ROLL]  = state2.vel_angular.x();
-  velocity_angular2->data()[fuse_variables::VelocityAngular3DStamped::PITCH] = state2.vel_angular.y();
-  velocity_angular2->data()[fuse_variables::VelocityAngular3DStamped::YAW]   = state2.vel_angular.z();
+  velocity_angular2->data()[fuse_variables::VelocityAngular3DStamped::ROLL] =
+    state2.vel_angular.x();
+  velocity_angular2->data()[fuse_variables::VelocityAngular3DStamped::PITCH] =
+    state2.vel_angular.y();
+  velocity_angular2->data()[fuse_variables::VelocityAngular3DStamped::YAW] = state2.vel_angular.z();
 
   acceleration_linear2->data()[fuse_variables::AccelerationLinear3DStamped::X] =
     state2.acc_linear.x();
@@ -525,7 +531,7 @@ void Omnidirectional3D::updateStateHistoryEstimates(
   {
     const auto & current_stamp = current_iter->first;
     auto & current_state = current_iter->second;
-        if (graph.variableExists(current_state.position_uuid) &&
+    if (graph.variableExists(current_state.position_uuid) &&
       graph.variableExists(current_state.orientation_uuid) &&
       graph.variableExists(current_state.vel_linear_uuid) &&
       graph.variableExists(current_state.vel_angular_uuid) &&
@@ -553,8 +559,8 @@ void Omnidirectional3D::updateStateHistoryEstimates(
         vel_linear.data()[fuse_variables::VelocityLinear3DStamped::Y];
       current_state.vel_linear.z() =
         vel_linear.data()[fuse_variables::VelocityLinear3DStamped::Z];
-      
-      current_state.vel_angular.x() = 
+
+      current_state.vel_angular.x() =
         vel_angular.data()[fuse_variables::VelocityAngular3DStamped::ROLL];
       current_state.vel_angular.y() =
         vel_angular.data()[fuse_variables::VelocityAngular3DStamped::PITCH];
@@ -571,7 +577,7 @@ void Omnidirectional3D::updateStateHistoryEstimates(
       auto previous_iter = std::prev(current_iter);
       const auto & previous_stamp = previous_iter->first;
       const auto & previous_state = previous_iter->second;
-      
+
       // This state is not in the graph yet, so we can't update/correct the value in our state
       // history. However, the state *before* this one may have been corrected (or one of its
       // predecessors may have been), so we can use that corrected value, along with our prediction

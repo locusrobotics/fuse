@@ -74,7 +74,7 @@ namespace fuse_models
  *             ||    [         x_acc_t2 - proj(x_acc_t1)          ]  ||
  *             ||    [         y_acc_t2 - proj(y_acc_t1)          ]  ||
  *             ||    [         z_acc_t2 - proj(z_acc_t1)          ]  ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and
  * proj is a function that projects the state variables from time t1 to time t2. In case the user is
  * interested in implementing a cost function of the form
@@ -84,7 +84,8 @@ namespace fuse_models
  * where, mu is a vector and S is a covariance matrix, then, A = S^{-1/2}, i.e the matrix A is the
  * square root information matrix (the inverse of the covariance).
  */
-class Omnidirectional3DStateCostFunction : public ceres::SizedCostFunction<15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>
+class Omnidirectional3DStateCostFunction : public ceres::SizedCostFunction<15, 3, 4, 3, 3, 3, 3, 4,
+    3, 3, 3>
 {
 public:
   FUSE_MAKE_ALIGNED_OPERATOR_NEW()
@@ -94,7 +95,7 @@ public:
    *
    * @param[in] dt The time delta across which to generate the kinematic model cost
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   *              order (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *              x_acc, y_acc, z_acc)
    */
   Omnidirectional3DStateCostFunction(const double dt, const fuse_core::Matrix15d & A);
@@ -103,13 +104,13 @@ public:
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    *
    * @param[in] parameters - Parameter blocks:
-   *                         0 : position1 - First position (array with x at index 0, y at index 1, 
+   *                         0 : position1 - First position (array with x at index 0, y at index 1,
    *                             z at index 2)
    *                         1 : orientation1 - First orientation (array with w at index 0, x at index 1,
    *                             y at index 2, z at index 3)
    *                         2 : vel_linear1 - First linear velocity (array with x at index 0, y at
    *                             index 1, z at index 2)
-   *                         3 : vel_angular1 - First angular velocity (array with vroll at index 0, 
+   *                         3 : vel_angular1 - First angular velocity (array with vroll at index 0,
    *                             vpitch at index 1, vyaw at index 2)
    *                         4 : acc_linear1 - First linear acceleration (array with x at index 0, y
    *                             at index 1, z at index 2)
@@ -121,7 +122,7 @@ public:
    *                             index 1, z at index 2)
    *                         8 : vel_angular2 - Second angular velocity (array with vroll at index 0,
    *                             vpitch at index 1, vyaw at index 2)
-   *                         9 : acc_linear2 - Second linear acceleration (array with x at index 0, y at 
+   *                         9 : acc_linear2 - Second linear acceleration (array with x at index 0, y at
    *                             index 1)
    * @param[out] residual - The computed residual (error)
    * @param[out] jacobians - Jacobians of the residuals wrt the parameters. Only computed if not
@@ -179,7 +180,7 @@ public:
       acc_linear_pred[0],
       acc_linear_pred[1],
       acc_linear_pred[2],
-      jacobians, 
+      jacobians,
       j1_quat2rpy);
 
     residuals[0] = parameters[5][0] - position_pred[0];
@@ -237,7 +238,7 @@ public:
         Eigen::Map<fuse_core::Matrix<double, 15, 3>> jacobian(jacobians[4]);
         jacobian.applyOnTheLeft(-A_);
       }
-      
+
       // Jacobian wrt position2
       if (jacobians[5]) {
         Eigen::Map<fuse_core::Matrix<double, 15, 3>> jacobian(jacobians[5]);

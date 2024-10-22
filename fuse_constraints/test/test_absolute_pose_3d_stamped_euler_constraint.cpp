@@ -129,7 +129,8 @@ TEST(AbsolutePose3DStampedEulerConstraint, Covariance)
          1.5153042667951,  1.28979625492894,  1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  AbsolutePose3DStampedEulerConstraint constraint("test", position_variable, orientation_variable, mean,
+  AbsolutePose3DStampedEulerConstraint constraint("test", position_variable, orientation_variable,
+    mean,
     cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
@@ -172,7 +173,7 @@ TEST(AbsolutePose3DStampedEulerConstraint, CovariancePartial)
          1.5153042667951,   1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  AbsolutePose3DStampedEulerConstraint constraint("test", position_variable, orientation_variable, 
+  AbsolutePose3DStampedEulerConstraint constraint("test", position_variable, orientation_variable,
     mean, cov, variable_indices);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
@@ -459,7 +460,8 @@ TEST(AbsolutePose3DStampedEulerConstraint, Serialization)
          1.5153042667951,  1.28979625492894,  1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  AbsolutePose3DStampedEulerConstraint expected("test", position_variable, orientation_variable, mean,
+  AbsolutePose3DStampedEulerConstraint expected("test", position_variable, orientation_variable,
+    mean,
     cov);
 
   // Serialize the constraint into an archive

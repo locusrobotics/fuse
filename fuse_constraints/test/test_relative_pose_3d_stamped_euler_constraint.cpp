@@ -207,16 +207,17 @@ TEST(RelativePose3DStampedEulerConstraint, CovariancePartial)
   /* *INDENT-ON* */
   fuse_core::Matrix6d expected_cov;
 
-  expected_cov << 2.0847236144069,  1.10752598122138,  0.0, 1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
-                  1.10752598122138, 1.39176289439125,  0.0, 1.35471905449013, 1.18353784377297, 1.28979625492894,  // NOLINT
-                  0.0,              0.0,               0.0, 0.0,              0.0,              0.0,               // NOLINT
-                  1.96120532313878, 1.35471905449013,  0.0, 2.39750866789926, 2.06887486311147, 2.04350823837035,  // NOLINT
-                  1.96735470687891, 1.18353784377297,  0.0, 2.06887486311147, 2.503913946461,   1.73844731158092,  // NOLINT
-                  1.5153042667951,  1.28979625492894,  0.0, 2.04350823837035, 1.73844731158092, 2.15326088526198;   // NOLINT
+  expected_cov << 2.0847236144069, 1.10752598122138, 0.0, 1.96120532313878, 1.96735470687891,
+    1.5153042667951,                                                                                               // NOLINT
+    1.10752598122138, 1.39176289439125, 0.0, 1.35471905449013, 1.18353784377297, 1.28979625492894,                 // NOLINT
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,                                                                                  // NOLINT
+    1.96120532313878, 1.35471905449013, 0.0, 2.39750866789926, 2.06887486311147, 2.04350823837035,                 // NOLINT
+    1.96735470687891, 1.18353784377297, 0.0, 2.06887486311147, 2.503913946461, 1.73844731158092,                   // NOLINT
+    1.5153042667951, 1.28979625492894, 0.0, 2.04350823837035, 1.73844731158092, 2.15326088526198;                   // NOLINT
 
   // Compare
   EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
-  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-4); 
+  EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-4);
 }
 
 TEST(RelativePose3DStampedEulerConstraint, Optimization)
@@ -477,7 +478,7 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
     mean_delta,
     cov_delta,
     indices);
-  
+
   // Create a relative pose constraint for 1m in the y direction
   std::vector<size_t> indices_y {1, 2, 3, 4, 5};
   fuse_core::Vector6d mean_delta_y;
@@ -672,7 +673,8 @@ TEST(RelativePose3DStampedEulerConstraint, Serialization)
          1.5153042667951,  1.28979625492894,  1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  RelativePose3DStampedEulerConstraint expected("test", position1, orientation1, position2, orientation2,
+  RelativePose3DStampedEulerConstraint expected("test", position1, orientation1, position2,
+    orientation2,
     delta, cov);
 
   // Serialize the constraint into an archive

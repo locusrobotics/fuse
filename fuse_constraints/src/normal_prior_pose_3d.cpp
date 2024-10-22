@@ -62,7 +62,7 @@ bool NormalPriorPose3D::Evaluate(
 
   double observation_inverse[4] =
   {
-     b_(3),
+    b_(3),
     -b_(4),
     -b_(5),
     -b_(6)
@@ -78,11 +78,11 @@ bool NormalPriorPose3D::Evaluate(
   residuals[2] = parameters[0][2] - b_[2];
   // Compute orientation residuals
 
-  // TODO(giafranchini): this is repeated code, it should be better to include normal_prior_orientation_3d.hpp 
-  // and use that to compute residuals and jacobians. 
+  // TODO(giafranchini): this is repeated code, it should be better to include normal_prior_orientation_3d.hpp
+  // and use that to compute residuals and jacobians.
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
   fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle); // orientation angle-axis
- 
+
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
   Eigen::Map<fuse_core::Vector6d> residuals_map(residuals);

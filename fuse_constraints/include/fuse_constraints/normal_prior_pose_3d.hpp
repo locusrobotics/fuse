@@ -55,7 +55,7 @@ namespace fuse_constraints
  *   cost(x) = ||  A *           [  y - b(1)]             ||
  *             ||                [  z - b(2)]             ||
  *             ||     [  quat2angleaxis(b(3-6)^-1 * q)]   ||
- * 
+ *
  * In case the user is interested in implementing a cost function of the form:
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)

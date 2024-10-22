@@ -42,7 +42,9 @@
 namespace fuse_constraints
 {
 
-NormalPriorPose3DEuler::NormalPriorPose3DEuler(const fuse_core::MatrixXd & A, const fuse_core::Vector6d & b)
+NormalPriorPose3DEuler::NormalPriorPose3DEuler(
+  const fuse_core::MatrixXd & A,
+  const fuse_core::Vector6d & b)
 : A_(A),
   b_(b)
 {
@@ -74,7 +76,7 @@ bool NormalPriorPose3DEuler::Evaluate(
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
-    Eigen::Map<Eigen::Vector<double, Eigen::Dynamic>> residuals_map(residuals, A_.rows());
+  Eigen::Map<Eigen::Vector<double, Eigen::Dynamic>> residuals_map(residuals, A_.rows());
   residuals_map = A_ * full_residuals;
 
   if (jacobians != nullptr) {
@@ -85,7 +87,7 @@ bool NormalPriorPose3DEuler::Evaluate(
     // Jacobian wrt orientation
     if (jacobians[1] != nullptr) {
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2rpy);
-      Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), 4) = 
+      Eigen::Map<fuse_core::MatrixXd>(jacobians[1], num_residuals(), 4) =
         A_.rightCols<3>() * j_quat2angle_map;
     }
   }

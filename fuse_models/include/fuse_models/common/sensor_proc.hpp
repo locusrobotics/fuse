@@ -49,7 +49,7 @@
 #include <fuse_constraints/absolute_orientation_3d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/absolute_pose_3d_stamped_constraint.hpp>
-#include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp> 
+#include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
 #include <fuse_constraints/relative_pose_2d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_3d_stamped_constraint.hpp>
 #include <fuse_constraints/relative_pose_3d_stamped_euler_constraint.hpp>
@@ -211,10 +211,10 @@ inline void populatePartialMeasurement(
 }
 
 /**
- * @brief Method to create covariances of sub-measurements from covariances of full measurements and append 
+ * @brief Method to create covariances of sub-measurements from covariances of full measurements and append
  * them to existing partial covariances
  *
- * @param[in] covariance_full - The full covariance matrix from which we will generate the covariances of the 
+ * @param[in] covariance_full - The full covariance matrix from which we will generate the covariances of the
  *                              sub-measurement
  * @param[in] indices - The indices we want to include in the sub-measurement
  * @param[in,out] covariance_partial - The partial measurement covariance to which we want to append
@@ -451,7 +451,7 @@ inline bool processAbsolutePoseWithCovariance(
  *        fuse Transaction
  *
  * This method effectively adds two variables (3D position and 3D orientation) and a 3D pose
- * constraint to the given \p transaction. The pose data is extracted from the \p pose message. 
+ * constraint to the given \p transaction. The pose data is extracted from the \p pose message.
  * The data will be automatically transformed into the \p target_frame before it is used.
  *
  * @param[in] source - The name of the sensor or motion model that generated this constraint
@@ -504,7 +504,8 @@ inline bool processAbsolutePose3DWithCovariance(
   position->x() = transformed_message.pose.pose.position.x;
   position->y() = transformed_message.pose.pose.position.y;
   position->z() = transformed_message.pose.pose.position.z;
-  auto orientation = fuse_variables::Orientation3DStamped::make_shared(pose.header.stamp, device_id);
+  auto orientation =
+    fuse_variables::Orientation3DStamped::make_shared(pose.header.stamp, device_id);
   orientation->w() = transformed_message.pose.pose.orientation.w;
   orientation->x() = transformed_message.pose.pose.orientation.x;
   orientation->y() = transformed_message.pose.pose.orientation.y;
@@ -522,7 +523,7 @@ inline bool processAbsolutePose3DWithCovariance(
       transformed_message.pose.pose.orientation.z;
 
     Eigen::Map<const fuse_core::Matrix6d> pose_covariance(transformed_message.pose.covariance.data());
-    
+
     if (validate) {
       try {
         validatePartialMeasurement(pose_mean, pose_covariance, 1e-5);
@@ -534,7 +535,7 @@ inline bool processAbsolutePose3DWithCovariance(
         return false;
       }
     }
-  
+
     auto constraint = fuse_constraints::AbsolutePose3DStampedConstraint::make_shared(
       source,
       *position,
@@ -557,8 +558,11 @@ inline bool processAbsolutePose3DWithCovariance(
   tf2::fromMsg(transformed_message.pose.pose, tf2_pose);
   // Fill eigen pose in RPY representation
   fuse_core::Vector6d pose_mean_partial;
-  pose_mean_partial.head<3>() << tf2_pose.getOrigin().x(), tf2_pose.getOrigin().y(), tf2_pose.getOrigin().z();
-  tf2::Matrix3x3(tf2_pose.getRotation()).getRPY(pose_mean_partial(3), pose_mean_partial(4), pose_mean_partial(5));
+  pose_mean_partial.head<3>() << tf2_pose.getOrigin().x(), tf2_pose.getOrigin().y(),
+    tf2_pose.getOrigin().z();
+  tf2::Matrix3x3(tf2_pose.getRotation()).getRPY(
+    pose_mean_partial(3), pose_mean_partial(
+      4), pose_mean_partial(5));
 
   Eigen::Map<const fuse_core::Matrix6d> pose_covariance(transformed_message.pose.covariance.data());
 
@@ -567,12 +571,14 @@ inline bool processAbsolutePose3DWithCovariance(
   std::replace_if(
     pose_mean_partial.data(), pose_mean_partial.data() + pose_mean_partial.size(),
     [&indices, &pose_mean_partial](const double & value) {
-      return std::find(indices.begin(), indices.end(), &value - pose_mean_partial.data()) == indices.end();
+      return std::find(
+        indices.begin(), indices.end(),
+        &value - pose_mean_partial.data()) == indices.end();
     }, 0.0);
   fuse_core::MatrixXd pose_covariance_partial(indices.size(), indices.size());
   populatePartialMeasurement(
-    pose_covariance, 
-    indices, 
+    pose_covariance,
+    indices,
     pose_covariance_partial);
 
   if (validate) {
@@ -586,7 +592,7 @@ inline bool processAbsolutePose3DWithCovariance(
       return false;
     }
   }
- 
+
   auto constraint = fuse_constraints::AbsolutePose3DStampedEulerConstraint::make_shared(
     source,
     *position,
@@ -594,7 +600,7 @@ inline bool processAbsolutePose3DWithCovariance(
     pose_mean_partial,
     pose_covariance_partial,
     indices);
-  
+
   constraint->loss(loss);
 
   transaction.addVariable(position);
@@ -1012,7 +1018,7 @@ inline bool processDifferentialPose3DWithCovariance(
   const std::vector<size_t> & orientation_indices,
   const bool validate,
   fuse_core::Transaction & transaction)
-{ 
+{
   // Create the pose variables
   auto position1 = fuse_variables::Position3DStamped::make_shared(pose1.header.stamp, device_id);
   auto orientation1 =
@@ -1026,7 +1032,7 @@ inline bool processDifferentialPose3DWithCovariance(
   orientation1->w() = pose1.pose.pose.orientation.w;
 
   auto position2 = fuse_variables::Position3DStamped::make_shared(pose2.header.stamp, device_id);
-  auto orientation2 = 
+  auto orientation2 =
     fuse_variables::Orientation3DStamped::make_shared(pose2.header.stamp, device_id);
   position2->x() = pose2.pose.pose.position.x;
   position2->y() = pose2.pose.pose.position.y;
@@ -1043,29 +1049,29 @@ inline bool processDifferentialPose3DWithCovariance(
   // Covariance is Eigen::Matrix6d
 
   // N.B. covariance_geometry implements functions for pose composition and covariance propagation
-  // which are based on "A tutorial on SE(3) transformation parameterizations and on-manifold optimization" 
+  // which are based on "A tutorial on SE(3) transformation parameterizations and on-manifold optimization"
   // by José Luis Blanco Claraco (https://arxiv.org/abs/2103.15980)
 
-  // Convert from ROS msg to covariance geometry types 
+  // Convert from ROS msg to covariance geometry types
   covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
   covariance_geometry::fromROS(pose1.pose, p1);
   covariance_geometry::fromROS(pose2.pose, p2);
 
-  // Create the delta for the constraint 
+  // Create the delta for the constraint
   if (independent) {
     covariance_geometry::ComposePoseQuaternionCovarianceRPY(
-      covariance_geometry::InversePose3DQuaternionCovarianceRPY(p1), 
-      p2, 
+      covariance_geometry::InversePose3DQuaternionCovarianceRPY(p1),
+      p2,
       p12
     );
   } else {
-    // If covariances of p1 and p2 are the same, then it's possible that p12 covariance will be 
-    // zero or ill-conditioned. To avoid this, we skip the expensive following calculations and 
+    // If covariances of p1 and p2 are the same, then it's possible that p12 covariance will be
+    // zero or ill-conditioned. To avoid this, we skip the expensive following calculations and
     // instead we just add a minimum covariance later
     if (p1.second.isApprox(p2.second, 1e-9)) {
       covariance_geometry::ComposePose3DQuaternion(
-        covariance_geometry::InversePose(p1.first), 
-        p2.first, 
+        covariance_geometry::InversePose(p1.first),
+        p2.first,
         p12.first
       );
       p12.second.setZero();
@@ -1073,7 +1079,7 @@ inline bool processDifferentialPose3DWithCovariance(
       // Here we assume that poses are computed incrementally, so: p2 = p1 * p12.
       // We know cov1 and cov2 and we should substract the first to the second in order
       // to obtain the relative pose covariance. But first the 2 of them have to be in the
-      // same reference frame, moreover we need to rotate the result in p12 reference frame 
+      // same reference frame, moreover we need to rotate the result in p12 reference frame
       // The covariance propagation of p2 = p1 * p12 is:
       //
       // C2 = J_p1 * C1 * J_p1^T + J_p12 * C12 * J_p12^T
@@ -1089,16 +1095,16 @@ inline bool processDifferentialPose3DWithCovariance(
       covariance_geometry::PoseQuaternionCovariance p1_q, p2_q, p12_q;
       covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
         p1,
-        p1_q 
+        p1_q
       );
       covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(
         p2,
-        p2_q 
+        p2_q
       );
       // Then we need to compute the delta pose
       covariance_geometry::ComposePose3DQuaternion(
-        covariance_geometry::InversePose(p1_q.first), 
-        p2_q.first, 
+        covariance_geometry::InversePose(p1_q.first),
+        p2_q.first,
         p12_q.first
       );
       // Now we have to compute pose composition jacobians so we can rotate covariances
@@ -1118,12 +1124,13 @@ inline bool processDifferentialPose3DWithCovariance(
 
       // TODO(giafranchini): check if faster to use j12.llt().solve() instead
       j_p12_inv = j_p12.colPivHouseholderQr().solve(Eigen::Matrix7d::Identity());
-      p12_q.second = j_p12_inv * (p2_q.second - j_p1 * p1_q.second * j_p1.transpose()) * j_p12_inv.transpose();
+      p12_q.second = j_p12_inv * (p2_q.second - j_p1 * p1_q.second * j_p1.transpose()) *
+        j_p12_inv.transpose();
 
       // Now again convert the delta pose covariance back to RPY(6x6)
       covariance_geometry::Pose3DQuaternionCovarianceTo3DQuaternionCovarianceRPY(
-      p12_q,
-      p12
+        p12_q,
+        p12
       );
     }
   }
@@ -1131,12 +1138,12 @@ inline bool processDifferentialPose3DWithCovariance(
   if (position_indices.size() == 3 && orientation_indices.size() == 3) {
     // Full pose measurement, no need to create a partial one
     fuse_core::Vector7d pose_relative_mean;
-    pose_relative_mean << 
-      p12.first.first.x(), p12.first.first.y(), p12.first.first.z(), 
-      p12.first.second.w(), p12.first.second.x(), p12.first.second.y(), 
+    pose_relative_mean <<
+      p12.first.first.x(), p12.first.first.y(), p12.first.first.z(),
+      p12.first.second.w(), p12.first.second.x(), p12.first.second.y(),
       p12.first.second.z();
     fuse_core::Matrix6d pose_relative_covariance = p12.second + minimum_pose_relative_covariance;
-    
+
     if (validate) {
       try {
         validateMeasurement(
@@ -1175,9 +1182,13 @@ inline bool processDifferentialPose3DWithCovariance(
   // Convert the poses into RPY representation
   fuse_core::Vector6d pose_relative_mean_partial;
 
-  tf2::Quaternion q12(p12.first.second.x(), p12.first.second.y(), p12.first.second.z(), p12.first.second.w());
-  pose_relative_mean_partial.head<3>() << p12.first.first.x(), p12.first.first.y(), p12.first.first.z();
-  tf2::Matrix3x3(q12).getRPY(pose_relative_mean_partial(3), pose_relative_mean_partial(4), pose_relative_mean_partial(5));
+  tf2::Quaternion q12(p12.first.second.x(), p12.first.second.y(), p12.first.second.z(),
+    p12.first.second.w());
+  pose_relative_mean_partial.head<3>() << p12.first.first.x(), p12.first.first.y(),
+    p12.first.first.z();
+  tf2::Matrix3x3(q12).getRPY(
+    pose_relative_mean_partial(3), pose_relative_mean_partial(
+      4), pose_relative_mean_partial(5));
 
   fuse_core::Matrix6d pose_relative_covariance = p12.second + minimum_pose_relative_covariance;
 
@@ -1187,14 +1198,15 @@ inline bool processDifferentialPose3DWithCovariance(
 
   // Set the components which are not measured to zero
   std::replace_if(
-    pose_relative_mean_partial.data(), pose_relative_mean_partial.data() + pose_relative_mean_partial.size(),
+    pose_relative_mean_partial.data(),
+    pose_relative_mean_partial.data() + pose_relative_mean_partial.size(),
     [&indices, &pose_relative_mean_partial](const double & value) {
       return std::find(
-        indices.begin(), 
-        indices.end(), 
+        indices.begin(),
+        indices.end(),
         &value - pose_relative_mean_partial.data()) == indices.end();
     }, 0.0);
-  
+
   populatePartialMeasurement(
     pose_relative_covariance,
     indices,
@@ -1537,8 +1549,9 @@ inline bool processDifferentialPose3DWithTwistCovariance(
   if (position_indices.size() == 3 && orientation_indices.size() == 3) {
     // Full pose measurement, no need to create a partial one
     fuse_core::Vector7d pose_relative_mean;
-    pose_relative_mean << delta.getOrigin().x(), delta.getOrigin().y(), delta.getOrigin().z(), 
-      delta.getRotation().w(), delta.getRotation().x(), delta.getRotation().y(), delta.getRotation().z();
+    pose_relative_mean << delta.getOrigin().x(), delta.getOrigin().y(), delta.getOrigin().z(),
+      delta.getRotation().w(), delta.getRotation().x(), delta.getRotation().y(),
+      delta.getRotation().z();
 
     if (validate) {
       try {
@@ -1579,21 +1592,25 @@ inline bool processDifferentialPose3DWithTwistCovariance(
 
   // Fill eigen pose in RPY representation
   fuse_core::Vector6d pose_relative_mean_partial;
-  pose_relative_mean_partial.head<3>() << delta.getOrigin().x(), delta.getOrigin().y(), delta.getOrigin().z();
+  pose_relative_mean_partial.head<3>() << delta.getOrigin().x(), delta.getOrigin().y(),
+    delta.getOrigin().z();
   tf2::Matrix3x3(delta.getRotation()).getRPY(
     pose_relative_mean_partial(3), pose_relative_mean_partial(4), pose_relative_mean_partial(5));
-  
+
   // Set the components which are not measured to zero
   const auto indices = mergeIndices(position_indices, orientation_indices, 3);
   std::replace_if(
-    pose_relative_mean_partial.data(), pose_relative_mean_partial.data() + pose_relative_mean_partial.size(),
+    pose_relative_mean_partial.data(),
+    pose_relative_mean_partial.data() + pose_relative_mean_partial.size(),
     [&indices, &pose_relative_mean_partial](const double & value) {
-      return std::find(indices.begin(), indices.end(), &value - pose_relative_mean_partial.data()) == indices.end();
+      return std::find(
+        indices.begin(), indices.end(),
+        &value - pose_relative_mean_partial.data()) == indices.end();
     }, 0.0);
   fuse_core::MatrixXd pose_relative_covariance_partial(indices.size(), indices.size());
   populatePartialMeasurement(
-    pose_relative_covariance, 
-    indices, 
+    pose_relative_covariance,
+    indices,
     pose_relative_covariance_partial);
 
   if (validate) {
@@ -1876,13 +1893,13 @@ inline bool processTwist3DWithCovariance(
     // Create the mean twist vectors for the constraints
     fuse_core::Vector3d linear_vel_mean;
     linear_vel_mean << transformed_message.twist.twist.linear.x,
-      transformed_message.twist.twist.linear.y, 
+      transformed_message.twist.twist.linear.y,
       transformed_message.twist.twist.linear.z;
-   
+
     // Create the covariance for the constraint
     Eigen::Map<const fuse_core::Matrix6d> linear_vel_covariance_map(
       transformed_message.twist.covariance.data());
-    
+
     // Build the sub-vector and sub-matrices based on the requested indices
     fuse_core::VectorXd linear_vel_mean_partial(linear_indices.size());
 
@@ -1933,12 +1950,13 @@ inline bool processTwist3DWithCovariance(
     velocity_angular->yaw() = transformed_message.twist.twist.angular.z;
 
     fuse_core::Vector3d angular_vel_mean;
-    angular_vel_mean << transformed_message.twist.twist.angular.x, 
-      transformed_message.twist.twist.angular.y, 
+    angular_vel_mean << transformed_message.twist.twist.angular.x,
+      transformed_message.twist.twist.angular.y,
       transformed_message.twist.twist.angular.z;
 
     // Create the covariance for the constraint
-    Eigen::Map<const fuse_core::Matrix6d> angular_vel_cov_map(transformed_message.twist.covariance.data());
+    Eigen::Map<const fuse_core::Matrix6d> angular_vel_cov_map(transformed_message.twist.covariance.
+      data());
 
     // Build the sub-vector and sub-matrices based on the requested indices
     fuse_core::VectorXd angular_vel_mean_partial(angular_indices.size());
@@ -1951,7 +1969,7 @@ inline bool processTwist3DWithCovariance(
       angular_indices,
       angular_vel_mean_partial,
       angular_vel_covariance_partial);
-    
+
     bool add_constraint = true;
 
     if (validate) {
@@ -1969,7 +1987,8 @@ inline bool processTwist3DWithCovariance(
     if (add_constraint) {
       auto angular_vel_constraint =
         fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint::make_shared(
-        source, *velocity_angular, angular_vel_mean_partial, angular_vel_covariance_partial, angular_indices);
+        source, *velocity_angular, angular_vel_mean_partial, angular_vel_covariance_partial,
+        angular_indices);
 
       angular_vel_constraint->loss(angular_velocity_loss);
 
@@ -2155,12 +2174,13 @@ inline bool processAccel3DWithCovariance(
 
   // Create the full mean vector and covariance for the constraint
   fuse_core::Vector3d accel_mean;
-  accel_mean << 
-    transformed_message.accel.accel.linear.x, 
+  accel_mean <<
+    transformed_message.accel.accel.linear.x,
     transformed_message.accel.accel.linear.y,
     transformed_message.accel.accel.linear.z;
 
-  Eigen::Map<const fuse_core::Matrix3d, 0, Eigen::Stride<6, 1>> accel_covariance_map(transformed_message.accel.covariance.data());
+  Eigen::Map<const fuse_core::Matrix3d, 0,
+    Eigen::Stride<6, 1>> accel_covariance_map(transformed_message.accel.covariance.data());
 
   // Build the sub-vector and sub-matrices based on the requested indices
   fuse_core::VectorXd accel_mean_partial(indices.size());
@@ -2253,7 +2273,7 @@ inline void scaleProcessNoiseCovariance(
  * @brief Scales the process noise covariance pose by the norm of the velocity
  *
  * @param[in, out] process_noise_covariance - The process noise covariance to scale. Only the pose
- *                 components (x, y, z, roll, pitch, yaw) are scaled, and they are assumed to be in the 
+ *                 components (x, y, z, roll, pitch, yaw) are scaled, and they are assumed to be in the
  *                 top left 6x6 corner
  * @param[in] velocity_linear - The linear velocity
  * @param[in] velocity_angular - The angular velocity
@@ -2262,7 +2282,7 @@ inline void scaleProcessNoiseCovariance(
  */
 inline void scaleProcessNoiseCovariance(
   fuse_core::Matrix15d & process_noise_covariance,
-  const fuse_core::Vector3d & velocity_linear, 
+  const fuse_core::Vector3d & velocity_linear,
   const fuse_core::Vector3d & velocity_angular,
   const double velocity_linear_norm_min,
   const double velocity_angular_norm_min)

@@ -52,9 +52,9 @@ bool VariableConstraints::empty() const
 size_t VariableConstraints::size() const
 {
   auto sum_edges = [](const size_t input, const ConstraintCollection & edges)
-  {
-    return input + edges.size();
-  };
+    {
+      return input + edges.size();
+    };
   return std::accumulate(variable_constraints_.begin(), variable_constraints_.end(), 0u, sum_edges);
 }
 

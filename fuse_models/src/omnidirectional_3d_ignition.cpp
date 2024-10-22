@@ -236,7 +236,9 @@ void Omnidirectional3DIgnition::process(
     throw std::runtime_error("Attempting to set the pose while the sensor is stopped.");
   }
   // Validate the requested pose and covariance before we do anything
-  if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y) || !std::isfinite(pose.pose.pose.position.z)) {
+  if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y) ||
+    !std::isfinite(pose.pose.pose.position.z))
+  {
     throw std::invalid_argument(
             "Attempting to set the pose to an invalid position (" +
             std::to_string(pose.pose.pose.position.x) + ", " +
@@ -263,8 +265,8 @@ void Omnidirectional3DIgnition::process(
   //   }
   // }
   position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2],
-                  pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
-                  pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
+    pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
+    pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
   if (!fuse_core::isSymmetric(position_cov)) {
     throw std::invalid_argument(
             "Attempting to set the pose with a non-symmetric position covariance matrix\n " +
@@ -282,8 +284,8 @@ void Omnidirectional3DIgnition::process(
   //   }
   // }
   orientation_cov << pose.pose.covariance[21], pose.pose.covariance[22], pose.pose.covariance[23],
-                     pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
-                     pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
+    pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
+    pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
   if (!fuse_core::isSymmetric(orientation_cov)) {
     throw std::invalid_argument(
             "Attempting to set the pose with a non-symmetric orientation covariance matrix\n " +
@@ -292,7 +294,9 @@ void Omnidirectional3DIgnition::process(
   if (!fuse_core::isPositiveDefinite(orientation_cov)) {
     throw std::invalid_argument(
             "Attempting to set the pose with a non-positive-definite orientation_cov covariance matrix\n" +
-            fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
+            fuse_core::to_string(
+              orientation_cov,
+              Eigen::FullPrecision) + ".");
   }
   // Tell the optimizer to reset before providing the initial state
   if (!params_.reset_service.empty()) {
@@ -328,7 +332,8 @@ void Omnidirectional3DIgnition::process(
   }
 }
 
-void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
+void Omnidirectional3DIgnition::sendPrior(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
 {
   const auto & stamp = pose.header.stamp;
 
@@ -352,7 +357,9 @@ void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCova
   angular_velocity->roll() = params_.initial_state[9];
   angular_velocity->pitch() = params_.initial_state[10];
   angular_velocity->yaw() = params_.initial_state[11];
-  auto linear_acceleration = fuse_variables::AccelerationLinear3DStamped::make_shared(stamp, device_id_);
+  auto linear_acceleration = fuse_variables::AccelerationLinear3DStamped::make_shared(
+    stamp,
+    device_id_);
   linear_acceleration->x() = params_.initial_state[12];
   linear_acceleration->y() = params_.initial_state[13];
   linear_acceleration->z() = params_.initial_state[14];
@@ -379,24 +386,24 @@ void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCova
   // }
 
   position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2],
-                  pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
-                  pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
+    pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
+    pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
 
   orientation_cov << pose.pose.covariance[21], pose.pose.covariance[22], pose.pose.covariance[23],
-                     pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
-                     pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
-  
+    pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
+    pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
+
   linear_velocity_cov << params_.initial_sigma[6] * params_.initial_sigma[6], 0.0, 0.0,
-                         0.0, params_.initial_sigma[7] * params_.initial_sigma[7], 0.0,
-                         0.0, 0.0, params_.initial_sigma[8] * params_.initial_sigma[8];
- 
+    0.0, params_.initial_sigma[7] * params_.initial_sigma[7], 0.0,
+    0.0, 0.0, params_.initial_sigma[8] * params_.initial_sigma[8];
+
   angular_velocity_cov << params_.initial_sigma[9] * params_.initial_sigma[9], 0.0, 0.0,
-                          0.0, params_.initial_sigma[10] * params_.initial_sigma[10], 0.0,
-                          0.0, 0.0, params_.initial_sigma[11] * params_.initial_sigma[11];
-  
+    0.0, params_.initial_sigma[10] * params_.initial_sigma[10], 0.0,
+    0.0, 0.0, params_.initial_sigma[11] * params_.initial_sigma[11];
+
   linear_acceleration_cov << params_.initial_sigma[12] * params_.initial_sigma[12], 0.0, 0.0,
-                             0.0, params_.initial_sigma[13] * params_.initial_sigma[13], 0.0,
-                             0.0, 0.0, params_.initial_sigma[14] * params_.initial_sigma[14];
+    0.0, params_.initial_sigma[13] * params_.initial_sigma[13], 0.0,
+    0.0, 0.0, params_.initial_sigma[14] * params_.initial_sigma[14];
   // Create absolute constraints for each variable
   auto position_constraint = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
     name(),
@@ -419,13 +426,17 @@ void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCova
     fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint::make_shared(
     name(),
     *angular_velocity,
-    fuse_core::Vector3d(angular_velocity->roll(), angular_velocity->pitch(), angular_velocity->yaw()),
+    fuse_core::Vector3d(
+      angular_velocity->roll(), angular_velocity->pitch(),
+      angular_velocity->yaw()),
     angular_velocity_cov);
   auto linear_acceleration_constraint =
     fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint::make_shared(
     name(),
     *linear_acceleration,
-    fuse_core::Vector3d(linear_acceleration->x(), linear_acceleration->y(), linear_acceleration->z()),
+    fuse_core::Vector3d(
+      linear_acceleration->x(), linear_acceleration->y(),
+      linear_acceleration->z()),
     linear_acceleration_cov);
 
   // Create the transaction
@@ -450,7 +461,7 @@ void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCova
     logger_,
     "Received a set_pose request (stamp: " << rclcpp::Time(stamp).nanoseconds()
                                            << ", x: " << position->x() << ", y: "
-                                           << position->y() << ", z: " << position->z() 
+                                           << position->y() << ", z: " << position->z()
                                            << ", roll: " << orientation->roll()
                                            << ", pitch: " << orientation->pitch()
                                            << ", yaw: " << orientation->yaw() << ")");

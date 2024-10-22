@@ -94,7 +94,7 @@ public:
     const fuse_variables::Orientation3DStamped & orientation2,
     const fuse_core::Vector6d & delta,
     const fuse_core::Matrix6d & covariance);
-  
+
   /**
    * @brief Create a constraint using a measurement/prior of the relative 3D pose
    *
@@ -107,7 +107,7 @@ public:
    *                                (6x1 vector: dx, dy, dz, droll, dpitch, dyaw)
    * @param[in] partial_covariance  The measurement subset covariance (max 6x6 matrix: x, y, z, droll, dpitch, dyaw)
    * @param[in] variable_indices    The indices of the measured variables
-   */  
+   */
   RelativePose3DStampedEulerConstraint(
     const std::string & source,
     const fuse_variables::Position3DStamped & position1,

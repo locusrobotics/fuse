@@ -192,7 +192,7 @@ fuse_core::Transaction marginalizeVariables(
       [&elimination_order, &marginalized_variables](const fuse_core::UUID & variable_uuid)
       {
         return elimination_order.exists(variable_uuid) &&
-               elimination_order.at(variable_uuid) < marginalized_variables.size();
+        elimination_order.at(variable_uuid) < marginalized_variables.size();
       }));  // NOLINT
 
   fuse_core::Transaction transaction;

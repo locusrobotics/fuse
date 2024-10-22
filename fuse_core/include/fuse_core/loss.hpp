@@ -59,10 +59,10 @@
  * @endcode
  */
 #define FUSE_LOSS_CLONE_DEFINITION(...) \
-        fuse_core::Loss::UniquePtr clone() const override \
-        { \
-          return __VA_ARGS__::make_unique(*this); \
-        }
+  fuse_core::Loss::UniquePtr clone() const override \
+  { \
+    return __VA_ARGS__::make_unique(*this); \
+  }
 
 /**
  * @brief Implementation of the serialize() and deserialize() member functions for derived classes
@@ -78,22 +78,22 @@
  * @endcode
  */
 #define FUSE_LOSS_SERIALIZE_DEFINITION(...) \
-        void serialize(fuse_core::BinaryOutputArchive & archive) const override \
-        { \
-          archive << *this; \
-        }  /* NOLINT */ \
-        void serialize(fuse_core::TextOutputArchive & archive) const override \
-        { \
-          archive << *this; \
-        }  /* NOLINT */ \
-        void deserialize(fuse_core::BinaryInputArchive & archive) override \
-        { \
-          archive >> *this; \
-        }  /* NOLINT */ \
-        void deserialize(fuse_core::TextInputArchive & archive) override \
-        { \
-          archive >> *this; \
-        }
+  void serialize(fuse_core::BinaryOutputArchive & archive) const override \
+  { \
+    archive << *this; \
+  }        /* NOLINT */ \
+  void serialize(fuse_core::TextOutputArchive & archive) const override \
+  { \
+    archive << *this; \
+  }        /* NOLINT */ \
+  void deserialize(fuse_core::BinaryInputArchive & archive) override \
+  { \
+    archive >> *this; \
+  }        /* NOLINT */ \
+  void deserialize(fuse_core::TextInputArchive & archive) override \
+  { \
+    archive >> *this; \
+  }
 
 /**
  * @brief Implements the type() member function using the suggested implementation
@@ -111,17 +111,17 @@
  * @endcode
  */
 #define FUSE_LOSS_TYPE_DEFINITION(...) \
-        struct detail \
-        { \
-          static std::string type() \
-          { \
-            return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
-          }  /* NOLINT */ \
-        };  /* NOLINT */ \
-        std::string type() const override \
-        { \
-          return detail::type(); \
-        }
+  struct detail \
+  { \
+    static std::string type() \
+    { \
+      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
+    }        /* NOLINT */ \
+  };        /* NOLINT */ \
+  std::string type() const override \
+  { \
+    return detail::type(); \
+  }
 
 /**
  * @brief Convenience function that creates the required pointer aliases, clone() method, and type()
@@ -138,10 +138,10 @@
  * @endcode
  */
 #define FUSE_LOSS_DEFINITIONS(...) \
-        FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
-        FUSE_LOSS_TYPE_DEFINITION(__VA_ARGS__) \
-        FUSE_LOSS_CLONE_DEFINITION(__VA_ARGS__) \
-        FUSE_LOSS_SERIALIZE_DEFINITION(__VA_ARGS__)
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
+  FUSE_LOSS_TYPE_DEFINITION(__VA_ARGS__) \
+  FUSE_LOSS_CLONE_DEFINITION(__VA_ARGS__) \
+  FUSE_LOSS_SERIALIZE_DEFINITION(__VA_ARGS__)
 
 
 namespace fuse_core

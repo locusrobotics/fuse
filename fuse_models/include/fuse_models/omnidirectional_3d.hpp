@@ -65,8 +65,8 @@ namespace fuse_models
  *  - ~buffer_length (double) The length of the graph state buffer and state history, in seconds
  *  - ~process_noise_diagonal (vector of doubles) An 15-dimensional vector containing the diagonal
  *                                                 values for the process noise covariance matrix.
- *                                                 Variable order is (x, y, z, roll, pitch, yaw, 
- *                                                 x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+ *                                                 Variable order is (x, y, z, roll, pitch, yaw,
+ *                                                 x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
  *                                                 x_acc, y_acc, z_acc).
  */
 class Omnidirectional3D : public fuse_core::AsyncMotionModel
@@ -107,11 +107,11 @@ protected:
     fuse_core::UUID vel_angular_uuid;     //!< The uuid of the associated angular velocity variable
     fuse_core::UUID acc_linear_uuid;      //!< The uuid of the associated linear acceleration
                                           //!< variable
-    fuse_core::Vector3d position    = fuse_core::Vector3d::Zero(); //!< Map-frame position
+    fuse_core::Vector3d position = fuse_core::Vector3d::Zero();    //!< Map-frame position
     Eigen::Quaterniond orientation = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0); //!< Map-frame orientation (quaternion)
-    fuse_core::Vector3d vel_linear  = fuse_core::Vector3d::Zero(); //!< Body-frame linear velocities
+    fuse_core::Vector3d vel_linear = fuse_core::Vector3d::Zero();  //!< Body-frame linear velocities
     fuse_core::Vector3d vel_angular = fuse_core::Vector3d::Zero(); //!< Body-frame angular velocities
-    fuse_core::Vector3d acc_linear  = fuse_core::Vector3d::Zero(); //!< Body-frame linear (angular not needed) accelerations
+    fuse_core::Vector3d acc_linear = fuse_core::Vector3d::Zero();  //!< Body-frame linear (angular not needed) accelerations
 
     void print(std::ostream & stream = std::cout) const;
 

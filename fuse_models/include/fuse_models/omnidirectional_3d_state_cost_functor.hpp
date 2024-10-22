@@ -92,7 +92,7 @@ public:
    *
    * @param[in] dt The time delta across which to generate the kinematic model cost
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *                      x_acc, y_acc, z_acc)
    */
   Omnidirectional3DStateCostFunctor(const double dt, const fuse_core::Matrix15d & A);
@@ -128,7 +128,7 @@ public:
 private:
   double dt_;
   fuse_core::Matrix15d A_;  //!< The residual weighting matrix, most likely the square root
-                           //!< information matrix
+                            //!< information matrix
 };
 
 Omnidirectional3DStateCostFunctor::Omnidirectional3DStateCostFunctor(
@@ -183,7 +183,7 @@ bool Omnidirectional3DStateCostFunctor::operator()(
     vel_linear_pred,
     vel_angular_pred,
     acc_linear_pred);
-  
+
   Eigen::Map<Eigen::Matrix<T, 15, 1>> residuals_map(residual);
   residuals_map(0) = position2[0] - position_pred[0];
   residuals_map(1) = position2[1] - position_pred[1];

@@ -169,7 +169,7 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, InitialTransaction)
     orientation_actual.w() = actual->mean()[0];
     orientation_actual.x() = actual->mean()[1];
     orientation_actual.y() = actual->mean()[2];
-    orientation_actual.z() = actual->mean()[3]; 
+    orientation_actual.z() = actual->mean()[3];
     EXPECT_NEAR(expected_mean.x(), orientation_actual.roll(), 1.0e-9);
     EXPECT_NEAR(expected_mean.y(), orientation_actual.pitch(), 1.0e-9);
     EXPECT_NEAR(expected_mean.z(), orientation_actual.yaw(), 1.0e-9);
@@ -262,18 +262,18 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, SetPoseService)
   ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
-  Eigen::Quaterniond q; 
+  Eigen::Quaterniond q;
   q = Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitX()) *
-      Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitZ()); // roll, pitch, yaw = 0.1 rad
-  
+    Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitZ());   // roll, pitch, yaw = 0.1 rad
+
   // Call the SetPose service
   auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
   srv->pose.header.stamp = rclcpp::Time(12, 345678910);
   srv->pose.pose.pose.position.x = 1.0;
   srv->pose.pose.pose.position.y = 2.0;
   srv->pose.pose.pose.position.z = 3.0;
-  srv->pose.pose.pose.orientation.x = q.x(); 
+  srv->pose.pose.pose.orientation.x = q.x();
   srv->pose.pose.pose.orientation.y = q.y();
   srv->pose.pose.pose.orientation.z = q.z();
   srv->pose.pose.pose.orientation.w = q.w();
@@ -283,7 +283,8 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, SetPoseService)
   srv->pose.pose.covariance[21] = 4.0;
   srv->pose.pose.covariance[28] = 5.0;
   srv->pose.pose.covariance[35] = 6.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPose>("/omnidirectional_3d_ignition_test/set_pose");
+  auto client = node->create_client<fuse_msgs::srv::SetPose>(
+    "/omnidirectional_3d_ignition_test/set_pose");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));
@@ -317,7 +318,7 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, SetPoseService)
     orientation_actual.w() = actual->mean()[0];
     orientation_actual.x() = actual->mean()[1];
     orientation_actual.y() = actual->mean()[2];
-    orientation_actual.z() = actual->mean()[3]; 
+    orientation_actual.z() = actual->mean()[3];
     EXPECT_NEAR(expected_mean.x(), orientation_actual.roll(), 1.0e-1);
     EXPECT_NEAR(expected_mean.y(), orientation_actual.pitch(), 1.0e-1);
     EXPECT_NEAR(expected_mean.z(), orientation_actual.yaw(), 1.0e-1);
@@ -380,10 +381,10 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, SetPoseDeprecatedService)
   ignition_sensor.initialize(*node, "ignition_sensor", &transactionCallback);
   ignition_sensor.start();
 
-  Eigen::Quaterniond q; 
+  Eigen::Quaterniond q;
   q = Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitX()) *
-      Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitZ()); // roll, pitch, yaw = 0.1 rad
+    Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(0.1, Eigen::Vector3d::UnitZ());   // roll, pitch, yaw = 0.1 rad
 
   // Call the SetPose service
   auto srv = std::make_shared<fuse_msgs::srv::SetPoseDeprecated::Request>();
@@ -414,7 +415,7 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, SetPoseDeprecatedService)
 
   // Check the transaction
   auto transaction = callback_future.get();
-   {
+  {
     fuse_core::Vector3d expected_mean;
     expected_mean << 1.0, 2.0, 3.0;
     fuse_core::Matrix3d expected_cov;
@@ -435,7 +436,7 @@ TEST_F(Omnidirectional3DIgnitionTestFixture, SetPoseDeprecatedService)
     orientation_actual.w() = actual->mean()[0];
     orientation_actual.x() = actual->mean()[1];
     orientation_actual.y() = actual->mean()[2];
-    orientation_actual.z() = actual->mean()[3]; 
+    orientation_actual.z() = actual->mean()[3];
     EXPECT_NEAR(expected_mean.x(), orientation_actual.roll(), 1.0e-1); // not high precision
     EXPECT_NEAR(expected_mean.y(), orientation_actual.pitch(), 1.0e-1);
     EXPECT_NEAR(expected_mean.z(), orientation_actual.yaw(), 1.0e-1);
