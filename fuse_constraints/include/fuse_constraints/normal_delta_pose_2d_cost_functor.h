@@ -101,14 +101,14 @@ private:
   fuse_core::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
 };
 
-inline NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) :
+NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) :
   A_(A),
   b_(b)
 {
 }
 
 template <typename T>
-inline bool NormalDeltaPose2DCostFunctor::operator()(
+bool NormalDeltaPose2DCostFunctor::operator()(
   const T* const position1,
   const T* const orientation1,
   const T* const position2,
