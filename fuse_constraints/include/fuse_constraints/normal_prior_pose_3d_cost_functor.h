@@ -92,7 +92,7 @@ private:
   NormalPriorOrientation3DCostFunctor orientation_functor_;
 };
 
-NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
+inline NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
   A_(A),
   b_(b),
   orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
@@ -100,7 +100,7 @@ NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matr
 }
 
 template <typename T>
-bool NormalPriorPose3DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
+inline bool NormalPriorPose3DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
 {
   // Compute the position error
   residual[0] = position[0] - T(b_(0));

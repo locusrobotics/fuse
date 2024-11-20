@@ -97,7 +97,7 @@ private:
   NormalDeltaOrientation3DCostFunctor orientation_functor_;
 };
 
-NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
+inline NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
   A_(A),
   b_(b),
   orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will not be scaled
@@ -105,7 +105,7 @@ NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matr
 }
 
 template <typename T>
-bool NormalDeltaPose3DCostFunctor::operator()(
+inline bool NormalDeltaPose3DCostFunctor::operator()(
   const T* const position1,
   const T* const orientation1,
   const T* const position2,
