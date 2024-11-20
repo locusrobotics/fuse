@@ -77,7 +77,12 @@ public:
    *              (dx, dy, dz, dqx, dqy, dqz)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, dqw, dqx, dqy, dqz)
    */
-  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
+  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b):
+  A_(A),
+  b_(b),
+  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will not be scaled
+  {
+  }
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -88,7 +93,41 @@ public:
     const T* const orientation1,
     const T* const position2,
     const T* const orientation2,
-    T* residual) const;
+    T* residual) const {
+    // Compute the position delta between pose1 and pose2
+    T orientation1_inverse[4] =
+    {
+      orientation1[0],
+      -orientation1[1],
+      -orientation1[2],
+      -orientation1[3]
+    };
+    T position_delta[3] =
+    {
+      position2[0] - position1[0],
+      position2[1] - position1[1],
+      position2[2] - position1[2]
+    };
+    T position_delta_rotated[3];
+    ceres::QuaternionRotatePoint(
+      orientation1_inverse,
+      position_delta,
+      position_delta_rotated);
+
+    // Compute the first three residual terms as (position_delta - b)
+    residual[0] = position_delta_rotated[0] - T(b_[0]);
+    residual[1] = position_delta_rotated[1] - T(b_[1]);
+    residual[2] = position_delta_rotated[2] - T(b_[2]);
+
+    // Use the 3D orientation cost functor to compute the orientation delta
+    orientation_functor_(orientation1, orientation2, &residual[3]);
+
+    // Map it to Eigen, and weight it
+    Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
+    residual_map.applyOnTheLeft(A_.template cast<T>());
+
+    return true;
+  }
 
 private:
   fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root information matrix
@@ -96,56 +135,6 @@ private:
 
   NormalDeltaOrientation3DCostFunctor orientation_functor_;
 };
-
-inline NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
-  A_(A),
-  b_(b),
-  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will not be scaled
-{
-}
-
-template <typename T>
-inline bool NormalDeltaPose3DCostFunctor::operator()(
-  const T* const position1,
-  const T* const orientation1,
-  const T* const position2,
-  const T* const orientation2,
-  T* residual) const
-{
-  // Compute the position delta between pose1 and pose2
-  T orientation1_inverse[4] =
-  {
-    orientation1[0],
-    -orientation1[1],
-    -orientation1[2],
-    -orientation1[3]
-  };
-  T position_delta[3] =
-  {
-    position2[0] - position1[0],
-    position2[1] - position1[1],
-    position2[2] - position1[2]
-  };
-  T position_delta_rotated[3];
-  ceres::QuaternionRotatePoint(
-    orientation1_inverse,
-    position_delta,
-    position_delta_rotated);
-
-  // Compute the first three residual terms as (position_delta - b)
-  residual[0] = position_delta_rotated[0] - T(b_[0]);
-  residual[1] = position_delta_rotated[1] - T(b_[1]);
-  residual[2] = position_delta_rotated[2] - T(b_[2]);
-
-  // Use the 3D orientation cost functor to compute the orientation delta
-  orientation_functor_(orientation1, orientation2, &residual[3]);
-
-  // Map it to Eigen, and weight it
-  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
-  residual_map.applyOnTheLeft(A_.template cast<T>());
-
-  return true;
-}
 
 }  // namespace fuse_constraints
 

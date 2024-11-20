@@ -77,13 +77,33 @@ public:
    *              (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
-  NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
+  NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b):
+  A_(A),
+  b_(b),
+  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
+  {
+  }
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
   template <typename T>
-  bool operator()(const T* const position, const T* const orientation, T* residual) const;
+  bool operator()(const T* const position, const T* const orientation, T* residual) const {
+    // Compute the position error
+    residual[0] = position[0] - T(b_(0));
+    residual[1] = position[1] - T(b_(1));
+    residual[2] = position[2] - T(b_(2));
+
+    // Use the 3D orientation cost functor to compute the orientation delta
+    orientation_functor_(orientation, &residual[3]);
+
+    // Scale the residuals by the square root information matrix to account for
+    // the measurement uncertainty.
+    Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
+    residual_map.applyOnTheLeft(A_.template cast<T>());
+
+    return true;
+  }
 
 private:
   fuse_core::Matrix6d A_;
@@ -91,33 +111,6 @@ private:
 
   NormalPriorOrientation3DCostFunctor orientation_functor_;
 };
-
-inline NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) :
-  A_(A),
-  b_(b),
-  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
-{
-}
-
-template <typename T>
-inline bool NormalPriorPose3DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
-{
-  // Compute the position error
-  residual[0] = position[0] - T(b_(0));
-  residual[1] = position[1] - T(b_(1));
-  residual[2] = position[2] - T(b_(2));
-
-  // Use the 3D orientation cost functor to compute the orientation delta
-  orientation_functor_(orientation, &residual[3]);
-
-  // Scale the residuals by the square root information matrix to account for
-  // the measurement uncertainty.
-  Eigen::Map<Eigen::Matrix<T, 6, 1>> residual_map(residual);
-  residual_map.applyOnTheLeft(A_.template cast<T>());
-
-  return true;
-}
-
 }  // namespace fuse_constraints
 
 #endif  // FUSE_CONSTRAINTS_NORMAL_PRIOR_POSE_3D_COST_FUNCTOR_H
