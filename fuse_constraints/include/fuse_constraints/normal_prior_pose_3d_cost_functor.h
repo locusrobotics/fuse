@@ -88,7 +88,8 @@ public:
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
   template <typename T>
-  bool operator()(const T* const position, const T* const orientation, T* residual) const {
+  bool operator()(const T* const position, const T* const orientation, T* residual) const 
+  {
     // Compute the position error
     residual[0] = position[0] - T(b_(0));
     residual[1] = position[1] - T(b_(1));

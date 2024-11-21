@@ -93,7 +93,8 @@ public:
     const T* const orientation1,
     const T* const position2,
     const T* const orientation2,
-    T* residual) const {
+    T* residual) const
+  {
     // Compute the position delta between pose1 and pose2
     T orientation1_inverse[4] =
     {
