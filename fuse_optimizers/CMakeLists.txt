@@ -44,6 +44,9 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
@@ -65,6 +68,9 @@ add_dependencies(batch_optimizer_node
 target_include_directories(batch_optimizer_node
   PRIVATE
     include
+)
+target_include_directories(batch_optimizer_node
+  SYSTEM PRIVATE
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(batch_optimizer_node
@@ -87,6 +93,9 @@ add_dependencies(fixed_lag_smoother_node
 target_include_directories(fixed_lag_smoother_node
   PRIVATE
     include
+)
+target_include_directories(fixed_lag_smoother_node
+  SYSTEM PRIVATE
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(fixed_lag_smoother_node
@@ -146,6 +155,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_variable_stamp_index
     PRIVATE
       include
+  )
+  target_include_directories(test_variable_stamp_index
+    SYSTEM PRIVATE
       ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_variable_stamp_index
@@ -169,6 +181,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_optimizer
     PRIVATE
       include
+  )
+  target_include_directories(test_optimizer
+    SYSTEM PRIVATE
       ${catkin_INCLUDE_DIRS}
       ${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -195,6 +210,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_fixed_lag_ignition
     PRIVATE
       include
+  )
+  target_include_directories(test_fixed_lag_ignition
+    SYSTEM PRIVATE
       ${catkin_INCLUDE_DIRS}
       ${fuse_models_INCLUDE_DIRS}
       ${geometry_msgs_INCLUDE_DIRS}

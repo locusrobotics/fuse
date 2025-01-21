@@ -43,6 +43,9 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
@@ -64,6 +67,9 @@ add_dependencies(range_sensor_simulator
 target_include_directories(range_sensor_simulator
   PUBLIC
     include
+)
+target_include_directories(range_sensor_simulator
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(range_sensor_simulator

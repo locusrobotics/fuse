@@ -57,6 +57,10 @@ add_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     include
+)
+
+target_include_directories(${PROJECT_NAME}
+  SYSTEM PUBLIC
     ${catkin_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
@@ -120,6 +124,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_path_2d_publisher
     PRIVATE
       include
+  )
+  target_include_directories(test_path_2d_publisher
+    SYSTEM PRIVATE
       ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_path_2d_publisher
@@ -143,6 +150,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_pose_2d_publisher
     PRIVATE
       include
+  )
+  target_include_directories(test_pose_2d_publisher
+    SYSTEM PRIVATE
       ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_pose_2d_publisher
@@ -165,6 +175,9 @@ if(CATKIN_ENABLE_TESTING)
   target_include_directories(test_stamped_variable_synchronizer
     PRIVATE
       include
+  )
+  target_include_directories(test_stamped_variable_synchronizer
+    SYSTEM PRIVATE
       ${catkin_INCLUDE_DIRS}
   )
   target_link_libraries(test_stamped_variable_synchronizer
