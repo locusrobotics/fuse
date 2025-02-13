@@ -38,6 +38,7 @@
 #include <stdexcept>
 #include <string>
 
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/ceres_options.hpp>
 #include <rclcpp/node.hpp>
 
@@ -335,7 +336,6 @@ void loadSolverOptionsFromROS(
   solver_options.dogleg_type = fuse_core::declareCeresParam(
     interfaces, fuse_core::joinParameterName(ns, "dogleg_type"), solver_options.dogleg_type);
 
-
   tmp_descr.description = (
     "Enables the non-monotonic trust region algorithm as described by Conn, "
     "Gould & Toint in 'Trust Region Methods', Section 10.1");
@@ -354,7 +354,6 @@ void loadSolverOptionsFromROS(
     solver_options.max_consecutive_nonmonotonic_steps,
     tmp_descr
   );
-
 
   tmp_descr.description = "Maximum number of iterations for which the solver should run";
   solver_options.max_num_iterations = fuse_core::getParam(
@@ -499,7 +498,6 @@ void loadSolverOptionsFromROS(
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> linear_solver_ordering;
 
-
   tmp_descr.description =
     "Enabling this option tells ITERATIVE_SCHUR to use an explicitly computed Schur complement.";
   solver_options.use_explicit_schur_complement = fuse_core::getParam(
@@ -509,10 +507,19 @@ void loadSolverOptionsFromROS(
     tmp_descr
   );
 
-  // NOTE(CH3): Solved::Options::use_postordering was removed in:
-  // https://github.com/ceres-solver/ceres-solver/commit/8ba8fbb173db5a1e01feeafe875c1f04839fd97b
-  //
-  // So it is also not included here
+#if !CERES_VERSION_AT_LEAST(2, 2, 0)
+  tmp_descr.description = (
+    "In some rare cases, it is worth using a more complicated "
+    "reordering algorithm which has slightly better runtime "
+    "performance at the expense of an extra copy of the Jacobian "
+    "matrix. Setting use_postordering to true enables this tradeoff.");
+  solver_options.use_postordering = fuse_core::getParam(
+    interfaces,
+    fuse_core::joinParameterName(ns, "use_postordering"),
+    solver_options.use_postordering,
+    tmp_descr
+  );
+#endif
 
   tmp_descr.description = "This settings only affects the SPARSE_NORMAL_CHOLESKY solver.";
   solver_options.dynamic_sparsity = fuse_core::getParam(
@@ -523,7 +530,6 @@ void loadSolverOptionsFromROS(
   );
 
 #if CERES_VERSION_AT_LEAST(2, 0, 0)
-
   tmp_descr.description = (
     "NOTE1: EXPERIMENTAL FEATURE, UNDER DEVELOPMENT, USE AT YOUR OWN RISK. "
     "\n"
@@ -550,6 +556,43 @@ void loadSolverOptionsFromROS(
   );
 #endif
 
+#if CERES_VERSION_AT_LEAST(2, 2, 0)
+  tmp_descr.description = (
+    "Maximum number of iterations performed by SCHUR_POWER_SERIES_EXPANSION. "
+    "Each iteration corresponds to one more term in the power series expansion "
+    "of the inverse of the Schur complement.  This value controls the maximum "
+    "number of iterations whether it is used as a preconditioner or just to "
+    "initialize the solution for ITERATIVE_SCHUR.");
+  solver_options.max_num_spse_iterations = fuse_core::getParam(
+    interfaces,
+    fuse_core::joinParameterName(ns, "max_num_spse_iterations"),
+    solver_options.max_num_spse_iterations,
+    tmp_descr
+  );
+
+  tmp_descr.description = (
+    "Use SCHUR_POWER_SERIES_EXPANSION to initialize the solution for "
+    "ITERATIVE_SCHUR. This option can be set true regardless of what "
+    "preconditioner is being used.");
+  solver_options.use_spse_initialization = fuse_core::getParam(
+    interfaces,
+    fuse_core::joinParameterName(ns, "use_spse_initialization"),
+    solver_options.use_spse_initialization,
+    tmp_descr
+  );
+
+  tmp_descr.description = (
+    "When use_spse_initialization is true, this parameter along with "
+    "max_num_spse_iterations controls the number of "
+    "SCHUR_POWER_SERIES_EXPANSION iterations performed for initialization. It "
+    "is not used to control the preconditioner.");
+  solver_options.spse_tolerance = fuse_core::getParam(
+    interfaces,
+    fuse_core::joinParameterName(ns, "spse_tolerance"),
+    solver_options.spse_tolerance,
+    tmp_descr
+  );
+#endif
 
   tmp_descr.description =
     "Enable the use of the non-linear generalization of Ruhe & Wedin's Algorithm II";
@@ -561,7 +604,6 @@ void loadSolverOptionsFromROS(
   );
 
   // No parameter is loaded for: std::shared_ptr<ParameterBlockOrdering> inner_iteration_ordering;
-
 
   tmp_descr.description = (
     "Once the relative decrease in the objective function due to "
@@ -600,7 +642,6 @@ void loadSolverOptionsFromROS(
     solver_options.eta,
     tmp_descr
   );
-
 
   tmp_descr.description = (
     "True means that the Jacobian is scaled by the norm of its columns before being passed to the "
@@ -707,6 +748,6 @@ void loadSolverOptionsFromROS(
             std::string(interfaces.get_node_base_interface()->get_namespace()) +
             ". Error: " + error);
   }
-}
+}  // NOLINT [readability/fn_size]
 
 }  // namespace fuse_core

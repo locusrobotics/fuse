@@ -33,9 +33,12 @@
  */
 #include <gtest/gtest.h>
 
-#include <fuse_core/autodiff_local_parameterization.hpp>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
+
+#if !CERES_SUPPORTS_MANIFOLDS
+#include <fuse_core/autodiff_local_parameterization.hpp>
 
 struct Plus
 {
@@ -52,10 +55,10 @@ struct Plus
 struct Minus
 {
   template<typename T>
-  bool operator()(const T * x1, const T * x2, T * delta) const
+  bool operator()(const T * x, const T * y, T * y_minus_x) const
   {
-    delta[0] = (x2[0] - x1[0]) / 2.0;
-    delta[1] = (x2[1] - x1[1]) / 5.0;
+    y_minus_x[0] = (y[0] - x[0]) / 2.0;
+    y_minus_x[1] = (y[1] - x[1]) / 5.0;
     return true;
   }
 };
@@ -130,3 +133,36 @@ TEST(LocalParameterization, MinusJacobian)
   EXPECT_TRUE(success);
   EXPECT_MATRIX_NEAR(expected, actual, 1.0e-5);
 }
+
+TEST(LocalParameterization, MinusSameVariablesIsZero)
+{
+  TestLocalParameterization parameterization;
+
+  double x1[3] = {1.0, 2.0, 3.0};
+  double actual[2] = {0.0, 0.0};
+  bool success = parameterization.Minus(x1, x1, actual);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(0.0, actual[0], 1.0e-5);
+  EXPECT_NEAR(0.0, actual[1], 1.0e-5);
+}
+
+TEST(LocalParameterization, PlusMinus)
+{
+  TestLocalParameterization parameterization;
+
+  const double x1[3] = {1.0, 2.0, 3.0};
+  const double delta[2] = {0.5, 1.0};
+  double x2[3] = {0.0, 0.0, 0.0};
+  bool success = parameterization.Plus(x1, delta, x2);
+
+  ASSERT_TRUE(success);
+
+  double actual[2] = {0.0, 0.0};
+  success = parameterization.Minus(x1, x2, actual);
+
+  EXPECT_TRUE(success);
+  EXPECT_NEAR(delta[0], actual[0], 1.0e-5);
+  EXPECT_NEAR(delta[1], actual[1], 1.0e-5);
+}
+#endif

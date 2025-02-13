@@ -76,7 +76,7 @@ TEST_F(FixedLagIgnitionFixture, SetInitialState)
 
   auto relative_pose_publisher =
     node->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    "/relative_pose", 1);
+    "/relative_pose", 5);
 
   // Time should be valid after rclcpp::init() returns in main(). But it doesn't hurt to verify.
   ASSERT_TRUE(node->get_clock()->wait_until_started(rclcpp::Duration::from_seconds(1.0)));

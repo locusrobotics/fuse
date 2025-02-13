@@ -18,12 +18,12 @@ import os
 
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
-from launch_ros.actions import Node
 from launch.substitutions import PathJoinSubstitution
 
 import launch_pytest
 from launch_pytest.actions import ReadyToTest
 from launch_pytest.tools import process as process_tools
+from launch_ros.actions import Node
 
 import pytest
 
@@ -62,4 +62,4 @@ def generate_test_description(test_proc):
 @pytest.mark.launch(fixture=generate_test_description)
 async def test_no_failed_gtests(test_proc, launch_context):
     await process_tools.wait_for_exit(launch_context, test_proc, timeout=30)
-    assert test_proc.return_code == 0, "GTests failed"
+    assert test_proc.return_code == 0, 'GTests failed'

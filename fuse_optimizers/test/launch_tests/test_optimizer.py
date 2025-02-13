@@ -45,4 +45,4 @@ def generate_test_description(test_proc):
 @pytest.mark.launch(fixture=generate_test_description)
 async def test_no_failed_gtests(test_proc, launch_context):
     await process_tools.wait_for_exit(launch_context, test_proc, timeout=30)
-    assert test_proc.return_code == 0, "GTests failed"
+    assert test_proc.return_code == 0, 'GTests failed'

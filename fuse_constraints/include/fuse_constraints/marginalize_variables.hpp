@@ -47,9 +47,8 @@
 #include <fuse_constraints/uuid_ordering.hpp>
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/eigen.hpp>
-#include <fuse_core/graph.hpp>
-#include <fuse_core/local_parameterization.hpp>
 #include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/graph.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/variable.hpp>
 

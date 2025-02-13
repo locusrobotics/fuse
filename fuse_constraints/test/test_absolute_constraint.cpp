@@ -40,6 +40,7 @@
 #include <vector>
 
 #include <fuse_constraints/absolute_constraint.hpp>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
@@ -229,7 +230,11 @@ TEST(AbsoluteConstraint, Optimization)
     problem.AddParameterBlock(
       variable->data(),
       variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       variable->localParameterization());
+#else
+      variable->manifold());
+#endif
     std::vector<double *> parameter_blocks;
     parameter_blocks.push_back(variable->data());
     problem.AddResidualBlock(
@@ -297,7 +302,11 @@ TEST(AbsoluteConstraint, Optimization)
     problem.AddParameterBlock(
       var->data(),
       var->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       var->localParameterization());
+#else
+      var->manifold());
+#endif
     std::vector<double *> parameter_blocks;
     parameter_blocks.push_back(var->data());
     problem.AddResidualBlock(
@@ -373,7 +382,11 @@ TEST(AbsoluteConstraint, PartialOptimization)
   problem.AddParameterBlock(
     var->data(),
     var->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     var->localParameterization());
+#else
+    var->manifold());
+#endif
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(var->data());
   problem.AddResidualBlock(
@@ -416,7 +429,11 @@ TEST(AbsoluteConstraint, AbsoluteOrientation2DOptimization)
   problem.AddParameterBlock(
     variable->data(),
     variable->size(),
+#if !CERES_SUPPORTS_MANIFOLDS
     variable->localParameterization());
+#else
+    variable->manifold());
+#endif
   std::vector<double *> parameter_blocks;
   parameter_blocks.push_back(variable->data());
   problem.AddResidualBlock(

@@ -142,8 +142,7 @@ void Path2DPublisher::notifyCallback(
   }
   // Sort the poses by timestamp
   auto compare_stamps =
-    [](const geometry_msgs::msg::PoseStamped & pose1,
-      const geometry_msgs::msg::PoseStamped & pose2)
+    [](const geometry_msgs::msg::PoseStamped & pose1, const geometry_msgs::msg::PoseStamped & pose2)
     {
       if (pose1.header.stamp.sec == pose2.header.stamp.sec) {
         return pose1.header.stamp.nanosec < pose2.header.stamp.nanosec;

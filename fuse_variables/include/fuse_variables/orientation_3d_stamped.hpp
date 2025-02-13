@@ -38,7 +38,10 @@
 
 #include <ostream>
 
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/local_parameterization.hpp>
+#include <fuse_core/manifold.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/util.hpp>
 #include <fuse_core/uuid.hpp>
@@ -56,6 +59,20 @@ namespace fuse_variables
 {
 
 /**
+ * @brief Create the inverse quaternion
+ *
+ * ceres/rotation.h is missing this function for some reason.
+ */
+template<typename T>
+inline static void QuaternionInverse(const T in[4], T out[4])
+{
+  out[0] = in[0];
+  out[1] = -in[1];
+  out[2] = -in[2];
+  out[3] = -in[3];
+}
+
+/**
  * @brief A LocalParameterization class for 3D Orientations.
  *
  * 3D orientations add and subtract nonlinearly. Additionally, the typcial 3D orientation
@@ -66,29 +83,11 @@ namespace fuse_variables
 class Orientation3DLocalParameterization : public fuse_core::LocalParameterization
 {
 public:
-  /**
-   * @brief Create the inverse quaternion
-   *
-   * ceres/rotation.h is missing this function for some reason.
-   */
-  template<typename T> inline
-  static void QuaternionInverse(const T in[4], T out[4])
-  {
-    out[0] = in[0];
-    out[1] = -in[1];
-    out[2] = -in[2];
-    out[3] = -in[3];
-  }
+  FUSE_SMART_PTR_DEFINITIONS(Orientation3DLocalParameterization)
 
-  int GlobalSize() const override
-  {
-    return 4;
-  }
+  int GlobalSize() const override {return 4;}
 
-  int LocalSize() const override
-  {
-    return 3;
-  }
+  int LocalSize() const override {return 3;}
 
   bool Plus(
     const double * x,
@@ -119,15 +118,15 @@ public:
   }
 
   bool Minus(
-    const double * x1,
-    const double * x2,
-    double * delta) const override
+    const double * x,
+    const double * y,
+    double * y_minus_x) const override
   {
-    double x1_inverse[4];
-    QuaternionInverse(x1, x1_inverse);
+    double x_inverse[4];
+    QuaternionInverse(x, x_inverse);
     double q_delta[4];
-    ceres::QuaternionProduct(x1_inverse, x2, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, delta);
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
     return true;
   }
 
@@ -164,6 +163,88 @@ private:
     archive & boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
 };
+
+#if CERES_SUPPORTS_MANIFOLDS
+/**
+ * @brief A Manifold class for 2D Orientations.
+ *
+ * 2D orientations add and subtract in the "usual" way, except for the 2*pi rollover issue. This local parameterization
+ * handles the rollover. Because the Jacobians for this parameterization are always identity, we implement this
+ * parameterization with "analytic" derivatives, instead of using the Ceres's autodiff system.
+ */
+class Orientation3DManifold : public fuse_core::Manifold
+{
+public:
+  FUSE_SMART_PTR_DEFINITIONS(Orientation3DManifold)
+
+  int AmbientSize() const override {return 4;}
+
+  int TangentSize() const override {return 3;}
+
+  bool Plus(const double * x, const double * delta, double * x_plus_delta) const override
+  {
+    double q_delta[4];
+    ceres::AngleAxisToQuaternion(delta, q_delta);
+    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    return true;
+  }
+
+  bool PlusJacobian(const double * x, double * jacobian) const override
+  {
+    double x0 = x[0] / 2;
+    double x1 = x[1] / 2;
+    double x2 = x[2] / 2;
+    double x3 = x[3] / 2;
+    /* *INDENT-OFF* */
+    jacobian[0] = -x1; jacobian[1]  = -x2; jacobian[2]  = -x3;  // NOLINT
+    jacobian[3] =  x0; jacobian[4]  = -x3; jacobian[5]  =  x2;  // NOLINT
+    jacobian[6] =  x3; jacobian[7]  =  x0; jacobian[8]  = -x1;  // NOLINT
+    jacobian[9] = -x2; jacobian[10] =  x1; jacobian[11] =  x0;  // NOLINT
+    /* *INDENT-ON* */
+    return true;
+  }
+
+  bool Minus(const double * y, const double * x, double * y_minus_x) const override
+  {
+    double x_inverse[4];
+    QuaternionInverse(x, x_inverse);
+    double q_delta[4];
+    ceres::QuaternionProduct(x_inverse, y, q_delta);
+    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    return true;
+  }
+
+  bool MinusJacobian(const double * x, double * jacobian) const override
+  {
+    double x0 = x[0] * 2;
+    double x1 = x[1] * 2;
+    double x2 = x[2] * 2;
+    double x3 = x[3] * 2;
+    /* *INDENT-OFF* */
+    jacobian[0] = -x1; jacobian[1]  =  x0; jacobian[2]  =  x3;  jacobian[3]  = -x2;  // NOLINT
+    jacobian[4] = -x2; jacobian[5]  = -x3; jacobian[6]  =  x0;  jacobian[7]  =  x1;  // NOLINT
+    jacobian[8] = -x3; jacobian[9]  =  x2; jacobian[10] = -x1;  jacobian[11] =  x0;  // NOLINT
+    /* *INDENT-ON* */
+    return true;
+  }
+
+private:
+  // Allow Boost Serialization access to private methods
+  friend class boost::serialization::access;
+
+  /**
+   * @brief The Boost Serialize method that serializes all of the data members in to/out of the archive
+   *
+   * @param[in/out] archive - The archive object that holds the serialized class members
+   * @param[in] version - The version of the archive being read/written. Generally unused.
+   */
+  template<class Archive>
+  void serialize(Archive & archive, const unsigned int /* version */)
+  {
+    archive & boost::serialization::base_object<fuse_core::Manifold>(*this);
+  }
+};
+#endif
 
 /**
  * @brief Variable representing a 3D orientation as a quaternion at a specific time and for a
@@ -296,6 +377,15 @@ public:
    */
   fuse_core::LocalParameterization * localParameterization() const override;
 
+#if CERES_SUPPORTS_MANIFOLDS
+  /**
+   * @brief Provides a Ceres manifold for the quaternion
+   *
+   * @return A pointer to a manifold object that indicates how to "add" increments to the quaternion
+   */
+  fuse_core::Manifold * manifold() const override;
+#endif
+
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
@@ -317,6 +407,9 @@ private:
 
 }  // namespace fuse_variables
 
+#if CERES_SUPPORTS_MANIFOLDS
+BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DManifold);
+#endif
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DLocalParameterization);
 BOOST_CLASS_EXPORT_KEY(fuse_variables::Orientation3DStamped);
 

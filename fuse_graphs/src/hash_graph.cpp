@@ -41,6 +41,7 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/serialization/export.hpp>
+#include <fuse_core/ceres_macros.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 #include <pluginlib/class_list_macros.hpp>
@@ -485,7 +486,11 @@ void HashGraph::createProblem(ceres::Problem & problem) const
     problem.AddParameterBlock(
       variable.data(),
       variable.size(),
+#if !CERES_SUPPORTS_MANIFOLDS
       variable.localParameterization());
+#else
+      variable.manifold());
+#endif
     // Handle optimization bounds
     for (size_t index = 0; index < variable.size(); ++index) {
       auto lower_bound = variable.lowerBound(index);

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, Locus Robotics
+ *  Copyright (c) 2024, Clearpath Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <Eigen/Core>
+#ifndef FUSE_CORE__MANIFOLD_H_
+#define FUSE_CORE__MANIFOLD_H_
 
-#include <ostream>
+#warning This header is obsolete, please include fuse_core/manifold.hpp instead
 
-#include <boost/serialization/export.hpp>
-#include <fuse_constraints/marginal_constraint.hpp>
-#include <fuse_constraints/marginal_cost_function.hpp>
-#include <fuse_core/ceres_macros.hpp>
-#include <fuse_core/constraint.hpp>
-#include <pluginlib/class_list_macros.hpp>
+#include <fuse_core/manifold.hpp>
 
-namespace fuse_constraints
-{
-
-void MarginalConstraint::print(std::ostream & stream) const
-{
-  stream << type() << "\n"
-         << "  source: " << source() << "\n"
-         << "  uuid: " << uuid() << "\n"
-         << "  variable:\n";
-  for (const auto & variable : variables()) {
-    stream << "   - " << variable << "\n";
-  }
-  Eigen::IOFormat indent(4, 0, ", ", "\n", "   [", "]");
-  for (size_t i = 0; i < A().size(); ++i) {
-    stream << "  A[" << i << "]:\n" << A()[i].format(indent) << "\n"
-           << "  x_bar[" << i << "]:\n" << x_bar()[i].format(indent) << "\n";
-  }
-  stream << "  b:\n" << b().format(indent) << "\n";
-
-  if (loss()) {
-    stream << "  loss: ";
-    loss()->print(stream);
-  }
-}
-
-ceres::CostFunction * MarginalConstraint::costFunction() const
-{
-#if !CERES_SUPPORTS_MANIFOLDS
-  return new MarginalCostFunction(A_, b_, x_bar_, local_parameterizations_);
-#else
-  return new MarginalCostFunction(A_, b_, x_bar_, manifolds_);
-#endif
-}
-
-}  // namespace fuse_constraints
-
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::MarginalConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::MarginalConstraint, fuse_core::Constraint);
+#endif  // FUSE_CORE__MANIFOLD_H_

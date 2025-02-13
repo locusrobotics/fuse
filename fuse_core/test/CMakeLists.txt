@@ -29,7 +29,7 @@ target_link_libraries(test_util ${PROJECT_NAME})
 ament_add_gtest(test_uuid test_uuid.cpp)
 target_link_libraries(test_uuid ${PROJECT_NAME})
 
-ament_add_gtest(test_variable test_variable.cpp)
+ament_add_gtest(test_variable test_variable.cpp WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
 target_link_libraries(test_variable ${PROJECT_NAME})
 
 

@@ -47,16 +47,16 @@ namespace fuse_core
 {
 namespace node_interfaces
 {
-typedef rclcpp::node_interfaces::NodeBaseInterface Base;
-typedef rclcpp::node_interfaces::NodeClockInterface Clock;
-typedef rclcpp::node_interfaces::NodeGraphInterface Graph;
-typedef rclcpp::node_interfaces::NodeLoggingInterface Logging;
-typedef rclcpp::node_interfaces::NodeParametersInterface Parameters;
-typedef rclcpp::node_interfaces::NodeServicesInterface Services;
-typedef rclcpp::node_interfaces::NodeTimeSourceInterface TimeSource;
-typedef rclcpp::node_interfaces::NodeTimersInterface Timers;
-typedef rclcpp::node_interfaces::NodeTopicsInterface Topics;
-typedef rclcpp::node_interfaces::NodeWaitablesInterface Waitables;
+using Base = rclcpp::node_interfaces::NodeBaseInterface;
+using Clock = rclcpp::node_interfaces::NodeClockInterface;
+using Graph = rclcpp::node_interfaces::NodeGraphInterface;
+using Logging = rclcpp::node_interfaces::NodeLoggingInterface;
+using Parameters = rclcpp::node_interfaces::NodeParametersInterface;
+using Services = rclcpp::node_interfaces::NodeServicesInterface;
+using TimeSource = rclcpp::node_interfaces::NodeTimeSourceInterface;
+using Timers = rclcpp::node_interfaces::NodeTimersInterface;
+using Topics = rclcpp::node_interfaces::NodeTopicsInterface;
+using Waitables = rclcpp::node_interfaces::NodeWaitablesInterface;
 
 template<typename ... InterfacesTs>
 using NodeInterfaces = ::rclcpp::node_interfaces::NodeInterfaces<InterfacesTs...>;

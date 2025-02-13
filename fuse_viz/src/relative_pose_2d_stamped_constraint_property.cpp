@@ -302,7 +302,8 @@ void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesAlpha(
 void RelativePose2DStampedConstraintProperty::updateRelativePoseAxesScale(
   const VisualPtr & constraint)
 {
-  constraint->setRelativePoseAxesScale(Ogre::Vector3{relative_pose_axes_scale_property_->getFloat()});  // NOLINT
+  constraint->setRelativePoseAxesScale(
+    Ogre::Vector3{relative_pose_axes_scale_property_->getFloat()});
 }
 
 void RelativePose2DStampedConstraintProperty::updateRelativePoseLineAlpha(
