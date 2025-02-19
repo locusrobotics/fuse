@@ -157,6 +157,11 @@ void BatchOptimizer::optimizationLoop()
     }
     {
       std::lock_guard<std::mutex> lock(optimization_mutex_);
+      if (!started_)
+      {
+        ROS_DEBUG_STREAM("Optimizer stopped while trying to acquire optimization_mutex_. Skipping optimization.");
+        continue;
+      }
       // Copy the combined transaction so it can be shared with all the plugins
       fuse_core::Transaction::ConstSharedPtr const_transaction;
       {
@@ -289,19 +294,19 @@ void BatchOptimizer::start()
 void BatchOptimizer::stop()
 {
   ROS_INFO_STREAM("Stopping optimizer.");
-  // Tell all the plugins to stop
-  stopPlugins();
+  started_ = false;
   // Reset the optimizer state
   {
     std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
     optimization_request_ = false;
   }
-  started_ = false;
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         combined_transaction_mutex_ lock at the same time. We perform a parallel locking scheme here to
   //         prevent the possibility of deadlocks.
   {
     std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Tell all the plugins to stop
+    stopPlugins();
     // Clear the combined transation
     {
       std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
