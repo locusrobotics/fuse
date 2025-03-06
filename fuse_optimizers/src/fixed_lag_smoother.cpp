@@ -213,6 +213,13 @@ void FixedLagSmoother::optimizationLoop()
     // Optimize
     {
       std::lock_guard<std::mutex> lock(optimization_mutex_);
+      // Make sure stop was not called while we were trying to acquire optimization mutex
+      if (!started_)
+      {
+        RCLCPP_DEBUG_STREAM(
+          logger_, "Optimizer stopped while trying to acquire optimization_mutex_. Skipping optimization.");
+        continue;
+      }
       // Apply motion models
       auto new_transaction = fuse_core::Transaction::make_shared();
       // DANGER: processQueue obtains a lock from the pending_transactions_mutex_
@@ -460,21 +467,21 @@ bool FixedLagSmoother::resetServiceCallback(
   std::shared_ptr<std_srvs::srv::Empty::Response>
 )
 {
-  // Tell all the plugins to stop
-  stopPlugins();
+  started_ = false;
+  ignited_ = false;
   // Reset the optimizer state
   {
     std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
     optimization_request_ = false;
   }
-  started_ = false;
-  ignited_ = false;
   setStartTime(rclcpp::Time(0, 1, RCL_ROS_TIME));  // NOTE(CH3): INITIALIZED!
   // DANGER: The optimizationLoop() function obtains the lock optimization_mutex_ lock and the
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme
   //         here to prevent the possibility of deadlocks.
   {
     std::lock_guard<std::mutex> lock(optimization_mutex_);
+    // Tell all the plugins to stop
+    stopPlugins();
     // Clear all pending transactions
     {
       std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
