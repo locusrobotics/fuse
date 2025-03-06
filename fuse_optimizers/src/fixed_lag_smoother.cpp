@@ -214,10 +214,10 @@ void FixedLagSmoother::optimizationLoop()
     {
       std::lock_guard<std::mutex> lock(optimization_mutex_);
       // Make sure stop was not called while we were trying to acquire optimization mutex
-      if (!started_)
-      {
+      if (!started_) {
         RCLCPP_DEBUG_STREAM(
-          logger_, "Optimizer stopped while trying to acquire optimization_mutex_. Skipping optimization.");
+          logger_,
+          "Optimizer stopped while trying to acquire optimization_mutex_. Skipping optimization.");
         continue;
       }
       // Apply motion models
