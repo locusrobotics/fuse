@@ -40,13 +40,11 @@
 #include <fuse_core/fuse_macros.h>
 #include <fuse_core/util.h>
 
-
 namespace fuse_models
 {
-
 /**
  * @brief Create a cost function for a 2D state vector
- * 
+ *
  * The state vector includes the following quantities, given in this order:
  *   x position
  *   y position
@@ -70,7 +68,7 @@ namespace fuse_models
  *             ||    [  yaw_vel_t2 - proj(yaw_vel_t1) ] ||
  *             ||    [    x_acc_t2 - proj(x_acc_t1)   ] ||
  *             ||    [    y_acc_t2 - proj(y_acc_t1)   ] ||
- * 
+ *
  * where, the matrix A is fixed, the state variables are provided at two discrete time steps, and proj is a function
  * that projects the state variables from time t1 to time t2. In case the user is interested in implementing a cost
  * function of the form
@@ -127,9 +125,7 @@ private:
   fuse_core::Matrix8d A_;  //!< The residual weighting matrix, most likely the square root information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) :
-  dt_(dt),
-  A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
 {
 }
 
@@ -147,28 +143,39 @@ bool Unicycle2DStateCostFunctor::operator()(
   const T* const acc_linear2,
   T* residual) const
 {
-  T position_pred[2];
-  T yaw_pred[1];
+  T delta_position_pred[2];
+  T delta_yaw_pred[1];
   T vel_linear_pred[2];
   T vel_yaw_pred[1];
   T acc_linear_pred[2];
+  T init_position[2];
+  T init_yaw[1];
+  init_position[0] = T(0.0);
+  init_position[1] = T(0.0);
+  init_yaw[0] = T(0.0);
   predict(
-    position1,
-    yaw1,
+    init_position,
+    init_yaw,
     vel_linear1,
     vel_yaw1,
     acc_linear1,
     T(dt_),
-    position_pred,
-    yaw_pred,
+    delta_position_pred,
+    delta_yaw_pred,
     vel_linear_pred,
     vel_yaw_pred,
     acc_linear_pred);
 
+  const T delta_yaw_est = yaw2[0] - yaw1[0];
+  const Eigen::Matrix<T, 2, 1> position1_map(position1[0], position1[1]);
+  const Eigen::Matrix<T, 2, 1> position2_map(position2[0], position2[1]);
+  const Eigen::Matrix<T, 2, 1> position_diff = (position2_map - position1_map);
+  const fuse_core::Matrix<T, 2, 2> R_yaw_inv = fuse_core::rotationMatrix2D(-yaw1[0]);
+  const Eigen::Map<Eigen::Matrix<T, 2, 1>> delta_position_pred_map(delta_position_pred);
+
   Eigen::Map<Eigen::Matrix<T, 8, 1>> residuals_map(residual);
-  residuals_map(0) = position2[0] - position_pred[0];
-  residuals_map(1) = position2[1] - position_pred[1];
-  residuals_map(2) = yaw2[0] - yaw_pred[0];
+  residuals_map.template head<2>() = R_yaw_inv * position_diff - delta_position_pred_map;
+  residuals_map(2) = delta_yaw_est - delta_yaw_pred[0];
   residuals_map(3) = vel_linear2[0] - vel_linear_pred[0];
   residuals_map(4) = vel_linear2[1] - vel_linear_pred[1];
   residuals_map(5) = vel_yaw2[0] - vel_yaw_pred[0];

@@ -34,16 +34,16 @@
 #include <fuse_models/unicycle_2d_state_cost_function.h>
 #include <fuse_models/unicycle_2d_state_cost_functor.h>
 
-#include <gtest/gtest.h>
 #include <fuse_core/eigen_gtest.h>
+#include <gtest/gtest.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/gradient_checker.h>
 #include <Eigen/Dense>
 
 #include <limits>
+#include <random>
 #include <vector>
-
 
 TEST(CostFunction, evaluateCostFunction)
 {
@@ -56,85 +56,103 @@ TEST(CostFunction, evaluateCostFunction)
 
   const fuse_models::Unicycle2DStateCostFunction cost_function{ dt, sqrt_information };
 
-  // Evaluate cost function
-  const double position1[] = {0.0, 0.0};
-  const double yaw1[] = {0.0};
-  const double vel_linear1[] = {1.0, 0.0};
-  const double vel_yaw1[] = {1.570796327};
-  const double acc_linear1[] = {1.0, 0.0};
+  const auto seed = 123456789;
+  std::mt19937 gen(seed);
+  std::uniform_real_distribution<> position_dist(0.0, 0.5);
+  std::uniform_real_distribution<> yaw_dist(-M_PI / 10.0, M_PI / 10.0);
 
-  const double position2[] = {0.105, 0.0};
-  const double yaw2[] = {0.1570796327};
-  const double vel_linear2[] = {1.1, 0.0};
-  const double vel_yaw2[] = {1.570796327};
-  const double acc_linear2[] = {1.0, 0.0};
-
-  const double* parameters[] =
+  std::size_t N = 10;
+  for (std::size_t i = 0; i < N; i++)
   {
-    position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
-    position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
-  };
+    // Randomly generate first state
+    double position1[] = { position_dist(gen), position_dist(gen) };
+    double yaw1[] = { yaw_dist(gen) };
+    double vel_linear1[] = { position_dist(gen), position_dist(gen) };
+    double vel_yaw1[] = { yaw_dist(gen) / 10.0 };
+    double acc_linear1[] = { vel_linear1[0] / dt, vel_linear1[1] / dt };
 
-  fuse_core::Vector8d residuals;
+    // Compute second state from first
+    double vel_linear2[2];
+    double position2[2];
+    double yaw2[1];
+    double vel_yaw2[1];
+    double acc_linear2[2];
+    fuse_models::predict(position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, dt, position2, yaw2, vel_linear2,
+                         vel_yaw2, acc_linear2);
 
-  const auto& block_sizes = cost_function.parameter_block_sizes();
-  const auto num_parameter_blocks = block_sizes.size();
+    const double* parameters[] =
+    {
+      position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
+      position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
+    };
 
-  const auto num_residuals = cost_function.num_residuals();
+    fuse_core::Vector8d residuals;
 
-  std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
-  std::vector<double*> jacobians(num_parameter_blocks);
+    const auto& block_sizes = cost_function.parameter_block_sizes();
+    const auto num_parameter_blocks = block_sizes.size();
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i)
-  {
-    J[i].resize(num_residuals, block_sizes[i]);
-    jacobians[i] = J[i].data();
-  }
+    const auto num_residuals = cost_function.num_residuals();
 
-  EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
+    std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
+    std::vector<double*> jacobians(num_parameter_blocks);
 
-  // We cannot use std::numeric_limits<double>::epsilon() tolerance because with the expected state2 above the residuals
-  // are not zero for position2.x = -4.389e-16 and yaw2 = -2.776e-16
-  EXPECT_MATRIX_NEAR(fuse_core::Vector8d::Zero(), residuals, 1e-15);
+    for (size_t i = 0; i < num_parameter_blocks; ++i)
+    {
+      J[i].resize(num_residuals, block_sizes[i]);
+      jacobians[i] = J[i].data();
+    }
 
-  // Check jacobians are correct using a gradient checker
-  ceres::NumericDiffOptions numeric_diff_options;
-  ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
+    EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
 
-  // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
-  ceres::GradientChecker::ProbeResults probe_results;
-  // TODO(efernandez) probe_results segfaults when it's destroyed at the end of this TEST function, but Probe actually
-  // returns true and the jacobians are correct according to the gradient checker numeric differentiation
-  // EXPECT_TRUE(gradient_checker.Probe(parameters, 1e-9, &probe_results)) << probe_results.error_log;
+    // We cannot use std::numeric_limits<double>::epsilon() tolerance because with the expected state2 above the
+    // residuals are not zero for position2.x = -4.389e-16 and yaw2 = -2.776e-16
+    EXPECT_MATRIX_NEAR(fuse_core::Vector8d::Zero(), residuals, 1e-13);
 
-  // Create cost function using automatic differentiation on the cost functor
-  ceres::AutoDiffCostFunction<fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>
-      cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
+    // Check jacobians are correct using a gradient checker
+    ceres::NumericDiffOptions numeric_diff_options;
+#if !CERES_SUPPORTS_MANIFOLDS
+    ceres::GradientChecker gradient_checker(
+        &cost_function, static_cast<std::vector<const ceres::LocalParameterization*>*>(nullptr), numeric_diff_options);
+#else
+    ceres::GradientChecker gradient_checker(&cost_function, static_cast<std::vector<const ceres::Manifold*>*>(nullptr),
+                                            numeric_diff_options);
+#endif
 
-  // Evaluate cost function that uses automatic differentiation
-  std::vector<fuse_core::MatrixXd> J_autodiff(num_parameter_blocks);
-  std::vector<double*> jacobians_autodiff(num_parameter_blocks);
+    // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
+    ceres::GradientChecker::ProbeResults probe_results;
+    // TODO(efernandez) probe_results segfaults when it's destroyed at the end of this TEST function, but Probe actually
+    // returns true and the jacobians are correct according to the gradient checker numeric differentiation
+    // EXPECT_TRUE(gradient_checker.Probe(parameters, 1e-9, &probe_results)) << probe_results.error_log;
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i)
-  {
-    J_autodiff[i].resize(num_residuals, block_sizes[i]);
-    jacobians_autodiff[i] = J_autodiff[i].data();
-  }
+    // Create cost function using automatic differentiation on the cost functor
+    ceres::AutoDiffCostFunction<fuse_models::Unicycle2DStateCostFunctor, 8, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2>
+        cost_function_autodiff(new fuse_models::Unicycle2DStateCostFunctor(dt, sqrt_information));
 
-  EXPECT_TRUE(cost_function_autodiff.Evaluate(parameters, residuals.data(), jacobians_autodiff.data()));
+    // Evaluate cost function that uses automatic differentiation
+    std::vector<fuse_core::MatrixXd> J_autodiff(num_parameter_blocks);
+    std::vector<double*> jacobians_autodiff(num_parameter_blocks);
 
-  const Eigen::IOFormat HeavyFmt(
-      Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+    for (size_t i = 0; i < num_parameter_blocks; ++i)
+    {
+      J_autodiff[i].resize(num_residuals, block_sizes[i]);
+      jacobians_autodiff[i] = J_autodiff[i].data();
+    }
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i)
-  {
-    EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], std::numeric_limits<double>::epsilon())
-      << "Autodiff Jacobian[" << i << "] =\n" << J_autodiff[i].format(HeavyFmt)
-      << "\nAnalytic Jacobian[" << i << "] =\n" << J[i].format(HeavyFmt);
+    EXPECT_TRUE(cost_function_autodiff.Evaluate(parameters, residuals.data(), jacobians_autodiff.data()));
+
+    const Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+
+    for (size_t i = 0; i < num_parameter_blocks; ++i)
+    {
+      EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-13)
+          << "Autodiff Jacobian[" << i << "] =\n"
+          << J_autodiff[i].format(HeavyFmt) << "\nAnalytic Jacobian[" << i << "] =\n"
+          << J[i].format(HeavyFmt);
+    }
   }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
