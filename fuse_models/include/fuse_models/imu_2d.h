@@ -146,7 +146,7 @@ protected:
 
   tf2_ros::Buffer tf_buffer_;
 
-  tf2_ros::TransformListener tf_listener_;
+  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
   ros::Subscriber subscriber_;
 

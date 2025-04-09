@@ -41,6 +41,8 @@
 #include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 
+#include <memory>
+
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::Acceleration2D, fuse_core::SensorModel)
@@ -51,7 +53,6 @@ namespace fuse_models
 Acceleration2D::Acceleration2D() :
   fuse_core::AsyncSensorModel(1),
   device_id_(fuse_core::uuid::NIL),
-  tf_listener_(tf_buffer_),
   throttled_callback_(std::bind(&Acceleration2D::process, this, std::placeholders::_1))
 {
 }
@@ -70,6 +71,11 @@ void Acceleration2D::onInit()
   {
     ROS_WARN_STREAM("No dimensions were specified. Data from topic " << ros::names::resolve(params_.topic) <<
                     " will be ignored.");
+  }
+
+  if (!params_.target_frame.empty())
+  {
+    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(tf_buffer_);
   }
 }
 
