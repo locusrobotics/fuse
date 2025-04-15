@@ -289,7 +289,7 @@ void Imu2D::processDifferential(
         device_id_,
         *previous_pose_,
         *transformed_pose,
-        twist,
+        transformed_twist,
         params_.minimum_pose_relative_covariance,
         params_.twist_covariance_offset,
         params_.pose_loss,
