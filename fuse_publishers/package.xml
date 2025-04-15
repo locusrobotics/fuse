@@ -15,6 +15,9 @@
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
+
   <build_depend>fuse_core</build_depend>
   <build_depend>fuse_msgs</build_depend>
   <build_depend>fuse_variables</build_depend>

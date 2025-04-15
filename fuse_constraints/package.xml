@@ -19,6 +19,9 @@
   <depend>eigen</depend>
   <depend>libceres-dev</depend>
   <depend>suitesparse</depend>
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
+
 
   <build_depend>fuse_core</build_depend>
   <build_depend>fuse_graphs</build_depend>

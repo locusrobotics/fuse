@@ -18,6 +18,9 @@ find_package(rclcpp REQUIRED)
 
 find_package(Ceres REQUIRED)
 
+find_package(gtest_vendor)
+find_package(ament_cmake_ros)
+
 include(boost-extras.cmake)
 
 ###########

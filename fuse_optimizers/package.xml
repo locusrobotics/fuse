@@ -21,6 +21,8 @@
   <depend>boost</depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
 
   <build_depend>diagnostic_updater</build_depend>
   <build_depend>fuse_constraints</build_depend>

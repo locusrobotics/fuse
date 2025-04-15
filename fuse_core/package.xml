@@ -18,6 +18,8 @@
   <depend>eigen</depend>
   <depend>libceres-dev</depend>
   <depend>libgoogle-glog-dev</depend>
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
 
   <build_depend>fuse_msgs</build_depend>
   <build_depend>pluginlib</build_depend>

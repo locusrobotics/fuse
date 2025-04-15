@@ -15,6 +15,10 @@
   <author email="swilliams@locusrobotics.com">Stephen Williams</author>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
+
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
+
   <build_depend>fuse_constraints</build_depend>
   <build_depend>fuse_core</build_depend>
   <build_depend>fuse_models</build_depend>

@@ -13,6 +13,9 @@
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
+
   <build_depend>libceres-dev</build_depend>
   <build_depend>fuse_core</build_depend>
   <build_depend>pluginlib</build_depend>

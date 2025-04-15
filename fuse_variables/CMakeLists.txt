@@ -17,6 +17,9 @@ find_package(pluginlib REQUIRED)
 
 find_package(Ceres REQUIRED)
 
+find_package(gtest_vendor)
+find_package(ament_cmake_ros)
+
 ###########
 ## Build ##
 ###########
