@@ -25,6 +25,9 @@ find_package(Eigen3 REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
+find_package(gtest_vendor)
+find_package(ament_cmake_ros)
+
 ###########
 ## Build ##
 ###########

@@ -13,6 +13,9 @@
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
     <rosdoc2>rosdoc2.yaml</rosdoc2>

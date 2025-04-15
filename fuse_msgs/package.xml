@@ -14,6 +14,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <depend>ament_cmake_ros</depend>
+  <depend>gtest_vendor</depend>
 
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
