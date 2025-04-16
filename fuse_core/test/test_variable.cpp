@@ -193,7 +193,7 @@ TEST(LegacyVariable, Deserialization)
   EXPECT_EQ(expected.data()[3], actual.data()[3]);
 
   // Test the manifold interface, and that the Legacy LocalParameterization is wrapped in a ManifoldAdapter
-  fuse_core::Manifold* actual_manifold;
+  fuse_core::Manifold* actual_manifold = nullptr;
   ASSERT_NO_THROW(actual_manifold = actual.manifold());
   ASSERT_NE(actual_manifold, nullptr);
   auto actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter*>(actual_manifold);
