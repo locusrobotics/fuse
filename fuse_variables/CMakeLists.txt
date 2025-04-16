@@ -68,7 +68,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -125,7 +125,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_acceleration_angular_2d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -149,7 +149,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_acceleration_angular_3d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -173,7 +173,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_acceleration_linear_2d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -197,7 +197,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_acceleration_linear_3d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -221,7 +221,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_pinhole_camera
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -245,7 +245,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_pinhole_camera_fixed
   PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED YES
   )
 
@@ -268,7 +268,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_fixed_size_variable
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -292,7 +292,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_load_device_id
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -316,7 +316,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_orientation_2d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -340,7 +340,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_orientation_3d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -364,7 +364,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_point_2d_fixed_landmark
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -388,7 +388,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_point_2d_landmark
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -412,7 +412,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_point_3d_fixed_landmark
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -436,7 +436,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_point_3d_landmark
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -460,7 +460,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_position_2d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -484,7 +484,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_position_3d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -508,7 +508,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_velocity_angular_2d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -532,7 +532,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_velocity_angular_3d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -556,7 +556,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_velocity_linear_2d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 
@@ -580,7 +580,7 @@ if(CATKIN_ENABLE_TESTING)
   )
   set_target_properties(test_velocity_linear_3d_stamped
     PROPERTIES
-      CXX_STANDARD 17
+      CXX_STANDARD 20
       CXX_STANDARD_REQUIRED YES
   )
 endif()
