@@ -91,13 +91,15 @@ void Pose2D::onInit()
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
-  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
-    *tf_buffer_,
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_logging_interface(),
-    interfaces_.get_node_parameters_interface(),
-    interfaces_.get_node_topics_interface()
-  );
+  if (!params_.target_frame.empty()) {
+    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
+      *tf_buffer_,
+      interfaces_.get_node_base_interface(),
+      interfaces_.get_node_logging_interface(),
+      interfaces_.get_node_parameters_interface(),
+      interfaces_.get_node_topics_interface()
+    );
+  }
 }
 
 void Pose2D::onStart()
