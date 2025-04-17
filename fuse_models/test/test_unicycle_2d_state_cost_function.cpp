@@ -36,6 +36,7 @@
 
 #include <gtest/gtest.h>
 #include <fuse_core/eigen_gtest.h>
+#include <fuse_core/ceres_macros.h>
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/gradient_checker.h>
@@ -99,7 +100,15 @@ TEST(CostFunction, evaluateCostFunction)
 
   // Check jacobians are correct using a gradient checker
   ceres::NumericDiffOptions numeric_diff_options;
+#if !CERES_SUPPORTS_MANIFOLDS
   ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
+#else
+  // ceres::GradientChecker is overloaded for ceres::LocalParameterization and ceres::Manifold before
+  // ceres::LocalParameterization support is deprecated. For that reason we cannot use nullptr. Otherwise the compiler
+  // cannot figure out which overloaded implementation to use
+  std::vector<const ceres::Manifold*>* manifolds = nullptr;
+  ceres::GradientChecker gradient_checker(&cost_function, manifolds, numeric_diff_options);
+#endif
 
   // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error is 5.26356e-10
   ceres::GradientChecker::ProbeResults probe_results;

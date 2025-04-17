@@ -100,6 +100,11 @@ target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
   ${QT_LIBRARIES}
 )
+# CXX_STANDARD 20 fails if rviz uses OGRE 1.10.11
+# ogre-1.10.11/include/OGRE/OgreMemorySTLAllocator.h:126:44:i
+# error: ‘const_pointer’ in ‘class std::allocator<void>’ does not name a type
+#   126 |             typename std::allocator<void>::const_pointer ptr = 0 )
+#       |                                            ^~~~~~~~~~~~~
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
     CXX_STANDARD 17
