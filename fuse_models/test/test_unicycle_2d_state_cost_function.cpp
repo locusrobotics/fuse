@@ -97,7 +97,17 @@ TEST(CostFunction, evaluateCostFunction)
 
   // Check jacobians are correct using a gradient checker
   ceres::NumericDiffOptions numeric_diff_options;
-  ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);
+#if !CERES_SUPPORTS_MANIFOLDS
+  ceres::GradientChecker gradient_checker(
+    &cost_function,
+    static_cast<std::vector<const ceres::LocalParameterization *> *>(nullptr),
+    numeric_diff_options);
+#else
+  ceres::GradientChecker gradient_checker(
+    &cost_function,
+    static_cast<std::vector<const ceres::Manifold *> *>(nullptr),
+    numeric_diff_options);
+#endif
 
   // We cannot use std::numeric_limits<double>::epsilon() tolerance because the worst relative error
   // is 5.26356e-10
