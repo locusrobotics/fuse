@@ -166,11 +166,11 @@ private:
 
 #if CERES_SUPPORTS_MANIFOLDS
 /**
- * @brief A Manifold class for 2D Orientations.
+ * @brief A Manifold class for 3D Orientations.
  *
- * 2D orientations add and subtract in the "usual" way, except for the 2*pi rollover issue. This local parameterization
- * handles the rollover. Because the Jacobians for this parameterization are always identity, we implement this
- * parameterization with "analytic" derivatives, instead of using the Ceres's autodiff system.
+ * 3D orientations add and subtract nonlinearly. Additionally, the typcial 3D orientation representation is a
+ * quaternion, which has 4 degrees of freedom to parameterize a 3D space. This manifold uses the
+ * Rodrigues/angle-axis formulas to combine 3D rotations, along with the appropriate "analytic" derivatives.
  */
 class Orientation3DManifold : public fuse_core::Manifold
 {
