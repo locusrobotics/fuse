@@ -59,10 +59,22 @@ public:
   {
   }
 
+  explicit ExampleVariable(const rclcpp::Time & stamp)
+  : fuse_core::Variable(fuse_core::uuid::generate("ExampleVariable", stamp)),
+    data_(0.0)
+  {
+  }
+
   size_t size() const override {return 1;}
   const double * data() const override {return &data_;}
   double * data() override {return &data_;}
-  void print(std::ostream & /*stream = std::cout*/) const override {}
+  void print(std::ostream & stream = std::cout) const override
+  {
+    stream << type() << ":\n"
+           << "  uuid: " << uuid() << "\n"
+           << "  data:\n"
+           << "  - [0]: " << data()[0] << "\n";
+  }
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**

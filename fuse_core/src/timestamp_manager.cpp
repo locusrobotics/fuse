@@ -87,6 +87,38 @@ void TimestampManager::query(
     if (end != motion_model_history_.end()) {
       augmented_stamps.insert(end->first);
     }
+    // If requested, add the motion model version of the variables involved in the input
+    // transaction. This ensures that the variables in the final transaction will be
+    // overwritten with the motion model version.
+    // Issue #300: Moved the variable update step outside the pair handling loop to
+    // ensure that transactions involving only a single stamp will still have their
+    // initial conditions updated.
+    if (update_variables) {
+      // The motion model segments are indexed by the first timestamp of the segment.
+      // The very last entry in the motion model history is always an empty record
+      // assigned to the final timestamp of the final pair. If the first input timestamp
+      // references the very last entry, then \p begin will point at this last, empty
+      // entry in the motion model history. Check for that case, and back up one position
+      // if needed.
+      if (begin != motion_model_history_.begin()) {
+        --begin;
+      }
+      auto transaction_variables = transaction.addedVariables();
+      for (auto iter = begin; iter != end; ++iter) {
+        for (const auto & variable : iter->second.variables) {
+          if (std::any_of(
+              transaction_variables.begin(),
+              transaction_variables.end(),
+              [variable_uuid = variable->uuid()](const auto & input_variable)
+              {
+                return input_variable.uuid() == variable_uuid;
+              }))
+          {
+            motion_model_transaction.addVariable(variable, update_variables);
+          }
+        }
+      }
+    }
   }
   // Convert the sequence of stamps into stamp pairs that must be generated
   std::vector<std::pair<rclcpp::Time, rclcpp::Time>> stamp_pairs;
@@ -104,24 +136,6 @@ void TimestampManager::query(
         (history_iter->second.beginning_stamp == previous_stamp) &&
         (history_iter->second.ending_stamp == current_stamp))
       {
-        if (update_variables) {
-          // Add the motion model version of the variables involved in this motion model segment
-          // This ensures that the variables in the final transaction will be overwritten with the
-          // motion model version
-          auto transaction_variables = transaction.addedVariables();
-          for (const auto & variable : history_iter->second.variables) {
-            if (std::any_of(
-                transaction_variables.begin(),
-                transaction_variables.end(),
-                [variable_uuid = variable->uuid()](const auto & input_variable)
-                {
-                  return input_variable.uuid() == variable_uuid;
-                }))    // NOLINT
-            {
-              motion_model_transaction.addVariable(variable, update_variables);
-            }
-          }
-        }
         continue;
       }
       // Check if this stamp is in the middle of an existing entry. If so, delete it.
