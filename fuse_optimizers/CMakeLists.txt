@@ -44,6 +44,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
 )
 target_link_libraries(${PROJECT_NAME}
+  diagnostic_updater::diagnostic_updater
   fuse_constraints::fuse_constraints
   fuse_core::fuse_core
   fuse_graphs::fuse_graphs
@@ -52,7 +53,6 @@ target_link_libraries(${PROJECT_NAME}
   pluginlib::pluginlib
   ${std_srvs_TARGETS}
 )
-ament_target_dependencies(${PROJECT_NAME} diagnostic_updater)
 
 ## batch_optimizer node
 add_executable(batch_optimizer_node src/batch_optimizer_node.cpp)

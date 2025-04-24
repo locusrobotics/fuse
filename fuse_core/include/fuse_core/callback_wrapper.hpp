@@ -39,6 +39,7 @@
 #include <functional>
 #include <future>
 #include <memory>
+#include <vector>
 
 #include <rclcpp/rclcpp.hpp>
 
