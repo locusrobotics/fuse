@@ -1,0 +1,9 @@
+repositories:
+  locusrobotics/tf2_2d:
+    type: git
+    url: https://github.com/locusrobotics/tf2_2d.git
+    version: rolling
+  covariance_geometry_ros:
+    type: git
+    url: https://github.com/giafranchini/covariance_geometry_ros.git
+    version: iron
