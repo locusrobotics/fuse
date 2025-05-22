@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Eigen/Dense>
-#include <tf2/convert.h>
-#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/convert.hpp>
+#include <tf2/LinearMath/Quaternion.hpp>
 
 #include <exception>
 #include <stdexcept>

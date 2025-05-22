@@ -35,7 +35,7 @@
 #ifndef FUSE_VIZ__POSE_2D_STAMPED_VISUAL_HPP_
 #define FUSE_VIZ__POSE_2D_STAMPED_VISUAL_HPP_
 
-#include <tf2/LinearMath/Transform.h>
+#include <tf2/LinearMath/Transform.hpp>
 #include <Ogre.h>
 
 #include <memory>

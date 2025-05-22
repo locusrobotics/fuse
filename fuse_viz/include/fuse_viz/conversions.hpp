@@ -35,9 +35,9 @@
 #ifndef FUSE_VIZ__CONVERSIONS_HPP_
 #define FUSE_VIZ__CONVERSIONS_HPP_
 
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Transform.h>
-#include <tf2/LinearMath/Vector3.h>
+#include <tf2/LinearMath/Quaternion.hpp>
+#include <tf2/LinearMath/Transform.hpp>
+#include <tf2/LinearMath/Vector3.hpp>
 
 #include <OgreColourValue.h>
 #include <OgreQuaternion.h>

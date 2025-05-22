@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <Eigen/Dense>
-#include <tf2/utils.h>
+#include <tf2/utils.hpp>
 
 #include <stdexcept>
 #include <string>
