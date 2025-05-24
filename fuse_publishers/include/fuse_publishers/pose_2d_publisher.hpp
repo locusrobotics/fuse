@@ -34,7 +34,6 @@
 #ifndef FUSE_PUBLISHERS__POSE_2D_PUBLISHER_HPP_
 #define FUSE_PUBLISHERS__POSE_2D_PUBLISHER_HPP_
 
-#include <tf2/utils.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
@@ -42,24 +41,21 @@
 #include <memory>
 #include <string>
 
-#include <fuse_publishers/stamped_variable_synchronizer.hpp>
-
 #include <fuse_core/async_publisher.hpp>
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
+#include <fuse_publishers/stamped_variable_synchronizer.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
-
-#include <pluginlib/class_list_macros.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-
+#include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <tf2/utils.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 
 namespace fuse_publishers
