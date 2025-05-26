@@ -64,7 +64,7 @@ fuse_core::UUID loadDeviceId(
     device_id = fuse_core::uuid::NIL;
     ROS_WARN_STREAM_COND(
       !silent,
-      "No " + uuid_parameter + " or " + name_parameter + " parameter was provided on the parameter server.");
+      "No " << uuid_parameter << " or " << name_parameter << " parameter was provided on the parameter server.");
   }
   return device_id;
 }
