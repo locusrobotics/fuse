@@ -37,25 +37,35 @@
 #include <fuse_core/parameter.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_variables/stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace fuse_variables
 {
 
 fuse_core::UUID loadDeviceId(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces)
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
+  const std::string & uuid_parameter,
+  const std::string & name_parameter,
+  bool silent)
 {
   std::string device_str;
 
-  device_str = fuse_core::getParam(interfaces, "device_id", std::string());
+  device_str = fuse_core::getParam(interfaces, uuid_parameter, std::string());
   if (!device_str.empty()) {
     return fuse_core::uuid::from_string(device_str);
   }
 
-  device_str = fuse_core::getParam(interfaces, "device_name", std::string());
+  device_str = fuse_core::getParam(interfaces, name_parameter, std::string());
   if (!device_str.empty()) {
     return fuse_core::uuid::generate(device_str);
   }
 
+  if (!silent) {
+    RCLCPP_WARN_STREAM(
+      rclcpp::get_logger("fuse"),
+      "No " << uuid_parameter << " or " << name_parameter <<
+        " parameter was provided on the parameter server.");
+  }
   return fuse_core::uuid::NIL;
 }
 

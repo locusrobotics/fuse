@@ -34,13 +34,14 @@
 #ifndef FUSE_VARIABLES__STAMPED_HPP_
 #define FUSE_VARIABLES__STAMPED_HPP_
 
+#include <string>
+
+#include <boost/serialization/access.hpp>
+
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/serialization.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
-
-#include <boost/serialization/access.hpp>
-
 #include <rclcpp/time.hpp>
 
 namespace fuse_variables
@@ -131,10 +132,16 @@ private:
  * Will throw if the device_id parameter is not in an expected format.
  *
  * @param[in] interfaces  The node interfaces used to load parameters
- * @return                A device UUID
+ * @param[in] uuid_parameter The parameter name that holds the device uuid to be loaded
+ * @param[in] name_parameter The parameter name that holds the device name. The uuid will be generated from the name.
+ * @param[in] silent If true, no ROS log warnings are generated
+ * @return A device UUID
  */
 fuse_core::UUID loadDeviceId(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces);
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
+  const std::string & uuid_parameter = "device_id",
+  const std::string & name_parameter = "device_name",
+  bool silent = true);
 
 }  // namespace fuse_variables
 
