@@ -34,6 +34,7 @@
 #include <fuse_variables/stamped.h>
 
 #include <fuse_core/uuid.h>
+#include <ros/console.h>
 #include <ros/node_handle.h>
 
 #include <string>
@@ -42,21 +43,28 @@
 namespace fuse_variables
 {
 
-fuse_core::UUID loadDeviceId(const ros::NodeHandle& node_handle)
+fuse_core::UUID loadDeviceId(
+  const ros::NodeHandle& node_handle,
+  const std::string& uuid_parameter,
+  const std::string& name_parameter,
+  bool silent)
 {
   fuse_core::UUID device_id;
   std::string device_str;
-  if (node_handle.getParam("device_id", device_str))
+  if (node_handle.getParam(uuid_parameter, device_str))
   {
     device_id = fuse_core::uuid::from_string(device_str);
   }
-  else if (node_handle.getParam("device_name", device_str))
+  else if (node_handle.getParam(name_parameter, device_str))
   {
     device_id = fuse_core::uuid::generate(device_str);
   }
   else
   {
     device_id = fuse_core::uuid::NIL;
+    ROS_WARN_STREAM_COND(
+      !silent,
+      "No " + uuid_parameter + " or " + name_parameter + " parameter was provided on the parameter server.");
   }
   return device_id;
 }
