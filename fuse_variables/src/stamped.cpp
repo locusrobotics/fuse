@@ -43,7 +43,10 @@ namespace fuse_variables
 {
 
 fuse_core::UUID loadDeviceId(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
+  fuse_core::node_interfaces::NodeInterfaces<
+    fuse_core::node_interfaces::Parameters,
+    fuse_core::node_interfaces::Logging
+  > interfaces,
   const std::string & uuid_parameter,
   const std::string & name_parameter,
   bool silent)
@@ -62,7 +65,7 @@ fuse_core::UUID loadDeviceId(
 
   if (!silent) {
     RCLCPP_WARN_STREAM(
-      rclcpp::get_logger("fuse"),
+      interfaces.get_node_logging_interface()->get_logger(),
       "No " << uuid_parameter << " or " << name_parameter <<
         " parameter was provided on the parameter server.");
   }
