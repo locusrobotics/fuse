@@ -680,26 +680,17 @@ diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres:
                                                                     const std::vector<std::string>& diag_errors)
 {
   std::string diag_level = mapCeresLogToDiagLog(termination_type);
-  switch (termination_type)
+  if (contains(diag_errors, diag_level))
   {
-    case ceres::TerminationType::CONVERGENCE:
-    case ceres::TerminationType::USER_SUCCESS:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
-    case ceres::TerminationType::NO_CONVERGENCE:
-      if (contains(diag_warnings, diag_level))
-      {
-        return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
-      }
-      else if (contains(diag_errors, diag_level))
-      {
-        return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
-      }
-      else
-      {
-        return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
-      }
-    default:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+    return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+  }
+  else if (contains(diag_warnings, diag_level))
+  {
+    return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
+  }
+  else
+  {
+    return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
   }
 }
 
