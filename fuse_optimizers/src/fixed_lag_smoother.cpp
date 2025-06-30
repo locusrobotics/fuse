@@ -692,7 +692,7 @@ diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres:
       }
       else if (contains(diag_errors, diag_level))
       {
-        makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+        return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
       }
       else
       {
