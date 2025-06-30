@@ -56,6 +56,16 @@ struct FixedLagSmootherParams
 {
 public:
   /**
+   * @brief Map the ceres::optimizer log levels to diagnostic levels
+   */
+  std::vector<std::string> diagnostic_warning_status { "NO_CONVERGENCE" };
+
+  /**
+   * @brief Map the ceres::optimizer log levels to diagnostic levels
+   */
+  std::vector<std::string> diagnostic_error_status {"FAILURE", "USER_FAILURE"};
+
+  /**
    * @brief If true, the state estimator will not start until the start or reset service is called
    */
   bool disabled_at_startup { false };
@@ -115,6 +125,10 @@ public:
   void loadFromROS(const ros::NodeHandle& nh)
   {
     // Read settings from the parameter server
+    nh.param("diagnostic_warning_status", diagnostic_warning_status, diagnostic_warning_status);
+
+    nh.param("diagnostic_error_status", diagnostic_error_status, diagnostic_error_status);
+
     nh.getParam("disabled_at_startup", disabled_at_startup);
 
     fuse_core::getPositiveParam(nh, "lag_duration", lag_duration);

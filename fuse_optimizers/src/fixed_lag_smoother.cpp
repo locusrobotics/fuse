@@ -624,6 +624,44 @@ diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const
 }
 
 /**
+ * @brief Helper function to map termination type to string
+ *
+ * @param[in] termination_type The termination type
+ * @return the string format of the termination type
+ */
+std::string mapCeresLogToDiagLog(const ceres::TerminationType & termination_type)
+{
+  switch (termination_type)
+  {
+    case ceres::TerminationType::CONVERGENCE:
+      return "CONVERGENCE";
+    case ceres::TerminationType::USER_SUCCESS:
+      return "USER_SUCCESS";
+    case ceres::TerminationType::NO_CONVERGENCE:
+      return "NO_CONVERGENCE";
+    case ceres::TerminationType::FAILURE:
+      return "FAILURE";
+    case ceres::TerminationType::USER_FAILURE:
+      return "USER_FAILURE";
+    default:
+      return "FAILURE";
+  }
+}
+
+/**
+ * @brief Helper function to check if a string is contained in the list
+ *
+ * @param[in] vec The list of strings
+ * @param[in] str The str to search
+ * @param[in] diag_errors The diagnostic errors
+ * @return true if contains, false otherwise
+ */
+inline bool contains(const std::vector<std::string>& vec, const std::string& str)
+{
+  return std::find(vec.begin(), vec.end(), str) != vec.end();
+}
+
+/**
  * @brief Helper function to generate the diagnostic status for each optimization termination type
  *
  * The termination type -> diagnostic status mapping is as follows:
@@ -633,17 +671,33 @@ diagnostic_msgs::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const
  * - FAILURE, USER_FAILURE     -> ERROR (default)
  *
  * @param[in] termination_type The optimization termination type
+ * @param[in] diag_warnings The diagnostic warnings
+ * @param[in] diag_errors The diagnostic errors
  * @return The diagnostic status with the level and message corresponding to the optimization termination type
  */
-diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type)
+diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type,
+                                                                    const std::vector<std::string>& diag_warnings,
+                                                                    const std::vector<std::string>& diag_errors)
 {
+  std::string diag_level = mapCeresLogToDiagLog(termination_type);
   switch (termination_type)
   {
     case ceres::TerminationType::CONVERGENCE:
     case ceres::TerminationType::USER_SUCCESS:
       return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
     case ceres::TerminationType::NO_CONVERGENCE:
-      return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
+      if (contains(diag_warnings, diag_level))
+      {
+        return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::WARN, "Optimization didn't converge");
+      }
+      else if (contains(diag_errors, diag_level))
+      {
+        makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
+      }
+      else
+      {
+        return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::OK, "Optimization converged");
+      }
     default:
       return makeDiagnosticStatus(diagnostic_msgs::DiagnosticStatus::ERROR, "Optimization failed");
   }
@@ -686,7 +740,8 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
       status.add("Initial Cost", summary.initial_cost);
       status.add("Final Cost", summary.final_cost);
 
-      status.mergeSummary(terminationTypeToDiagnosticStatus(summary.termination_type));
+      status.mergeSummary(terminationTypeToDiagnosticStatus(summary.termination_type, params_.diagnostic_warning_status,
+                                                            params_.diagnostic_error_status));
     }
 
     // Add time since the last optimization request time. This is useful to detect if no transactions are received for
