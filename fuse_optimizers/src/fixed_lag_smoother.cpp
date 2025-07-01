@@ -653,7 +653,6 @@ std::string mapCeresLogToDiagLog(const ceres::TerminationType & termination_type
  *
  * @param[in] vec The list of strings
  * @param[in] str The str to search
- * @param[in] diag_errors The diagnostic errors
  * @return true if contains, false otherwise
  */
 inline bool contains(const std::vector<std::string>& vec, const std::string& str)
