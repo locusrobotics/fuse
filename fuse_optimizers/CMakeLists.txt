@@ -199,6 +199,34 @@ if(CATKIN_ENABLE_TESTING)
 
   add_rostest(test/optimizer.test ARGS config:=list DEPENDENCIES test_optimizer)
 
+  # Fixed lag smoother Tests
+  add_rostest_gtest(test_fixed_lag_smoother
+    test/fixed_lag_smoother.test
+    test/test_fixed_lag_smoother.cpp
+  )
+  add_dependencies(test_fixed_lag_smoother
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_fixed_lag_smoother
+    PRIVATE
+      include
+  )
+  target_include_directories(test_fixed_lag_smoother
+    SYSTEM PRIVATE
+      ${catkin_INCLUDE_DIRS}
+      ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+  target_link_libraries(test_fixed_lag_smoother
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+  )
+  set_target_properties(test_fixed_lag_smoother
+    PROPERTIES
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  add_rostest(test/fixed_lag_smoother.test ARGS config:=list DEPENDENCIES test_fixed_lag_smoother)
   # Fixed-lag Ignition test
   add_rostest_gtest(test_fixed_lag_ignition
     test/fixed_lag_ignition.test
