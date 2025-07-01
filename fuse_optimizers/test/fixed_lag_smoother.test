@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="config" default="struct" doc="Config format: {list, struct}"/>
+
+  <test test-name="FixedLagSmoother" pkg="fuse_optimizers" type="test_fixed_lag_smoother">
+  </test>
+</launch>

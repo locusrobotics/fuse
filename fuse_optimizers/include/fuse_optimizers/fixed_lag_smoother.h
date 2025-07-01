@@ -334,6 +334,23 @@ protected:
     const std::string& sensor_name,
     fuse_core::Transaction::SharedPtr transaction) override;
 
+/**
+ * @brief Helper function to generate the diagnostic status for each optimization termination type
+ *
+ * The termination type -> diagnostic status mapping is as follows:
+ *
+ * - CONVERGENCE, USER_SUCCESS -> OK
+ * - NO_CONVERGENCE            -> WARN
+ * - FAILURE, USER_FAILURE     -> ERROR (default)
+ *
+ * @param[in] termination_type The optimization termination type
+ * @param[in] diag_warnings The diagnostic warnings
+ * @param[in] diag_errors The diagnostic errors
+ * @return The diagnostic status with the level and message corresponding to the optimization termination type
+ */
+  diagnostic_msgs::DiagnosticStatus terminationTypeToDiagnosticStatus(const ceres::TerminationType termination_type,
+                                                                      const std::vector<std::string>& diag_warnings,
+                                                                      const std::vector<std::string>& diag_errors);
   /**
    * @brief Update and publish diagnotics
    * @param[in] status The diagnostic status
