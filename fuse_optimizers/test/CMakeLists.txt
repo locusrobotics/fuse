@@ -26,6 +26,16 @@ ament_add_pytest_test(
   "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+ament_add_gtest_executable(test_fixed_lag_smoother launch_tests/test_fixed_lag_smoother.cpp)
+target_link_libraries(test_fixed_lag_smoother ${PROJECT_NAME} ${nav_msgs_TARGETS})
+
+ament_add_pytest_test(
+  test_fixed_lag_smoother_py
+  "launch_tests/test_fixed_lag_smoother.py"
+  WORKING_DIRECTORY
+  "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
 configure_file(
   "launch_tests/config/optimizer_params.yaml"
   "launch_tests/config/optimizer_params.yaml" COPYONLY)
