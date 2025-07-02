@@ -56,6 +56,16 @@ struct FixedLagSmootherParams
 {
 public:
   /**
+   * @brief Map the ceres::optimizer log levels to diagnostic levels
+   */
+  std::vector<std::string> diagnostic_warning_status { "NO_CONVERGENCE" };
+
+  /**
+   * @brief Map the ceres::optimizer log levels to diagnostic levels
+   */
+  std::vector<std::string> diagnostic_error_status {"FAILURE", "USER_FAILURE"};
+
+  /**
    * @brief The duration of the smoothing window in seconds
    */
   rclcpp::Duration lag_duration {5, 0};
@@ -103,6 +113,8 @@ public:
     > interfaces)
   {
     // Read settings from the parameter server
+    fuse_core::getParam(interfaces, "diagnostic_error_status", diagnostic_error_status);
+    fuse_core::getParam(interfaces, "diagnostic_warning_status", diagnostic_warning_status);
     fuse_core::getPositiveParam(interfaces, "lag_duration", lag_duration);
 
     double optimization_frequency{-1.0};
