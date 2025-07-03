@@ -31,7 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_publishers/stamped_variable_synchronizer.h>
+#include <fuse_variables/stamped_variable_synchronizer.h>
 
 #include <fuse_core/uuid.h>
 #include <fuse_graphs/hash_graph.h>
@@ -42,7 +42,7 @@
 
 
 using fuse_core::uuid::generate;
-using fuse_publishers::StampedVariableSynchronizer;
+using fuse_variables::StampedVariableSynchronizer;
 using fuse_variables::Orientation2DStamped;
 using fuse_variables::Position2DStamped;
 

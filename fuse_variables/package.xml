@@ -17,6 +17,7 @@
   <depend>fuse_core</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <test_depend>fuse_graphs</test_depend>
   <test_depend>roslint</test_depend>
   <test_depend>rostest</test_depend>
 

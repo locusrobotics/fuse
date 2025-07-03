@@ -97,6 +97,13 @@ install(
 #############
 
 if(CATKIN_ENABLE_TESTING)
+  set(test_depends
+    fuse_graphs
+  )
+  find_package(catkin REQUIRED COMPONENTS
+    ${build_depends}
+    ${test_depends}
+  )
   find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
 
@@ -579,6 +586,30 @@ if(CATKIN_ENABLE_TESTING)
     ${CERES_LIBRARIES}
   )
   set_target_properties(test_velocity_linear_3d_stamped
+    PROPERTIES
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # StampedVariableSynchronizer Tests
+  catkin_add_gtest(test_stamped_variable_synchronizer
+    test/test_stamped_variable_synchronizer.cpp
+  )
+  add_dependencies(test_stamped_variable_synchronizer
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_include_directories(test_stamped_variable_synchronizer
+    PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${CERES_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_stamped_variable_synchronizer
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_stamped_variable_synchronizer
     PROPERTIES
       CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES

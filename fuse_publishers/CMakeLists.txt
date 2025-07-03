@@ -164,28 +164,4 @@ if(CATKIN_ENABLE_TESTING)
       CXX_STANDARD 17
       CXX_STANDARD_REQUIRED YES
   )
-
-  # StampedVariableSynchronizer Tests
-  catkin_add_gtest(test_stamped_variable_synchronizer
-    test/test_stamped_variable_synchronizer.cpp
-  )
-  add_dependencies(test_stamped_variable_synchronizer
-    ${catkin_EXPORTED_TARGETS}
-  )
-  target_include_directories(test_stamped_variable_synchronizer
-    PRIVATE
-      include
-  )
-  target_include_directories(test_stamped_variable_synchronizer
-    SYSTEM PRIVATE
-      ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_stamped_variable_synchronizer
-    ${catkin_LIBRARIES}
-  )
-  set_target_properties(test_stamped_variable_synchronizer
-    PROPERTIES
-      CXX_STANDARD 17
-      CXX_STANDARD_REQUIRED YES
-  )
 endif()

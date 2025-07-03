@@ -34,7 +34,7 @@
 #ifndef FUSE_PUBLISHERS_POSE_2D_PUBLISHER_H
 #define FUSE_PUBLISHERS_POSE_2D_PUBLISHER_H
 
-#include <fuse_publishers/stamped_variable_synchronizer.h>
+#include <fuse_variables/stamped_variable_synchronizer.h>
 
 #include <fuse_core/async_publisher.h>
 #include <fuse_core/graph.h>
@@ -149,7 +149,7 @@ public:
   void tfPublishTimerCallback(const ros::TimerEvent& event);
 
 protected:
-  using Synchronizer = StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
+  using Synchronizer = fuse_variables::StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
                                                    fuse_variables::Position2DStamped>;
 
   std::string base_frame_;  //!< The name of the robot's base_link frame

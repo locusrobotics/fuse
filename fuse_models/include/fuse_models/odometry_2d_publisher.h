@@ -42,7 +42,7 @@
 #include <fuse_core/transaction.h>
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
-#include <fuse_publishers/stamped_variable_synchronizer.h>
+#include <fuse_variables/stamped_variable_synchronizer.h>
 
 #include <geometry_msgs/AccelWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
@@ -172,7 +172,7 @@ protected:
   /**
    * @brief Object that searches for the most recent common timestamp for a set of variables
    */
-  using Synchronizer = fuse_publishers::StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
+  using Synchronizer = fuse_variables::StampedVariableSynchronizer<fuse_variables::Orientation2DStamped,
                                                                     fuse_variables::Position2DStamped,
                                                                     fuse_variables::VelocityLinear2DStamped,
                                                                     fuse_variables::VelocityAngular2DStamped,
