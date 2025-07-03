@@ -24,3 +24,10 @@ foreach(test_name ${TEST_TARGETS})
   ament_add_gtest("${test_name}" "${test_name}.cpp")
   target_link_libraries("${test_name}" ${PROJECT_NAME})
 endforeach()
+
+ament_add_gtest("test_stamped_variable_synchronizer" "test_stamped_variable_synchronizer.cpp")
+target_link_libraries("test_stamped_variable_synchronizer"
+  ${PROJECT_NAME}
+  fuse_constraints::fuse_constraints
+  fuse_graphs::fuse_graphs
+)

@@ -50,7 +50,7 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_core/variable.hpp>
-#include <fuse_publishers/stamped_variable_synchronizer.hpp>
+#include <fuse_variables/stamped_variable_synchronizer.hpp>
 
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -197,7 +197,7 @@ protected:
   /**
    * @brief Object that searches for the most recent common timestamp for a set of variables
    */
-  using Synchronizer = fuse_publishers::StampedVariableSynchronizer<
+  using Synchronizer = fuse_variables::StampedVariableSynchronizer<
     fuse_variables::Orientation2DStamped,
     fuse_variables::Position2DStamped,
     fuse_variables::VelocityLinear2DStamped,

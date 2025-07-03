@@ -46,7 +46,7 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
-#include <fuse_publishers/stamped_variable_synchronizer.hpp>
+#include <fuse_variables/stamped_variable_synchronizer.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -186,7 +186,7 @@ protected:
     fuse_core::node_interfaces::Waitables
   > interfaces_;  //!< Shadows AsyncPublisher interfaces_
 
-  using Synchronizer = StampedVariableSynchronizer<
+  using Synchronizer = fuse_variables::StampedVariableSynchronizer<
     fuse_variables::Orientation2DStamped,
     fuse_variables::Position2DStamped>;
 

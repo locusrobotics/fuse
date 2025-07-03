@@ -35,12 +35,12 @@
 
 #include <fuse_core/uuid.hpp>
 #include <fuse_graphs/hash_graph.hpp>
-#include <fuse_publishers/stamped_variable_synchronizer.hpp>
+#include <fuse_variables/stamped_variable_synchronizer.hpp>
 #include <fuse_variables/orientation_2d_stamped.hpp>
 #include <fuse_variables/position_2d_stamped.hpp>
 
 using fuse_core::uuid::generate;
-using fuse_publishers::StampedVariableSynchronizer;
+using fuse_variables::StampedVariableSynchronizer;
 using fuse_variables::Orientation2DStamped;
 using fuse_variables::Position2DStamped;
 
