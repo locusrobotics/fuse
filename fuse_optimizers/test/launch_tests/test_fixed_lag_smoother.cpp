@@ -54,7 +54,7 @@ class FixedLagSmootherForTest : public fuse_optimizers::FixedLagSmoother
 public:
   FixedLagSmootherForTest(
   fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  fuse_core::Graph::UniquePtr graph=nullptr)
+  fuse_core::Graph::UniquePtr graph = nullptr)
     : fuse_optimizers::FixedLagSmoother(interfaces, std::move(graph)) {}
 
   using fuse_optimizers::FixedLagSmoother::terminationTypeToDiagnosticStatus;
