@@ -333,8 +333,8 @@ protected:
    * @return The diagnostic status with the level and message corresponding to the optimization termination type
    */
   diagnostic_msgs::msg::DiagnosticStatus terminationTypeToDiagnosticStatus(
-    const ceres::TerminationType termination_type, const std::vector<std::string>& diag_warnings,
-    const std::vector<std::string>& diag_errors);
+    const ceres::TerminationType termination_type, const std::vector<std::string> & diag_warnings,
+    const std::vector<std::string> & diag_errors);
 
   /**
    * @brief Callback fired every time the SensorModel plugin creates a new transaction

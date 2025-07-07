@@ -51,9 +51,9 @@ class FixedLagSmootherForTest : public fuse_optimizers::FixedLagSmoother
 {
 public:
   FixedLagSmootherForTest(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  fuse_core::Graph::UniquePtr graph = nullptr)
-    : fuse_optimizers::FixedLagSmoother(interfaces, std::move(graph)) {}
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+    fuse_core::Graph::UniquePtr graph = nullptr)
+  : fuse_optimizers::FixedLagSmoother(interfaces, std::move(graph)) {}
 
   using fuse_optimizers::FixedLagSmoother::terminationTypeToDiagnosticStatus;
 };
@@ -90,7 +90,7 @@ protected:
 TEST_F(TestFixedLagSmoother, terminationTypeToDiagnosticStatus)
 {
   ceres::TerminationType termination_type;
-  std::vector<std::string> diagnostic_warning_status { "NO_CONVERGENCE" };
+  std::vector<std::string> diagnostic_warning_status {"NO_CONVERGENCE"};
   std::vector<std::string> diagnostic_error_status {"FAILURE", "USER_FAILURE"};
   diagnostic_msgs::msg::DiagnosticStatus diag_msg;
 

@@ -615,8 +615,7 @@ diagnostic_msgs::msg::DiagnosticStatus makeDiagnosticStatus(
  */
 std::string mapCeresLogToDiagLog(const ceres::TerminationType & termination_type)
 {
-  switch (termination_type)
-  {
+  switch (termination_type) {
     case ceres::TerminationType::CONVERGENCE:
       return "CONVERGENCE";
     case ceres::TerminationType::USER_SUCCESS:
@@ -639,14 +638,14 @@ std::string mapCeresLogToDiagLog(const ceres::TerminationType & termination_type
  * @param[in] str The str to search
  * @return true if contains, false otherwise
  */
-inline bool contains(const std::vector<std::string>& vec, const std::string& str)
+inline bool contains(const std::vector<std::string> & vec, const std::string & str)
 {
   return std::find(vec.begin(), vec.end(), str) != vec.end();
 }
 
 diagnostic_msgs::msg::DiagnosticStatus FixedLagSmoother::terminationTypeToDiagnosticStatus(
-  const ceres::TerminationType termination_type, const std::vector<std::string>& diag_warnings,
-  const std::vector<std::string>& diag_errors)
+  const ceres::TerminationType termination_type, const std::vector<std::string> & diag_warnings,
+  const std::vector<std::string> & diag_errors)
 {
   std::string diag_level = mapCeresLogToDiagLog(termination_type);
   if (contains(diag_errors, diag_level)) {

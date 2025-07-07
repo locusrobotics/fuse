@@ -58,7 +58,7 @@ public:
   /**
    * @brief Map the ceres::optimizer log levels to diagnostic levels
    */
-  std::vector<std::string> diagnostic_warning_status { "NO_CONVERGENCE" };
+  std::vector<std::string> diagnostic_warning_status {"NO_CONVERGENCE"};
 
   /**
    * @brief Map the ceres::optimizer log levels to diagnostic levels
