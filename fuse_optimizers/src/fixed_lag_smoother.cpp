@@ -649,17 +649,15 @@ diagnostic_msgs::msg::DiagnosticStatus FixedLagSmoother::terminationTypeToDiagno
   const std::vector<std::string>& diag_errors)
 {
   std::string diag_level = mapCeresLogToDiagLog(termination_type);
-  if (contains(diag_errors, diag_level))
-  {
-    return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Optimization failed");
-  }
-  else if (contains(diag_warnings, diag_level))
-  {
-    return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::WARN, "Optimization didn't converge");
-  }
-  else
-  {
-    return makeDiagnosticStatus(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimization converged");
+  if (contains(diag_errors, diag_level)) {
+    return makeDiagnosticStatus(
+      diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Optimization failed");
+  } else if (contains(diag_warnings, diag_level)) {
+    return makeDiagnosticStatus(
+      diagnostic_msgs::msg::DiagnosticStatus::WARN, "Optimization didn't converge");
+  } else {
+    return makeDiagnosticStatus(
+      diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimization converged");
   }
 }
 
@@ -699,8 +697,10 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
       status.add("Initial Cost", summary.initial_cost);
       status.add("Final Cost", summary.final_cost);
 
-      status.mergeSummary(terminationTypeToDiagnosticStatus(summary.termination_type, params_.diagnostic_warning_status,
-                                                            params_.diagnostic_error_status));
+      status.mergeSummary(
+        terminationTypeToDiagnosticStatus(summary.termination_type,
+          params_.diagnostic_warning_status,
+          params_.diagnostic_error_status));
     }
 
     // Add time since the last optimization request time. This is useful to detect if no

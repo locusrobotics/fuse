@@ -47,8 +47,6 @@
 #include <gtest/gtest.h>  // NOLINT
 
 
-
-
 class FixedLagSmootherForTest : public fuse_optimizers::FixedLagSmoother
 {
 public:
@@ -98,38 +96,38 @@ TEST_F(TestFixedLagSmoother, terminationTypeToDiagnosticStatus)
 
   // NO_CONVERGENCE as WARNING
   termination_type = ceres::TerminationType::NO_CONVERGENCE;
-  diag_msg = smoother_->terminationTypeToDiagnosticStatus(termination_type, diagnostic_warning_status,
-                                                          diagnostic_error_status);
+  diag_msg = smoother_->terminationTypeToDiagnosticStatus(
+    termination_type, diagnostic_warning_status, diagnostic_error_status);
   EXPECT_EQ(diag_msg.level, diagnostic_msgs::msg::DiagnosticStatus::WARN);
 
   // NO_CONVERGENCE as OK
   diagnostic_warning_status = {};
-  diag_msg = smoother_->terminationTypeToDiagnosticStatus(termination_type, diagnostic_warning_status,
-                                                          diagnostic_error_status);
+  diag_msg = smoother_->terminationTypeToDiagnosticStatus(
+    termination_type, diagnostic_warning_status, diagnostic_error_status);
   EXPECT_EQ(diag_msg.level, diagnostic_msgs::msg::DiagnosticStatus::OK);
 
   // CONVERGENCE
   termination_type = ceres::TerminationType::CONVERGENCE;
-  diag_msg = smoother_->terminationTypeToDiagnosticStatus(termination_type, diagnostic_warning_status,
-                                                          diagnostic_error_status);
+  diag_msg = smoother_->terminationTypeToDiagnosticStatus(
+    termination_type, diagnostic_warning_status, diagnostic_error_status);
   EXPECT_EQ(diag_msg.level, diagnostic_msgs::msg::DiagnosticStatus::OK);
 
   // USER_SUCCESS
   termination_type = ceres::TerminationType::USER_SUCCESS;
-  diag_msg = smoother_->terminationTypeToDiagnosticStatus(termination_type, diagnostic_warning_status,
-                                                          diagnostic_error_status);
+  diag_msg = smoother_->terminationTypeToDiagnosticStatus(
+    termination_type, diagnostic_warning_status, diagnostic_error_status);
   EXPECT_EQ(diag_msg.level, diagnostic_msgs::msg::DiagnosticStatus::OK);
 
   // FAILURE
   termination_type = ceres::TerminationType::FAILURE;
-  diag_msg = smoother_->terminationTypeToDiagnosticStatus(termination_type, diagnostic_warning_status,
-                                                          diagnostic_error_status);
+  diag_msg = smoother_->terminationTypeToDiagnosticStatus(
+    termination_type, diagnostic_warning_status, diagnostic_error_status);
   EXPECT_EQ(diag_msg.level, diagnostic_msgs::msg::DiagnosticStatus::ERROR);
 
   // USER_FAILURE
   termination_type = ceres::TerminationType::USER_FAILURE;
-  diag_msg = smoother_->terminationTypeToDiagnosticStatus(termination_type, diagnostic_warning_status,
-                                                          diagnostic_error_status);
+  diag_msg = smoother_->terminationTypeToDiagnosticStatus(
+    termination_type, diagnostic_warning_status, diagnostic_error_status);
   EXPECT_EQ(diag_msg.level, diagnostic_msgs::msg::DiagnosticStatus::ERROR);
 }
 
