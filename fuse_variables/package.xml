@@ -32,6 +32,7 @@
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>fuse_graphs</test_depend>
   <test_depend>rclcpp</test_depend>
 
   <export>

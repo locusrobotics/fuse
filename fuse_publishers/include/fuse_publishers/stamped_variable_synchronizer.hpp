@@ -36,7 +36,8 @@
 
 #include <fuse_variables/stamped_variable_synchronizer.hpp>
 
-#pragma message("The StampedVariableSynchronizer class has been moved to the fuse_variables package. " \
-                 "Please include that header instead.")
+#pragma message("The StampedVariableSynchronizer class has been moved to the " \
+  "fuse_variables package. " \
+  "Please include that header instead.")
 
 #endif  // FUSE_PUBLISHERS__STAMPED_VARIABLE_SYNCHRONIZER_HPP_

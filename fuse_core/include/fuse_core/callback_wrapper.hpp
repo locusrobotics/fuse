@@ -158,7 +158,7 @@ class CallbackAdapter : public rclcpp::Waitable
 public:
   explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
 
-  std::vector<std::shared_ptr<rclcpp::TimerBase>> get_timers() const override
+  std::vector<std::shared_ptr<rclcpp::TimerBase>> get_timers() const
   {
     return {};
   }
