@@ -13,7 +13,6 @@ endif()
 
 find_package(ament_cmake_ros REQUIRED)
 find_package(fuse_core REQUIRED)
-find_package(fuse_graphs REQUIRED)
 find_package(pluginlib REQUIRED)
 
 find_package(Ceres REQUIRED)
