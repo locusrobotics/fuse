@@ -34,8 +34,8 @@
 #ifndef FUSE_MODELS__COMMON__SENSOR_PROC_HPP_
 #define FUSE_MODELS__COMMON__SENSOR_PROC_HPP_
 
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.hpp>
+#include <tf2_ros/transform_listener.hpp>
 
 #include <algorithm>
 #include <functional>
