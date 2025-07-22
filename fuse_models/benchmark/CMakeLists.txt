@@ -8,7 +8,7 @@ if(benchmark_FOUND)
   if(TARGET benchmark_unicycle_2d_state_cost_function)
     target_link_libraries(
       benchmark_unicycle_2d_state_cost_function
-      benchmark
+      benchmark::benchmark
       Ceres::ceres
       ${PROJECT_NAME}
     )
