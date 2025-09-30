@@ -47,6 +47,11 @@ Changelog for package fuse_models
 * [RST-3451] Delay some transform warnings so startup is less chatty
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore, fabianhirmann
 
+Forthcoming
+-----------
+* Moving variable sync from fuse_publishers to fuse_variables (#413)
+* Contributors: David Murdoch
+
 0.12.0 (2025-06-06)
 -------------------
 * Cast nullptr to type for manifold support (#370)

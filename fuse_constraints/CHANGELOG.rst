@@ -55,6 +55,9 @@ Changelog for package fuse_constraints
 * Adding doxygen to all packages (#241)
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+
 0.12.0 (2025-06-06)
 -------------------
 

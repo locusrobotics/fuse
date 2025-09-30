@@ -39,6 +39,11 @@ Changelog for package fuse_publishers
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Moving variable sync from fuse_publishers to fuse_variables (#413)
+* Contributors: David Murdoch
+
 0.12.0 (2025-06-06)
 -------------------
 

@@ -70,6 +70,11 @@ Changelog for package fuse_variables
   Co-authored-by: Jake McLaughlin <jake.mclaughlin98@gmail.com>
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Moving variable sync from fuse_publishers to fuse_variables (#413)
+* Contributors: David Murdoch
+
 0.12.0 (2025-06-06)
 -------------------
 * [RST-12952] Modified the loadDeviceId() function to accept optional parameters (#408)

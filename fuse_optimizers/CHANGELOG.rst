@@ -43,6 +43,19 @@ Changelog for package fuse_optimizers
 * [RST-3451] Cleaned up condition variable usage
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* add user configurable diag mapping support of termination types. (#410)
+  * add user configurable diag mapping support of termination types.
+  * missing return.
+  * replace the entire block for diag.
+  * add unit test.
+  * Update fuse_optimizers/src/fixed_lag_smoother.cpp
+  Co-authored-by: Stephen Williams <swilliams@locusrobotics.com>
+  ---------
+  Co-authored-by: Stephen Williams <swilliams@locusrobotics.com>
+* Contributors: needphpsql
+
 0.12.0 (2025-06-06)
 -------------------
 * Prevent optimization thread from doing its work when a stop was requested (#391)
