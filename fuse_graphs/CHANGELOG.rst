@@ -60,8 +60,8 @@ Changelog for package fuse_graphs
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.13.0 (2025-09-30)
+-------------------
 
 0.12.0 (2025-06-06)
 -------------------
