@@ -13,7 +13,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>qtbase5-dev</build_depend>
+  <build_depend>qt6-base-dev</build_depend>
 
   <depend>ament_cmake_ros</depend>
   <depend>eigen</depend>
