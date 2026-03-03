@@ -39,8 +39,8 @@ Changelog for package fuse_publishers
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.14.0 (2026-03-03)
+-------------------
 
 0.13.0 (2025-09-30)
 -------------------
