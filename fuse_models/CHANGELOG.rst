@@ -47,6 +47,9 @@ Changelog for package fuse_models
 * [RST-3451] Delay some transform warnings so startup is less chatty
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore, fabianhirmann
 
+Forthcoming
+-----------
+
 0.13.0 (2025-09-30)
 -------------------
 * Moving variable sync from fuse_publishers to fuse_variables (#413)
