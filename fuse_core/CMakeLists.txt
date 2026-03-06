@@ -89,6 +89,7 @@ target_include_directories(${PROJECT_NAME}
   SYSTEM PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDEDIRS}
     ${EIGEN3_INCLUDE_DIRS}
     ${GLOG_INCLUDE_DIRS}
 )
