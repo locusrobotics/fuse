@@ -12,6 +12,15 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
+
+if(TARGET Ceres::ceres)
+  get_target_property(CERES_INCLUDEDIRS Ceres::ceres INTERFACE_INCLUDE_DIRECTORIES)
+  message(STATUS "Ceres::ceres INTERFACE include dirs: '${CERES_INCLUDEDIRS}'")
+else()
+  message(WARNING "Ceres::ceres imported target not found; CERES_INCLUDEDIRS will be empty.")
+  set(CERES_INCLUDEDIRS "")
+endif()
+
 find_package(Eigen3 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(libglog REQUIRED)
@@ -19,6 +28,7 @@ pkg_check_modules(libglog REQUIRED)
 catkin_package(
   INCLUDE_DIRS
     include
+    ${CERES_INCLUDEDIRS}
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
@@ -73,15 +83,16 @@ target_include_directories(${PROJECT_NAME}
   SYSTEM PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
-    ${CERES_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
     ${GLOG_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${CERES_LIBRARIES}
-  ${GLOG_LIBRARIES}
+  PUBLIC
+    Ceres::ceres
+    ${catkin_INCLUDE_DIRS}
+  PRIVATE
+    ${Boost_LIBRARIES}
+    ${GLOG_LIBRARIES}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
