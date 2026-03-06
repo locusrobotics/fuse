@@ -89,7 +89,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
     Ceres::ceres
-    ${catkin_INCLUDE_DIRS}
+    ${catkin_LIBRARIES}
   PRIVATE
     ${Boost_LIBRARIES}
     ${GLOG_LIBRARIES}
