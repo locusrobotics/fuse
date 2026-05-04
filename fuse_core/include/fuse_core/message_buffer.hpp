@@ -37,6 +37,9 @@
 #include <deque>
 #include <utility>
 
+// Bugfix for Boost 1.88 - 1.90. See https://github.com/boostorg/range/pull/157.
+// As a work around, include the add_const.hpp header before any_range.hpp or any_iterator.hpp
+#include <boost/type_traits/add_const.hpp>
 #include <boost/range/any_range.hpp>
 #include <fuse_core/fuse_macros.hpp>
 #include <rclcpp/duration.hpp>

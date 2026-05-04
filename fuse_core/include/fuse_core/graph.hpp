@@ -46,6 +46,9 @@
 #include <vector>
 
 #include <boost/core/demangle.hpp>
+// Bugfix for Boost 1.88 - 1.90. See https://github.com/boostorg/range/pull/157.
+// As a work around, include the add_const.hpp header before any_range.hpp or any_iterator.hpp
+#include <boost/type_traits/add_const.hpp>
 #include <boost/range/any_range.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>
