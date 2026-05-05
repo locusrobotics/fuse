@@ -38,6 +38,12 @@
 #include <map>
 #include <vector>
 
+// Bugfix for Boost 1.88 - 1.90. See https://github.com/boostorg/range/pull/157.
+// As a workaround, include the add_const.hpp header before any_range.hpp or any_iterator.hpp
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 108800 && BOOST_VERSION < 109000
+  #include <boost/type_traits/add_const.hpp>
+#endif
 #include <boost/range/any_range.hpp>
 #include <fuse_core/constraint.hpp>
 #include <fuse_core/fuse_macros.hpp>
