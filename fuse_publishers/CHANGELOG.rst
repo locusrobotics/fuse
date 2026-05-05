@@ -2,8 +2,8 @@
 Changelog for package fuse_publishers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.5 (2026-05-05)
+------------------
 * Fix tf2_ros header order
 * Contributors: Stephen Williams
 
