@@ -41,6 +41,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/version.hpp>
 #include <rclcpp/time.hpp>
 
 namespace fuse_core
@@ -187,7 +188,12 @@ namespace std
 /**
  * @brief Define a hash specialization for the UUID to make it easier to use in unordered_maps and
  *        unordered_sets
+ *
+ * Boost >= 1.86 provides std::hash<boost::uuids::uuid> itself; guard
+ * against redefinition since fuse_core::UUID is an alias for
+ * boost::uuids::uuid.
  */
+#if BOOST_VERSION < 108600
 template<>
 struct hash<fuse_core::UUID>
 {
@@ -196,6 +202,7 @@ struct hash<fuse_core::UUID>
     return boost::uuids::hash_value(id);
   }
 };
+#endif  // BOOST_VERSION < 108600
 
 }  // namespace std
 
