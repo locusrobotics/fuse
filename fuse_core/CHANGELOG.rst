@@ -2,6 +2,12 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Workaround for a bug in Boost 1.90 any_range included in Ubuntu Resolute (`#424 <https://github.com/locusrobotics/fuse/issues/424>`_)
+  Boost versions 1.88 - 1.90 are missing a header include for any_range.hpp or any_iterator.hpp. The workaround is to include the missing header before including one of the affect headers.
+* Contributors: Stephen Williams
+
 1.3.1 (2025-08-29)
 ------------------
 
