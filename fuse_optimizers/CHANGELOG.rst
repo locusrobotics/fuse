@@ -2,6 +2,9 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.4 (2025-07-28)
 ------------------
 * Add diag mapping to rolling (`#412 <https://github.com/locusrobotics/fuse/issues/412>`_)
