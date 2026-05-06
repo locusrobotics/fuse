@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.3 (2026-05-06)
+------------------
 * fuse_core: Don't fail with boost >= 1.86 (`#423 <https://github.com/locusrobotics/fuse/issues/423>`_)
   Boost >= 1.86 provides std::hash<boost::uuids::uuid> itself; guard against redefinition since fuse_core::UUID is an alias for boost::uuids::uuid.
   See https://www.boost.org/doc/libs/latest/libs/uuid/doc/html/uuid.html#changes_changes_in_boost_1_86_0_major_update

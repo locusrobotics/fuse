@@ -2,8 +2,8 @@
 Changelog for package fuse_variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.3 (2026-05-06)
+------------------
 * Starting with Boost 1.86, the boost::uuids::uuid class requires double braces for aggregate initialization from a list of bytes. Double-brace initialization works fine on older Boost versions as well.
 * Contributors: Stephen Williams
 
