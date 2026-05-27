@@ -42,6 +42,7 @@
 #include <fuse_core/variable.h>
 
 #include <boost/core/demangle.hpp>
+#include <boost/type_traits/add_const.hpp>
 #include <boost/range/any_range.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/type_index/stl_type_index.hpp>

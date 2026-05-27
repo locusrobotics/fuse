@@ -38,6 +38,7 @@
 #include <ros/duration.h>
 #include <ros/time.h>
 
+#include <boost/type_traits/add_const.hpp>
 #include <boost/range/any_range.hpp>
 
 #include <deque>
