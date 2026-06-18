@@ -100,8 +100,8 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.15.0 (2026-06-18)
+-------------------
 * Fix Ceres inclusion and path export (#422)
   * Fix Ceres inclusion and path export
   Ceres is referenced in fuse header files and the existing way it was

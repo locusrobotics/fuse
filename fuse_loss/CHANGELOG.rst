@@ -27,8 +27,8 @@ Changelog for package fuse_loss
 * Adding doxygen to all packages (#241)
 * Contributors: Gary Servin, Stephen Williams, Tom Moore
 
-Forthcoming
------------
+0.15.0 (2026-06-18)
+-------------------
 
 0.14.0 (2026-03-03)
 -------------------
