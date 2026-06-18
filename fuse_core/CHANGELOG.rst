@@ -100,6 +100,24 @@ Changelog for package fuse_core
 * Added a time-limited optimization option to the Graph class (#234)
 * Contributors: Enrique Fernandez Perdomo, Gary Servin, Stephen Williams, Tom Moore
 
+Forthcoming
+-----------
+* Fix Ceres inclusion and path export (#422)
+  * Fix Ceres inclusion and path export
+  Ceres is referenced in fuse header files and the existing way it was
+  being included in fuse_core did not export the include paths for
+  Ceres which breaks downstream packages when they include fuse_core
+  headers.
+  This was only exposed through the per-package builds since the
+  existing merged builds get lucky that all the include dirs are
+  merged together.
+  * Fix typo INCLUDE_DIRS -> LIBRARIES
+  * Harden logic for CERES_INCLUDEDIRS
+  In case INTERFACE_INCLUDE_DIRS isn't a valid property we can revert
+  back to the existing behavior when no include dirs are set.
+  * Keep includes for target_include_directories
+* Contributors: James Prestwood
+
 0.14.0 (2026-03-03)
 -------------------
 
