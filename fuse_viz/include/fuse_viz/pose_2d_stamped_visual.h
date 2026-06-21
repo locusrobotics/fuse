@@ -39,7 +39,7 @@
 
 #include <tf2/LinearMath/Transform.h>
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <memory>
 

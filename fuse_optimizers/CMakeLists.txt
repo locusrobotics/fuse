@@ -29,7 +29,7 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-add_compile_options(-Wall -Werror)
+add_compile_options(-Wall)  # -Werror)
 
 ## fuse_optimizers library
 add_library(${PROJECT_NAME}
