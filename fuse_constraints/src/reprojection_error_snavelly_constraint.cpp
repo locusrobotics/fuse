@@ -2,7 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Author: Oscar Mendez
- *  Created on Mon Nov 12 2023
+ *  Created on Mon Dec 12 2023
  *
  *  Copyright (c) 2023, Locus Robotics
  *  All rights reserved.
@@ -34,9 +34,9 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/fixed_3d_landmark_constraint.h>
+#include <fuse_constraints/reprojection_error_snavelly_constraint.h>
+#include <fuse_constraints/reprojection_error_snavelly_cost_functor.h>
 
-#include <fuse_constraints/fixed_3d_landmark_cost_functor.h>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
@@ -48,46 +48,19 @@
 namespace fuse_constraints
 {
 
-Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
+ReprojectionErrorSnavellyConstraint::ReprojectionErrorSnavellyConstraint(
     const std::string& source, const fuse_variables::Position3DStamped& position,
-    const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
-    const fuse_core::MatrixXd& pts3d, const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
-    const fuse_core::Matrix6d& covariance)
+    const fuse_variables::Orientation3DStamped& orientation,
+    const fuse_variables::PinholeCameraRadial& calibration,
+    const fuse_core::Vector2d& mean,
+    const fuse_core::Matrix2d& covariance)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
-  , pts3d_(pts3d)
-  , observations_(observations)
   , mean_(mean)
   , sqrt_information_(covariance.inverse().llt().matrixU())
 {
-  assert(pts3d_.cols() == 3);
-  assert(observations_.cols() == 2);
-  assert(pts3d_.rows() == observations_.rows());
 }
 
-Fixed3DLandmarkConstraint::Fixed3DLandmarkConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position,
-    const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
-    const double& marker_size, const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
-    const fuse_core::Matrix6d& covariance)
-  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
-  , pts3d_(4, 3)
-  , observations_(observations)
-  , mean_(mean)
-  , sqrt_information_(covariance.inverse().llt().matrixU())
-{
-  // Define 3D Homogeneous 3D Points at origin, assume z-up
-  pts3d_ << -1.0, -1.0, 0.0,  // NOLINT
-            -1.0,  1.0, 0.0,  // NOLINT
-             1.0, -1.0, 0.0,  // NOLINT
-             1.0,  1.0, 0.0;  // NOLINT
-  pts3d_ *= marker_size;      // Scalar Multiplication
-
-  assert(pts3d_.cols() == 3);
-  assert(observations_.cols() == 2);
-  assert(pts3d_.rows() == observations_.rows());
-}
-
-void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
+void ReprojectionErrorSnavellyConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -95,8 +68,7 @@ void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
          << "  position variable: " << variables().at(0) << "\n"
          << "  orientation variable: " << variables().at(1) << "\n"
          << "  mean: " << mean().transpose() << "\n"
-         << "  sqrt_info: " << sqrtInformation() << "\n"
-         << "  observations: " << observations() << "\n";
+         << "  sqrt_info: " << sqrtInformation() << "\n";
 
   if (loss())
   {
@@ -105,14 +77,13 @@ void Fixed3DLandmarkConstraint::print(std::ostream& stream) const
   }
 }
 
-ceres::CostFunction* Fixed3DLandmarkConstraint::costFunction() const
+ceres::CostFunction* ReprojectionErrorSnavellyConstraint::costFunction() const
 {
-  // 2 Residuals Per 3D point
-  return new ceres::AutoDiffCostFunction<Fixed3DLandmarkCostFunctor, ceres::DYNAMIC, 3, 4, 4>(
-      new Fixed3DLandmarkCostFunctor(sqrt_information_, mean_, observations_, pts3d_), 2 * pts3d_.rows());
+  return new ceres::AutoDiffCostFunction<ReprojectionErrorSnavellyCostFunctor, 2, 3, 4, 3, 3>(
+      new ReprojectionErrorSnavellyCostFunctor(sqrt_information_, mean_));
 }
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::Fixed3DLandmarkConstraint);
-PLUGINLIB_EXPORT_CLASS(fuse_constraints::Fixed3DLandmarkConstraint, fuse_core::Constraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::ReprojectionErrorSnavellyConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::ReprojectionErrorSnavellyConstraint, fuse_core::Constraint);

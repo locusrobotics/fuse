@@ -1,8 +1,8 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Author:    Oscar Mendez
- *  Created:   11.13.2023
+ *  Author: Oscar Mendez
+ *  Created on Mon Dec 12 2023
  *
  *  Copyright (c) 2023, Locus Robotics
  *  All rights reserved.
@@ -34,54 +34,55 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/pinhole_camera.h>
+#include <fuse_constraints/reprojection_error_constraint.h>
+#include <fuse_constraints/reprojection_error_cost_functor.h>
 
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
-#include <fuse_variables/fixed_size_variable.h>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
+#include <ceres/autodiff_cost_function.h>
+#include <Eigen/Dense>
 
-#include <ostream>
+#include <string>
 
-namespace fuse_variables
+namespace fuse_constraints
 {
-PinholeCamera::PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id)
-  : BaseCamera(uuid, camera_id)
+
+ReprojectionErrorConstraint::ReprojectionErrorConstraint(
+    const std::string& source, const fuse_variables::Position3DStamped& position,
+    const fuse_variables::Orientation3DStamped& orientation, const fuse_variables::PinholeCamera& calibration,
+    const fuse_core::Vector2d& mean,
+    const fuse_core::Matrix2d& covariance)
+  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid(), calibration.uuid() })
+  , mean_(mean)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-PinholeCamera::PinholeCamera(const uint64_t& camera_id)
-  : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
+void ReprojectionErrorConstraint::print(std::ostream& stream) const
 {
-}
-
-PinholeCamera::PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id,
-                              const double& fx, const double& fy,
-                              const double& cx, const double& cy)
-  : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
-{
-  data_[FX] = fx;
-  data_[FY] = fy;
-  data_[CX] = cx;
-  data_[CY] = cy;
-}
-
-void PinholeCamera::print(std::ostream& stream) const
-{
-  stream << type() << ":\n"
+  stream << type() << "\n"
+         << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
-         << "  size: " << size() << "\n"
-         << "  camera id: " << id() << "\n"
-         << "  data:\n"
-         << "  - fx: " << fx() << "\n"
-         << "  - fy: " << fy() << "\n"
-         << "  - cx: " << cx() << "\n"
-         << "  - cy: " << cy() << "\n";
+         << "  position variable: " << variables().at(0) << "\n"
+         << "  orientation variable: " << variables().at(1) << "\n"
+         << "  mean: " << mean().transpose() << "\n"
+         << "  sqrt_info: " << sqrtInformation() << "\n";
+
+  if (loss())
+  {
+    stream << "  loss: ";
+    loss()->print(stream);
+  }
 }
 
-}  // namespace fuse_variables
+ceres::CostFunction* ReprojectionErrorConstraint::costFunction() const
+{
+  return new ceres::AutoDiffCostFunction<ReprojectionErrorCostFunctor, 2, 3, 4, 4, 3>(
+      new ReprojectionErrorCostFunctor(sqrt_information_, mean_));
+}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::PinholeCamera);
-PLUGINLIB_EXPORT_CLASS(fuse_variables::PinholeCamera, fuse_core::Variable);
+}  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::ReprojectionErrorConstraint);
+PLUGINLIB_EXPORT_CLASS(fuse_constraints::ReprojectionErrorConstraint, fuse_core::Constraint);

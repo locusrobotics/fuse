@@ -34,7 +34,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_constraints/fixed_3d_landmark_constraint.h>
+#include <fuse_constraints/fixed_3d_landmark_simple_covariance_constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/eigen_gtest.h>
 #include <fuse_core/serialization.h>
@@ -51,12 +51,12 @@
 #include <utility>
 #include <vector>
 
-using fuse_constraints::Fixed3DLandmarkConstraint;
+using fuse_constraints::Fixed3DLandmarkSimpleCovarianceConstraint;
 using fuse_variables::Orientation3DStamped;
 using fuse_variables::PinholeCameraFixed;
 using fuse_variables::Position3DStamped;
 
-TEST(Fixed3DLandmarkConstraint, Constructor)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
@@ -69,29 +69,19 @@ TEST(Fixed3DLandmarkConstraint, Constructor)
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
   // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
-  fuse_core::Matrix6d cov;
-  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,
-      1.5153042667951,  // NOLINT
-      1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297,
-      1.28979625492894,  // NOLINT
-      1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377,
-      1.34706781598061,  // NOLINT
-      1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147,
-      2.04350823837035,  // NOLINT
-      1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461,
-      1.73844731158092,  // NOLINT
-      1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092,
-      2.15326088526198;  // NOLINT
+  fuse_core::Matrix2d cov;
+  cov << 0.25, 0.0,  // NOLINT
+      0.0, 0.25;     // NOLINT
 
   // 2D observations (arbitrary)
   Eigen::Matrix<double, 4, 2, Eigen::RowMajor> obs;
   obs << 320, 240, 320, 240, 320, 240, 320, 240;
 
-  EXPECT_NO_THROW(Fixed3DLandmarkConstraint constraint("test", position_variable, orientation_variable,
-                                                       calibration_variable, marker_size, obs, mean, cov));
+  EXPECT_NO_THROW(Fixed3DLandmarkSimpleCovarianceConstraint constraint(
+      "test", position_variable, orientation_variable, calibration_variable, marker_size, obs, mean, cov));
 }
 
-TEST(Fixed3DLandmarkConstraint, Covariance)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("mo"));
@@ -104,44 +94,29 @@ TEST(Fixed3DLandmarkConstraint, Covariance)
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
   // Generated PD matrix using Octiave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
-  fuse_core::Matrix6d cov;
-  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,
-      1.5153042667951,  // NOLINT
-      1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297,
-      1.28979625492894,  // NOLINT
-      1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377,
-      1.34706781598061,  // NOLINT
-      1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147,
-      2.04350823837035,  // NOLINT
-      1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461,
-      1.73844731158092,  // NOLINT
-      1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092,
-      2.15326088526198;  // NOLINT
+  fuse_core::Matrix2d cov;
+  cov << 0.25, 0.0,  // NOLINT
+      0.0, 0.25;     // NOLINT
 
   // 2D observations (arbitrary)
   Eigen::Matrix<double, 4, 2, Eigen::RowMajor> obs;
   obs << 320, 240, 320, 240, 320, 240, 320, 240;
 
-  Fixed3DLandmarkConstraint constraint("test", position_variable, orientation_variable, calibration_variable,
-                                       marker_size, obs, mean, cov);
+  Fixed3DLandmarkSimpleCovarianceConstraint constraint("test", position_variable, orientation_variable,
+                                                       calibration_variable, marker_size, obs, mean, cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
-  fuse_core::Matrix6d expected_sqrt_info;
-  expected_sqrt_info << 2.12658752275893, 1.20265444927878, 4.71225672571804, 1.43587520991272, -4.12764062992821,
-      -3.19509486240291,                                                                                // NOLINT
-      0.0, 2.41958656956248, 5.93151964116945, 3.72535320852517, -4.23326858606213, -5.27776664777548,  // NOLINT
-      0.0, 0.0, 3.82674686590005, 2.80341171946161, -2.68168478581452, -2.8894384435255,                // NOLINT
-      0.0, 0.0, 0.0, 1.83006791372784, -0.696917410192509, -1.17412835464633,                           // NOLINT
-      0.0, 0.0, 0.0, 0.0, 0.953302832761324, -0.769654414882847,                                        // NOLINT
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.681477739760948;                                                       // NOLINT
-  fuse_core::Matrix6d expected_cov = cov;
+  fuse_core::Matrix2d expected_sqrt_info;
+  expected_sqrt_info << 2.0, 0.0,  // NOLINT
+      0.0, 2.0;                    // NOLINT
+  fuse_core::Matrix2d expected_cov = cov;
 
   // Compare
   EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
   EXPECT_MATRIX_NEAR(expected_sqrt_info, constraint.sqrtInformation(), 1.0e-9);
 }
 
-TEST(Fixed3DLandmarkConstraint, Optimization)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, Optimization)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
@@ -177,36 +152,24 @@ TEST(Fixed3DLandmarkConstraint, Optimization)
       352.44745875, 297.87219670;     // NOLINT
 
   // Define Pose Covariance
-  fuse_core::Matrix6d cov;
-  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,  // NOLINT
-      0.1, 2.0, 0.6, 0.5, 0.4, 0.3,     // NOLINT
-      0.2, 0.6, 3.0, 0.2, 0.1, 0.2,     // NOLINT
-      0.3, 0.5, 0.2, 4.0, 0.3, 0.4,     // NOLINT
-      0.4, 0.4, 0.1, 0.3, 5.0, 0.5,     // NOLINT
-      0.5, 0.3, 0.2, 0.4, 0.5, 6.0;     // NOLINT
+  fuse_core::Matrix2d cov;
+  cov << 0.25, 0.0,  // NOLINT
+      0.0, 0.25;     // NOLINT
 
-  auto constraint = Fixed3DLandmarkConstraint::make_shared("test", *position_variable, *orientation_variable,
-                                                           *calibration_variable, marker_size, obs, mean, cov);
+  auto constraint = Fixed3DLandmarkSimpleCovarianceConstraint::make_shared(
+      "test", *position_variable, *orientation_variable, *calibration_variable, marker_size, obs, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(position_variable->data(), position_variable->size(),
                             position_variable->localParameterization());
   problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
                             orientation_variable->localParameterization());
   problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                             calibration_variable->localParameterization());
-#else
-  problem.AddParameterBlock(position_variable->data(), position_variable->size(),
-                            position_variable->manifold());
-  problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
-                            orientation_variable->manifold());
-  problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
-                            calibration_variable->manifold());
-#endif
+
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
@@ -260,23 +223,18 @@ TEST(Fixed3DLandmarkConstraint, Optimization)
   //   position_variable->data(), orientation_variable->data(), cov_pos_or.data());
 
   // // Assemble the full covariance from the covariance blocks
-  // fuse_core::Matrix6d actual_covariance;
+  // fuse_core::Matrix2d actual_covariance;
   // actual_covariance << cov_pos_pos, cov_pos_or, cov_pos_or.transpose(), cov_or_or;
 
   // // Define the expected covariance
-  // fuse_core::Matrix6d expected_covariance;
-  // expected_covariance <<
-  //   1.0, 0.1, 0.2, 0.3, 0.4, 0.5,
-  //   0.1, 2.0, 0.6, 0.5, 0.4, 0.3,
-  //   0.2, 0.6, 3.0, 0.2, 0.1, 0.2,
-  //   0.3, 0.5, 0.2, 4.0, 0.3, 0.4,
-  //   0.4, 0.4, 0.1, 0.3, 5.0, 0.5,
-  //   0.5, 0.3, 0.2, 0.4, 0.5, 6.0;
+  // fuse_core::Matrix2d cov;
+  //   cov << 0.25, 0.0,  // NOLINT
+  //         0.0, 0.25;  // NOLINT
 
   // EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-5);
 }
 
-TEST(Fixed3DLandmarkConstraint, OptimizationScaledMarker)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, OptimizationScaledMarker)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
@@ -312,36 +270,23 @@ TEST(Fixed3DLandmarkConstraint, OptimizationScaledMarker)
       321.3790354517349, 253.60701612303970;     // NOLINT
 
   // Define Pose Covariance
-  fuse_core::Matrix6d cov;
-  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,  // NOLINT
-      0.1, 2.0, 0.6, 0.5, 0.4, 0.3,     // NOLINT
-      0.2, 0.6, 3.0, 0.2, 0.1, 0.2,     // NOLINT
-      0.3, 0.5, 0.2, 4.0, 0.3, 0.4,     // NOLINT
-      0.4, 0.4, 0.1, 0.3, 5.0, 0.5,     // NOLINT
-      0.5, 0.3, 0.2, 0.4, 0.5, 6.0;     // NOLINT
+  fuse_core::Matrix2d cov;
+  cov << 0.25, 0.0,  // NOLINT
+      0.0, 0.25;     // NOLINT
 
-  auto constraint = Fixed3DLandmarkConstraint::make_shared("test", *position_variable, *orientation_variable,
-                                                           *calibration_variable, marker_size, obs, mean, cov);
+  auto constraint = Fixed3DLandmarkSimpleCovarianceConstraint::make_shared(
+      "test", *position_variable, *orientation_variable, *calibration_variable, marker_size, obs, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(position_variable->data(), position_variable->size(),
                             position_variable->localParameterization());
   problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
                             orientation_variable->localParameterization());
   problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                             calibration_variable->localParameterization());
-#else
-  problem.AddParameterBlock(position_variable->data(), position_variable->size(),
-                            position_variable->manifold());
-  problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
-                            orientation_variable->manifold());
-  problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
-                            calibration_variable->manifold());
-#endif
 
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
@@ -376,7 +321,7 @@ TEST(Fixed3DLandmarkConstraint, OptimizationScaledMarker)
   EXPECT_NEAR(237.80861559081677, calibration_variable->cy(), 1.0e-3);
 }
 
-TEST(Fixed3DLandmarkConstraint, OptimizationPoints)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, OptimizationPoints)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
@@ -403,14 +348,14 @@ TEST(Fixed3DLandmarkConstraint, OptimizationPoints)
 
   // Create the 3D points
   Eigen::Matrix<double, 8, 3, Eigen::RowMajor> pts3d;
-  pts3d << -1.50, -1.5, 0.0,      // NOLINT
-          -1.50, 1.5, 0.0,        // NOLINT
-          1.50, -1.5, 0.0,        // NOLINT
-          1.50, 1.5, 0.0,         // NOLINT
-          3.24, -1.5, 0.0,        // NOLINT
-          3.24, 1.5, 0.0,         // NOLINT
-          1.74, -1.5, 0.0,        // NOLINT
-          1.74, 1.5, 0.0;         // NOLINT
+  pts3d << -1.50, -1.5, 0.0,  // NOLINT
+      -1.50, 1.5, 0.0,        // NOLINT
+      1.50, -1.5, 0.0,        // NOLINT
+      1.50, 1.5, 0.0,         // NOLINT
+      3.24, -1.5, 0.0,        // NOLINT
+      3.24, 1.5, 0.0,         // NOLINT
+      1.74, -1.5, 0.0,        // NOLINT
+      1.74, 1.5, 0.0;         // NOLINT
 
   // And observations...
   Eigen::Matrix<double, 8, 2, Eigen::RowMajor> obs;
@@ -424,36 +369,24 @@ TEST(Fixed3DLandmarkConstraint, OptimizationPoints)
       380.22578098989925, 323.70615277102520;     // NOLINT
 
   // Define Pose Covariance
-  fuse_core::Matrix6d cov;
-  cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,  // NOLINT
-      0.1, 2.0, 0.6, 0.5, 0.4, 0.3,     // NOLINT
-      0.2, 0.6, 3.0, 0.2, 0.1, 0.2,     // NOLINT
-      0.3, 0.5, 0.2, 4.0, 0.3, 0.4,     // NOLINT
-      0.4, 0.4, 0.1, 0.3, 5.0, 0.5,     // NOLINT
-      0.5, 0.3, 0.2, 0.4, 0.5, 6.0;     // NOLINT
+  fuse_core::Matrix2d cov;
+  cov << 0.25, 0.0,  // NOLINT
+      0.0, 0.25;     // NOLINT
 
-  auto constraint = Fixed3DLandmarkConstraint::make_shared("test", *position_variable, *orientation_variable,
-                                                           *calibration_variable, pts3d, obs, mean, cov);
+  auto constraint = Fixed3DLandmarkSimpleCovarianceConstraint::make_shared(
+      "test", *position_variable, *orientation_variable, *calibration_variable, pts3d, obs, mean, cov);
 
   // Build the problem
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-#if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(position_variable->data(), position_variable->size(),
                             position_variable->localParameterization());
   problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
                             orientation_variable->localParameterization());
   problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                             calibration_variable->localParameterization());
-#else
-  problem.AddParameterBlock(position_variable->data(), position_variable->size(),
-                            position_variable->manifold());
-  problem.AddParameterBlock(orientation_variable->data(), orientation_variable->size(),
-                            orientation_variable->manifold());
-  problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
-                            calibration_variable->manifold());
-#endif
+
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position_variable->data());
   parameter_blocks.push_back(orientation_variable->data());
@@ -485,11 +418,9 @@ TEST(Fixed3DLandmarkConstraint, OptimizationPoints)
   EXPECT_NEAR(643.10717773437500, calibration_variable->fy(), 1.0e-3);
   EXPECT_NEAR(310.29060457226840, calibration_variable->cx(), 1.0e-3);
   EXPECT_NEAR(237.80861559081677, calibration_variable->cy(), 1.0e-3);
-
-  EXPECT_EQ(16, constraint->costFunction()->num_residuals());  // Ensure we have the right number of residuals.
 }
 
-TEST(Fixed3DLandmarkConstraint, MultiViewOptimization)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, MultiViewOptimization)
 {
   // Optimize a single pose and single constraint, verify the expected value and covariance are generated.
   // Create the variables
@@ -553,21 +484,12 @@ TEST(Fixed3DLandmarkConstraint, MultiViewOptimization)
     orientation_vars[i]->y() = -0.189;
     orientation_vars[i]->z() = 0.239;
 
-#if !CERES_SUPPORTS_MANIFOLDS
     problem.AddParameterBlock(position_vars[i]->data(), position_vars[i]->size(),
                               position_vars[i]->localParameterization());
     problem.AddParameterBlock(orientation_vars[i]->data(), orientation_vars[i]->size(),
                               orientation_vars[i]->localParameterization());
     problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
                               calibration_variable->localParameterization());
-#else
-    problem.AddParameterBlock(position_vars[i]->data(), position_vars[i]->size(),
-                              position_vars[i]->manifold());
-    problem.AddParameterBlock(orientation_vars[i]->data(), orientation_vars[i]->size(),
-                              orientation_vars[i]->manifold());
-    problem.AddParameterBlock(calibration_variable->data(), calibration_variable->size(),
-                              calibration_variable->manifold());
-#endif
 
     std::vector<double*> parameter_blocks;
     parameter_blocks.push_back(position_vars[i]->data());
@@ -578,16 +500,12 @@ TEST(Fixed3DLandmarkConstraint, MultiViewOptimization)
     fuse_core::Vector7d mean;
     mean << 0, 0, 10, 0.9238795, 0, -0.3826834, 0;
 
-    fuse_core::Matrix6d cov;
-    cov << 1.0, 0.1, 0.2, 0.3, 0.4, 0.5,  // NOLINT
-        0.1, 2.0, 0.6, 0.5, 0.4, 0.3,     // NOLINT
-        0.2, 0.6, 3.0, 0.2, 0.1, 0.2,     // NOLINT
-        0.3, 0.5, 0.2, 4.0, 0.3, 0.4,     // NOLINT
-        0.4, 0.4, 0.1, 0.3, 5.0, 0.5,     // NOLINT
-        0.5, 0.3, 0.2, 0.4, 0.5, 6.0;     // NOLINT
+    fuse_core::Matrix2d cov;
+    cov << 0.25, 0.0,  // NOLINT
+        0.0, 0.25;     // NOLINT
 
-    auto constraint = Fixed3DLandmarkConstraint::make_shared("test", *position_vars[i], *orientation_vars[i],
-                                                             *calibration_variable, marker_size, obs[i], mean, cov);
+    auto constraint = Fixed3DLandmarkSimpleCovarianceConstraint::make_shared(
+        "test", *position_vars[i], *orientation_vars[i], *calibration_variable, marker_size, obs[i], mean, cov);
 
     problem.AddResidualBlock(constraint->costFunction(), constraint->lossFunction(), parameter_blocks);
   }
@@ -654,7 +572,7 @@ TEST(Fixed3DLandmarkConstraint, MultiViewOptimization)
   EXPECT_NEAR(237.80861559081677, calibration_variable->cy(), 1.0e-3);
 }
 
-TEST(Fixed3DLandmarkConstraint, Serialization)
+TEST(Fixed3DLandmarkSimpleCovarianceConstraint, Serialization)
 {
   // Construct a constraint
   Position3DStamped position_variable(ros::Time(1234, 5678), fuse_core::uuid::generate("walle"));
@@ -672,20 +590,16 @@ TEST(Fixed3DLandmarkConstraint, Serialization)
   mean << 1.0, 2.0, 3.0, 1.0, 0.0, 0.0, 0.0;
 
   // Generated PD matrix using Octave: R = rand(6, 6); A = R * R' (use format long g to get the required precision)
-  fuse_core::Matrix6d cov;
-  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891, 1.5153042667951,
-      1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,
-      1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377, 1.34706781598061,
-      1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147, 2.04350823837035,
-      1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461, 1.73844731158092,
-      1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092, 2.15326088526198;
+  fuse_core::Matrix2d cov;
+  cov << 0.25, 0.0,  // NOLINT
+      0.0, 0.25;     // NOLINT
 
   // And observations...
   Eigen::Matrix<double, 4, 2, Eigen::RowMajor> obs;
   obs << 261.71822455, 168.60442225, 261.71822455, 307.01280893, 352.44745875, 177.74503448, 352.44745875, 297.87219670;
 
-  Fixed3DLandmarkConstraint expected("test", position_variable, orientation_variable, calibration_variable, marker_size,
-                                     obs, mean, cov);
+  Fixed3DLandmarkSimpleCovarianceConstraint expected("test", position_variable, orientation_variable,
+                                                     calibration_variable, marker_size, obs, mean, cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;
@@ -695,7 +609,7 @@ TEST(Fixed3DLandmarkConstraint, Serialization)
   }
 
   // Deserialize a new constraint from that same stream
-  Fixed3DLandmarkConstraint actual;
+  Fixed3DLandmarkSimpleCovarianceConstraint actual;
   {
     fuse_core::TextInputArchive archive(stream);
     actual.deserialize(archive);

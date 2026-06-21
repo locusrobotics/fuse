@@ -34,8 +34,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_CONSTRAINTS_FIXED_3D_LANDMARK_CONSTRAINT_H
-#define FUSE_CONSTRAINTS_FIXED_3D_LANDMARK_CONSTRAINT_H
+#ifndef FUSE_CONSTRAINTS_FIXED_3D_LANDMARK_SIMPLE_COVARIANCE_CONSTRAINT_H
+#define FUSE_CONSTRAINTS_FIXED_3D_LANDMARK_SIMPLE_COVARIANCE_CONSTRAINT_H
 
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
@@ -61,25 +61,25 @@ namespace fuse_constraints
 /**
  * @brief A constraint that represents an observation of a 3D landmark (ARTag or Similar)
  *
- * A landmark is represented as a 3D pose (3D position and a 3D orientation). This class takes 
+ * A landmark is represented as a 3D pose (3D position and a 3D orientation). This class takes
  * the ground truth location of the 3D landmark and applies a reprojection-error based constraint
  * on the position, orientation and calibration of the camera that observed the landmark.
- * 
+ *
  * In most cases, the camera calibration should be held fixed as a single landmark does not present enough
  * points to accurately constrain the pose AND the calibraton.
- * 
+ *
  */
-class Fixed3DLandmarkConstraint : public fuse_core::Constraint
+class Fixed3DLandmarkSimpleCovarianceConstraint : public fuse_core::Constraint
 {
 public:
-  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Fixed3DLandmarkConstraint);
+  FUSE_CONSTRAINT_DEFINITIONS_WITH_EIGEN(Fixed3DLandmarkSimpleCovarianceConstraint);
 
   /**
    * @brief Default constructor
    */
-  Fixed3DLandmarkConstraint() = default;
+  Fixed3DLandmarkSimpleCovarianceConstraint() = default;
 
-    /**
+  /**
    * @brief Create a constraint using a known 3D fiducial marker
    *
    * @param[in] source        The name of the sensor or motion model that generated this constraint
@@ -91,14 +91,14 @@ public:
    * @param[in] pts3d         Matrix of 3D points in marker coordiate frame.
    * @param[in] observations  The 2D (pixel) observations of each marker's corners.
    * @param[in] mean          The measured/prior pose of the marker as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
-   * @param[in] covariance    The measurement/prior marker pose covariance (6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] covariance    The detection covariance, in pixels (2x2 matrix: u, v)
    */
-  Fixed3DLandmarkConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
-                            const fuse_variables::Orientation3DStamped& orientation,
-                            const fuse_variables::PinholeCamera& calibraton,
-                            const fuse_core::MatrixXd& pts3d,
-                            const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
-                            const fuse_core::Matrix6d& covariance);
+  Fixed3DLandmarkSimpleCovarianceConstraint(const std::string& source,
+                                            const fuse_variables::Position3DStamped& position,
+                                            const fuse_variables::Orientation3DStamped& orientation,
+                                            const fuse_variables::PinholeCamera& calibraton,
+                                            const fuse_core::MatrixXd& pts3d, const fuse_core::MatrixXd& observations,
+                                            const fuse_core::Vector7d& mean, const fuse_core::Matrix2d& covariance);
 
   /**
    * @brief Create a constraint using a known 3D fiducial marker. Convenience constructor for the special case of
@@ -113,19 +113,19 @@ public:
    * @param[in] marker_size   The size of the marker, in meters. Assumed to be square.
    * @param[in] observations  The 2D (pixel) observations of each marker's corners.
    * @param[in] mean          The measured/prior pose of the marker as a vector (7x1 vector: x, y, z, qw, qx, qy, qz)
-   * @param[in] covariance    The measurement/prior marker pose covariance (6x6 matrix: x, y, z, qx, qy, qz)
+   * @param[in] covariance    The detection covariance, in pixels (2x2 matrix: u, v)
    */
-  Fixed3DLandmarkConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
-                            const fuse_variables::Orientation3DStamped& orientation,
-                            const fuse_variables::PinholeCamera& calibraton,
-                            const double& marker_size,
-                            const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
-                            const fuse_core::Matrix6d& covariance);
+  Fixed3DLandmarkSimpleCovarianceConstraint(const std::string& source,
+                                            const fuse_variables::Position3DStamped& position,
+                                            const fuse_variables::Orientation3DStamped& orientation,
+                                            const fuse_variables::PinholeCamera& calibraton, const double& marker_size,
+                                            const fuse_core::MatrixXd& observations, const fuse_core::Vector7d& mean,
+                                            const fuse_core::Matrix2d& covariance);
 
   /**
    * @brief Destructor
    */
-  virtual ~Fixed3DLandmarkConstraint() = default;
+  virtual ~Fixed3DLandmarkSimpleCovarianceConstraint() = default;
 
   /**
    * @brief Read-only access to the measured/prior vector of mean values.
@@ -140,9 +140,9 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (x, y, z, qx, qy, qz)
+   * Order is (u, v)
    */
-  const fuse_core::Matrix6d& sqrtInformation() const
+  const fuse_core::Matrix2d& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -150,9 +150,9 @@ public:
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (x, y, z, qx, qy, qz)
+   * Order is (u, v)
    */
-  fuse_core::Matrix6d covariance() const
+  fuse_core::Matrix2d covariance() const
   {
     return (sqrt_information_.transpose() * sqrt_information_).inverse();
   }
@@ -160,7 +160,7 @@ public:
   /**
    * @brief Read-only access to the observation Matrix (Nx2).
    *
-   * Order is (x, y)
+   * Order is (x, y, z)
    */
   const fuse_core::MatrixXd& pts3d() const
   {
@@ -170,7 +170,7 @@ public:
   /**
    * @brief Read-only access to the observation Matrix (Nx2).
    *
-   * Order is (x, y)
+   * Order is (u, v)
    */
   const fuse_core::MatrixXd& observations() const
   {
@@ -199,7 +199,7 @@ protected:
   fuse_core::MatrixXd pts3d_;             //!< The 3D points in marker Coordinate frame
   fuse_core::MatrixXd observations_;      //!< The 2D observations (in pixel space) of the marker at postion mean_
   fuse_core::Vector7d mean_;              //!< The measured/prior mean vector for this variable
-  fuse_core::Matrix6d sqrt_information_;  //!< The square root information matrix
+  fuse_core::Matrix2d sqrt_information_;  //!< The square root information matrix
 
 private:
   // Allow Boost Serialization access to private methods
@@ -224,6 +224,6 @@ private:
 
 }  // namespace fuse_constraints
 
-BOOST_CLASS_EXPORT_KEY(fuse_constraints::Fixed3DLandmarkConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::Fixed3DLandmarkSimpleCovarianceConstraint);
 
-#endif  // FUSE_CONSTRAINTS_FIXED_3D_LANDMARK_CONSTRAINT_H
+#endif  // FUSE_CONSTRAINTS_FIXED_3D_LANDMARK_SIMPLE_COVARIANCE_CONSTRAINT_H
