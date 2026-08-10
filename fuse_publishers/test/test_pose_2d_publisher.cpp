@@ -336,7 +336,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithoutOdom)
 
   auto tf_node_ = rclcpp::Node::make_shared("tf_pub_node");
   executor_->add_node(tf_node_);
-  auto static_broadcaster_ = tf2_ros::StaticTransformBroadcaster(tf_node_);
+  auto static_broadcaster_ = tf2_ros::StaticTransformBroadcaster(*tf_node_);
   static_broadcaster_.sendTransform(odom_to_base_);
 
   // Subscribe to the "pose" topic
@@ -389,7 +389,7 @@ TEST_F(Pose2DPublisherTestFixture, PublishTfWithOdom)
 
   auto tf_node_ = rclcpp::Node::make_shared("tf_pub_node");
   executor_->add_node(tf_node_);
-  auto static_broadcaster_ = tf2_ros::StaticTransformBroadcaster(tf_node_);
+  auto static_broadcaster_ = tf2_ros::StaticTransformBroadcaster(*tf_node_);
   static_broadcaster_.sendTransform(odom_to_base_);
 
   // Create a publisher and send it the graph
