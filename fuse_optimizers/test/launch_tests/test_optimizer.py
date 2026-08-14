@@ -37,12 +37,14 @@ def test_proc():
     return ExecuteProcess(cmd=cmd, shell=True, output='screen', cached_output=True)
 
 
+# Must not be named `generate_test_description`, or launch_testing hijacks collection of this
+# file as a classic launch test and fails on the `test_proc` fixture argument.
 @launch_pytest.fixture
-def generate_test_description(test_proc):
+def make_launch_description(test_proc):
     return LaunchDescription([test_proc, ReadyToTest()])
 
 
-@pytest.mark.launch(fixture=generate_test_description)
+@pytest.mark.launch(fixture=make_launch_description)
 async def test_no_failed_gtests(test_proc, launch_context):
     await process_tools.wait_for_exit(launch_context, test_proc, timeout=30)
     assert test_proc.return_code == 0, 'GTests failed'
