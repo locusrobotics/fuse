@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - rolling
+  pull_request:
+  schedule:
+    # Weekly build to catch breakage caused by upstream changes (new Boost,
+    # Ceres, or rclcpp releases) even when the repository itself is quiet.
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        include:
+          - ros_distro: rolling
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container:
+      image: ros:${{ matrix.ros_distro }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install action dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git lcov python3-vcstool \
+            python3-colcon-lcov-result python3-colcon-coveragepy-result
+      - uses: ros-tooling/action-ros-ci@v0.4
+        with:
+          target-ros2-distro: ${{ matrix.ros_distro }}
+          # fuse_viz is excluded until Qt6 support lands (see #421).
+          # fuse_doc only holds the rosdoc2 configuration.
+          package-name: >-
+            fuse
+            fuse_msgs
+            fuse_core
+            fuse_graphs
+            fuse_loss
+            fuse_variables
+            fuse_constraints
+            fuse_models
+            fuse_optimizers
+            fuse_publishers
+            fuse_tutorials
+
+  benchmarks:
+    runs-on: ubuntu-latest
+    container:
+      image: ros:rolling
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: src/fuse
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends libbenchmark-dev
+          rosdep update --rosdistro "${ROS_DISTRO}"
+          rosdep install --from-paths src --ignore-src -y
+      - name: Build
+        shell: bash
+        run: |
+          # shellcheck disable=SC1090,SC1091
+          source "/opt/ros/${ROS_DISTRO}/setup.bash"
+          colcon build --packages-up-to fuse_constraints fuse_graphs fuse_models \
+            --cmake-args -DCMAKE_BUILD_TYPE=Release
+      - name: Run benchmarks
+        shell: bash
+        run: |
+          # shellcheck disable=SC1090,SC1091
+          source install/setup.bash
+          mkdir -p benchmark_results
+          for benchmark in \
+            build/fuse_constraints/benchmark/benchmark_normal_delta_pose_2d \
+            build/fuse_constraints/benchmark/benchmark_normal_prior_pose_2d \
+            build/fuse_graphs/benchmark_create_problem \
+            build/fuse_models/benchmark/benchmark_unicycle_2d_state_cost_function
+          do
+            "${benchmark}" --benchmark_out="benchmark_results/$(basename "${benchmark}").json" \
+              --benchmark_out_format=json
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-results
+          path: benchmark_results/
