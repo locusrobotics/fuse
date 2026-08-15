@@ -418,6 +418,10 @@ int main(int argc, char ** argv)
   // Send the initial localization pose to the state estimator
   initializeStateEstimation(*node, state, clock, logger);
 
+  // Create an executor to run our node
+  rclcpp::executors::SingleThreadedExecutor exec;
+  exec.add_node(node);
+
   // Simulate the robot traveling in a circular path
   auto rate = rclcpp::Rate(10.0);
   while (rclcpp::ok()) {
@@ -431,7 +435,7 @@ int main(int argc, char ** argv)
     range_publisher->publish(*simulateRangeSensor(new_state, beacons));
     // Wait for the next time step
     state = new_state;
-    rclcpp::spin_some(node);
+    exec.spin_some();
     rate.sleep();
   }
 
