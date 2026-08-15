@@ -26,4 +26,5 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-find_package(Boost REQUIRED COMPONENTS serialization)
+# Config mode avoids CMake's removed FindBoost module (policy CMP0167).
+find_package(Boost CONFIG REQUIRED COMPONENTS serialization)
