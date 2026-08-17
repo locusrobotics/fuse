@@ -2,8 +2,8 @@
 Changelog for package fuse_tutorials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.4 (2026-08-17)
+------------------
 * Convert rclcpp::spin_some() call into a SingleThreadedExecutor instance with a spin_some() call inside the loop. (`#430 <https://github.com/locusrobotics/fuse/issues/430>`_)
 * Contributors: Stephen Williams
 

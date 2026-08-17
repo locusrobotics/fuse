@@ -2,8 +2,8 @@
 Changelog for package fuse_optimizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.4 (2026-08-17)
+------------------
 * Renamed the 'generate_test_description()' functions to avoid an assumption collision with launch tests (`#431 <https://github.com/locusrobotics/fuse/issues/431>`_)
 * Fix missing test dependency in fuse_optimizers (`#429 <https://github.com/locusrobotics/fuse/issues/429>`_)
 * Contributors: Stephen Williams
