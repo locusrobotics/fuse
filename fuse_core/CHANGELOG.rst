@@ -2,6 +2,12 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix Cmake warnings related to Boost cmake files (`#432 <https://github.com/locusrobotics/fuse/issues/432>`_)
+* Renamed the 'generate_test_description()' functions to avoid an assumption collision with launch tests (`#431 <https://github.com/locusrobotics/fuse/issues/431>`_)
+* Contributors: Stephen Williams
+
 1.3.3 (2026-05-06)
 ------------------
 * fuse_core: Don't fail with boost >= 1.86 (`#423 <https://github.com/locusrobotics/fuse/issues/423>`_)

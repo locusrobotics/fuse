@@ -2,6 +2,11 @@
 Changelog for package fuse_publishers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Updated constructor call for TransformListeners and TransformBroadcasters (`#428 <https://github.com/locusrobotics/fuse/issues/428>`_)
+* Contributors: Stephen Williams
+
 1.3.3 (2026-05-06)
 ------------------
 

@@ -2,6 +2,11 @@
 Changelog for package fuse_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix Cmake warnings related to Boost cmake files (`#432 <https://github.com/locusrobotics/fuse/issues/432>`_)
+* Contributors: Stephen Williams
+
 1.3.3 (2026-05-06)
 ------------------
 
