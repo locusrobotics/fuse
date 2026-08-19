@@ -2,8 +2,8 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.7 (2026-08-19)
+------------------
 * Fix edge condition on Boost fix versions. (`#425 <https://github.com/locusrobotics/fuse/issues/425>`_)
   Boost Version 1.90 is affected by the any_range bug. Make sure that version is included in the fix.
 * Workaround for a bug in Boost 1.90 any_range included in Ubuntu Resolute (`#424 <https://github.com/locusrobotics/fuse/issues/424>`_)
