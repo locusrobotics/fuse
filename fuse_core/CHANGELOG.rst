@@ -2,6 +2,14 @@
 Changelog for package fuse_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix edge condition on Boost fix versions. (`#425 <https://github.com/locusrobotics/fuse/issues/425>`_)
+  Boost Version 1.90 is affected by the any_range bug. Make sure that version is included in the fix.
+* Workaround for a bug in Boost 1.90 any_range included in Ubuntu Resolute (`#424 <https://github.com/locusrobotics/fuse/issues/424>`_)
+  Boost versions 1.88 - 1.90 are missing a header include for any_range.hpp or any_iterator.hpp. The workaround is to include the missing header before including one of the affect headers.
+* Contributors: Stephen Williams
+
 1.1.5 (2026-05-05)
 ------------------
 * fuse_core: Don't fail with boost >= 1.86 (`#423 <https://github.com/locusrobotics/fuse/issues/423>`_)
