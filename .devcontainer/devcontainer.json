@@ -1,0 +1,17 @@
+{
+  "name": "fuse (ROS Rolling)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/ws/src/fuse,type=bind",
+  "workspaceFolder": "/ws/src/fuse",
+  "postCreateCommand": "rosdep update && rosdep install --from-paths /ws/src --ignore-src -y",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-iot.vscode-ros"
+      ]
+    }
+  }
+}
