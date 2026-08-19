@@ -227,7 +227,6 @@ void FixedLagSmoother::optimizationLoop()
       //         pending_transactions queue and obtaining the lock for the graph. But we have now
       //         obtained two different locks. If we are not extremely careful, we could get a
       //         deadlock.
-      // TODO(CH3): We might have to make sure lag_expiration_ has been initialised
       processQueue(*new_transaction, lag_expiration_);
       // Skip this optimization cycle if the transaction is empty because something failed while
       // processing the pending transactions queue.

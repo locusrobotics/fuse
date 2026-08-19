@@ -1,0 +1,39 @@
+fixed_lag_node:
+  ros__parameters:
+      optimization_frequency: 2.0
+      transaction_timeout: 5.0
+      lag_duration: 5.0
+
+
+      motion_models:
+        unicycle_motion_model:
+          type: fuse_models::Unicycle2D
+
+
+      # No ignition sensors are configured on purpose, so the smoother auto-starts
+      sensor_models:
+        pose_sensor:
+          type: fuse_models::Pose2D
+          motion_models: [unicycle_motion_model]
+
+
+      publishers:
+
+        odometry_publisher:
+          type: fuse_models::Odometry2DPublisher
+
+
+      unicycle_motion_model:
+        buffer_length: 5.0
+        process_noise_diagonal: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+      pose_sensor:
+        differential: false
+        topic: absolute_pose
+        position_dimensions: ['x', 'y']
+        orientation_dimensions: ['yaw']
+
+      odometry_publisher:
+        topic: odom
+        world_frame_id: map
+        publish_tf: false
