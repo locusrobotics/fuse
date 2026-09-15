@@ -23,18 +23,31 @@ find_package(tf2_geometry_msgs REQUIRED)
 
 find_package(Eigen3 REQUIRED)
 find_package(gtest_vendor)
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
+
+message("Compiling with Qt${QT_VERSION_MAJOR}")
 
 ###########
 ## Build ##
 ###########
 
-qt5_wrap_cpp(moc_files
-  include/fuse_viz/mapped_covariance_property.hpp
-  include/fuse_viz/pose_2d_stamped_property.hpp
-  include/fuse_viz/relative_pose_2d_stamped_constraint_property.hpp
-  include/fuse_viz/serialized_graph_display.hpp
-)
+if (${QT_VERSION_MAJOR} GREATER "5")
+  qt_standard_project_setup()
+  qt_wrap_cpp(moc_files
+    include/fuse_viz/mapped_covariance_property.hpp
+    include/fuse_viz/pose_2d_stamped_property.hpp
+    include/fuse_viz/relative_pose_2d_stamped_constraint_property.hpp
+    include/fuse_viz/serialized_graph_display.hpp
+  )
+else()
+  qt5_wrap_cpp(moc_files
+    include/fuse_viz/mapped_covariance_property.hpp
+    include/fuse_viz/pose_2d_stamped_property.hpp
+    include/fuse_viz/relative_pose_2d_stamped_constraint_property.hpp
+    include/fuse_viz/serialized_graph_display.hpp
+  )
+endif()
 
 add_library(${PROJECT_NAME} SHARED
   src/mapped_covariance_property.cpp
@@ -56,12 +69,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   rviz_common::rviz_common
   rviz_rendering::rviz_rendering
   tf2_geometry_msgs::tf2_geometry_msgs
+  Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
-  ${Qt5Widgets_INCLUDE_DIRS}
 )
 
 #############
