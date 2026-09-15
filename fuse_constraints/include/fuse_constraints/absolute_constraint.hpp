@@ -206,6 +206,14 @@ using AbsoluteVelocityAngular2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>;
 using AbsoluteVelocityLinear2DStampedConstraint =
   AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>;
+using AbsoluteAccelerationAngular3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::AccelerationAngular3DStamped>;
+using AbsoluteAccelerationLinear3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::AccelerationLinear3DStamped>;
+using AbsoluteVelocityAngular3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::VelocityAngular3DStamped>;
+using AbsoluteVelocityLinear3DStampedConstraint =
+  AbsoluteConstraint<fuse_variables::VelocityLinear3DStamped>;
 }  // namespace fuse_constraints
 
 // Include the template implementation
@@ -218,5 +226,9 @@ BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition2DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition3DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
 BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationAngular3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS__ABSOLUTE_CONSTRAINT_HPP_
